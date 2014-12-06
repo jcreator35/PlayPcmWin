@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="WasapiIOIF.cpp">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="WasapiUser.cpp">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="WWUtil.cpp">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="WWPcmData.cpp">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="WWPlayPcmGroup.cpp">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="WWMFResampler.cpp">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="WWPcmStream.cpp">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="WWMMNotificationClient.cpp">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="WWTimerResolution.cpp">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="WWThreadCharacteristics.cpp">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="WWAudioDeviceEnumerator.cpp">
+      <Filter>source files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="WasapiIOIF.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWUtil.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="WasapiUser.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWPcmData.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWPlayPcmGroup.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWMFResampler.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWPcmStream.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWMMNotificationClient.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWTimerResolution.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWThreadCharacteristics.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWAudioDeviceEnumerator.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWTypes.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="source files">
+      <UniqueIdentifier>{49216b3b-b181-47c0-87b2-12d65b06483d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="header files">
+      <UniqueIdentifier>{7c4fca3d-9eef-4f41-8e66-2c7dd85f09c4}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

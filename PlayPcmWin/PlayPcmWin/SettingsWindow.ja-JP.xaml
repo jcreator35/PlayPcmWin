@@ -1,0 +1,63 @@
+﻿<Window x:Class="PlayPcmWin.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="PlayPcmWin 詳細設定" Height="600" Width="800" Loaded="Window_Loaded" VerticalAlignment="Top" HorizontalAlignment="Left" MouseWheel="Window_MouseWheel">
+    <Window.Resources>
+        <FontWeight x:Key="FontWeight1">Bold</FontWeight>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="515*" />
+            <RowDefinition Height="46*" />
+        </Grid.RowDefinitions>
+        <Grid RenderTransformOrigin="0.0,0.0">
+            <Grid.LayoutTransform>
+                <TransformGroup>
+                    <ScaleTransform 
+                    ScaleY="{Binding Path=Value, ElementName=sliderWindowScaling}" 
+                    ScaleX="{Binding Path=Value, ElementName=sliderWindowScaling}"/>
+                </TransformGroup>
+            </Grid.LayoutTransform>
+            <GroupBox Header="WASAPIに渡すPCMデータの量子化ビット数(ファイルをメモリに読み込む際に変換します)" Height="232" Margin="12,12,12,0" Name="groupBox1" VerticalAlignment="Top">
+                <Grid>
+                    <RadioButton Content="Sint16,SInt32V24,SInt32を自動選択(PCI、PCIe、1394オーディオデバイスに適する)" Height="16" Margin="6,6,6,0" Name="radioButtonBpsVariable" VerticalAlignment="Top" IsChecked="False" />
+                    <RadioButton Content="Sint16,SInt32V24を自動選択(32bps非対応のPCI、PCIe、1394オーディオデバイス用)" Height="16" IsChecked="False" Margin="6,28,6,0" Name="radioButtonBpsVariableSint16Sint32V24" VerticalAlignment="Top" />
+                    <RadioButton Content="Sint16,SInt24を自動選択(USBオーディオデバイスに適する)" Height="16" IsChecked="False" Margin="6,50,6,0" Name="radioButtonBpsVariableSint16Sint24" VerticalAlignment="Top" />
+                    <RadioButton Content="SInt16に固定する(24bpsや32bpsのデータが来たら下位ビットを切り捨てます)" Height="16" Margin="6,72,6,0" Name="radioButtonBpsSint16" VerticalAlignment="Top" />
+                    <RadioButton Content="SInt24に固定する(16bpsのデータは0埋めで水増し、32ビットのデータは下位8ビットを切り捨て)" Height="16" Margin="6,94,6,0" Name="radioButtonBpsSint24" VerticalAlignment="Top" />
+                    <RadioButton Content="SInt32V24に固定する(SInt32ビット、有効ビット数24bps)" Height="16" Margin="6,116,6,0" Name="radioButtonSint32V24" VerticalAlignment="Top" />
+                    <RadioButton Content="SInt32に固定する(下位ビットが余る場合は0埋め、有効ビット数32bps)" Height="16" Margin="6,138,6,0" Name="radioButtonBpsSint32" VerticalAlignment="Top" />
+                    <RadioButton Content="SFloat32に固定する(IEEE754単精度浮動小数点数形式:対応ハードウェアは非常に珍しい)" Height="16" Margin="6,160,6,0" Name="radioButtonBpsSfloat32" VerticalAlignment="Top" />
+                    <RadioButton Content="自動選択(ファイルの量子化ビット数が24ビットの場合Sint32V24とSint24を試します)" Height="16" Margin="6,182,6,0" Name="radioButtonBpsAutoSelect" VerticalAlignment="Top" />
+                </Grid>
+            </GroupBox>
+            <GroupBox Header="CUEシート設定" Height="59" Margin="12,249,12,0" Name="groupBox2" VerticalAlignment="Top">
+                <Grid>
+                    <CheckBox Content="INDEX00の後に[ここまで一括読み込み]を付ける" Height="16" Margin="6,6,6,0" Name="checkBoxPlaceKokomadeAfterIndex00" VerticalAlignment="Top" />
+                </Grid>
+            </GroupBox>
+            <GroupBox Header="その他設定" Height="140" Margin="12,311,12,0" Name="groupBox3" VerticalAlignment="Top">
+                <Grid>
+                    <CheckBox Content="ウィンドウの位置とサイズを記憶" Height="16" Margin="6,6,0,0" Name="checkBoxManuallySetMainWindowDimension" VerticalAlignment="Top" HorizontalAlignment="Left" />
+                    <CheckBox Content="再生リストの内容を記憶" Height="16" Margin="6,28,0,0" Name="checkBoxStorePlaylistContent" VerticalAlignment="Top" HorizontalAlignment="Left" />
+                    <CheckBox Content="カバーアート画像を表示" Height="16" Margin="280,6,0,0" Name="checkBoxCoverart" VerticalAlignment="Top" IsChecked="True" HorizontalAlignment="Left" />
+                    <CheckBox Content="再生中の再描画を最小限にする" Height="16" Margin="280,28,0,0" Name="checkBoxRefrainRedraw" VerticalAlignment="Top" IsChecked="True" HorizontalAlignment="Left" />
+                    <CheckBox Content="ファイル読込並列化" Height="16" Margin="520,28,0,0" Name="checkBoxParallelRead" VerticalAlignment="Top" IsChecked="False" HorizontalAlignment="Left" />
+                    <TextBox Height="28" Margin="328,50,0,0" Name="textBoxPlayingTimeSize" VerticalAlignment="Top" HorizontalAlignment="Left" Width="53" Text="16" VerticalContentAlignment="Center" HorizontalContentAlignment="Right" TextChanged="textBoxPlayingTimeSize_TextChanged" />
+                    <Label Content="再生時間表示フォント:" Height="28" Margin="5,50,0,0" Name="label1" VerticalAlignment="Top" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" HorizontalAlignment="Left" Width="146" />
+                    <Label Content="pt" Height="28" HorizontalAlignment="Left" Margin="383,50,0,0" Name="label2" VerticalAlignment="Top" VerticalContentAlignment="Center" />
+                    <ComboBox Height="24" HorizontalAlignment="Left" Margin="151,52,0,0" Name="comboBoxPlayingTimeFontNames" VerticalAlignment="Top" Width="171" SelectionChanged="comboBoxPlayingTimeFontNames_SelectionChanged"></ComboBox>
+                    <Label Content="00:00:00/00:00:00" FontFamily="Courier New" FontSize="16" Height="29" HorizontalContentAlignment="Right" Margin="153,82,0,0" Name="labelPlayingTime" VerticalAlignment="Top" VerticalContentAlignment="Center" HorizontalAlignment="Left" Width="214" />
+                    <CheckBox Content="太字" Height="16" HorizontalAlignment="Left" Margin="414,56,0,0" Name="checkBoxPlayingTimeBold" VerticalAlignment="Top" Checked="checkBoxPlayingTimeBold_Checked" Unchecked="checkBoxPlayingTimeBold_Unchecked" />
+                </Grid>
+            </GroupBox>
+        </Grid>
+        <Slider Ticks="0.8 0.84589701075245129562802960002288 0.89442719099991587856366946749251 0.94574160900317581330169611988722 1.0 1.0573712634405641195350370000286 1.1180339887498948482045868343656 1.182177011253969766627120149859 1.25" HorizontalAlignment="Left" Margin="12,0,0,12" Name="sliderWindowScaling" Width="182" Maximum="1.25" Value="1" Minimum="0.8" Grid.Row="1" Height="28" VerticalAlignment="Bottom" ValueChanged="sliderWindowScaling_ValueChanged" SmallChange="0.03125" TickFrequency="8" TickPlacement="BottomRight" LargeChange="0.0625" />
+        <Button Content="OK" Margin="0,0,137,12" Name="buttonOK" Height="23" VerticalAlignment="Bottom" Click="buttonOK_Click" Grid.Row="1" HorizontalAlignment="Right" Width="93" />
+        <Button Content="キャンセル" Name="buttonCancel" Height="23" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="119" Click="buttonCancel_Click" Grid.Row="1" Margin="0,0,12,12" />
+        <Label Content="1.00" Grid.Row="1" Margin="214,0,0,12" Name="labelWindowScaling" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Height="28" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="53" />
+        <Label Content="倍" Grid.Row="1" Height="28" HorizontalAlignment="Left" Margin="273,0,0,12" Name="label3" VerticalAlignment="Bottom" VerticalContentAlignment="Center" />
+        <Button Content="1倍にする" Grid.Row="1" Height="23" HorizontalAlignment="Left" Margin="301,0,0,15" Name="button1" VerticalAlignment="Bottom" Width="75" Click="buttonScale1X_Click" />
+        <Button Content="すべてリセット(_R)" Height="23" HorizontalAlignment="Right" Margin="0,0,236,12" Name="buttonReset" VerticalAlignment="Bottom" Width="128" Grid.Row="1" Click="buttonReset_Click" />
+    </Grid>
+</Window>

@@ -1,0 +1,613 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="CannotAddFile" xml:space="preserve">
+    <value>都合により、出力デバイス選択後は再生リストに追加できない作りになっております。いったん再生を停止してから追加していただけますようお願い致します。</value>
+  </data>
+  <data name="MainStatusChangingPlayGroup" xml:space="preserve">
+    <value>読み込み中……</value>
+  </data>
+  <data name="FilterCueFiles" xml:space="preserve">
+    <value>CUEファイル|*.CUE</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>エラー</value>
+  </data>
+  <data name="Exclusive" xml:space="preserve">
+    <value>排他</value>
+  </data>
+  <data name="Failed" xml:space="preserve">
+    <value>失敗</value>
+  </data>
+  <data name="FloatingPointNumbers" xml:space="preserve">
+    <value>浮動小数点数</value>
+  </data>
+  <data name="Latency" xml:space="preserve">
+    <value>レイテンシー</value>
+  </data>
+  <data name="MessageNothingToStore" xml:space="preserve">
+    <value>保存するデータはありません</value>
+  </data>
+  <data name="NotSupportedFileFormat" xml:space="preserve">
+    <value>未対応ファイル形式</value>
+  </data>
+  <data name="NotSupportedQuantizationBitRate" xml:space="preserve">
+    <value>量子化ビット数が16でも24でも32でもないPCMファイルの再生には対応していません</value>
+  </data>
+  <data name="MainStatusPaused" xml:space="preserve">
+    <value>再生一時停止中。</value>
+  </data>
+  <data name="MainStatusPlaying" xml:space="preserve">
+    <value>再生中。</value>
+  </data>
+  <data name="MainStatusPleaseCreatePlaylist" xml:space="preserve">
+    <value>再生リストを作って下さい。</value>
+  </data>
+  <data name="FilterPpwplFiles" xml:space="preserve">
+    <value>PPWPLファイル|*.PPWPL</value>
+  </data>
+  <data name="MainStatusPressPlayButton" xml:space="preserve">
+    <value>再生リストを作り、再生ボタンを押して下さい。</value>
+  </data>
+  <data name="MainStatusReadCompleted" xml:space="preserve">
+    <value>ファイル読み込み完了。再生できます。</value>
+  </data>
+  <data name="ReadFailedFiles" xml:space="preserve">
+    <value>読み込めなかったファイル</value>
+  </data>
+  <data name="ReadFileFailed" xml:space="preserve">
+    <value>{0}ファイル読み込み失敗</value>
+  </data>
+  <data name="MainStatusReadingFiles" xml:space="preserve">
+    <value>デバイス選択完了。ファイル読み込み中……</value>
+  </data>
+  <data name="RestoreFailedFiles" xml:space="preserve">
+    <value>前回終了時の再生リストを復元しようとして読み込めなかったファイル</value>
+  </data>
+  <data name="MainButtonResume" xml:space="preserve">
+    <value>再生再開(_U)</value>
+  </data>
+  <data name="SaveFileFailed" xml:space="preserve">
+    <value>ファイル保存失敗</value>
+  </data>
+  <data name="SetupFailAdvice" xml:space="preserve">
+    <value>・再生リストの[一覧をクリア]し[対応フォーマット]ボタンを押すと再生可能なフォーマット一覧が出ます。
+・RME Fireface400やM-AUDIO ProFire2626、Echo AudioFire等は、機器に設定されているマスターサンプリングレートをWASAPIから変更できないため手動で合わせる必要があります。
+・Creative X-Fi Titanium HDの44.1kHzと88.2kHzはタイマー駆動モードならば動作します。
+・Creative USB Sound Blaster HDはイベント駆動モードのほうが安定動作します。
+・無音時に省電力のためS/PDIF出力を停止するデバイス等では、出力レイテンシーを50msなどの小さな値に設定すると曲の頭が途切れることがあるそうです。
+・E-MU 0404 USBは、PlayPcmWinのバグが原因で量子化ビット数24bitのファイルを再生できません。[詳細設定][Int16に固定する]を選択すると16bitにダウンサンプルされてしまいますが音は鳴ります。
+・Lynx AES16eはタイマー駆動モードの方が安定動作します。29msとかの小さいレイテンシー値にすると動作します。
+・HDMIオーディオデバイスは28～31ms前後のレイテンシー値にすると再生できることがあります。
+・Halide BridgeとDSPeaker Anti-Mode 2.0 Dual Coreは[詳細設定][Int24に固定する]を選択すると再生できたそうです。</value>
+  </data>
+  <data name="Shared" xml:space="preserve">
+    <value>共有</value>
+  </data>
+  <data name="MainStatusStopping" xml:space="preserve">
+    <value>再生停止開始……</value>
+  </data>
+  <data name="TooManyChannels" xml:space="preserve">
+    <value>31chを超えるチャンネル数を持つPCMファイルの再生には対応していません</value>
+  </data>
+  <data name="ValidBits" xml:space="preserve">
+    <value>有効ビット数</value>
+  </data>
+  <data name="ErrorCode" xml:space="preserve">
+    <value>エラーコード</value>
+  </data>
+  <data name="EventDriven" xml:space="preserve">
+    <value>イベント駆動</value>
+  </data>
+  <data name="LicenseText" xml:space="preserve">
+    <value>Copyright (C)  2010 yamamoto2002
+
+■Special Thanks■
+簡体中文翻訳: Tsong Zhang
+
+PlayPcmWinは libFLACを使用しています。
+libFLACのライセンスは、New BSD Licenseです。PlayPcmWin.exeと同じフォルダに入っているlibFlacLicense.txtをご覧ください。
+
+PlayPcmWinは Jcode.pmの文字コード判別関数を使用しています。
+Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
+  </data>
+  <data name="MemoryExhausted" xml:space="preserve">
+    <value>メモリ不足です。再生リストのファイル数を減らしてください。</value>
+  </data>
+  <data name="PlayCompletedElapsedTimeIs" xml:space="preserve">
+    <value>再生終了。所要時間</value>
+  </data>
+  <data name="PlayStartFailed" xml:space="preserve">
+    <value>再生開始に失敗</value>
+  </data>
+  <data name="ReadError" xml:space="preserve">
+    <value>読み込みエラー</value>
+  </data>
+  <data name="ReadPlayGroupNCompleted" xml:space="preserve">
+    <value>再生グループ{0}番読み込み完了。所要時間: {1}ms</value>
+  </data>
+  <data name="FilterSupportedFiles" xml:space="preserve">
+    <value>対応しているファイル|*.WAV;*.WAVE;*.FLAC;*.AIF;*.AIFF;*.AIFC;*.AIFFC;*.DSF;*.DFF;*.CUE;*.PPWPL;*.M3U;*.M3U8|WAVEファイル|*.WAV;*.WAVE|FLACファイル|*.FLAC|AIFFファイル|*.AIF;*.AIFF;*.AIFC;*.AIFFC|DSFファイル|*.DSF|DFFファイル|*.DFF|CUEファイル|*.CUE|PPWPLファイル|*.PPWPL|M3Uファイル|*.M3U;*.M3U8|全てのファイル|*.*</value>
+  </data>
+  <data name="TimerDriven" xml:space="preserve">
+    <value>タイマー駆動</value>
+  </data>
+  <data name="UnexpectedEndOfStream" xml:space="preserve">
+    <value>突然ストリームの終わりに達しました。</value>
+  </data>
+  <data name="Version" xml:space="preserve">
+    <value>バージョン</value>
+  </data>
+  <data name="MainPlayModeAllTracks" xml:space="preserve">
+    <value>全曲</value>
+  </data>
+  <data name="MainPlayModeAllTracksRepeat" xml:space="preserve">
+    <value>全曲繰り返し</value>
+  </data>
+  <data name="MainPlayModeOneTrack" xml:space="preserve">
+    <value>1曲</value>
+  </data>
+  <data name="MainPlayModeOneTrackRepeat" xml:space="preserve">
+    <value>1曲繰り返し</value>
+  </data>
+  <data name="MainPlayModeShuffle" xml:space="preserve">
+    <value>シャッフル</value>
+  </data>
+  <data name="MainPlayModeShuffleRepeat" xml:space="preserve">
+    <value>シャッフル繰り返し</value>
+  </data>
+  <data name="UsingDeviceStateChanged" xml:space="preserve">
+    <value>使用中のデバイスの状態が変わりました。デバイス名={0} デバイスID={1}</value>
+  </data>
+  <data name="DeviceStateChanged" xml:space="preserve">
+    <value>デバイスの状態が変わりました。デバイスID={0}</value>
+  </data>
+  <data name="ClippedSampleDetected" xml:space="preserve">
+    <value>範囲外のサンプル値がありました！
+  クリップしたサンプル値の数={1}個、ファイル名={0}
+</value>
+  </data>
+  <data name="MainCMenuPlaylistClear" xml:space="preserve">
+    <value>再生リストをクリアー(_C)</value>
+  </data>
+  <data name="MainCMenuPlayListEditMode" xml:space="preserve">
+    <value>再生リスト項目編集モード(_E)</value>
+  </data>
+  <data name="MenuFile" xml:space="preserve">
+    <value>ファイル(_F)</value>
+  </data>
+  <data name="MenuHelp" xml:space="preserve">
+    <value>ヘルプ(_H)</value>
+  </data>
+  <data name="MenuItemFileExit" xml:space="preserve">
+    <value>終了(_X)</value>
+  </data>
+  <data name="MenuItemFileNew" xml:space="preserve">
+    <value>再生リストをクリアー(_N)</value>
+  </data>
+  <data name="MenuItemFileOpen" xml:space="preserve">
+    <value>開く(_O)...</value>
+  </data>
+  <data name="MenuItemFileSaveAs" xml:space="preserve">
+    <value>再生リストを保存(_S)...</value>
+  </data>
+  <data name="MenuItemFileSaveCueAs" xml:space="preserve">
+    <value>再生リストをCUEシートとして保存(_C)...</value>
+  </data>
+  <data name="MenuItemHelpAbout" xml:space="preserve">
+    <value>バージョン情報(_V)</value>
+  </data>
+  <data name="MenuItemHelpWeb" xml:space="preserve">
+    <value>PlayPcmWinのWebページ(_W)</value>
+  </data>
+  <data name="MenuItemPlayListClear" xml:space="preserve">
+    <value>再生リストをクリアー(_C)</value>
+  </data>
+  <data name="MenuItemPlayListItemEditMode" xml:space="preserve">
+    <value>再生リスト項目編集モード(_E)</value>
+  </data>
+  <data name="MenuItemToolSettings" xml:space="preserve">
+    <value>詳細設定(_S)</value>
+  </data>
+  <data name="MenuPlayList" xml:space="preserve">
+    <value>再生リスト(_L)</value>
+  </data>
+  <data name="MenuTool" xml:space="preserve">
+    <value>ツール(_T)</value>
+  </data>
+  <data name="MainButtonClearPlayList" xml:space="preserve">
+    <value>再生リストをクリアー(_C)</value>
+  </data>
+  <data name="MainButtonDelistSelected" xml:space="preserve">
+    <value>選択曲除外(_R)</value>
+  </data>
+  <data name="MainButtonInspectDevice" xml:space="preserve">
+    <value>対応フォーマット(_I)</value>
+  </data>
+  <data name="MainButtonNext" xml:space="preserve">
+    <value>＞＞</value>
+  </data>
+  <data name="MainButtonPause" xml:space="preserve">
+    <value>一時停止(_U)</value>
+  </data>
+  <data name="MainButtonPlay" xml:space="preserve">
+    <value>再生(_P)</value>
+  </data>
+  <data name="MainButtonPrev" xml:space="preserve">
+    <value>＜＜</value>
+  </data>
+  <data name="MainButtonSettings" xml:space="preserve">
+    <value>詳細設定…(_D)</value>
+  </data>
+  <data name="MainButtonStop" xml:space="preserve">
+    <value>停止(_S)</value>
+  </data>
+  <data name="MainDataGridColumnAlbumTitle" xml:space="preserve">
+    <value>アルバム名</value>
+  </data>
+  <data name="MainDataGridColumnArtist" xml:space="preserve">
+    <value>アーティスト</value>
+  </data>
+  <data name="MainDataGridColumnBitRate" xml:space="preserve">
+    <value>ビットレート</value>
+  </data>
+  <data name="MainDataGridColumnDuration" xml:space="preserve">
+    <value>長さ</value>
+  </data>
+  <data name="MainDataGridColumnIndexNr" xml:space="preserve">
+    <value>Index</value>
+  </data>
+  <data name="MainDataGridColumnNumChannels" xml:space="preserve">
+    <value>チャンネル数</value>
+  </data>
+  <data name="MainDataGridColumnQuantizationBitRate" xml:space="preserve">
+    <value>量子化ビット数</value>
+  </data>
+  <data name="MainDataGridColumnReadSeparaterAfter" xml:space="preserve">
+    <value>ここまで一括読み込み</value>
+  </data>
+  <data name="MainDataGridColumnSampleRate" xml:space="preserve">
+    <value>サンプルレート</value>
+  </data>
+  <data name="MainDataGridColumnTitle" xml:space="preserve">
+    <value>タイトル</value>
+  </data>
+  <data name="MainExpanderSettings" xml:space="preserve">
+    <value>設定</value>
+  </data>
+  <data name="MainGroupBoxLog" xml:space="preserve">
+    <value>ログ</value>
+  </data>
+  <data name="MainGroupBoxOutputDevices" xml:space="preserve">
+    <value>出力デバイス</value>
+  </data>
+  <data name="MainGroupBoxPlaybackControl" xml:space="preserve">
+    <value>再生制御</value>
+  </data>
+  <data name="MainGroupBoxPlaylist" xml:space="preserve">
+    <value>再生リスト(エクスプローラーからドロップして下さい)</value>
+  </data>
+  <data name="MainGroupBoxWasapiDataFeedMode" xml:space="preserve">
+    <value>データ供給モード</value>
+  </data>
+  <data name="MainGroupBoxWasapiOperationMode" xml:space="preserve">
+    <value>動作モード</value>
+  </data>
+  <data name="MainGroupBoxWasapiOutputLatency" xml:space="preserve">
+    <value>出力レイテンシー</value>
+  </data>
+  <data name="MainGroupBoxWasapiSettings" xml:space="preserve">
+    <value>WASAPI設定</value>
+  </data>
+  <data name="MainRadioButtonEventDriven" xml:space="preserve">
+    <value>イベント駆動</value>
+  </data>
+  <data name="MainRadioButtonExclusive" xml:space="preserve">
+    <value>排他モード</value>
+  </data>
+  <data name="MainRadioButtonShared" xml:space="preserve">
+    <value>共有モード</value>
+  </data>
+  <data name="MainRadioButtonTimerDriven" xml:space="preserve">
+    <value>タイマー駆動</value>
+  </data>
+  <data name="SettingsGroupBoxCuesheetSettings" xml:space="preserve">
+    <value>CUEシート設定</value>
+  </data>
+  <data name="SettingsGroupBoxDeviceBufferFlush" xml:space="preserve">
+    <value>DACが安定するまで無音を送出する</value>
+  </data>
+  <data name="SettingsGroupBoxDisplaySettings" xml:space="preserve">
+    <value>表示設定</value>
+  </data>
+  <data name="SettingsLabelQuantizationBitrate" xml:space="preserve">
+    <value>WASAPIに渡すPCMデータの量子化ビット数(ファイルをメモリに読み込む際に変換)</value>
+  </data>
+  <data name="SettingsGroupBoxRenderThreadTaskType" xml:space="preserve">
+    <value>再生スレッドタスクタイプ</value>
+  </data>
+  <data name="SettingsGroupBoxWasapiShared" xml:space="preserve">
+    <value>WASAPI共有モード設定</value>
+  </data>
+  <data name="SettingsRadioButtonBpsAutoSelect" xml:space="preserve">
+    <value>自動選択</value>
+  </data>
+  <data name="SettingsRadioButtonBpsSfloat32" xml:space="preserve">
+    <value>IEEE754単精度浮動小数点数形式に固定(対応ハードウェアは非常に珍しい)</value>
+  </data>
+  <data name="SettingsRadioButtonBpsSint16" xml:space="preserve">
+    <value>16ビット整数型に固定(24ビットや32ビットのPCMデータは下位ビットを切り捨てます)</value>
+  </data>
+  <data name="SettingsRadioButtonBpsSint24" xml:space="preserve">
+    <value>24ビット整数型に固定(16ビットデータは0埋めで水増し、32ビットデータは下位8ビットを切り捨て)</value>
+  </data>
+  <data name="SettingsRadioButtonBpsSint32" xml:space="preserve">
+    <value>32ビット整数型に固定(下位ビットが余る場合は0埋め、有効ビット数32ビット)</value>
+  </data>
+  <data name="SettingsRadioButtonBpsSint32V24" xml:space="preserve">
+    <value>32ビット整数型(有効ビット数24ビット)に固定</value>
+  </data>
+  <data name="SettingsWindowTitle" xml:space="preserve">
+    <value>PlayPcmWin 詳細設定</value>
+  </data>
+  <data name="SettingsButtonCancel" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
+  <data name="SettingsButtonChangeColor" xml:space="preserve">
+    <value>色を変更...</value>
+  </data>
+  <data name="SettingsButtonOK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="SettingsButtonReset" xml:space="preserve">
+    <value>すべてリセット(_R)</value>
+  </data>
+  <data name="SettingsCheckBoxAlternateBackground" xml:space="preserve">
+    <value>リストの背景色を縞々にする</value>
+  </data>
+  <data name="SettingsCheckBoxCoverart" xml:space="preserve">
+    <value>カバーアート画像表示</value>
+  </data>
+  <data name="SettingsCheckBoxManuallySetMainWindowDimension" xml:space="preserve">
+    <value>ウィンドウの位置とサイズを記憶</value>
+  </data>
+  <data name="SettingsCheckBoxParallelRead" xml:space="preserve">
+    <value>ファイル読込並列化</value>
+  </data>
+  <data name="SettingsCheckBoxPlaceKokomadeAterIndex00" xml:space="preserve">
+    <value>INDEX00の後に[ここまで一括読み込み]を付ける</value>
+  </data>
+  <data name="SettingsCheckBoxPlayingTimeBold" xml:space="preserve">
+    <value>太字</value>
+  </data>
+  <data name="SettingsCheckBoxRefrainRedraw" xml:space="preserve">
+    <value>再生中の再描画を最小限にする</value>
+  </data>
+  <data name="SettingsCheckBoxStorePlaylistContent" xml:space="preserve">
+    <value>再生リストの内容を記憶</value>
+  </data>
+  <data name="SettingsCheckBoxTimePeriod1" xml:space="preserve">
+    <value>timeBeginPeriod(1)を呼ぶ</value>
+  </data>
+  <data name="SettingsLabelConversionQuality" xml:space="preserve">
+    <value>Resampler MFT変換品質(1～60):</value>
+  </data>
+  <data name="SettingsLabelFontPoints" xml:space="preserve">
+    <value>pt</value>
+  </data>
+  <data name="SettingsLabelPlayingTimeFont" xml:space="preserve">
+    <value>再生時間表示フォント:</value>
+  </data>
+  <data name="SettingsLabelZeroFlushSeconds" xml:space="preserve">
+    <value>再生開始時無音送出秒数</value>
+  </data>
+  <data name="SettingsLabelZeroFlushUnit" xml:space="preserve">
+    <value>秒</value>
+  </data>
+  <data name="SettingsRadioButtonTaskAudio" xml:space="preserve">
+    <value>Audio</value>
+  </data>
+  <data name="SettingsRadioButtonTaskNone" xml:space="preserve">
+    <value>設定なし</value>
+  </data>
+  <data name="SettingsRadioButtonTaskPlayback" xml:space="preserve">
+    <value>Playback</value>
+  </data>
+  <data name="SettingsRadioButtonTaskProAudio" xml:space="preserve">
+    <value>Pro Audio</value>
+  </data>
+  <data name="FilterM3uFiles" xml:space="preserve">
+    <value>M3Uファイル|*.M3U;*.M3U8</value>
+  </data>
+  <data name="SettingsCueEncoding" xml:space="preserve">
+    <value>文字コード:</value>
+  </data>
+  <data name="SettingsTimerResolution1Millisec" xml:space="preserve">
+    <value>タイマー解像度=1ms</value>
+  </data>
+  <data name="SettingsTimerResolution500Microsec" xml:space="preserve">
+    <value>タイマー解像度=0.5ms (不安定)</value>
+  </data>
+  <data name="SettingsTimerResolutionDefault" xml:space="preserve">
+    <value>既定のタイマー解像度</value>
+  </data>
+  <data name="SettingsSootheLimiterApo" xml:space="preserve">
+    <value>最大振幅が0.98になるよう調整しリミッターAPOによる歪を軽減</value>
+  </data>
+  <data name="SettingsGroupBoxWasapiExclusive" xml:space="preserve">
+    <value>WASAPI排他モード設定</value>
+  </data>
+  <data name="SettingsCheckboxSortDropFolder" xml:space="preserve">
+    <value>フォルダドロップ時に曲順をソート</value>
+  </data>
+  <data name="SettingsCheckBoxSetBatchReadEndpoint" xml:space="preserve">
+    <value>ドロップ時に[ここまで一括読み込み]を付ける</value>
+  </data>
+  <data name="SettingsCheckBoxSortDroppedFiles" xml:space="preserve">
+    <value>複数ファイルドロップ時にソートする</value>
+  </data>
+  <data name="SettingsGroupBoxFile" xml:space="preserve">
+    <value>ファイル読み込み設定</value>
+  </data>
+  <data name="SettingsGroupBoxPlaybackThread" xml:space="preserve">
+    <value>再生スレッドの設定</value>
+  </data>
+  <data name="SettingsCheckBoxVerifyFlacMD5Sum" xml:space="preserve">
+    <value>FLACファイル読み込み時にMD5値を計算する</value>
+  </data>
+  <data name="MD5SumMismatch" xml:space="preserve">
+    <value>PCMデータについて算出したMD5値とFLACメタデータの示すMD5値が異なります。ファイルが壊れているかもしれません。 {0}
+  MD5 in metadata    = {1}
+  MD5 from PCM data= {2}</value>
+  </data>
+  <data name="MD5SumValid" xml:space="preserve">
+    <value>PCMデータについて算出したMD5値がFLACメタデータの示すMD5値と一致。 {0}</value>
+  </data>
+  <data name="DroppedDataIsNotFile" xml:space="preserve">
+    <value>何かがドロップされましたが、ファイルでもフォルダでもないため処理できませんでした。</value>
+  </data>
+  <data name="SettingsCheckBoxGpuRendering" xml:space="preserve">
+    <value>GPUで描画する</value>
+  </data>
+  <data name="MainStatusReadingPlaylist" xml:space="preserve">
+    <value>再生リストを読み込み中…</value>
+  </data>
+  <data name="SettingsGroupBoxTimerResolution" xml:space="preserve">
+    <value>タイマー解像度</value>
+  </data>
+  <data name="SettingsLabelNoiseShaping" xml:space="preserve">
+    <value>ノイズシェイピング:</value>
+  </data>
+  <data name="SettingsNoNoiseShaping" xml:space="preserve">
+    <value>量子化ビット数を減らすときに下位ビットを切り捨てる</value>
+  </data>
+  <data name="SettingsPerformDitheredNoiseShaping" xml:space="preserve">
+    <value>量子化ビット数を減らすときにディザ付きノイズシェイピング</value>
+  </data>
+  <data name="SettingsPerformNoiseShaping" xml:space="preserve">
+    <value>量子化ビット数を減らすときにノイズシェイピングする</value>
+  </data>
+  <data name="SettingsPerformDither" xml:space="preserve">
+    <value>量子化ビット数を減らすときにディザを加算する</value>
+  </data>
+  <data name="MD5SumNotAvailable" xml:space="preserve">
+    <value>ファイルにSTREAMINFO MD5値が埋まっていないのでPCMデータについて算出したMD5値との照合は行いません: {0}
+  MD5 from PCM data= {1}</value>
+  </data>
+</root>

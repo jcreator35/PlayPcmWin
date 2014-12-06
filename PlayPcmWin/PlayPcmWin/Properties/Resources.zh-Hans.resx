@@ -1,0 +1,572 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="CannotAddFile" xml:space="preserve">
+    <value>请停止播放之后再添加文件。</value>
+  </data>
+  <data name="DroppedDataIsNotFile" xml:space="preserve">
+    <value>添加的数据有一部分不是文件或文件夹。
+         无法处理添加的文件。</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>错误</value>
+  </data>
+  <data name="ErrorCode" xml:space="preserve">
+    <value>错误码</value>
+  </data>
+  <data name="EventDriven" xml:space="preserve">
+    <value>Event模式</value>
+  </data>
+  <data name="Exclusive" xml:space="preserve">
+    <value>独占</value>
+  </data>
+  <data name="Failed" xml:space="preserve">
+    <value>失败</value>
+  </data>
+  <data name="FilterCueFiles" xml:space="preserve">
+    <value>CUE文件|*.CUE</value>
+  </data>
+  <data name="FilterM3uFiles" xml:space="preserve">
+    <value>M3U文件|*.M3U;*.M3U8</value>
+  </data>
+  <data name="FilterPpwplFiles" xml:space="preserve">
+    <value>PPWPL文件|*.PPWPL</value>
+  </data>
+  <data name="FilterSupportedFiles" xml:space="preserve">
+    <value>支持的文件|*.WAV;*.WAVE;*.FLAC;*.AIF;*.AIFF;*.AIFC;*.AIFFC;*.DSF;*.DFF;*.CUE;*.PPWPL;*.M3U;*.M3U8|WAVE文件|*.WAV;*.WAVE|FLAC文件|*.FLAC|AIFF文件|*.AIF;*.AIFF;*.AIFC;*AIFFC|DSF文件|*.DSF|DFF文件|*.DFF|CUE文件|*.CUE|PPWPL文件|*.PPWPL|M3U文件|*.M3U;*.M3U8|All文件|*.*</value>
+  </data>
+  <data name="Latency" xml:space="preserve">
+    <value>延迟</value>
+  </data>
+  <data name="MainButtonClearPlayList" xml:space="preserve">
+    <value>清除播放列表(_C)</value>
+  </data>
+  <data name="MainButtonDelistSelected" xml:space="preserve">
+    <value>删除选中音频(_R)</value>
+  </data>
+  <data name="MainButtonInspectDevice" xml:space="preserve">
+    <value>列出支持的格式(_I)</value>
+  </data>
+  <data name="MainButtonNext" xml:space="preserve">
+    <value>下一首</value>
+  </data>
+  <data name="MainButtonPause" xml:space="preserve">
+    <value>暂停(_U)</value>
+  </data>
+  <data name="MainButtonPlay" xml:space="preserve">
+    <value>播放(_P)</value>
+  </data>
+  <data name="MainButtonPrev" xml:space="preserve">
+    <value>前一首</value>
+  </data>
+  <data name="MainButtonResume" xml:space="preserve">
+    <value>继续(_U)</value>
+  </data>
+  <data name="MainButtonSettings" xml:space="preserve">
+    <value>详细设置...(_D)</value>
+  </data>
+  <data name="MainButtonStop" xml:space="preserve">
+    <value>停止(_S)</value>
+  </data>
+  <data name="MainDataGridColumnAlbumTitle" xml:space="preserve">
+    <value>专辑名称</value>
+  </data>
+  <data name="MainDataGridColumnArtist" xml:space="preserve">
+    <value>艺术家</value>
+  </data>
+  <data name="MainDataGridColumnBitRate" xml:space="preserve">
+    <value>比特率</value>
+  </data>
+  <data name="MainDataGridColumnDuration" xml:space="preserve">
+    <value>长度</value>
+  </data>
+  <data name="MainDataGridColumnNumChannels" xml:space="preserve">
+    <value>声道</value>
+  </data>
+  <data name="MainDataGridColumnQuantizationBitRate" xml:space="preserve">
+    <value>量化精度</value>
+  </data>
+  <data name="MainDataGridColumnReadSeparaterAfter" xml:space="preserve">
+    <value>文件组结束标志</value>
+  </data>
+  <data name="MainDataGridColumnSampleRate" xml:space="preserve">
+    <value>采样率</value>
+  </data>
+  <data name="MainDataGridColumnTitle" xml:space="preserve">
+    <value>标题</value>
+  </data>
+  <data name="MainExpanderSettings" xml:space="preserve">
+    <value>设定</value>
+  </data>
+  <data name="MainGroupBoxLog" xml:space="preserve">
+    <value>日志</value>
+  </data>
+  <data name="MainGroupBoxOutputDevices" xml:space="preserve">
+    <value>输出设备</value>
+  </data>
+  <data name="MainGroupBoxPlaybackControl" xml:space="preserve">
+    <value>播放控制</value>
+  </data>
+  <data name="MainGroupBoxPlaylist" xml:space="preserve">
+    <value>播放列表(把文件拉到下面添加音乐)</value>
+  </data>
+  <data name="MainGroupBoxWasapiDataFeedMode" xml:space="preserve">
+    <value>数据输入模式</value>
+  </data>
+  <data name="MainGroupBoxWasapiOperationMode" xml:space="preserve">
+    <value>工作模式</value>
+  </data>
+  <data name="MainGroupBoxWasapiOutputLatency" xml:space="preserve">
+    <value>输出延迟</value>
+  </data>
+  <data name="MainGroupBoxWasapiSettings" xml:space="preserve">
+    <value>WASAPI设置</value>
+  </data>
+  <data name="MainPlayModeAllTracks" xml:space="preserve">
+    <value>全部曲目</value>
+  </data>
+  <data name="MainPlayModeAllTracksRepeat" xml:space="preserve">
+    <value>全部曲目循环</value>
+  </data>
+  <data name="MainPlayModeOneTrack" xml:space="preserve">
+    <value>单曲</value>
+  </data>
+  <data name="MainPlayModeOneTrackRepeat" xml:space="preserve">
+    <value>单曲循环</value>
+  </data>
+  <data name="MainPlayModeShuffle" xml:space="preserve">
+    <value>随机</value>
+  </data>
+  <data name="MainPlayModeShuffleRepeat" xml:space="preserve">
+    <value>随机循环</value>
+  </data>
+  <data name="MainRadioButtonEventDriven" xml:space="preserve">
+    <value>Event模式</value>
+  </data>
+  <data name="MainRadioButtonExclusive" xml:space="preserve">
+    <value>独占模式</value>
+  </data>
+  <data name="MainRadioButtonShared" xml:space="preserve">
+    <value>共享模式</value>
+  </data>
+  <data name="MainRadioButtonTimerDriven" xml:space="preserve">
+    <value>Timer模式</value>
+  </data>
+  <data name="MainStatusChangingPlayGroup" xml:space="preserve">
+    <value>读取文件中...</value>
+  </data>
+  <data name="MainStatusPaused" xml:space="preserve">
+    <value>已暂停。</value>
+  </data>
+  <data name="MainStatusPlaying" xml:space="preserve">
+    <value>播放中。</value>
+  </data>
+  <data name="MainStatusPleaseCreatePlaylist" xml:space="preserve">
+    <value>请添加文件到播放列表。</value>
+  </data>
+  <data name="MainStatusPressPlayButton" xml:space="preserve">
+    <value>添加更多文件或现在开始播放。</value>
+  </data>
+  <data name="MainStatusReadCompleted" xml:space="preserve">
+    <value>读取完成。准备播放。</value>
+  </data>
+  <data name="MainStatusReadingFiles" xml:space="preserve">
+    <value>设备设置完成。读取文件到主内存...</value>
+  </data>
+  <data name="MainStatusReadingPlaylist" xml:space="preserve">
+    <value>读取播放列表中...</value>
+  </data>
+  <data name="MainStatusStopping" xml:space="preserve">
+    <value>停止中...</value>
+  </data>
+  <data name="MD5SumMismatch" xml:space="preserve">
+    <value>MD5比对错误！文件已损坏：{0}
+         文件元数据MD5 = {1}
+         PCM数据MD5 = {2}</value>
+  </data>
+  <data name="MD5SumValid" xml:space="preserve">
+    <value>MD5比对成功。{0}</value>
+  </data>
+  <data name="MemoryExhausted" xml:space="preserve">
+    <value>内存耗尽，请减少播放列表中的音乐文件。</value>
+  </data>
+  <data name="MenuFile" xml:space="preserve">
+    <value>文件(_F)</value>
+  </data>
+  <data name="MenuHelp" xml:space="preserve">
+    <value>帮助(_H)</value>
+  </data>
+  <data name="MenuItemFileExit" xml:space="preserve">
+    <value>退出(_X)</value>
+  </data>
+  <data name="MenuItemFileNew" xml:space="preserve">
+    <value>清除播放列表(_N)</value>
+  </data>
+  <data name="MenuItemFileOpen" xml:space="preserve">
+    <value>打开(_O)...</value>
+  </data>
+  <data name="MenuItemFileSaveAs" xml:space="preserve">
+    <value>另存为(_A)...</value>
+  </data>
+  <data name="MenuItemFileSaveCueAs" xml:space="preserve">
+    <value>将播放列表保存为CUE(_C)...</value>
+  </data>
+  <data name="MenuItemHelpAbout" xml:space="preserve">
+    <value>关于PlayPcmWin(_V)</value>
+  </data>
+  <data name="MenuItemHelpWeb" xml:space="preserve">
+    <value>PlayPcmWin主页(_W)</value>
+  </data>
+  <data name="MenuItemPlayListClear" xml:space="preserve">
+    <value>清除播放列表(_C)</value>
+  </data>
+  <data name="MenuItemPlayListItemEditMode" xml:space="preserve">
+    <value>播放列表可编辑(_E)</value>
+  </data>
+  <data name="MenuItemToolSettings" xml:space="preserve">
+    <value>设置(_S)</value>
+  </data>
+  <data name="MenuPlayList" xml:space="preserve">
+    <value>播放列表(_P)</value>
+  </data>
+  <data name="MenuTool" xml:space="preserve">
+    <value>工具(_T)</value>
+  </data>
+  <data name="MessageNothingToStore" xml:space="preserve">
+    <value>播放列表未保存。</value>
+  </data>
+  <data name="NotSupportedFileFormat" xml:space="preserve">
+    <value>不支持的文件格式。</value>
+  </data>
+  <data name="NotSupportedQuantizationBitRate" xml:space="preserve">
+    <value>不支持的位深，只支持位深为16bit，24bit和32bit的音频文件。</value>
+  </data>
+  <data name="PlayStartFailed" xml:space="preserve">
+    <value>开始播放失败。</value>
+  </data>
+  <data name="ReadError" xml:space="preserve">
+    <value>读取错误。</value>
+  </data>
+  <data name="ReadFailedFiles" xml:space="preserve">
+    <value>文件读取失败</value>
+  </data>
+  <data name="ReadFileFailed" xml:space="preserve">
+    <value>读取该文件失败：{0}。</value>
+  </data>
+  <data name="RestoreFailedFiles" xml:space="preserve">
+    <value>恢复播放列表时文件丢失</value>
+  </data>
+  <data name="SaveFileFailed" xml:space="preserve">
+    <value>保存文件失败。</value>
+  </data>
+  <data name="SettingsButtonCancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="SettingsButtonChangeColor" xml:space="preserve">
+    <value>更换颜色...</value>
+  </data>
+  <data name="SettingsButtonOK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="SettingsButtonReset" xml:space="preserve">
+    <value>恢复默认设置(_R)</value>
+  </data>
+  <data name="SettingsCheckBoxAlternateBackground" xml:space="preserve">
+    <value>播放列表行与行之间背景颜色交错显示</value>
+  </data>
+  <data name="SettingsCheckBoxCoverart" xml:space="preserve">
+    <value>显示专辑封面</value>
+  </data>
+  <data name="SettingsCheckBoxGpuRendering" xml:space="preserve">
+    <value>UI渲染时采用GPU</value>
+  </data>
+  <data name="SettingsCheckBoxManuallySetMainWindowDimension" xml:space="preserve">
+    <value>记住上次使用窗口位置和大小</value>
+  </data>
+  <data name="SettingsCheckBoxParallelRead" xml:space="preserve">
+    <value>并行文件读取</value>
+  </data>
+  <data name="SettingsCheckBoxPlaceKokomadeAterIndex00" xml:space="preserve">
+    <value>在INDEX00之后设置读取标记</value>
+  </data>
+  <data name="SettingsCheckBoxPlayingTimeBold" xml:space="preserve">
+    <value>加粗</value>
+  </data>
+  <data name="SettingsCheckBoxRefrainRedraw" xml:space="preserve">
+    <value>播放时最小化GUI重绘</value>
+  </data>
+  <data name="SettingsCheckBoxSetBatchReadEndpoint" xml:space="preserve">
+    <value>当文件添加到列表时设置[文件组结束标志]</value>
+  </data>
+  <data name="SettingsCheckboxSortDropFolder" xml:space="preserve">
+    <value>整理列表中放入的文件夹</value>
+  </data>
+  <data name="SettingsCheckBoxSortDroppedFiles" xml:space="preserve">
+    <value>整理添加到列表的文件</value>
+  </data>
+  <data name="SettingsCheckBoxStorePlaylistContent" xml:space="preserve">
+    <value>程序启动时保留上次播放列表</value>
+  </data>
+  <data name="SettingsCheckBoxTimePeriod1" xml:space="preserve">
+    <value>启用timeBeginPeriod(1)函数</value>
+  </data>
+  <data name="SettingsCheckBoxVerifyFlacMD5Sum" xml:space="preserve">
+    <value>读取FLAC文件时校验MD5</value>
+  </data>
+  <data name="SettingsCueEncoding" xml:space="preserve">
+    <value>字符编码:</value>
+  </data>
+  <data name="SettingsGroupBoxCuesheetSettings" xml:space="preserve">
+    <value>CUE设置</value>
+  </data>
+  <data name="SettingsGroupBoxDeviceBufferFlush" xml:space="preserve">
+    <value>设备缓冲区清除设置</value>
+  </data>
+  <data name="SettingsGroupBoxFile" xml:space="preserve">
+    <value>文件读取设置</value>
+  </data>
+  <data name="SettingsGroupBoxDisplaySettings" xml:space="preserve">
+    <value>播放列表显示设置</value>
+  </data>
+  <data name="SettingsGroupBoxPlaybackThread" xml:space="preserve">
+    <value>播放进程设置</value>
+  </data>
+  <data name="SettingsGroupBoxRenderThreadTaskType" xml:space="preserve">
+    <value>渲染线程任务类型</value>
+  </data>
+  <data name="SettingsGroupBoxTimerResolution" xml:space="preserve">
+    <value>播放线程唤醒时间精度</value>
+  </data>
+  <data name="SettingsGroupBoxWasapiExclusive" xml:space="preserve">
+    <value>WASAPI 独占模式设置</value>
+  </data>
+  <data name="SettingsGroupBoxWasapiShared" xml:space="preserve">
+    <value>WASAPI共享模式设置</value>
+  </data>
+  <data name="SettingsLabelConversionQuality" xml:space="preserve">
+    <value>MFT重采样器质量(1至 60):</value>
+  </data>
+  <data name="SettingsLabelNoiseShaping" xml:space="preserve">
+    <value>噪声整形选项:</value>
+  </data>
+  <data name="SettingsLabelPlayingTimeFont" xml:space="preserve">
+    <value>播放时间字体:</value>
+  </data>
+  <data name="SettingsLabelZeroFlushSeconds" xml:space="preserve">
+    <value>播放开始时空白输出时间:</value>
+  </data>
+  <data name="SettingsLabelZeroFlushUnit" xml:space="preserve">
+    <value>秒</value>
+  </data>
+  <data name="SettingsNoNoiseShaping" xml:space="preserve">
+    <value>当每个样本的位深被降低时仅执行降位</value>
+  </data>
+  <data name="SettingsPerformDither" xml:space="preserve">
+    <value>当每个样本的位深被降低时添加抖动</value>
+  </data>
+  <data name="SettingsPerformDitheredNoiseShaping" xml:space="preserve">
+    <value>当每个样本的位深被降低时执行抖动噪音整形</value>
+  </data>
+  <data name="SettingsPerformNoiseShaping" xml:space="preserve">
+    <value>当每个样本的位深被降低时执行噪音整形</value>
+  </data>
+  <data name="SettingsRadioButtonBpsAutoSelect" xml:space="preserve">
+    <value>自动选择</value>
+  </data>
+  <data name="SettingsRadioButtonBpsSfloat32" xml:space="preserve">
+    <value>Binary32(IEEE754单精度浮点格式:支持这个格式的硬件设备很少)</value>
+  </data>
+  <data name="SettingsRadioButtonBpsSint16" xml:space="preserve">
+    <value>16位整数(如果数据位深是24位或32位则移除末尾的位)</value>
+  </data>
+  <data name="SettingsRadioButtonBpsSint24" xml:space="preserve">
+    <value>24位整数(如果数据位深是16位则对其填0补充,数据位深是32位则移除末尾的位)</value>
+  </data>
+  <data name="SettingsRadioButtonBpsSint32" xml:space="preserve">
+    <value>32位整数(如果数据位深小于32位则对其填0补充，有效位32位)</value>
+  </data>
+  <data name="SettingsRadioButtonBpsSint32V24" xml:space="preserve">
+    <value>32位整数,有效24位(数据32位,有效位24位)</value>
+  </data>
+  <data name="SettingsSootheLimiterApo" xml:space="preserve">
+    <value>把最大振幅限制为0.98以缓和APO音量限制器</value>
+  </data>
+  <data name="SettingsTimerResolution1Millisec" xml:space="preserve">
+    <value>播放线程唤醒时间精度=1ms</value>
+  </data>
+  <data name="SettingsTimerResolution500Microsec" xml:space="preserve">
+    <value>播放线程唤醒时间精度=0.5ms(不稳定)</value>
+  </data>
+  <data name="SettingsTimerResolutionDefault" xml:space="preserve">
+    <value>默认播放线程唤醒时间精度</value>
+  </data>
+  <data name="SettingsWindowTitle" xml:space="preserve">
+    <value>PlayPcmWin详细设置</value>
+  </data>
+  <data name="SetupFailAdvice" xml:space="preserve">
+    <value>要想知道你的设备支持哪些格式，请点击 [列出支持的格式] 。
+  * 一些专业音频设备不能够通过WASAPI改变采样率（如：RME Fireface, M-Audio ProFire, Echo AudioFire 等）。请在播放开始之前使用 FireFace，M-Audio ProFire 自带的控制面板或其他等效工具来修改设备的采样率。
+  * Creative X-Fi Titanium HD 在 44.1kHz 和 88.2kHz 下使用 Timer 模式可以工作。
+  * Creative USB Sound Blaster HD 更适合使用 Event 模式。Timer 模式在某些设备上会导致某些问题的发生。
+  * 有一些音频设备在没有信号时会关闭TOSLINK，所以PCM数据开头的上千个采样数据没有进行传输。如果遇到这个问题，请增加 [播放开始时空白输出周期：] 的数值。
+  * PlayPcmWin 无法让 E-MU 0404 USB 工作在24bit模式。[详细设置][Fix Int16]可以使这些设备播放24bit文件，但是信息量会因缩短了8位而丢失一部分。
+  * Halide Bridge 只支持24位数据。[详细设置][Fix Int24] 可以让这些设备正常运行。
+★* 对于某些HDMI设备，更加适合设置28ms到31ms的延迟。
+★* Halide Bridge 和 DSPeaker Anti-Mode 2.0 Dual core 只支持24位数据。[详细设置][Fix Int24] 可以让这些设备正常运行。</value>
+  </data>
+  <data name="Shared" xml:space="preserve">
+    <value>共享</value>
+  </data>
+  <data name="TimerDriven" xml:space="preserve">
+    <value>Timer模式</value>
+  </data>
+  <data name="TooManyChannels" xml:space="preserve">
+    <value>音频文件包含声道数量过多（超过31个）。</value>
+  </data>
+  <data name="UnexpectedEndOfStream" xml:space="preserve">
+    <value>文件末端异常。</value>
+  </data>
+  <data name="ValidBits" xml:space="preserve">
+    <value>有效位深</value>
+  </data>
+  <data name="Version" xml:space="preserve">
+    <value>版本</value>
+  </data>
+  <data name="LicenseText" xml:space="preserve">
+    <value>Copyright (C)  2010 yamamoto2002
+
+■Special Thanks■
+简体中文翻译: Tsong Zhang
+
+PlayPcmWin uses libFLAC.
+libFLAC license is a New BSD License. libFlacLicense.txt on the PlayPcmWin.exe folder contains full text of license.
+
+PlayPcmWin uses Jcode.pm character encoding detect function.
+Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
+  </data>
+  <data name="MainCMenuPlaylistClear" xml:space="preserve">
+    <value>清除播放列表(_C)</value>
+  </data>
+  <data name="MainCMenuPlayListEditMode" xml:space="preserve">
+    <value>播放列表可编辑(_E)</value>
+  </data>
+  <data name="SettingsLabelQuantizationBitrate" xml:space="preserve">
+    <value>进入WASAPI的音频数据位深(载入文件时进行转换)</value>
+  </data>
+</root>

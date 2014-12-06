@@ -1,0 +1,149 @@
+﻿<Window x:Uid="SettingsWindow" x:Class="PlayPcmWin.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="PlayPcmWin detailed settings" Height="671" Width="800" Loaded="Window_Loaded" VerticalAlignment="Top" HorizontalAlignment="Left" MouseWheel="Window_MouseWheel" ResizeMode="CanResizeWithGrip">
+    <Window.Resources>
+        <FontWeight x:Uid="FontWeight_1" x:Key="FontWeight1">Bold</FontWeight>
+    </Window.Resources>
+    <Grid x:Uid="Grid_1">
+        <Grid.RowDefinitions>
+            <RowDefinition x:Uid="RowDefinition_1" Height="515*" />
+            <RowDefinition x:Uid="RowDefinition_2" Height="46*" />
+        </Grid.RowDefinitions>
+        <ScrollViewer x:Uid="ScrollViewer_1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+            <Grid x:Uid="Grid_2" RenderTransformOrigin="0.0,0.0">
+                <Grid.LayoutTransform>
+                    <TransformGroup x:Uid="TransformGroup_1">
+                        <ScaleTransform 
+                    x:Uid="ScaleTransform_1" ScaleY="{Binding Path=Value, ElementName=sliderWindowScaling}" 
+                    ScaleX="{Binding Path=Value, ElementName=sliderWindowScaling}"/>
+                    </TransformGroup>
+                </Grid.LayoutTransform>
+                <WrapPanel>
+                    <GroupBox x:Uid="groupBoxWasapiExclusive" Header="Wasapi exclusive mode settings" Margin="4" Name="groupBoxWasapiExclusive" Width="500">
+                        <StackPanel>
+                            <Label Content="Quantization bit rate to pass through WASAPI(Converts on file loading):" HorizontalAlignment="Left" Margin="4,6,6,0" Name="labelQuantizationBitrate" VerticalAlignment="Center" />
+                            <ComboBox x:Uid="comboBoxOutputFormat" HorizontalAlignment="Stretch" Grid.Row="1" Name="comboBoxOutputFormat" Margin="80,0,6,0" VerticalAlignment="Center" />
+                            <Label Content="Noise shaping option:" HorizontalAlignment="Left" Margin="4,6,6,0" Name="labelNoiseShaping" VerticalAlignment="Center" />
+                            <ComboBox HorizontalAlignment="Stretch" Grid.Row="2" Name="comboBoxNoiseShaping" Margin="80,6,6,0" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox x:Uid="groupBoxPlaybackThread" Header="Playback thread settings" Margin="4" Name="groupBoxPlaybackThread">
+                        <StackPanel>
+                            <GroupBox x:Uid="groupBoxTimerResolution" Header="Timer resolution" Margin="4" Name="groupBoxTimerResolution" >
+                                <ComboBox x:Uid="comboBoxTimePeriod" HorizontalAlignment="Left" Name="comboBoxTimePeriod" VerticalAlignment="Top" Width="213">
+                                    <ComboBoxItem x:Uid="cbItemTimerResolutionDefault" Content="Default timer resolution" Name="cbItemTimerResolutionDefault" />
+                                    <ComboBoxItem x:Uid="cbItemTimerResolution1Millisec" Content="Timer resolution = 1 ms" Name="cbItemTimerResolution1Millisec"  />
+                                    <ComboBoxItem x:Uid="cbItemTimerResolution500Microsec" Content="Timer resolution = 0.5 ms" Name="cbItemTimerResolution500Microsec"  />
+                                </ComboBox>
+                            </GroupBox>
+                            <GroupBox x:Uid="groupBoxRenderThreadTaskType" Header="Render thread task type" Margin="4" Name="groupBoxRenderThreadTaskType">
+                                <ComboBox x:Uid="comboBoxRenderThreadTaskType" Name="comboBoxRenderThreadTaskType" VerticalAlignment="Top">
+                                    <ComboBoxItem x:Uid="cbItemTaskAudio" Content="Audio" Name="cbItemTaskAudio" />
+                                    <ComboBoxItem x:Uid="cbItemTaskProAudio" Content="Pro Audio" Name="cbItemTaskProAudio" />
+                                    <ComboBoxItem x:Uid="cbItemTaskNone" Content="None" Name="cbItemTaskNone" />
+                                    <ComboBoxItem x:Uid="cbItemTaskPlayback" Content="Playback" Name="cbItemTaskPlayback" />
+                                </ComboBox>
+                            </GroupBox>
+                            <ComboBox x:Uid="comboBoxDwmEnableMMCSS" Name="comboBoxDwmEnableMMCSS" Margin="10" VerticalAlignment="Top">
+                                <ComboBoxItem x:Uid="cbItemDemDoNotCall" Content="Do not call DwmEnableMMCSS" Name="cbItemDemDoNotCall" />
+                                <ComboBoxItem x:Uid="cbItemDemTrue" Content="DwmEnableMMCSS(True)" Name="cbItemDemTrue" />
+                                <ComboBoxItem x:Uid="cbItemDemFalse" Content="DwmEnableMMCSS(False)" Name="cbItemDemFalse" />
+                            </ComboBox>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox x:Uid="groupBoxWasapiSharedSettings" Header="Wasapi shared mode settings" Margin="4" Height="90" Name="groupBoxWasapiShared" Width="400">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="1*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                            </Grid.RowDefinitions>
+                            <Label x:Uid="labelConversionQuality" Content="Resampler MFT quality (1 to 60):" HorizontalContentAlignment="Right" Margin="0,0,6,0" Name="labelConversionQuality" VerticalAlignment="Center" HorizontalAlignment="Right" />
+                            <TextBox x:Uid="textBoxConversionQuality" HorizontalContentAlignment="Right" Margin="6,0,6,0" Name="textBoxConversionQuality" VerticalAlignment="Center" Text="60" Grid.Column="1" />
+                            <CheckBox Content="Scale maximum magnitude to 0.98 to soothe limiter APO" Grid.Row="1" HorizontalAlignment="Left" Margin="6,0,0,0" Name="checkBoxSootheLimiterApo" VerticalAlignment="Center" Grid.ColumnSpan="3" />
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox x:Uid="groupBoxCuesheetSettings" Header="CUE sheet settings" Margin="4" Height="90" Name="groupBoxCuesheetSettings" Width="360">
+                        <Grid x:Uid="Grid_4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="2*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                            </Grid.RowDefinitions>
+                            <CheckBox x:Uid="checkBoxPlaceKokomadeAfterIndex00" Content="Set [Batch read endpoint] flag after INDEX00" Margin="6,0,0,0" Name="checkBoxPlaceKokomadeAfterIndex00" VerticalAlignment="Center" HorizontalAlignment="Left" Grid.ColumnSpan="2" />
+                            <ComboBox Height="24" Margin="6,0,6,0" Name="comboBoxCueEncoding" VerticalAlignment="Center" Grid.Row="1" Grid.Column="1" />
+                            <Label Content="Encoding:" Margin="0,0,6,0" Name="labelCueEncoding" HorizontalContentAlignment="Right" HorizontalAlignment="Right" Width="76" VerticalAlignment="Center" Grid.Row="1" />
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox x:Uid="groupBoxDeviceBufferFlush" Header="Device buffer flush settings" Margin="4" Height="59" Name="groupBoxDeviceBufferFlush" Width="350">
+                        <Grid x:Uid="Grid_6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="9*" />
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="2*" />
+                            </Grid.ColumnDefinitions>
+                            <Label x:Uid="labelZeroFlush" Content="Zero flush period on playback starts:" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Margin="0,0,0,0" Name="labelZeroFlushSeconds" VerticalAlignment="Center" />
+                            <TextBox x:Uid="textBoxZeroFlushSeconds" HorizontalContentAlignment="Right" Margin="6,0,6,0" Name="textBoxZeroFlushSeconds" VerticalAlignment="Center" Text="0" Grid.Column="1" />
+                            <Label x:Uid="labelZeroFlushUnit" Content="sec" HorizontalAlignment="Left" Margin="0,0,0,0" Name="labelZeroFlushUnit" VerticalAlignment="Center" Grid.Column="2" />
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox x:Uid="groupBoxDisplaySettings" Header="Display settings" Margin="4" Height="200" Width="440" Name="groupBoxDisplaySettings" >
+                        <Grid x:Uid="Grid_7">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="2*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                            </Grid.RowDefinitions>
+                            <CheckBox x:Uid="checkBoxAlternateBackground" Grid.ColumnSpan="3" Content="Alternating row background" Margin="6,0,0,0" Name="checkBoxAlternateBackground" VerticalAlignment="Center" Checked="checkBoxAlternateBackground_Checked" Unchecked="checkBoxAlternateBackground_Unchecked" HorizontalAlignment="Left" />
+                            <Button x:Uid="buttonChangeColor" Content="Change color..." Margin="6,0,6,0" Name="buttonChangeColor" VerticalAlignment="Center" Click="buttonChangeColor_Click" Grid.Column="2" Grid.Row="1"/>
+                            <Rectangle x:Uid="rectangleColor" Height="20" Margin="6,0,6,0" Name="rectangleColor" Stroke="Black" Fill="#FFE0E0E0" MouseUp="rectangleColor_MouseUp" Grid.Column="1" Grid.Row="1" />
+                            <CheckBox x:Uid="checkBoxManuallySetMainWindowDimension" Content="Remember Window position and size"  Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="3" Margin="6,6,0,0" Name="checkBoxManuallySetMainWindowDimension" VerticalAlignment="Top" HorizontalAlignment="Left" />
+                            <CheckBox x:Uid="checkBoxCoverart" Content="Display coverart images"  Margin="256,6,6,0" Name="checkBoxCoverart"  Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Top" IsChecked="True" HorizontalAlignment="Left" />
+                            <CheckBox x:Uid="checkBoxGpuRender" Content="GPU rendering"  Margin="256,6,6,0" Name="checkBoxGpuRendering"  Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Top" IsChecked="True" HorizontalAlignment="Left" />
+                            <CheckBox x:Uid="checkBoxRefrainRedraw" Content="Minimize GUI redraw when playing"  Margin="6,6,6,0" Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="3" Name="checkBoxRefrainRedraw" VerticalAlignment="Top" IsChecked="True" HorizontalAlignment="Left" />
+                            <Label x:Uid="labelPlayingTimeFont" Content="Playing time font:" Margin="6,0,6,0" Name="labelPlayingTimeFont" Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="2" VerticalAlignment="Top" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" HorizontalAlignment="Left" Width="146" />
+                            <ComboBox x:Uid="comboBoxPlayingTimeFontNames" HorizontalAlignment="Left" Margin="154,0,0,0" Name="comboBoxPlayingTimeFontNames" Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="3" VerticalAlignment="Top" Width="171" SelectionChanged="comboBoxPlayingTimeFontNames_SelectionChanged"></ComboBox>
+                            <TextBox x:Uid="textBoxPlayingTimeSize" Margin="328,0,0,0" Name="textBoxPlayingTimeSize" VerticalAlignment="Top" HorizontalAlignment="Left" Width="53" Text="16" Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="3" VerticalContentAlignment="Center" HorizontalContentAlignment="Right" TextChanged="textBoxPlayingTimeSize_TextChanged" />
+                            <Label x:Uid="labelFontPoints" Content="pt" HorizontalAlignment="Left" Margin="383,0,0,0" Name="labelFontPoints" Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="3" VerticalAlignment="Top" VerticalContentAlignment="Center" />
+                            <Label x:Uid="labelPlayingTime" Content="00:00:00/00:00:00" FontFamily="Courier New" FontSize="16" Height="29" HorizontalContentAlignment="Right" Margin="86,0,0,0" Name="labelPlayingTime" Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="3" VerticalAlignment="Top" VerticalContentAlignment="Center" HorizontalAlignment="Left" Width="214" />
+                            <CheckBox x:Uid="checkBoxPlayingTimeBold" Content="Bold"  HorizontalAlignment="Left" Margin="414,56,6,0" Name="checkBoxPlayingTimeBold" VerticalAlignment="Top" Checked="checkBoxPlayingTimeBold_Checked" Unchecked="checkBoxPlayingTimeBold_Unchecked" />
+
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox x:Uid="groupBoxFileSettings" Header="File read settings" Margin="4" Name="groupBoxFileSettings" >
+                        <StackPanel>
+                            <CheckBox x:Uid="checkBoxParallelRead" Content="Parallelize file read"  Margin="6,6,6,0" Name="checkBoxParallelRead" VerticalAlignment="Top" IsChecked="False" HorizontalAlignment="Left" Checked="checkBoxParallelRead_Checked" Unchecked="checkBoxParallelRead_Unchecked" />
+                            <CheckBox x:Uid="checkBoxStorePlaylistContent" Content="Restore the playlist on program startup"  Margin="6,6,6,0" Name="checkBoxStorePlaylistContent" VerticalAlignment="Top" HorizontalAlignment="Left" />
+                            <CheckBox Content="Sort dropped folder items" HorizontalAlignment="Left" IsChecked="False" Margin="6,6,6,0" Name="checkBoxSortDropFolder" VerticalAlignment="Top" />
+                            <CheckBox Content="Sort dropped files" HorizontalAlignment="Left" IsChecked="False" Margin="6,6,6,0" Name="checkBoxSortDroppedFiles" VerticalAlignment="Top" />
+                            <CheckBox Content="Set [Batch read endpoint] on file drop" HorizontalAlignment="Left" IsChecked="False" Margin="6,6,6,0" Name="checkBoxBatchReadEndpointToEveryTrack" VerticalAlignment="Top" />
+                            <CheckBox Content="Verify FLAC MD5sum on file read" HorizontalAlignment="Left" IsChecked="False" Margin="6,6,6,0" Name="checkBoxVerifyFlacMD5Sum" VerticalAlignment="Top" />
+                        </StackPanel>
+                    </GroupBox>
+                </WrapPanel>
+            </Grid>
+        </ScrollViewer>
+        <Slider x:Uid="sliderWindowScaling" Ticks="0.8 0.84589701075245129562802960002288 0.89442719099991587856366946749251 0.94574160900317581330169611988722 1.0 1.0573712634405641195350370000286 1.1180339887498948482045868343656 1.182177011253969766627120149859 1.25" HorizontalAlignment="Left" Margin="12,0,0,12" Name="sliderWindowScaling" Width="182" Maximum="1.25" Value="1" Minimum="0.8" Grid.Row="1" Height="28" VerticalAlignment="Bottom" ValueChanged="sliderWindowScaling_ValueChanged" SmallChange="0.03125" TickFrequency="8" TickPlacement="BottomRight" LargeChange="0.0625" />
+        <Button x:Uid="buttonOK" Content="OK" Margin="0,0,137,12" Name="buttonOK" VerticalAlignment="Bottom" Click="buttonOK_Click" Grid.Row="1" HorizontalAlignment="Right" Width="93" />
+        <Button x:Uid="buttonCancel" Content="Cancel" Name="buttonCancel" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="119" Click="buttonCancel_Click" Grid.Row="1" Margin="0,0,12,12" />
+        <Label x:Uid="labelWindowScaling" Content="1.00" Grid.Row="1" Margin="214,0,0,12" Name="labelWindowScaling" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="53" />
+        <Label x:Uid="labelX" Content="x" Grid.Row="1" HorizontalAlignment="Left" Margin="273,0,0,12" VerticalAlignment="Bottom" VerticalContentAlignment="Center" />
+        <Button x:Uid="button1x" Content="1x" Grid.Row="1" HorizontalAlignment="Left" Margin="301,0,0,15" Name="button1x" VerticalAlignment="Bottom" Width="75" Click="buttonScale1X_Click" />
+        <Button x:Uid="buttonReset" Content="_Restore defaults" Margin="0,0,236,12" Name="buttonReset" VerticalAlignment="Bottom" Grid.Row="1" Click="buttonReset_Click" HorizontalAlignment="Right" Width="128" />
+    </Grid>
+</Window>

@@ -1,0 +1,613 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="CannotAddFile" xml:space="preserve">
+    <value>Sorry... Please stop playback to add files to the playlist.</value>
+  </data>
+  <data name="MainStatusChangingPlayGroup" xml:space="preserve">
+    <value>Reading files...</value>
+  </data>
+  <data name="FilterCueFiles" xml:space="preserve">
+    <value>CUE files|*.CUE</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="Exclusive" xml:space="preserve">
+    <value>Exclusive</value>
+  </data>
+  <data name="Failed" xml:space="preserve">
+    <value>Failed</value>
+  </data>
+  <data name="FloatingPointNumbers" xml:space="preserve">
+    <value>Float</value>
+  </data>
+  <data name="Latency" xml:space="preserve">
+    <value>Latency</value>
+  </data>
+  <data name="NothingToStore" xml:space="preserve">
+    <value>Nothing to store </value>
+  </data>
+  <data name="NotSupportedFileFormat" xml:space="preserve">
+    <value>Not supported file format</value>
+  </data>
+  <data name="NotSupportedQuantizationBitRate" xml:space="preserve">
+    <value>Not supported quantization bit rate. supported formats are 16, 24 and 32</value>
+  </data>
+  <data name="MainStatusPaused" xml:space="preserve">
+    <value>Paused.</value>
+  </data>
+  <data name="MainStatusPlaying" xml:space="preserve">
+    <value>Playing.</value>
+  </data>
+  <data name="MainStatusPleaseCreatePlaylist" xml:space="preserve">
+    <value>Please create the playlist.</value>
+  </data>
+  <data name="FilterPpwplFiles" xml:space="preserve">
+    <value>PPWPL files|*.PPWPL</value>
+  </data>
+  <data name="MainStatusPressPlayButton" xml:space="preserve">
+    <value>Add more files to the playlist or Press play button</value>
+  </data>
+  <data name="MainStatusReadCompleted" xml:space="preserve">
+    <value>Read completed. ready to play.</value>
+  </data>
+  <data name="ReadFailedFiles" xml:space="preserve">
+    <value>Read failed files</value>
+  </data>
+  <data name="ReadFileFailed" xml:space="preserve">
+    <value>Read {0} file failed </value>
+  </data>
+  <data name="MainStatusReadingFiles" xml:space="preserve">
+    <value>Setup device completed. Now reading files to main memory...</value>
+  </data>
+  <data name="RestoreFailedFiles" xml:space="preserve">
+    <value>Missing files while restoring playlist</value>
+  </data>
+  <data name="MainButtonResume" xml:space="preserve">
+    <value>Resume(_U)</value>
+  </data>
+  <data name="SaveFileFailed" xml:space="preserve">
+    <value>Save file failed</value>
+  </data>
+  <data name="SetupFailAdvice" xml:space="preserve">
+    <value>*Please confirm sample rate or quantization bit rate are supported on your device using "list supported format" feature. Press [Clear the playlist][List supported format]
+*Some professional audio devices (RME Fireface, M-Audio ProFire, Echo AudioFire etc.) are not able to be changed master sampling rate via WASAPI. Please use FireFace settings, M-Audio ProFire control panel or equivalent tools on your system tray to change master sampling rate of those devices before playback.
+*44.1kHz and 88.2kHz sample rate of Creative X-Fi Titanium HD do work using timer driven mode.
+*Creative USB Sound Blaster HD prefers event driven mode. Timer driven mode tends to more problematic on some devices.
+*There are strange audio devices which stops TOSLINK output when no signal. Such devices apparently seem not to deliver first several thousand samples of PCM data. If first part of music is truncated, please increase [Zero flush period on playback starts] value.
+*PlayPcmWin cannot setup E-MU 0404 USB 24bit mode. [Detailed settings][Fix Int16] to play 24bit files on those devices but it truncates lower 8bit information.
+*Lynx AES16e prefers timer-driven mode and small latency value such as 29 ms.
+*Some HDMI audio devices prefer 28 ms to 31 ms latency value.
+*Halide Bridge and DSPeaker Anti-Mode 2.0 Dual core seem to require 24bit data always. [Detailed settings][Fix Int24] to play sound on those devices.</value>
+  </data>
+  <data name="Shared" xml:space="preserve">
+    <value>Shared</value>
+  </data>
+  <data name="MainStatusStopping" xml:space="preserve">
+    <value>Stopping...</value>
+  </data>
+  <data name="TooManyChannels" xml:space="preserve">
+    <value>This file contains Too many channels(&gt;31)</value>
+  </data>
+  <data name="ValidBits" xml:space="preserve">
+    <value>Valid bits</value>
+  </data>
+  <data name="ErrorCode" xml:space="preserve">
+    <value>Error code</value>
+  </data>
+  <data name="EventDriven" xml:space="preserve">
+    <value>Event driven</value>
+  </data>
+  <data name="LicenseText" xml:space="preserve">
+    <value>Copyright (C)  2010 yamamoto2002
+
+■Special Thanks■
+Simplified-chinese localization: Tsong Zhang
+
+PlayPcmWin uses libFLAC.
+libFLAC license is a New BSD License. libFlacLicense.txt on the PlayPcmWin.exe folder contains full text of license.
+
+PlayPcmWin uses Jcode.pm character encoding detect function.
+Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
+  </data>
+  <data name="MemoryExhausted" xml:space="preserve">
+    <value>Memory exhausted. Please reduce files on playlist.</value>
+  </data>
+  <data name="PlayCompletedElapsedTimeIs" xml:space="preserve">
+    <value>Play completed. elapsed time is</value>
+  </data>
+  <data name="PlayStartFailed" xml:space="preserve">
+    <value>Play start failed</value>
+  </data>
+  <data name="ReadError" xml:space="preserve">
+    <value>Read error</value>
+  </data>
+  <data name="ReadPlayGroupNCompleted" xml:space="preserve">
+    <value>Read playgroup {0} completed. Elapsed time: {1}ms</value>
+  </data>
+  <data name="FilterSupportedFiles" xml:space="preserve">
+    <value>Supported files|*.WAV;*.WAVE;*.FLAC;*.AIF;*.AIFF;*.AIFC;*.AIFFC;*.DSF;*.DFF;*.CUE;*.PPWPL;*.M3U;*.M3U8|WAVE files|*.WAV;*.WAVE|FLAC files|*.FLAC|AIFF files|*.AIF;*.AIFF;*.AIFC;*AIFFC|DSF files|*.DSF|DFF files|*.DFF|CUE files|*.CUE|PPWPL files|*.PPWPL|M3U files|*.M3U;*.M3U8|All files|*.*</value>
+  </data>
+  <data name="TimerDriven" xml:space="preserve">
+    <value>Timer driven</value>
+  </data>
+  <data name="UnexpectedEndOfStream" xml:space="preserve">
+    <value>Unexpected end of stream.</value>
+  </data>
+  <data name="Version" xml:space="preserve">
+    <value>Version</value>
+  </data>
+  <data name="MainPlayModeAllTracks" xml:space="preserve">
+    <value>All tracks</value>
+  </data>
+  <data name="MainPlayModeAllTracksRepeat" xml:space="preserve">
+    <value>All tracks repeat</value>
+  </data>
+  <data name="MainPlayModeOneTrack" xml:space="preserve">
+    <value>One track</value>
+  </data>
+  <data name="MainPlayModeOneTrackRepeat" xml:space="preserve">
+    <value>One track repeat</value>
+  </data>
+  <data name="MainPlayModeShuffle" xml:space="preserve">
+    <value>Shuffle</value>
+  </data>
+  <data name="MainPlayModeShuffleRepeat" xml:space="preserve">
+    <value>Shuffle repeat</value>
+  </data>
+  <data name="UsingDeviceStateChanged" xml:space="preserve">
+    <value>Using device state change detected! DeviceName={0} DeviceId={1}</value>
+  </data>
+  <data name="DeviceStateChanged" xml:space="preserve">
+    <value>DeviceStateChanged. DeviceId={0}</value>
+  </data>
+  <data name="ClippedSampleDetected" xml:space="preserve">
+    <value>Clipped sample value detected on floating point PCM data!
+  Clipped sample value count={1}, FileName={0}
+</value>
+  </data>
+  <data name="MainCMenuPlaylistClear" xml:space="preserve">
+    <value>_Clear the playlist</value>
+  </data>
+  <data name="MainCMenuPlayListEditMode" xml:space="preserve">
+    <value>Playlist item edit mode(_E)</value>
+  </data>
+  <data name="MenuFile" xml:space="preserve">
+    <value>_File</value>
+  </data>
+  <data name="MenuHelp" xml:space="preserve">
+    <value>_Help</value>
+  </data>
+  <data name="MenuItemFileExit" xml:space="preserve">
+    <value>E_xit</value>
+  </data>
+  <data name="MenuItemFileNew" xml:space="preserve">
+    <value>Clear the playlist(_N)</value>
+  </data>
+  <data name="MenuItemFileOpen" xml:space="preserve">
+    <value>_Open...</value>
+  </data>
+  <data name="MenuItemFileSaveAs" xml:space="preserve">
+    <value>Save _As...</value>
+  </data>
+  <data name="MenuItemFileSaveCueAs" xml:space="preserve">
+    <value>Save the playlist as a _CUE sheet...</value>
+  </data>
+  <data name="MenuItemHelpAbout" xml:space="preserve">
+    <value>About(_V)</value>
+  </data>
+  <data name="MenuItemHelpWeb" xml:space="preserve">
+    <value>Visit PlayPcmWin _Website</value>
+  </data>
+  <data name="MenuItemPlayListClear" xml:space="preserve">
+    <value>_Clear the playlist</value>
+  </data>
+  <data name="MenuItemPlayListItemEditMode" xml:space="preserve">
+    <value>Playlist item edit mode(_E)</value>
+  </data>
+  <data name="MenuItemToolSettings" xml:space="preserve">
+    <value>_Settings</value>
+  </data>
+  <data name="MenuPlayList" xml:space="preserve">
+    <value>P_laylist</value>
+  </data>
+  <data name="MenuTool" xml:space="preserve">
+    <value>_Tools</value>
+  </data>
+  <data name="MainGroupBoxLog" xml:space="preserve">
+    <value>Log</value>
+  </data>
+  <data name="MainGroupBoxOutputDevices" xml:space="preserve">
+    <value>Output device</value>
+  </data>
+  <data name="MainGroupBoxPlaybackControl" xml:space="preserve">
+    <value>Playback control</value>
+  </data>
+  <data name="MainGroupBoxPlaylist" xml:space="preserve">
+    <value>Playlist(Drop audio files from Explorer to add files)</value>
+  </data>
+  <data name="MainGroupBoxWasapiDataFeedMode" xml:space="preserve">
+    <value>Data feed mode</value>
+  </data>
+  <data name="MainGroupBoxWasapiOperationMode" xml:space="preserve">
+    <value>Operation mode</value>
+  </data>
+  <data name="MainGroupBoxWasapiOutputLatency" xml:space="preserve">
+    <value>Output latency</value>
+  </data>
+  <data name="MainGroupBoxWasapiSettings" xml:space="preserve">
+    <value>WASAPI settings</value>
+  </data>
+  <data name="MainButtonClearPlayList" xml:space="preserve">
+    <value>_Clear the playlist</value>
+  </data>
+  <data name="MainButtonDelistSelected" xml:space="preserve">
+    <value>Delist the selected file(_R)</value>
+  </data>
+  <data name="MainButtonInspectDevice" xml:space="preserve">
+    <value>L_ist supported formats</value>
+  </data>
+  <data name="MainButtonNext" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="MainButtonPause" xml:space="preserve">
+    <value>Pa_use</value>
+  </data>
+  <data name="MainButtonPlay" xml:space="preserve">
+    <value>_Play</value>
+  </data>
+  <data name="MainButtonPrev" xml:space="preserve">
+    <value>Prev</value>
+  </data>
+  <data name="MainButtonSettings" xml:space="preserve">
+    <value>_Detailed settings...</value>
+  </data>
+  <data name="MainButtonStop" xml:space="preserve">
+    <value>_Stop</value>
+  </data>
+  <data name="MainDataGridColumnAlbumTitle" xml:space="preserve">
+    <value>Album name</value>
+  </data>
+  <data name="MainDataGridColumnArtist" xml:space="preserve">
+    <value>Artists</value>
+  </data>
+  <data name="MainDataGridColumnBitRate" xml:space="preserve">
+    <value>Bitrate</value>
+  </data>
+  <data name="MainDataGridColumnDuration" xml:space="preserve">
+    <value>Duration</value>
+  </data>
+  <data name="MainDataGridColumnIndexNr" xml:space="preserve">
+    <value>Index</value>
+  </data>
+  <data name="MainDataGridColumnNumChannels" xml:space="preserve">
+    <value>Number of channels</value>
+  </data>
+  <data name="MainDataGridColumnQuantizationBitRate" xml:space="preserve">
+    <value>Quantization bit rate</value>
+  </data>
+  <data name="MainDataGridColumnReadSeparaterAfter" xml:space="preserve">
+    <value>Batch read endpoint</value>
+  </data>
+  <data name="MainDataGridColumnSampleRate" xml:space="preserve">
+    <value>Sample rate</value>
+  </data>
+  <data name="MainDataGridColumnTitle" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="MainExpanderSettings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="MainRadioButtonEventDriven" xml:space="preserve">
+    <value>Event driven</value>
+  </data>
+  <data name="MainRadioButtonExclusive" xml:space="preserve">
+    <value>Exclusive</value>
+  </data>
+  <data name="MainRadioButtonShared" xml:space="preserve">
+    <value>Shared</value>
+  </data>
+  <data name="MainRadioButtonTimerDriven" xml:space="preserve">
+    <value>Timer driven</value>
+  </data>
+  <data name="SettingsGroupBoxCuesheetSettings" xml:space="preserve">
+    <value>CUE sheet settings</value>
+  </data>
+  <data name="SettingsGroupBoxDeviceBufferFlush" xml:space="preserve">
+    <value>Device buffer flush settings</value>
+  </data>
+  <data name="SettingsGroupBoxDisplaySettings" xml:space="preserve">
+    <value>Display settings</value>
+  </data>
+  <data name="SettingsLabelQuantizationBitrate" xml:space="preserve">
+    <value>Quantization bit rate to pass through the WASAPI(Converts on file loading)</value>
+  </data>
+  <data name="SettingsGroupBoxRenderThreadTaskType" xml:space="preserve">
+    <value>Render thread task type</value>
+  </data>
+  <data name="SettingsGroupBoxWasapiShared" xml:space="preserve">
+    <value>WASAPI shared mode settings</value>
+  </data>
+  <data name="SettingsRadioButtonBpsAutoSelect" xml:space="preserve">
+    <value>Auto select</value>
+  </data>
+  <data name="SettingsRadioButtonBpsSfloat32" xml:space="preserve">
+    <value>Binary32(IEEE754 single precision floating point format: Supported hardware is very rare)</value>
+  </data>
+  <data name="SettingsRadioButtonBpsSint16" xml:space="preserve">
+    <value>16bit integer(Truncates lower bits when 24bps or 32bps data arrives)</value>
+  </data>
+  <data name="SettingsRadioButtonBpsSint24" xml:space="preserve">
+    <value>24bit integer(Fills 0 to lower bits when 16bps data arrives, Truncates lower bits when 32bps data arrives)</value>
+  </data>
+  <data name="SettingsRadioButtonBpsSint32" xml:space="preserve">
+    <value>32bit integer(Fill 0s to lower bits, Valid bits=32bps)</value>
+  </data>
+  <data name="SettingsRadioButtonBpsSint32V24" xml:space="preserve">
+    <value>32bit integer, valid bits=24(Int32, Valid bits=24bps)</value>
+  </data>
+  <data name="SettingsWindowTitle" xml:space="preserve">
+    <value>PlayPcmWin detailed settings</value>
+  </data>
+  <data name="SettingsButtonCancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="SettingsButtonChangeColor" xml:space="preserve">
+    <value>Change color...</value>
+  </data>
+  <data name="SettingsButtonOK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="SettingsButtonReset" xml:space="preserve">
+    <value>_Restore defaults</value>
+  </data>
+  <data name="SettingsCheckBoxAlternateBackground" xml:space="preserve">
+    <value>Alternating row background</value>
+  </data>
+  <data name="SettingsCheckBoxCoverart" xml:space="preserve">
+    <value>Display cover art images</value>
+  </data>
+  <data name="SettingsCheckBoxManuallySetMainWindowDimension" xml:space="preserve">
+    <value>Remember Window position and size</value>
+  </data>
+  <data name="SettingsCheckBoxParallelRead" xml:space="preserve">
+    <value>Parallelize file read</value>
+  </data>
+  <data name="SettingsCheckBoxPlaceKokomadeAterIndex00" xml:space="preserve">
+    <value>Set [Batch read endpoint] flag after INDEX00</value>
+  </data>
+  <data name="SettingsCheckBoxPlayingTimeBold" xml:space="preserve">
+    <value>Bold</value>
+  </data>
+  <data name="SettingsCheckBoxRefrainRedraw" xml:space="preserve">
+    <value>Minimize GUI redraw when playing</value>
+  </data>
+  <data name="SettingsCheckBoxStorePlaylistContent" xml:space="preserve">
+    <value>Restore the playlist on program startup</value>
+  </data>
+  <data name="SettingsCheckBoxTimePeriod1" xml:space="preserve">
+    <value>Invoke timeBeginPeriod(1)</value>
+  </data>
+  <data name="SettingsLabelConversionQuality" xml:space="preserve">
+    <value>Resampler MFT Quality (1 to 60):</value>
+  </data>
+  <data name="SettingsLabelFontPoints" xml:space="preserve">
+    <value>pt</value>
+  </data>
+  <data name="SettingsLabelPlayingTimeFont" xml:space="preserve">
+    <value>Playing time font:</value>
+  </data>
+  <data name="SettingsLabelZeroFlushSeconds" xml:space="preserve">
+    <value>Zero flush period on playback starts:</value>
+  </data>
+  <data name="SettingsLabelZeroFlushUnit" xml:space="preserve">
+    <value>sec</value>
+  </data>
+  <data name="SettingsRadioButtonTaskAudio" xml:space="preserve">
+    <value>Audio</value>
+  </data>
+  <data name="SettingsRadioButtonTaskNone" xml:space="preserve">
+    <value>Playback</value>
+  </data>
+  <data name="SettingsRadioButtonTaskPlayback" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="SettingsRadioButtonTaskProAudio" xml:space="preserve">
+    <value>Pro Audio</value>
+  </data>
+  <data name="FilterM3uFiles" xml:space="preserve">
+    <value>M3U files|*.M3U;*.M3U8</value>
+  </data>
+  <data name="SettingsCueEncoding" xml:space="preserve">
+    <value>Encoding:</value>
+  </data>
+  <data name="SettingsTimerResolution1Millisec" xml:space="preserve">
+    <value>Timer resolution = 1 ms</value>
+  </data>
+  <data name="SettingsTimerResolution500Microsec" xml:space="preserve">
+    <value>Timer reso=0.5 ms (unstable)</value>
+  </data>
+  <data name="SettingsTimerResolutionDefault" xml:space="preserve">
+    <value>Default timer resolution</value>
+  </data>
+  <data name="SettingsSootheLimiterApo" xml:space="preserve">
+    <value>Scale maximum magnitude to 0.98 to soothe limiter APO</value>
+  </data>
+  <data name="SettingsGroupBoxWasapiExclusive" xml:space="preserve">
+    <value>WASAPI exclusive mode settings</value>
+  </data>
+  <data name="SettingsCheckboxSortDropFolder" xml:space="preserve">
+    <value>Sort dropped folder items</value>
+  </data>
+  <data name="SettingsCheckBoxSetBatchReadEndpoint" xml:space="preserve">
+    <value>Set [Batch read endpoint] on file drop</value>
+  </data>
+  <data name="SettingsCheckBoxSortDroppedFiles" xml:space="preserve">
+    <value>Sort dropped files</value>
+  </data>
+  <data name="SettingsGroupBoxFile" xml:space="preserve">
+    <value>File read settings</value>
+  </data>
+  <data name="SettingsGroupBoxPlaybackThread" xml:space="preserve">
+    <value>Playback thread settings</value>
+  </data>
+  <data name="SettingsCheckBoxVerifyFlacMD5Sum" xml:space="preserve">
+    <value>Verify MD5 sum on FLAC file read</value>
+  </data>
+  <data name="MD5SumMismatch" xml:space="preserve">
+    <value>MD5 sum validation failed! File may be corrupted: {0}
+  MD5 in metadata    = {1}
+  MD5 from PCM data= {2}</value>
+  </data>
+  <data name="MD5SumValid" xml:space="preserve">
+    <value>MD5sum validation succeeded. {0}</value>
+  </data>
+  <data name="DroppedDataIsNotFile" xml:space="preserve">
+    <value>Some kind of data is dropped but the data is not file nor folder. Failed to process dropped items.</value>
+  </data>
+  <data name="SettingsCheckBoxGpuRendering" xml:space="preserve">
+    <value>GPU rendering</value>
+  </data>
+  <data name="MainStatusReadingPlaylist" xml:space="preserve">
+    <value>Reading playlist...</value>
+  </data>
+  <data name="SettingsGroupBoxTimerResolution" xml:space="preserve">
+    <value>Timer resolution</value>
+  </data>
+  <data name="SettingsLabelNoiseShaping" xml:space="preserve">
+    <value>Noise shaping option:</value>
+  </data>
+  <data name="SettingsNoNoiseShaping" xml:space="preserve">
+    <value>Just truncate lower bits when bits per sample is reduced to 16-bit</value>
+  </data>
+  <data name="SettingsPerformDitheredNoiseShaping" xml:space="preserve">
+    <value>Perform dithered noise shaping when bits per sample is reduced to 16-bit</value>
+  </data>
+  <data name="SettingsPerformNoiseShaping" xml:space="preserve">
+    <value>Perform noise shaping when bits per sample is reduced to 16-bit</value>
+  </data>
+  <data name="SettingsPerformDither" xml:space="preserve">
+    <value>Add dither when bits per sample is reduced to 16-bit</value>
+  </data>
+  <data name="MD5SumNotAvailable" xml:space="preserve">
+    <value>File does not have STREAMINFO MD5 signature. Could not perform MD5 validation: {0}
+  MD5 from PCM data= {1}</value>
+  </data>
+</root>
