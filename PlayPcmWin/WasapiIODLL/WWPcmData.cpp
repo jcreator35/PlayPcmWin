@@ -11,7 +11,9 @@ const char *
 WWPcmDataContentTypeToStr(WWPcmDataContentType w)
 {
     switch (w) {
-    case WWPcmDataContentSilence: return "Silence";
+    case WWPcmDataContentSilenceForTrailing: return "SilenceForTrailing";
+    case WWPcmDataContentSilenceForPause: return "SilenceForPause";
+    case WWPcmDataContentSilenceForEnding: return "SilenceForEnding";
     case WWPcmDataContentMusicData: return "PcmData";
     case WWPcmDataContentSplice:  return "Splice";
     default: return "unknown";

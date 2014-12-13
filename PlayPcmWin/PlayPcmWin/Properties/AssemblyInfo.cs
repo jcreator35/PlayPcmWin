@@ -52,5 +52,5 @@ using System;
 // すべての値を指定するか、下のように '*' を使ってビルドおよびリビジョン番号を 
 // 既定値にすることができます:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("4.0.73.0")]
-[assembly: AssemblyFileVersion("4.0.73.0")]
+[assembly: AssemblyVersion("4.0.74.0")]
+[assembly: AssemblyFileVersion("4.0.74.0")]

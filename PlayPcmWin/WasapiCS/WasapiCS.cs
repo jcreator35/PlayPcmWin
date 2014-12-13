@@ -534,8 +534,9 @@ namespace Wasapi {
         /// 再生中の曲変更。
         /// idのグループが読み込まれている必要がある。
         /// 再生中に呼ぶ必要がある。再生中でない場合、空振りする。
+        /// 
         /// </summary>
-        /// <param name="id">曲番号</param>
+        /// <param name="id">曲番号。id==-1を指定すると再生終了時無音に曲変更する(その後再生するものが無くなって再生停止する)。</param>
         public void UpdatePlayPcmDataById(int pcmId) {
             WasapiIO_SetNowPlayingPcmDataId(mId, pcmId);
         }

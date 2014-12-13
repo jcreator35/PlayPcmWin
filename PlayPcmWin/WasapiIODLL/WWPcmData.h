@@ -10,7 +10,9 @@
 /// PCMデータの用途。
 enum WWPcmDataContentType {
     WWPcmDataContentMusicData,
-    WWPcmDataContentSilence,
+    WWPcmDataContentSilenceForTrailing,
+    WWPcmDataContentSilenceForPause,
+    WWPcmDataContentSilenceForEnding,
     WWPcmDataContentSplice,
 };
 const char *

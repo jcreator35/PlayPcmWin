@@ -201,7 +201,7 @@
     <value>共有</value>
   </data>
   <data name="MainStatusStopping" xml:space="preserve">
-    <value>再生停止開始……</value>
+    <value>再生停止処理中……</value>
   </data>
   <data name="TooManyChannels" xml:space="preserve">
     <value>31chを超えるチャンネル数を持つPCMファイルの再生には対応していません</value>

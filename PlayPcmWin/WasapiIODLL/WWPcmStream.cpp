@@ -36,19 +36,19 @@ WWPcmStream::PrepareSilenceBuffers(DWORD latencyMillisec, WWPcmDataSampleFormatT
         if (startZeroFlushMillisec < latencyMillisec) {
             startZeroFlushMillisec = latencyMillisec;
         }
-        m_startSilenceBuffer0.Init(-1, deviceSampleFormat, deviceNumChannels,
+        m_startSilenceBuffer.Init(-1, deviceSampleFormat, deviceNumChannels,
                 (1 * (int)((int64_t)deviceSampleRate * startZeroFlushMillisec / 1000) + 1) & (~1),
-                deviceBytesPerFrame, WWPcmDataContentSilence);
+                deviceBytesPerFrame, WWPcmDataContentSilenceForTrailing);
     }
 
-    m_startSilenceBuffer1.Init(-1, deviceSampleFormat, deviceNumChannels,
+    m_unpauseSilenceBuffer.Init(-1, deviceSampleFormat, deviceNumChannels,
             (1 * (int)((int64_t)deviceSampleRate * latencyMillisec / 1000) + 1) & (~1),
-            deviceBytesPerFrame, WWPcmDataContentSilence);
+            deviceBytesPerFrame, WWPcmDataContentSilenceForPause);
 
     // endSilenceBufferは最後に再生される無音。
     m_endSilenceBuffer.Init(-1, deviceSampleFormat, deviceNumChannels,
             (4 * (int)((int64_t)deviceSampleRate * latencyMillisec / 1000) + 1) & (~1),
-            deviceBytesPerFrame, WWPcmDataContentSilence);
+            deviceBytesPerFrame, WWPcmDataContentSilenceForEnding);
     m_endSilenceBuffer.next = NULL;
 
     // spliceバッファー。サイズは100分の1秒=10ms 適当に選んだ。
@@ -66,8 +66,8 @@ WWPcmStream::PrepareSilenceBuffers(DWORD latencyMillisec, WWPcmDataSampleFormatT
         // Init()で0フィルされているので処理不要。
         break;
     case WWStreamDop:
-        m_startSilenceBuffer0.FillDopSilentData();
-        m_startSilenceBuffer1.FillDopSilentData();
+        m_startSilenceBuffer.FillDopSilentData();
+        m_unpauseSilenceBuffer.FillDopSilentData();
         m_endSilenceBuffer.FillDopSilentData();
         m_spliceBuffer.FillDopSilentData();
         m_pauseBuffer.FillDopSilentData();
@@ -83,8 +83,8 @@ WWPcmStream::ReleaseBuffers(void)
 {
     m_spliceBuffer.Term();
     m_pauseBuffer.Term();
-    m_startSilenceBuffer0.Term();
-    m_startSilenceBuffer1.Term();
+    m_startSilenceBuffer.Term();
+    m_unpauseSilenceBuffer.Term();
     m_endSilenceBuffer.Term();
 
     m_nowPlayingPcmData = NULL;
@@ -92,9 +92,9 @@ WWPcmStream::ReleaseBuffers(void)
 }
 
 void
-WWPcmStream::Paused(WWPcmData *nowPlaying)
+WWPcmStream::Paused(WWPcmData *pauseResume)
 {
-    m_pauseResumePcmData = nowPlaying;
+    m_pauseResumePcmData = pauseResume;
 
     m_pauseBuffer.posFrame = 0;
     m_pauseBuffer.next = &m_endSilenceBuffer;
@@ -113,8 +113,8 @@ bool
 WWPcmStream::IsSilenceBuffer(WWPcmData *p) const
 {
     return p == &m_spliceBuffer ||
-           p == &m_startSilenceBuffer0 ||
-           p == &m_startSilenceBuffer1 ||
+           p == &m_startSilenceBuffer ||
+           p == &m_unpauseSilenceBuffer ||
            p == &m_endSilenceBuffer ||
            p == &m_pauseBuffer;
 }
@@ -128,17 +128,17 @@ WWPcmStream::UnpausePrepare(void)
 
     dprintf("%s resume=%p posFrame=%d\n", __FUNCTION__, m_pauseResumePcmData, m_pauseResumePcmData->posFrame);
 
-    m_startSilenceBuffer1.posFrame = 0;
-    m_startSilenceBuffer1.next = &m_pauseBuffer;
+    m_unpauseSilenceBuffer.posFrame = 0;
+    m_unpauseSilenceBuffer.next = &m_pauseBuffer;
 
     m_pauseBuffer.posFrame = 0;
     m_pauseBuffer.next = m_pauseResumePcmData;
 
     m_pauseBuffer.UpdateSpliceDataWithStraightLine(
-            m_startSilenceBuffer1, m_startSilenceBuffer1.posFrame,
+            m_unpauseSilenceBuffer, m_unpauseSilenceBuffer.posFrame,
             *m_pauseResumePcmData, m_pauseResumePcmData->posFrame);
 
-    return &m_startSilenceBuffer1;
+    return &m_unpauseSilenceBuffer;
 }
 
 void
@@ -150,7 +150,7 @@ WWPcmStream::UnpauseDone(void)
 void
 WWPcmStream::UpdateStartPcm(WWPcmData *startPcm)
 {
-    m_nowPlayingPcmData = &m_startSilenceBuffer0;
+    m_nowPlayingPcmData = &m_startSilenceBuffer;
     m_nowPlayingPcmData->next = startPcm;
 }
 
@@ -189,6 +189,29 @@ WWPcmStream::GetPcm(WWPcmDataUsageType t)
         break;
     case WWPDUCapture:
         assert(0);
+        break;
+    default:
+        assert(0);
+        break;
+    }
+
+    return pcm;
+}
+
+WWPcmData *
+WWPcmStream::GetSilenceBuffer(WWPcmDataContentType t)
+{
+    WWPcmData *pcm = NULL;
+
+    switch (t) {
+    case WWPcmDataContentSilenceForTrailing:
+        pcm = &m_startSilenceBuffer;
+        break;
+    case WWPcmDataContentSilenceForPause:
+        pcm = &m_unpauseSilenceBuffer;
+        break;
+    case WWPcmDataContentSilenceForEnding:
+        pcm = &m_endSilenceBuffer;
         break;
     default:
         assert(0);

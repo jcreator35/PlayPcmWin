@@ -502,7 +502,15 @@ WasapiIO_SetNowPlayingPcmDataId(int instanceId, int pcmId)
     WasapiIO *self = Instance(instanceId);
     assert(self);
 
-    WWPcmData *p = self->playPcmGroup.FindPcmDataById(pcmId);
+    WWPcmData *p = NULL;
+
+    if (pcmId < 0) {
+        // jump to end PCM. This leads to playback termination
+        p = self->wasapi.PcmStream().GetSilenceBuffer(WWPcmDataContentSilenceForEnding);
+    } else {
+        p = self->playPcmGroup.FindPcmDataById(pcmId);
+    }
+
     if (NULL == p) {
         dprintf("%s(%d) PcmData not found\n",
             __FUNCTION__, pcmId);
