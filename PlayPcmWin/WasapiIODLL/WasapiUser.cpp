@@ -19,12 +19,57 @@
 // DoPマーカーが正しく付いているかチェックする。
 //#define CHECK_DOP_MARKER
 
+static AUDCLNT_SHAREMODE
+WWShareModeToAudClientShareMode(WWShareMode sm)
+{
+    switch (sm) {
+    case WWSMShared:
+        return AUDCLNT_SHAREMODE_SHARED;
+    case WWSMExclusive:
+        return AUDCLNT_SHAREMODE_EXCLUSIVE;
+    default:
+        assert(0);
+        return AUDCLNT_SHAREMODE_EXCLUSIVE;
+    }
+}
+
+static void
+PcmFormatToWfex(const WWPcmFormat &pcmFormat, WAVEFORMATEXTENSIBLE *wfex)
+{
+    if (WWPcmDataSampleFormatTypeIsInt(pcmFormat.sampleFormat)) {
+        wfex->SubFormat = KSDATAFORMAT_SUBTYPE_PCM;
+    } else {
+        wfex->SubFormat = KSDATAFORMAT_SUBTYPE_IEEE_FLOAT;
+    }
+
+    wfex->Format.wBitsPerSample       = (WORD)WWPcmDataSampleFormatTypeToBitsPerSample(pcmFormat.sampleFormat);
+    wfex->Format.nSamplesPerSec       = pcmFormat.sampleRate;
+    wfex->Format.nBlockAlign          = (WORD)((wfex->Format.wBitsPerSample / 8) * wfex->Format.nChannels);
+    wfex->Format.nAvgBytesPerSec      = wfex->Format.nSamplesPerSec * wfex->Format.nBlockAlign;
+    wfex->Samples.wValidBitsPerSample = (WORD)WWPcmDataSampleFormatTypeToValidBitsPerSample(pcmFormat.sampleFormat);
+    wfex->dwChannelMask               = pcmFormat.dwChannelMask;
+}
+
+static EDataFlow
+WWDeviceTypeToEDataFlow(WWDeviceType t)
+{
+    switch (t) {
+    case WWDTPlay:
+        return eRender;
+    case WWDTRec:
+        return eCapture;
+    default:
+        assert(0);
+        return eRender;
+    }
+}
+
 WasapiUser::WasapiUser(void)
 {
-    m_shutdownEvent          = NULL;
-    m_audioSamplesReadyEvent = NULL;
-    m_deviceToUse            = NULL;
-    m_audioClient            = NULL;
+    m_shutdownEvent          = nullptr;
+    m_audioSamplesReadyEvent = nullptr;
+    m_deviceToUse            = nullptr;
+    m_audioClient            = nullptr;
     m_bufferFrameNum         = 0;
 
     m_pcmFormat.Clear();
@@ -33,18 +78,18 @@ WasapiUser::WasapiUser(void)
     m_dataFeedMode    = WWDFMEventDriven;
     m_shareMode       = WWSMExclusive;
     m_latencyMillisec = 0;
-    m_renderClient    = NULL;
-    m_captureClient   = NULL;
+    m_renderClient    = nullptr;
+    m_captureClient   = nullptr;
 
-    m_thread              = NULL;
-    m_mutex               = NULL;
+    m_thread              = nullptr;
+    m_mutex               = nullptr;
     m_coInitializeSuccess = false;
     m_footerNeedSendCount = 0;
     m_dataFlow            = eRender;
 
     m_glitchCount     = 0;
     m_footerCount     = 0;
-    m_captureCallback = NULL;
+    m_captureCallback = nullptr;
 }
 
 WasapiUser::~WasapiUser(void)
@@ -61,7 +106,7 @@ WasapiUser::Init(void)
 
     assert(!m_deviceToUse);
 
-    hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
+    hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
     if (S_OK == hr) {
         m_coInitializeSuccess = true;
     } else {
@@ -71,7 +116,7 @@ WasapiUser::Init(void)
     }
 
     assert(!m_mutex);
-    m_mutex = CreateMutex(NULL, FALSE, NULL);
+    m_mutex = CreateMutex(nullptr, FALSE, nullptr);
 
     return hr;
 }
@@ -81,13 +126,13 @@ WasapiUser::Term(void)
 {
     dprintf("D: %s() m_deviceToUse=%p m_mutex=%p\n", __FUNCTION__, m_deviceToUse, m_mutex);
 
-    m_captureCallback      = NULL;
+    m_captureCallback = nullptr;
 
     SafeRelease(&m_deviceToUse);
 
     if (m_mutex) {
         CloseHandle(m_mutex);
-        m_mutex = NULL;
+        m_mutex = nullptr;
     }
 
     if (m_coInitializeSuccess) {
@@ -95,46 +140,13 @@ WasapiUser::Term(void)
     }
 }
 
-static AUDCLNT_SHAREMODE
-WWShareModeToAudClientShareMode(WWShareMode sm)
-{
-    switch (sm) {
-    case WWSMShared:
-        return AUDCLNT_SHAREMODE_SHARED;
-        break;
-    case WWSMExclusive:
-        return AUDCLNT_SHAREMODE_EXCLUSIVE;
-        break;
-    default:
-        assert(0);
-        return AUDCLNT_SHAREMODE_EXCLUSIVE;
-    }
-}
-
-static void
-PcmFormatToWfex(WWPcmFormat &pcmFormat, WAVEFORMATEXTENSIBLE *wfex)
-{
-    if (WWPcmDataSampleFormatTypeIsInt(pcmFormat.sampleFormat)) {
-        wfex->SubFormat = KSDATAFORMAT_SUBTYPE_PCM;
-    } else {
-        wfex->SubFormat = KSDATAFORMAT_SUBTYPE_IEEE_FLOAT;
-    }
-
-    wfex->Format.wBitsPerSample       = (WORD)WWPcmDataSampleFormatTypeToBitsPerSample(pcmFormat.sampleFormat);
-    wfex->Format.nSamplesPerSec       = pcmFormat.sampleRate;
-    wfex->Format.nBlockAlign          = (WORD)((wfex->Format.wBitsPerSample / 8) * wfex->Format.nChannels);
-    wfex->Format.nAvgBytesPerSec      = wfex->Format.nSamplesPerSec * wfex->Format.nBlockAlign;
-    wfex->Samples.wValidBitsPerSample = (WORD)WWPcmDataSampleFormatTypeToValidBitsPerSample(pcmFormat.sampleFormat);
-    wfex->dwChannelMask               = pcmFormat.dwChannelMask;
-}
-
 int
-WasapiUser::InspectDevice(IMMDevice *device, WWPcmFormat &pcmFormat)
+WasapiUser::InspectDevice(IMMDevice *device, const WWPcmFormat &pcmFormat)
 {
     HRESULT hr;
-    WAVEFORMATEX *waveFormat = NULL;
+    WAVEFORMATEX *waveFormat = nullptr;
 
-    HRG(device->Activate(__uuidof(IAudioClient), CLSCTX_INPROC_SERVER, NULL, (void**)&m_audioClient));
+    HRG(device->Activate(__uuidof(IAudioClient), CLSCTX_INPROC_SERVER, nullptr, (void**)&m_audioClient));
 
     assert(!waveFormat);
     HRG(m_audioClient->GetMixFormat(&waveFormat));
@@ -158,7 +170,7 @@ WasapiUser::InspectDevice(IMMDevice *device, WWPcmFormat &pcmFormat)
     WWWaveFormatDebug(waveFormat);
     WWWFEXDebug(wfex);
 
-    hr = m_audioClient->IsFormatSupported(AUDCLNT_SHAREMODE_EXCLUSIVE, waveFormat, NULL);
+    hr = m_audioClient->IsFormatSupported(AUDCLNT_SHAREMODE_EXCLUSIVE, waveFormat, nullptr);
     dprintf("IsFormatSupported=%08x\n", hr);
 
 end:
@@ -167,26 +179,22 @@ end:
 
     if (waveFormat) {
         CoTaskMemFree(waveFormat);
-        waveFormat = NULL;
+        waveFormat = nullptr;
     }
 
     return hr;
 }
 
 HRESULT
-WasapiUser::Setup(IMMDevice *device, WWDeviceType deviceType, WWPcmFormat &pcmFormat, WWShareMode sm, WWDataFeedMode dfm, int latencyMillisec)
+WasapiUser::Setup(IMMDevice *device, WWDeviceType deviceType, const WWPcmFormat &pcmFormat, WWShareMode sm, WWDataFeedMode dfm, int latencyMillisec)
 {
     HRESULT      hr          = 0;
-    WAVEFORMATEX *waveFormat = NULL;
+    WAVEFORMATEX *waveFormat = nullptr;
 
     m_shareMode = sm;
     m_dataFeedMode = dfm;
     m_latencyMillisec = latencyMillisec;
-    switch (deviceType) {
-    case WWDTPlay: m_dataFlow = eRender; break;
-    case WWDTRec: m_dataFlow = eCapture; break;
-    default: assert(0); break;
-    }
+    m_dataFlow = WWDeviceTypeToEDataFlow(deviceType);
 
     auto audClientSm = WWShareModeToAudClientShareMode(sm);
 
@@ -195,14 +203,14 @@ WasapiUser::Setup(IMMDevice *device, WWDeviceType deviceType, WWPcmFormat &pcmFo
 
     m_pcmStream.SetStreamType(m_pcmFormat.streamType);
 
-    m_audioSamplesReadyEvent = CreateEventEx(NULL, NULL, 0, EVENT_MODIFY_STATE | SYNCHRONIZE);
+    m_audioSamplesReadyEvent = CreateEventEx(nullptr, nullptr, 0, EVENT_MODIFY_STATE | SYNCHRONIZE);
     CHK(m_audioSamplesReadyEvent);
 
     assert(!m_deviceToUse);
     m_deviceToUse = device;
 
     assert(!m_audioClient);
-    HRG(m_deviceToUse->Activate(__uuidof(IAudioClient), CLSCTX_INPROC_SERVER, NULL, (void**)&m_audioClient));
+    HRG(m_deviceToUse->Activate(__uuidof(IAudioClient), CLSCTX_INPROC_SERVER, nullptr, (void**)&m_audioClient));
 
     assert(!waveFormat);
     HRG(m_audioClient->GetMixFormat(&waveFormat));
@@ -232,7 +240,7 @@ WasapiUser::Setup(IMMDevice *device, WWDeviceType deviceType, WWPcmFormat &pcmFo
         WWWaveFormatDebug(waveFormat);
         WWWFEXDebug(wfex);
     
-        HRG(m_audioClient->IsFormatSupported(audClientSm, waveFormat,NULL));
+        HRG(m_audioClient->IsFormatSupported(audClientSm, waveFormat,nullptr));
     } else {
         // shared mode specific task
         // wBitsPerSample, nSamplesPerSec, wValidBitsPerSample are fixed
@@ -292,7 +300,7 @@ WasapiUser::Setup(IMMDevice *device, WWDeviceType deviceType, WWPcmFormat &pcmFo
         }
     }
 
-    hr = m_audioClient->Initialize(audClientSm, streamFlags, bufferDuration, bufferPeriodicity, waveFormat, NULL);
+    hr = m_audioClient->Initialize(audClientSm, streamFlags, bufferDuration, bufferPeriodicity, waveFormat, nullptr);
     if (hr == AUDCLNT_E_BUFFER_SIZE_NOT_ALIGNED) {
         HRG(m_audioClient->GetBufferSize(&m_bufferFrameNum));
 
@@ -306,9 +314,9 @@ WasapiUser::Setup(IMMDevice *device, WWDeviceType deviceType, WWPcmFormat &pcmFo
             0.5);
         bufferDuration = bufferPeriodicity * periodsPerBuffer;
 
-        HRG(m_deviceToUse->Activate(__uuidof(IAudioClient), CLSCTX_INPROC_SERVER, NULL, (void**)&m_audioClient));
+        HRG(m_deviceToUse->Activate(__uuidof(IAudioClient), CLSCTX_INPROC_SERVER, nullptr, (void**)&m_audioClient));
 
-        hr = m_audioClient->Initialize(audClientSm, streamFlags, bufferDuration, bufferPeriodicity, waveFormat, NULL);
+        hr = m_audioClient->Initialize(audClientSm, streamFlags, bufferDuration, bufferPeriodicity, waveFormat, nullptr);
     }
     if (FAILED(hr)) {
         dprintf("E: audioClient->Initialize failed 0x%08x\n", hr);
@@ -336,10 +344,9 @@ WasapiUser::Setup(IMMDevice *device, WWDeviceType deviceType, WWPcmFormat &pcmFo
     }
 
 end:
-
     if (waveFormat) {
         CoTaskMemFree(waveFormat);
-        waveFormat = NULL;
+        waveFormat = nullptr;
     }
 
     return hr;
@@ -362,7 +369,7 @@ WasapiUser::IsResampleNeeded(void) const
 }
 
 void
-WasapiUser::UpdatePcmDataFormat(WWPcmFormat &fmt)
+WasapiUser::UpdatePcmDataFormat(const WWPcmFormat &fmt)
 {
     assert(WWSMShared == m_shareMode);
     m_pcmFormat = fmt;
@@ -375,7 +382,7 @@ WasapiUser::Unsetup(void)
 
     if (m_audioSamplesReadyEvent) {
         CloseHandle(m_audioSamplesReadyEvent);
-        m_audioSamplesReadyEvent = NULL;
+        m_audioSamplesReadyEvent = nullptr;
     }
 
     m_pcmStream.ReleaseBuffers();
@@ -390,7 +397,7 @@ HRESULT
 WasapiUser::Start(void)
 {
     HRESULT hr      = 0;
-    BYTE    *pData  = NULL;
+    BYTE    *pData  = nullptr;
     UINT32  nFrames = 0;
     DWORD   flags   = 0;
 
@@ -399,15 +406,15 @@ WasapiUser::Start(void)
     HRG(m_audioClient->Reset());
 
     assert(!m_shutdownEvent);
-    m_shutdownEvent = CreateEventEx(NULL, NULL, 0, EVENT_MODIFY_STATE | SYNCHRONIZE);
+    m_shutdownEvent = CreateEventEx(nullptr, nullptr, 0, EVENT_MODIFY_STATE | SYNCHRONIZE);
     CHK(m_shutdownEvent);
 
     switch (m_dataFlow) {
     case eRender:
         assert(m_pcmStream.GetPcm(WWPDUNowPlaying));
 
-        assert(NULL == m_thread);
-        m_thread = CreateThread(NULL, 0, RenderEntry, this, 0, NULL);
+        assert(nullptr == m_thread);
+        m_thread = CreateThread(nullptr, 0, RenderEntry, this, 0, nullptr);
         assert(m_thread);
 
         nFrames = m_bufferFrameNum;
@@ -434,14 +441,14 @@ WasapiUser::Start(void)
 
     case eCapture:
         assert(m_captureCallback);
-        m_thread = CreateThread(NULL, 0, CaptureEntry, this, 0, NULL);
+        m_thread = CreateThread(nullptr, 0, CaptureEntry, this, 0, nullptr);
         assert(m_thread);
 
-        hr = m_captureClient->GetBuffer(&pData, &nFrames, &flags, NULL, NULL);
+        hr = m_captureClient->GetBuffer(&pData, &nFrames, &flags, nullptr, nullptr);
         if (SUCCEEDED(hr)) {
             // if succeeded, release buffer pData
             m_captureClient->ReleaseBuffer(nFrames);
-            pData = NULL;
+            pData = nullptr;
         }
 
         hr = S_OK;
@@ -468,31 +475,31 @@ WasapiUser::Stop(void)
     dprintf("D: %s() AC=%p SE=%p T=%p\n", __FUNCTION__, m_audioClient, m_shutdownEvent, m_thread);
 
     // ポーズ中の場合、ポーズを解除。
-    m_pcmStream.SetPauseResumePcmData(NULL);
+    m_pcmStream.SetPauseResumePcmData(nullptr);
 
-    if (NULL != m_audioClient) {
+    if (nullptr != m_audioClient) {
         hr = m_audioClient->Stop();
         if (FAILED(hr)) {
             dprintf("E: %s m_audioClient->Stop() failed 0x%x\n", __FUNCTION__, hr);
         }
     }
 
-    if (NULL != m_shutdownEvent) {
+    if (nullptr != m_shutdownEvent) {
         SetEvent(m_shutdownEvent);
     }
-    if (NULL != m_thread) {
+    if (nullptr != m_thread) {
         WaitForSingleObject(m_thread, INFINITE);
         dprintf("D: %s:%d CloseHandle(%p)\n", __FILE__, __LINE__, m_thread);
         if (m_thread) {
             CloseHandle(m_thread);
         }
-        m_thread = NULL;
+        m_thread = nullptr;
     }
 
-    if (NULL != m_shutdownEvent) {
+    if (nullptr != m_shutdownEvent) {
         dprintf("D: %s:%d CloseHandle(%p)\n", __FILE__, __LINE__, m_shutdownEvent);
         CloseHandle(m_shutdownEvent);
-        m_shutdownEvent = NULL;
+        m_shutdownEvent = nullptr;
     }
 }
 
@@ -523,7 +530,7 @@ WasapiUser::Pause(void)
 
     if (pauseDataSetSucceeded) {
         // ここで再生一時停止までブロックする。
-        WWPcmData *nowPlayingPcmData = NULL;
+        WWPcmData *nowPlayingPcmData = nullptr;
         do {
             assert(m_mutex);
             WaitForSingleObject(m_mutex, INFINITE);
@@ -533,8 +540,8 @@ WasapiUser::Pause(void)
             ReleaseMutex(m_mutex);
 
             Sleep(100);
-        } while (nowPlayingPcmData != NULL);
-        //再生一時停止状態はnowPlayingPcmData==NULLで、再生スレッドは無音を送出し続ける。
+        } while (nowPlayingPcmData != nullptr);
+        //再生一時停止状態はnowPlayingPcmData==nullptrで、再生スレッドは無音を送出し続ける。
     } else {
         dprintf("%s pauseDataSet failed\n", __FUNCTION__);
     }
@@ -546,7 +553,7 @@ WasapiUser::Pause(void)
 HRESULT
 WasapiUser::Unpause(void)
 {
-    if (m_pcmStream.GetPcm(WWPDUPauseResumeToPlay) == NULL) {
+    if (m_pcmStream.GetPcm(WWPDUPauseResumeToPlay) == nullptr) {
         // ポーズ中ではないのにUnpause()が呼び出された。
         return E_FAIL;
     }
@@ -579,7 +586,7 @@ WasapiUser::Run(int millisec)
 void
 WasapiUser::UpdatePlayPcmData(WWPcmData &pcmData)
 {
-    if (m_thread != NULL) {
+    if (m_thread != nullptr) {
         UpdatePlayPcmDataWhenPlaying(pcmData);
     } else {
         m_pcmStream.UpdateStartPcm(&pcmData);
@@ -618,7 +625,7 @@ WasapiUser::UpdatePlayPcmDataWhenPlaying(WWPcmData &pcmData)
 
                 // 再生シークをしたあと再生一時停止し再生曲を変更し再生再開すると
                 // 一瞬再生曲表示が再生シークした曲になる問題の修正ｗ
-                m_pcmStream.GetPcm(WWPDUSplice)->next = NULL;
+                m_pcmStream.GetPcm(WWPDUSplice)->next = nullptr;
             }
         }
     }
@@ -713,7 +720,7 @@ WasapiUser::CreateWritableFrames(BYTE *pData_return, int wantFrames)
     int       pos      = 0;
     WWPcmData *pcmData = m_pcmStream.GetPcm(WWPDUNowPlaying);
 
-    while (NULL != pcmData && 0 < wantFrames) {
+    while (nullptr != pcmData && 0 < wantFrames) {
         int copyFrames = wantFrames;
         if (pcmData->nFrames <= pcmData->posFrame + wantFrames) {
             // pcmDataが持っているフレーム数よりも要求フレーム数が多い。
@@ -746,7 +753,7 @@ bool
 WasapiUser::AudioSamplesSendProc(void)
 {
     bool    result     = true;
-    BYTE    *to        = NULL;
+    BYTE    *to        = nullptr;
     HRESULT hr         = 0;
     int     copyFrames = 0;
     int     writableFrames = 0;
@@ -783,13 +790,13 @@ WasapiUser::AudioSamplesSendProc(void)
     }
 
     HRGR(m_renderClient->ReleaseBuffer(writableFrames, 0));
-    to = NULL;
+    to = nullptr;
 
-    if (NULL == m_pcmStream.GetPcm(WWPDUNowPlaying)) {
+    if (nullptr == m_pcmStream.GetPcm(WWPDUNowPlaying)) {
         ++m_footerCount;
         if (m_footerNeedSendCount < m_footerCount) {
             // PCMを全て送信完了。
-            if (NULL != m_pcmStream.GetPcm(WWPDUPauseResumeToPlay)) {
+            if (nullptr != m_pcmStream.GetPcm(WWPDUPauseResumeToPlay)) {
                 // ポーズ中。スレッドを回し続ける。
             } else {
                 // スレッドを停止する。
@@ -816,7 +823,7 @@ WasapiUser::RenderMain(void)
     DWORD   waitResult;
     HRESULT hr             = 0;
     
-    HRG(CoInitializeEx(NULL, COINIT_MULTITHREADED));
+    HRG(CoInitializeEx(nullptr, COINIT_MULTITHREADED));
 
     HRG(m_timerResolution.Setup());
     m_threadCharacteristics.Setup();
@@ -883,7 +890,7 @@ WasapiUser::CaptureMain(void)
     DWORD   waitResult;
     HRESULT hr             = 0;
     
-    HRG(CoInitializeEx(NULL, COINIT_MULTITHREADED));
+    HRG(CoInitializeEx(nullptr, COINIT_MULTITHREADED));
 
     HRG(m_timerResolution.Setup());
     m_threadCharacteristics.Setup();
@@ -930,7 +937,7 @@ WasapiUser::AudioSamplesRecvProc(void)
     UINT32  packetLength = 0;
     UINT32  numFramesAvailable = 0;
     DWORD   flags      = 0;
-    BYTE    *pData     = NULL;
+    BYTE    *pData     = nullptr;
     HRESULT hr         = 0;
     UINT64  devicePosition = 0;
 
@@ -945,13 +952,13 @@ WasapiUser::AudioSamplesRecvProc(void)
     numFramesAvailable = packetLength;
     flags = 0;
 
-    HRG(m_captureClient->GetBuffer(&pData, &numFramesAvailable, &flags, &devicePosition, NULL));
+    HRG(m_captureClient->GetBuffer(&pData, &numFramesAvailable, &flags, &devicePosition, nullptr));
 
     if (flags & AUDCLNT_BUFFERFLAGS_DATA_DISCONTINUITY) {
         ++m_glitchCount;
     }
 
-    if (m_captureCallback != NULL) {
+    if (m_captureCallback != nullptr) {
         // 都度コールバックを呼ぶ
         m_captureCallback(pData, numFramesAvailable * m_deviceFormat.BytesPerFrame());
         HRG(m_captureClient->ReleaseBuffer(numFramesAvailable));

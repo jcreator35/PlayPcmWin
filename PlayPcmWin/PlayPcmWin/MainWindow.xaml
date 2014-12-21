@@ -3,7 +3,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
-        Title="PlayPcmWin" HorizontalContentAlignment="Right" mc:Ignorable="d" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" Height="640" Width="1000" AllowDrop="True" DragEnter="MainWindowDragEnter" Drop="MainWindowDragDrop" Closed="Window_Closed" Icon="/PlayPcmWin;component/ppwlogo.ico" AllowsTransparency="False" WindowStyle="ThreeDBorderWindow" ResizeMode="CanResizeWithGrip" MouseWheel="Window_MouseWheel" Loaded="Window_Loaded" KeyUp="Window_KeyUp">
+        Title="PlayPcmWin" HorizontalContentAlignment="Right" mc:Ignorable="d" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" Height="640" Width="1000" AllowDrop="True" DragEnter="MainWindowDragEnter" Drop="MainWindowDragDrop" Closed="Window_Closed" Icon="/PlayPcmWin;component/ppwlogo.ico" AllowsTransparency="False" WindowStyle="ThreeDBorderWindow" ResizeMode="CanResizeWithGrip" MouseWheel="Window_MouseWheel" Loaded="Window_Loaded">
     <Window.ContextMenu>
         <ContextMenu x:Uid="ContextMenu_1">
             <MenuItem x:Uid="cmenuPlayListClear" Name="cmenuPlayListClear" Header="_Clear the playlist" Click="MenuItemFileNew_Click" />

@@ -53,7 +53,7 @@ WWPlayPcmGroup::AddPlayPcmData(int id, BYTE *data, int64_t bytes)
         return false;
     }
 
-    if (NULL != data) {
+    if (nullptr != data) {
         CopyMemory(pcmData.stream, data, (bytes/m_pcmFormat.BytesPerFrame()) * m_pcmFormat.BytesPerFrame());
     }
     m_playPcmDataList.push_back(pcmData);
@@ -113,8 +113,8 @@ WWPlayPcmGroup::SetPlayRepeat(bool repeat)
                 m_playPcmDataList[i].next = 
                     &m_playPcmDataList[0];
             } else {
-                // 最後→NULL
-                m_playPcmDataList[i].next = NULL;
+                // 最後→nullptr
+                m_playPcmDataList[i].next = nullptr;
             }
         } else {
             // 最後のあたりの項目以外は、連続にnextをつなげる。
@@ -133,14 +133,14 @@ WWPlayPcmGroup::FindPcmDataById(int id)
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 WWPcmData *
 WWPlayPcmGroup::FirstPcmData(void)
 {
     if (0 == m_playPcmDataList.size()) {
-        return NULL;
+        return nullptr;
     }
 
     return &m_playPcmDataList[0];
@@ -150,7 +150,7 @@ WWPcmData *
 WWPlayPcmGroup::LastPcmData(void)
 {
     if (0 == m_playPcmDataList.size()) {
-        return NULL;
+        return nullptr;
     }
 
     return &m_playPcmDataList[m_playPcmDataList.size()-1];
@@ -160,7 +160,7 @@ WWPcmData *
 WWPlayPcmGroup::NthPcmData(int n)
 {
     if (n < 0 || m_playPcmDataList.size() <= (size_t)n) {
-        return NULL;
+        return nullptr;
     }
 
     return &m_playPcmDataList[n];
@@ -193,7 +193,7 @@ WWPlayPcmGroup::DoResample(WWPcmFormat &targetFmt, int conversionQuality)
     size_t numConvertedPcmData = 0;
     assert(1 <= conversionQuality && conversionQuality <= 60);
 
-    if (NULL == buff) {
+    if (nullptr == buff) {
         hr = E_OUTOFMEMORY;
         goto end;
     }
@@ -354,6 +354,6 @@ WWPlayPcmGroup::DoResample(WWPcmFormat &targetFmt, int conversionQuality)
 end:
     resampler.Finalize();
     delete [] buff;
-    buff = NULL;
+    buff = nullptr;
     return hr;
 }

@@ -118,6 +118,7 @@
     <Compile Include="DeviceSetupParams.cs" />
     <Compile Include="DsdiffReader.cs" />
     <Compile Include="FlacDecodeIF.cs" />
+    <Compile Include="InterceptMediaKeys.cs" />
     <Compile Include="M3uRW.cs" />
     <Compile Include="PcmDataList.cs" />
     <Compile Include="PcmHeaderReader.cs" />

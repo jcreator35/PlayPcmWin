@@ -45,7 +45,7 @@ WWThreadCharacteristics::Setup(void)
         dprintf("D: %s() AvSetMmThreadCharacteristics(%S)\n", __FUNCTION__, WWSchedulerTaskTypeToStr(m_schedulerTaskType));
 
         m_mmcssHandle = AvSetMmThreadCharacteristics(WWSchedulerTaskTypeToStr(m_schedulerTaskType), &m_mmcssTaskIndex);
-        if (NULL == m_mmcssHandle) {
+        if (nullptr == m_mmcssHandle) {
             dprintf("Failed to enable MMCSS on render thread: 0x%08x\n", GetLastError());
             m_mmcssTaskIndex = 0;
             m_result.avSetMmThreadCharacteristicsResult = false;
@@ -60,9 +60,9 @@ WWThreadCharacteristics::Unsetup(void)
 {
     HRESULT hr = S_OK;
 
-    if (NULL != m_mmcssHandle) {
+    if (nullptr != m_mmcssHandle) {
         AvRevertMmThreadCharacteristics(m_mmcssHandle);
-        m_mmcssHandle = NULL;
+        m_mmcssHandle = nullptr;
         m_mmcssTaskIndex = 0;
     }
 

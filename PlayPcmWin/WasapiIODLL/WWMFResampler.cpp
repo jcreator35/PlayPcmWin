@@ -27,8 +27,8 @@ static HRESULT
 CreateAudioMediaType(const WWMFPcmFormat &fmt, IMFMediaType** ppMediaType)
 {
     HRESULT hr;
-    IMFMediaType *pMediaType = NULL;
-    *ppMediaType = NULL;
+    IMFMediaType *pMediaType = nullptr;
+    *ppMediaType = nullptr;
 
     HRG(MFCreateMediaType(&pMediaType) );
     HRG(pMediaType->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Audio));
@@ -48,7 +48,7 @@ CreateAudioMediaType(const WWMFPcmFormat &fmt, IMFMediaType** ppMediaType)
     }
 
     *ppMediaType = pMediaType;
-    pMediaType = NULL; //< prevent release
+    pMediaType = nullptr; //< prevent release
 
 end:
     SafeRelease(&pMediaType);
@@ -67,11 +67,11 @@ CreateResamplerMFT(
     CComPtr<IMFMediaType> spOutputType;
     CComPtr<IUnknown> spTransformUnk;
     CComPtr<IWMResamplerProps> spResamplerProps;
-    IMFTransform *pTransform = NULL;
+    IMFTransform *pTransform = nullptr;
     assert(ppTransform);
-    *ppTransform = NULL;
+    *ppTransform = nullptr;
 
-    HRG(CoCreateInstance(CLSID_CResamplerMediaObject, NULL, CLSCTX_INPROC_SERVER,
+    HRG(CoCreateInstance(CLSID_CResamplerMediaObject, nullptr, CLSCTX_INPROC_SERVER,
             IID_IUnknown, (void**)&spTransformUnk));
 
     HRG(spTransformUnk->QueryInterface(IID_PPV_ARGS(&pTransform)));
@@ -86,7 +86,7 @@ CreateResamplerMFT(
     HRG(spResamplerProps->SetHalfFilterLength(halfFilterLength));
 
     *ppTransform = pTransform;
-    pTransform = NULL; //< prevent release
+    pTransform = nullptr; //< prevent release
 
 end:
     SafeRelease(&pTransform);
@@ -99,7 +99,7 @@ WWMFResampler::Initialize(const WWMFPcmFormat &inputFormat, const WWMFPcmFormat 
     HRESULT hr = S_OK;
     m_inputFormat  = inputFormat;
     m_outputFormat = outputFormat;
-    assert(m_pTransform == NULL);
+    assert(m_pTransform == nullptr);
 
     m_inputFrameTotal  = 0;
     m_outputFrameTotal = 0;
@@ -121,20 +121,20 @@ HRESULT
 WWMFResampler::ConvertWWSampleDataToMFSample(WWMFSampleData &sampleData, IMFSample **ppSample)
 {
     HRESULT hr = S_OK;
-    IMFSample *pSample = NULL;
-    IMFMediaBuffer *pBuffer = NULL;
-    BYTE  *pByteBufferTo = NULL;
+    IMFSample *pSample = nullptr;
+    IMFMediaBuffer *pBuffer = nullptr;
+    BYTE  *pByteBufferTo = nullptr;
     int frameCount;
 
     assert(ppSample);
-    *ppSample = NULL;
+    *ppSample = nullptr;
         
     HRG(MFCreateMemoryBuffer(sampleData.bytes, &pBuffer));
-    HRG(pBuffer->Lock(&pByteBufferTo, NULL, NULL));
+    HRG(pBuffer->Lock(&pByteBufferTo, nullptr, nullptr));
 
     memcpy(pByteBufferTo, sampleData.data, sampleData.bytes);
 
-    pByteBufferTo = NULL;
+    pByteBufferTo = nullptr;
     HRG(pBuffer->Unlock());
     HRG(pBuffer->SetCurrentLength(sampleData.bytes));
 
@@ -148,7 +148,7 @@ WWMFResampler::ConvertWWSampleDataToMFSample(WWMFSampleData &sampleData, IMFSamp
     // succeeded.
 
     *ppSample = pSample;
-    pSample = NULL; //< prevent release
+    pSample = nullptr; //< prevent release
 
 end:
     SafeRelease(&pBuffer);
@@ -160,28 +160,28 @@ HRESULT
 WWMFResampler::ConvertMFSampleToWWSampleData(IMFSample *pSample, WWMFSampleData *sampleData_return)
 {
     HRESULT hr = E_FAIL;
-    IMFMediaBuffer *pBuffer = NULL;
-    BYTE  *pByteBuffer = NULL;
+    IMFMediaBuffer *pBuffer = nullptr;
+    BYTE  *pByteBuffer = nullptr;
     assert(pSample);
     DWORD cbBytes = 0;
 
     assert(sampleData_return);
-    assert(NULL == sampleData_return->data);
+    assert(nullptr == sampleData_return->data);
 
     HRG(pSample->ConvertToContiguousBuffer(&pBuffer));
     HRG(pBuffer->GetCurrentLength(&cbBytes));
     if (0 == cbBytes) {
         sampleData_return->bytes = 0;
-        sampleData_return->data = NULL;
+        sampleData_return->data = nullptr;
         hr = S_OK;
         goto end;
     }
 
-    HRG(pBuffer->Lock(&pByteBuffer, NULL, NULL));
+    HRG(pBuffer->Lock(&pByteBuffer, nullptr, nullptr));
 
-    assert(NULL == sampleData_return->data);
+    assert(nullptr == sampleData_return->data);
     sampleData_return->data = new BYTE[cbBytes];
-    if (NULL == sampleData_return->data) {
+    if (nullptr == sampleData_return->data) {
         printf("no memory\n");
         goto end;
     }
@@ -190,7 +190,7 @@ WWMFResampler::ConvertMFSampleToWWSampleData(IMFSample *pSample, WWMFSampleData 
 
     m_outputFrameTotal += cbBytes / m_outputFormat.FrameBytes();
 
-    pByteBuffer = NULL;
+    pByteBuffer = nullptr;
     HRG(pBuffer->Unlock());
 
 end:
@@ -202,7 +202,7 @@ HRESULT
 WWMFResampler::GetSampleDataFromMFTransform(WWMFSampleData *sampleData_return)
 {
     HRESULT hr = S_OK;
-    IMFMediaBuffer *pBuffer = NULL;
+    IMFMediaBuffer *pBuffer = nullptr;
     MFT_OUTPUT_STREAM_INFO streamInfo;
     MFT_OUTPUT_DATA_BUFFER outputDataBuffer;
     DWORD dwStatus;
@@ -210,14 +210,14 @@ WWMFResampler::GetSampleDataFromMFTransform(WWMFSampleData *sampleData_return)
     memset(&outputDataBuffer, 0, sizeof outputDataBuffer);
 
     assert(sampleData_return);
-    assert(NULL == sampleData_return->data);
+    assert(nullptr == sampleData_return->data);
 
     HRG(MFCreateSample(&(outputDataBuffer.pSample)));
     HRG(MFCreateMemoryBuffer(sampleData_return->bytes, &pBuffer));
     HRG(outputDataBuffer.pSample->AddBuffer(pBuffer));
     outputDataBuffer.dwStreamID = 0;
     outputDataBuffer.dwStatus = 0;
-    outputDataBuffer.pEvents = NULL;
+    outputDataBuffer.pEvents = nullptr;
 
     hr = m_pTransform->ProcessOutput(0, 1, &outputDataBuffer, &dwStatus);
     if (FAILED(hr)) {
@@ -236,7 +236,7 @@ HRESULT
 WWMFResampler::Resample(const BYTE *buff, DWORD bytes, WWMFSampleData *sampleData_return)
 {
     HRESULT hr = E_FAIL;
-    IMFSample *pSample = NULL;
+    IMFSample *pSample = nullptr;
     WWMFSampleData tmpData;
     WWMFSampleData inputData((BYTE*)buff, bytes);
     DWORD dwStatus;
@@ -247,7 +247,7 @@ WWMFResampler::Resample(const BYTE *buff, DWORD bytes, WWMFSampleData *sampleDat
     cbOutputBytes += 16 * m_outputFormat.FrameBytes();
 
     assert(sampleData_return);
-    assert(NULL == sampleData_return->data);
+    assert(nullptr == sampleData_return->data);
 
     HRG(ConvertWWSampleDataToMFSample(inputData, &pSample));
 
@@ -293,7 +293,7 @@ WWMFResampler::Drain(DWORD resampleInputBytes, WWMFSampleData *sampleData_return
     cbOutputBytes = (cbOutputBytes + (m_outputFormat.FrameBytes()-1)) / m_outputFormat.FrameBytes() * m_outputFormat.FrameBytes();
 
     assert(sampleData_return);
-    assert(NULL == sampleData_return->data);
+    assert(nullptr == sampleData_return->data);
 
     HRG(m_pTransform->ProcessMessage(MFT_MESSAGE_NOTIFY_END_OF_STREAM, NULL));
     HRG(m_pTransform->ProcessMessage(MFT_MESSAGE_COMMAND_DRAIN, NULL));
@@ -323,7 +323,7 @@ end:
 void
 WWMFResampler::Finalize(void)
 {
-    // Finalize() is called even when Initialize() failed and m_pTransform==NULL
+    // Finalize() is called even when Initialize() failed and m_pTransform==nullptr
 
     SafeRelease(&m_pTransform);
     if (m_isMFStartuped) {
@@ -334,6 +334,6 @@ WWMFResampler::Finalize(void)
 
 WWMFResampler::~WWMFResampler(void)
 {
-    assert(NULL == m_pTransform);
+    assert(nullptr == m_pTransform);
     assert(false == m_isMFStartuped);
 }

@@ -84,6 +84,8 @@ namespace PlayPcmWin {
             get { return new Collection<string>(playListColumnsOrder); }
         }
 
+        public int OpenFileDialogFilterIndex { get; set; }
+
         public void PlayListColumnsOrderRemoveRange(int idx, int count) {
             playListColumnsOrder.RemoveRange(idx, count);
         }
@@ -163,6 +165,7 @@ namespace PlayPcmWin {
             BatchReadEndpointToEveryTrack = false;
             VerifyFlacMD5Sum = false;
             GpuRendering = true;
+            OpenFileDialogFilterIndex = -1;
         }
 
         /// <summary>

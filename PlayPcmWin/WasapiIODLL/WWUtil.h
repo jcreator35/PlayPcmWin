@@ -47,7 +47,7 @@
 
 #define CHK(x)                           \
 {   if (!x) {                            \
-        dprintf("E: %s:%d %s is NULL\n", \
+        dprintf("E: %s:%d %s is nullptr\n", \
             __FILE__, __LINE__, #x);     \
         return E_FAIL;                   \
     }                                    \
@@ -58,13 +58,13 @@ template <class T> void SafeRelease(T **ppT)
     if (*ppT)
     {
         (*ppT)->Release();
-        *ppT = NULL;
+        *ppT = nullptr;
     }
 }
 
-#define SAFE_RELEASE(x) { if (x) { x->Release(); x = NULL; } }
+#define SAFE_RELEASE(x) { if (x) { x->Release(); x = nullptr; } }
 
-#define SAFE_DELETE(x) { delete x; x=NULL; }
+#define SAFE_DELETE(x) { delete x; x=nullptr; }
 
 void
 WWWaveFormatDebug(WAVEFORMATEX *v);

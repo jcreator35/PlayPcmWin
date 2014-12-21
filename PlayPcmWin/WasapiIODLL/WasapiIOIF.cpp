@@ -46,7 +46,7 @@ WasapiIO::Init(void)
 {
     HRESULT hr;
     
-    stateChangedCallback = NULL;
+    stateChangedCallback = nullptr;
     playPcmGroup.Init();
     deviceEnumerator.Init();
     hr = wasapi.Init();
@@ -64,7 +64,7 @@ WasapiIO::Init(void)
 void
 WasapiIO::Term(void)
 {
-    stateChangedCallback = NULL;
+    stateChangedCallback = nullptr;
 
     deviceEnumerator.UnregisterDeviceStateCallback(this);
 
@@ -79,7 +79,7 @@ WasapiIO::UpdatePlayRepeat(bool repeat)
     WWPcmData *first = playPcmGroup.FirstPcmData();
     WWPcmData *last  = playPcmGroup.LastPcmData();
 
-    if (NULL != first && NULL != last) {
+    if (nullptr != first && nullptr != last) {
         playPcmGroup.SetPlayRepeat(repeat);
         wasapi.PcmStream().UpdatePlayRepeat(repeat, first, last);
     }
@@ -91,7 +91,7 @@ WasapiIO::ConnectPcmDataNext(int fromIdx, int toIdx)
     WWPcmData *from = playPcmGroup.FindPcmDataById(fromIdx);
     WWPcmData *to = playPcmGroup.FindPcmDataById(toIdx);
 
-    if (NULL == from || NULL == to) {
+    if (nullptr == from || nullptr == to) {
         return false;
     }
 
@@ -183,7 +183,7 @@ HRESULT
 WasapiIO::StartPlayback(int wavDataId)
 {
     WWPcmData *p = playPcmGroup.FindPcmDataById(wavDataId);
-    if (NULL == p) {
+    if (nullptr == p) {
         dprintf("%s(%d) PcmData is not found\n",
             __FUNCTION__, wavDataId);
         return E_FAIL;
@@ -218,12 +218,12 @@ static WasapiIO *
 Instance(int id)
 {
     if (id < 0) {
-        return NULL;
+        return nullptr;
     }
 
     std::map<int, WasapiIO *>::iterator ite = gSelf.find(id);
     if (ite == gSelf.end()) {
-        return NULL;
+        return nullptr;
     }
 
     return ite->second;
@@ -240,7 +240,7 @@ WasapiIO_Init(int *instanceId_return)
     HRESULT hr = S_OK;
 
     WasapiIO * self = new WasapiIO();
-    if (self == NULL) {
+    if (self == nullptr) {
         return E_FAIL;
     }
 
@@ -416,7 +416,7 @@ WasapiIO_AddPlayPcmDataSetPcmFragment(int instanceId, int pcmId, int64_t posByte
 #endif
 
     WWPcmData *p = self->playPcmGroup.FindPcmDataById(pcmId);
-    if (NULL == p) {
+    if (nullptr == p) {
         return false;
     }
 
@@ -502,7 +502,7 @@ WasapiIO_SetNowPlayingPcmDataId(int instanceId, int pcmId)
     WasapiIO *self = Instance(instanceId);
     assert(self);
 
-    WWPcmData *p = NULL;
+    WWPcmData *p = nullptr;
 
     if (pcmId < 0) {
         // jump to end PCM. This leads to playback termination
@@ -511,7 +511,7 @@ WasapiIO_SetNowPlayingPcmDataId(int instanceId, int pcmId)
         p = self->playPcmGroup.FindPcmDataById(pcmId);
     }
 
-    if (NULL == p) {
+    if (nullptr == p) {
         dprintf("%s(%d) PcmData not found\n",
             __FUNCTION__, pcmId);
         return;

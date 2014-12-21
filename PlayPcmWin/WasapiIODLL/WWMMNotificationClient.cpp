@@ -24,7 +24,7 @@ WWMMNotificationClient::Release(void)
         // 呼び出し側のポインタの持ち方によっては呼ばれない。ここでnewしたメンバをdeleteする。
         // 現時点でdeleteするものは特にない。
             
-        m_pCallback = NULL;
+        m_pCallback = nullptr;
 
         delete this;
     }
@@ -42,7 +42,7 @@ WWMMNotificationClient::QueryInterface(REFIID riid, VOID **ppvInterface)
         AddRef();
         *ppvInterface = (IMMNotificationClient*)this;
     } else {
-        *ppvInterface = NULL;
+        *ppvInterface = nullptr;
         return E_NOINTERFACE;
     }
     return S_OK;

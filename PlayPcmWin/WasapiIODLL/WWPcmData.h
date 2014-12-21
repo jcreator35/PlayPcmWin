@@ -102,7 +102,7 @@ struct WWPcmData {
     BYTE      *stream;
 
     WWPcmData(void) {
-        next         = NULL;
+        next         = nullptr;
 
         id           = 0;
         sampleFormat = WWPcmDataSampleFormatUnknown;
@@ -115,12 +115,12 @@ struct WWPcmData {
         nFrames       = 0;
         posFrame      = 0;
 
-        stream        = NULL;
+        stream        = nullptr;
     }
 
     ~WWPcmData(void) {
         // ここでstreamをfreeする必要はない。
-        // streamがNULLでなくても問題ない！
+        // streamがnullptrでなくても問題ない！
         // メモリリークしないように呼び出し側が気をつける。
     }
 
@@ -131,7 +131,7 @@ struct WWPcmData {
     void Term(void);
 
     void Forget(void) {
-        stream = NULL;
+        stream = nullptr;
     }
 
     void CopyFrom(WWPcmData *rhs);

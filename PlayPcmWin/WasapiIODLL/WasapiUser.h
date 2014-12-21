@@ -43,22 +43,22 @@ public:
     HRESULT Init(void);
     void    Term(void);
 
-    /// @param bitFormat 0:Int, 1:Float
-    /// @return 0 this sampleFormat is supported
-    int InspectDevice(IMMDevice *device, WWPcmFormat &pcmFormat);
+    /// @return 0 when the specified sampleFormat is supported
+    int InspectDevice(IMMDevice *device, const WWPcmFormat &pcmFormat);
 
     /// @param format sampleRate pcm data sample rate. On WASAPI shared mode, device sample rate cannot be changed so
     ///        you need to resample pcm to DeviceSampleRate
-    HRESULT Setup(IMMDevice *device, WWDeviceType deviceType, WWPcmFormat &pcmFormat, WWShareMode sm, WWDataFeedMode dfm, int latencyMillisec);
+    HRESULT Setup(IMMDevice *device, WWDeviceType deviceType, const WWPcmFormat &pcmFormat, WWShareMode sm, WWDataFeedMode dfm, int latencyMillisec);
 
     void Unsetup(void);
 
     bool IsResampleNeeded(void) const;
 
     /// if you changed sample format after Setup() call this function...
-    void UpdatePcmDataFormat(WWPcmFormat &fmt);
+    void UpdatePcmDataFormat(const WWPcmFormat &fmt);
 
     /// 再生データをpcmDataに切り替える。再生中でも停止中でも再生一時停止中でも可。
+    /// @param pcmData [in,out] pcmData.posFrame (再生位置)が更新されたりする。
     void UpdatePlayPcmData(WWPcmData &pcmData);
 
     /// 再生位置を移動する。
@@ -88,10 +88,12 @@ public:
     void MutexRelease(void);
 
     /// Setup後に呼ぶ(Setup()で代入するので)
+    /// @param pcmFormat [out] Setupで設定されたPcmFormat
     void GetPcmFormat(WWPcmFormat &pcmFormat) const { pcmFormat = m_pcmFormat; }
 
     /// デバイス(ミックスフォーマット)サンプルレート
     /// WASAPI共有の場合、Setup後にGetPcmDataSampleRateとは異なる値になることがある。
+    /// @param deviceFormat [out] Setupで判明したデバイスフォーマット
     void GetDevicePcmFormat(WWPcmFormat &deviceFormat) const { deviceFormat = m_deviceFormat; }
     EDataFlow GetDataFlow(void) const { return m_dataFlow; }
     int GetEndpointBufferFrameNum(void) const { return m_bufferFrameNum; }
@@ -152,6 +154,7 @@ private:
 
     /// 再生中(か一時停止中)に再生するPcmDataをセットする。
     /// サンプル値をなめらかに補間する。
+    /// @param playPcmData [in,out] playPcmData.posFrame (再生位置)が更新されたりする。
     void UpdatePlayPcmDataWhenPlaying(WWPcmData &playPcmData);
 
     void PrepareBuffers(void);

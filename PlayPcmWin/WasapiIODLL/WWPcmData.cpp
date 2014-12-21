@@ -131,7 +131,7 @@ WWPcmData::Term(void)
     dprintf("D: %s() stream=%p\n", __FUNCTION__, stream);
 
     free(stream);
-    stream = NULL;
+    stream = nullptr;
 }
 
 void
@@ -139,7 +139,7 @@ WWPcmData::CopyFrom(WWPcmData *rhs)
 {
     *this = *rhs;
 
-    next = NULL;
+    next = nullptr;
 
     int64_t bytes = nFrames * bytesPerFrame;
     assert(0 < bytes);
@@ -154,18 +154,18 @@ WWPcmData::Init(
         int64_t anFrames, int aframeBytes,
         WWPcmDataContentType acontentType)
 {
-    assert(stream == NULL);
+    assert(stream == nullptr);
 
     id           = aId;
     sampleFormat = asampleFormat;
     contentType  = acontentType;
-    next         = NULL;
+    next         = nullptr;
     posFrame     = 0;
     nChannels    = anChannels;
     // メモリ確保に成功してからフレーム数をセットする。
     nFrames       = 0;
     bytesPerFrame = aframeBytes;
-    stream        = NULL;
+    stream        = nullptr;
 
     int64_t bytes = anFrames * aframeBytes;
     if (bytes < 0) {
@@ -179,7 +179,7 @@ WWPcmData::Init(
 #endif
 
     BYTE *p = (BYTE *)malloc(bytes);
-    if (NULL == p) {
+    if (nullptr == p) {
         // 失敗…
         return false;
     }
@@ -425,7 +425,7 @@ WWPcmData::UpdateSpliceDataWithStraightLinePcm(
             }
 
             _freea(p);
-            p = NULL;
+            p = nullptr;
         }
         break;
     default:
@@ -461,7 +461,7 @@ WWPcmData::UpdateSpliceDataWithStraightLinePcm(
             // printf("\n");
 
             _freea(p);
-            p = NULL;
+            p = nullptr;
         }
         break;
     }
@@ -494,13 +494,13 @@ WWPcmData::CreateCrossfadeDataPcm(
             SetSampleValueAsFloat(ch, x, y0 * (1.0f - ratio) + y1 * ratio);
 
             ++pcm0Pos;
-            if (pcm0->nFrames <= pcm0Pos && NULL != pcm0->next) {
+            if (pcm0->nFrames <= pcm0Pos && nullptr != pcm0->next) {
                 pcm0 = pcm0->next;
                 pcm0Pos = 0;
             }
 
             ++pcm1Pos;
-            if (pcm1->nFrames <= pcm1Pos && NULL != pcm1->next) {
+            if (pcm1->nFrames <= pcm1Pos && nullptr != pcm1->next) {
                 pcm1 = pcm1->next;
                 pcm1Pos = 0;
             }
@@ -711,7 +711,7 @@ void
 WWPcmData::DopToPcm(void)
 {
     SmallDsdStreamInfo *dsdStreams = new SmallDsdStreamInfo[nChannels];
-    if (NULL == dsdStreams) {
+    if (nullptr == dsdStreams) {
         assert(0);
         return;
     }
@@ -769,7 +769,7 @@ WWPcmData::DopToPcm(void)
     }
 
     delete [] dsdStreams;
-    dsdStreams = NULL;
+    dsdStreams = nullptr;
 }
 
 void
@@ -805,7 +805,7 @@ WWPcmData::PcmToDop(void)
 {
     int64_t pos = 0;
     SmallDsdStreamInfo *dsdStreams = new SmallDsdStreamInfo[nChannels];
-    if (NULL == dsdStreams) {
+    if (nullptr == dsdStreams) {
         assert(0);
         return;
     }
@@ -888,7 +888,7 @@ WWPcmData::PcmToDop(void)
     }
 
     delete [] dsdStreams;
-    dsdStreams = NULL;
+    dsdStreams = nullptr;
 }
 
 static void

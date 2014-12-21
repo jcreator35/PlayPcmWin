@@ -42,7 +42,7 @@ public:
 
     /// @param id WAVファイルID。
     /// @param data WAVファイルのPCMデータ。LRLRLR…で、リトルエンディアン。
-    ///             data==NULLの場合、PCMデータのメモリ領域だけ確保。
+    ///             data==nullptrの場合、PCMデータのメモリ領域だけ確保。
     /// @param bytes dataのバイト数。
     /// @return true: 追加成功。false: 追加失敗。
     bool AddPlayPcmData(int id, BYTE *data, int64_t bytes);

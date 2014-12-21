@@ -11,8 +11,8 @@ DeviceNameGet(IMMDeviceCollection *dc, UINT id, wchar_t *name, size_t nameBytes)
 {
     HRESULT hr = 0;
 
-    IMMDevice *device  = NULL;
-    IPropertyStore *ps = NULL;
+    IMMDevice *device  = nullptr;
+    IPropertyStore *ps = nullptr;
     PROPVARIANT pv;
 
     assert(dc);
@@ -41,8 +41,8 @@ DeviceIdStringGet(IMMDeviceCollection *dc, UINT id, wchar_t *deviceIdStr, size_t
 {
     HRESULT hr = 0;
 
-    IMMDevice *device  = NULL;
-    LPWSTR    s        = NULL;
+    IMMDevice *device  = nullptr;
+    LPWSTR    s        = nullptr;
 
     assert(dc);
     assert(deviceIdStr);
@@ -57,7 +57,7 @@ DeviceIdStringGet(IMMDeviceCollection *dc, UINT id, wchar_t *deviceIdStr, size_t
 
 end:
     CoTaskMemFree(s);
-    s = NULL;
+    s = nullptr;
     SafeRelease(&device);
     return hr;
 }
@@ -70,8 +70,8 @@ WWDeviceInfo::WWDeviceInfo(int id, const wchar_t * name, const wchar_t * idStr)
 }
 
 WWAudioDeviceEnumerator::WWAudioDeviceEnumerator(void)
-    : m_deviceCollection(NULL),
-      m_deviceEnumerator(NULL),
+    : m_deviceCollection(nullptr),
+      m_deviceEnumerator(nullptr),
       m_dataFlow(eCapture),
       m_useDeviceId(-1)
 {
@@ -167,7 +167,7 @@ WWAudioDeviceEnumerator::BuildDeviceList(WWDeviceType t)
         return E_FAIL;
     }
 
-    HRR(CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&m_deviceEnumerator)));
+    HRR(CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&m_deviceEnumerator)));
 
     if (m_deviceEnumerator) {
         for (auto it = m_notificationClientList.begin();
@@ -235,14 +235,14 @@ IMMDevice *
 WWAudioDeviceEnumerator::GetDevice(int id)
 {
     HRESULT   hr      = 0;
-    IMMDevice *device = NULL;
+    IMMDevice *device = nullptr;
 
     if (id < 0 || (int)m_deviceInfo.size() <= id) {
-        return NULL;
+        return nullptr;
     }
 
     if (!m_deviceCollection) {
-        return NULL;
+        return nullptr;
     }
 
     HRG(m_deviceCollection->Item(id, &device));

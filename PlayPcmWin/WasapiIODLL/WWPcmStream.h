@@ -39,6 +39,7 @@ public:
     }
 
     /// 再生開始直後はStart無音を再生、その後startPcmDataを再生するようなリンクリストを作る。
+    /// @param startPcm [in,out] .posFrame や.nextが更新される。
     void UpdateStartPcm(WWPcmData *startPcm);
 
     /// リピートなしのときはendPcmDataの次にEnd無音を再生し再生停止するようなリンクリストを作る。

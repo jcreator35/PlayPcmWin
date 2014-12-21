@@ -58,7 +58,7 @@ struct WWMFSampleData {
     DWORD  bytes;
     BYTE  *data;
 
-    WWMFSampleData(void) : bytes(0), data(NULL) { }
+    WWMFSampleData(void) : bytes(0), data(nullptr) { }
 
     /// @param aData must point new[] ed memory address
     WWMFSampleData(BYTE *aData, int aBytes) {
@@ -67,23 +67,23 @@ struct WWMFSampleData {
     }
 
     ~WWMFSampleData(void) {
-        assert(NULL == data);
+        assert(nullptr == data);
     }
 
     void Release(void) {
         delete[] data;
-        data = NULL;
+        data = nullptr;
         bytes = 0;
     }
 
     void Forget(void) {
-        data  = NULL;
+        data  = nullptr;
         bytes = 0;
     }
 
     HRESULT Add(WWMFSampleData &rhs) {
         BYTE *buff = new BYTE[bytes + rhs.bytes];
-        if (NULL == buff) {
+        if (nullptr == buff) {
             return E_FAIL;
         }
 
@@ -106,7 +106,7 @@ struct WWMFSampleData {
             return Add(rhs);
         }
 
-        assert(NULL == data);
+        assert(nullptr == data);
         *this = rhs; //< Just copy 8 bytes. It's way faster than Add()
         rhs.Forget();
 
@@ -116,7 +116,7 @@ struct WWMFSampleData {
 
 class WWMFResampler {
 public:
-    WWMFResampler(void) : m_pTransform(NULL), m_isMFStartuped(false), m_inputFrameTotal(0), m_outputFrameTotal(0) { }
+    WWMFResampler(void) : m_pTransform(nullptr), m_isMFStartuped(false), m_inputFrameTotal(0), m_outputFrameTotal(0) { }
     ~WWMFResampler(void);
 
     /// @param halfFilterLength conversion quality. 1(min) to 60 (max)

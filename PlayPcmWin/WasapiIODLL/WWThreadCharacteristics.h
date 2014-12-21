@@ -33,7 +33,7 @@ struct WWThreadCharacteristicsSetupResult {
 class WWThreadCharacteristics {
 public:
     WWThreadCharacteristics(void) : m_mmcssCallType(WWMMCSSEnable),
-            m_schedulerTaskType(WWSTTAudio), m_mmcssHandle(NULL), m_mmcssTaskIndex(0) { }
+            m_schedulerTaskType(WWSTTAudio), m_mmcssHandle(nullptr), m_mmcssTaskIndex(0) { }
 
     void Set(WWMMCSSCallType ct, WWSchedulerTaskType stt);
 

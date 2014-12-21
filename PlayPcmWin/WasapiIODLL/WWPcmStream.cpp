@@ -5,8 +5,8 @@
 #include <assert.h>
 
 WWPcmStream::WWPcmStream(void)
-        : m_nowPlayingPcmData(NULL),
-          m_pauseResumePcmData(NULL),
+        : m_nowPlayingPcmData(nullptr),
+          m_pauseResumePcmData(nullptr),
           m_streamType(WWStreamPcm),
           m_zeroFlushMillisec(0)
 {
@@ -49,7 +49,7 @@ WWPcmStream::PrepareSilenceBuffers(DWORD latencyMillisec, WWPcmDataSampleFormatT
     m_endSilenceBuffer.Init(-1, deviceSampleFormat, deviceNumChannels,
             (4 * (int)((int64_t)deviceSampleRate * latencyMillisec / 1000) + 1) & (~1),
             deviceBytesPerFrame, WWPcmDataContentSilenceForEnding);
-    m_endSilenceBuffer.next = NULL;
+    m_endSilenceBuffer.next = nullptr;
 
     // spliceバッファー。サイズは100分の1秒=10ms 適当に選んだ。
     m_spliceBuffer.Init(-1, deviceSampleFormat, deviceNumChannels,
@@ -87,7 +87,7 @@ WWPcmStream::ReleaseBuffers(void)
     m_unpauseSilenceBuffer.Term();
     m_endSilenceBuffer.Term();
 
-    m_nowPlayingPcmData = NULL;
+    m_nowPlayingPcmData = nullptr;
 
 }
 
@@ -100,7 +100,7 @@ WWPcmStream::Paused(WWPcmData *pauseResume)
     m_pauseBuffer.next = &m_endSilenceBuffer;
 
     m_endSilenceBuffer.posFrame = 0;
-    m_endSilenceBuffer.next = NULL;
+    m_endSilenceBuffer.next = nullptr;
 
     m_pauseBuffer.UpdateSpliceDataWithStraightLine(
         *m_nowPlayingPcmData, m_nowPlayingPcmData->posFrame,
@@ -144,7 +144,7 @@ WWPcmStream::UnpausePrepare(void)
 void
 WWPcmStream::UnpauseDone(void)
 {
-    m_pauseResumePcmData = NULL;
+    m_pauseResumePcmData = nullptr;
 }
 
 void
@@ -161,7 +161,7 @@ WWPcmStream::UpdatePlayRepeat(bool repeat, WWPcmData *startPcmData, WWPcmData *e
     assert(!IsSilenceBuffer(endPcmData));
 
     if (!repeat) {
-        // リピートなし。endPcmData→endSilence→NULL
+        // リピートなし。endPcmData→endSilence→nullptr
         endPcmData->next = &m_endSilenceBuffer;
     } else {
         // リピートあり。endPcmData→startPcmData
@@ -172,7 +172,7 @@ WWPcmStream::UpdatePlayRepeat(bool repeat, WWPcmData *startPcmData, WWPcmData *e
 WWPcmData *
 WWPcmStream::GetPcm(WWPcmDataUsageType t)
 {
-    WWPcmData *pcm = NULL;
+    WWPcmData *pcm = nullptr;
 
     switch (t) {
     case WWPDUNowPlaying:
@@ -201,7 +201,7 @@ WWPcmStream::GetPcm(WWPcmDataUsageType t)
 WWPcmData *
 WWPcmStream::GetSilenceBuffer(WWPcmDataContentType t)
 {
-    WWPcmData *pcm = NULL;
+    WWPcmData *pcm = nullptr;
 
     switch (t) {
     case WWPcmDataContentSilenceForTrailing:
