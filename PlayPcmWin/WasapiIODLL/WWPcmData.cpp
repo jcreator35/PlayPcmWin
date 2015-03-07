@@ -152,7 +152,7 @@ bool
 WWPcmData::Init(
         int aId, WWPcmDataSampleFormatType asampleFormat, int anChannels,
         int64_t anFrames, int aframeBytes,
-        WWPcmDataContentType acontentType)
+        WWPcmDataContentType acontentType, WWStreamType aStreamType)
 {
     assert(stream == nullptr);
 
@@ -166,6 +166,7 @@ WWPcmData::Init(
     nFrames       = 0;
     bytesPerFrame = aframeBytes;
     stream        = nullptr;
+    streamType    = aStreamType;
 
     int64_t bytes = anFrames * aframeBytes;
     if (bytes < 0) {
@@ -923,12 +924,12 @@ WWPcmData::UpdateSpliceDataWithStraightLineDop(
     WWPcmData fromPcm;
     WWPcmData toPcm;
 
-    fromPcm.Init(-1, sampleFormat, nChannels, SPLICE_READ_FRAME_NUM, bytesPerFrame, contentType);
+    fromPcm.Init(-1, sampleFormat, nChannels, SPLICE_READ_FRAME_NUM, bytesPerFrame, contentType, WWStreamPcm);
     fromPcm.FillDopSilentData();
     CopyStream(fromDop, fromPosFrame, SPLICE_READ_FRAME_NUM, fromPcm);
     fromPcm.DopToPcm();
 
-    toPcm.Init(  -1, sampleFormat, nChannels, SPLICE_READ_FRAME_NUM, bytesPerFrame, contentType);
+    toPcm.Init(  -1, sampleFormat, nChannels, SPLICE_READ_FRAME_NUM, bytesPerFrame, contentType, WWStreamPcm);
     toPcm.FillDopSilentData();
     CopyStream(toDop,   toPosFrame,   SPLICE_READ_FRAME_NUM, toPcm);
     toPcm.DopToPcm();

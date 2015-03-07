@@ -171,7 +171,7 @@ namespace PlayPcmWin
         enum State {
             未初期化,
             再生リスト読み込み中,
-            初期化完了,
+            再生リストなし,
             再生リストあり,
 
             // これ以降の状態にいる場合、再生リストに新しいファイルを追加できない。
@@ -180,7 +180,7 @@ namespace PlayPcmWin
             再生中,
             再生一時停止中,
             再生停止開始,
-            再生グループ切り替え中,
+            再生グループ読み込み中,
         }
 
         /// <summary>
@@ -321,7 +321,7 @@ namespace PlayPcmWin
             if (0 < m_playListItems.Count) {
                 ChangeState(State.再生リストあり);
             } else {
-                ChangeState(State.初期化完了);
+                ChangeState(State.再生リストなし);
             }
             UpdateUIStatus();
         }
@@ -349,6 +349,8 @@ namespace PlayPcmWin
         /// true: slider is dragging
         /// </summary>
         private bool mSliderSliding = false;
+
+        List<PreferenceAudioFilter> mPreferenceAudioFilterList = new List<PreferenceAudioFilter>();
 
         /// ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -409,6 +411,11 @@ namespace PlayPcmWin
 
             textBoxLatency.Text = string.Format(CultureInfo.InvariantCulture, "{0}", m_preference.LatencyMillisec);
 
+            checkBoxSoundEffects.IsChecked = m_preference.SoundEffectsEnabled;
+            buttonSoundEffectsSettings.IsEnabled = m_preference.SoundEffectsEnabled;
+            mPreferenceAudioFilterList = PreferenceAudioFilterStore.Load();
+            UpdateSoundEffects(m_preference.SoundEffectsEnabled);
+
             switch (m_preference.WasapiSharedOrExclusive) {
             case WasapiSharedOrExclusiveType.Exclusive:
                 radioButtonExclusive.IsChecked = true;
@@ -467,7 +474,7 @@ namespace PlayPcmWin
             } else {
                 // Issue 130
                 EnableDataGridPlaylist();
-                ChangeState(State.初期化完了);
+                ChangeState(State.再生リストなし);
                 UpdateUIStatus();
             }
         }
@@ -556,6 +563,10 @@ namespace PlayPcmWin
             dataGridColumnTitle.Header = Properties.Resources.MainDataGridColumnTitle;
 
             labelLoadingPlaylist.Content = Properties.Resources.MainStatusReadingPlaylist;
+
+            groupBoxWasapiSoundEffects.Header = Properties.Resources.GroupBoxSoundEffects;
+            buttonSoundEffectsSettings.Content = Properties.Resources.ButtonSoundEffectsSettings;
+            checkBoxSoundEffects.Content = Properties.Resources.CheckBoxSoundEffects;
         }
 
         private bool IsPlayModeAllTracks() {
@@ -784,7 +795,9 @@ namespace PlayPcmWin
 
             buttonNext.IsEnabled             = false;
             buttonPrev.IsEnabled             = false;
-            groupBoxWasapiSettings.IsEnabled = true;
+            groupBoxWasapiOperationMode.IsEnabled = true;
+            groupBoxWasapiDataFeedMode.IsEnabled = true;
+            groupBoxWasapiOutputLatency.IsEnabled = true;
 
             buttonClearPlayList.IsEnabled    = false;
             buttonDelistSelected.IsEnabled = false;
@@ -821,7 +834,9 @@ namespace PlayPcmWin
 
             buttonNext.IsEnabled = true;
             buttonPrev.IsEnabled = true;
-            groupBoxWasapiSettings.IsEnabled = true;
+            groupBoxWasapiOperationMode.IsEnabled = true;
+            groupBoxWasapiDataFeedMode.IsEnabled = true;
+            groupBoxWasapiOutputLatency.IsEnabled = true;
 
             buttonClearPlayList.IsEnabled = true;
             buttonDelistSelected.IsEnabled = (dataGridPlayList.SelectedIndex >= 0);
@@ -850,7 +865,9 @@ namespace PlayPcmWin
 
             buttonNext.IsEnabled = false;
             buttonPrev.IsEnabled = false;
-            groupBoxWasapiSettings.IsEnabled = false;
+            groupBoxWasapiOperationMode.IsEnabled = false;
+            groupBoxWasapiDataFeedMode.IsEnabled = false;
+            groupBoxWasapiOutputLatency.IsEnabled = false;
 
             buttonClearPlayList.IsEnabled = false;
             buttonDelistSelected.IsEnabled = false;
@@ -880,7 +897,9 @@ namespace PlayPcmWin
 
             buttonNext.IsEnabled = true;
             buttonPrev.IsEnabled = true;
-            groupBoxWasapiSettings.IsEnabled = false;
+            groupBoxWasapiOperationMode.IsEnabled = false;
+            groupBoxWasapiDataFeedMode.IsEnabled = false;
+            groupBoxWasapiOutputLatency.IsEnabled = false;
 
             buttonClearPlayList.IsEnabled = false;
             buttonDelistSelected.IsEnabled = false;
@@ -906,7 +925,7 @@ namespace PlayPcmWin
             }
 
             switch (m_state) {
-            case State.初期化完了:
+            case State.再生リストなし:
                 UpdateUIToInitialState();
                 statusBarText.Content = Properties.Resources.MainStatusPleaseCreatePlaylist;
                 break;
@@ -976,7 +995,7 @@ namespace PlayPcmWin
                 UpdateUIToNonEditableState();
                 statusBarText.Content = Properties.Resources.MainStatusStopping;
                 break;
-            case State.再生グループ切り替え中:
+            case State.再生グループ読み込み中:
                 UpdateUIToNonEditableState();
                 statusBarText.Content = Properties.Resources.MainStatusChangingPlayGroup;
                 break;
@@ -1050,7 +1069,7 @@ namespace PlayPcmWin
             if (0 < m_playListItems.Count) {
                 ChangeState(State.再生リストあり);
             } else {
-                ChangeState(State.初期化完了);
+                ChangeState(State.再生リストなし);
             }
 
             UpdateUIStatus();
@@ -1113,7 +1132,7 @@ namespace PlayPcmWin
             if (0 < m_playListItems.Count) {
                 ChangeState(State.再生リストあり);
             } else {
-                ChangeState(State.初期化完了);
+                ChangeState(State.再生リストなし);
             }
             UpdateUIStatus();
         }
@@ -1147,6 +1166,8 @@ namespace PlayPcmWin
 
                 // 設定ファイルを書き出す。
                 PreferenceStore.Save(m_preference);
+
+                PreferenceAudioFilterStore.Save(mPreferenceAudioFilterList);
 
                 // 再生リストをIsolatedStorageに保存。
                 SavePpwPlaylist(string.Empty);
@@ -1344,7 +1365,7 @@ namespace PlayPcmWin
 
             GC.Collect();
 
-            ChangeState(State.初期化完了);
+            ChangeState(State.再生リストなし);
 
             if (mode == PlayListClearMode.ClearWithUpdateUI) {
                 //m_playListView.RefreshCollection();
@@ -2682,7 +2703,7 @@ namespace PlayPcmWin
             }
 
             // 再生状態→再生グループ切り替え中状態に遷移。
-            ChangeState(State.再生グループ切り替え中);
+            ChangeState(State.再生グループ読み込み中);
             UpdateUIStatus();
 
             StartReadFiles(m_task.GroupId);
@@ -3283,7 +3304,7 @@ namespace PlayPcmWin
                 {
                     case State.未初期化:
                         return;
-                    case State.初期化完了:
+                    case State.再生リストなし:
                     case State.再生リスト読み込み中:
                     case State.再生リストあり:
                         // 再生中ではない場合、デバイス一覧を更新する。
@@ -3292,7 +3313,7 @@ namespace PlayPcmWin
                         break;
                     case State.デバイスSetup完了:
                     case State.ファイル読み込み完了:
-                    case State.再生グループ切り替え中:
+                    case State.再生グループ読み込み中:
                     case State.再生一時停止中:
                     case State.再生中:
                     case State.再生停止開始:
@@ -3531,6 +3552,50 @@ namespace PlayPcmWin
                     break;
                 }
             }));
+        }
+
+        private void checkBoxSoundEffects_Checked(object sender, RoutedEventArgs e) {
+            m_preference.SoundEffectsEnabled = true;
+            buttonSoundEffectsSettings.IsEnabled = true;
+
+            UpdateSoundEffects(true);
+        }
+
+        private void checkBoxSoundEffects_Unchecked(object sender, RoutedEventArgs e) {
+            m_preference.SoundEffectsEnabled = false;
+            buttonSoundEffectsSettings.IsEnabled = false;
+
+            UpdateSoundEffects(false);
+        }
+
+        private void buttonSoundEffectsSettings_Click(object sender, RoutedEventArgs e) {
+            var dialog = new SoundEffectsConfiguration();
+            dialog.SetAudioFilterList(mPreferenceAudioFilterList);
+            var result = dialog.ShowDialog();
+
+            if (true == result) {
+                mPreferenceAudioFilterList = dialog.AudioFilterList;
+
+                if (mPreferenceAudioFilterList.Count == 0) {
+                    // 音声処理を無効にする。
+                    m_preference.SoundEffectsEnabled = false;
+                    checkBoxSoundEffects.IsChecked = false;
+                    buttonSoundEffectsSettings.IsEnabled = false;
+                    UpdateSoundEffects(false);
+                } else {
+                    UpdateSoundEffects(true);
+                }
+            }
+        }
+
+        private void UpdateSoundEffects(bool bEnable) {
+            var sfu = new SoundEffectsUpdater();
+
+            if (bEnable) {
+                sfu.Update(wasapi, mPreferenceAudioFilterList);
+            } else {
+                sfu.Update(wasapi, new List<PreferenceAudioFilter>());
+            }
         }
     }
 }

@@ -128,7 +128,7 @@
         Grid.Column="1" ExpandDirection="Right" Name="expanderSettings"
         Style="{DynamicResource OppositeExpanderStyle}">
             <Grid x:Uid="Grid_4">
-                <GroupBox x:Uid="groupBoxWasapiSettings" Header="WASAPI settings" Width="320" Height="174" Margin="6,6,6,0" Name="groupBoxWasapiSettings" VerticalAlignment="Top">
+                <GroupBox x:Uid="groupBoxWasapiSettings" Header="WASAPI settings" Width="320" Height="194" Margin="6,6,6,0" Name="groupBoxWasapiSettings" VerticalAlignment="Top">
                     <Grid x:Uid="Grid_5">
                         <GroupBox x:Uid="groupBoxWasapiOperationMode" Header="Operation mode" Height="79" HorizontalAlignment="Left" Name="groupBoxWasapiOperationMode" VerticalAlignment="Top" Width="140" Margin="6,4,0,0">
                             <Grid x:Uid="Grid_6">
@@ -142,15 +142,25 @@
                                 <RadioButton x:Uid="radioButtonTimerDriven" Content="Timer driven" HorizontalAlignment="Left" Margin="6,28,0,0" Name="radioButtonTimerDriven" VerticalAlignment="Top"  Checked="radioButtonTimerDriven_Checked" />
                             </Grid>
                         </GroupBox>
-                        <GroupBox x:Uid="groupBoxWasapiOutputLatency" Header="Output latency" Height="59" HorizontalAlignment="Left" Margin="5,87,0,0" Name="groupBoxWasapiOutputLatency" VerticalAlignment="Top" Width="164">
+                        <GroupBox x:Uid="groupBoxWasapiOutputLatency" Header="Output latency" Height="59" HorizontalAlignment="Left" Margin="5,87,0,0" Name="groupBoxWasapiOutputLatency" VerticalAlignment="Top" Width="154">
                             <Grid x:Uid="Grid_7">
                                 <TextBox x:Uid="textBoxLatency" HorizontalAlignment="Left" Margin="6,6,0,0" Name="textBoxLatency" VerticalAlignment="Top" Width="69" Text="latency" HorizontalContentAlignment="Right" />
                                 <Label x:Uid="label2" Content="ms" HorizontalAlignment="Left" Margin="81,6,0,0" Name="label2" VerticalAlignment="Top" Width="55" VerticalContentAlignment="Center" />
                             </Grid>
                         </GroupBox>
+                        <GroupBox x:Uid="groupBoxSoundEffects" Header="Sound effects" Height="78" HorizontalAlignment="Left" Margin="160,87,0,0" Name="groupBoxWasapiSoundEffects" VerticalAlignment="Top" Width="140">
+                            <Grid x:Uid="Grid_12">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="1*" />
+                                    <RowDefinition Height="1*" />
+                                </Grid.RowDefinitions>
+                                <CheckBox Content="Sound Effects" Height="16" HorizontalAlignment="Left" Margin="6,0,0,0" Name="checkBoxSoundEffects" VerticalAlignment="Center" Checked="checkBoxSoundEffects_Checked" Unchecked="checkBoxSoundEffects_Unchecked" />
+                                <Button x:Uid="buttonSoundEffectsSettings" Grid.Row="1" Content="Settings..." HorizontalAlignment="Left" Margin="6,0,0,0" Name="buttonSoundEffectsSettings" VerticalAlignment="Top" Width="115" Click="buttonSoundEffectsSettings_Click" />
+                            </Grid>
+                        </GroupBox>
                     </Grid>
                 </GroupBox>
-                <GroupBox x:Uid="groupBoxOutputDevices" Header="Output device" Width="320" Margin="6,180,6,106" Name="groupBoxOutputDevices">
+                <GroupBox x:Uid="groupBoxOutputDevices" Header="Output device" Width="320" Margin="6,200,6,106" Name="groupBoxOutputDevices">
                     <Grid x:Uid="Grid_10">
                         <ListBox x:Uid="listBoxDevices" Margin="6,6,6,37" Name="listBoxDevices" />
                         <Button x:Uid="buttonSettings" Content="_Detailed settings..." HorizontalAlignment="Left" Margin="6,0,0,6" Name="buttonSettings" VerticalAlignment="Bottom" Width="134" Click="buttonSettings_Click" />

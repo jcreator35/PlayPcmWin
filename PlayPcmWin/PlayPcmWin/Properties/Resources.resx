@@ -610,4 +610,31 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
     <value>File does not have STREAMINFO MD5 signature. Could not perform MD5 validation: {0}
   MD5 from PCM data= {1}</value>
   </data>
+  <data name="AudioFilterMonauralMix" xml:space="preserve">
+    <value>Monaural mix (PCM)</value>
+  </data>
+  <data name="AudioFilterPolarityInvert" xml:space="preserve">
+    <value>Invert polarity (PCM, DoP DSD)</value>
+  </data>
+  <data name="AudioFilterActivated" xml:space="preserve">
+    <value>Activated Sound Effects</value>
+  </data>
+  <data name="AudioFilterAvailable" xml:space="preserve">
+    <value>Available Sound Effects</value>
+  </data>
+  <data name="AudioFilterClear" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="ButtonSoundEffectsSettings" xml:space="preserve">
+    <value>Settings...</value>
+  </data>
+  <data name="CheckBoxSoundEffects" xml:space="preserve">
+    <value>Sound effects</value>
+  </data>
+  <data name="ErrorFilterFileVersionMismatch" xml:space="preserve">
+    <value>Filter file version number mismatch</value>
+  </data>
+  <data name="GroupBoxSoundEffects" xml:space="preserve">
+    <value>Sound Effects</value>
+  </data>
 </root>

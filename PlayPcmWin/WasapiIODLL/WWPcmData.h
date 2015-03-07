@@ -127,7 +127,7 @@ struct WWPcmData {
     /// @param bytesPerFrame 1フレームのバイト数。
     ///     (1サンプル1チャンネルのバイト数×チャンネル数)
     bool Init(int id, WWPcmDataSampleFormatType sampleFormat, int nChannels,
-        int64_t nFrames, int bytesPerFrame, WWPcmDataContentType aContentType);
+        int64_t nFrames, int bytesPerFrame, WWPcmDataContentType aContentType, WWStreamType aStreamType);
     void Term(void);
 
     void Forget(void) {

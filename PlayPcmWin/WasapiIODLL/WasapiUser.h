@@ -11,6 +11,7 @@
 #include "WWTimerResolution.h"
 #include "WWThreadCharacteristics.h"
 #include "WWTypes.h"
+#include "WWAudioFilterSequencer.h"
 
 /// @param data captured data
 /// @param dataBytes captured data size in bytes
@@ -103,6 +104,7 @@ public:
     WWPcmStream &PcmStream(void) { return m_pcmStream; }
     WWTimerResolution &TimerResolution(void) { return m_timerResolution; }
     WWThreadCharacteristics &ThreadCharacteristics(void) { return m_threadCharacteristics; }
+    WWAudioFilterSequencer &AudioFilterSequencer(void) { return m_audioFilterSequencer; }
 
 private:
     HANDLE       m_shutdownEvent;
@@ -139,6 +141,7 @@ private:
     WWPcmStream m_pcmStream;
     WWTimerResolution m_timerResolution;
     WWThreadCharacteristics m_threadCharacteristics;
+    WWAudioFilterSequencer m_audioFilterSequencer;
 
     static DWORD WINAPI RenderEntry(LPVOID lpThreadParameter);
     static DWORD WINAPI CaptureEntry(LPVOID lpThreadParameter);

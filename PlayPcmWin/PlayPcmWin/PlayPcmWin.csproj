@@ -126,9 +126,15 @@
     <Compile Include="PlayListItemInfo.cs" />
     <Compile Include="PlaylistRW.cs" />
     <Compile Include="PpwPlaylistRW.cs" />
+    <Compile Include="PreferenceAudioFilter.cs" />
+    <Compile Include="PreferenceAudioFilterStore.cs" />
     <Compile Include="SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="SoundEffectsConfiguration.xaml.cs">
+      <DependentUpon>SoundEffectsConfiguration.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="SoundEffectsUpdater.cs" />
     <Compile Include="Util.cs" />
     <Compile Include="DsfReader.cs" />
     <Page Include="MainWindow.xaml">
@@ -144,6 +150,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="SettingsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="SoundEffectsConfiguration.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

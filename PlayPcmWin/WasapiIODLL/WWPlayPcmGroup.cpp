@@ -48,7 +48,7 @@ WWPlayPcmGroup::AddPlayPcmData(int id, BYTE *data, int64_t bytes)
     WWPcmData pcmData;
     if (!pcmData.Init(id, m_pcmFormat.sampleFormat, m_pcmFormat.numChannels,
             bytes/m_pcmFormat.BytesPerFrame(),
-            m_pcmFormat.BytesPerFrame(), WWPcmDataContentMusicData)) {
+            m_pcmFormat.BytesPerFrame(), WWPcmDataContentMusicData, m_pcmFormat.streamType)) {
         dprintf("E: %s(%d, %p, %lld) malloc failed\n", __FUNCTION__, id, data, bytes);
         return false;
     }
@@ -222,7 +222,7 @@ WWPlayPcmGroup::DoResample(WWPcmFormat &targetFmt, int conversionQuality)
 
         if (!pcmDataTo.Init(pFrom->id, targetFmt.sampleFormat, targetFmt.numChannels,
                 (int64_t)(((double)targetFmt.sampleRate / m_pcmFormat.sampleRate) * pFrom->nFrames),
-                targetFmt.numChannels * WWPcmDataSampleFormatTypeToBitsPerSample(targetFmt.sampleFormat)/8, WWPcmDataContentMusicData)) {
+                targetFmt.numChannels * WWPcmDataSampleFormatTypeToBitsPerSample(targetFmt.sampleFormat)/8, WWPcmDataContentMusicData, m_pcmFormat.streamType)) {
             dprintf("E: %s malloc failed. pcm id=%d\n", __FUNCTION__, pFrom->id);
             hr = E_OUTOFMEMORY;
             goto end;

@@ -204,6 +204,14 @@ namespace Wasapi {
         private extern static void
         WasapiIO_GetWorkerThreadSetupResult(int instanceId, out WasapiIoWorkerThreadSetupResult result);
 
+        [DllImport("WasapiIODLL.dll")]
+        private extern static void
+        WasapiIO_AppendAudioFilter(int instanceId, int audioFilterType);
+
+        [DllImport("WasapiIODLL.dll")]
+        private extern static void
+        WasapiIO_ClearAudioFilter(int instanceId);
+
         public enum MMCSSCallType {
             Disable,
             Enable,
@@ -254,6 +262,14 @@ namespace Wasapi {
         public enum StreamType {
             PCM,
             DoP,
+        };
+
+        /// <summary>
+        /// WWAudioFilterType.hと同じ順番で並べる
+        /// </summary>
+        public enum WWAudioFilterType {
+            PolarityInvert,
+            Monaural,
         };
 
         /// <summary>
@@ -635,6 +651,14 @@ namespace Wasapi {
             var p = new WasapiIoWorkerThreadSetupResult();
             WasapiIO_GetWorkerThreadSetupResult(mId, out p);
             return new WorkerThreadSetupResult(p.dwmEnableMMCSSResult, p.avSetMmThreadCharacteristicsResult!=0);
+        }
+
+        public void ClearAudioFilter() {
+            WasapiIO_ClearAudioFilter(mId);
+        }
+
+        public void AppendAudioFilter(WWAudioFilterType aft) {
+            WasapiIO_AppendAudioFilter(mId, (int)aft);
         }
     }
 }

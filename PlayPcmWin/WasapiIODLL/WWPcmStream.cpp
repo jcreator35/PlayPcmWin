@@ -38,32 +38,32 @@ WWPcmStream::PrepareSilenceBuffers(DWORD latencyMillisec, WWPcmDataSampleFormatT
         }
         m_startSilenceBuffer.Init(-1, deviceSampleFormat, deviceNumChannels,
                 (1 * (int)((int64_t)deviceSampleRate * startZeroFlushMillisec / 1000) + 1) & (~1),
-                deviceBytesPerFrame, WWPcmDataContentSilenceForTrailing);
+                deviceBytesPerFrame, WWPcmDataContentSilenceForTrailing, WWStreamPcm);
     }
 
     m_unpauseSilenceBuffer.Init(-1, deviceSampleFormat, deviceNumChannels,
             (1 * (int)((int64_t)deviceSampleRate * latencyMillisec / 1000) + 1) & (~1),
-            deviceBytesPerFrame, WWPcmDataContentSilenceForPause);
+            deviceBytesPerFrame, WWPcmDataContentSilenceForPause, WWStreamPcm);
 
     // endSilenceBufferは最後に再生される無音。
     m_endSilenceBuffer.Init(-1, deviceSampleFormat, deviceNumChannels,
             (4 * (int)((int64_t)deviceSampleRate * latencyMillisec / 1000) + 1) & (~1),
-            deviceBytesPerFrame, WWPcmDataContentSilenceForEnding);
+            deviceBytesPerFrame, WWPcmDataContentSilenceForEnding, WWStreamPcm);
     m_endSilenceBuffer.next = nullptr;
 
     // spliceバッファー。サイズは100分の1秒=10ms 適当に選んだ。
     m_spliceBuffer.Init(-1, deviceSampleFormat, deviceNumChannels,
             (deviceSampleRate / 100 + 1) & (~1),
-            deviceBytesPerFrame, WWPcmDataContentSplice);
+            deviceBytesPerFrame, WWPcmDataContentSplice, WWStreamPcm);
 
     // pauseバッファー。ポーズ時の波形つなぎに使われる。spliceバッファーと同様。
     m_pauseBuffer.Init(-1, deviceSampleFormat, deviceNumChannels,
             (deviceSampleRate / 100 + 1) & (~1),
-            deviceBytesPerFrame, WWPcmDataContentSplice);
+            deviceBytesPerFrame, WWPcmDataContentSplice, WWStreamPcm);
 
     switch (m_streamType) {
     case WWStreamPcm:
-        // Init()で0フィルされているので処理不要。
+        // Init()でPCMとして初期化し、0フィルされているので処理不要。
         break;
     case WWStreamDop:
         m_startSilenceBuffer.FillDopSilentData();

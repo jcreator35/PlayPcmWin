@@ -118,6 +118,8 @@ WasapiUser::Init(void)
     assert(!m_mutex);
     m_mutex = CreateMutex(nullptr, FALSE, nullptr);
 
+    m_audioFilterSequencer.Init();
+
     return hr;
 }
 
@@ -127,6 +129,8 @@ WasapiUser::Term(void)
     dprintf("D: %s() m_deviceToUse=%p m_mutex=%p\n", __FUNCTION__, m_deviceToUse, m_mutex);
 
     m_captureCallback = nullptr;
+
+    m_audioFilterSequencer.Term();
 
     SafeRelease(&m_deviceToUse);
 
@@ -411,32 +415,36 @@ WasapiUser::Start(void)
 
     switch (m_dataFlow) {
     case eRender:
-        assert(m_pcmStream.GetPcm(WWPDUNowPlaying));
+        {
+            WWPcmData *pcm = m_pcmStream.GetPcm(WWPDUNowPlaying);
+            assert(pcm);
 
-        assert(nullptr == m_thread);
-        m_thread = CreateThread(nullptr, 0, RenderEntry, this, 0, nullptr);
-        assert(m_thread);
+            assert(nullptr == m_thread);
+            m_thread = CreateThread(nullptr, 0, RenderEntry, this, 0, nullptr);
+            assert(m_thread);
 
-        nFrames = m_bufferFrameNum;
-        if (WWDFMTimerDriven == m_dataFeedMode || WWSMShared == m_shareMode) {
-            // 排他タイマー駆動の場合、パッド計算必要。
-            // 共有モードの場合タイマー駆動でもイベント駆動でもパッドが必要。
-            // RenderSharedEventDrivenのWASAPIRenderer.cpp参照。
+            nFrames = m_bufferFrameNum;
+            if (WWDFMTimerDriven == m_dataFeedMode || WWSMShared == m_shareMode) {
+                // 排他タイマー駆動の場合、パッド計算必要。
+                // 共有モードの場合タイマー駆動でもイベント駆動でもパッドが必要。
+                // RenderSharedEventDrivenのWASAPIRenderer.cpp参照。
 
-            UINT32 padding = 0; //< frame now using
-            HRG(m_audioClient->GetCurrentPadding(&padding));
-            nFrames = m_bufferFrameNum - padding;
+                UINT32 padding = 0; //< frame now using
+                HRG(m_audioClient->GetCurrentPadding(&padding));
+                nFrames = m_bufferFrameNum - padding;
+            }
+
+            if (0 <= nFrames) {
+                assert(m_renderClient);
+                HRG(m_renderClient->GetBuffer(nFrames, &pData));
+                memset(pData, 0, nFrames * m_deviceFormat.BytesPerFrame());
+                HRG(m_renderClient->ReleaseBuffer(nFrames, 0));
+            }
+
+            m_footerCount = 0;
+
+            m_audioFilterSequencer.UpdateSampleFormat(pcm->sampleFormat, pcm->streamType, pcm->nChannels);
         }
-
-        if (0 <= nFrames) {
-            assert(m_renderClient);
-            HRG(m_renderClient->GetBuffer(nFrames, &pData));
-            memset(pData, 0, nFrames * m_deviceFormat.BytesPerFrame());
-            HRG(m_renderClient->ReleaseBuffer(nFrames, 0));
-        }
-
-        m_footerCount = 0;
-
         break;
 
     case eCapture:
@@ -783,6 +791,11 @@ WasapiUser::AudioSamplesSendProc(void)
     assert(to);
 
     copyFrames = CreateWritableFrames(to, writableFrames);
+
+    if (m_audioFilterSequencer.IsAvailable()) {
+        // エフェクトを掛ける
+        m_audioFilterSequencer.ProcessSamples(to, copyFrames*m_deviceFormat.BytesPerFrame());
+    }
 
     if (0 < writableFrames - copyFrames) {
         memset(&to[copyFrames*m_deviceFormat.BytesPerFrame()], 0, (writableFrames - copyFrames)*m_deviceFormat.BytesPerFrame());

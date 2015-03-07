@@ -4,6 +4,9 @@
 #include "WWUtil.h"
 #include "WWTimerResolution.h"
 #include "WWAudioDeviceEnumerator.h"
+#include "WWAudioFilterType.h"
+#include "WWAudioFilterPolarityInvert.h"
+#include "WWAudioFilterMonauralMix.h"
 #include <assert.h>
 #include <map>
 
@@ -678,6 +681,45 @@ WasapiIO_GetWorkerThreadSetupResult(int instanceId, WasapiIoWorkerThreadSetupRes
     self->wasapi.ThreadCharacteristics().GetThreadCharacteristicsSetupResult(r);
     result.dwmEnableMMCSSResult               = (int)r.dwmEnableMMCSSResult;
     result.avSetMmThreadCharacteristicsResult = (int)r.avSetMmThreadCharacteristicsResult;
+}
+
+
+__declspec(dllexport)
+void __stdcall
+WasapiIO_AppendAudioFilter(int instanceId, int audioFilterType)
+{
+    WasapiIO *self = Instance(instanceId);
+    assert(self);
+
+    self->wasapi.MutexWait();
+    {
+        switch (audioFilterType) {
+        case WWAF_PolarityInvert:
+            self->wasapi.AudioFilterSequencer().Append(new WWAudioFilterPolarityInvert());
+            break;
+        case WWAF_Monaural:
+            self->wasapi.AudioFilterSequencer().Append(new WWAudioFilterMonauralMix());
+            break;
+        default:
+            assert(0);
+            return;
+        }
+    }
+    self->wasapi.MutexRelease();
+}
+
+__declspec(dllexport)
+void __stdcall
+WasapiIO_ClearAudioFilter(int instanceId)
+{
+    WasapiIO *self = Instance(instanceId);
+    assert(self);
+
+    self->wasapi.MutexWait();
+    {
+        self->wasapi.AudioFilterSequencer().UnregisterAll();
+    }
+    self->wasapi.MutexRelease();
 }
 
 }; // extern "C"

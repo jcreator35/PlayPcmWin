@@ -205,4 +205,13 @@ __declspec(dllexport)
 void __stdcall
 WasapiIO_GetWorkerThreadSetupResult(int instanceId, WasapiIoWorkerThreadSetupResult &result_return);
 
+/// @param audioFilterType WWAudioFilterType
+__declspec(dllexport)
+void __stdcall
+WasapiIO_AppendAudioFilter(int instanceId, int audioFilterType);
+
+__declspec(dllexport)
+void __stdcall
+WasapiIO_ClearAudioFilter(int instanceId);
+
 }; // extern "C"

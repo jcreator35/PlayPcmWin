@@ -1,0 +1,32 @@
+digraph G {
+    #rankdir=LR;
+    graph [ranksep=0.0]
+    edge [penwidth=2, fontsize=24, fontname="Ume P Gothic S5"]
+    node [penwidth=6, fontsize=32, fontname="Ume P Gothic S5"]
+    n0->n1 [label="アプリの起動"]
+    n1->n2 [label="再生リストが保存されていない"]
+    n1->n8 [label="再生リストが保存されている"]
+    n8->n3 [label="再生リスト読み出し完了"]
+    n3->n4 [label="再生ボタン押下" ]
+    n2->n3 [label="再生リストに1つ以上トラックが存在する"]
+    n4->n5 [label="再生グループ読み込み完了"]
+    n5->n6 [label="一時停止ボタン押下"]
+    n6->n5 [label="再生再開ボタン押下"]
+    n5->n7 [label="停止ボタン押下"]
+    n7->n3 [label="停止処理完了"]
+    n6->n7 [label="停止ボタン押下"]
+    n5->n4 [label="再生グループが切り替わった"]
+    n5->n3 [label="最後まで再生した"]
+    n3->n2 [label="再生リストをクリア"]
+
+    n0 [label="スタート"]
+    n1 [label="未初期化"]
+    n8 [label="再生リスト読み込み中"]
+    n2 [label="再生リストなし"]
+    n3 [label="再生リストあり"]
+    n4 [label="再生グループ読み込み中"]
+    n5 [label="再生中"]
+    n6 [label="再生一時停止中"]
+    n7 [label="再生停止開始"]
+    
+}

@@ -35,6 +35,18 @@
     <ClCompile Include="WWAudioDeviceEnumerator.cpp">
       <Filter>source files</Filter>
     </ClCompile>
+    <ClCompile Include="WWAudioFilterPolarityInvert.cpp">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="WWPcmSampleManipulator.cpp">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="WWAudioFilterSequencer.cpp">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="WWAudioFilterMonauralMix.cpp">
+      <Filter>source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WasapiIOIF.h">
@@ -71,6 +83,24 @@
       <Filter>header files</Filter>
     </ClInclude>
     <ClInclude Include="WWTypes.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWAudioFilterPolarityInvert.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWPcmSampleManipulator.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWAudioFilter.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWAudioFilterSequencer.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWAudioFilterType.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWAudioFilterMonauralMix.h">
       <Filter>header files</Filter>
     </ClInclude>
   </ItemGroup>
