@@ -569,4 +569,28 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   <data name="SettingsLabelQuantizationBitrate" xml:space="preserve">
     <value>进入WASAPI的音频数据位深(载入文件时进行转换)</value>
   </data>
+  <data name="AudioFilterActivated" xml:space="preserve">
+    <value>启用音效</value>
+  </data>
+  <data name="AudioFilterAvailable" xml:space="preserve">
+    <value>可用音效</value>
+  </data>
+  <data name="AudioFilterClear" xml:space="preserve">
+    <value>清除音效列表</value>
+  </data>
+  <data name="AudioFilterMonauralMix" xml:space="preserve">
+    <value>单声道混音（PCM）</value>
+  </data>
+  <data name="AudioFilterPolarityInvert" xml:space="preserve">
+    <value>相位反转（PCM, DoP DSD）</value>
+  </data>
+  <data name="ButtonSoundEffectsSettings" xml:space="preserve">
+    <value>设置</value>
+  </data>
+  <data name="CheckBoxSoundEffects" xml:space="preserve">
+    <value>音效</value>
+  </data>
+  <data name="GroupBoxSoundEffects" xml:space="preserve">
+    <value>音效</value>
+  </data>
 </root>
