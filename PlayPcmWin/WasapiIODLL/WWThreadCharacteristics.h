@@ -13,6 +13,16 @@ enum WWSchedulerTaskType {
     WWSTTNUM
 };
 
+enum WWMMThreadPriorityType {
+    WWTPNone,
+    WWTPLow,
+    WWTPNormal,
+    WWTPHigh,
+    WWTPCritical,
+
+    WWTPNUM
+};
+
 enum WWMMCSSCallType {
     WWMMCSSDisable,
     WWMMCSSEnable,
@@ -24,18 +34,21 @@ enum WWMMCSSCallType {
 struct WWThreadCharacteristicsSetupResult {
     HRESULT dwmEnableMMCSSResult;
     bool    avSetMmThreadCharacteristicsResult;
+    bool    avSetMmThreadPriorityResult;
 
     WWThreadCharacteristicsSetupResult(void) :
-            dwmEnableMMCSSResult(S_OK),
-            avSetMmThreadCharacteristicsResult(S_OK) { }
+            dwmEnableMMCSSResult(E_FAIL),
+            avSetMmThreadCharacteristicsResult(false),
+            avSetMmThreadPriorityResult(false) { }
 };
 
 class WWThreadCharacteristics {
 public:
-    WWThreadCharacteristics(void) : m_mmcssCallType(WWMMCSSEnable),
+    WWThreadCharacteristics(void)
+          : m_mmcssCallType(WWMMCSSEnable), m_threadPriority(WWTPNone),
             m_schedulerTaskType(WWSTTAudio), m_mmcssHandle(nullptr), m_mmcssTaskIndex(0) { }
 
-    void Set(WWMMCSSCallType ct, WWSchedulerTaskType stt);
+    void Set(WWMMCSSCallType ct, WWMMThreadPriorityType tp, WWSchedulerTaskType stt);
 
     /// Setup()の結果は GetSetupResult()で取得する。
     void Setup(void);
@@ -47,6 +60,7 @@ public:
 
 private:
     WWMMCSSCallType m_mmcssCallType;
+    WWMMThreadPriorityType m_threadPriority;
     WWSchedulerTaskType m_schedulerTaskType;
     HANDLE  m_mmcssHandle;
     DWORD   m_mmcssTaskIndex;

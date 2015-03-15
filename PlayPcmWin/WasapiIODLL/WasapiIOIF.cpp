@@ -369,7 +369,8 @@ WasapiIO_Setup(int instanceId, int deviceId, const WasapiIoSetupArgs &args)
     WWPcmFormat pcmFormat;
     pcmFormat.Set(args.sampleRate, (WWPcmDataSampleFormatType)args.sampleFormat, args.numChannels, GetChannelMask(args.numChannels), (WWStreamType)args.streamType);
 
-    self->wasapi.ThreadCharacteristics().Set((WWMMCSSCallType)args.mmcssCall, (WWSchedulerTaskType)args.schedulerTask);
+    self->wasapi.ThreadCharacteristics().Set((WWMMCSSCallType)args.mmcssCall,
+        (WWMMThreadPriorityType) args.mmThreadPriority, (WWSchedulerTaskType)args.schedulerTask);
     self->wasapi.PcmStream().SetZeroFlushMillisec(args.zeroFlushMillisec);
     self->wasapi.TimerResolution().SetTimePeriodHundredNanosec(args.timePeriodHandledNanosec);
 
@@ -681,6 +682,7 @@ WasapiIO_GetWorkerThreadSetupResult(int instanceId, WasapiIoWorkerThreadSetupRes
     self->wasapi.ThreadCharacteristics().GetThreadCharacteristicsSetupResult(r);
     result.dwmEnableMMCSSResult               = (int)r.dwmEnableMMCSSResult;
     result.avSetMmThreadCharacteristicsResult = (int)r.avSetMmThreadCharacteristicsResult;
+    result.avSetMmThreadPriorityResult        = (int)r.avSetMmThreadPriorityResult;
 }
 
 

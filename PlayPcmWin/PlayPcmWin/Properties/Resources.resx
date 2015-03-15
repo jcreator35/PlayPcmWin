@@ -629,7 +629,7 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
     <value>Settings...</value>
   </data>
   <data name="CheckBoxSoundEffects" xml:space="preserve">
-    <value>Sound effects</value>
+    <value>Enable DSP</value>
   </data>
   <data name="ErrorFilterFileVersionMismatch" xml:space="preserve">
     <value>Filter file version number mismatch</value>

@@ -4,7 +4,9 @@
 #include <assert.h>
 
 void
-WWAudioFilterPolarityInvert::UpdateSampleFormat(WWPcmDataSampleFormatType format, WWStreamType streamType, int numChannels)
+WWAudioFilterPolarityInvert::UpdateSampleFormat(
+        WWPcmDataSampleFormatType format,
+        WWStreamType streamType, int numChannels)
 {
     mManip.UpdateFormat(format, streamType, numChannels);
 }
@@ -76,14 +78,8 @@ WWAudioFilterPolarityInvert::FilterPcm(unsigned char *buff, int bytes)
         {
             float *p = (float *)buff;
             for (int idx=0; idx<bytes/4; ++idx) {
-                float v = -p[idx];
-                if (v < -1.0f) {
-                    v = -1.0f;
-                }
-                if (((float)0x7fffff / 0x800000) < v) {
-                    v = (float)0x7fffff / 0x800000;
-                }
-                p[idx] = v;
+                // 値のSaturate処理はWWAudioFilterSequencerで行う。
+                p[idx] = -p[idx];
             }
         }
         break;

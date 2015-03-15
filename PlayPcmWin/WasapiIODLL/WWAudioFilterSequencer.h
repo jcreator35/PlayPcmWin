@@ -34,4 +34,5 @@ private:
     WWAudioFilter *Last(void);
 
     void Loop(std::function<void(WWAudioFilter*)> f);
+    void SaturateSamples(unsigned char *buff, int bytes);
 };

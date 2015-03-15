@@ -18,13 +18,44 @@ WWSchedulerTaskTypeToStr(WWSchedulerTaskType t)
     }
 }
 
-void
-WWThreadCharacteristics::Set(WWMMCSSCallType ct, WWSchedulerTaskType stt)
+#ifndef NDEBUG
+
+static wchar_t *
+WWMMThreadPriorityTypeToStr(WWMMThreadPriorityType t)
 {
-    assert(0 <= ct && ct <= WWMMCSSNUM);
+    switch (t) {
+    case WWTPNone:      return L"None";
+    case WWTPLow:       return L"Low";
+    case WWTPNormal:    return L"Normal";
+    case WWTPHigh:      return L"High";
+    case WWTPCritical:  return L"Critical";
+    default: assert(0); return L"";
+    }
+};
+
+#endif
+
+static AVRT_PRIORITY
+WWMMThreadPriorityTypeToAvrtPriority(WWMMThreadPriorityType t)
+{
+    switch (t) {
+    case WWTPLow:       return AVRT_PRIORITY_LOW;
+    case WWTPNormal:    return AVRT_PRIORITY_NORMAL;
+    case WWTPHigh:      return AVRT_PRIORITY_HIGH;
+    case WWTPCritical:  return AVRT_PRIORITY_CRITICAL;
+    default: assert(0); return AVRT_PRIORITY_NORMAL;
+    }
+};
+
+void
+WWThreadCharacteristics::Set(WWMMCSSCallType ct, WWMMThreadPriorityType tp, WWSchedulerTaskType stt)
+{
+    assert(0 <= ct && ct < WWMMCSSNUM);
+    assert(0 <= tp && tp < WWTPNUM);
     assert(0 <= stt&& stt < WWSTTNUM);
-    dprintf("D: %s() ct=%d stt=%d\n", __FUNCTION__, (int)ct, (int)stt);
+    dprintf("D: %s() ct=%d tp=%d stt=%d\n", __FUNCTION__, (int)ct, (int)tp, (int)stt);
     m_mmcssCallType = ct;
+    m_threadPriority = tp;
     m_schedulerTaskType = stt;
 }
 
@@ -33,18 +64,13 @@ WWThreadCharacteristics::Setup(void)
 {
     HRESULT hr = S_OK;
 
-    if (WWMMCSSDoNotCall != m_mmcssCallType) {
-        hr = DwmEnableMMCSS(m_mmcssCallType==WWMMCSSEnable);
-        dprintf("D: %s() DwmEnableMMCSS(%d) 0x%08x\n", __FUNCTION__, (int)(m_mmcssCallType==WWMMCSSEnable), hr);
-        // 失敗することがあるが、続行する。
-        m_result.dwmEnableMMCSSResult = hr;
-    }
-
-    // マルチメディアクラススケジューラーサービスのスレッド優先度設定。
     if (WWSTTNone != m_schedulerTaskType) {
-        dprintf("D: %s() AvSetMmThreadCharacteristics(%S)\n", __FUNCTION__, WWSchedulerTaskTypeToStr(m_schedulerTaskType));
+        // マルチメディアクラススケジューラーサービスのスレッド特性設定。
+        dprintf("D: %s() AvSetMmThreadCharacteristics(%S)\n",
+                __FUNCTION__, WWSchedulerTaskTypeToStr(m_schedulerTaskType));
 
-        m_mmcssHandle = AvSetMmThreadCharacteristics(WWSchedulerTaskTypeToStr(m_schedulerTaskType), &m_mmcssTaskIndex);
+        m_mmcssHandle =
+                AvSetMmThreadCharacteristics(WWSchedulerTaskTypeToStr(m_schedulerTaskType), &m_mmcssTaskIndex);
         if (nullptr == m_mmcssHandle) {
             dprintf("Failed to enable MMCSS on render thread: 0x%08x\n", GetLastError());
             m_mmcssTaskIndex = 0;
@@ -52,7 +78,27 @@ WWThreadCharacteristics::Setup(void)
         } else {
             m_result.avSetMmThreadCharacteristicsResult = true;
         }
+
+        if (m_result.avSetMmThreadCharacteristicsResult && WWTPNone != m_threadPriority) {
+            // スレッド優先度設定。
+            dprintf("D: %s() AvSetMmThreadPriority(%S)\n",
+                    __FUNCTION__, WWMMThreadPriorityTypeToStr(m_threadPriority));
+
+            assert(m_mmcssHandle != nullptr);
+
+            m_result.avSetMmThreadPriorityResult =
+                    !!AvSetMmThreadPriority(m_mmcssHandle, WWMMThreadPriorityTypeToAvrtPriority(m_threadPriority));
+        }
     }
+
+    if (WWMMCSSDoNotCall != m_mmcssCallType) {
+        // MMCSSの有効、無効の設定。
+        hr = DwmEnableMMCSS(m_mmcssCallType==WWMMCSSEnable);
+        dprintf("D: %s() DwmEnableMMCSS(%d) 0x%08x\n", __FUNCTION__, (int)(m_mmcssCallType==WWMMCSSEnable), hr);
+        // 失敗することがあるが、続行する。
+        m_result.dwmEnableMMCSSResult = hr;
+    }
+
 }
 
 void

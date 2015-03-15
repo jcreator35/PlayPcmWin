@@ -232,6 +232,11 @@ namespace PcmDataLib {
         }
 
         /// <summary>
+        /// ファイルの最終書き込み時刻。
+        /// </summary>
+        public long LastWriteTime { get ;set; }
+
+        /// <summary>
         /// rhsの内容をコピーする。PCMデータ配列だけはコピーしない。(nullをセットする)
         /// PCMデータ配列は、SetSampleArrayで別途設定する。
         /// </summary>
@@ -258,6 +263,7 @@ namespace PcmDataLib {
             PictureBytes = rhs.PictureBytes;
             PictureData = rhs.PictureData;
             SampleDataType = rhs.SampleDataType;
+            LastWriteTime = rhs.LastWriteTime;
         }
 
         public PcmData() {
@@ -282,6 +288,7 @@ namespace PcmDataLib {
             PictureBytes = 0;
             PictureData = null;
             SampleDataType = DataType.PCM;
+            LastWriteTime = -1;
         }
 
 

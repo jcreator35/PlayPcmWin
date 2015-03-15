@@ -54,6 +54,7 @@ namespace Wasapi {
 
             public int shareMode;
             public int mmcssCall; ///< 0: disable, 1: enable, 2: do not call DwmEnableMMCSS()
+            public int mmThreadPriority; ///< 0: None, 1: Low, 2: Normal, 3: High, 4: Critical
             public int schedulerTask;
             public int dataFeedMode;
             public int latencyMillisec;
@@ -198,6 +199,7 @@ namespace Wasapi {
         internal struct WasapiIoWorkerThreadSetupResult {
             public int dwmEnableMMCSSResult;
             public int avSetMmThreadCharacteristicsResult;
+            public int avSetMmThreadPriorityResult;
         };
 
         [DllImport("WasapiIODLL.dll")]
@@ -216,6 +218,14 @@ namespace Wasapi {
             Disable,
             Enable,
             DoNotCall
+        };
+
+        public enum MMThreadPriorityType {
+            None,
+            Low,
+            Normal,
+            High,
+            Critical
         };
 
         public enum SchedulerTaskType {
@@ -458,8 +468,10 @@ namespace Wasapi {
             return WasapiIO_InspectDevice(mId, deviceId, ref args);
         }
 
-        public int Setup(int deviceId, DeviceType t, StreamType streamType, int sampleRate, SampleFormatType format, int numChannels,
-                MMCSSCallType mmcssCall, SchedulerTaskType schedulerTask, ShareMode shareMode, DataFeedMode dataFeedMode,
+        public int Setup(int deviceId, DeviceType t, StreamType streamType,
+                int sampleRate, SampleFormatType format, int numChannels,
+                MMCSSCallType mmcssCall, MMThreadPriorityType threadPriority,
+                SchedulerTaskType schedulerTask, ShareMode shareMode, DataFeedMode dataFeedMode,
                 int latencyMillisec, int zeroFlushMillisec, int timePeriodHandredNanosec) {
             var args = new SetupArgs();
             args.deviceType = (int)t;
@@ -468,6 +480,7 @@ namespace Wasapi {
             args.sampleFormat = (int)format;
             args.numChannels = numChannels;
             args.mmcssCall = (int)mmcssCall;
+            args.mmThreadPriority = (int)threadPriority;
             args.schedulerTask = (int)schedulerTask;
             args.shareMode = (int)shareMode;
             args.dataFeedMode = (int)dataFeedMode;
@@ -641,16 +654,19 @@ namespace Wasapi {
         public class WorkerThreadSetupResult {
             public int DwmEnableMMCSSResult { get; set; }
             public bool AvSetMmThreadCharacteristicsResult { get; set; }
-            public WorkerThreadSetupResult(int dwm, bool av) {
+            public bool AvSetMmThreadPriorityResult { get; set; }
+            public WorkerThreadSetupResult(int dwm, bool av, bool tp) {
                 DwmEnableMMCSSResult = dwm;
                 AvSetMmThreadCharacteristicsResult = av;
+                AvSetMmThreadPriorityResult = tp;
             }
         }
 
         public WorkerThreadSetupResult GetWorkerThreadSetupResult() {
             var p = new WasapiIoWorkerThreadSetupResult();
             WasapiIO_GetWorkerThreadSetupResult(mId, out p);
-            return new WorkerThreadSetupResult(p.dwmEnableMMCSSResult, p.avSetMmThreadCharacteristicsResult!=0);
+            return new WorkerThreadSetupResult(p.dwmEnableMMCSSResult, p.avSetMmThreadCharacteristicsResult!=0,
+                p.avSetMmThreadPriorityResult!=0);
         }
 
         public void ClearAudioFilter() {

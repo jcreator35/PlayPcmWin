@@ -52,7 +52,7 @@ namespace PlayPcmWin {
         }
 
         /// <summary>
-        /// ファイルを最初から最後まで全部読む。
+        /// 画像ファイルを最初から最後まで全部読む。
         /// </summary>
         private static byte[] ReadWholeFile(string path) {
             var result = new byte[0];
@@ -126,6 +126,8 @@ namespace PlayPcmWin {
 
             pcmData.FullPath = path;
             pcmData.FileName = System.IO.Path.GetFileName(path);
+            pcmData.LastWriteTime = System.IO.File.GetLastWriteTimeUtc(path).Ticks;
+
             // PCMファイルにタイトル名が埋め込まれていない時、ファイル名をタイトル名にする。
             if (pcmData.DisplayName == null || pcmData.DisplayName.Length == 0) {
                 pcmData.DisplayName = pcmData.FileName;

@@ -16,6 +16,7 @@ namespace PlayPcmWin {
         public int StartTick { get; set; }
         public int EndTick { get; set; }
         public bool ReadSeparaterAfter { get; set; }
+        //public long LastWriteTime { get; set; }
 
         public PlaylistItemSave() {
             Reset();
@@ -30,6 +31,7 @@ namespace PlayPcmWin {
             StartTick = 0;
             EndTick = -1;
             ReadSeparaterAfter = false;
+            //LastWriteTime = -1;
         }
 
         public PlaylistItemSave Set(
@@ -40,7 +42,8 @@ namespace PlayPcmWin {
                 int cueSheetIndex,
                 int startTick,
                 int endTick,
-                bool readSeparatorAfter) {
+                bool readSeparatorAfter,
+                long lastWriteTime) {
             Title = title;
             AlbumName = albumName;
             ArtistName = artistName;
@@ -49,6 +52,7 @@ namespace PlayPcmWin {
             StartTick = startTick;
             EndTick = endTick;
             ReadSeparaterAfter = readSeparatorAfter;
+            //LastWriteTime = lastWriteTime;
             return this;
         }
     }

@@ -64,6 +64,7 @@ struct WasapiIoSetupArgs {
 
     int shareMode;
     int mmcssCall; ///< 0: disable, 1: enable, 2: do not call DwmEnableMMCSS()
+    int mmThreadPriority; ///< 0: None, 1: Low, 2: Normal, 3: High, 4: Critical
     int schedulerTask;
     int dataFeedMode;
     int latencyMillisec;
@@ -198,6 +199,7 @@ WasapiIO_RegisterCaptureCallback(int instanceId, WWCaptureCallback callback);
 struct WasapiIoWorkerThreadSetupResult {
     int dwmEnableMMCSSResult;
     int avSetMmThreadCharacteristicsResult;
+    int avSetMmThreadPriorityResult;
 };
 #pragma pack(pop)
 

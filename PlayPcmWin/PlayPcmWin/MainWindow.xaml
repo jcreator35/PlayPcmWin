@@ -154,7 +154,7 @@
                                     <RowDefinition Height="1*" />
                                     <RowDefinition Height="1*" />
                                 </Grid.RowDefinitions>
-                                <CheckBox Content="Sound Effects" Height="16" HorizontalAlignment="Left" Margin="6,0,0,0" Name="checkBoxSoundEffects" VerticalAlignment="Center" Checked="checkBoxSoundEffects_Checked" Unchecked="checkBoxSoundEffects_Unchecked" />
+                                <CheckBox Content="Enable DSP" Height="16" HorizontalAlignment="Left" Margin="6,0,0,0" Name="checkBoxSoundEffects" VerticalAlignment="Center" Checked="checkBoxSoundEffects_Checked" Unchecked="checkBoxSoundEffects_Unchecked" />
                                 <Button x:Uid="buttonSoundEffectsSettings" Grid.Row="1" Content="Settings..." HorizontalAlignment="Left" Margin="6,0,0,0" Name="buttonSoundEffectsSettings" VerticalAlignment="Top" Width="115" Click="buttonSoundEffectsSettings_Click" />
                             </Grid>
                         </GroupBox>

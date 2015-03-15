@@ -20,7 +20,7 @@
                     </TransformGroup>
                 </Grid.LayoutTransform>
                 <WrapPanel>
-                    <GroupBox x:Uid="groupBoxWasapiExclusive" Header="Wasapi exclusive mode settings" Margin="4" Name="groupBoxWasapiExclusive" Width="500">
+                    <GroupBox x:Uid="groupBoxWasapiExclusive" Header="Wasapi exclusive mode settings" Margin="4" Name="groupBoxWasapiExclusive" Width="490">
                         <StackPanel>
                             <Label Content="Quantization bit rate to pass through WASAPI(Converts on file loading):" HorizontalAlignment="Left" Margin="4,6,6,0" Name="labelQuantizationBitrate" VerticalAlignment="Center" />
                             <ComboBox x:Uid="comboBoxOutputFormat" HorizontalAlignment="Stretch" Grid.Row="1" Name="comboBoxOutputFormat" Margin="80,0,6,0" VerticalAlignment="Center" />
@@ -30,26 +30,30 @@
                     </GroupBox>
                     <GroupBox x:Uid="groupBoxPlaybackThread" Header="Playback thread settings" Margin="4" Name="groupBoxPlaybackThread">
                         <StackPanel>
-                            <GroupBox x:Uid="groupBoxTimerResolution" Header="Timer resolution" Margin="4" Name="groupBoxTimerResolution" >
-                                <ComboBox x:Uid="comboBoxTimePeriod" HorizontalAlignment="Left" Name="comboBoxTimePeriod" VerticalAlignment="Top" Width="213">
+                            <GroupBox x:Uid="groupBoxTimerResolution" Header="Timer resolution" Margin="4,0,4,0" Name="groupBoxTimerResolution" >
+                                <ComboBox x:Uid="comboBoxTimePeriod" HorizontalAlignment="Left" Name="comboBoxTimePeriod" VerticalAlignment="Top" Width="213" SelectedIndex="0">
                                     <ComboBoxItem x:Uid="cbItemTimerResolutionDefault" Content="Default timer resolution" Name="cbItemTimerResolutionDefault" />
                                     <ComboBoxItem x:Uid="cbItemTimerResolution1Millisec" Content="Timer resolution = 1 ms" Name="cbItemTimerResolution1Millisec"  />
                                     <ComboBoxItem x:Uid="cbItemTimerResolution500Microsec" Content="Timer resolution = 0.5 ms" Name="cbItemTimerResolution500Microsec"  />
                                 </ComboBox>
                             </GroupBox>
-                            <GroupBox x:Uid="groupBoxRenderThreadTaskType" Header="Render thread task type" Margin="4" Name="groupBoxRenderThreadTaskType">
-                                <ComboBox x:Uid="comboBoxRenderThreadTaskType" Name="comboBoxRenderThreadTaskType" VerticalAlignment="Top">
+                            <GroupBox x:Uid="groupBoxRenderThreadProperty" Header="Render thread properties" Margin="4,0,4,0" Name="groupBoxRenderThreadTaskType">
+                                <StackPanel>
+                                <ComboBox Name="comboBoxRenderThreadTaskType" Margin="4" VerticalAlignment="Top" SelectionChanged="comboBoxRenderThreadTaskType_SelectionChanged" SelectedIndex="0">
                                     <ComboBoxItem x:Uid="cbItemTaskAudio" Content="Audio" Name="cbItemTaskAudio" />
                                     <ComboBoxItem x:Uid="cbItemTaskProAudio" Content="Pro Audio" Name="cbItemTaskProAudio" />
                                     <ComboBoxItem x:Uid="cbItemTaskNone" Content="None" Name="cbItemTaskNone" />
                                     <ComboBoxItem x:Uid="cbItemTaskPlayback" Content="Playback" Name="cbItemTaskPlayback" />
                                 </ComboBox>
+                                <ComboBox Name="comboBoxRenderThreadPriority"  Margin="4" VerticalAlignment="Top" SelectedIndex="0" SelectionChanged="comboBoxRenderThreadPriority_SelectionChanged">
+                                        <ComboBoxItem Content="Priority: Not set" Name="cbItemPrioNotSet" />
+                                        <ComboBoxItem Content="Priority: Low" Name="cbItemPrioLow" />
+                                        <ComboBoxItem Content="Priority: Normal" Name="cbItemPrioNormal" />
+                                        <ComboBoxItem Content="Priority: High" Name="cbItemPrioHigh" />
+                                        <ComboBoxItem Content="Priority: Critical" Name="cbItemPrioCritical" />
+                                </ComboBox>
+                                </StackPanel>
                             </GroupBox>
-                            <ComboBox x:Uid="comboBoxDwmEnableMMCSS" Name="comboBoxDwmEnableMMCSS" Margin="10" VerticalAlignment="Top">
-                                <ComboBoxItem x:Uid="cbItemDemDoNotCall" Content="Do not call DwmEnableMMCSS" Name="cbItemDemDoNotCall" />
-                                <ComboBoxItem x:Uid="cbItemDemTrue" Content="DwmEnableMMCSS(True)" Name="cbItemDemTrue" />
-                                <ComboBoxItem x:Uid="cbItemDemFalse" Content="DwmEnableMMCSS(False)" Name="cbItemDemFalse" />
-                            </ComboBox>
                         </StackPanel>
                     </GroupBox>
                     <GroupBox x:Uid="groupBoxWasapiSharedSettings" Header="Wasapi shared mode settings" Margin="4" Height="90" Name="groupBoxWasapiShared" Width="400">

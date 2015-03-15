@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Xml.Serialization;
 using System.Collections.ObjectModel;
 using System.Text;
+using Wasapi;
 
 namespace PlayPcmWin {
     public enum PlayListDispModeType {
@@ -31,6 +32,7 @@ namespace PlayPcmWin {
         public WasapiSharedOrExclusiveType WasapiSharedOrExclusive { get; set; }
         public WasapiDataFeedModeType WasapiDataFeedMode { get; set; }
         public RenderThreadTaskType RenderThreadTaskType { get; set; }
+        public WasapiCS.MMThreadPriorityType MMThreadPriority { get; set; }
         public BitsPerSampleFixType BitsPerSampleFixType { get; set; }
 
         public bool ReplaceGapWithKokomade { get; set; }
@@ -122,6 +124,7 @@ namespace PlayPcmWin {
             WasapiSharedOrExclusive = WasapiSharedOrExclusiveType.Exclusive;
             WasapiDataFeedMode = WasapiDataFeedModeType.EventDriven;
             RenderThreadTaskType = RenderThreadTaskType.ProAudio;
+            MMThreadPriority = WasapiCS.MMThreadPriorityType.None;
             BitsPerSampleFixType = BitsPerSampleFixType.AutoSelect;
             BpsConvNoiseShaping = NoiseShapingType.NoiseShaping1stOrder;
             PreferredDeviceName = "";
@@ -228,6 +231,9 @@ namespace PlayPcmWin {
             if (!p.EnableNoiseShaping) {
                 p.BpsConvNoiseShaping = NoiseShapingType.None;
             }
+
+            // DwmEnableMMCSSは、いつの頃からかエラーが出るようになったので呼び出さないようにする。
+            p.DwmEnableMmcssCall = false;
 
             return p;
         }

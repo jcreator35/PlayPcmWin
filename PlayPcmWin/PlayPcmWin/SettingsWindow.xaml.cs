@@ -13,6 +13,7 @@ using System.Windows.Shapes;
 using WasapiPcmUtil;
 using System.Globalization;
 using PcmDataLib;
+using Wasapi;
 
 namespace PlayPcmWin {
     /// <summary>
@@ -28,6 +29,11 @@ namespace PlayPcmWin {
             Sfloat32,
             AutoSelect,
         };
+
+        private bool mWindowLoaded = false;
+        private Preference m_preference = null;
+        private long mPlaylistAlternateBackgroundArgb;
+
 
         public SettingsWindow() {
             InitializeComponent();
@@ -103,12 +109,9 @@ namespace PlayPcmWin {
             checkBoxGpuRendering.Content = Properties.Resources.SettingsCheckBoxGpuRendering;
         }
 
-        Preference m_preference = null;
         public void SetPreference(Preference preference) {
             m_preference = preference;
         }
-
-        private long mPlaylistAlternateBackgroundArgb;
 
         private void UpdateUIFromPreference(Preference preference) {
             switch (preference.BitsPerSampleFixType) {
@@ -227,6 +230,13 @@ namespace PlayPcmWin {
                 break;
             }
 
+            comboBoxRenderThreadPriority.SelectedIndex = (int)preference.MMThreadPriority;
+            if (preference.RenderThreadTaskType == RenderThreadTaskType.None) {
+                comboBoxRenderThreadPriority.IsEnabled = false;
+            } else {
+                comboBoxRenderThreadPriority.IsEnabled = true;
+            }
+
             comboBoxCueEncoding.Items.Clear();
             foreach (var encoding in Encoding.GetEncodings()) {
                 int pos = comboBoxCueEncoding.Items.Add(encoding.DisplayName);
@@ -248,21 +258,13 @@ namespace PlayPcmWin {
             checkBoxVerifyFlacMD5Sum.IsEnabled = preference.ParallelRead == false;
 
             checkBoxGpuRendering.IsChecked = preference.GpuRendering;
-
-            if (!preference.DwmEnableMmcssCall) {
-                comboBoxDwmEnableMMCSS.SelectedItem = cbItemDemDoNotCall;
-            } else {
-                if (preference.DwmEnableMmcss) {
-                    comboBoxDwmEnableMMCSS.SelectedItem = cbItemDemTrue;
-                } else {
-                    comboBoxDwmEnableMMCSS.SelectedItem = cbItemDemFalse;
-                }
-            }
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
             System.Diagnostics.Debug.Assert(null != m_preference);
             UpdateUIFromPreference(m_preference);
+
+            mWindowLoaded = true;
         }
 
         private void buttonOK_Click(object sender, RoutedEventArgs e) {
@@ -336,7 +338,7 @@ namespace PlayPcmWin {
             {
                 double zeroFlushSeconds;
                 if (Double.TryParse(textBoxZeroFlushSeconds.Text, out zeroFlushSeconds)) {
-                    if (zeroFlushSeconds <= 0 || 1000 < zeroFlushSeconds) {
+                    if (zeroFlushSeconds < 0 || 1000 < zeroFlushSeconds) {
                         MessageBox.Show("再生前無音送信時間の大きさは 0.0～1000.0の範囲の数字を入力してください。");
                         return;
                     }
@@ -387,6 +389,8 @@ namespace PlayPcmWin {
                 m_preference.RenderThreadTaskType = RenderThreadTaskType.ProAudio;
             }
 
+            m_preference.MMThreadPriority = (WasapiCS.MMThreadPriorityType)comboBoxRenderThreadPriority.SelectedIndex;
+
             if (0 <= comboBoxCueEncoding.SelectedIndex) {
                 var encodingInfoArray = Encoding.GetEncodings();
                 if (comboBoxCueEncoding.SelectedIndex < encodingInfoArray.Length) {
@@ -401,18 +405,6 @@ namespace PlayPcmWin {
             m_preference.VerifyFlacMD5Sum = (checkBoxVerifyFlacMD5Sum.IsChecked == true);
 
             m_preference.GpuRendering = (checkBoxGpuRendering.IsChecked == true);
-
-            if (comboBoxDwmEnableMMCSS.SelectedItem == cbItemDemDoNotCall) {
-                m_preference.DwmEnableMmcssCall = false;
-            }
-            if (comboBoxDwmEnableMMCSS.SelectedItem == cbItemDemTrue) {
-                m_preference.DwmEnableMmcssCall = true;
-                m_preference.DwmEnableMmcss = true;
-            }
-            if (comboBoxDwmEnableMMCSS.SelectedItem == cbItemDemFalse) {
-                m_preference.DwmEnableMmcssCall = true;
-                m_preference.DwmEnableMmcss = false;
-            }
 
             Close();
         }
@@ -532,6 +524,22 @@ namespace PlayPcmWin {
 
         private void checkBoxParallelRead_Unchecked(object sender, RoutedEventArgs e) {
             checkBoxVerifyFlacMD5Sum.IsEnabled = true;
+        }
+
+        private void comboBoxRenderThreadTaskType_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+            if (!mWindowLoaded) {
+                return;
+            }
+
+            if (comboBoxRenderThreadTaskType.SelectedItem == cbItemTaskNone) {
+                comboBoxRenderThreadPriority.IsEnabled = false;
+            } else {
+                comboBoxRenderThreadPriority.IsEnabled = true;
+            }
+        }
+
+        private void comboBoxRenderThreadPriority_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+
         }
     }
 }

@@ -335,7 +335,7 @@ namespace PlayPcmWin
 
                 s.Add(new PlaylistItemSave().Set(
                         p.DisplayName, p.AlbumTitle, p.ArtistName, p.FullPath,
-                        p.CueSheetIndex, p.StartTick, p.EndTick, playListItem.ReadSeparaterAfter));
+                        p.CueSheetIndex, p.StartTick, p.EndTick, playListItem.ReadSeparaterAfter, p.LastWriteTime));
             }
 
             if (path.Length == 0) {
@@ -1252,7 +1252,8 @@ namespace PlayPcmWin
                         m_preference.WasapiSharedOrExclusive,
                         m_preference.RenderThreadTaskType,
                         m_preference.ResamplerConversionQuality,
-                        startPcmData.SampleDataType == PcmData.DataType.DoP ? WasapiCS.StreamType.DoP : WasapiCS.StreamType.PCM)) {
+                        startPcmData.SampleDataType == PcmData.DataType.DoP ? WasapiCS.StreamType.DoP : WasapiCS.StreamType.PCM,
+                        m_preference.MMThreadPriority)) {
                     // すでにこのフォーマットでSetup完了している。
                     return true;
                 }
@@ -1276,18 +1277,20 @@ namespace PlayPcmWin
                         m_preference.WasapiSharedOrExclusive,
                         m_preference.RenderThreadTaskType,
                         m_preference.ResamplerConversionQuality,
-                        startPcmData.SampleDataType == PcmData.DataType.DoP ? WasapiCS.StreamType.DoP : WasapiCS.StreamType.PCM);
+                        startPcmData.SampleDataType == PcmData.DataType.DoP ? WasapiCS.StreamType.DoP : WasapiCS.StreamType.PCM,
+                        m_preference.MMThreadPriority);
 
                 int hr = wasapi.Setup(
                         useDeviceId, WasapiCS.DeviceType.Play,
                         m_deviceSetupParams.StreamType, m_deviceSetupParams.SampleRate, m_deviceSetupParams.SampleFormat,
-                        m_deviceSetupParams.NumChannels, GetMMCSSCallType(), PreferenceSchedulerTaskTypeToWasapiCSSchedulerTaskType(m_deviceSetupParams.ThreadTaskType),
+                        m_deviceSetupParams.NumChannels, GetMMCSSCallType(), m_preference.MMThreadPriority,
+                        PreferenceSchedulerTaskTypeToWasapiCSSchedulerTaskType(m_deviceSetupParams.ThreadTaskType),
                         PreferenceShareModeToWasapiCSShareMode(m_deviceSetupParams.SharedOrExclusive), PreferenceDataFeedModeToWasapiCS(m_deviceSetupParams.DataFeedMode),
                         m_deviceSetupParams.LatencyMillisec, m_deviceSetupParams.ZeroFlushMillisec, m_preference.TimePeriodHundredNanosec);
-                AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.Setup({0} {1}kHz {2} {3}ch {4} {5} {6} latency={7}ms zeroFlush={8}ms timePeriod={9}ms) {10:X8}{11}",
+                AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.Setup({0} {1}kHz {2} {3}ch {4} {5} {6} latency={7}ms zeroFlush={8}ms timePeriod={9}ms mmThreadPriority={10}) {11:X8}{12}",
                         m_deviceSetupParams.StreamType, m_deviceSetupParams.SampleRate * 0.001, m_deviceSetupParams.SampleFormat,
                         m_deviceSetupParams.NumChannels, m_deviceSetupParams.ThreadTaskType, m_deviceSetupParams.SharedOrExclusive, m_deviceSetupParams.DataFeedMode,
-                        m_deviceSetupParams.LatencyMillisec, m_deviceSetupParams.ZeroFlushMillisec, m_preference.TimePeriodHundredNanosec * 0.0001, hr, Environment.NewLine));
+                        m_deviceSetupParams.LatencyMillisec, m_deviceSetupParams.ZeroFlushMillisec, m_preference.TimePeriodHundredNanosec * 0.0001, m_preference.MMThreadPriority, hr, Environment.NewLine));
                 if (0 <= hr) {
                     // 成功
                     break;
@@ -1622,7 +1625,7 @@ namespace PlayPcmWin
 
         private void MenuItemHelpWeb_Click(object sender, RoutedEventArgs e) {
             try {
-                System.Diagnostics.Process.Start("http://code.google.com/p/bitspersampleconv2/wiki/PlayPcmWin");
+                System.Diagnostics.Process.Start("http://sourceforge.net/projects/playpcmwin/");
             } catch (System.ComponentModel.Win32Exception) {
             }
         }
@@ -2573,12 +2576,21 @@ namespace PlayPcmWin
             int hr = wasapi.StartPlayback(wavDataId);
             {
                 var stat = wasapi.GetWorkerThreadSetupResult();
+
+                if (m_preference.RenderThreadTaskType != RenderThreadTaskType.None) {
+                    AddLogText(string.Format(CultureInfo.InvariantCulture, "AvSetMMThreadCharacteristics({0}) result={1:X8}{2}",
+                        m_preference.RenderThreadTaskType, stat.AvSetMmThreadCharacteristicsResult, Environment.NewLine));
+
+                    if (m_preference.MMThreadPriority != WasapiCS.MMThreadPriorityType.None) {
+                        AddLogText(string.Format(CultureInfo.InvariantCulture, "AvSetMMThreadPriority({0}) result={1:X8}{2}",
+                            m_preference.MMThreadPriority, stat.AvSetMmThreadPriorityResult, Environment.NewLine));
+                    }
+                }
+
                 if (m_preference.DwmEnableMmcssCall) {
                     AddLogText(string.Format(CultureInfo.InvariantCulture, "DwmEnableMMCSS({0}) result={1:X8}{2}",
                         m_preference.DwmEnableMmcss, stat.DwmEnableMMCSSResult, Environment.NewLine));
                 }
-                AddLogText(string.Format(CultureInfo.InvariantCulture, "AvSetMMThreadCharacteristics({0}) result={1:X8}{2}",
-                    m_preference.RenderThreadTaskType, stat.AvSetMmThreadCharacteristicsResult, Environment.NewLine));
             }
 
             AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.StartPlayback({0}) {1:X8}{2}", wavDataId, hr, Environment.NewLine));

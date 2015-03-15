@@ -27,6 +27,7 @@ namespace PlayPcmWin {
         public RenderThreadTaskType ThreadTaskType { get { return threadTaskType; } }
         public int ResamplerConversionQuality { get; set; }
         public WasapiCS.StreamType StreamType { get; set; }
+        public WasapiCS.MMThreadPriorityType ThreadPriority { get; set; }
 
         /// <summary>
         /// 1フレーム(1サンプル全ch)のデータがメモリ上を占める領域(バイト)
@@ -47,7 +48,8 @@ namespace PlayPcmWin {
                     WasapiSharedOrExclusiveType shareMode,
                     RenderThreadTaskType threadTaskType,
                     int resamplerConversionQuality,
-                    WasapiCS.StreamType streamType) {
+                    WasapiCS.StreamType streamType,
+                    WasapiCS.MMThreadPriorityType threadPriority) {
             return (this.setuped
                 && this.samplingRate == samplingRate
                 && this.sampleFormat == fmt
@@ -58,7 +60,8 @@ namespace PlayPcmWin {
                 && this.shareMode == shareMode
                 && this.threadTaskType == threadTaskType
                 && this.ResamplerConversionQuality == resamplerConversionQuality
-                && this.StreamType == streamType);
+                && this.StreamType == streamType
+                && this.ThreadPriority == threadPriority);
         }
 
         public bool CompatibleTo(
@@ -71,7 +74,8 @@ namespace PlayPcmWin {
                     WasapiSharedOrExclusiveType shareMode,
                     RenderThreadTaskType threadTaskType,
                     int resamplerConversionQuality,
-                    WasapiCS.StreamType streamType) {
+                    WasapiCS.StreamType streamType,
+                    WasapiCS.MMThreadPriorityType threadPriority) {
             return (this.setuped
                 && this.samplingRate == samplingRate
                 && SampleFormatIsCompatible(this.sampleFormat, fmt)
@@ -82,7 +86,8 @@ namespace PlayPcmWin {
                 && this.shareMode == shareMode
                 && this.threadTaskType == threadTaskType
                 && this.ResamplerConversionQuality == resamplerConversionQuality
-                && this.StreamType == streamType);
+                && this.StreamType == streamType
+                && this.ThreadPriority == threadPriority);
         }
 
         private static bool SampleFormatIsCompatible(
@@ -107,7 +112,8 @@ namespace PlayPcmWin {
                 WasapiSharedOrExclusiveType shareMode,
                 RenderThreadTaskType threadTaskType,
                 int resamplerConversionQuality,
-                WasapiCS.StreamType streamType) {
+                WasapiCS.StreamType streamType,
+                WasapiCS.MMThreadPriorityType threadPriority) {
             this.setuped = true;
             this.samplingRate = samplingRate;
             this.sampleFormat = fmt;
@@ -119,6 +125,7 @@ namespace PlayPcmWin {
             this.threadTaskType = threadTaskType;
             this.ResamplerConversionQuality = resamplerConversionQuality;
             this.StreamType = streamType;
+            this.ThreadPriority = threadPriority;
         }
 
         /// <summary>
