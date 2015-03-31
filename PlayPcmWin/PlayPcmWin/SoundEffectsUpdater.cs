@@ -12,7 +12,7 @@ namespace PlayPcmWin {
             wasapi.ClearAudioFilter();
 
             foreach (var f in audioFilterList) {
-                wasapi.AppendAudioFilter((Wasapi.WasapiCS.WWAudioFilterType)f.FilterType);
+                wasapi.AppendAudioFilter((Wasapi.WasapiCS.WWAudioFilterType)f.FilterType, f.ToSaveText());
             }
         }
     }

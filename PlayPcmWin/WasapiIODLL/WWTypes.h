@@ -8,3 +8,5 @@ enum WWDeviceType {
     WWDTNum
 };
 
+// 最大チャンネル数
+#define WW_CHANNEL_NUM (18)

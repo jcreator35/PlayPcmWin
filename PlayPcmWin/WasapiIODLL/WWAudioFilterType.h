@@ -5,6 +5,7 @@
 enum WWAudioFilterType {
     WWAF_PolarityInvert,
     WWAF_Monaural,
+    WWAF_ChannelRouting,
 
     WWAF_NUM
 };

@@ -7,6 +7,7 @@
 #include "WWAudioFilterType.h"
 #include "WWAudioFilterPolarityInvert.h"
 #include "WWAudioFilterMonauralMix.h"
+#include "WWAudioFilterChannelRouting.h"
 #include <assert.h>
 #include <map>
 
@@ -688,7 +689,7 @@ WasapiIO_GetWorkerThreadSetupResult(int instanceId, WasapiIoWorkerThreadSetupRes
 
 __declspec(dllexport)
 void __stdcall
-WasapiIO_AppendAudioFilter(int instanceId, int audioFilterType)
+WasapiIO_AppendAudioFilter(int instanceId, int audioFilterType, PCWSTR args)
 {
     WasapiIO *self = Instance(instanceId);
     assert(self);
@@ -701,6 +702,9 @@ WasapiIO_AppendAudioFilter(int instanceId, int audioFilterType)
             break;
         case WWAF_Monaural:
             self->wasapi.AudioFilterSequencer().Append(new WWAudioFilterMonauralMix());
+            break;
+        case WWAF_ChannelRouting:
+            self->wasapi.AudioFilterSequencer().Append(new WWAudioFilterChannelRouting(args));
             break;
         default:
             assert(0);

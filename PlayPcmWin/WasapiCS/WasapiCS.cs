@@ -206,9 +206,9 @@ namespace Wasapi {
         private extern static void
         WasapiIO_GetWorkerThreadSetupResult(int instanceId, out WasapiIoWorkerThreadSetupResult result);
 
-        [DllImport("WasapiIODLL.dll")]
+        [DllImport("WasapiIODLL.dll", CharSet = CharSet.Unicode)]
         private extern static void
-        WasapiIO_AppendAudioFilter(int instanceId, int audioFilterType);
+        WasapiIO_AppendAudioFilter(int instanceId, int audioFilterType, string args);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static void
@@ -673,8 +673,9 @@ namespace Wasapi {
             WasapiIO_ClearAudioFilter(mId);
         }
 
-        public void AppendAudioFilter(WWAudioFilterType aft) {
-            WasapiIO_AppendAudioFilter(mId, (int)aft);
+        public void AppendAudioFilter(WWAudioFilterType aft, string args) {
+
+            WasapiIO_AppendAudioFilter(mId, (int)aft, args);
         }
     }
 }

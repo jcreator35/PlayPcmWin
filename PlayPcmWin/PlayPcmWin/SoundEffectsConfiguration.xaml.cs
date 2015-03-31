@@ -10,24 +10,13 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Collections.ObjectModel;
 
 namespace PlayPcmWin {
-
-
     public partial class SoundEffectsConfiguration : Window {
-        List<PreferenceAudioFilter> mAudioFilterList = new List<PreferenceAudioFilter>();
+        private ObservableCollection<PreferenceAudioFilter> mAudioFilterList = new ObservableCollection<PreferenceAudioFilter>();
 
-        public void SetAudioFilterList(List<PreferenceAudioFilter> audioFilterList) {
-
-            mAudioFilterList = new List<PreferenceAudioFilter>();
-            foreach (var f in audioFilterList) {
-                mAudioFilterList.Add(f.Copy());
-            }
-
-            AudioFilterListUpdated();
-        }
-
-        public List<PreferenceAudioFilter> AudioFilterList {
+        public ObservableCollection<PreferenceAudioFilter> AudioFilterList {
             get {
                 return mAudioFilterList;
             }
@@ -45,6 +34,7 @@ namespace PlayPcmWin {
             // WWAudioFilterTypeと同じ順番にする
             listBoxAvailableEffects.Items.Add(Properties.Resources.AudioFilterPolarityInvert);
             listBoxAvailableEffects.Items.Add(Properties.Resources.AudioFilterMonauralMix);
+            listBoxAvailableEffects.Items.Add(Properties.Resources.AudioFilterChannelRouting);
 
             listBoxAvailableEffects.SelectedIndex = 0;
             buttonLeftArrow.IsEnabled = true;
@@ -52,13 +42,19 @@ namespace PlayPcmWin {
             buttonClearAll.IsEnabled = false;
         }
 
+        public void SetAudioFilterList(List<PreferenceAudioFilter> audioFilterList) {
+            mAudioFilterList = new ObservableCollection<PreferenceAudioFilter>();
+            foreach (var f in audioFilterList) {
+                mAudioFilterList.Add(f.Copy());
+            }
+
+            AudioFilterListUpdated();
+        }
+
         private void AudioFilterListUpdated() {
             int selectedIdx = listBoxActivatedEffects.SelectedIndex;
 
-            listBoxActivatedEffects.Items.Clear();
-            foreach (var item in mAudioFilterList) {
-                listBoxActivatedEffects.Items.Add(item.ToDescriptionText());
-            }
+            listBoxActivatedEffects.ItemsSource = mAudioFilterList;
 
             // 選択位置を復旧する
             if (0 < listBoxActivatedEffects.Items.Count) {
@@ -79,6 +75,15 @@ namespace PlayPcmWin {
             }
         }
 
+        private string[] BuildChannelRoutingArgArray(List<Tuple<int, int>> tupleList) {
+            var rv = new string[tupleList.Count];
+
+            for (int i=0; i<tupleList.Count; ++i) {
+                rv[i] = string.Format("{0}>{1}", tupleList[i].Item1, tupleList[i].Item2);
+            }
+            return rv;
+        }
+
         private void buttonLeftArrow_Click(object sender, RoutedEventArgs e) {
             if (listBoxAvailableEffects.SelectedIndex < 0) {
                 return;
@@ -87,10 +92,21 @@ namespace PlayPcmWin {
             PreferenceAudioFilter filter = null;
             switch ((PreferenceAudioFilterType)listBoxAvailableEffects.SelectedIndex) {
             case PreferenceAudioFilterType.PolarityInvert:
-                filter = new PreferenceAudioFilter(PreferenceAudioFilterType.PolarityInvert);
+                filter = new PreferenceAudioFilter(PreferenceAudioFilterType.PolarityInvert, null);
                 break;
             case PreferenceAudioFilterType.MonauralMix:
-                filter = new PreferenceAudioFilter(PreferenceAudioFilterType.MonauralMix);
+                filter = new PreferenceAudioFilter(PreferenceAudioFilterType.MonauralMix, null);
+                break;
+            case PreferenceAudioFilterType.ChannelRouting: {
+                    var dlg = new ChannelRoutingSettings();
+                    dlg.UpdateChannelRouting(null);
+                    var dlgResult = dlg.ShowDialog();
+                    if (dlgResult != true) {
+                        return;
+                    }
+
+                    filter = new PreferenceAudioFilter(PreferenceAudioFilterType.ChannelRouting, BuildChannelRoutingArgArray(dlg.ChannelRouting));
+                }
                 break;
             default:
                 System.Diagnostics.Debug.Assert(false);
@@ -100,7 +116,7 @@ namespace PlayPcmWin {
             if (listBoxActivatedEffects.SelectedIndex < 0) {
                 mAudioFilterList.Add(filter);
             } else {
-                mAudioFilterList.Insert(listBoxActivatedEffects.SelectedIndex, filter);
+                mAudioFilterList.Insert(listBoxActivatedEffects.SelectedIndex+1, filter);
             }
 
             AudioFilterListUpdated();
@@ -117,7 +133,7 @@ namespace PlayPcmWin {
         }
 
         private void buttonClearAll_Click(object sender, RoutedEventArgs e) {
-            mAudioFilterList = new List<PreferenceAudioFilter>();
+            mAudioFilterList = new ObservableCollection<PreferenceAudioFilter>();
             AudioFilterListUpdated();
         }
 
@@ -129,6 +145,28 @@ namespace PlayPcmWin {
         private void buttonCancel_Click(object sender, RoutedEventArgs e) {
             DialogResult = false;
             Close();
+        }
+
+        private void cmdListSettings_Click(object sender, RoutedEventArgs e) {
+            Button cmd = (Button)sender;
+            if (cmd.DataContext is PreferenceAudioFilter) {
+                var before = cmd.DataContext as PreferenceAudioFilter;
+
+                switch (before.FilterType) {
+                case PreferenceAudioFilterType.ChannelRouting:
+                    var dlg = new ChannelRoutingSettings();
+                    dlg.UpdateChannelRouting(before.ChannelRouting());
+                    var dlgResult = dlg.ShowDialog();
+                    if (dlgResult != true) {
+                        return;
+                    }
+                    before.ArgArray = BuildChannelRoutingArgArray(dlg.ChannelRouting);
+                    break;
+                default:
+                    System.Diagnostics.Debug.Assert(false);
+                    break;
+                }
+            }
         }
     }
 }

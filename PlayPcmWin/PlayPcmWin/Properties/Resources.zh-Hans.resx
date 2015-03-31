@@ -582,7 +582,7 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
     <value>转换为单声道（PCM）</value>
   </data>
   <data name="AudioFilterPolarityInvert" xml:space="preserve">
-    <value>相位反转（PCM, DoP DSD）</value>
+    <value>相位反转</value>
   </data>
   <data name="ButtonSoundEffectsSettings" xml:space="preserve">
     <value>设置...</value>

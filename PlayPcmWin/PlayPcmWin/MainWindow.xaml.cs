@@ -3580,13 +3580,20 @@ namespace PlayPcmWin
             UpdateSoundEffects(false);
         }
 
+        private void UpdatePreferenceAudioFilterListFrom(ObservableCollection<PreferenceAudioFilter> from) {
+            mPreferenceAudioFilterList = new List<PreferenceAudioFilter>();
+            foreach (var i in from) {
+                mPreferenceAudioFilterList.Add(i);
+            }
+        }
+
         private void buttonSoundEffectsSettings_Click(object sender, RoutedEventArgs e) {
             var dialog = new SoundEffectsConfiguration();
             dialog.SetAudioFilterList(mPreferenceAudioFilterList);
             var result = dialog.ShowDialog();
 
             if (true == result) {
-                mPreferenceAudioFilterList = dialog.AudioFilterList;
+                UpdatePreferenceAudioFilterListFrom(dialog.AudioFilterList);
 
                 if (mPreferenceAudioFilterList.Count == 0) {
                     // 音声処理を無効にする。

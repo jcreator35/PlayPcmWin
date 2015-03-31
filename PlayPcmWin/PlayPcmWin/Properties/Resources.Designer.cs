@@ -79,6 +79,15 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
+        ///   Channel Routing に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string AudioFilterChannelRouting {
+            get {
+                return ResourceManager.GetString("AudioFilterChannelRouting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Clear に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string AudioFilterClear {
@@ -88,7 +97,7 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Monaural mix (PCM) に類似しているローカライズされた文字列を検索します。
+        ///   Monaural mix (forPCM) に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string AudioFilterMonauralMix {
             get {
@@ -97,7 +106,7 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Invert polarity (PCM, DoP DSD) に類似しているローカライズされた文字列を検索します。
+        ///   Invert polarity に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string AudioFilterPolarityInvert {
             get {
@@ -120,6 +129,24 @@ namespace PlayPcmWin.Properties {
         internal static string CannotAddFile {
             get {
                 return ResourceManager.GetString("CannotAddFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Channel Routing Table に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string ChannelRoutingChannelRoutingTable {
+            get {
+                return ResourceManager.GetString("ChannelRoutingChannelRoutingTable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Number of input channels: に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string ChannelRoutingNumOfInputChannels {
+            get {
+                return ResourceManager.GetString("ChannelRoutingNumOfInputChannels", resourceCulture);
             }
         }
         

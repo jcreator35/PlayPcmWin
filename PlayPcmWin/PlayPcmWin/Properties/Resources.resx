@@ -611,10 +611,10 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   MD5 from PCM data= {1}</value>
   </data>
   <data name="AudioFilterMonauralMix" xml:space="preserve">
-    <value>Monaural mix (PCM)</value>
+    <value>Monaural mix (forPCM)</value>
   </data>
   <data name="AudioFilterPolarityInvert" xml:space="preserve">
-    <value>Invert polarity (PCM, DoP DSD)</value>
+    <value>Invert polarity</value>
   </data>
   <data name="AudioFilterActivated" xml:space="preserve">
     <value>Activated Sound Effects</value>
@@ -636,5 +636,14 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   </data>
   <data name="GroupBoxSoundEffects" xml:space="preserve">
     <value>Sound Effects</value>
+  </data>
+  <data name="AudioFilterChannelRouting" xml:space="preserve">
+    <value>Channel Routing</value>
+  </data>
+  <data name="ChannelRoutingChannelRoutingTable" xml:space="preserve">
+    <value>Channel Routing Table</value>
+  </data>
+  <data name="ChannelRoutingNumOfInputChannels" xml:space="preserve">
+    <value>Number of input channels:</value>
   </data>
 </root>

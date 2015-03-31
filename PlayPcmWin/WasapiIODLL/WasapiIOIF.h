@@ -210,7 +210,7 @@ WasapiIO_GetWorkerThreadSetupResult(int instanceId, WasapiIoWorkerThreadSetupRes
 /// @param audioFilterType WWAudioFilterType
 __declspec(dllexport)
 void __stdcall
-WasapiIO_AppendAudioFilter(int instanceId, int audioFilterType);
+WasapiIO_AppendAudioFilter(int instanceId, int audioFilterType, PCWSTR args);
 
 __declspec(dllexport)
 void __stdcall

@@ -5,6 +5,7 @@ using System.IO;
 using System.Windows;
 using System;
 using System.Globalization;
+using System.ComponentModel;
 namespace PlayPcmWin {
     /// <summary>
     /// WWAudioFilterTypeと同じ順番で並べる
@@ -12,14 +13,66 @@ namespace PlayPcmWin {
     public enum PreferenceAudioFilterType {
         PolarityInvert,
         MonauralMix,
-
+        ChannelRouting,
         NUM
     };
 
-    public class PreferenceAudioFilter {
-        private const int FILTER_FILE_VERSION = 1;
+    public class PreferenceAudioFilter : INotifyPropertyChanged {
+        private const int FILTER_FILE_VERSION = 2;
         public PreferenceAudioFilterType FilterType { get; set; }
 
+        private string [] mArgArray = new string[0];
+
+        public string[] ArgArray {
+            get { return mArgArray; }
+            set {
+                mArgArray = value;
+                NotifyPropertyChanged("DescriptionText");
+            }
+        }
+
+        /// <summary>
+        /// オプションパラメーターmArgArrayを保存する形式(1個の文字列)にする
+        /// </summary>
+        public string ToSaveText() {
+            switch (FilterType) {
+            case PreferenceAudioFilterType.ChannelRouting: {
+                    // mArgArrayをwhitespaceで区切ってつなげる
+                    var sb = new StringBuilder();
+                    foreach (var i in mArgArray) {
+                        sb.AppendFormat("{0} ", i);
+                    }
+                    return sb.ToString().TrimEnd();
+                }
+            case PreferenceAudioFilterType.MonauralMix:
+            case PreferenceAudioFilterType.PolarityInvert:
+                return "";
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// 設定ボタンの可視
+        /// </summary>
+        public Visibility SettingsButtonVisibility {
+            get {
+                switch (FilterType) {
+                case PreferenceAudioFilterType.ChannelRouting:
+                    return Visibility.Visible;
+                default:
+                    return Visibility.Collapsed;
+                }
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public void NotifyPropertyChanged(string propName) {
+            if (this.PropertyChanged != null)
+                this.PropertyChanged(this, new PropertyChangedEventArgs(propName));
+        }
 
         public static List<PreferenceAudioFilter> LoadFiltersFromStream(Stream stream) {
             try {
@@ -35,21 +88,21 @@ namespace PlayPcmWin {
                         var tokens = s.Split(null);
                         if (tokens.Length != 2) {
                             MessageBox.Show("Audio filter preference read failed");
-                            return null;
+                            return filters;
                         }
                         int version;
                         if (!Int32.TryParse(tokens[0], out version) || version != FILTER_FILE_VERSION) {
                             MessageBox.Show(
                                 string.Format(CultureInfo.CurrentCulture, Properties.Resources.ErrorFilterFileVersionMismatch,
                                     FILTER_FILE_VERSION, tokens[0]));
-                            return null;
+                            return filters;
                         }
 
                         if (!Int32.TryParse(tokens[1], out filterNum) || filterNum < 0) {
                             MessageBox.Show(
-                                string.Format(CultureInfo.CurrentCulture, "Read failed. bad filter count {0}",
+                                string.Format(CultureInfo.CurrentCulture, "Audio filter preference read failed. bad filter count {0}",
                                     tokens[1]));
-                            return null;
+                            return filters;
                         }
                     }
 
@@ -59,10 +112,11 @@ namespace PlayPcmWin {
                         var f = Create(s);
                         if (null == f) {
                             MessageBox.Show(
-                                string.Format(CultureInfo.CurrentCulture, "Read failed. line={0}, {1}",
+                                string.Format(CultureInfo.CurrentCulture, "Audio filter preference read failed. line={0}, {1}",
                                     i + 2, s));
+                        } else {
+                            filters.Add(f);
                         }
-                        filters.Add(f);
                     }
                 }
 
@@ -73,7 +127,7 @@ namespace PlayPcmWin {
                 MessageBox.Show(ex.Message);
             }
 
-            return null;
+            return new List<PreferenceAudioFilter>();
         }
 
         public static bool SaveFilteresToStream(List<PreferenceAudioFilter> filters, Stream stream) {
@@ -175,52 +229,110 @@ namespace PlayPcmWin {
             return result.ToArray();
         }
 
-        public static PreferenceAudioFilter Create(string s) {
+        /// <summary>
+        /// フィルター設定文字列からフィルターを作成
+        /// </summary>
+        /// <param name="s">フィルター種類とパラメータ</param>
+        private static PreferenceAudioFilter Create(string s) {
             var tokens = Split(s);
             if (tokens == null || tokens.Length < 1) {
                 return null;
             }
 
+            PreferenceAudioFilterType t;
             switch (tokens[0]) {
             case "PolarityInvert":
-                return new PreferenceAudioFilter(PreferenceAudioFilterType.PolarityInvert);
+                t = PreferenceAudioFilterType.PolarityInvert;
+                break;
             case "MonauralMix":
-                return new PreferenceAudioFilter(PreferenceAudioFilterType.MonauralMix);
+                t = PreferenceAudioFilterType.MonauralMix;
+                break;
+            case "ChannelRouting":
+                t = PreferenceAudioFilterType.ChannelRouting;
+                break;
             default:
                 return null;
             }
+
+            var argArray = new string[0];
+            if (2 <= tokens.Length) {
+                argArray = new string[tokens.Length - 1];
+                for (int i=0; i < tokens.Length - 1; ++i) {
+                    argArray[i] = tokens[i + 1];
+                }
+            }
+
+            return new PreferenceAudioFilter(t, argArray);
         }
 
-        public PreferenceAudioFilter(PreferenceAudioFilterType t) {
+        public PreferenceAudioFilter(PreferenceAudioFilterType t, string[] argArray) {
             FilterType = t;
+            mArgArray = argArray;
         }
 
-        public string ToDescriptionText() {
-            switch (FilterType) {
-            case PreferenceAudioFilterType.PolarityInvert:
-                return Properties.Resources.AudioFilterPolarityInvert;
-            case PreferenceAudioFilterType.MonauralMix:
-                return Properties.Resources.AudioFilterMonauralMix;
-            default:
-                System.Diagnostics.Debug.Assert(false);
-                return "Unknown";
+        public List<Tuple<int, int>> ChannelRouting() {
+            return ArgArrayToChannelRouting(mArgArray);
+        }
+
+        public static List<Tuple<int, int>> ArgArrayToChannelRouting(string[] args) {
+            if (args == null) {
+                return null;
+            }
+
+            var rv = new List<Tuple<int, int>>();
+            foreach (var i in args) {
+                rv.Add(ArgToChannelRouting1(i));
+            }
+
+            return rv;
+        }
+
+        private static Tuple<int, int> ArgToChannelRouting1(string s) {
+            var fromTo = s.Split('>');
+            if (fromTo.Length != 2) {
+                return null;
+            }
+
+            int from, to;
+            if (!Int32.TryParse(fromTo[0], out from)) {
+                return null;
+            }
+            if (!Int32.TryParse(fromTo[1], out to)) {
+                return null;
+            }
+
+            return new Tuple<int, int>(from, to);
+        }
+
+        public string DescriptionText {
+            get {
+                switch (FilterType) {
+                case PreferenceAudioFilterType.PolarityInvert:
+                    return Properties.Resources.AudioFilterPolarityInvert;
+                case PreferenceAudioFilterType.MonauralMix:
+                    return Properties.Resources.AudioFilterMonauralMix;
+                case PreferenceAudioFilterType.ChannelRouting: {
+                        // 説明文はチャンネル番号が1から始まる。
+                        StringBuilder sb = new StringBuilder(Properties.Resources.AudioFilterChannelRouting);
+                        sb.AppendFormat(" ({0}ch)", mArgArray.Length);
+                        foreach (var s in mArgArray) {
+                            var m = ArgToChannelRouting1(s);
+                            sb.AppendFormat(" {0}→{1}", m.Item1+1, m.Item2+1);
+                        }
+                        return sb.ToString();
+                    }
+                default:
+                    System.Diagnostics.Debug.Assert(false);
+                    return "Unknown";
+                }
             }
         }
 
-        public string ToSaveText() {
-            // 個別フィルターパラメータの保存をする。
-            return FilterType.ToString();
-        }
-
         public PreferenceAudioFilter Copy() {
-            var p = new PreferenceAudioFilter(FilterType);
+            var p = new PreferenceAudioFilter(FilterType, mArgArray);
 
-            // 個別フィルターパラメーターのコピーをすること。
-            
             return p;
         }
-
-        // ここに個別フィルターパラメーターを並べる。
     }
 }
 
