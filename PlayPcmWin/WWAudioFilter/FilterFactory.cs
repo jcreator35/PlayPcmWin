@@ -127,6 +127,8 @@ namespace WWAudioFilter {
                 return HalfbandFilter.Restore(tokens);
             case "Crossfeed":
                 return CrossfeedFilter.Restore(tokens);
+            case "JitterAdd":
+                return JitterAddFilter.Restore(tokens);
             default:
                 return null;
             }

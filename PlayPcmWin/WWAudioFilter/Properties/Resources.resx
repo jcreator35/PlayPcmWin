@@ -407,4 +407,19 @@
   <data name="FilterCrossfeedDesc" xml:space="preserve">
     <value>Crossfeed: ConfigFile={0}</value>
   </data>
+  <data name="ErrorRpdfJitterAmount" xml:space="preserve">
+    <value>RPDF Jitter Amount must be 0 or larger value</value>
+  </data>
+  <data name="ErrorSinusolidalJitterAmount" xml:space="preserve">
+    <value>Sinusoidal Jitter Amount must be 0 or larger value</value>
+  </data>
+  <data name="ErrorSinusolidalJitterFreq" xml:space="preserve">
+    <value>Sinusoidal Jitter Freq must be 0 or larger value</value>
+  </data>
+  <data name="ErrorTpdfJitterAmount" xml:space="preserve">
+    <value>TPDF Jitter Amount must be 0 or larger value</value>
+  </data>
+  <data name="FilterJitterAddDesc" xml:space="preserve">
+    <value>Add Jitter : Sinusoidal={0}Hz {1}ns, TPDF={2}ns,  RPDF={3}ns, Filter Length={4}</value>
+  </data>
 </root>

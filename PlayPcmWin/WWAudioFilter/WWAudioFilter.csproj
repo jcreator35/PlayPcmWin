@@ -96,6 +96,7 @@
     <Compile Include="FftUpsampler.cs" />
     <Compile Include="FilterState.cs" />
     <Compile Include="HalfbandFilter.cs" />
+    <Compile Include="JitterAddFilter.cs" />
     <Compile Include="MashFilter.cs" />
     <Compile Include="TagEditFilter.cs" />
     <Compile Include="NoiseShaping4thFilter.cs" />
@@ -153,6 +154,7 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

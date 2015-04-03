@@ -16,6 +16,8 @@ namespace WWAudioFilter {
 
         private bool mInitialized = false;
 
+        private readonly int[] mConvolutionLengthArray = { 1024, 4096, 16384, 65536 };
+
         public FilterConfiguration(FilterBase filter) {
             InitializeComponent();
 
@@ -169,6 +171,9 @@ namespace WWAudioFilter {
             case FilterType.Crossfeed:
                 var cf = filter as CrossfeedFilter;
                 textBoxCrossfeedCoefficientFile.Text = cf.FilterFilePath;
+                break;
+            case FilterType.JitterAdd:
+                var jaf = filter as JitterAddFilter;
                 break;
             }
         }
@@ -567,6 +572,58 @@ namespace WWAudioFilter {
             }
 
             mFilter = new CrossfeedFilter(textBoxCrossfeedCoefficientFile.Text);
+            DialogResult = true;
+            Close();
+        }
+
+        private void buttonUseAddJitter_Click(object sender, RoutedEventArgs e) {
+            double sineJitterFreq;
+            if (!Double.TryParse(textBoxSinusoidalJitterFreq.Text, out sineJitterFreq)) {
+                MessageBox.Show(Properties.Resources.ErrorSinusolidalJitterFreq);
+                return;
+            }
+            if (sineJitterFreq < 0) {
+                MessageBox.Show(Properties.Resources.ErrorSinusolidalJitterFreq);
+                return;
+            }
+
+            double sineJitterNanosec;
+            if (!Double.TryParse(textBoxSinusoidalJitterNanoSeconds.Text, out sineJitterNanosec)) {
+                MessageBox.Show(Properties.Resources.ErrorSinusolidalJitterAmount);
+                return;
+            }
+            if (sineJitterNanosec < 0) {
+                MessageBox.Show(Properties.Resources.ErrorSinusolidalJitterAmount);
+                return;
+            }
+
+            double tpdfJitterNanosec;
+            if (!Double.TryParse(textBoxTpdfJitterNanoSeconds.Text, out tpdfJitterNanosec)) {
+                MessageBox.Show(Properties.Resources.ErrorTpdfJitterAmount);
+                return;
+            }
+            if (tpdfJitterNanosec < 0) {
+                MessageBox.Show(Properties.Resources.ErrorTpdfJitterAmount);
+                return;
+            }
+
+            double rpdfJitterNanosec;
+            if (!Double.TryParse(textBoxRpdfJitterNanoSeconds.Text, out rpdfJitterNanosec)) {
+                MessageBox.Show(Properties.Resources.ErrorRpdfJitterAmount);
+                return;
+            }
+            if (rpdfJitterNanosec < 0) {
+                MessageBox.Show(Properties.Resources.ErrorRpdfJitterAmount);
+                return;
+            }
+
+            int convolutionN = 1024;
+            if (0 <= comboBoxFilterLength.SelectedIndex) {
+                convolutionN = mConvolutionLengthArray[comboBoxFilterLength.SelectedIndex];
+            }
+
+            mFilter = new JitterAddFilter(sineJitterFreq, sineJitterNanosec, tpdfJitterNanosec, rpdfJitterNanosec, convolutionN);
+
             DialogResult = true;
             Close();
         }

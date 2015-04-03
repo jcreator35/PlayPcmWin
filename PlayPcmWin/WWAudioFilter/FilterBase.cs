@@ -24,6 +24,7 @@ namespace WWAudioFilter {
         InsertZeroesUpsampler,
         HalfbandFilter,
         Crossfeed,
+        JitterAdd,
     }
 
     public struct TagData {

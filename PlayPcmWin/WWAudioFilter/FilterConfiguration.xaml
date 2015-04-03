@@ -224,6 +224,43 @@
                             <Button Content="Use this filter" Grid.Row="1" Grid.ColumnSpan="3" Margin="6,0" Name="buttonUseCrossfeedFilter" VerticalAlignment="Center" Click="buttonUseCrossfeedFilter_Click" />
                         </Grid>
                     </GroupBox>
+                    <GroupBox Header="Add Jitter" Height="230" HorizontalAlignment="Left" Name="groupBoxAddJitter" VerticalAlignment="Top" Width="380">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                            </Grid.ColumnDefinitions>
+                            <Label   Grid.Column="0" Grid.Row="0" Content="Sinusoidal Jitter Frequency:" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                            <TextBox Grid.Column="1" Grid.Row="0" Margin="6,3,6,3" Name="textBoxSinusoidalJitterFreq" Text="120" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                            <Label   Grid.Column="2" Grid.Row="0" Content="Hz" VerticalAlignment="Center" />
+                            <Label   Grid.Column="0" Grid.Row="1" Content="Sinusoidal Jitter Amount:" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                            <TextBox Grid.Column="1" Grid.Row="1" Margin="6,3,6,3" Name="textBoxSinusoidalJitterNanoSeconds" Text="30000.0" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                            <Label   Grid.Column="2" Grid.Row="1" Content="ns RMS" VerticalAlignment="Center" />
+                            <Label   Grid.Column="0" Grid.Row="2" Content="TPDF Jitter Amount:" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                            <TextBox Grid.Column="1" Grid.Row="2" Margin="6,3,6,3" Name="textBoxTpdfJitterNanoSeconds" Text="0" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                            <Label   Grid.Column="2" Grid.Row="2" Content="ns RMS" VerticalAlignment="Center" />
+                            <Label   Grid.Column="0" Grid.Row="3" Content="RPDF Jitter Amount:" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                            <TextBox Grid.Column="1" Grid.Row="3" Margin="6,3,6,3" Name="textBoxRpdfJitterNanoSeconds" Text="0" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                            <Label   Grid.Column="2" Grid.Row="3" Content="ns RMS" VerticalAlignment="Center" />
+                            <Label   Grid.Column="0" Grid.Row="4" Content="Filter Length:" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                            <ComboBox Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="4" Name="comboBoxFilterLength" VerticalAlignment="Center" HorizontalContentAlignment="Center">
+                                <ComboBoxItem Content="1025"  />
+                                <ComboBoxItem Content="4097"  IsSelected="True" />
+                                <ComboBoxItem Content="16385" />
+                                <ComboBoxItem Content="65537" />
+                            </ComboBox>
+                            <Button Content="Use this filter" Grid.Row="5" Margin="6,0" Name="buttonUseAddJitter" VerticalAlignment="Center" Grid.ColumnSpan="3" Click="buttonUseAddJitter_Click" />
+                        </Grid>
+                    </GroupBox>
                 </WrapPanel>
             </Grid>
         </ScrollViewer>
