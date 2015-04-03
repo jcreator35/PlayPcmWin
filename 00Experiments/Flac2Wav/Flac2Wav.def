@@ -1,0 +1,4 @@
+LIBRARY Flac2Wav
+
+EXPORTS
+	Flac2Wav

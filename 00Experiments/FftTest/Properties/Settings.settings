@@ -1,0 +1,60 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="FftTest.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="Amplitude0" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">0.866</Value>
+    </Setting>
+    <Setting Name="Amplitude1" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">0.5</Value>
+    </Setting>
+    <Setting Name="Amplitude2" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="Amplitude3" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">-0.5</Value>
+    </Setting>
+    <Setting Name="Amplitude4" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">-0.866</Value>
+    </Setting>
+    <Setting Name="Amplitude5" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">-1</Value>
+    </Setting>
+    <Setting Name="Amplitude6" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">-0.866</Value>
+    </Setting>
+    <Setting Name="Amplitude7" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">-0.5</Value>
+    </Setting>
+    <Setting Name="Amplitude8" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="Amplitude9" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">0.5</Value>
+    </Setting>
+    <Setting Name="Amplitude10" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">0.866</Value>
+    </Setting>
+    <Setting Name="Amplitude11" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">1</Value>
+    </Setting>
+    <Setting Name="Amplitude12" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">0.866</Value>
+    </Setting>
+    <Setting Name="Amplitude13" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">0.5</Value>
+    </Setting>
+    <Setting Name="Amplitude14" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="Amplitude15" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">-0.5</Value>
+    </Setting>
+    <Setting Name="SampleCount" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">8</Value>
+    </Setting>
+    <Setting Name="UpsampleMultiple" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">2</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

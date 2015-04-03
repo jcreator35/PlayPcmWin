@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FftTest", "FftTest.csproj", "{94090C5E-FAFC-4093-A150-FE7CF970332D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FftTestConsole", "..\FftTestConsole\FftTestConsole.csproj", "{F5819671-C0F9-4FF6-9CF0-C739EF1F06B8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{94090C5E-FAFC-4093-A150-FE7CF970332D}.Debug|x64.ActiveCfg = Debug|x64
+		{94090C5E-FAFC-4093-A150-FE7CF970332D}.Debug|x64.Build.0 = Debug|x64
+		{94090C5E-FAFC-4093-A150-FE7CF970332D}.Debug|x86.ActiveCfg = Debug|x86
+		{94090C5E-FAFC-4093-A150-FE7CF970332D}.Debug|x86.Build.0 = Debug|x86
+		{94090C5E-FAFC-4093-A150-FE7CF970332D}.Release|x64.ActiveCfg = Release|x64
+		{94090C5E-FAFC-4093-A150-FE7CF970332D}.Release|x64.Build.0 = Release|x64
+		{94090C5E-FAFC-4093-A150-FE7CF970332D}.Release|x86.ActiveCfg = Release|x86
+		{94090C5E-FAFC-4093-A150-FE7CF970332D}.Release|x86.Build.0 = Release|x86
+		{F5819671-C0F9-4FF6-9CF0-C739EF1F06B8}.Debug|x64.ActiveCfg = Debug|x64
+		{F5819671-C0F9-4FF6-9CF0-C739EF1F06B8}.Debug|x64.Build.0 = Debug|x64
+		{F5819671-C0F9-4FF6-9CF0-C739EF1F06B8}.Debug|x86.ActiveCfg = Debug|x86
+		{F5819671-C0F9-4FF6-9CF0-C739EF1F06B8}.Debug|x86.Build.0 = Debug|x86
+		{F5819671-C0F9-4FF6-9CF0-C739EF1F06B8}.Release|x64.ActiveCfg = Release|x64
+		{F5819671-C0F9-4FF6-9CF0-C739EF1F06B8}.Release|x64.Build.0 = Release|x64
+		{F5819671-C0F9-4FF6-9CF0-C739EF1F06B8}.Release|x86.ActiveCfg = Release|x86
+		{F5819671-C0F9-4FF6-9CF0-C739EF1F06B8}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

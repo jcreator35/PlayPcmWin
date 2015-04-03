@@ -1,0 +1,757 @@
+﻿\documentclass[a4j]{jarticle}
+\usepackage{fancybox,ascmac,amsmath,amssymb}
+\begin{document}
+
+\section{ラプラス変換の導入}
+
+\begin{itembox}[l]{{\large {\bf ラプラス変換の定義(Definition of the Laplace transform)}}}
+\begin{eqnarray*}
+\mathcal{L}\{f(t)\} = F(s) = \int_0^\infty{ \mathrm{e}^{-st}f(t)\mathrm{d}t }
+\end{eqnarray*}
+\end{itembox}
+
+\( t \) は時間を表す変数. 時間領域の関数 \( f(t) \) をラプラス変換すると周波数領域の関数 \( \mathrm{F} (s) \) になる.
+\( s \) は広義積分(improper integral)を計算する際には定数と考えて積分する.
+
+\( \mathcal{L}\{f(t)\} \) は Laplace transform of a function f of t と読む.
+\( \int_0^\infty \mathrm{e}^{-st}f(t)\mathrm{d}t \) は Integral from zero to infinity of e to the minus s t times a function f of t d t と読む.\\
+
+\noindent
+{\large {\bf 問1}} \/ 関数\(f(t) = 1\)をラプラス変換せよ.
+\begin{eqnarray*}
+\mathcal{L}\{1\} &=& \int_0^\infty \mathrm{e}^{-st}\cdot 1 \, \mathrm{d}t\\
+  &=& \lim_{A \to \infty} \int_0^A \mathrm{e}^{-st}\mathrm{d}t\\
+  &=& \lim_{A \to \infty} \left[\frac{-1}{s}\mathrm{e}^{-st}\right]^A_0\\
+  &=& \lim_{A \to \infty} \left(\frac{-1}{s}\mathrm{e}^{-sA} - \frac{-1}{s}\right)
+\end{eqnarray*}
+\begin{eqnarray*}
+\therefore s>0 \textmc{のとき} \mathcal{L}\{1\} = \frac{1}{s}
+\end{eqnarray*}
+
+\noindent
+{\large {\bf 問2}} \/ 関数\( f(t) = \mathrm{e}^{at} \)をラプラス変換せよ.
+\begin{eqnarray*}
+\mathcal{L}\{ \mathrm{e}^{at} \} &=& \int_0^\infty \mathrm{e}^{(-s)t} \mathrm{e}^{at} \, \mathrm{d}t\\
+                                 &=& \int_0^\infty \mathrm{e}^{(a-s)t} \, \mathrm{d}t\\
+                                 &=& \left[\frac{1}{a-s}\mathrm{e}^{(a-s)t}\right]^{(t=)\infty}_{(t=)0}\\
+\end{eqnarray*}
+\begin{eqnarray*}
+\therefore a-s > 0 \text{のとき} &:& \text{発散.}\\
+           a-s = 0 \text{のとき} &:& \text{未定義.}\\
+           a-s < 0 \text{のとき} &:& \lim_{A \to \infty} \left( \mathrm{e}^{(a-s)A} \right) = 0 , \/ \mathrm{e}^{(a-s) \cdot 0} = 1 , \frac{1}{a-s}(0-1) = \frac{1}{s-a} \text{より} \\
+                                   & & \mathcal{L}\{ \mathrm{e}^{at} \} = \frac{1}{s-a}
+\end{eqnarray*}
+
+\noindent
+{\large {\bf 問3}} \/ \( \mathcal{L} \{ \sin(at) \} \)を求めよ.
+
+\begin{eqnarray*}
+\mathcal{L} \{ \sin(at) \} = \int_0^\infty \mathrm{e}^{(-s)t} \sin(at) \, \mathrm{d}t
+\end{eqnarray*}
+
+\begin{itembox}[l]{{\large {\bf 積の微分公式(Product rule of differentiation)}}}
+\begin{eqnarray*}
+\frac{\mathrm{d}}{\mathrm{d}t}(u\,v) = u'\,v + u\,v'
+\end{eqnarray*}
+\end{itembox}
+
+積の微分公式の両辺を積分することで以下の式を得る.
+
+\begin{itembox}[l]{{\large {\bf 部分積分(Integration by parts, IBP)}}}
+\begin{eqnarray*}
+u\,v = \int{ u'\,v } \, \mathrm{d}t + \int{ u\,v' }  \, \mathrm{d}t \\
+\int{ u'\,v } \, \mathrm{d}t = u\,v - \int{ u\,v' } \, \mathrm{d}t \\
+\end{eqnarray*}
+\end{itembox}
+
+\( u' = \mathrm{e}^{(-s)t} ,\, u = \frac{1}{-s}\mathrm{e}^{-st} ,\, v = \sin(at) ,\, v' = a \cdot \cos(at) \)
+として部分積分\( \int{ u'\,v } \, \mathrm{d}t = u\,v - \int{ u\,v' } \, \mathrm{d}t \) を適用する.
+
+\begin{eqnarray*}
+\mathcal{L} \{ \sin(at) \} &=& \int_0^\infty \mathrm{e}^{(-s)t} \sin (at) \mathrm{d}t \\
+                           &=& \left[ \frac{-1}{s}\mathrm{e}^{-st}\sin(at) \right]_0^\infty - \int_0^\infty{- \frac{1}{s} \mathrm{e}^{-st} a \cos(at) \, \mathrm{d}t } \\
+                           &=& \left[ \frac{-\mathrm{e}^{-st}}{s}\sin(at) \right]_0^\infty + \frac{a}{s} \int_0^\infty{ \mathrm{e}^{-st} \cos(at) \, \mathrm{d}t }
+\end{eqnarray*}
+
+\( u' = \mathrm{e}^{-st} ,\, u=\frac{-1}{s}\mathrm{e}^{-st} ,\, v = \cos(at) ,\, v' = -a\sin(at) \) として部分積分を適用する.
+
+\begin{eqnarray*}
+\mathcal{L} \{ \sin(at) \} &=& \left[ \frac{-\mathrm{e}^{-st}}{s}\sin(at) + \frac{a}{s} \left( \frac{-1}{s}\mathrm{e}^{-st} \right) \cos(at) \right]_0^\infty - \frac{a}{s}\int_0^\infty{ \frac{-1}{s}\mathrm{e}^{-st} \left( -a \sin(at) \right) \mathrm{d}t } \\
+                           &=& \left[ \frac{-\mathrm{e}^{-st}}{s}\sin(at) - \frac{a}{s^2} \mathrm{e}^{-st} \cos (at) \right]_0^\infty - \frac{a^2}{s^2} \int_0^\infty{ \mathrm{e}^{-st}\sin(at)\mathrm{d}t } \\
+                           &=& \left[ \frac{-\mathrm{e}^{-st}}{s}\sin(at) - \frac{a}{s^2} \mathrm{e}^{-st} \cos (at) \right]_0^\infty - \frac{a^2}{s^2} \mathcal{L} \{ \sin(at) \}
+\end{eqnarray*}
+\begin{eqnarray*}
+\left( 1 + \frac{a^2}{s^2} \right) \mathcal{L} \{ \sin(at) \}  &=& \left[ -\mathrm{e}^{-st} \left( \frac{\sin(at)}{s} + \frac{a \cos(at)}{s^2} \right) \right]_0^\infty \\
+(s>0 \text{のとき}) : \quad \frac{s^2+a^2}{s^2} \mathcal{L} \{ \sin(at) \} &=& 0 + 1 \cdot \left( 0 + \frac{a}{s^2} \right)\\
+\frac{s^2+a^2}{s^2} \mathcal{L} \{ \sin(at) \} &=& \frac{a}{s^2} \\
+                    \mathcal{L} \{ \sin(at) \} &=& \frac{a}{s^2}\frac{s^2}{s^2+a^2} = \frac{a}{s^2+a^2} \\
+\end{eqnarray*}
+\begin{eqnarray*}
+\therefore \mathcal{L} \{ \sin(at) \} = \frac{a}{s^2+a^2} \quad (s>0)
+\end{eqnarray*}
+この結果から,
+\begin{eqnarray*}
+\mathcal{L} \{ \sin(t) \}  &=& \frac{1}{s^2+1} \quad (s>0) \\
+\mathcal{L} \{ \sin(2t) \} &=& \frac{2}{s^2+4} \quad (s>0) \\
+\end{eqnarray*}
+
+\section{ラプラス変換の諸性質}
+
+\subsection{ラプラス変換の線形法則(Laplace transform as linear operator)}
+
+\begin{eqnarray*}
+\mathcal{L} \{  c_1 f(t) + c_2 g(t) \} &=& \int_0^\infty{ \mathrm{e}^{(-s)t} \left(  c_1 f(t) + c_2 g(t) \right) \, \mathrm{d}t } \\
+                                       &=& \int_0^\infty{ \left( c_1 \mathrm{e}^{(-s)t} f(t) + c_2 \mathrm{e}^{(-s)t} g(t) \right) \, \mathrm{d}t } \\
+                                       &=& c_1 \int_0^\infty{ \mathrm{e}^{(-s)t} f(t) \, \mathrm{d}t } +  c_2 \int_0^\infty{ \mathrm{e}^{(-s)t} g(t) \, \mathrm{d}t } \\
+                                       &=& c_1 \mathcal{L} \{ f(t) \} + c_2 \mathcal{L} \{ g(t) \}
+\end{eqnarray*}
+\begin{eqnarray*}
+\therefore \mathcal{L} \{  c_1 f(t) + c_2 g(t) \} = c_1 \mathcal{L} \{ f(t) \} + c_2 \mathcal{L} \{ g(t) \}
+\end{eqnarray*}
+
+\subsection{ラプラス変換の微分法則(Laplace transform of derivatives)}
+
+\begin{eqnarray*}
+\mathcal{L} \{  f'(t) \} = \int_0^\infty{ \mathrm{e}^{-st} f'(t) \, \mathrm{d}t }
+\end{eqnarray*}
+
+( \( f'(t) \) は f prime of t と読む. )
+
+\( u= \mathrm{e}^{-st} ,\, u' = -s \mathrm{e}^{-st} ,\, v' = f'(t) ,\, v = f(t) \)として
+部分積分\( \int{ u\,v' } \, \mathrm{d}t = u\,v - \int{ u'\,v } \, \mathrm{d}t \) を適用する.
+
+\begin{eqnarray*}
+\mathcal{L} \{  f'(t) \} &=& \left[ \mathrm{e}^{-st} \, f(t) \right]_0^\infty - \int_0^\infty{ -s \mathrm{e}^{-st} f(t) \, \mathrm{d}t } \\
+                         &=& \left[ \mathrm{e}^{-st} \, f(t) \right]_0^\infty + s \int_0^\infty{ \mathrm{e}^{-st} f(t) \, \mathrm{d}t } \\
+                         &=& \left[ \mathrm{e}^{-st} \, f(t) \right]_0^\infty + s \mathcal{L} \{  f(t) \} \\
+                         &=& \lim_{A \to \infty} \left( \mathrm{e}^{-sA} f(A) \right) - 1 \cdot f(0) + s \mathcal{L} \{  f(t) \}
+\end{eqnarray*}
+\( f(t) \text{が}  \lim_{A \to \infty} \left( \mathrm{e}^{-sA} f(A) \right) \) が発散するような指数関数ではなく, \( s>0 \) のとき \( \lim_{A \to \infty} \left( \mathrm{e}^{-sA} f(A) \right) = 0 \)
+\begin{eqnarray*}
+\therefore \mathcal{L} \{  f'(t) \} = s \mathcal{L} \{  f(t) \} - f(0)
+\end{eqnarray*}
+
+\noindent
+{\large {\bf 問4}}\/ \( \mathcal{L} \{ \cos(at) \} \)を求めよ.
+
+\begin{eqnarray*}
+\mathcal{L} \{ \sin(at) = \frac{a}{s^2+a^2}
+\end{eqnarray*}
+
+\( f'(t) = \cos(at), f(t) = \frac{1}{a}\sin(at) \)として, \( \mathcal{L} \{ f'(t) \} = s \mathcal{L} \{ f(t) \} - f(0) \) を適用する.
+
+\begin{eqnarray*}
+\mathcal{L} \{ \cos(at) \} &=& s \mathcal{L} \{ \frac{1}{a}\sin(at) \} - \frac{1}{a}\sin(0) \\
+                           &=& \frac{s}{a} \mathcal{L} \{ \sin(at) \} = \frac{s}{s^2+a^2}
+\end{eqnarray*}
+
+\subsection{二階微分のラプラス変換(Laplace transform of second derivatives)}
+
+\begin{eqnarray*}
+\mathcal{L} \{  f''(t) \} &=& s \mathcal{L} \{  f'(t) \} - f'(0) \\
+                          &=& s \left( s \mathcal{L} \{  f(t) \} - f(0) \right) - f'(0) \\
+                          &=& s^2 \mathcal{L} \{  f(t) \} - s f(0) - f'(0)
+\end{eqnarray*}
+
+\subsection{多項式のラプラス変換(Laplace transform of polynomials)}
+
+\noindent
+{\large {\bf 問5}}\/ \( \mathcal{L} \{ t \} \)を求めよ. \\
+
+\( \mathcal{L} \{ 1 \} = \frac{1}{s} ,\, \mathcal{L} \{ f'(t) \} = s \mathcal{L} \{ f(t) \} - f(0) \)を用いる.
+
+\begin{eqnarray*}
+            \mathcal{L} \{ f'(t) \} &=& s \mathcal{L} \{ f(t) \} - f(0) \\
+     \mathcal{L} \{ f'(t) \} + f(0) &=& s \mathcal{L} \{ f(t) \} \\
+\therefore \mathcal{L} \{ f(t) \} &=& \frac{1}{s} \left( \mathcal{L} \{ f'(t) \} + f(0) \right)
+\end{eqnarray*}
+
+\( \mathcal{L} \{ 1 \} = \frac{1}{s} ,\ f'=1 ,\, f=t ,\, f(0)=0 \)
+を \( \mathcal{L} \{ f(t) \} = \frac{1}{s} \left( \mathcal{L} \{ f'(t) \} + f(0) \right) \) に適用する.
+\begin{eqnarray*}
+\mathcal{L} \{ t \} &=& \frac{1}{s} \left( \mathcal{L} \{ f' \} + f(0) \right) \\
+                    &=& \frac{1}{s} \left( \frac{1}{s} + 0 \right) = \frac{1}{s^2}
+\end{eqnarray*}
+
+\begin{eqnarray*}
+\therefore \mathcal{L} \{ t \} &=& \frac{1}{s^2} \quad(s>0)
+\end{eqnarray*}
+
+IBPを使用した他の解法.
+\begin{eqnarray*}
+\mathcal{L} \{ t \} &=& \int_0^\infty{ \mathrm{e}^{-st} \, t \, \mathrm{d}t }
+\end{eqnarray*}
+ \( \int{ u'\,v } \, \mathrm{d}t = u\,v - \int{ u\,v' } \, \mathrm{d}t ,\, u= \mathrm{e}^{-st}, u'=\frac{1}{-s}\mathrm{e}^{-st}, v=t, v'=1, \mathcal{L} \{ 1 \}=\frac{1}{s} \)より
+
+\begin{eqnarray*}
+\mathcal{L} \{ t \} &=& \left[(-\frac{1}{s}\mathrm{e}^{-st})\cdot t\right]_0^\infty - \int_0^\infty{(\frac{-1}{s}\mathrm{e}^{-st} )\cdot1 \, \mathrm{d}t } \\
+                    &=& \left[-\frac{t}{s}\mathrm{e}^{-st}\right]_0^\infty + \frac{1}{s}\int_0^\infty{ \mathrm{e}^{-st}\, \mathrm{d}t } \\
+                    &=& \lim_{A\to\infty}(\frac{A}{s} \mathrm{e}^{-sA}) + (\frac{0}{s}\mathrm{e}^{-s0}) + \frac{1}{s}\mathcal{L} \{ 1 \} \\
+                    &=& 0 + 0 + \frac{1}{s} \mathcal{L} \{ 1 \} \quad(s>0) \\
+                    &=& \frac{1}{s}\mathcal{L} \{ 1 \} = \frac{1}{s^2}
+\end{eqnarray*}
+\begin{eqnarray*}
+\therefore \mathcal{L} \{ t \} &=& \frac{1}{s^2} \quad(s>0)
+\end{eqnarray*}
+
+\noindent
+{\large {\bf 問6}}\/ \( \mathcal{L} \{ t^2 \} \)を求めよ. \\
+
+\( f=t^2 ,\, f'=2t ,\, f(0) = 0 \) を \( \mathcal{L} \{ f(t) \} = \frac{1}{s} \left( \mathcal{L} \{ f'(t) \} + f(0) \right) \) に適用する.
+
+\begin{eqnarray*}
+\mathcal{L} \{ t^2 \} = \frac{1}{s} \{ \mathcal{L} \{ 2t \} + 0 \} = \frac{2}{s} \mathcal{L} \{ t \} = \frac{2}{s^3}
+\end{eqnarray*}
+
+\begin{eqnarray*}
+\therefore \mathcal{L} \{ t^2 \} =  \frac{2}{s^3} \quad(s>0)
+\end{eqnarray*}
+
+\noindent
+{\large {\bf 問7}}\/ \( \mathcal{L} \{ t^3 \} \)を求めよ. \\
+
+\( f=t^3 ,\, f'=3t^2 \) ,\, 問6と同様にして
+\begin{eqnarray*}
+\mathcal{L} \{ t^3 \} = \frac{1}{s} \{ \mathcal{L} \{ 3t^2 \} + 0 \} = \frac{6}{s^4}
+\end{eqnarray*}
+
+\begin{eqnarray*}
+\therefore \mathcal{L} \{ t^3 \} =  \frac{6}{s^4} \quad(s>0)
+\end{eqnarray*}
+
+\noindent
+{\large {\bf 問8}}\/ \( \mathcal{L} \{ t^n \} \)\quad( \( n > 0\) の整数 )を求めよ.
+
+\begin{eqnarray*}
+\mathcal{L} \{ t^n \} &=& \int_0^\infty{ t^n \mathrm{e}^{-st} \, \mathrm{d}t }
+\end{eqnarray*}
+%
+\( \int{ u\,v' } \, \mathrm{d}t = u\,v - \int{ u'\,v } \, \mathrm{d}t ,\, u=t^n , u'=n\cdot t^{n-1} ,\, v'=\mathrm{e}^{-st}, v=\frac{1}{-s}\mathrm{e}^{-st} \)より,
+%
+\begin{eqnarray*}
+\mathcal{L} \{ t^n \} &=& \left[ -t^n \cdot \mathrm{e}^{-st} \right]_0^\infty - \int_0^\infty{n \cdot t^{n-1} \cdot \frac{\mathrm{e}^{-st}}{s} \, \mathrm{d}t} \\
+                      &=& 0 - \frac{-0^n \mathrm{e}^{-s0}}{0} + \frac{n}{s}\int_0^\infty{t^{n-1}\mathrm{e}^{-st}\, \mathrm{d}t }
+\end{eqnarray*}
+ここで \(\int_0^\infty{t^{n-1}\mathrm{e}^{-st}\, \mathrm{d}t } = \mathcal{L} \{ t^{n-1} \} \)であるから,
+\begin{eqnarray*}
+\mathcal{L} \{ t^{n} \} = \frac{n}{s}\mathcal{L} \{ t^{n-1} \}
+\end{eqnarray*}
+%
+\begin{eqnarray*}
+\mathcal{L} \{ t^{1} \} &=& \frac{1}{s^2}\quad(s>0) \\
+\mathcal{L} \{ t^{2} \} &=& \frac{2}{s}\mathcal{L} \{ t^{1} \} = \frac{2}{s}\cdot\frac{1}{s^2} = \frac{2}{s^3} \\
+\mathcal{L} \{ t^{3} \} &=& \frac{3}{s}\mathcal{L} \{ t^{2} \} = \frac{3}{s}\cdot\frac{2}{s}\cdot\frac{1}{s^2} = \frac{3!}{s^4} \\
+\mathcal{L} \{ t^{4} \} &=& \frac{4}{s}\mathcal{L} \{ t^{3} \} = \frac{4}{s}\cdot\frac{3!}{s^4}=\frac{4!}{s^5} \\
+\dotsi
+\end{eqnarray*}
+
+\begin{eqnarray*}
+\therefore \mathcal{L} \{ t^n \} = \frac{n!}{s^{n+1}} \quad(s>0\text{かつ} n>0\text{の整数})
+\end{eqnarray*}
+
+\( n! \) は n factorial と読む.
+
+\section{ヘヴィサイドの階段関数(Unit step function)}
+
+\begin{itembox}[l]{{\large {\bf ヘヴィサイドの階段関数の定義(Definition of the unit step function)}}}
+\begin{eqnarray*}
+u_c(t) = \left\{ \begin{array}{l l}
+                    0 & \quad \text{$t <    c$ のとき} \\
+                    1 & \quad \text{$t \geq c$ のとき}
+                    \end{array} \right.
+\end{eqnarray*}
+\end{itembox}
+\( u_c(t) \) は u subscript c of t とか unit step function starts at c of t と読む.
+
+\( \left\{ \begin{array}{l l}
+                    0 & \quad t <    c \\
+                    1 & \quad t \geq c
+                    \end{array} \right. \) は defined as zero when t is less than c and defined as one when t is greater than or equal to cと読む.
+
+\noindent
+{\large {\bf 使用例1}}: \( t < \pi \) の領域は \( 2 \)を戻し, 他の領域は0を戻す関数.
+\begin{eqnarray*}
+2 - 2 \cdot u_\pi(t)
+\end{eqnarray*}
+
+\noindent
+{\large {\bf 使用例2}}: \( t < \pi \) の領域の値は \( 2 \)で, \( \pi <= t < 2\pi \) の領域の値が0, \( 2\pi < t \) の領域の値は \( 2 \)の関数.
+\begin{eqnarray*}
+2 - 2 \cdot u_\pi(t) + 2\cdot u_{2\pi}(t)
+\end{eqnarray*}
+
+\noindent
+{\large {\bf 使用例3}}: 関数 \( f(t) \) を\( t+ \)方向に \( 3 \) だけ平行移動し,
+\( t < 3 \) の領域の値を0にした関数\( g(t) \).
+\begin{eqnarray*}
+g(t) = u_3(t)\cdot f(t-3)
+\end{eqnarray*}
+
+\noindent
+{\large {\bf 問9}}: 関数 \( u_c(t)\cdot f(t-c) \) をラプラス変換せよ.
+\begin{eqnarray*}
+\mathcal{L} \{ u_c(t)\cdot f(t-c) \} &=& \int_{(t=)0}^{(t=)\infty}{ \mathrm{e}^{-st} u_c(t) \, f(t-c) \, \mathrm{d}t}
+\end{eqnarray*}
+%
+\( t<c \) の領域の値は0なので, 積分範囲は\( c <= t \)に狭めることができる.
+%
+\begin{eqnarray*}
+ &=& \int_{(t=)c}^{(t=)\infty}{ \mathrm{e}^{-st} u_c(t) \, f(t-c) \, \mathrm{d}t}
+\end{eqnarray*}
+%
+ここで, \( u_c(t) \)は全積分範囲で1なので,
+%
+\begin{eqnarray*}
+ &=& \int_{(t=)c}^{(t=)\infty}{ \mathrm{e}^{-st} f(t-c) \, \mathrm{d}t}
+\end{eqnarray*}
+%
+\( x = t-c \) と置いて\(t\)を\(x\)に変数変換する. \( t = x + c ,\, \frac{\mathrm{d}x}{\mathrm{d}t}=1 ,\, \mathrm{d}x = \mathrm{d}t \)より,
+%
+\begin{eqnarray*}
+ &=& \int_{(x=)0}^{(x=)\infty}{ \mathrm{e}^{-s(x+c)} f(x) \, \mathrm{d}x} \\
+ &=& \int_0^\infty{ \mathrm{e}^{-sx-sc} f(x) \, \mathrm{d}x} \\
+ &=& \mathrm{e}^{-sc} \int_0^\infty{ \mathrm{e}^{-sx} f(x) \, \mathrm{d}x} \\
+\end{eqnarray*}
+%
+ここで,  \( \int_{(x=)0}^{(x=)\infty}{ \mathrm{e}^{-sx} f(x) \, \mathrm{d}x} \)は,
+\( \int_{(t=)0}^{(t=)\infty}{ \mathrm{e}^{-st} f(t) \, \mathrm{d}t} \)の積分計算用ループ変数\(t\)が\(x\)に変わっただけであり計算の内容は同じである.
+\( \int_{(x=)0}^{(x=)\infty}{ \mathrm{e}^{-sx} f(x) \, \mathrm{d}x} = \int_{(t=)0}^{(t=)\infty}{ \mathrm{e}^{-st} f(t) \, \mathrm{d}t} = \mathcal{L} \{ f(t) \} \) より,
+%
+\begin{eqnarray*}
+\mathcal{L} \{ u_c(t)\cdot f(t-c) \} &=& \mathrm{e}^{-sc} \int_0^\infty{ \mathrm{e}^{-sx} f(x) \, \mathrm{d}x} \\
+                                     &=& \mathrm{e}^{-sc} \mathcal{L} \{ f(t) \}
+\end{eqnarray*}
+%
+\begin{eqnarray*}
+\therefore \mathcal{L} \{ u_c(t)\cdot f(t-c) \} &=& \mathrm{e}^{-sc} \mathcal{L} \{ f(t) \}
+\end{eqnarray*}
+
+\noindent
+{\large {\bf 問10}}: 関数 \( u_\pi(t)\cdot \sin(t-\pi) \) をラプラス変換せよ.
+\begin{eqnarray*}
+\mathcal{L} \{ u_\pi(t)\cdot \sin(t-\pi) \} &=& \mathrm{e}^{-\pi s} \mathcal{L} \{ \sin(t) \} \\
+                                            &=& \frac{ \mathrm{e}^{-\pi s} }{s^2+1}
+\end{eqnarray*}
+
+\section{ディラックの衝撃関数(Dirac delta function)}
+
+\subsection{ディラックの衝撃関数の導入}
+
+以下の関数\( d_\tau(t) \) の積分を考える.
+\begin{eqnarray*}
+d_\tau(t) = \left\{ \begin{array}{l l}
+                    \frac{1}{2\tau} & \quad -\tau < t < \tau \\
+                    0               & \quad t \text{が他の範囲}
+                    \end{array} \right.
+\end{eqnarray*}
+
+\( \tau \) はtauと読む. \( d_\tau(t) = \left\{ \begin{array}{l l}
+                    \frac{1}{2\tau} & \quad -\tau < t < \tau \\
+                    0               & \quad t \text{が他の範囲}
+                    \end{array} \right. \)
+は d sub tau equals one over two tau when t is less than tau and greater than minus tau
+and defined as zero everywhere else などと読む.
+
+関数\( d_\tau(t) \) は \( t=0 \) 上に幅 \( 2\tau \), 高さ \( \frac{\tau}{2} \) の長方形を作る.
+その面積は \( 1 \) である. よって, 
+\begin{eqnarray*}
+\int_{-\infty}^{\infty}{ d_\tau(t) \, \mathrm{d}t} = 1
+\end{eqnarray*}
+
+\( \tau \)の値を0に近づけていくと, 面積が \( 1 \) で高さが無限に高く幅が無限に狭い長方形ができる.
+これがディラックの衝撃関数 \( \delta(t) \) である. \( \delta \) は delta と読む.
+\begin{eqnarray*}
+\lim_{\tau \to 0}{ d_\tau(t) } = \delta(t)
+\end{eqnarray*}
+
+\( \delta(t-3) \) は, 衝撃が \( t=3 \) の位置に平行移動したものである. 
+
+\( 2 \delta(t) \) は, 面積が \( 2 \) であり, 衝撃が \( \delta(t) \) の2倍強い.
+
+\subsection{ディラックの衝撃関数のラプラス変換}
+
+\noindent
+{\large {\bf 問11}}: 関数 \( \delta(t-c)\,f(t) \) をラプラス変換せよ.
+\begin{eqnarray*}
+\mathcal{L} \{ \delta(t-c)\,f(t) \} &=& \int_{0}^{\infty}{ \mathrm{e}^{-st}f(t)\delta(t-c) \, \mathrm{d}t}
+\end{eqnarray*}
+%
+関数 \( \mathrm{e}^{-st}f(t) \text{は} t=c \text{の近傍で} \lim_{\tau \to 0}\mathrm{e}^{-s(c+\tau)}f(c+\tau) = \mathrm{e}^{-cs}f(c) \),
+\( \delta(t-c) \)は \( c-\tau <t < c+\tau \)以外の領域で0のため, 
+%
+\begin{eqnarray*}
+&=& \int_{0}^{\infty}{ \mathrm{e}^{-cs}f(c)\delta(t-c) \, \mathrm{d}t} \\
+&=& \mathrm{e}^{-cs}f(c)\int_{0}^{\infty}{ \delta(t-c) \, \mathrm{d}t}
+\end{eqnarray*}
+ここで \( \int_{0}^{\infty}{ \delta(t-c) \, \mathrm{d}t } = 1 \)より,
+\begin{eqnarray*}
+\therefore \mathcal{L} \{ \delta(t-c)\,f(t) \} &=& \mathrm{e}^{-cs}f(c)
+\end{eqnarray*}
+
+\noindent
+{\large {\bf 問12}}: 関数 \( \delta(t) \) をラプラス変換せよ.
+
+問11の結果に \( f(t) = 1 ,\, c=0 \)を代入すると,
+\begin{eqnarray*}
+\mathcal{L} \{ \delta(t) \} &=& 1
+\end{eqnarray*}
+
+\noindent
+{\large {\bf 問13}}: 関数 \( \delta(t-c) \) をラプラス変換せよ.
+
+\begin{eqnarray*}
+\mathcal{L} \{ \delta(t-c) \} &=& \mathrm{e}^{-cs}
+\end{eqnarray*}
+
+\section{ラプラス変換の表}
+%
+\begin{eqnarray*}
+                 \mathcal{L} \{ f(t) \} &=& F(s) = \int_0^\infty \mathrm{e}^{-st}f(t)\mathrm{d}t \\
+                    \mathcal{L} \{ 1 \} &=& \frac{1}{s} \\
+\mathcal{L} \{ \mathrm{e}^{at}\,f(t) \} &=& F(s-a) \\
+ \mathcal{L} \{  c_1 f(t) + c_2 g(t) \} &=& c_1 \mathcal{L} \{ f(t) \} + c_2 \mathcal{L} \{ g(t) \} \\
+               \mathcal{L} \{  f'(t) \} &=& s \mathcal{L} \{  f(t) \} - f(0) \\
+                  \mathcal{L} \{ t^n \} &=& \frac{n!}{s^{n+1}} \quad (n > 0 \text{の整数} ) \\
+             \mathcal{L} \{ \sin(at) \} &=& \frac{a}{s^2 + a^2} \\
+             \mathcal{L} \{ \cos(at) \} &=& \frac{s}{s^2 + a^2} \\
+       \mathcal{L} \{ u_c(t)\,f(t-c) \} &=& \mathrm{e}^{-cs}F(s) \\
+    \mathcal{L} \{ \delta(t-c)\,f(t) \} &=& \mathrm{e}^{-cs}f(c) \\
+\end{eqnarray*}
+
+\section{逆ラプラス変換(Inverse Laplace transform)}
+%
+\noindent
+{\large {\bf 問13}}: 関数 \( F(s) = \frac{3!}{(s-2)^4} \) を逆ラプラス変換せよ. \\
+
+ラプラス変換の表より,
+\begin{eqnarray*}
+                  \mathcal{L} \{ t^3 \} &=& \frac{3!}{s^4} \\
+\mathcal{L} \{ \mathrm{e}^{2t}\,f(t) \} &=& F(s-2) \\
+\end{eqnarray*}
+よって,
+\begin{eqnarray*}
+                  \mathcal{L} \{ \mathrm{e}^{2t}t^3 \}                 &=& \frac{3!}{(s-2)^4} \\
+\therefore        \mathcal{L}^{-1} \left\{ \frac{3!}{(s-2)^4} \right\} &=& \mathrm{e}^{2t}t^3
+\end{eqnarray*}
+
+\noindent
+{\large {\bf 問14}}: 関数 \( \frac{2(s-1)\mathrm{e}^{-2s}}{s^2-2s+2} \) を逆ラプラス変換せよ. \\
+
+\( s^2-2s+2 = (s^2-2s+1)+1 = (s-1)^2 + 1 \)
+
+ラプラス変換の表より,
+\begin{eqnarray*}
+              \mathcal{L} \{ \cos(t) \} &=& \frac{s}{s^2 + 1} \\
+ \mathcal{L} \{ \mathrm{e}^{t}\,f(t) \} &=& F(s-1) \\
+       \mathcal{L} \{ u_2(t)\,f(t-2) \} &=& \mathrm{e}^{-2s}F(s) \\
+       \mathcal{L} \{ 2\cdot f(t) \} &=& 2 \cdot F(s) \\
+\end{eqnarray*}
+よって,
+\begin{eqnarray*}
+                \mathcal{L} \{ \mathrm{e}^{t}\,\cos(t) \} &=& \frac{s-1}{(s-1)^2+1} \\
+      \mathcal{L} \{ u_2(t)\mathrm{e}^{t-2}\,\cos(t-2) \} &=& \mathrm{e}^{-2s}\frac{s-1}{(s-1)^2+1} \\
+\mathcal{L} \{ 2\cdot u_2(t)\mathrm{e}^{t-2}\,\cos(t-2) \} &=& \frac{2(s-1)}{(s-1)^2+1}\mathrm{e}^{-2s} \\
+\therefore \mathcal{L}^{-1} \left\{ \frac{2(s-1)\mathrm{e}^{-2s}}{s^2-2s+2} \right\} &=& 2\cdot u_2(t)\mathrm{e}^{t-2}\,\cos(t-2)
+\end{eqnarray*}
+
+\section{ラプラス変換を用いた微分方程式の解法(Using the Laplace transform to solve a differential equation)}
+
+\noindent
+{\large {\bf 問15}}: \(y''+5y'+6y=0 \) を初期条件 \( y(0)=2 ,\, y'(0)=3 \) のもとで解け.
+
+\begin{eqnarray*}
+\mathcal{L} \{ y'' \} + 5 \mathcal{L} \{ y' \} + 6\mathcal{L} \{ y \} &=& 0 ( = \mathcal{L} \{ 0 \} ) \\
+\end{eqnarray*}
+%
+\( \mathcal{L} \{ y' \} = s \mathcal{L} \{ y \} - y(0) \)より,
+%
+\begin{eqnarray*}
+&\,& s\mathcal{L} \{ y' \} -y'(0) + 5 \mathcal{L} \{ y' \} + 6\mathcal{L} \{ y \} = 0 \\
+&\,& s(s\mathcal{L} \{ y \} - y(0)) -y'(0) + 5 (s\mathcal{L} \{ y \}-y(0)) + 6\mathcal{L} \{ y \} = 0 \\
+&\,& (s^2+5s+6)\mathcal{L} \{ y \} - sy(0) -y'(0) -5y(0) = 0 \\
+&\,& (s^2+5s+6)\mathcal{L} \{ y \} - 2s - 13 = 0 \\
+&\,& \mathcal{L} \{ y \} = \frac{2s + 13}{s^2+5s+6} = \frac{2s+13}{(s+2)(s+3)} \\
+&\,& y=\mathcal{L}^{-1} \left\{ \frac{2s+13}{(s+2)(s+3)} \right\} \\
+\end{eqnarray*}
+%
+\begin{itembox}[l]{{\large {\bf 部分分数分解(Partial fraction expansion)}}}
+\begin{eqnarray*}
+&\,& \frac{2s+13}{(s+2)(s+3)} = \frac{A}{s+2}+\frac{B}{s+3}\text{とおくと,} \\
+&\,& \frac{A(s+3)+B(s+2)}{(s+2)(s+3)} = \frac{(A+B)s+3A+2B}{s+2} = \frac{2s+13}{(s+2)(s+3)} \\
+&\,& A+B=2 ,\, 3A+2B=13 ,\, 3A+2(2-A)=13 ,\, \\
+&\,& A=13-4=9 ,\, B=2-9=-7 \\
+&\,& \therefore \frac{2s+13}{(s+2)(s+3)} = \frac{9}{s+2} - \frac{7}{s+3}
+\end{eqnarray*}
+\end{itembox}
+%
+ラプラス変換の表より,
+\begin{eqnarray*}
+\mathcal{L} \{ \mathrm{e}^{at}\,f(t) \} &=& F(s-a) \\
+                    \mathcal{L} \{ 1 \} &=& \frac{1}{s}
+\end{eqnarray*}
+%
+\begin{eqnarray*}
+\mathcal{L} \{ \mathrm{e}^{at} \} &=& \frac{1}{s-a} \\
+\mathcal{L} \{ y \} &=& 9 \mathcal{L} \left\{ \mathrm{e}^{-2t} \right\} -7 \mathcal{L} \left\{ \mathrm{e}^{-3t} \right\} \\
+                    &=& \mathcal{L} \left\{ 9\mathrm{e}^{-2t} - 7 \mathrm{e}^{-3t} \right\} \\
+\therefore y = 9\mathrm{e}^{-2t} - 7 \mathrm{e}^{-3t}
+\end{eqnarray*}
+
+検算
+\begin{eqnarray*}
+&\,& y'  = 9(-2\mathrm{e}^{-2t}) - 7 (-3\mathrm{e}^{-3t}) = -18\mathrm{e}^{-2t} + 21 \mathrm{e}^{-3t} \\
+&\,& y'' = -18(-2\mathrm{e}^{-2t}) + 21(-3\mathrm{e}^{-3t}) = 36\mathrm{e}^{-2t} - 63\mathrm{e}^{-3t} \\
+\end{eqnarray*}
+\begin{eqnarray*}
+y''+5y'+6y &=& 36\mathrm{e}^{-2t} - 63\mathrm{e}^{-3t} \\
+           &+& 5(-18\mathrm{e}^{-2t} + 21 \mathrm{e}^{-3t}) \\
+           &+& 6(9\mathrm{e}^{-2t} - 7 \mathrm{e}^{-3t}) \\
+           &=& 36\mathrm{e}^{-2t} - 63\mathrm{e}^{-3t} \\
+           &-& 90\mathrm{e}^{-2t} + 105\mathrm{e}^{-3t} \\
+           &+& 54\mathrm{e}^{-2t} - 42 \mathrm{e}^{-3t} \\
+           &=& 0
+\end{eqnarray*}
+\begin{eqnarray*}
+ y(0) &=& 9\mathrm{e}^{0} - 7 \mathrm{e}^{0} = 2 \\
+y'(0) &=& -18\mathrm{e}^{0} + 21 \mathrm{e}^{0} = 3
+\end{eqnarray*}
+
+\noindent
+{\large {\bf 問16}}: 非斉次方程式(Nonhomogeneous differential equation) \(y''+y=\sin(2t) \) を初期条件 \( y(0)=2 ,\, y'(0)=1 \) のもとで解け.
+
+\begin{eqnarray*}
+\mathcal{L} \{ y'' \} &=& s\mathcal{L} \{ y' \} - y'(0) \\
+                      &=& s^2\mathcal{L} \{ y \} - s \, y(0) - y'(0) \\
+                      &=& s^2Y(s)-s \, y(0)-y'(0) = s^2Y(s)-2s-1
+\end{eqnarray*}
+\( \mathcal{L} \{ \sin(at) \} = \frac{a}{s^2+a^2} \)より,
+\begin{eqnarray*}
+\mathcal{L} \{ y''+y \} &=& \mathcal{L} \{ \sin(2t) \} \\
+s^2Y(s)-2s-1 + Y(s) &=& \frac{2}{s^2+4} \\
+        (s^2+1)Y(s) &=& \frac{2}{s^2+4}+2s+1 \\
+               Y(s) &=& \frac{2}{(s^2+4)(s^2+1)} + \frac{2s}{s^2+1} + \frac{1}{s^2+1}
+\end{eqnarray*}
+\begin{itembox}[l]{{\large {\bf 部分分数分解}}}
+\begin{eqnarray*}
+\frac{2}{(s^2+4)(s^2+1)} &=& \frac{As+B}{s^2+4}+\frac{Cs+D}{s^2+1} \\
+                         &=& \frac{(As+B)(s^2+1)+(Cs+D)(s^2+4)}{(s^2+4)(s^2+1)}
+\end{eqnarray*}
+\( As^3+Bs^2+As+B+Cs^3+Ds^2+4Cs+4D = 2 \\
+(A+C)s^3+(B+D)s^2+(A+4C)s+B+4D=2 \\
+A+C=0 ,\, B+D=0 ,\, A+4C=0 ,\, B+4D=2 \text{より}, \\
+A=-C ,\, -C+4C=0 ,\, C=0 ,\, A=0 \\
+B=-D ,\, -D+4D=2 ,\, 3D=2 ,\, D=\frac{2}{3} ,\, B=-\frac{2}{3} \)
+\begin{eqnarray*}
+\therefore \frac{2}{(s^2+4)(s^2+1)} = \frac{\frac{-2}{3}}{s^2+4} + \frac{\frac{2}{3}}{s^2+1}
+\end{eqnarray*}
+\end{itembox}
+%
+\begin{eqnarray*}
+Y(s) &=& \frac{\frac{-2}{3}}{s^2+4} + \frac{\frac{2}{3}}{s^2+1} + \frac{2s}{s^2+1} + \frac{1}{s^2+1} \\
+     &=& -\frac{1}{3}\frac{2}{s^2+4}+\frac{2}{3}\frac{1}{s^2+1}+2\frac{s}{s^2+1}+\frac{1}{s^2+1}
+\end{eqnarray*}
+%
+\( \mathcal{L} \{ \sin(a\,t) \} = \frac{a}{s^2+a^2}, \mathcal{L} \{ \cos(a\,t) \} = \frac{s}{s^2+a^2} \) より,
+\begin{eqnarray*}
+           y(t) &=& \frac{-1}{3}\sin(2t) + \frac{2}{3}\sin(t) + 2\cos(t) + \sin(t) \\
+\therefore y(t) &=& \frac{-1}{3}\sin(2t) + \frac{5}{3}\sin(t) + 2\cos(t)
+\end{eqnarray*}
+検算
+\begin{eqnarray*}
+y'    &=& \frac{-2}{3}\cos(2t) + \frac{5}{3}\cos(t) - 2\sin(t) \\
+y''   &=& \frac{4}{3}\sin(2t)  - \frac{5}{3}\sin(t) - 2\cos(t) \\
+y''+y &=& \frac{4}{3}\sin(2t)  - \frac{5}{3}\sin(t) - 2\cos(t) \\
+      &+& \frac{-1}{3}\sin(2t) + \frac{5}{3}\sin(t) + 2\cos(t) = \sin(2t)
+\end{eqnarray*}
+\begin{eqnarray*}
+y(0)  &=& \frac{-1}{3}\sin(0) + \frac{5}{3}\sin(0) + 2\cos(0) = 2 \\
+y'(0) &=& \frac{-2}{3}\cos(0) + \frac{5}{3}\cos(0) - 2\sin(0) = 1
+\end{eqnarray*}
+
+\noindent
+{\large {\bf 問17}}: \(y''+4y=\sin(t)-u_{2\pi}(t)\sin(t-2\pi) \) を初期条件 \( y(0)=0 ,\, y'(0)=0 \) のもとで解け. \\
+
+ラプラス変換の表より,
+\begin{eqnarray*}
+                \mathcal{L} \{  f'(t) \} &=& s \mathcal{L} \{  f(t) \} - f(0) \\
+               \mathcal{L} \{  f''(t) \} &=& s^2 \mathcal{L} \{  f(t) \} - s\cdot f(0) -f'(0)\\
+               \mathcal{L} \{ \sin(t) \} &=& \frac{1}{s^2 + 1} \\
+              \mathcal{L} \{ \sin(at) \} &=& \frac{2}{s^2 + 4} \\
+\mathcal{L} \{ u_{2\pi}(t)\,f(t-2\pi) \} &=& \mathrm{e}^{-2\pi s}F(s)
+\end{eqnarray*}
+\begin{eqnarray*}
+s^2 \mathcal{L} \{ y \} - s y(0) - y'(0) + 4 \mathcal{L} \{ y \} = \frac{1}{s^2+1} - \mathcal{L} \{ u_{2\pi}(t)\sin(t-2\pi) \}
+\end{eqnarray*}
+
+\( \mathcal{L} \{ u_{2\pi}(t)\sin(t-2\pi) \} =  \mathrm{e}^{-2\pi s}\frac{1}{s^2+1} \)より,
+
+\begin{eqnarray*}
+s^2 \mathcal{L} \{ y \} + 4 \mathcal{L} \{ y \} &=& \frac{1}{s^2+1} - \mathrm{e}^{-2\pi s}\frac{1}{s^2+1} \\
+                \mathcal{L} \{ y \}\frac{1}{s^2+4} &=& (1-\mathrm{e}^{-2\pi s})\frac{1}{s^2+1} \\
+                               \mathcal{L} \{ y \} &=& (1-\mathrm{e}^{-2\pi s})\frac{1}{(s^2+1)(s^2+4)}
+\end{eqnarray*}
+%
+\begin{itembox}[l]{{\large {\bf 部分分数分解}}}
+\begin{eqnarray*}
+\frac{1}{(s^2+1)(s^2+4)} &=& \frac{As+B}{s^2+1}+\frac{Cs+D}{s^2+4} \\
+                         &=& \frac{(As+B)(s^2+4)+(Cs+D)(s^2+1)}{(s^2+1)(s^2+4)}
+\end{eqnarray*}
+\( As^3+Bs^2+4As+4B+Cs^3+Ds^2+Cs+D = 1 \\
+(A+C)s^3+(B+D)s^2+(4A+C)s+4B+D=1 \\
+A+C=0 ,\, B+D=0 ,\, 4A+C=0 ,\, 4B+D=1 \text{より}, \\
+A=-C ,\, -4C+C=0 ,\, C=0 ,\, A=0 \\
+B=-D ,\, -4D+D=1 ,\, -3D=1 ,\, D=\frac{-1}{3} ,\, B=\frac{1}{3} \)
+\begin{eqnarray*}
+\therefore \frac{1}{(s^2+1)(s^2+4)} = \frac{\frac{1}{3}}{s^2+1} - \frac{\frac{1}{3}}{s^2+4}
+\end{eqnarray*}
+\end{itembox}
+%
+\begin{eqnarray*}
+\mathcal{L} \{ y \} &=& (1-\mathrm{e}^{-2\pi s})\left( \frac{1}{3}\frac{1}{s^2+1} - \frac{1}{3}\frac{1}{s^2+4} \right) \\
+                    &=& (1-\mathrm{e}^{-2\pi s})\left( \frac{1}{3}\frac{1}{s^2+1} - \frac{1}{6}\frac{2}{s^2+4} \right) \\
+                    &=& \frac{1}{3}\frac{1}{s^2+1} - \frac{1}{6}\frac{2}{s^2+4} - \mathrm{e}^{-2\pi s}\frac{1}{3}\frac{1}{s^2+1} + \mathrm{e}^{-2\pi s} \frac{1}{6}\frac{2}{s^2+4}
+\end{eqnarray*}
+%
+ラプラス変換の表より,
+\begin{eqnarray*}
+              \mathcal{L} \{ \sin(at) \} &=& \frac{a}{s^2 + a^2} \\
+\mathcal{L} \{ u_{2\pi}(t)\,f(t-2\pi) \} &=& \mathrm{e}^{-2\pi s}F(s)
+\end{eqnarray*}
+\begin{eqnarray*}
+y = \frac{1}{3}\sin(t) - \frac{1}{6}\sin(2t) - \frac{1}{3}u_{2\pi}(t)\sin(t-2\pi) + \frac{1}{6}u_{2\pi}(t)\sin(2(t-2\pi))
+\end{eqnarray*}
+
+\section{畳み込み積分(Convolution integral)}
+
+\begin{itembox}[l]{{\large {\bf 畳み込み積分の定義}}}
+\begin{eqnarray*}
+(f * g)(t) = \int_{\tau=0}^{\tau=t}{f(t-\tau)g(\tau)\mathrm{d}\tau}
+\end{eqnarray*}
+\end{itembox}
+\( f*g \)はconvolution of f with gとかf star gなどと読む。\( \tau \)は tau と読む. \\
+
+\noindent
+{\large {\bf 問18}}: \( f(t)=\sin(t) ,\, g(t)=\cos(t) \text{として} f*g(t) \) を求めよ.
+
+\begin{eqnarray*}
+(f*g)(t) &=& \int_0^t{ \sin(t-\tau)\cos(\tau)\mathrm{d}\tau }
+\end{eqnarray*}
+%
+\( \sin(t-\tau)=\sin(t)\cos(\tau)-\sin(\tau)\cos(t) \)より,
+%
+\begin{eqnarray*}
+(f*g)(t) &=& \int_0^t{ (\sin(t)\cos(\tau) - \sin(\tau)\cos(t)-\tau)\cos(\tau)\mathrm{d}\tau } \\
+         &=& \int_0^t{ \sin(t)\cos^2(\tau) - \cos(t)\sin(\tau)\cos(\tau)\mathrm{d}\tau } \\
+         &=& \int_0^t{ \sin(t)\cos^2(\tau)\mathrm{d}\tau } - \int_0^t{ \cos(t)\sin(\tau)\cos(\tau)\mathrm{d}\tau }
+\end{eqnarray*}
+\( \tau \)で積分しているので\(\sin(t)\)や\(\cos(t)\)は外に出せる.
+\begin{eqnarray*}
+(f*g)(t) &=& \sin(t)\int_0^t{ \cos^2(\tau)\mathrm{d}\tau } - \cos(t)\int_0^t{ \sin(\tau)\cos(\tau)\mathrm{d}\tau }
+\end{eqnarray*}
+%
+\( \cos^2(\tau)=\frac{1}{2}(1+\cos(2\tau)) ,\, u=\sin(\tau) ,\, 
+\frac{\mathrm{d}u}{\mathrm{d}\tau}=\cos(\tau) ,\, \mathrm{d}u=\cos(\tau)\mathrm{d}\tau ,\, \sin(2\tau)=2\sin(\tau)\cos(\tau) \)を適用すると,
+
+\begin{eqnarray*}
+(f*g)(t) &=& \frac{1}{2}\sin(t)\int_0^t{(1+\cos(2\tau))\mathrm{d}\tau} - \cos(t)\int_{\tau=0}^{\tau=t}{u\mathrm{d}u} \\
+         &=& \frac{1}{2}\sin(t)\int_0^t{(1+\cos(2\tau))\mathrm{d}\tau} - \cos(t)\left[ \frac{1}{2}u^2 \right]_{\tau=0}^{\tau=t} \\
+         &=& \frac{1}{2}\sin(t)\left[ \tau + \frac{1}{2}\sin(2\tau) \right]_0^t - \cos(t) \left[ \frac{1}{2}\sin^2(\tau)\right]_0^t \\
+         &=& \frac{1}{2}\sin(t)(t+\frac{1}{2}\sin(2t) - 0 - \frac{1}{2}\sin(0)) - \cos(t)(\frac{1}{2}\sin^2(t) - 0) \\
+         &=& \frac{1}{2}t\cdot\sin(t) + \frac{1}{4}\sin(t)\sin(2t) - \frac{1}{2}\sin^2(t)\cos(t) \\
+\end{eqnarray*}
+
+\( \sin(2t) = 2\sin(t)\cos(t) \) より,
+
+\begin{eqnarray*}
+         &=& \frac{1}{2}t\cdot\sin(t) + \frac{1}{4}\sin(t)(2\sin(t)\cos(t)) - \frac{1}{2}\sin^2(t)\cos(t) \\
+         &=& \frac{1}{2}t\cdot\sin(t) + \frac{1}{2}\sin^2(t)\cos(t) - \frac{1}{2}\sin^2(t)\cos(t) \\
+         &=& \frac{1}{2}t\cdot\sin(t)
+\end{eqnarray*}
+\begin{eqnarray*}
+\therefore (\sin(t) * \cos(t))(t) = \frac{1}{2}t\cdot\sin(t)
+\end{eqnarray*}
+
+\subsection{畳み込み積分とラプラス変換}
+
+\( \mathcal{L} \{ f(t) \} = F(s) ,\, \mathcal{L} \{ g(t) \} = G(s) \)のとき,
+\begin{eqnarray*}
+\mathcal{L} \{ f * g \} &=& F(s)G(s) \\
+                  f * g &=& \mathcal{L}^{-1} \{ F(s)G(s) \} \\
+\end{eqnarray*}
+
+\noindent
+{\large {\bf 問19}}: \( H(s) = \frac{2s}{(s^2+1)^2} \text{のとき} \mathcal{L}^{-1} \{ H(s) \} \) を求めよ.
+
+\begin{eqnarray*}
+\mathcal{L}^{-1} \{ H(s) \} &=& \mathcal{L}^{-1} \left\{ \frac{2s}{(s^2+1)^2} \right\}
+\end{eqnarray*}
+\begin{eqnarray*}
+\frac{2s}{(s^2+1)^2} = 2\cdot\frac{1}{s^2+1}\cdot\frac{s}{s^2+1}
+\end{eqnarray*}
+\begin{eqnarray*}
+\mathcal{L}^{-1} \{ H(s) \} &=& \mathcal{L}^{-1} \left\{ 2\cdot\frac{1}{s^2+1}\cdot\frac{s}{s^2+1} \right\}
+\end{eqnarray*}
+\( F(s)=\frac{2}{s^2+1} \text{とおくと} f(t) = 2\sin(t) ,\,
+   G(s)=\frac{s}{s^2+1} \text{とおくと} g(t) = \cos(t) \) より,
+%
+\begin{eqnarray*}
+\mathcal{L}^{-1} \{ H(s) \} &=& \mathcal{L}^{-1} \left\{ F(s)G(s) \right\} \\
+                            &=& \mathcal{L}^{-1} \left\{ F(s) \right\} * \mathcal{L}^{-1} \left\{ G(s) \right\} \\
+                            &=& \mathcal{L}^{-1} \left\{ \frac{2}{s^2+1} \right\} * \mathcal{L}^{-1} \left\{ \frac{s}{s^2+1} \right\} \\
+                            &=& 2\sin(t) * \cos(t)
+\end{eqnarray*}
+\begin{eqnarray*}
+\mathcal{L}^{-1} \left\{ \frac{2}{s^2+1}\cdot\frac{s}{s^2+1} \right\} = 2\sin(t) * \cos(t)
+\end{eqnarray*}
+\( f * g = \int_0^t{f(t-\tau)g(\tau)\mathrm{d}\tau } \) より,
+\begin{eqnarray*}
+\mathcal{L}^{-1}\{ H(s) \} &=& 2\int_0^t{\sin(t-\tau)\cos(\tau)\mathrm{d}\tau } \\
+                           &=& 2 \cdot \frac{1}{2}t\cdot \sin(t) \\
+                           &=& t \sin(t) \\
+\end{eqnarray*}
+
+\noindent
+{\large {\bf 問20}}: \( y'' + 2y' + 2y = \sin(\alpha t) \)を初期条件 \( ,\, y(0) ,\, y'(0) = 0 \)のもとで解け. \\
+
+\( \alpha \)は alphaと読む.
+
+\begin{eqnarray*}
+s^2Y(s) - sy(0) - y'(0) + 2(sY(s) - y(0)) + 2Y(s) &=& \frac{\alpha}{s^2+\alpha^2} \\
+                         s^2Y(s) + 2sY(s) + 2Y(s) &=& \frac{\alpha}{s^2+\alpha^2} \\
+                                   (s^2+2s+2)Y(s) &=& \frac{\alpha}{s^2+\alpha^2}
+\end{eqnarray*}
+\begin{eqnarray*}
+Y(s) &=& \frac{\alpha}{s^2+\alpha^2} \cdot \frac{1}{s^2+2s+2} \\
+     &=& \frac{\alpha}{s^2+\alpha^2} \cdot \frac{1}{s^2+2s+1 +1} \\
+     &=& \frac{\alpha}{s^2+\alpha^2} \cdot \frac{1}{(s+1)^2 +1}
+\end{eqnarray*}
+\begin{eqnarray*}
+y(t) = \mathcal{L}^{-1}\{ Y(s) \} = \mathcal{L}^{-1}\left\{ \frac{\alpha}{s^2+\alpha^2} \cdot \frac{1}{(s+1)^2 +1} \right\}
+\end{eqnarray*}
+ラプラス変換の表より,
+\begin{eqnarray*}
+       \mathcal{L} \{ \sin(\alpha t) \} &=& \frac{\alpha}{s^2 + \alpha^2} \\
+              \mathcal{L} \{ \sin(t) \} &=& \frac{1}{s^2 + 1} \\
+\mathcal{L} \{ \mathrm{e}^{at}\,f(t) \} &=& F(s-a) \\
+              \mathcal{L} \{ \mathrm{e}^{-t}\sin(t) \} &=& \frac{1}{(s+1)^2 + 1}
+\end{eqnarray*}
+\begin{eqnarray*}
+y(t) &=& \mathcal{L}^{-1}\left\{ \frac{\alpha}{s^2+\alpha^2} \cdot \frac{1}{(s+1)^2 +1} \right\} \\
+     &=& \mathcal{L}^{-1}\left\{ \frac{\alpha}{s^2+\alpha^2} \right\} * \mathcal{L}^{-1}\left\{ \frac{1}{(s+1)^2 +1} \right\} \\
+     &=& \sin(\alpha t) * \mathrm{e}^{-t}\sin(t)
+\end{eqnarray*}
+\begin{eqnarray*}
+(f * g)(t) = \int_{\tau=0}^{\tau=t}{f(t-\tau)g(\tau)\mathrm{d}\tau}
+\end{eqnarray*}
+\begin{eqnarray*}
+y(t) &=& \sin(\alpha t) * \mathrm{e}^{-t}\sin(t) = \int_0^t{\sin((t-\tau)\alpha)\mathrm{e}^{-\tau}\sin(\tau)\mathrm{d}\tau } \\
+     &=& \mathrm{e}^{-t}\sin(t) * \sin(\alpha t) = \int_0^t{\mathrm{e}^{-(t-\tau)}\sin(t-\tau)\sin(\alpha\tau)\mathrm{d}\tau }
+\end{eqnarray*}
+\begin{eqnarray*}
+\therefore y(t) &=& \int_0^t{\sin((t-\tau)\alpha)\mathrm{e}^{-\tau}\sin(\tau)\mathrm{d}\tau } \quad \text{または} \\
+           y(t) &=& \int_0^t{\mathrm{e}^{-(t-\tau)}\sin(t-\tau)\sin(\alpha\tau)\mathrm{d}\tau }
+\end{eqnarray*}
+(答はどちらでも良い.)
+
+\end{document}
+

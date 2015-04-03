@@ -1,0 +1,75 @@
+﻿<Window x:Class="WWDistortionNoise.DistortionNoiseFilterConfiguration"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="DistortionNoiseFilterConfiguration" Height="600" Width="800" Loaded="Window_Loaded">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="36" />
+        </Grid.RowDefinitions>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Grid.Row="0">
+            <Grid>
+                <GroupBox Header="Gain" Height="140" HorizontalAlignment="Left" Margin="6,6,0,0" Name="groupBoxGain" VerticalAlignment="Top" Width="380">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*" />
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+                        <Label   Grid.Column="0" Grid.Row="0" Content="Gain in Amplitude:" Name="labelGainInAmplitude" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                        <TextBox Grid.Column="1" Grid.Row="0" Margin="6,3,6,3" Name="textBoxGainInAmplitude" Text="0.5" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                        <Label   Grid.Column="2" Grid.Row="0" Content="x" Name="labelGainAmplitudeUnit" VerticalAlignment="Center" />
+                        <Label   Grid.Column="0" Grid.Row="1" Content="Gain in dB:" Name="labelGainInDB" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                        <TextBox Grid.Column="1" Grid.Row="1" Margin="6,3,6,3" Name="textBoxGainInDB" Text="-6.0205999132796239042747778944899" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                        <Label   Grid.Column="2" Grid.Row="1" Content="dB" VerticalAlignment="Center" />
+                        <Button Content="Use this filter" Grid.Row="2" Margin="6,0" Name="buttonUseGain" VerticalAlignment="Center" Grid.ColumnSpan="3" Click="buttonUseGain_Click" />
+                    </Grid>
+                </GroupBox>
+                <GroupBox Header="Add Jitter" Height="230" HorizontalAlignment="Left" Margin="6,146,0,0" Name="groupBoxAddJitter" VerticalAlignment="Top" Width="380">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*" />
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+                        <Label   Grid.Column="0" Grid.Row="0" Content="Sinusoidal Jitter Frequency:" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                        <TextBox Grid.Column="1" Grid.Row="0" Margin="6,3,6,3" Name="textBoxSinusoidalJitterFreq" Text="120" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                        <Label   Grid.Column="2" Grid.Row="0" Content="Hz" VerticalAlignment="Center" />
+                        <Label   Grid.Column="0" Grid.Row="1" Content="Sinusoidal Jitter Amount:" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                        <TextBox Grid.Column="1" Grid.Row="1" Margin="6,3,6,3" Name="textBoxSinusoidalJitterNanoSeconds" Text="30000.0" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                        <Label   Grid.Column="2" Grid.Row="1" Content="ns RMS" VerticalAlignment="Center" />
+                        <Label   Grid.Column="0" Grid.Row="2" Content="TPDF Jitter Amount:" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                        <TextBox Grid.Column="1" Grid.Row="2" Margin="6,3,6,3" Name="textBoxTpdfJitterNanoSeconds" Text="0" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                        <Label   Grid.Column="2" Grid.Row="2" Content="ns RMS" VerticalAlignment="Center" />
+                        <Label   Grid.Column="0" Grid.Row="3" Content="RPDF Jitter Amount:" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                        <TextBox Grid.Column="1" Grid.Row="3" Margin="6,3,6,3" Name="textBoxRpdfJitterNanoSeconds" Text="0" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                        <Label   Grid.Column="2" Grid.Row="3" Content="ns RMS" VerticalAlignment="Center" />
+                        <Label   Grid.Column="0" Grid.Row="4" Content="Filter Length:" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                        <ComboBox Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="4" Name="comboBoxFilterLength" VerticalAlignment="Center" HorizontalContentAlignment="Center">
+                            <ComboBoxItem Content="1025"  />
+                            <ComboBoxItem Content="4097"  IsSelected="True" />
+                            <ComboBoxItem Content="16385" />
+                            <ComboBoxItem Content="65537" />
+                        </ComboBox>
+                        <Button Content="Use this filter" Grid.Row="5" Margin="6,0" Name="buttonUseAddJitter" VerticalAlignment="Center" Grid.ColumnSpan="3" Click="buttonUseAddJitter_Click" />
+                    </Grid>
+                </GroupBox>
+            </Grid>
+        </ScrollViewer>
+
+        <Button Content="_Cancel" Grid.Row="1" Margin="6" Name="buttonCancel" HorizontalAlignment="Right" Width="100" Click="buttonCancel_Click" />
+    </Grid>
+</Window>

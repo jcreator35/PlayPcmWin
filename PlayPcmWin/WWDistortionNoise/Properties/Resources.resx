@@ -1,0 +1,410 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ButtonAddNewFilter" xml:space="preserve">
+    <value>Add new filter</value>
+  </data>
+  <data name="ButtonBrowseB" xml:space="preserve">
+    <value>_Browse...</value>
+  </data>
+  <data name="ButtonBrowseR" xml:space="preserve">
+    <value>B_rowse...</value>
+  </data>
+  <data name="ButtonDeleteSelected" xml:space="preserve">
+    <value>Delete selected</value>
+  </data>
+  <data name="ButtonEditSelected" xml:space="preserve">
+    <value>Edit selected</value>
+  </data>
+  <data name="ButtonLoadSettings" xml:space="preserve">
+    <value>_Load settings...</value>
+  </data>
+  <data name="ButtonMoveDownSelected" xml:space="preserve">
+    <value>Move down selected</value>
+  </data>
+  <data name="ButtonMoveUpSelected" xml:space="preserve">
+    <value>Move up selected</value>
+  </data>
+  <data name="ButtonSaveSettingsAs" xml:space="preserve">
+    <value>Save settings as...</value>
+  </data>
+  <data name="ButtonStartConversion" xml:space="preserve">
+    <value>_Start conversion</value>
+  </data>
+  <data name="ButtonUseThisFilter" xml:space="preserve">
+    <value>Use this filter</value>
+  </data>
+  <data name="CbItemFftUpsampler" xml:space="preserve">
+    <value>FFT Upsampler</value>
+  </data>
+  <data name="CbItemNoiseShaping2nd" xml:space="preserve">
+    <value>2nd order</value>
+  </data>
+  <data name="CbItemNoiseShaping4th" xml:space="preserve">
+    <value>4th order</value>
+  </data>
+  <data name="CbItemZohUpsampler" xml:space="preserve">
+    <value>Zero-Order Hold Upsampler</value>
+  </data>
+  <data name="DroppedDataIsNotFile" xml:space="preserve">
+    <value>Dropped data is not file</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="ErrorFilterFileVersionMismatch" xml:space="preserve">
+    <value>Filter file version mismatch. expected version={0}, file version={1}</value>
+  </data>
+  <data name="ErrorGainValueIsNan" xml:space="preserve">
+    <value>Please input gain value in number</value>
+  </data>
+  <data name="ErrorGainValueIsTooSmall" xml:space="preserve">
+    <value>Please input gain value larger than 0.0</value>
+  </data>
+  <data name="ErrorLpfCutoffFreqIsNan" xml:space="preserve">
+    <value>Please input Low pass filter cutoff frequency in number</value>
+  </data>
+  <data name="ErrorLpfCutoffFreqIsNegative" xml:space="preserve">
+    <value>Please input Low pass filter cutoff frequency larger than 0.0</value>
+  </data>
+  <data name="ErrorLpfSlopeIsNan" xml:space="preserve">
+    <value>Please input Low pass filter slope in number</value>
+  </data>
+  <data name="ErrorLpfSlopeIsTooSmall" xml:space="preserve">
+    <value>Please input Low pass filter slope larger than 1</value>
+  </data>
+  <data name="ErrorNoiseShapingBitIsNan" xml:space="preserve">
+    <value>Prease input Target Quantization Bit Rate in number</value>
+  </data>
+  <data name="ErrorNoiseShapingBitIsOutOfRange" xml:space="preserve">
+    <value>Prease input Target Quantization Bit Rate in integer in the range of 1 to 23</value>
+  </data>
+  <data name="ErrorOutputDataTooLarge" xml:space="preserve">
+    <value>Output data becomes too large! {0} Gbytes</value>
+  </data>
+  <data name="ErrorSampleValueClipped" xml:space="preserve">
+    <value>Too large magnitude sample detected! channel={0}, magnitude={1:0.000}
+</value>
+  </data>
+  <data name="ErrorWriteToReadFile" xml:space="preserve">
+    <value>Please specify different file to write. WWAudioFilter cannot write to input file.</value>
+  </data>
+  <data name="FilterFftUpsampleDesc" xml:space="preserve">
+    <value>FFT upsample: {0}x, FFT length={1}</value>
+  </data>
+  <data name="FilterFlacFiles" xml:space="preserve">
+    <value>FLAC files|*.flac</value>
+  </data>
+  <data name="FilterGainDesc" xml:space="preserve">
+    <value>Gain : {0}x ({1:0.00}dB)</value>
+  </data>
+  <data name="FilterLpfDesc" xml:space="preserve">
+    <value>LPF : Cutoff={0}Hz, slope={1}db/oct, FIR length={2}</value>
+  </data>
+  <data name="FilterMashDesc" xml:space="preserve">
+    <value>2nd order MASH noise shaping: targetBitsPerSample={0}</value>
+  </data>
+  <data name="FilterNoiseShaping4thDesc" xml:space="preserve">
+    <value>4th order noise shaping: targetBitsPerSample={0}</value>
+  </data>
+  <data name="FilterNoiseShapingDesc" xml:space="preserve">
+    <value>Noise shaping: order={0}, targetBitsPerSample={1}</value>
+  </data>
+  <data name="FilterWriteAudioFiles" xml:space="preserve">
+    <value>FLAC files|*.flac|DSF files|*.dsf</value>
+  </data>
+  <data name="FilterWWAFilterFiles" xml:space="preserve">
+    <value>WWAudioFilter files|*.wwaf</value>
+  </data>
+  <data name="FilterZOHDesc" xml:space="preserve">
+    <value>Zero order hold upsample: {0}x</value>
+  </data>
+  <data name="FlacErrorBadHeader" xml:space="preserve">
+    <value>FLAC header corrupted</value>
+  </data>
+  <data name="FlacErrorBadParams" xml:space="preserve">
+    <value>FLAC bad parameter error</value>
+  </data>
+  <data name="FlacErrorBufferSizeMismatch" xml:space="preserve">
+    <value>FLAC buffer size mismatch</value>
+  </data>
+  <data name="FlacErrorDataNotReady" xml:space="preserve">
+    <value>Data not ready</value>
+  </data>
+  <data name="FlacErrorDecoderProcessFailed" xml:space="preserve">
+    <value>FLAC decoder process failed</value>
+  </data>
+  <data name="FlacErrorEncoder" xml:space="preserve">
+    <value>FLAC encoder error</value>
+  </data>
+  <data name="FlacErrorEncoderProcessFailed" xml:space="preserve">
+    <value>FLAC encoder process failed</value>
+  </data>
+  <data name="FlacErrorFileReadOpen" xml:space="preserve">
+    <value>FLAC file read open error</value>
+  </data>
+  <data name="FlacErrorFrameCrcMismatch" xml:space="preserve">
+    <value>FLAC frame CRC mismatch</value>
+  </data>
+  <data name="FlacErrorIdNotFound" xml:space="preserve">
+    <value>Internal error (id not found)</value>
+  </data>
+  <data name="FlacErrorInvalidBitsPerSample" xml:space="preserve">
+    <value>FLAC bits per sample error</value>
+  </data>
+  <data name="FlacErrorInvalidMetadata" xml:space="preserve">
+    <value>FLAC metadata error</value>
+  </data>
+  <data name="FlacErrorInvalidNumberOfChannels" xml:space="preserve">
+    <value>FLAC number of channels is invalid (must be smaller than or equal to 8)</value>
+  </data>
+  <data name="FlacErrorInvalidSampleRate" xml:space="preserve">
+    <value>FLAC sample rate is out of range (must be smaller than or equal to 655,350Hz)</value>
+  </data>
+  <data name="FlacErrorLostSync" xml:space="preserve">
+    <value>FLAC lost sync error</value>
+  </data>
+  <data name="FlacErrorMemoryExhausted" xml:space="preserve">
+    <value>FLAC memory exhausted</value>
+  </data>
+  <data name="FlacErrorNumFrameIsNotAligned" xml:space="preserve">
+    <value>FLAC number of frames is not aligned</value>
+  </data>
+  <data name="FlacErrorOther" xml:space="preserve">
+    <value>FLAC other error</value>
+  </data>
+  <data name="FlacErrorOutputFileTooLarge" xml:space="preserve">
+    <value>Output data size exceeds 2GB per channel! Process aborted.</value>
+  </data>
+  <data name="FlacErrorRecvBufferSizeInsufficient" xml:space="preserve">
+    <value>FLAC receive buffer size is insufficient</value>
+  </data>
+  <data name="FlacErrorStreamDecoderInitFailed" xml:space="preserve">
+    <value>FLAC stream decoder init failed</value>
+  </data>
+  <data name="FlacErrorStreamDecoderNewFailed" xml:space="preserve">
+    <value>FLAC stream decoder new failed</value>
+  </data>
+  <data name="FlacErrorUnparseable" xml:space="preserve">
+    <value>FLAC unparseable error</value>
+  </data>
+  <data name="FlacerrorWriteOpenFailed" xml:space="preserve">
+    <value>Write open failed</value>
+  </data>
+  <data name="GroupFilterSettings" xml:space="preserve">
+    <value>Filter settings</value>
+  </data>
+  <data name="GroupGain" xml:space="preserve">
+    <value>Gain</value>
+  </data>
+  <data name="GroupInputFile" xml:space="preserve">
+    <value>Input file</value>
+  </data>
+  <data name="GroupLog" xml:space="preserve">
+    <value>Log</value>
+  </data>
+  <data name="GroupLPF" xml:space="preserve">
+    <value>FIR Linear-Phase Low pass Filter</value>
+  </data>
+  <data name="GroupNoiseShaping" xml:space="preserve">
+    <value>Noise Shaping</value>
+  </data>
+  <data name="GroupOutputFile" xml:space="preserve">
+    <value>Output File</value>
+  </data>
+  <data name="GroupUpsampler" xml:space="preserve">
+    <value>Upsampler</value>
+  </data>
+  <data name="LabelCutoffFreq" xml:space="preserve">
+    <value>Cutoff frequency:</value>
+  </data>
+  <data name="LabelFilterLength" xml:space="preserve">
+    <value>FIR filter length:</value>
+  </data>
+  <data name="LabelGainInAmplitude" xml:space="preserve">
+    <value>Gain in Amplitude:</value>
+  </data>
+  <data name="LabelGainInDb" xml:space="preserve">
+    <value>Gain in dB:</value>
+  </data>
+  <data name="LabelGainRolloffSlopes" xml:space="preserve">
+    <value>Gain roll off slopes:</value>
+  </data>
+  <data name="LabelInputFile" xml:space="preserve">
+    <value>Input file:</value>
+  </data>
+  <data name="LabelNoiseShapingMethod" xml:space="preserve">
+    <value>Noise shaping method:</value>
+  </data>
+  <data name="LabelNoiseShapingTargetBit" xml:space="preserve">
+    <value>Target Quantized Bit Rate:</value>
+  </data>
+  <data name="LabelOutputFile" xml:space="preserve">
+    <value>Output file:</value>
+  </data>
+  <data name="LabelSamples" xml:space="preserve">
+    <value>samples</value>
+  </data>
+  <data name="LabelUpsamplerLength" xml:space="preserve">
+    <value>FFT Length:</value>
+  </data>
+  <data name="LabelUpsamplerType" xml:space="preserve">
+    <value>Upsampler Type:</value>
+  </data>
+  <data name="LabelUpsamplingFactor" xml:space="preserve">
+    <value>Upsampling factor:</value>
+  </data>
+  <data name="LabelX" xml:space="preserve">
+    <value>x</value>
+  </data>
+  <data name="LogCompleted" xml:space="preserve">
+    <value>Completed.
+</value>
+  </data>
+  <data name="LogFileReadCompleted" xml:space="preserve">
+    <value>Read completed. now processing...
+</value>
+  </data>
+  <data name="LogFileReadStarted" xml:space="preserve">
+    <value>Reading file {0} ...
+</value>
+  </data>
+  <data name="LogfileWriteStarted" xml:space="preserve">
+    <value>Process completed. now writing to {0} ...
+</value>
+  </data>
+  <data name="NothingToStore" xml:space="preserve">
+    <value>Nothing to store.</value>
+  </data>
+  <data name="ErrorRpdfJitterAmount" xml:space="preserve">
+    <value>RPDF Jitter Amount must be 0 or larger value</value>
+  </data>
+  <data name="ErrorSinusolidalJitterAmount" xml:space="preserve">
+    <value>Sinusoidal Jitter Amount must be 0 or larger value</value>
+  </data>
+  <data name="ErrorSinusolidalJitterFreq" xml:space="preserve">
+    <value>Sinusoidal Jitter Freq must be 0 or larger value</value>
+  </data>
+  <data name="ErrorTpdfJitterAmount" xml:space="preserve">
+    <value>TPDF Jitter Amount must be 0 or larger value</value>
+  </data>
+  <data name="FilterJitterAddDesc" xml:space="preserve">
+    <value>Add Jitter : Sinusoidal={0}Hz {1}ns, TPDF={2}ns,  RPDF={3}ns, Filter Length={4}</value>
+  </data>
+</root>

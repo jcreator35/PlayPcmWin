@@ -1,0 +1,60 @@
+﻿<Window x:Class="WWDistortionNoise.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="WWDistortionNoise" Height="600" Width="800" Loaded="Window_Loaded">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="3*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="70" />
+            <RowDefinition Height="303*" />
+            <RowDefinition Height="70" />
+            <RowDefinition Height="140" />
+        </Grid.RowDefinitions>
+        <GroupBox Header="Input FLAC file path" Height="70" Name="groupBoxInputFile" VerticalAlignment="Top" Grid.ColumnSpan="2">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*" />
+                    <ColumnDefinition Width="1*" />
+                </Grid.ColumnDefinitions>
+                <TextBox Margin="6,0,6,0" Name="textBoxInputFile" VerticalAlignment="Center" />
+                <Button Content="_Browse..." Grid.Column="1" Margin="6,0,6,0" Name="buttonBrowseInputFile" VerticalAlignment="Center" Click="buttonBrowseInputFile_Click" />
+            </Grid>
+        </GroupBox>
+        <GroupBox Header="Filter settings" Name="groupBoxFilterSettings" Grid.Row="1" Grid.ColumnSpan="2">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="4*" />
+                    <ColumnDefinition Width="1*" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="1" Name="stackPanel1">
+                    <Button Content="_Add Filter..." Name="buttonFilterAdd" Margin="6,6,6,0" Click="buttonFilterAdd_Click" />
+                    <Button Content="_Edit Selected..." Name="buttonFilterEdit" Margin="6,6,6,0" Click="buttonFilterEdit_Click" />
+                    <Button Content="_Delete Selected" Name="buttonFilterDelete" Margin="6,6,6,0" Click="buttonFilterDelete_Click" />
+                    <Button Content="Move _Up Selected" Name="buttonFilterUp" Margin="6,6,6,0" Click="buttonFilterUp_Click" />
+                    <Button Content="Move Do_wn Selected" Name="buttonFilterDown" Margin="6,6,6,0" Click="buttonFilterDown_Click" />
+                    <Button Content="_Load Settings..." Name="buttonFilterLoad" Margin="6,6,6,0" Click="buttonFilterLoad_Click" />
+                    <Button Content="_Save Settings..." Name="buttonFilterSaveAs" Margin="6,6,6,0" Click="buttonFilterSaveAs_Click" />
+                </StackPanel>
+                <ListBox Name="listBoxFilters" SelectionChanged="listBoxFilter_SelectionChanged" />
+            </Grid>
+        </GroupBox>
+        <GroupBox Header="Output FLAC file path" Name="groupBoxOutputFile" Grid.Row="2" Grid.ColumnSpan="2">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*" />
+                    <ColumnDefinition Width="1*" />
+                </Grid.ColumnDefinitions>
+                <TextBox Margin="6,0,6,0" Name="textBoxOutputFile" VerticalAlignment="Center" />
+                <Button Content="B_rowse..." Grid.Column="1" Margin="6,0,6,0" Name="buttonBrowseOutputFile" VerticalAlignment="Center" Click="buttonBrowseOutputFile_Click" />
+            </Grid>
+        </GroupBox>
+        <Button Content="_Start Conversion" Grid.Row="3" Margin="6,6,6,0" Name="buttonStartConversion" VerticalAlignment="Top" Click="buttonStartConversion_Click" />
+        <GroupBox Header="Log" Name="groupBoxLog" Margin="0,0,0,24" Grid.Column="1" Grid.Row="3" >
+            <TextBox Name="textBoxLog" IsReadOnly="True" VerticalScrollBarVisibility="Visible" />
+        </GroupBox>
+        <ProgressBar Grid.Row="3" Height="20" Margin="0,0,0,0" Name="progressBar1" VerticalAlignment="Bottom" Grid.ColumnSpan="2" />
+    </Grid>
+</Window>

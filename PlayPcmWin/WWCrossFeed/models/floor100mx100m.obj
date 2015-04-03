@@ -1,0 +1,12 @@
+# Blender v2.71 (sub 0) OBJ File: 'floor100mx100m.blend'
+# www.blender.org
+mtllib floor100mx100m.mtl
+o Plane
+v -100.000000 0.000000 100.000000
+v 100.000000 0.000000 100.000000
+v -100.000000 0.000000 -100.000000
+v 100.000000 0.000000 -100.000000
+usemtl None
+s off
+f 2 4 3
+f 1 2 3

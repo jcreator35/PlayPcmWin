@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WavInvert", "WavInvert\WavInvert.csproj", "{28C008D5-68C2-4EBA-96F3-9D513D6C511E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{77005090-E2C5-4063-9681-0D0EED33A2B2} = {77005090-E2C5-4063-9681-0D0EED33A2B2}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WavRWLib2", "..\WavRWLib2\WavRWLib2.csproj", "{77005090-E2C5-4063-9681-0D0EED33A2B2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{28C008D5-68C2-4EBA-96F3-9D513D6C511E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28C008D5-68C2-4EBA-96F3-9D513D6C511E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28C008D5-68C2-4EBA-96F3-9D513D6C511E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28C008D5-68C2-4EBA-96F3-9D513D6C511E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77005090-E2C5-4063-9681-0D0EED33A2B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77005090-E2C5-4063-9681-0D0EED33A2B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77005090-E2C5-4063-9681-0D0EED33A2B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77005090-E2C5-4063-9681-0D0EED33A2B2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

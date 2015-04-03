@@ -1,0 +1,256 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="buttonStart" xml:space="preserve">
+    <value>テスト開始</value>
+  </data>
+  <data name="buttonStop" xml:space="preserve">
+    <value>停止</value>
+  </data>
+  <data name="groupBoxBufferSize" xml:space="preserve">
+    <value>バッファサイズ</value>
+  </data>
+  <data name="groupBoxDataFeed" xml:space="preserve">
+    <value>データ供給モード</value>
+  </data>
+  <data name="groupBoxDataPattern" xml:space="preserve">
+    <value>テストデータ種類</value>
+  </data>
+  <data name="groupBoxLog" xml:space="preserve">
+    <value>ログ</value>
+  </data>
+  <data name="groupBoxPcmDataSettings" xml:space="preserve">
+    <value>PCMデータの設定</value>
+  </data>
+  <data name="groupBoxPcmFormat" xml:space="preserve">
+    <value>PCM形式</value>
+  </data>
+  <data name="groupBoxPlayback" xml:space="preserve">
+    <value>再生設定</value>
+  </data>
+  <data name="groupBoxPlaybackDevice" xml:space="preserve">
+    <value>再生デバイス</value>
+  </data>
+  <data name="groupBoxRecording" xml:space="preserve">
+    <value>録音設定</value>
+  </data>
+  <data name="groupBoxRecordingDevice" xml:space="preserve">
+    <value>録音デバイス</value>
+  </data>
+  <data name="groupBoxSampleRate" xml:space="preserve">
+    <value>サンプリング周波数</value>
+  </data>
+  <data name="labelPcmSize" xml:space="preserve">
+    <value>PCMサイズ:</value>
+  </data>
+  <data name="msgCompareCaptureTooSmall" xml:space="preserve">
+    <value>エラー. 録音データの量が予定よりも小さいので解析を中断.
+</value>
+  </data>
+  <data name="msgCompareDifferent" xml:space="preserve">
+    <value>失敗! 録音したPCMデータと再生したPCMデータのサンプル値が異なっています.
+  PCMデータサイズ = {0} MiB ({1} Mビット). PCMデータの長さ = {2} 秒
+</value>
+  </data>
+  <data name="msgCompareIdentical" xml:space="preserve">
+    <value>成功! 録音したPCMデータと再生したPCMデータのサンプル値が全て一致.
+  PCMデータサイズ = {0} MiB ({1} Mビット). PCMデータの長さ = {2} 秒
+</value>
+  </data>
+  <data name="msgCompareStarted" xml:space="preserve">
+    <value>PCMデータ録音終了. 録音したPCMデータと再生したPCMデータを比較中...
+</value>
+  </data>
+  <data name="msgCompareStartNotFound" xml:space="preserve">
+    <value>エラー. テスト開始合図データが録音したPCMデータの中に見つかりませんでした.
+</value>
+  </data>
+  <data name="msgPcmSizeError" xml:space="preserve">
+    <value>PCMサイズは1以上の値を入力して下さい.</value>
+  </data>
+  <data name="msgPcmSizeTooLarge" xml:space="preserve">
+    <value>PCMサイズは{0}以下の値を入力して下さい.</value>
+  </data>
+  <data name="msgPlayBufferSizeError" xml:space="preserve">
+    <value>再生バッファサイズには数値を入力して下さい.</value>
+  </data>
+  <data name="msgPlayBufferSizeTooLarge" xml:space="preserve">
+    <value>再生バッファサイズは 1000 ms よりも小さい値を入力して下さい.</value>
+  </data>
+  <data name="msgPlayDeviceSelectError" xml:space="preserve">
+    <value>エラー. Wasapi再生デバイス選択処理失敗.</value>
+  </data>
+  <data name="msgPlayDeviceStateChanged" xml:space="preserve">
+    <value>エラー. 再生中のデバイスの状態が変化しました: {0} 
+プログラムを続行できませんので終了します...</value>
+  </data>
+  <data name="msgPlaySettings" xml:space="preserve">
+    <value>  再生: {0}, バッファサイズ={1}ms, {2}, {3}
+</value>
+  </data>
+  <data name="msgPlaySetupError" xml:space="preserve">
+    <value>エラー. 再生デバイスのWasapi.Setup. {0}Hz {1} {2}ch ProAudio Exclusive {3} {4}ms</value>
+  </data>
+  <data name="msgRecBufferSizeError" xml:space="preserve">
+    <value>録音バッファサイズには数値を入力して下さい.</value>
+  </data>
+  <data name="msgRecBufferSizeTooLarge" xml:space="preserve">
+    <value>録音バッファサイズは 1000 ms よりも小さい値を入力して下さい.</value>
+  </data>
+  <data name="msgRecDeviceSelectError" xml:space="preserve">
+    <value>エラー. Wasapi録音デバイス選択処理失敗.</value>
+  </data>
+  <data name="msgRecDeviceStateChanged" xml:space="preserve">
+    <value>エラー. 録音中のデバイスの状態が変化しました: {0} 
+プログラムを続行できませんので終了します...</value>
+  </data>
+  <data name="msgRecSettings" xml:space="preserve">
+    <value>  録音: {0}, バッファサイズ={1}ms, {2}, {3}
+</value>
+  </data>
+  <data name="msgRecSetupError" xml:space="preserve">
+    <value>エラー. 録音デバイスのWasapi.Setup. {0}Hz {1} {2}ch ProAudio Exclusive {3} {4}ms</value>
+  </data>
+  <data name="msgSyncError" xml:space="preserve">
+    <value>エラー. SYNC合図が録音したPCMデータの中に見つかりませんでした. 再生デバイスと録音デバイスがS/PDIFケーブルで接続されていることを確認して下さい.
+</value>
+  </data>
+  <data name="msgTestStarted" xml:space="preserve">
+    <value>テスト開始. サンプリング周波数={0}Hz, 再生するPCMデータの長さ={1} 秒.
+</value>
+  </data>
+  <data name="radioButtonEventDriven" xml:space="preserve">
+    <value>イベント駆動</value>
+  </data>
+  <data name="radioButtonPcmRandom" xml:space="preserve">
+    <value>ランダムな値</value>
+  </data>
+  <data name="radioButtonSint16" xml:space="preserve">
+    <value>16-bit整数型</value>
+  </data>
+  <data name="radioButtonSint24" xml:space="preserve">
+    <value>24-bit整数型</value>
+  </data>
+  <data name="radioButtonSint32v24" xml:space="preserve">
+    <value>32-bit整数, 有効ビット=24</value>
+  </data>
+  <data name="radioButtonTimerDriven" xml:space="preserve">
+    <value>タイマー駆動</value>
+  </data>
+</root>

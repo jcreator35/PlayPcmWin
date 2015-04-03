@@ -1,0 +1,62 @@
+﻿<Window x:Class="WWAudioFilter.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="WWAudioFilter" Height="600" Width="800" Loaded="Window_Loaded" Icon="/WWAudioFilter;component/ppwlogo.ico" DragEnter="Window_DragEnter" Drop="Window_Drop" AllowDrop="True">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="70" />
+            <RowDefinition Height="2*" />
+            <RowDefinition Height="68" />
+            <RowDefinition Height="1*" />
+        </Grid.RowDefinitions>
+        <GroupBox Header="Input FLAC file" Name="groupBoxInputFile" Margin="6,0,6,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="100" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="100" />
+                </Grid.ColumnDefinitions>
+                <TextBox Margin="6,0,6,0" Name="textBoxInputFile" VerticalAlignment="Center" Grid.Column="1" Text="" />
+                <Button Content="_Browse..." Margin="0,0,6,0" Name="buttonBrowseInputFile" VerticalAlignment="Center" Grid.Column="2" Click="buttonBrowseInputFile_Click" />
+                <Label Content="Input file:" HorizontalAlignment="Right" Margin="0,0,0,0" Name="labelInputFile" VerticalAlignment="Center" />
+            </Grid>
+        </GroupBox>
+        <GroupBox Grid.Row="1" Header="Filter settings" Name="groupBoxFilterSettings" Margin="6,0,6,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="4*" />
+                    <ColumnDefinition Width="1*" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="1">
+                    <Button Content="_Add new filter" Name="buttonFilterAdd" Width="Auto" Margin="6,6,6,0" Click="buttonFilterAdd_Click" />
+                    <Button Content="_Edit selected" Name="buttonFilterEdit" Width="Auto" Margin="6,6,6,0" Click="buttonFilterEdit_Click" />
+                    <Button Content="_Delete selected" Name="buttonFilterDelete" Width="Auto" Margin="6,6,6,0" Click="buttonFilterDelete_Click" />
+                    <Button Content="Move _up selected" Name="buttonFilterUp" Width="Auto" Margin="6,6,6,0" Click="buttonFilterUp_Click" />
+                    <Button Content="Move do_wn selected" Name="buttonFilterDown" Width="Auto" Margin="6,6,6,0" Click="buttonFilterDown_Click" />
+                    <Button Content="_Load settings..." Name="buttonFilterLoad" Width="Auto" Margin="6,6,6,0" Click="buttonFilterLoad_Click" />
+                    <Button Content="Sa_ve settings as..." Name="buttonFilterSaveAs" Width="Auto" Margin="6,6,6,0" Click="buttonFilterSaveAs_Click" />
+                </StackPanel>
+                <ListBox Name="listBoxFilters" SelectionChanged="listBoxFilters_SelectionChanged" />
+            </Grid>
+        </GroupBox>
+        <GroupBox Grid.Row="2" Height="65" Header="Output file" Name="groupBoxOutputFile" VerticalAlignment="Top" Margin="6,0,6,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="100" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="100" />
+                </Grid.ColumnDefinitions>
+                <TextBox Margin="6,0,6,0" Name="textBoxOutputFile" VerticalAlignment="Center" Grid.Column="1" Text="" />
+                <Button Content="B_rowse..." Margin="0,0,6,0" Name="buttonBrowseOutputFile" VerticalAlignment="Center" Grid.Column="2" Click="buttonBrowseOutputFile_Click" />
+                <Label Content="Output file:" HorizontalAlignment="Right" Margin="0,0,0,0" Name="labelOutputFile" VerticalAlignment="Center" />
+            </Grid>
+        </GroupBox>
+        <Button Content="_Start conversion" Grid.Row="3" Margin="6,6,0,0" Name="buttonStartConversion" VerticalAlignment="Top" Click="buttonStartConversion_Click" HorizontalAlignment="Left" Width="102" />
+        <GroupBox Grid.Row="3" Header="Log" Name="groupBoxLog" Margin="118,0,6,24" >
+            <Grid>
+                <TextBox Name="textBoxLog" AllowDrop="False" AcceptsReturn="True" AcceptsTab="True" IsReadOnly="True" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Auto" />
+            </Grid>
+        </GroupBox>
+        <ProgressBar Grid.Row="3" Name="progressBar1" VerticalAlignment="Bottom" Height="22" IsEnabled="False" />
+    </Grid>
+</Window>

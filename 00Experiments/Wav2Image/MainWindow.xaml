@@ -1,0 +1,39 @@
+﻿<Window x:Class="Wav2Image.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="600" Width="800" Loaded="Window_Loaded" SizeChanged="Window_SizeChanged">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="61" />
+            <RowDefinition Height="112" />
+            <RowDefinition Height="380*" />
+        </Grid.RowDefinitions>
+        <GroupBox Header="読み込むWAVファイル" >
+            <Grid >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="4*" />
+                    <ColumnDefinition Width="1*" />
+                </Grid.ColumnDefinitions>
+                <TextBox  Name="textBoxReadPath" Margin="6,0,6,0" VerticalAlignment="Center" IsEnabled="False" />
+                <Button Content="参照(_B)" Grid.Column="1" Name="buttonBrowse" VerticalAlignment="Center" Click="buttonBrowse_Click" Margin="6" />
+            </Grid>
+        </GroupBox>
+        <Canvas Grid.Row="1"  Name="canvas1" Margin="6" />
+        <Slider Grid.Row="2" Height="23" Margin="6,6,6,0" Name="slider1" VerticalAlignment="Top" ValueChanged="slider1_ValueChanged" LargeChange="10" />
+        <ComboBox Grid.Row="2" Height="24" HorizontalAlignment="Left" Margin="6,35,0,0" Name="comboBoxCh" VerticalAlignment="Top" Width="120" SelectionChanged="comboBoxCh_SelectionChanged" />
+        <GroupBox Grid.Row="2" Header="1サンプルの幅" Height="122" HorizontalAlignment="Left" Margin="6,65,0,0" Name="groupBox1" VerticalAlignment="Top" Width="195">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="1*" />
+                </Grid.RowDefinitions>
+                <RadioButton Content="1" Height="16" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButton1" VerticalAlignment="Center" Click="radioButton_Click" />
+                <RadioButton Content="2" Height="16" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButton2" VerticalAlignment="Center" Grid.Row="1" IsChecked="True" Click="radioButton_Click" />
+                <RadioButton Content="4" Height="16" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButton4" VerticalAlignment="Center" Grid.Row="2" Click="radioButton_Click" />
+                <RadioButton Content="8" Height="16" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButton8" VerticalAlignment="Center" Grid.Row="3" Click="radioButton_Click" />
+            </Grid>
+        </GroupBox>
+    </Grid>
+</Window>

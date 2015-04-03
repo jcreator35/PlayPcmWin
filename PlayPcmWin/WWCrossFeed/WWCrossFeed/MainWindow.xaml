@@ -1,0 +1,328 @@
+﻿<Window x:Class="WWCrossFeed.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="768" Width="1366" Loaded="Window_Loaded">
+    <Grid>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="512"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="512"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <Canvas x:Name="mCanvas" HorizontalAlignment="Left" Height="512" VerticalAlignment="Top" Width="512" Grid.RowSpan="2" Background="Black"/>
+        <ScrollViewer Grid.Column="1" Grid.RowSpan="2" >
+            <WrapPanel x:Name="mWrapPanel" >
+                <GroupBox Header="Ray test" >
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*"/>
+                            <RowDefinition Height="1*"/>
+                            <RowDefinition Height="1*"/>
+                        </Grid.RowDefinitions>
+                        <Label Content="Reflection type" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        <ComboBox x:Name="mComboBoxReflectionType" Grid.Column="1" VerticalContentAlignment="Center">
+                            <ComboBoxItem Content="Diffuse reflection" IsSelected="True"/>
+                            <ComboBoxItem Content="Specular reflection"/>
+                        </ComboBox>
+                        <Label Grid.Row="1" Content="Ray Count:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right" />
+                        <TextBox x:Name="mTextBoxRayCount" Grid.Row="1" Grid.Column="1" Text="10" VerticalContentAlignment="Center" HorizontalContentAlignment="Right" />
+                        <Button Content="Ray Test" Grid.Row="2" Grid.ColumnSpan="2" Click="mButtonRayTest_Click" />
+                    </Grid>
+                </GroupBox>
+                <GroupBox Header="Crossfeed Settings" >
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*"/>
+                            <RowDefinition Height="1*"/>
+                            <RowDefinition Height="1*"/>
+                            <RowDefinition Height="1*"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Label Grid.Row="0" Content="Sample Rate:" HorizontalContentAlignment="Right" />
+                        <TextBox x:Name="mTextBoxSampleRate" Grid.Row="0" Grid.Column="1" Text="44100" HorizontalContentAlignment="Right" />
+                        <Label Grid.Row="0" Grid.Column="2" Content="Hz" />
+                        <Label Grid.Row="1" Content="Max reflection count:" HorizontalContentAlignment="Right" />
+                        <TextBox x:Name="mTextBoxMaxReflectionCount" Grid.Row="1" Grid.Column="1" Text="100" HorizontalContentAlignment="Right" />
+                        <Label Grid.Row="2" Content="Diffuse Reflection Gain:" HorizontalContentAlignment="Right" />
+                        <TextBox x:Name="mTextBoxDiffuseReflectionGain" Grid.Row="2" Grid.Column="1" Text="-6" HorizontalContentAlignment="Right" />
+                        <Label Grid.Row="2" Grid.Column="2" Content="dB" />
+                        <Button Grid.Row="3" Grid.ColumnSpan="3" Content="Create FIR coefficients" Click="ButtonCreateFirCoefficients" Height="24" />
+                    </Grid>
+                </GroupBox>
+                <GroupBox Header="Camera settings" >
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*"/>
+                            <RowDefinition Height="1*"/>
+                        </Grid.RowDefinitions>
+                        <Button Content="Reset Camera" Grid.ColumnSpan="3" Click="ButtonCameraReset_Click" />
+                        <Label Content="Vertical Field of View" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        <TextBox x:Name="mTextBoxCameraFovH" Grid.Row="1" Grid.Column="1" Margin="6" HorizontalContentAlignment="Right" Text="45" VerticalAlignment="Center"/>
+                        <Label Grid.Row="1" Content="degree" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    </Grid>
+                </GroupBox>
+                <GroupBox Header="Room Settings" >
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                        </Grid.RowDefinitions>
+                        <RadioButton x:Name="mRadioButtonCreateRoomFromDimension" Content="Generate Room from Dimension" IsChecked="True" Checked="mRadioButtonCreateRoomFromDimension_Checked" />
+                        <RadioButton x:Name="mRadioButtonCreateRoomFromFile" Grid.Row="1" Content="Generate Room from Model File" Checked="mRadioButtonCreateRoomFromFile_Checked" />
+                        <GroupBox x:Name="mGroupBoxRoomDimension" Grid.Column="1" Grid.Row="0" Grid.RowSpan="4" Header="Room Dimension" >
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1*"/>
+                                    <ColumnDefinition Width="1*"/>
+                                    <ColumnDefinition Width="1*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="1*"/>
+                                    <RowDefinition Height="1*"/>
+                                    <RowDefinition Height="1*"/>
+                                </Grid.RowDefinitions>
+                                <Label Content="Width (x)" HorizontalAlignment="Right" Margin="6" VerticalAlignment="Center"/>
+                                <TextBox x:Name="mRoomW" Grid.Column="1" Margin="6" HorizontalContentAlignment="Right" Text="7.2" VerticalAlignment="Center"/>
+                                <Label Content="m" Grid.Column="2" HorizontalAlignment="Left" Margin="6" VerticalAlignment="Center"/>
+                                <Label Content="Height (y)" Grid.Row="1" HorizontalAlignment="Right" Margin="6" VerticalAlignment="Center"/>
+                                <TextBox x:Name="mRoomH" Grid.Row="1" Grid.Column="1" Margin="6" HorizontalContentAlignment="Right" Text="2.5" VerticalAlignment="Center"/>
+                                <Label Grid.Row="1" Content="m" Grid.Column="2" HorizontalAlignment="Left" Margin="6" VerticalAlignment="Center"/>
+                                <Label Content="Depth (z)" Grid.Row="2" HorizontalAlignment="Right" Margin="6" VerticalAlignment="Center"/>
+                                <TextBox x:Name="mRoomD" Grid.Row="2" Grid.Column="1" Margin="6" HorizontalContentAlignment="Right" Text="4.5" VerticalAlignment="Center"/>
+                                <Label Grid.Row="2" Content="m" Grid.Column="2" HorizontalAlignment="Left" Margin="6" VerticalAlignment="Center"/>
+                            </Grid>
+                        </GroupBox>
+                        <GroupBox x:Name="mGroupBoxRoomFile" Grid.Row="2" Header="Room Model File (Unit length is 1 meter)" IsEnabled="False" >
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1*"/>
+                                    <ColumnDefinition Width="3*"/>
+                                    <ColumnDefinition Width="1*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="1*"/>
+                                </Grid.RowDefinitions>
+
+                                <Label Grid.Column="0" Grid.Row="0" Content="File path:" />
+                                <TextBox x:Name="mRoomModelPath" Grid.Column="1" Grid.Row="0" Text="C:/work/model/room.obj" />
+                                <Button Grid.Column="2" Grid.Row="0" Content="Browse..." Click="ButtonBrowseRoomModel_Click" />
+                            </Grid>
+                        </GroupBox>
+                        <GroupBox Grid.Row="3" Header="Room properties" >
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="3*"/>
+                                    <ColumnDefinition Width="1*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Content="Wall reflection ratio:" HorizontalContentAlignment="Right" />
+                                <TextBox x:Name="mWallReflectionRatio" Grid.Column="1" Text="0.8" HorizontalContentAlignment="Right" />
+                            </Grid>
+                        </GroupBox>
+                    </Grid>
+                </GroupBox>
+                <GroupBox Header="Listener model" >
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                        </Grid.RowDefinitions>
+                        <RadioButton x:Name="mRadioButtonGenerateDefaultListener" Content="Generate Default Listener" IsChecked="True" Checked="mRadioButtonGenerateDefaultListener_Checked" />
+                        <RadioButton x:Name="mRadioButtonGenerateListenerFromFile" Grid.Row="1" Content="Generate Listener from Model File" Checked="mRadioButtonGenerateListenerFromFile_Checked" />
+
+                        <GroupBox x:Name="mGroupBoxListenerModelFile" Grid.Row="2" Header="Listener Model File (Unit length is 1 meter)" IsEnabled="False" >
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1*"/>
+                                    <ColumnDefinition Width="3*"/>
+                                    <ColumnDefinition Width="1*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="1*"/>
+                                </Grid.RowDefinitions>
+
+                                <Label Grid.Column="0" Grid.Row="0" Content="File path:" />
+                                <TextBox x:Name="mListenerModelPath" Grid.Column="1" Grid.Row="0" Text="C:/work/model/listener.obj" />
+                                <Button Grid.Column="2" Grid.Row="0" Content="Browse..." Click="ButtonBrowseListenerModel_Click" />
+                            </Grid>
+                        </GroupBox>
+                    </Grid>
+                </GroupBox>
+                <GroupBox Header="Listener Settings" >
+                    <Grid >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="60"/>
+                            <ColumnDefinition Width="40"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*"/>
+                            <RowDefinition Height="1*"/>
+                            <RowDefinition Height="1*"/>
+                            <RowDefinition Height="1*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Column="0" Grid.Row="0" TextWrapping="WrapWithOverflow" HorizontalAlignment="Right" VerticalAlignment="Center" >
+                        Head position x (0==center of the room, minus=left, plus=right)
+                        </TextBlock>
+                        <TextBox x:Name="mTextBoxListenerPositionX" Grid.Column="1" Margin="6" HorizontalContentAlignment="Right" Text="1.0" VerticalAlignment="Center"/>
+                        <Label Content="m" Grid.Column="2" HorizontalAlignment="Left" Margin="6" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="0" Grid.Row="1" TextWrapping="WrapWithOverflow" HorizontalAlignment="Right" VerticalAlignment="Center" >
+                        Head position y (0==floor height, plus=goes up)
+                        </TextBlock>
+                        <TextBox x:Name="mTextBoxListenerPositionY" Grid.Row="1" Grid.Column="1" Margin="6" HorizontalContentAlignment="Right" Text="1.0" VerticalAlignment="Center"/>
+                        <Label Grid.Row="1" Content="m" Grid.Column="2" HorizontalAlignment="Left" Margin="6" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="0" Grid.Row="2" TextWrapping="WrapWithOverflow" HorizontalAlignment="Right" VerticalAlignment="Center" >
+                        Head position z (0==center of the room, minus=go forward, plus=go backward)
+                        </TextBlock>
+                        <TextBox x:Name="mTextBoxListenerPositionZ" Grid.Row="2" Grid.Column="1" Margin="6" HorizontalContentAlignment="Right" Text="1.0" VerticalAlignment="Center"/>
+                        <Label Grid.Row="2" Content="m" Grid.Column="2" HorizontalAlignment="Left" Margin="6" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="0" Grid.Row="3" TextWrapping="WrapWithOverflow" HorizontalAlignment="Right" VerticalAlignment="Center" >
+                        Head size
+                        </TextBlock>
+                        <TextBox x:Name="mTextBoxListenerHeadSize" Grid.Row="3" Grid.Column="1" Margin="6" HorizontalContentAlignment="Right" Text="0.24" VerticalAlignment="Center"/>
+                        <Label Grid.Row="3" Content="m" Grid.Column="3" HorizontalAlignment="Left" Margin="6" VerticalAlignment="Center"/>
+                    </Grid>
+                </GroupBox>
+                <GroupBox Header="Speaker model" >
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                        </Grid.RowDefinitions>
+                        <RadioButton x:Name="mRadioButtonGenerateDefaultSpeaker" Content="Generate Default Speaker" IsChecked="True" Checked="mRadioButtonGenerateDefaultSpeaker_Checked" />
+                        <RadioButton x:Name="mRadioButtonGenerateSpeakerFromFile" Grid.Row="1" Content="Generate Speaker from Model File" Checked="mRadioButtonGenerateSpeakerFromFile_Checked" />
+
+                        <GroupBox x:Name="mGroupBoxSpeakerModelFile" Grid.Row="2" Header="Speaker Model File (Unit length is 1 meter)" IsEnabled="False" >
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1*"/>
+                                    <ColumnDefinition Width="3*"/>
+                                    <ColumnDefinition Width="1*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="1*"/>
+                                </Grid.RowDefinitions>
+
+                                <Label Grid.Column="0" Grid.Row="0" Content="File path:" />
+                                <TextBox x:Name="mSpeakerModelPath" Grid.Column="1" Grid.Row="0" Text="C:/work/model/speaker.obj" />
+                                <Button Grid.Column="2" Grid.Row="0" Content="Browse..." Click="ButtonBrowseSpeakerModel_Click" />
+                            </Grid>
+                        </GroupBox>
+                    </Grid>
+                </GroupBox>
+                <GroupBox Header="Left Speaker Settings" >
+                    <Grid >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="60"/>
+                            <ColumnDefinition Width="40"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="60"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*"/>
+                            <RowDefinition Height="1*"/>
+                            <RowDefinition Height="1*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Column="0" Grid.Row="0" TextWrapping="WrapWithOverflow" HorizontalAlignment="Right" VerticalAlignment="Center" >
+                        x (0==center of the room, minus=left, plus=right)
+                        </TextBlock>
+                        <TextBox x:Name="mTextBoxLeftSpeakerX" Grid.Column="1" Margin="6" HorizontalContentAlignment="Right" Text="0.0" VerticalAlignment="Center"/>
+                        <Label Content="m" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="0" Grid.Row="1" TextWrapping="WrapWithOverflow" HorizontalAlignment="Right" VerticalAlignment="Center" >
+                        y (0==floor height, plus=goes up)
+                        </TextBlock>
+                        <TextBox x:Name="mTextBoxLeftSpeakerY" Grid.Row="1" Grid.Column="1" Margin="6" HorizontalContentAlignment="Right" Text="+1.0" VerticalAlignment="Center"/>
+                        <Label Grid.Row="1" Content="m" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="0" Grid.Row="2" TextWrapping="WrapWithOverflow" HorizontalAlignment="Right" VerticalAlignment="Center" >
+                        z (0==center of the room, minus=go forward, plus=go backward)
+                        </TextBlock>
+                        <TextBox x:Name="mTextBoxLeftSpeakerZ" Grid.Row="2" Grid.Column="1" Margin="6" HorizontalContentAlignment="Right" Text="-1.0" VerticalAlignment="Center"/>
+                        <Label Grid.Row="2" Content="m" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="3" Grid.Row="0" TextWrapping="WrapWithOverflow" HorizontalAlignment="Right" VerticalAlignment="Center" >
+                        direction x (minus=left, plus=right)
+                        </TextBlock>
+                        <TextBox x:Name="mTextBoxLeftSpeakerDX" Grid.Column="4" Margin="6" HorizontalContentAlignment="Right" Text="0.2" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="3" Grid.Row="1" TextWrapping="WrapWithOverflow" HorizontalAlignment="Right" VerticalAlignment="Center" >
+                        direction y (plus=goes up)
+                        </TextBlock>
+                        <TextBox x:Name="mTextBoxLeftSpeakerDY" Grid.Row="1" Grid.Column="4" Margin="6" HorizontalContentAlignment="Right" Text="0.0" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="3" Grid.Row="2" TextWrapping="WrapWithOverflow" HorizontalAlignment="Right" VerticalAlignment="Center" >
+                        direction z (minus=forward, plus=backward)
+                        </TextBlock>
+                        <TextBox x:Name="mTextBoxLeftSpeakerDZ" Grid.Row="2" Grid.Column="4" Margin="6" HorizontalContentAlignment="Right" Text="1.0" VerticalAlignment="Center"/>
+                    </Grid>
+                </GroupBox>
+                <GroupBox Header="Right Speaker Settings" >
+                    <Grid >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="60"/>
+                            <ColumnDefinition Width="40"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="60"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*"/>
+                            <RowDefinition Height="1*"/>
+                            <RowDefinition Height="1*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Column="0" Grid.Row="0" TextWrapping="WrapWithOverflow" HorizontalAlignment="Right" VerticalAlignment="Center" >
+                        x (0==center of the room, minus=left, plus=right)
+                        </TextBlock>
+                        <TextBox x:Name="mTextBoxRightSpeakerX" Grid.Column="1" Margin="6" HorizontalContentAlignment="Right" Text="2.0" VerticalAlignment="Center"/>
+                        <Label Content="m" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="0" Grid.Row="1" TextWrapping="WrapWithOverflow" HorizontalAlignment="Right" VerticalAlignment="Center" >
+                        y (0==floor height, plus=goes up)
+                        </TextBlock>
+                        <TextBox x:Name="mTextBoxRightSpeakerY" Grid.Row="1" Grid.Column="1" Margin="6" HorizontalContentAlignment="Right" Text="+1.0" VerticalAlignment="Center"/>
+                        <Label Grid.Row="1" Content="m" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="0" Grid.Row="2" TextWrapping="WrapWithOverflow" HorizontalAlignment="Right" VerticalAlignment="Center" >
+                        z (0==center of the room, minus=go forward, plus=go backward)
+                        </TextBlock>
+                        <TextBox x:Name="mTextBoxRightSpeakerZ" Grid.Row="2" Grid.Column="1" Margin="6" HorizontalContentAlignment="Right" Text="-1.0" VerticalAlignment="Center"/>
+                        <Label Grid.Row="2" Content="m" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="3" Grid.Row="0" TextWrapping="WrapWithOverflow" HorizontalAlignment="Right" VerticalAlignment="Center" >
+                        direction x (minus=left, plus=right)
+                        </TextBlock>
+                        <TextBox x:Name="mTextBoxRightSpeakerDX" Grid.Column="4" Margin="6" HorizontalContentAlignment="Right" Text="-0.2" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="3" Grid.Row="1" TextWrapping="WrapWithOverflow" HorizontalAlignment="Right" VerticalAlignment="Center" >
+                        direction y (plus=goes up)
+                        </TextBlock>
+                        <TextBox x:Name="mTextBoxRightSpeakerDY" Grid.Row="1" Grid.Column="4" Margin="6" HorizontalContentAlignment="Right" Text="0.0" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="3" Grid.Row="2" TextWrapping="WrapWithOverflow" HorizontalAlignment="Right" VerticalAlignment="Center" >
+                        direction z (minus=forward, plus=backward)
+                        </TextBlock>
+                        <TextBox x:Name="mTextBoxRightSpeakerDZ" Grid.Row="2" Grid.Column="4" Margin="6" HorizontalContentAlignment="Right" Text="1.0" VerticalAlignment="Center"/>
+                    </Grid>
+                </GroupBox>
+                <Button Content="Update View" Click="mButtonUpdateView_Click" Height="24" Width="300" />
+            </WrapPanel>
+        </ScrollViewer>
+        <Grid Grid.Column="1" HorizontalAlignment="Left" Height="100" Margin="79,133,0,0" VerticalAlignment="Top" Width="100"/>
+    </Grid>
+</Window>
