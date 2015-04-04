@@ -224,7 +224,7 @@ namespace WWAudioFilter {
 
             double [] outPcm = new double[inPcm.LongLength];
 
-            for(int toPos=0; toPos<inPcm.Length; ++toPos) {
+            Parallel.For(0, inPcm.Length, toPos => {
                 int fromPos = mResamplePosArray[toPos];
                 double fraction = mFractionArray[toPos];
                 double sinFraction = Math.Sin(-Math.PI * mFractionArray[toPos]);
@@ -246,7 +246,7 @@ namespace WWAudioFilter {
                     }
                 }
                 outPcm[toPos] = v;
-            }
+            });
 
             return outPcm;
         }
