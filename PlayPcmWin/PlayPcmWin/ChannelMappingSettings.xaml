@@ -1,9 +1,9 @@
-﻿<Window x:Class="PlayPcmWin.ChannelRoutingSettings"
+﻿<Window x:Class="PlayPcmWin.ChannelMappingSettings"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:loc="clr-namespace:PlayPcmWin"
         Loaded="Window_Loaded"
-        Title="Channel Routing" Height="600" Width="600">
+        Title="Channel Mapping" Height="600" Width="600">
     <Window.Resources>
         <x:Array Type="{x:Type loc:ChannelEntry}" x:Key="channelList2">
             <loc:ChannelEntry Id="0" Name="1 (L)" />
@@ -106,7 +106,7 @@
             <ComboBoxItem Tag="16" Content="16ch" />
             <ComboBoxItem Tag="18" Content="18ch" />
         </ComboBox>
-        <GroupBox Header="Channel Routing Table" Name="groupBoxChannelRouting" Grid.Row="1" Grid.ColumnSpan="2">
+        <GroupBox Header="Channel Mapping Table" Name="groupBoxChannelMapping" Grid.Row="1" Grid.ColumnSpan="2">
             <Grid>
                 <ListBox Name="listBoxRouting" IsSynchronizedWithCurrentItem="True" HorizontalContentAlignment="Stretch" ItemsSource="{Binding}" >
                     <ListBox.ItemTemplate>

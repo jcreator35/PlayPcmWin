@@ -79,11 +79,11 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Channel Routing に類似しているローカライズされた文字列を検索します。
+        ///   Channel Mapping に類似しているローカライズされた文字列を検索します。
         /// </summary>
-        internal static string AudioFilterChannelRouting {
+        internal static string AudioFilterChannelMapping {
             get {
-                return ResourceManager.GetString("AudioFilterChannelRouting", resourceCulture);
+                return ResourceManager.GetString("AudioFilterChannelMapping", resourceCulture);
             }
         }
         
@@ -133,20 +133,20 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Channel Routing Table に類似しているローカライズされた文字列を検索します。
+        ///   Channel Mapping Table に類似しているローカライズされた文字列を検索します。
         /// </summary>
-        internal static string ChannelRoutingChannelRoutingTable {
+        internal static string ChannelMappingChannelMappingTable {
             get {
-                return ResourceManager.GetString("ChannelRoutingChannelRoutingTable", resourceCulture);
+                return ResourceManager.GetString("ChannelMappingChannelMappingTable", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Number of input channels: に類似しているローカライズされた文字列を検索します。
         /// </summary>
-        internal static string ChannelRoutingNumOfInputChannels {
+        internal static string ChannelMappingNumOfInputChannels {
             get {
-                return ResourceManager.GetString("ChannelRoutingNumOfInputChannels", resourceCulture);
+                return ResourceManager.GetString("ChannelMappingNumOfInputChannels", resourceCulture);
             }
         }
         

@@ -634,13 +634,13 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
   <data name="GroupBoxSoundEffects" xml:space="preserve">
     <value>音声信号処理</value>
   </data>
-  <data name="AudioFilterChannelRouting" xml:space="preserve">
-    <value>チャンネルルーティング</value>
+  <data name="AudioFilterChannelMapping" xml:space="preserve">
+    <value>チャンネルマッピング</value>
   </data>
-  <data name="ChannelRoutingChannelRoutingTable" xml:space="preserve">
-    <value>チャンネルルーティング表</value>
+  <data name="ChannelMappingChannelMappingTable" xml:space="preserve">
+    <value>チャンネルマッピング表</value>
   </data>
-  <data name="ChannelRoutingNumOfInputChannels" xml:space="preserve">
+  <data name="ChannelMappingNumOfInputChannels" xml:space="preserve">
     <value>入力チャンネル数:</value>
   </data>
 </root>

@@ -113,8 +113,8 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AiffReader.cs" />
-    <Compile Include="ChannelRoutingSettings.xaml.cs">
-      <DependentUpon>ChannelRoutingSettings.xaml</DependentUpon>
+    <Compile Include="ChannelMappingSettings.xaml.cs">
+      <DependentUpon>ChannelMappingSettings.xaml</DependentUpon>
     </Compile>
     <Compile Include="CueSheetRW.cs" />
     <Compile Include="DeviceAttributes.cs" />
@@ -140,9 +140,9 @@
     <Compile Include="SoundEffectsUpdater.cs" />
     <Compile Include="Util.cs" />
     <Compile Include="DsfReader.cs" />
-    <Page Include="ChannelRoutingSettings.xaml">
-      <SubType>Designer</SubType>
+    <Page Include="ChannelMappingSettings.xaml">
       <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

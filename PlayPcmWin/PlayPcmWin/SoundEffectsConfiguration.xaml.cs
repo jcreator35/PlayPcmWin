@@ -34,7 +34,7 @@ namespace PlayPcmWin {
             // WWAudioFilterTypeと同じ順番にする
             listBoxAvailableEffects.Items.Add(Properties.Resources.AudioFilterPolarityInvert);
             listBoxAvailableEffects.Items.Add(Properties.Resources.AudioFilterMonauralMix);
-            listBoxAvailableEffects.Items.Add(Properties.Resources.AudioFilterChannelRouting);
+            listBoxAvailableEffects.Items.Add(Properties.Resources.AudioFilterChannelMapping);
 
             listBoxAvailableEffects.SelectedIndex = 0;
             buttonLeftArrow.IsEnabled = true;
@@ -75,7 +75,7 @@ namespace PlayPcmWin {
             }
         }
 
-        private string[] BuildChannelRoutingArgArray(List<Tuple<int, int>> tupleList) {
+        private string[] BuildChannelMappingArgArray(List<Tuple<int, int>> tupleList) {
             var rv = new string[tupleList.Count];
 
             for (int i=0; i<tupleList.Count; ++i) {
@@ -98,14 +98,14 @@ namespace PlayPcmWin {
                 filter = new PreferenceAudioFilter(PreferenceAudioFilterType.MonauralMix, null);
                 break;
             case PreferenceAudioFilterType.ChannelRouting: {
-                    var dlg = new ChannelRoutingSettings();
-                    dlg.UpdateChannelRouting(null);
+                    var dlg = new ChannelMappingSettings();
+                    dlg.UpdateChannelMapping(null);
                     var dlgResult = dlg.ShowDialog();
                     if (dlgResult != true) {
                         return;
                     }
 
-                    filter = new PreferenceAudioFilter(PreferenceAudioFilterType.ChannelRouting, BuildChannelRoutingArgArray(dlg.ChannelRouting));
+                    filter = new PreferenceAudioFilter(PreferenceAudioFilterType.ChannelRouting, BuildChannelMappingArgArray(dlg.ChannelMapping));
                 }
                 break;
             default:
@@ -154,13 +154,13 @@ namespace PlayPcmWin {
 
                 switch (before.FilterType) {
                 case PreferenceAudioFilterType.ChannelRouting:
-                    var dlg = new ChannelRoutingSettings();
-                    dlg.UpdateChannelRouting(before.ChannelRouting());
+                    var dlg = new ChannelMappingSettings();
+                    dlg.UpdateChannelMapping(before.ChannelMapping());
                     var dlgResult = dlg.ShowDialog();
                     if (dlgResult != true) {
                         return;
                     }
-                    before.ArgArray = BuildChannelRoutingArgArray(dlg.ChannelRouting);
+                    before.ArgArray = BuildChannelMappingArgArray(dlg.ChannelMapping);
                     break;
                 default:
                     System.Diagnostics.Debug.Assert(false);

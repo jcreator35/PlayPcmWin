@@ -593,4 +593,13 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   <data name="GroupBoxSoundEffects" xml:space="preserve">
     <value>音效</value>
   </data>
+  <data name="AudioFilterChannelMapping" xml:space="preserve">
+    <value>声道映射</value>
+  </data>
+  <data name="ChannelMappingChannelMappingTable" xml:space="preserve">
+    <value>声道映射表</value>
+  </data>
+  <data name="ChannelMappingNumOfInputChannels" xml:space="preserve">
+    <value>输入声道数:</value>
+  </data>
 </root>

@@ -47,7 +47,7 @@
     <ClCompile Include="WWAudioFilterMonauralMix.cpp">
       <Filter>source files</Filter>
     </ClCompile>
-    <ClCompile Include="WWAudioFilterChannelRouting.cpp">
+    <ClCompile Include="WWAudioFilterChannelMapping.cpp">
       <Filter>source files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -106,7 +106,7 @@
     <ClInclude Include="WWAudioFilterMonauralMix.h">
       <Filter>header files</Filter>
     </ClInclude>
-    <ClInclude Include="WWAudioFilterChannelRouting.h">
+    <ClInclude Include="WWAudioFilterChannelMapping.h">
       <Filter>header files</Filter>
     </ClInclude>
   </ItemGroup>

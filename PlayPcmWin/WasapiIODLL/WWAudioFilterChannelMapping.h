@@ -7,10 +7,10 @@
 #include "WWTypes.h"
 #include <stdint.h>
 
-class WWAudioFilterChannelRouting : public WWAudioFilter {
+class WWAudioFilterChannelMapping : public WWAudioFilter {
 public:
-    WWAudioFilterChannelRouting(PCWSTR args);
-    virtual ~WWAudioFilterChannelRouting() {}
+    WWAudioFilterChannelMapping(PCWSTR args);
+    virtual ~WWAudioFilterChannelMapping() {}
     virtual void UpdateSampleFormat(WWPcmDataSampleFormatType format, WWStreamType streamType, int numChannels);
     virtual void Filter(unsigned char *buff, int bytes);
 

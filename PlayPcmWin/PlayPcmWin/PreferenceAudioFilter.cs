@@ -13,7 +13,7 @@ namespace PlayPcmWin {
     public enum PreferenceAudioFilterType {
         PolarityInvert,
         MonauralMix,
-        ChannelRouting,
+        ChannelRouting, //< ChannelMapping。設定ファイルで使用されるフィルター名称は互換性のためにChannelRoutingとする。
         NUM
     };
 
@@ -270,24 +270,24 @@ namespace PlayPcmWin {
             mArgArray = argArray;
         }
 
-        public List<Tuple<int, int>> ChannelRouting() {
-            return ArgArrayToChannelRouting(mArgArray);
+        public List<Tuple<int, int>> ChannelMapping() {
+            return ArgArrayToChannelMapping(mArgArray);
         }
 
-        public static List<Tuple<int, int>> ArgArrayToChannelRouting(string[] args) {
+        public static List<Tuple<int, int>> ArgArrayToChannelMapping(string[] args) {
             if (args == null) {
                 return null;
             }
 
             var rv = new List<Tuple<int, int>>();
             foreach (var i in args) {
-                rv.Add(ArgToChannelRouting1(i));
+                rv.Add(ArgToChannelMapping1(i));
             }
 
             return rv;
         }
 
-        private static Tuple<int, int> ArgToChannelRouting1(string s) {
+        private static Tuple<int, int> ArgToChannelMapping1(string s) {
             var fromTo = s.Split('>');
             if (fromTo.Length != 2) {
                 return null;
@@ -313,10 +313,10 @@ namespace PlayPcmWin {
                     return Properties.Resources.AudioFilterMonauralMix;
                 case PreferenceAudioFilterType.ChannelRouting: {
                         // 説明文はチャンネル番号が1から始まる。
-                        StringBuilder sb = new StringBuilder(Properties.Resources.AudioFilterChannelRouting);
+                        StringBuilder sb = new StringBuilder(Properties.Resources.AudioFilterChannelMapping);
                         sb.AppendFormat(" ({0}ch)", mArgArray.Length);
                         foreach (var s in mArgArray) {
-                            var m = ArgToChannelRouting1(s);
+                            var m = ArgToChannelMapping1(s);
                             sb.AppendFormat(" {0}→{1}", m.Item1+1, m.Item2+1);
                         }
                         return sb.ToString();

@@ -280,6 +280,7 @@ namespace Wasapi {
         public enum WWAudioFilterType {
             PolarityInvert,
             Monaural,
+            ChannelMapping,
         };
 
         /// <summary>

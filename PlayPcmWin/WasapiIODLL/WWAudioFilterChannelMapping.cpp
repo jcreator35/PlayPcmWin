@@ -1,6 +1,6 @@
 // 日本語 UTF-8
 
-#include "WWAudioFilterChannelRouting.h"
+#include "WWAudioFilterChannelMapping.h"
 #include "WWTypes.h"
 #include <assert.h>
 #include <vector>
@@ -85,13 +85,13 @@ Split(std::wstring s, std::vector<std::wstring> & result)
     }
 }
 
-struct ChannelRoutingItem {
+struct ChannelMappingItem {
     uint32_t fromCh;
     uint32_t toCh;
 };
 
 static bool
-ParseChannelRoutingItem(std::wstring s, ChannelRoutingItem &item_return)
+ParseChannelMappingItem(std::wstring s, ChannelMappingItem &item_return)
 {
     std::wstring::size_type found = s.find(L'>');
     if (found == std::wstring::npos || s.length()-1 <= found) {
@@ -107,7 +107,7 @@ ParseChannelRoutingItem(std::wstring s, ChannelRoutingItem &item_return)
     return true;
 }
 
-WWAudioFilterChannelRouting::WWAudioFilterChannelRouting(PCWSTR args)
+WWAudioFilterChannelMapping::WWAudioFilterChannelMapping(PCWSTR args)
 {
     memset(mRoutingTable, 0, sizeof mRoutingTable);
     mNumOfChannels = 0;
@@ -120,10 +120,10 @@ WWAudioFilterChannelRouting::WWAudioFilterChannelRouting(PCWSTR args)
         return;
     }
     
-    std::vector<ChannelRoutingItem> routingVector;
+    std::vector<ChannelMappingItem> routingVector;
     for (uint32_t i=0; i<argVector.size(); ++i) {
-        ChannelRoutingItem item;
-        if (ParseChannelRoutingItem(argVector[i], item)) {
+        ChannelMappingItem item;
+        if (ParseChannelMappingItem(argVector[i], item)) {
             if (argVector.size() <= item.fromCh
                     || argVector.size() <= item.toCh) {
                 // 失敗。
@@ -139,7 +139,7 @@ WWAudioFilterChannelRouting::WWAudioFilterChannelRouting(PCWSTR args)
 }
 
 void
-WWAudioFilterChannelRouting::UpdateSampleFormat(
+WWAudioFilterChannelMapping::UpdateSampleFormat(
         WWPcmDataSampleFormatType format,
         WWStreamType streamType, int numChannels)
 {
@@ -147,7 +147,7 @@ WWAudioFilterChannelRouting::UpdateSampleFormat(
 }
 
 void
-WWAudioFilterChannelRouting::Filter(unsigned char *buff, int bytes)
+WWAudioFilterChannelMapping::Filter(unsigned char *buff, int bytes)
 {
     // PCM, DSD共通の処理。
     float sampleValueOfChannel[WW_CHANNEL_NUM];
