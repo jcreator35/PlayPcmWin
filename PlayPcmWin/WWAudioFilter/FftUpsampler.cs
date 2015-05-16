@@ -111,10 +111,10 @@ namespace WWAudioFilter {
                 inPcmT[i] = new WWComplex(inPcmR[i], 0);
             }
 
-            var inPcmF = new WWComplex[FftLength];
+            WWComplex[] inPcmF;
             {
                 var fft = new WWRadix2Fft(FftLength);
-                fft.ForwardFft(inPcmT, inPcmF);
+                inPcmF = fft.ForwardFft(inPcmT);
             }
             inPcmT = null;
 
@@ -140,10 +140,11 @@ namespace WWAudioFilter {
                 }
             }
             inPcmF = null;
-            var outPcmT = new WWComplex[UPSAMPLE_FFT_LENGTH];
+
+            WWComplex[] outPcmT;
             {
                 var fft = new WWRadix2Fft(UPSAMPLE_FFT_LENGTH);
-                fft.InverseFft(outPcmF, outPcmT, 1.0 / FftLength);
+                outPcmT = fft.InverseFft(outPcmF, 1.0 / FftLength);
             }
             outPcmF = null;
 

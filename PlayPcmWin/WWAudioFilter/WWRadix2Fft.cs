@@ -83,13 +83,11 @@ namespace WWAudioFilter {
         }
         */
 
-        public void ForwardFft(WWComplex[] aFrom, WWComplex[] aTo) {
+        public WWComplex[] ForwardFft(WWComplex[] aFrom) {
             if (aFrom == null || aFrom.Length != mNumPoints) {
                 throw new ArgumentOutOfRangeException("aFrom");
             }
-            if (aTo == null || aTo.Length != mNumPoints) {
-                throw new ArgumentOutOfRangeException("aTo");
-            }
+            var aTo = new WWComplex[aFrom.Length];
 
             var aTmp0 = new WWComplex[mNumPoints];
             for (int i=0; i < aTmp0.Length; ++i) {
@@ -108,14 +106,16 @@ namespace WWAudioFilter {
                 FftStageN(i, aTmps[((i & 1) == 1) ? 1 : 0], aTmps[((i & 1) == 0) ? 1 : 0]);
             }
             FftStageN(mNumStage - 1, aTmps[(((mNumStage - 1) & 1) == 1) ? 1 : 0], aTo);
+
+            return aTo;
         }
 
-        public void InverseFft(WWComplex[] aFrom, WWComplex[] aTo, double? compensation = null) {
+        public WWComplex[] InverseFft(WWComplex[] aFrom, double? compensation = null) {
             for (int i=0; i < aFrom.LongLength; ++i) {
                 aFrom[i].imaginary *= -1.0;
             }
 
-            ForwardFft(aFrom, aTo);
+            var aTo = ForwardFft(aFrom);
 
             double c = 1.0 / mNumPoints;
             if (compensation != null) {
@@ -123,9 +123,11 @@ namespace WWAudioFilter {
             }
 
             for (int i=0; i < aTo.LongLength; ++i) {
-                aTo[i].real *= c;
+                aTo[i].real      *= c;
                 aTo[i].imaginary *= -1.0 * c;
             }
+
+            return aTo;
         }
 
         private void FftStageN(int stageNr, WWComplex[] x, WWComplex[] y) {

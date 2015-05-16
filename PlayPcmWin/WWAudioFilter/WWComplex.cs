@@ -24,6 +24,18 @@ namespace WWAudioFilter {
             return Math.Sqrt(real * real + imaginary * imaginary);
         }
 
+        const double SMALLVALUE = 0.00000001;
+
+        public override string ToString() {
+            if (-SMALLVALUE < imaginary && imaginary < SMALLVALUE) {
+                return string.Format("{0:0.#######}", real);
+            }
+            if (-SMALLVALUE < real && real < SMALLVALUE) {
+                return string.Format("{0:0.#######}i", imaginary);
+            }
+            return string.Format("{0:0.#######} {1:+0.#######;-0.#######}i", real, imaginary);
+        }
+
         /// <summary>
         /// Phase in radians
         /// </summary>
@@ -45,6 +57,12 @@ namespace WWAudioFilter {
         public WWComplex Mul(double v) {
             real      *= v;
             imaginary *= v;
+            return this;
+        }
+
+        public WWComplex Sub(WWComplex rhs) {
+            real      -= rhs.real;
+            imaginary -= rhs.imaginary;
             return this;
         }
 
@@ -70,5 +88,63 @@ namespace WWAudioFilter {
             real      = rhs.real;
             imaginary = rhs.imaginary;
         }
+
+        public static WWComplex Add(WWComplex a, WWComplex b) {
+            var r = new WWComplex(a);
+            r.Add(b);
+            return r;
+        }
+
+        public static WWComplex Mul(WWComplex a, WWComplex b) {
+            var r = new WWComplex(a);
+            r.Mul(b);
+            return r;
+        }
+
+        public static WWComplex Sub(WWComplex a, WWComplex b) {
+            var r = new WWComplex(a);
+            r.Sub(b);
+            return r;
+        }
+
+        public static WWComplex[] Add(WWComplex[] a, WWComplex[] b) {
+            if (a.Length != b.Length) {
+                throw new ArgumentException("input array length mismatch");
+            }
+
+            var c = new WWComplex[a.Length];
+            for (int i = 0; i < a.Length; ++i) {
+                c[i] = WWComplex.Add(a[i], b[i]);
+            }
+            return c;
+        }
+
+        public static WWComplex[] Mul(WWComplex[] a, WWComplex[] b) {
+            if (a.Length != b.Length) {
+                throw new ArgumentException("input array length mismatch");
+            }
+
+            var c = new WWComplex[a.Length];
+            for (int i = 0; i < a.Length; ++i) {
+                c[i] = WWComplex.Mul(a[i], b[i]);
+            }
+            return c;
+        }
+
+        public static double AverageDistance(WWComplex[] a, WWComplex[] b) {
+            if (a.Length != b.Length) {
+                throw new ArgumentException("input array length mismatch");
+            }
+
+            double d = 0.0;
+            for (int i=0; i<a.Length; ++i) {
+                var s = WWComplex.Sub(a[i], b[i]);
+                d += s.Magnitude();
+            }
+
+            d /= a.Length;
+            return d;
+        }
     }
+
 }

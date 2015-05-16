@@ -113,17 +113,14 @@ namespace WWAudioFilter {
         }
 
         private double[] FFTFir(double[] inPcm, double[] coef, int fftLength) {
+            var fft = new WWRadix2Fft(fftLength);
             var inTime = new WWComplex[fftLength];
 
             for (int i = 0; i < mNumSamples; ++i) {
                 inTime[i].real = inPcm[i];
             }
 
-            var inFreq = new WWComplex[fftLength];
-            {
-                var fft = new WWRadix2Fft(fftLength);
-                fft.ForwardFft(inTime, inFreq);
-            }
+            var inFreq = fft.ForwardFft(inTime);
             inTime = null;
 
             var coefTime = new WWComplex[fftLength];
@@ -131,22 +128,14 @@ namespace WWAudioFilter {
                 coefTime[i].real = coef[i];
             }
 
-            var coefFreq = new WWComplex[fftLength];
-            {
-                var fft = new WWRadix2Fft(fftLength);
-                fft.ForwardFft(coefTime, coefFreq);
-            }
+            var coefFreq = fft.ForwardFft(coefTime);
             coefTime = null;
 
             var mulFreq = Mul(inFreq, coefFreq);
             inFreq = null;
             coefFreq = null;
 
-            var mulTime = new WWComplex[fftLength];
-            {
-                var fft = new WWRadix2Fft(fftLength);
-                fft.InverseFft(mulFreq, mulTime);
-            }
+            var mulTime = fft.InverseFft(mulFreq);
             mulFreq = null;
 
             var result = new double[inPcm.Length];

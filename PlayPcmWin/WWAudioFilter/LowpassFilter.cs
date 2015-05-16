@@ -130,10 +130,10 @@ namespace WWAudioFilter {
             }
 
             // IFFTでfromFをfromTに変換
-            var fromT   = new WWComplex[FILTER_LENP1];
+            WWComplex[] fromT; 
             {
                 var fft = new WWRadix2Fft(FILTER_LENP1);
-                fft.ForwardFft(fromF, fromT);
+                fromT = fft.ForwardFft(fromF);
 
                 double compensation = 1.0 / (FILTER_LENP1 * cutoffRatio);
                 for (int i=0; i < FILTER_LENP1; ++i) {
@@ -170,10 +170,10 @@ namespace WWAudioFilter {
             delayT = null;
 
             // できたフィルタをFFTする
-            var delayF = new WWComplex[FFT_LEN];
+            WWComplex[] delayF;
             {
                 var fft = new WWRadix2Fft(FFT_LEN);
-                fft.ForwardFft(delayTL, delayF);
+                delayF = fft.ForwardFft(delayTL);
 
                 for (int i=0; i < FFT_LEN; ++i) {
                     delayF[i].Mul(cutoffRatio);
@@ -186,35 +186,26 @@ namespace WWAudioFilter {
 
         public override double[] FilterDo(double[] inPcm) {
             System.Diagnostics.Debug.Assert(inPcm.LongLength <= NumOfSamplesNeeded());
+            var fft = new WWRadix2Fft(FFT_LEN);
 
             // Overlap and add continuous FFT
 
             var inTime = new WWComplex[FFT_LEN];
-            for (int i=0; i < inPcm.LongLength; ++i) {
-                inTime[i] = new WWComplex(inPcm[i], 0.0);
+            for (int i = 0; i < inPcm.Length; ++i) {
+                inTime[i].real = inPcm[i];
             }
 
             // FFTでinTimeをinFreqに変換
-            var inFreq = new WWComplex[FFT_LEN];
-            {
-                var fft = new WWRadix2Fft(FFT_LEN);
-                fft.ForwardFft(inTime, inFreq);
-            }
+            var inFreq = fft.ForwardFft(inTime);
             inTime = null;
 
             // FFT後、フィルターHの周波数ドメインデータを掛ける
-            for (int i=0; i < FFT_LEN; ++i) {
-                inFreq[i].Mul(mFilterFreq[i]);
-            }
+            var mulFreq = WWComplex.Mul(inFreq, mFilterFreq);
+            inFreq = null;
 
             // inFreqをIFFTしてoutTimeに変換
-            var outTime = new WWComplex[FFT_LEN];
-            {
-                var outTimeS = new WWComplex[FFT_LEN];
-                var fft = new WWRadix2Fft(FFT_LEN);
-                fft.InverseFft(inFreq, outTime);
-            }
-            inFreq = null;
+            var outTime = fft.InverseFft(mulFreq);
+            mulFreq = null;
 
             double [] outReal;
             if (mFirstFilterDo) {
