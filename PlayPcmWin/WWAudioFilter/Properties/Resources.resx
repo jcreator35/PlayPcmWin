@@ -242,7 +242,7 @@
     <value>Zero order hold upsample: {0}x</value>
   </data>
   <data name="LogCompleted" xml:space="preserve">
-    <value>Completed.
+    <value>Completed. Elapsed time: {0}
 </value>
   </data>
   <data name="LogFileReadCompleted" xml:space="preserve">
@@ -270,7 +270,7 @@
     <value>Please specify different file to write. WWAudioFilter cannot write to input file.</value>
   </data>
   <data name="FilterFftUpsampleDesc" xml:space="preserve">
-    <value>FFT upsample: {0}x, FFT length={1}</value>
+    <value>FFT upsample: {0}x, FFT length={1}, Overlap={2}</value>
   </data>
   <data name="LabelUpsamplerType" xml:space="preserve">
     <value>Upsampler Type:</value>

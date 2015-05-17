@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Globalization;
 using System.Text;
+using System.Diagnostics;
 
 namespace WWAudioFilter {
     /// <summary>
@@ -20,6 +21,7 @@ namespace WWAudioFilter {
         }
 
         BackgroundWorker mBackgroundWorker;
+        Stopwatch mStopwatch = new Stopwatch();
 
         private bool mInitialized = false;
 
@@ -221,6 +223,8 @@ namespace WWAudioFilter {
             groupBoxOutputFile.IsEnabled = true;
             buttonStartConversion.IsEnabled = true;
 
+            mStopwatch.Stop();
+
             if (rv < 0) {
                 var s = string.Format(CultureInfo.CurrentCulture, "{0} {1} {2}\r\n", Properties.Resources.Error, rv, WWFlacRWCS.FlacRW.ErrorCodeToStr(rv));
                 MessageBox.Show(s, Properties.Resources.Error, MessageBoxButton.OK, MessageBoxImage.Error);
@@ -228,7 +232,7 @@ namespace WWAudioFilter {
                 textBoxLog.Text += s;
                 textBoxLog.ScrollToEnd();
             } else {
-                textBoxLog.Text += Properties.Resources.LogCompleted;
+                textBoxLog.Text += string.Format(CultureInfo.CurrentCulture, Properties.Resources.LogCompleted, mStopwatch.Elapsed);
                 textBoxLog.ScrollToEnd();
             }
         }
@@ -392,6 +396,7 @@ namespace WWAudioFilter {
             groupBoxOutputFile.IsEnabled = false;
             buttonStartConversion.IsEnabled = false;
 
+            mStopwatch.Start();
             mBackgroundWorker.RunWorkerAsync(new RunWorkerArgs(textBoxInputFile.Text, textBoxOutputFile.Text));
         }
 

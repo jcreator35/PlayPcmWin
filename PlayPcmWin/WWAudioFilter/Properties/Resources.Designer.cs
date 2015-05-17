@@ -485,7 +485,7 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to FFT upsample: {0}x, FFT length={1}.
+        ///   Looks up a localized string similar to FFT upsample: {0}x, FFT length={1}, Overlap={2}.
         /// </summary>
         internal static string FilterFftUpsampleDesc {
             get {
@@ -917,7 +917,7 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Completed.
+        ///   Looks up a localized string similar to Completed. Elapsed time: {0}
         ///.
         /// </summary>
         internal static string LogCompleted {

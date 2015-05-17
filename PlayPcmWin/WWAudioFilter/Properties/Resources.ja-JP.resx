@@ -242,7 +242,7 @@
     <value>零次ホールドアップサンプリング: {0}倍</value>
   </data>
   <data name="LogCompleted" xml:space="preserve">
-    <value>全て正常に終了。
+    <value>全て正常に終了。所要時間: {0}
 </value>
   </data>
   <data name="LogFileReadCompleted" xml:space="preserve">
@@ -270,7 +270,7 @@
     <value>書き込むファイルと読み込むファイルを別のファイルにして下さい。</value>
   </data>
   <data name="FilterFftUpsampleDesc" xml:space="preserve">
-    <value>FFTアップサンプル: {0}倍, FFT長={1}</value>
+    <value>FFTアップサンプル: {0}倍, FFT長={1}, オーバーラップ={2}</value>
   </data>
   <data name="LabelUpsamplerType" xml:space="preserve">
     <value>アップサンプル方法:</value>

@@ -129,6 +129,7 @@ namespace WWAudioFilter {
                 comboBoxUpsamplingFactor.SelectedIndex = (int)UpsamplingFactorToUpsamplingFactorType(fftu.Factor);
                 comboBoxUpsamplerType.SelectedIndex = (int)UpsamplerType.FFT;
                 comboBoxUpsampleLen.SelectedIndex = (int)UpsampleLenToUpsampleLenType(fftu.FftLength);
+                comboBoxFftOverlap.SelectedIndex = (int)fftu.Overlap;
                 break;
             case FilterType.Mash2:
                 var mash = filter as MashFilter;
@@ -363,19 +364,32 @@ namespace WWAudioFilter {
             int factor = UpsamplingFactorTypeToUpsampingfactor(comboBoxUpsamplingFactor.SelectedIndex);
             int len = UpsampleLenTypeToLpfLen(comboBoxUpsampleLen.SelectedIndex);
 
+            FftUpsampler.OverlapType overlap = FftUpsampler.OverlapType.Half;
+            switch (comboBoxFftOverlap.SelectedIndex) {
+            case 0:
+                overlap = FftUpsampler.OverlapType.Half;
+                break;
+            case 1:
+                overlap = FftUpsampler.OverlapType.ThreeFourth;
+                break;
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                break;
+            }
+
             switch (comboBoxUpsamplerType.SelectedIndex) {
             case (int)UpsamplerType.ZOH:
                 mFilter = new ZeroOrderHoldUpsampler(factor);
                 break;
             case (int)UpsamplerType.FFT:
-                mFilter = new FftUpsampler(factor, len);
+                mFilter = new FftUpsampler(factor, len, overlap);
                 break;
             case (int)UpsamplerType.InsertZeroes:
                 mFilter = new InsertZeroesUpsampler(factor);
                 break;
             default:
                 System.Diagnostics.Debug.Assert(false);
-                mFilter = new FftUpsampler(factor, len);
+                mFilter = null;
                 break;
             }
 
