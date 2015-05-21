@@ -307,7 +307,8 @@ namespace WWAudioFilter {
 
         private double[][] mInPcmArray;
 
-        private double[] FilterNth(List<FilterBase> filters, int nth, int channelId, ref AudioDataPerChannel from) {
+        private double[] FilterNth(List<FilterBase> filters, int nth, int channelId,
+                ref AudioDataPerChannel from) {
             if (nth == -1) {
                 return from.GetPcmInDouble(filters[0].NumOfSamplesNeeded());
             } else {
@@ -375,7 +376,8 @@ namespace WWAudioFilter {
         }
         public delegate void ProgressReportCallback(int percentage, ProgressArgs args);
 
-        private int ProcessAudioFile(List<FilterBase> filters, int nChannels, int channelId, ref AudioDataPerChannel from, ref AudioDataPerChannel to, ProgressReportCallback Callback) {
+        private int ProcessAudioFile(List<FilterBase> filters, int nChannels, int channelId,
+                ref AudioDataPerChannel from, ref AudioDataPerChannel to, ProgressReportCallback Callback) {
             foreach (var f in filters) {
                 f.FilterStart();
             }

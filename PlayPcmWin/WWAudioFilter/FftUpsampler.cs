@@ -15,6 +15,9 @@ namespace WWAudioFilter {
 
         public OverlapType Overlap { get; set; }
 
+        /// <summary>
+        /// オーバーラップ処理される入力信号のサンプル数の半分
+        /// </summary>
         private int HalfOverlapLength {
             get {
                 switch (Overlap) {
@@ -128,12 +131,22 @@ namespace WWAudioFilter {
                 Array.Copy(inPcm, 0, inPcmR, HalfOverlapLength * 2, inPcm.LongLength);
             }
 
-            // inPcmTをFFTしてinPcmFを得る。
             var inPcmT = new WWComplex[FftLength];
             for (int i=0; i < inPcmT.Length; ++i) {
                 inPcmT[i] = new WWComplex(inPcmR[i], 0);
             }
 
+            {
+                // inPcmTの出力されず捨てられる領域に窓関数を掛ける。
+                // Kaiser窓(α==9)をかける
+                var w = WWWindowFunc.KaiserWindow(HalfOverlapLength * 2, 9.0);
+                for (int i = 0; i < HalfOverlapLength; ++i) {
+                    inPcmT[i].Mul(w[i]);
+                    inPcmT[FftLength - i - 1].Mul(w[i]);
+                }
+            }
+
+            // inPcmTをFFTしてinPcmFを得る。
             WWComplex[] inPcmF;
             {
                 var fft = new WWRadix2Fft(FftLength);
@@ -172,7 +185,7 @@ namespace WWAudioFilter {
             outPcmF = null;
 
             // outPcmTの実数成分を戻り値とする。
-            var outPcm = new double[Factor * (FftLength - HalfOverlapLength*2)];
+            var outPcm = new double[Factor * (FftLength - HalfOverlapLength * 2)];
             for (int i=0; i < outPcm.Length; ++i) {
                 outPcm[i] = outPcmT[i + Factor * HalfOverlapLength].real;
             }
