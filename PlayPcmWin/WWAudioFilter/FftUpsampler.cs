@@ -7,10 +7,13 @@ namespace WWAudioFilter {
 
         public int Factor { get; set; }
         public int FftLength { get; set; }
+        public int UpsampleFftLength { get { return FftLength * Factor; } }
 
         public enum OverlapType {
             Half,
-            ThreeFourth
+            ThreeFourth,
+
+            NUM
         }
 
         public OverlapType Overlap { get; set; }
@@ -27,6 +30,12 @@ namespace WWAudioFilter {
                 case OverlapType.ThreeFourth:
                     return 3 * (FftLength / 8);
                 }
+            }
+        }
+
+        private int OverlapLength {
+            get {
+                return 2 * HalfOverlapLength;
             }
         }
 
@@ -79,8 +88,11 @@ namespace WWAudioFilter {
             OverlapType overlap = OverlapType.Half;
 
             if (4 <= tokens.Length) {
-                if (0 == string.Compare(tokens[3], "ThreeFourth")) {
-                    overlap = OverlapType.ThreeFourth;
+                for (int i = 0; i < (int)OverlapType.NUM; ++i) {
+                    OverlapType t = (OverlapType)i;
+                    if (0 == string.Compare(tokens[3], t.ToString())) {
+                        overlap = t;
+                    }
                 }
             }
 
@@ -108,27 +120,51 @@ namespace WWAudioFilter {
             mOverlapSamples = null;
             mFirst = true;
         }
-        
+
+        private PcmFormat mInputPcmFormat;
+        private PcmFormat mOutputPcmFormat;
+
+        private double[] mFreqFilter;
+
         public override PcmFormat Setup(PcmFormat inputFormat) {
+            mInputPcmFormat = inputFormat;
+
             var r = new PcmFormat(inputFormat);
             r.SampleRate *= Factor;
             r.NumSamples *= Factor;
+
+            mOutputPcmFormat = r;
+
+            DesignFreqFilter();
+
             return r;
         }
 
+        private void DesignFreqFilter() {
+            var filter = ButterworthFilter.Design(mInputPcmFormat.SampleRate, mInputPcmFormat.SampleRate * 0.465, FftLength, 600);
+
+            mFreqFilter = new double[UpsampleFftLength];
+            mFreqFilter[0] = filter[0].Magnitude();
+            for (int i = 1; i < mFreqFilter.Length; ++i) {
+                if (i <= FftLength / 2) {
+                    mFreqFilter[i] = filter[i].Magnitude();
+                    mFreqFilter[UpsampleFftLength - i] = mFreqFilter[i];
+                }
+            }
+        }
+
         public override double[] FilterDo(double[] inPcm) {
-            System.Diagnostics.Debug.Assert(inPcm.LongLength == NumOfSamplesNeeded());
+            System.Diagnostics.Debug.Assert(inPcm.Length == NumOfSamplesNeeded());
 
             var inPcmR = new double[FftLength];
             if (mFirst) {
-                Array.Copy(inPcm, 0, inPcmR, HalfOverlapLength, inPcm.LongLength);
-                mFirst = false;
+                Array.Copy(inPcm, 0, inPcmR, HalfOverlapLength, inPcm.Length);
             } else {
                 System.Diagnostics.Debug.Assert(mOverlapSamples != null);
-                System.Diagnostics.Debug.Assert(mOverlapSamples.LongLength == HalfOverlapLength * 2);
+                System.Diagnostics.Debug.Assert(mOverlapSamples.Length == HalfOverlapLength * 2);
                 Array.Copy(mOverlapSamples, 0, inPcmR, 0, HalfOverlapLength * 2);
                 mOverlapSamples = null;
-                Array.Copy(inPcm, 0, inPcmR, HalfOverlapLength * 2, inPcm.LongLength);
+                Array.Copy(inPcm, 0, inPcmR, HalfOverlapLength * 2, inPcm.Length);
             }
 
             var inPcmT = new WWComplex[FftLength];
@@ -154,32 +190,25 @@ namespace WWAudioFilter {
             }
             inPcmT = null;
 
-            // inPcmFを0で水増ししたデータoutPcmFを作って逆FFTしoutPcmTを得る。
+            // inPcmFを0で水増ししたデータoutPcmFを作ってローパスフィルターを通し逆FFTしoutPcmTを得る。
 
-            var UPSAMPLE_FFT_LENGTH = Factor * FftLength;
-
-            var outPcmF = new WWComplex[UPSAMPLE_FFT_LENGTH];
+            var outPcmF = new WWComplex[UpsampleFftLength];
             for (int i=0; i < outPcmF.Length; ++i) {
                 if (i <= FftLength / 2) {
                     outPcmF[i].CopyFrom(inPcmF[i]);
-                    if (i == FftLength / 2) {
-                        outPcmF[i].Mul(0.5);
-                    }
-                } else if (UPSAMPLE_FFT_LENGTH - FftLength / 2 <= i) {
-                    int pos = i + FftLength - UPSAMPLE_FFT_LENGTH;
+                } else if (UpsampleFftLength - FftLength / 2 <= i) {
+                    int pos = i + FftLength - UpsampleFftLength;
                     outPcmF[i].CopyFrom(inPcmF[pos]);
-                    if (outPcmF.Length - FftLength / 2 == i) {
-                        outPcmF[i].Mul(0.5);
-                    }
                 } else {
                     // do nothing
                 }
+                outPcmF[i].Mul(mFreqFilter[i]);
             }
             inPcmF = null;
 
             WWComplex[] outPcmT;
             {
-                var fft = new WWRadix2Fft(UPSAMPLE_FFT_LENGTH);
+                var fft = new WWRadix2Fft(UpsampleFftLength);
                 outPcmT = fft.InverseFft(outPcmF, 1.0 / FftLength);
             }
             outPcmF = null;
@@ -195,6 +224,10 @@ namespace WWAudioFilter {
             // オーバラップ部分==inPcmRの最後の方
             mOverlapSamples = new double[HalfOverlapLength * 2];
             Array.Copy(inPcmR, inPcmR.Length - HalfOverlapLength * 2, mOverlapSamples, 0, HalfOverlapLength * 2);
+
+            if (mFirst) {
+                mFirst = false;
+            }
 
             return outPcm;
         }

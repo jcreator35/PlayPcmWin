@@ -48,7 +48,7 @@ namespace WWAudioFilter {
 
         public override PcmFormat Setup(PcmFormat inputFormat) {
             SampleRate = inputFormat.SampleRate;
-            DesignCutoffFilter();
+            mFilterFreq = ButterworthFilter.Design(SampleRate, CutoffFrequency, FFT_LEN, FilterSlopeDbOct);
             mIfftAddBuffer = null;
             mFirstFilterDo = true;
 
@@ -102,86 +102,6 @@ namespace WWAudioFilter {
 
         public override long NumOfSamplesNeeded() {
             return FFT_LEN - FILTER_LENP1;
-        }
-
-        private void DesignCutoffFilter() {
-            var fromF = new WWComplex[FILTER_LENP1];
-
-            // バターワースフィルター
-            // 1次 = 6dB/oct
-            // 2次 = 12dB/oct
-
-            double orderX2 = 2.0 * (FilterSlopeDbOct / 6.0);
-
-            double cutoffRatio = CutoffFrequency / (SampleRate/2);
-
-            // フィルタのF特
-            fromF[0].real = 1.0f;
-            for (int i=1; i <= FILTER_LENP1 / 2; ++i) {
-                double omegaRatio = i * (1.0 / (FILTER_LENP1 / 2));
-                double v = Math.Sqrt(1.0 / (1.0 + Math.Pow(omegaRatio / cutoffRatio, orderX2)));
-                if (Math.Abs(v) < Math.Pow(0.5, 24)) {
-                    v = 0.0;
-                }
-                fromF[i].real = v;
-            }
-            for (int i=1; i < FILTER_LENP1 / 2; ++i) {
-                fromF[FILTER_LENP1 - i].real = fromF[i].real;
-            }
-
-            // IFFTでfromFをfromTに変換
-            WWComplex[] fromT; 
-            {
-                var fft = new WWRadix2Fft(FILTER_LENP1);
-                fromT = fft.ForwardFft(fromF);
-
-                double compensation = 1.0 / (FILTER_LENP1 * cutoffRatio);
-                for (int i=0; i < FILTER_LENP1; ++i) {
-                    fromT[i].Set(
-                            fromT[i].real      * compensation,
-                            fromT[i].imaginary * compensation);
-                }
-            }
-            fromF = null;
-
-            // fromTの中心がFILTER_LENGTH/2番に来るようにする。
-            // delayT[0]のデータはfromF[FILTER_LENGTH/2]だが、非対称になるので入れない
-            // このフィルタの遅延はFILTER_LENGTH/2サンプルある
-
-            var delayT = new WWComplex[FILTER_LENP1];
-            for (int i=1; i < FILTER_LENP1 / 2; ++i) {
-                delayT[i] = fromT[i + FILTER_LENP1 / 2];
-            }
-            for (int i=0; i < FILTER_LENP1 / 2; ++i) {
-                delayT[i + FILTER_LENP1 / 2] = fromT[i];
-            }
-            fromT = null;
-
-            // Kaiser窓をかける
-            var w = WWWindowFunc.KaiserWindow(FILTER_LENP1 + 1, 9.0);
-            for (int i=0; i < FILTER_LENP1; ++i) {
-                delayT[i].Mul(w[i]);
-            }
-
-            var delayTL = new WWComplex[FFT_LEN];
-            for (int i=0; i < delayT.Length; ++i) {
-                delayTL[i] = delayT[i];
-            }
-            delayT = null;
-
-            // できたフィルタをFFTする
-            WWComplex[] delayF;
-            {
-                var fft = new WWRadix2Fft(FFT_LEN);
-                delayF = fft.ForwardFft(delayTL);
-
-                for (int i=0; i < FFT_LEN; ++i) {
-                    delayF[i].Mul(cutoffRatio);
-                }
-            }
-            delayTL = null;
-
-            mFilterFreq = delayF;
         }
 
         public override double[] FilterDo(double[] inPcm) {

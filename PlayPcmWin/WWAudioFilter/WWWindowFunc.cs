@@ -76,9 +76,6 @@ namespace WWAudioFilter {
         /// <param name="alpha">Kaiser窓のパラメータα</param>
         /// <returns>窓Wk 左右対称の形状が出てくる。</returns>
         public static double [] KaiserWindow(int length, double alpha) {
-            // nは奇数
-            System.Diagnostics.Debug.Assert((length & 1) == 1);
-
             // αは4より大きく9より小さい
             System.Diagnostics.Debug.Assert(4 <= alpha && alpha <= 9);
 

@@ -90,6 +90,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AudioData.cs" />
+    <Compile Include="ButterworthFilter.cs" />
     <Compile Include="CicFilter.cs" />
     <Compile Include="CrossfeedFilter.cs" />
     <Compile Include="Downsampler.cs" />

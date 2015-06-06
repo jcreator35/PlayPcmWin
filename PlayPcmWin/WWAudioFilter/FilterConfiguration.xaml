@@ -65,9 +65,9 @@
                     <GroupBox Header="Upsampler" Name="groupBoxUpsampler" Width="380">
                         <Grid>
                             <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="3*" />
                                 <ColumnDefinition Width="2*" />
-                                <ColumnDefinition Width="1*" />
-                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="2*" />
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="1*" />
@@ -91,7 +91,7 @@
                             </ComboBox>
                             <Label Grid.Column="0" Grid.Row="2" Content="Filter length:" Name="labelUpsampleLen" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
                             <ComboBox Grid.Column="1" Grid.Row="2" HorizontalAlignment="Stretch" Margin="6,0,6,0" Name="comboBoxUpsampleLen" VerticalAlignment="Center" HorizontalContentAlignment="Center">
-                                <ComboBoxItem Content="1024" />
+                                <ComboBoxItem Content="1024 (Not recommended)" />
                                 <ComboBoxItem Content="4096" IsSelected="True" />
                                 <ComboBoxItem Content="16384" />
                                 <ComboBoxItem Content="65536" />
@@ -100,8 +100,8 @@
                             <Label Grid.Column="2" Grid.Row="2" Content="samples" Name="labelUpsampleLenUnit" VerticalAlignment="Center" />
                             <Label Grid.Column="0" Grid.Row="3" Content="FFT Overlap:" Name="labelFftOverlap" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
                             <ComboBox Grid.Column="1" Grid.Row="3" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" Margin="6,0,6,0" Name="comboBoxFftOverlap" VerticalAlignment="Center" HorizontalContentAlignment="Center">
-                                <ComboBoxItem Content="1/2 (Modest quality)" IsSelected="True" />
-                                <ComboBoxItem Content="3/4 (High quality)" />
+                                <ComboBoxItem Content="1/2 " IsSelected="True"/>
+                                <ComboBoxItem Content="3/4 " />
                             </ComboBox>
 
                             <Button Grid.Row="4" Content="Use this Filter" Margin="6,0" Name="buttonUseUpsampler" VerticalAlignment="Center" Grid.ColumnSpan="3" Click="buttonUseUpsampler_Click" />

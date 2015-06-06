@@ -145,6 +145,22 @@ namespace WWAudioFilter {
             d /= a.Length;
             return d;
         }
+
+        public static WWComplex[] From(double[] from) {
+            var to = new WWComplex[from.Length];
+            for (int i = 0; i < from.Length; ++i) {
+                to[i].real = from[i];
+            }
+            return to;
+        }
+
+        public static double[] ExtractRealPart(WWComplex[] from) {
+            var to = new double[from.Length];
+            for (int i = 0; i < from.Length; ++i) {
+                to[i] = from[i].real;
+            }
+            return to;
+        }
     }
 
 }

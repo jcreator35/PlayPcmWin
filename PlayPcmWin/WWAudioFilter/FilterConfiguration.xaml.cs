@@ -365,17 +365,7 @@ namespace WWAudioFilter {
             int len = UpsampleLenTypeToLpfLen(comboBoxUpsampleLen.SelectedIndex);
 
             FftUpsampler.OverlapType overlap = FftUpsampler.OverlapType.Half;
-            switch (comboBoxFftOverlap.SelectedIndex) {
-            case 0:
-                overlap = FftUpsampler.OverlapType.Half;
-                break;
-            case 1:
-                overlap = FftUpsampler.OverlapType.ThreeFourth;
-                break;
-            default:
-                System.Diagnostics.Debug.Assert(false);
-                break;
-            }
+            overlap = (FftUpsampler.OverlapType)comboBoxFftOverlap.SelectedIndex;
 
             switch (comboBoxUpsamplerType.SelectedIndex) {
             case (int)UpsamplerType.ZOH:
