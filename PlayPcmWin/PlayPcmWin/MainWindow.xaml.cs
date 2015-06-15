@@ -3141,7 +3141,15 @@ namespace PlayPcmWin
             if (wavDataId < 0) {
                 wavDataId = wasapi.GetPcmDataId(WasapiCS.PcmDataUsageType.PauseResumeToPlay);
                 nextTask = TaskType.PlayPauseSpecifiedGroup;
+            } else {
+                // 再生リストに登録されている曲数が1曲で、しかも
+                // その曲を再生中に、次の曲または前の曲ボタンが押された場合、曲を頭出しする。
+                if (1 == m_pcmDataListForDisp.Count()) {
+                    wasapi.SetPosFrame(0);
+                    return;
+                }
             }
+
             var playingPcmData = m_pcmDataListForPlay.FindById(wavDataId);
             if (null == playingPcmData) {
                 return;
