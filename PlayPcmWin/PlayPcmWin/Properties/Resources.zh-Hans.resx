@@ -602,4 +602,7 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   <data name="ChannelMappingNumOfInputChannels" xml:space="preserve">
     <value>输入声道数:</value>
   </data>
+  <data name="MainStatusReadingFilesDoP" xml:space="preserve">
+    <value>设备设置完成。读取文件到主内存...</value>
+  </data>
 </root>

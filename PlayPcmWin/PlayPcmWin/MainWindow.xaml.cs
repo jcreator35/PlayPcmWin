@@ -997,7 +997,17 @@ namespace PlayPcmWin
                 break;
             case State.再生グループ読み込み中:
                 UpdateUIToNonEditableState();
-                statusBarText.Content = Properties.Resources.MainStatusChangingPlayGroup;
+                switch (m_deviceSetupParams.StreamType) {
+                case WasapiCS.StreamType.PCM:
+                    statusBarText.Content = Properties.Resources.MainStatusReadingFiles;
+                    break;
+                case WasapiCS.StreamType.DoP:
+                    statusBarText.Content = Properties.Resources.MainStatusReadingFilesDoP;
+                    break;
+                default:
+                    System.Diagnostics.Debug.Assert(false);
+                    break;
+                }
                 break;
             default:
                 System.Diagnostics.Debug.Assert(false);

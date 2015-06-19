@@ -174,10 +174,23 @@
                 </GroupBox>
             </Grid>
         </Expander>
-        <StatusBar x:Uid="statusBar1" Name="statusBar1" Height="23" VerticalAlignment="Bottom" Grid.ColumnSpan="2">
-            <StatusBarItem x:Uid="statusBarText" Content="abcde" Name="statusBarText" />
+        <StatusBar x:Uid="statusBar1" Name="statusBar1" VerticalAlignment="Bottom" Grid.ColumnSpan="2">
+            <StatusBar.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                    </Grid>
+                </ItemsPanelTemplate>
+            </StatusBar.ItemsPanel>
+            <StatusBarItem x:Uid="statusBarText" Content="Status bar text" VerticalAlignment="Center" Name="statusBarText" />
+            <StatusBarItem Grid.Column="1">
+                <ProgressBar x:Uid="progressBar1" Name="progressBar1" VerticalAlignment="Center" Height="20" Visibility="Visible" Width="200" />
+            </StatusBarItem>
         </StatusBar>
-        <ProgressBar x:Uid="progressBar1" Name="progressBar1" VerticalAlignment="Bottom" Margin="200,0,0,0" HorizontalAlignment="Left" Width="200" Height="22" Visibility="Hidden" />
         <Slider x:Uid="sliderWindowScaling" Margin="0,0,1,1" Name="sliderWindowScaling" VerticalAlignment="Bottom" Maximum="1.25" Minimum="0.8" Value="1" Visibility="Hidden" Grid.Column="1" HorizontalAlignment="Right" Width="52" SmallChange="0.0048828125" LargeChange="0.0625" />
     </Grid>
 </Window>

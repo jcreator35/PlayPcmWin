@@ -175,7 +175,7 @@
     <value>Read {0} file failed </value>
   </data>
   <data name="MainStatusReadingFiles" xml:space="preserve">
-    <value>Setup device completed. Now reading files to main memory...</value>
+    <value>Reading PCM from file and arranging decoded PCM to main memory...</value>
   </data>
   <data name="RestoreFailedFiles" xml:space="preserve">
     <value>Missing files while restoring playlist</value>
@@ -645,5 +645,8 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   </data>
   <data name="ChannelMappingNumOfInputChannels" xml:space="preserve">
     <value>Number of input channels:</value>
+  </data>
+  <data name="MainStatusReadingFilesDoP" xml:space="preserve">
+    <value>Reading DSD from file and building DoP data onto main memory...</value>
   </data>
 </root>

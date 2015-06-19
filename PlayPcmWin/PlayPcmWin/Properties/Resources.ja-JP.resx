@@ -175,7 +175,7 @@
     <value>{0}ファイル読み込み失敗</value>
   </data>
   <data name="MainStatusReadingFiles" xml:space="preserve">
-    <value>デバイス選択完了。ファイル読み込み中……</value>
+    <value>音楽ファイルからPCMデータを抽出し、無圧縮PCMをメモリに配置…</value>
   </data>
   <data name="RestoreFailedFiles" xml:space="preserve">
     <value>前回終了時の再生リストを復元しようとして読み込めなかったファイル</value>
@@ -586,7 +586,7 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
     <value>GPUで描画する</value>
   </data>
   <data name="MainStatusReadingPlaylist" xml:space="preserve">
-    <value>再生リストを読み込み中…</value>
+    <value>再生リスト読み込み中…</value>
   </data>
   <data name="SettingsGroupBoxTimerResolution" xml:space="preserve">
     <value>タイマー解像度</value>
@@ -642,5 +642,8 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
   </data>
   <data name="ChannelMappingNumOfInputChannels" xml:space="preserve">
     <value>入力チャンネル数:</value>
+  </data>
+  <data name="MainStatusReadingFilesDoP" xml:space="preserve">
+    <value>音楽ファイルからDSDデータを読み込み、DoPデータを組み立ててメモリに配置…</value>
   </data>
 </root>

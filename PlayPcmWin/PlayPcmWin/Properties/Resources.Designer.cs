@@ -747,11 +747,20 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Setup device completed. Now reading files to main memory... に類似しているローカライズされた文字列を検索します。
+        ///   Reading PCM from file and arranging decoded PCM to main memory... に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string MainStatusReadingFiles {
             get {
                 return ResourceManager.GetString("MainStatusReadingFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Reading DSD from file and building DoP data onto main memory... に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainStatusReadingFilesDoP {
+            get {
+                return ResourceManager.GetString("MainStatusReadingFilesDoP", resourceCulture);
             }
         }
         
