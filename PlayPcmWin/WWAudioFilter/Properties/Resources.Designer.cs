@@ -295,6 +295,15 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Error Dynamic range scaling lsb scaling value parse error.
+        /// </summary>
+        internal static string ErrorDynamicRangeCompressionLsbScaling {
+            get {
+                return ResourceManager.GetString("ErrorDynamicRangeCompressionLsbScaling", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Please add one or more filters.
         /// </summary>
         internal static string ErrorFilterEmpty {
@@ -327,6 +336,15 @@ namespace WWAudioFilter.Properties {
         internal static string ErrorGainValueIsTooSmall {
             get {
                 return ResourceManager.GetString("ErrorGainValueIsTooSmall", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gaussian noise level parse error..
+        /// </summary>
+        internal static string ErrorGaussianNoiseLevel {
+            get {
+                return ResourceManager.GetString("ErrorGaussianNoiseLevel", resourceCulture);
             }
         }
         
@@ -394,6 +412,15 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Error normalize amplutude value must be number equals to or less than 0.0.
+        /// </summary>
+        internal static string ErrorNormalizeValue {
+            get {
+                return ResourceManager.GetString("ErrorNormalizeValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Output data becomes too large! {0} Gbytes.
         /// </summary>
         internal static string ErrorOutputDataTooLarge {
@@ -449,6 +476,15 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Error uneven bit dac unevenness value parse error.
+        /// </summary>
+        internal static string ErrorUnevenBitDacLsbScaling {
+            get {
+                return ResourceManager.GetString("ErrorUnevenBitDacLsbScaling", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Please specify different file to write. WWAudioFilter cannot write to input file..
         /// </summary>
         internal static string ErrorWriteToReadFile {
@@ -481,6 +517,15 @@ namespace WWAudioFilter.Properties {
         internal static string FilterDownsamplerDesc {
             get {
                 return ResourceManager.GetString("FilterDownsamplerDesc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dynamic range compression: 24bit LSB gain= {0} dB.
+        /// </summary>
+        internal static string FilterDynamicRangeCompressionDesc {
+            get {
+                return ResourceManager.GetString("FilterDynamicRangeCompressionDesc", resourceCulture);
             }
         }
         
@@ -575,11 +620,29 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Normalize signal level max={0}.
+        /// </summary>
+        internal static string FilterNormalizeDesc {
+            get {
+                return ResourceManager.GetString("FilterNormalizeDesc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Edit Tag : {0} = &quot;{1}&quot;.
         /// </summary>
         internal static string FilterTagEdit {
             get {
                 return ResourceManager.GetString("FilterTagEdit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Uneven bit DAC simulation. 16bit LSB unevenness +{0} dB.
+        /// </summary>
+        internal static string FilterUnevenBitDacDesc {
+            get {
+                return ResourceManager.GetString("FilterUnevenBitDacDesc", resourceCulture);
             }
         }
         
@@ -607,6 +670,15 @@ namespace WWAudioFilter.Properties {
         internal static string FilterZOHDesc {
             get {
                 return ResourceManager.GetString("FilterZOHDesc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add Gaussian noise: {0} dB.
+        /// </summary>
+        internal static string GaussianNoiseDesc {
+            get {
+                return ResourceManager.GetString("GaussianNoiseDesc", resourceCulture);
             }
         }
         

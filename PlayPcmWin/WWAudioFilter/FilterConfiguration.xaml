@@ -1,7 +1,7 @@
 ﻿<Window x:Class="WWAudioFilter.FilterConfiguration"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="FilterConfiguration" Height="600" Width="800" Loaded="Window_Loaded" Icon="/WWAudioFilter;component/ppwlogo.ico">
+        Title="FilterConfiguration" Height="1200" Width="800" Loaded="Window_Loaded" Icon="/WWAudioFilter;component/ppwlogo.ico">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="1*" />
@@ -268,6 +268,71 @@
                             <Button Content="Use this filter" Grid.Row="5" Margin="6,0" Name="buttonUseAddJitter" VerticalAlignment="Center" Grid.ColumnSpan="3" Click="buttonUseAddJitter_Click" />
                         </Grid>
                     </GroupBox>
+                    <GroupBox Header="Add Gaussian noise" Height="100" HorizontalAlignment="Left" Name="groupBoxAddGaussianNoise" VerticalAlignment="Top" Width="380">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                            </Grid.ColumnDefinitions>
+                            <Label Grid.Column="0" Grid.Row="0" Content="Gaussian noise level (dB):"  Name="labelGaussianNoiseDb" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                            <TextBox Grid.Column="1" Grid.Row="0" Margin="3" Text="-36" Name="textBoxGaussianNoiseDb" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                            <Button Content="Use this filter" Grid.Row="1" Margin="6,0" Name="buttonUseGaussianNoise" VerticalAlignment="Center" Grid.ColumnSpan="2" Click="buttonUseGaussianNoise_Click" />
+
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox Header="Uneven bit weighting DAC simulation" Height="100" HorizontalAlignment="Left" Name="groupBoxUnevenBitDac" VerticalAlignment="Top" Width="380">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="3*" />
+                                <ColumnDefinition Width="1*" />
+                            </Grid.ColumnDefinitions>
+                            <Label Grid.Column="0" Grid.Row="0" Content="16bit LSB gain unevenness (+dB):"  Name="labelUnevenBitDacLsbScaling" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                            <TextBox Grid.Column="1" Grid.Row="0" Margin="3" Text="5" Name="textBoxUnevenBitDacLsbScaling" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                            <Button Content="Use this filter" Grid.Row="1" Margin="6,0" Name="buttonUseUnevenBitDac" VerticalAlignment="Center" Grid.ColumnSpan="2" Click="buttonUseUnevenBitDac_Click" />
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox Header="Dynamic range compression" Height="100" HorizontalAlignment="Left" Name="groupBoxDynamicRangeCompression" VerticalAlignment="Top" Width="380">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                            </Grid.ColumnDefinitions>
+                            <Label Grid.Column="0" Grid.Row="0" Content="24bit LSB gain (dB):"  Name="labelDynamicRangeCompressionLsbScaling" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                            <TextBox Grid.Column="1" Grid.Row="0" Margin="3" Text="12" Name="textBoxDynamicRangeCompressionLsbScaling" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                            <Button Content="Use this filter" Grid.Row="1" Margin="6,0" Name="buttonUseDynamicRangeCompression" VerticalAlignment="Center" Grid.ColumnSpan="2" Click="buttonUseDynamicRangeCompression_Click" />
+
+                        </Grid>
+                    </GroupBox>
+
+                    <GroupBox Header="Normalize signal level" Height="100" HorizontalAlignment="Left" Name="groupBoxNormalize" VerticalAlignment="Top" Width="380">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                            </Grid.ColumnDefinitions>
+                            <Label Grid.Column="0" Grid.Row="0" Content="Normalized amplitude (dB):"  Name="labelNormalizeAmplitude" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                            <TextBox Grid.Column="1" Grid.Row="0" Margin="3" Text="-0.1" Name="textBoxNormalizeAmplitude" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                            <Button Content="Use this filter" Grid.Row="1" Margin="6,0" Name="buttonUseNormalize" VerticalAlignment="Center" Grid.ColumnSpan="2" Click="buttonUseNormalize_Click" />
+
+                        </Grid>
+                    </GroupBox>
+
                 </WrapPanel>
             </Grid>
         </ScrollViewer>

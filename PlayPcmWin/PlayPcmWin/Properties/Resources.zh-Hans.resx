@@ -287,7 +287,7 @@
     <value>读取完成。准备播放。</value>
   </data>
   <data name="MainStatusReadingFiles" xml:space="preserve">
-    <value>设备设置完成。读取文件到主内存...</value>
+    <value>正在从文件读取PCM数据并载入到内存...</value>
   </data>
   <data name="MainStatusReadingPlaylist" xml:space="preserve">
     <value>读取播放列表中...</value>
@@ -603,6 +603,6 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
     <value>输入声道数:</value>
   </data>
   <data name="MainStatusReadingFilesDoP" xml:space="preserve">
-    <value>设备设置完成。读取文件到主内存...</value>
+    <value>正在从文件读取DSD数据并将DoP数据载入到内存...</value>
   </data>
 </root>

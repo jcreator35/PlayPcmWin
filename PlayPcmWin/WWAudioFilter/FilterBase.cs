@@ -25,6 +25,11 @@ namespace WWAudioFilter {
         HalfbandFilter,
         Crossfeed,
         JitterAdd,
+        GaussianNoise,
+
+        DynamicRangeCompression,
+        UnevenBitDac,
+        Normalize,
     }
 
     public struct TagData {

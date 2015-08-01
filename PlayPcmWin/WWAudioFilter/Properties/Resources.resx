@@ -422,4 +422,28 @@
   <data name="FilterJitterAddDesc" xml:space="preserve">
     <value>Add Jitter : Sinusoidal={0}Hz {1}ns, TPDF={2}ns,  RPDF={3}ns, Filter Length={4}</value>
   </data>
+  <data name="ErrorGaussianNoiseLevel" xml:space="preserve">
+    <value>Gaussian noise level parse error.</value>
+  </data>
+  <data name="GaussianNoiseDesc" xml:space="preserve">
+    <value>Add Gaussian noise: {0} dB</value>
+  </data>
+  <data name="ErrorDynamicRangeCompressionLsbScaling" xml:space="preserve">
+    <value>Error Dynamic range scaling lsb scaling value parse error</value>
+  </data>
+  <data name="FilterDynamicRangeCompressionDesc" xml:space="preserve">
+    <value>Dynamic range compression: 24bit LSB gain= {0} dB</value>
+  </data>
+  <data name="ErrorUnevenBitDacLsbScaling" xml:space="preserve">
+    <value>Error uneven bit dac unevenness value parse error</value>
+  </data>
+  <data name="FilterUnevenBitDacDesc" xml:space="preserve">
+    <value>Uneven bit DAC simulation. 16bit LSB unevenness +{0} dB</value>
+  </data>
+  <data name="ErrorNormalizeValue" xml:space="preserve">
+    <value>Error normalize amplutude value must be number equals to or less than 0.0</value>
+  </data>
+  <data name="FilterNormalizeDesc" xml:space="preserve">
+    <value>Normalize signal level max={0}</value>
+  </data>
 </root>

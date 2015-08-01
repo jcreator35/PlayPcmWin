@@ -129,6 +129,14 @@ namespace WWAudioFilter {
                 return CrossfeedFilter.Restore(tokens);
             case "JitterAdd":
                 return JitterAddFilter.Restore(tokens);
+            case "GaussianNoise":
+                return GaussianNoiseFilter.Restore(tokens);
+            case "DynamicRangeCompression":
+                return DynamicRangeCompressionFilter.Restore(tokens);
+            case "UnevenBitDac":
+                return UnevenBitDacFilter.Restore(tokens);
+            case "Normalize":
+                return NormalizeFilter.Restore(tokens);
             default:
                 return null;
             }
