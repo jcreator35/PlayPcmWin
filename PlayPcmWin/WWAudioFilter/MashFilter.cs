@@ -49,10 +49,14 @@ namespace WWAudioFilter {
         }
 
         public override void FilterStart() {
+            base.FilterStart();
+
             mNoiseShaper1bit = new NoiseShaperMash1bit();
         }
 
         public override void FilterEnd() {
+            base.FilterEnd();
+
             mNoiseShaper1bit = null;
         }
 

@@ -54,10 +54,12 @@ namespace WWAudioFilter {
         private uint mMask;
 
         public override void FilterStart() {
+            base.FilterStart();
             Array.Clear(mS, 0, mS.Length);
         }
 
         public override void FilterEnd() {
+            base.FilterEnd();
             Array.Clear(mS, 0, mS.Length);
         }
 

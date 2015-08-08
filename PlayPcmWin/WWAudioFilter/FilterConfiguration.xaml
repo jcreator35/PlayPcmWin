@@ -284,7 +284,7 @@
 
                         </Grid>
                     </GroupBox>
-                    <GroupBox Header="Uneven bit weighting DAC simulation" Height="100" HorizontalAlignment="Left" Name="groupBoxUnevenBitDac" VerticalAlignment="Top" Width="380">
+                    <GroupBox Header="Uneven bit weighting DAC simulation" Height="100" HorizontalAlignment="Left" Name="groupBoxUnevenBitDac" VerticalAlignment="Top" Width="380" Visibility="Collapsed">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="1*" />
@@ -310,7 +310,7 @@
                                 <ColumnDefinition Width="1*" />
                             </Grid.ColumnDefinitions>
                             <Label Grid.Column="0" Grid.Row="0" Content="24bit LSB gain (dB):"  Name="labelDynamicRangeCompressionLsbScaling" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
-                            <TextBox Grid.Column="1" Grid.Row="0" Margin="3" Text="12" Name="textBoxDynamicRangeCompressionLsbScaling" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                            <TextBox Grid.Column="1" Grid.Row="0" Margin="3" Text="48" Name="textBoxDynamicRangeCompressionLsbScaling" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
                             <Button Content="Use this filter" Grid.Row="1" Margin="6,0" Name="buttonUseDynamicRangeCompression" VerticalAlignment="Center" Grid.ColumnSpan="2" Click="buttonUseDynamicRangeCompression_Click" />
 
                         </Grid>

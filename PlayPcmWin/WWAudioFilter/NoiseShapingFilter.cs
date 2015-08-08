@@ -58,10 +58,12 @@ namespace WWAudioFilter {
         }
 
         public override void FilterStart() {
+            base.FilterStart();
             mNoiseShaper = new NoiseShaper2(2, new double[] { 1, -2, 1 }, TargetBitsPerSample);
         }
 
         public override void FilterEnd() {
+            base.FilterEnd();
             mNoiseShaper = null;
         }
 

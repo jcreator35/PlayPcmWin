@@ -687,7 +687,7 @@
                     return;
                 }
 
-                mFilter = new NormalizeFilter(v);
+                mFilter = new NormalizeFilter(Math.Pow(10.0, v / 20.0));
 
                 DialogResult = true;
                 Close();
