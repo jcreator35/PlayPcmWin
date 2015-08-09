@@ -83,13 +83,12 @@ namespace WWAudioFilter {
             double maxMagnitude = FFT_LENGTH / 2;
 
             for (int i = 0; i < pcmF.Length; ++i) {
-                /* 0.0 ～ 1.0の範囲にする
-                 * -144 dB 以下: そのまま
-                 * -144 dB: scaleLsb倍
-                 * 0 dB: 1倍
+                /*   -144 dB 以下: そのまま
+                 *   -144 dB: scaleLsb倍
+                 *   -72 dB: scaleLsb/2倍
+                 *   0 dB: 1倍
                  * になるようなスケーリングをする。
-                 * 
-                 * 0.0～ FFT_LENGTH/2の範囲にする
+                 * 出力データは音量が増えるので、後段にノーマライズ処理を追加すると良い。
                  */
                 pcmF[i].Mul(1.0 / maxMagnitude);
 
