@@ -8,7 +8,6 @@ namespace WWAudioFilter {
 
         private const int FFT_LENGTH = 4096;
         private const double LSB_DECIBEL = -144.0;
-        private const double GAIN_COEFF = 1.5;
 
         private WWRadix2Fft mFft;
         private double[] mOverlapInputSamples;
