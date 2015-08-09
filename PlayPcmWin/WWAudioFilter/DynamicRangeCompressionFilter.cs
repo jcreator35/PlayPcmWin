@@ -10,9 +10,9 @@ namespace WWAudioFilter {
         private const double LSB_DECIBEL = -144.0;
         private const double GAIN_COEFF = 1.5;
 
-        WWRadix2Fft mFft;
-        double[] mOverlapInputSamples;
-        double[] mOverlapOutputSamples;
+        private WWRadix2Fft mFft;
+        private double[] mOverlapInputSamples;
+        private double[] mOverlapOutputSamples;
 
         public DynamicRangeCompressionFilter(double lsbScalingDb)
                 : base(FilterType.DynamicRangeCompression) {
