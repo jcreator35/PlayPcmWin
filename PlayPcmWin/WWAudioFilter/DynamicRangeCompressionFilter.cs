@@ -89,9 +89,9 @@ namespace WWAudioFilter {
                  * になるようなスケーリングをする。
                  * 出力データは音量が増えるので、後段にノーマライズ処理を追加すると良い。
                  */
-                pcmF[i].Mul(1.0 / maxMagnitude);
 
-                double magnitude = pcmF[i].Magnitude();
+                // magnitudeは0.0～1.0の範囲の値。
+                double magnitude = pcmF[i].Magnitude() / maxMagnitude;
 
                 double db = float.Epsilon;
                 if (float.Epsilon < magnitude) {
@@ -107,7 +107,7 @@ namespace WWAudioFilter {
                     scale = 1.0 + db * (scaleLsb - 1) / LSB_DECIBEL;
                 }
 
-                pcmF[i].Mul(scale * maxMagnitude);
+                pcmF[i].Mul(scale);
             }
 
             var pcmT = mFft.InverseFft(pcmF);
