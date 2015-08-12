@@ -93,7 +93,7 @@ namespace WWAudioFilter {
                 // magnitudeは0.0～1.0の範囲の値。
                 double magnitude = pcmF[i].Magnitude() / maxMagnitude;
 
-                double db = float.Epsilon;
+                double db = float.MinValue;
                 if (float.Epsilon < magnitude) {
                     db = 20.0 * Math.Log10(magnitude);
                 }
