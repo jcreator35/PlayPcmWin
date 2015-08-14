@@ -6,7 +6,7 @@ namespace WWAudioFilter {
 
         public double LsbScalingDb { get; set; }
 
-        private const int FFT_LENGTH = 4096;
+        private const int    FFT_LENGTH  = 4096;
         private const double LSB_DECIBEL = -144.0;
 
         private WWRadix2Fft mFft;
@@ -19,6 +19,8 @@ namespace WWAudioFilter {
         }
 
         public override long NumOfSamplesNeeded() {
+            // 1回目のFilterDo()だけFFT_LENGTHサンプルが必要。
+            // 2回目以降はFFT_LENGTH/2サンプルずつもらう。
             if (mOverlapInputSamples == null) {
                 return FFT_LENGTH;
             } else {
@@ -31,7 +33,8 @@ namespace WWAudioFilter {
         }
 
         public override string ToDescriptionText() {
-            return string.Format(CultureInfo.CurrentCulture, Properties.Resources.FilterDynamicRangeCompressionDesc,
+            return string.Format(CultureInfo.CurrentCulture,
+                Properties.Resources.FilterDynamicRangeCompressionDesc,
                 LsbScalingDb);
         }
 
@@ -56,7 +59,7 @@ namespace WWAudioFilter {
             base.FilterStart();
 
             mFft = new WWRadix2Fft(FFT_LENGTH);
-            mOverlapInputSamples = null;
+            mOverlapInputSamples  = null;
             mOverlapOutputSamples = null;
         }
 
@@ -64,11 +67,11 @@ namespace WWAudioFilter {
             base.FilterEnd();
 
             mFft = null;
-            mOverlapInputSamples = null;
+            mOverlapInputSamples  = null;
             mOverlapOutputSamples = null;
         }
 
-        private double[] FilterCore(double[] inPcm) {
+        private double[] Compress(double[] inPcm) {
             double scaleLsb = Math.Pow(10, LsbScalingDb / 20.0);
 
             var inPcmT = new WWComplex[FFT_LENGTH];
@@ -114,11 +117,9 @@ namespace WWAudioFilter {
             pcmF = null;
 
             var outPcm = new double[FFT_LENGTH];
-
             for (int i = 0; i < outPcm.Length; ++i) {
                 outPcm[i] = pcmT[i].real;
             }
-
             pcmT = null;
 
             return outPcm;
@@ -127,7 +128,7 @@ namespace WWAudioFilter {
         private double [] FilterDoFirstTime(double[] inPcm) {
             System.Diagnostics.Debug.Assert(inPcm.Length == FFT_LENGTH);
             
-            var outPcm = FilterCore(inPcm);
+            var outPcm = Compress(inPcm);
             
             // store last half part for later processing
             mOverlapInputSamples = new double[FFT_LENGTH / 2];
@@ -142,20 +143,6 @@ namespace WWAudioFilter {
             return result;
         }
 
-        private double[] Crossfade(double[] first, double[] second) {
-            System.Diagnostics.Debug.Assert(first.Length == second.Length);
-
-            var result = new double[first.Length];
-
-            for (int i = 0; i < first.Length; ++i) {
-                double secondGain = (double)i / first.Length;
-                double firstGain = 1.0 - secondGain;
-                result[i] = firstGain * first[i] + secondGain * second[i];
-            }
-
-            return result;
-        }
-
         private double [] FilterDoOther(double[] inPcmArg) {
             System.Diagnostics.Debug.Assert(inPcmArg.Length == FFT_LENGTH/2);
 
@@ -163,7 +150,7 @@ namespace WWAudioFilter {
             Array.Copy(mOverlapInputSamples, 0, inPcm, 0, FFT_LENGTH / 2);
             Array.Copy(inPcmArg, 0, inPcm, FFT_LENGTH/2, FFT_LENGTH / 2);
 
-            var outPcm = FilterCore(inPcm);
+            var outPcm = Compress(inPcm);
 
             // store last half part of inPcm for later processing
             mOverlapInputSamples = new double[FFT_LENGTH / 2];
@@ -173,7 +160,7 @@ namespace WWAudioFilter {
             Array.Copy(outPcm, 0, outPcmFirstHalf, 0, FFT_LENGTH / 2);
 
             // returns first half part mixed with last overlap
-            var result = Crossfade(mOverlapOutputSamples, outPcmFirstHalf);
+            var result = WWUtil.Crossfade(mOverlapOutputSamples, outPcmFirstHalf);
 
             // store last half part of outPcm for later processing
             mOverlapOutputSamples = new double[FFT_LENGTH / 2];

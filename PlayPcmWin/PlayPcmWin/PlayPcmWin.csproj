@@ -113,6 +113,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AiffReader.cs" />
+    <Compile Include="AudioPlayer.cs" />
     <Compile Include="ChannelMappingSettings.xaml.cs">
       <DependentUpon>ChannelMappingSettings.xaml</DependentUpon>
     </Compile>
@@ -123,6 +124,7 @@
     <Compile Include="FlacDecodeIF.cs" />
     <Compile Include="InterceptMediaKeys.cs" />
     <Compile Include="M3uRW.cs" />
+    <Compile Include="NextTask.cs" />
     <Compile Include="PcmDataList.cs" />
     <Compile Include="PcmHeaderReader.cs" />
     <Compile Include="PcmReader.cs" />

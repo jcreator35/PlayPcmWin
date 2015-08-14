@@ -18,5 +18,18 @@ namespace WWAudioFilter {
             return "\"" + sb.ToString() + "\"";
         }
 
+        public static double[] Crossfade(double[] first, double[] second) {
+            System.Diagnostics.Debug.Assert(first.Length == second.Length);
+
+            var result = new double[first.Length];
+
+            for (int i = 0; i < first.Length; ++i) {
+                double secondGain = (double)i / first.Length;
+                double firstGain = 1.0 - secondGain;
+                result[i] = firstGain * first[i] + secondGain * second[i];
+            }
+
+            return result;
+        }
     }
 }
