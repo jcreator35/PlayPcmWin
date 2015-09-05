@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace DecimalFft {
     class Program {
@@ -10,10 +13,18 @@ namespace DecimalFft {
             WWDecimalFft fft = new WWDecimalFft(LENGTH);
             var signalFreq = fft.ForwardFft(signalTime, 1M/LENGTH);
 
-            for (int i=0; i < LENGTH/2; ++i) {
+            var result = new Dictionary<double, double>();
+
+            Parallel.For(0, LENGTH / 2, i => {
                 decimal magnitude = signalFreq[i].Magnitude();
-                Console.WriteLine("{0},{1}", SAMPLERATE * i / LENGTH,
-                    20M * WWDecimalMath.Log10(magnitude));
+                double db = (double)(20M * WWDecimalMath.Log10(magnitude));
+                lock (result) {
+                    result.Add((double)(SAMPLERATE * i / LENGTH), db);
+                }
+            });
+
+            foreach (var item in result) {
+                Console.WriteLine("{0},{1}", item.Key, item.Value);
             }
         }
 
@@ -24,7 +35,8 @@ namespace DecimalFft {
             VT_Int32, // 32bit signed integer
             VT_Float32, // 32bit float
             VT_Float64, // 64bit float
-            VT_Decimal  // Decimal
+            VT_Decimal, // Decimal
+            VT_Int64,   // 64bit signed integer
         }
 
         void Run(ValueType t) {
@@ -40,6 +52,7 @@ namespace DecimalFft {
                 case ValueType.VT_Int16:
                     r = ((int)(r * 32767))/32767M;
                     break;
+
                 case ValueType.VT_Int24:
                     r = (decimal)((int)(r * 8388607) / 8388607M);
                     break;
@@ -48,14 +61,19 @@ namespace DecimalFft {
                     r = (decimal)((int)(r * Int32.MaxValue) / ((decimal)(Int32.MaxValue)));
                     break;
 
+                case ValueType.VT_Int64:
+                    r = (decimal)(((long)(r * Int64.MaxValue)) / ((decimal)(Int64.MaxValue)));
+                    break;
+
                 case ValueType.VT_Float32:
                     r = (decimal)((float)r);
                     break;
+
                 case ValueType.VT_Float64:
                     r = (decimal)((double)r);
                     break;
 
-                    case ValueType.VT_Decimal:
+                case ValueType.VT_Decimal:
                     break;
                 }
 
@@ -75,6 +93,7 @@ namespace DecimalFft {
             Console.WriteLine("  3 : 32bit float");
             Console.WriteLine("  4 : 64bit float");
             Console.WriteLine("  5 : 128bit decimal float");
+            Console.WriteLine("  6 : 64bit signed integer");
         }
 
         static void Main(string[] args) {
