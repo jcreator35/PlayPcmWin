@@ -106,7 +106,7 @@ WasapiUser::Init(void)
 
     assert(!m_deviceToUse);
 
-    hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+    hr = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
     if (S_OK == hr) {
         m_coInitializeSuccess = true;
     } else {
@@ -177,6 +177,7 @@ WasapiUser::InspectDevice(IMMDevice *device, const WWPcmFormat &pcmFormat)
     hr = m_audioClient->IsFormatSupported(AUDCLNT_SHAREMODE_EXCLUSIVE, waveFormat, nullptr);
     dprintf("IsFormatSupported=%08x\n", hr);
 
+
 end:
     SafeRelease(&device);
     SafeRelease(&m_audioClient);
@@ -243,8 +244,8 @@ WasapiUser::Setup(IMMDevice *device, WWDeviceType deviceType, const WWPcmFormat 
         dprintf("preferred Format:\n");
         WWWaveFormatDebug(waveFormat);
         WWWFEXDebug(wfex);
-    
-        HRG(m_audioClient->IsFormatSupported(audClientSm, waveFormat,nullptr));
+
+        // HRG(m_audioClient->IsFormatSupported(audClientSm, waveFormat,nullptr));
     } else {
         // shared mode specific task
         // wBitsPerSample, nSamplesPerSec, wValidBitsPerSample are fixed
@@ -284,7 +285,6 @@ WasapiUser::Setup(IMMDevice *device, WWDeviceType deviceType, const WWPcmFormat 
     // shared modeの場合、nBlockAlign=nChannel*4となるので一致しない。
     // assert(m_deviceFormat.BytesPerFrame() == waveFormat->nBlockAlign);
 
-    // TODO: delete!
     m_pcmFormat.dwChannelMask = m_deviceFormat.dwChannelMask;
 
     if (WWSMShared == m_shareMode) {

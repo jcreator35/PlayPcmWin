@@ -61,16 +61,16 @@ namespace DecimalFft {
                     r = (decimal)((int)(r * Int32.MaxValue) / ((decimal)(Int32.MaxValue)));
                     break;
 
-                case ValueType.VT_Int64:
-                    r = (decimal)(((long)(r * Int64.MaxValue)) / ((decimal)(Int64.MaxValue)));
-                    break;
-
                 case ValueType.VT_Float32:
                     r = (decimal)((float)r);
                     break;
 
                 case ValueType.VT_Float64:
                     r = (decimal)((double)r);
+                    break;
+
+                case ValueType.VT_Int64:
+                    r = (decimal)(((long)(r * Int64.MaxValue)) / ((decimal)(Int64.MaxValue)));
                     break;
 
                 case ValueType.VT_Decimal:
