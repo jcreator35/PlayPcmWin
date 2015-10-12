@@ -94,7 +94,8 @@ private:
     HANDLE       m_audioSamplesReadyEvent;
 
     IAudioClient *m_audioClient;
-    int          m_frameBytes;
+	IAudioClient2 *m_audioClient2;
+	int          m_frameBytes;
     UINT32       m_bufferFrameNum;
     int          m_bitsPerSample;
     int          m_validBitsPerSample;

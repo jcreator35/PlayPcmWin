@@ -60,17 +60,18 @@ WWDeviceInfo::WWDeviceInfo(int id, const wchar_t * name)
 WasapiWrap::WasapiWrap(void)
 {
     m_deviceCollection = nullptr;
-    m_deviceToUse      = nullptr;
-    m_shutdownEvent    = nullptr;
+    m_deviceToUse = nullptr;
+    m_shutdownEvent = nullptr;
     m_audioSamplesReadyEvent = nullptr;
-    m_audioClient      = nullptr;
-    m_frameBytes       = 0;
-    m_bufferFrameNum   = 0;
-    m_renderClient     = nullptr;
-    m_renderThread     = nullptr;
-    m_pcmData          = nullptr;
-    m_mutex            = nullptr;
-    m_footerCount      = 0;
+    m_audioClient = nullptr;
+    m_audioClient2 = nullptr;
+    m_frameBytes = 0;
+    m_bufferFrameNum = 0;
+    m_renderClient = nullptr;
+    m_renderThread = nullptr;
+    m_pcmData = nullptr;
+    m_mutex = nullptr;
+    m_footerCount = 0;
     m_coInitializeSuccess = false;
 }
 
@@ -86,14 +87,15 @@ HRESULT
 WasapiWrap::Init(void)
 {
     HRESULT hr = S_OK;
-    
+
     assert(!m_deviceCollection);
     assert(!m_deviceToUse);
 
     hr = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
     if (S_OK == hr) {
         m_coInitializeSuccess = true;
-    } else {
+    }
+    else {
         printf("E: WasapiWrap::Init() CoInitializeEx() failed %08x\n", hr);
         hr = S_OK;
     }
@@ -125,12 +127,12 @@ WasapiWrap::Term(void)
 
 static HRESULT
 DeviceNameGet(
-    IMMDeviceCollection *dc, UINT id, wchar_t *name, size_t nameBytes)
+IMMDeviceCollection *dc, UINT id, wchar_t *name, size_t nameBytes)
 {
     HRESULT hr = 0;
 
-    IMMDevice *device  = nullptr;
-    LPWSTR deviceId    = nullptr;
+    IMMDevice *device = nullptr;
+    LPWSTR deviceId = nullptr;
     IPropertyStore *ps = nullptr;
     PROPVARIANT pv;
 
@@ -150,7 +152,7 @@ DeviceNameGet(
     HRG(ps->GetValue(PKEY_Device_FriendlyName, &pv));
     SafeRelease(&ps);
 
-    wcsncpy_s(name, nameBytes/sizeof name[0], pv.pwszVal, _TRUNCATE);
+    wcsncpy_s(name, nameBytes / sizeof name[0], pv.pwszVal, _TRUNCATE);
 
 end:
     PropVariantClear(&pv);
@@ -169,14 +171,14 @@ WasapiWrap::DoDeviceEnumeration(void)
 
     HRR(CoCreateInstance(__uuidof(MMDeviceEnumerator),
         nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&deviceEnumerator)));
-    
+
     HRR(deviceEnumerator->EnumAudioEndpoints(
         eRender, DEVICE_STATE_ACTIVE, &m_deviceCollection));
 
     UINT nDevices = 0;
     HRG(m_deviceCollection->GetCount(&nDevices));
 
-    for (UINT i=0; i<nDevices; ++i) {
+    for (UINT i = 0; i<nDevices; ++i) {
         wchar_t name[WW_DEVICE_NAME_COUNT];
         HRG(DeviceNameGet(m_deviceCollection, i, name, sizeof name));
         m_deviceInfo.push_back(WWDeviceInfo(i, name));
@@ -203,7 +205,7 @@ WasapiWrap::GetDeviceName(int id, LPWSTR name, size_t nameBytes)
         assert(0);
         return false;
     }
-    wcsncpy_s(name, nameBytes/sizeof name[0], m_deviceInfo[id].name, _TRUNCATE);
+    wcsncpy_s(name, nameBytes / sizeof name[0], m_deviceInfo[id].name, _TRUNCATE);
     return true;
 }
 
@@ -259,6 +261,19 @@ end:
     SafeRelease(&m_audioClient);
 }
 
+#define AUDIO_STREAM_CATEGORY_NUM 8
+static const char *s_audioStreamCategoryStr[AUDIO_STREAM_CATEGORY_NUM] =
+{
+    "Other",
+    "ForegroundOnlyMedia",
+    "BackgroundCapableMedia",
+    "Communications",
+    "Alerts",
+    "SoundEffects",
+    "GameEffects",
+    "GameMedia",
+};
+
 int
 WasapiWrap::Inspect(const WWInspectArg & arg)
 {
@@ -272,32 +287,60 @@ WasapiWrap::Inspect(const WWInspectArg & arg)
         __uuidof(IAudioClient), CLSCTX_INPROC_SERVER, nullptr, (void**)&m_audioClient));
     assert(m_audioClient);
 
+    hr = m_deviceToUse->Activate(__uuidof(IAudioClient2), CLSCTX_INPROC_SERVER, nullptr, (void**)&m_audioClient2);
+    if (FAILED(hr)) {
+        m_audioClient2 = nullptr;
+    }
+
     ZeroMemory(&wfext, sizeof wfext);
-    wfext.Format.wFormatTag      = WAVE_FORMAT_EXTENSIBLE;
-    wfext.Format.nChannels       = arg.nChannels;
-    wfext.Format.nSamplesPerSec  = arg.nSamplesPerSec;
-    wfext.Format.nBlockAlign     = (arg.bitsPerSample / 8) * arg.nChannels;
+    wfext.Format.wFormatTag = WAVE_FORMAT_EXTENSIBLE;
+    wfext.Format.nChannels = arg.nChannels;
+    wfext.Format.nSamplesPerSec = arg.nSamplesPerSec;
+    wfext.Format.nBlockAlign = (arg.bitsPerSample / 8) * arg.nChannels;
     wfext.Format.nAvgBytesPerSec = arg.nSamplesPerSec * wfext.Format.nBlockAlign;
-    wfext.Format.wBitsPerSample  = arg.bitsPerSample;
-    wfext.Format.cbSize          = 22;
+    wfext.Format.wBitsPerSample = arg.bitsPerSample;
+    wfext.Format.cbSize = 22;
 
     wfext.Samples.wValidBitsPerSample = arg.validBitsPerSample;
-    wfext.dwChannelMask               = 3;
-    wfext.SubFormat                   = KSDATAFORMAT_SUBTYPE_PCM;
+    wfext.dwChannelMask = 3;
+    wfext.SubFormat = KSDATAFORMAT_SUBTYPE_PCM;
 
     printf("WAVEFORMATEXTENSIBLE KSFORMAT_SUBTYPE_PCM %dHz %dbit %dch: ",
         arg.nSamplesPerSec, arg.bitsPerSample, arg.nChannels);
 
-    hr = m_audioClient->IsFormatSupported(AUDCLNT_SHAREMODE_EXCLUSIVE, pWfex, nullptr); 
+    hr = m_audioClient->IsFormatSupported(AUDCLNT_SHAREMODE_EXCLUSIVE, pWfex, nullptr);
     if (AUDCLNT_E_UNSUPPORTED_FORMAT == hr) {
         printf("not supported.\n");
-    } else if (FAILED(hr)) {
+        goto end;
+    }
+    if (FAILED(hr)) {
         printf("IAudioClient::IsFormatSupported failed: hr = 0x%08x.\n", hr);
-    } else {
-        printf("supported.\n");
+        goto end;
+    }
+
+    printf("supported.\n");
+
+    if (m_audioClient2 != nullptr) {
+        for (int i = 0; i < AUDIO_STREAM_CATEGORY_NUM; ++i) {
+            BOOL offloadCapable;
+            HRG(m_audioClient2->IsOffloadCapable((AUDIO_STREAM_CATEGORY)i, &offloadCapable));
+            printf("IsOffloadCapable(%22s)=%d\n", s_audioStreamCategoryStr[i], offloadCapable);
+        }
+
+        REFERENCE_TIME eventMinBufferDuration;
+        REFERENCE_TIME eventMaxBufferDuration;
+        REFERENCE_TIME timerMinBufferDuration;
+        REFERENCE_TIME timerMaxBufferDuration;
+
+        HRG(m_audioClient2->GetBufferSizeLimits(pWfex, true, &eventMinBufferDuration, &eventMaxBufferDuration));
+        HRG(m_audioClient2->GetBufferSizeLimits(pWfex, false, &timerMinBufferDuration, &timerMaxBufferDuration));
+        printf("Buffer size: eventMin=%lldms eventMax=%lldms timerMin=%lldms timerMax=%lldms\n",
+            eventMinBufferDuration / 10000, eventMaxBufferDuration / 10000, timerMinBufferDuration / 10000, timerMaxBufferDuration / 10000);
+
     }
 
 end:
+    SafeRelease(&m_audioClient2);
     SafeRelease(&m_audioClient);
     return hr;
 }
@@ -349,16 +392,16 @@ WasapiWrap::Setup(const WWSetupArg & arg)
     printf("preferred Format:\n");
     WaveFormatDebug(waveFormat);
     WFExtensibleDebug(wfex);
-    
-    HRG(m_audioClient->IsFormatSupported(AUDCLNT_SHAREMODE_EXCLUSIVE,waveFormat,nullptr));
+
+    HRG(m_audioClient->IsFormatSupported(AUDCLNT_SHAREMODE_EXCLUSIVE, waveFormat, nullptr));
 
     m_frameBytes = waveFormat->nBlockAlign;
-    
-    REFERENCE_TIME bufferDuration = arg.latencyInMillisec*10000;
+
+    REFERENCE_TIME bufferDuration = arg.latencyInMillisec * 10000;
 
     hr = m_audioClient->Initialize(
         AUDCLNT_SHAREMODE_EXCLUSIVE,
-        AUDCLNT_STREAMFLAGS_EVENTCALLBACK , 
+        AUDCLNT_STREAMFLAGS_EVENTCALLBACK,
         bufferDuration, bufferDuration, waveFormat, nullptr);
     if (hr == AUDCLNT_E_BUFFER_SIZE_NOT_ALIGNED) {
         HRG(m_audioClient->GetBufferSize(&m_bufferFrameNum));
@@ -373,14 +416,14 @@ WasapiWrap::Setup(const WWSetupArg & arg)
             0.5);
 
         HRG(m_deviceToUse->Activate(
-        __uuidof(IAudioClient), CLSCTX_INPROC_SERVER, nullptr, (void**)&m_audioClient));
+            __uuidof(IAudioClient), CLSCTX_INPROC_SERVER, nullptr, (void**)&m_audioClient));
 
         hr = m_audioClient->Initialize(
-            AUDCLNT_SHAREMODE_EXCLUSIVE, 
-            AUDCLNT_STREAMFLAGS_EVENTCALLBACK | AUDCLNT_STREAMFLAGS_NOPERSIST | AUDCLNT_STREAMFLAGS_RATEADJUST, 
-            bufferDuration, 
-            bufferDuration, 
-            waveFormat, 
+            AUDCLNT_SHAREMODE_EXCLUSIVE,
+            AUDCLNT_STREAMFLAGS_EVENTCALLBACK | AUDCLNT_STREAMFLAGS_NOPERSIST | AUDCLNT_STREAMFLAGS_RATEADJUST,
+            bufferDuration,
+            bufferDuration,
+            waveFormat,
             nullptr);
     }
     if (FAILED(hr)) {
@@ -410,6 +453,7 @@ WasapiWrap::Unsetup(void)
     }
 
     SafeRelease(&m_deviceToUse);
+    SafeRelease(&m_audioClient2);
     SafeRelease(&m_audioClient);
     SafeRelease(&m_renderClient);
 }
@@ -552,10 +596,10 @@ WasapiWrap::SetPosFrame(int v)
 bool
 WasapiWrap::AudioSamplesReadyProc(void)
 {
-    bool    result     = true;
-    BYTE    *pFrames   = nullptr;
-    BYTE    *pData     = nullptr;
-    HRESULT hr         = 0;
+    bool    result = true;
+    BYTE    *pFrames = nullptr;
+    BYTE    *pData = nullptr;
+    HRESULT hr = 0;
     int     copyFrames = 0;
 
     WaitForSingleObject(m_mutex, INFINITE);
@@ -567,7 +611,8 @@ WasapiWrap::AudioSamplesReadyProc(void)
 
     if (copyFrames <= 0) {
         copyFrames = 0;
-    } else {
+    }
+    else {
         pFrames = (BYTE *)m_pcmData->stream;
         pFrames += m_pcmData->posFrame * m_frameBytes;
     }
@@ -610,10 +655,10 @@ DWORD
 WasapiWrap::RenderMain(void)
 {
     bool stillPlaying = true;
-    HANDLE waitArray[2] = {m_shutdownEvent, m_audioSamplesReadyEvent};
+    HANDLE waitArray[2] = { m_shutdownEvent, m_audioSamplesReadyEvent };
     DWORD waitResult;
     HRESULT hr = 0;
-    
+
     HRG(CoInitializeEx(nullptr, COINIT_MULTITHREADED));
 
     while (stillPlaying) {
