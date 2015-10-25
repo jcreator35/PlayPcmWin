@@ -1,0 +1,57 @@
+﻿<Window x:Class="WaveFormDisp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="PcmWaveformDisp" Height="360" Width="800" Loaded="Window_Loaded">
+    <Grid >
+        <Grid.RowDefinitions>
+            <RowDefinition Height="100" />
+            <RowDefinition Height="1*" />
+        </Grid.RowDefinitions>
+        <GroupBox Grid.ColumnSpan="2" Header="Settings" Name="groupBoxEq" >
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="1*" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="3*" />
+                </Grid.ColumnDefinitions>
+                <Label Content="Waveform equation:" HorizontalAlignment="right" Margin="0" Name="labelEquation" VerticalAlignment="Center" />
+                <Label Content="y =" Grid.Column="1" HorizontalAlignment="Left" Margin="20,0,0,0" Name="labelY" VerticalAlignment="Center" />
+                <TextBox Grid.Column="1" HorizontalAlignment="Left" Margin="50,0,0,0" Name="textBoxAmplitude" VerticalAlignment="Center" Width="63" Text="1.0" HorizontalContentAlignment="Center" />
+                <Label Content="sin(" Grid.Column="1" HorizontalAlignment="Left" Margin="120,0,0,0" Name="labelT" VerticalAlignment="Center" />
+                <TextBox Grid.Column="1" HorizontalAlignment="Left" Margin="160,0,0,0" Name="textBoxAngularVelo" VerticalAlignment="Center" Width="63" Text="0.5" HorizontalContentAlignment="Center" />
+                <Label Content="πt +" Grid.Column="1" HorizontalAlignment="Left" Margin="230,0,0,0" Name="labelPT" VerticalAlignment="Center" />
+                <TextBox Grid.Column="1" HorizontalAlignment="Left" Margin="270,0,0,0" Name="textBoxPhase" VerticalAlignment="Center" Width="63" Text="0" HorizontalContentAlignment="Center" />
+                <Label Content="π) +" Grid.Column="1" HorizontalAlignment="Left" Margin="340,0,0,0" Name="labelPhase" VerticalAlignment="Center" />
+                <TextBox Grid.Column="1" HorizontalAlignment="Left" Margin="380,0,0,0" Name="textBoxConstant" VerticalAlignment="Center" Width="63" Text="0" HorizontalContentAlignment="Center" />
+                <Button Content="Update" Grid.Column="1" HorizontalAlignment="Left" Margin="468,0,0,0" Name="buttonUpdate" VerticalAlignment="Center" Width="75" Click="buttonUpdate_Click" />
+                <Label Content="Sample count:" Grid.Row="1" HorizontalAlignment="Right" Name="labelSampleCount" VerticalAlignment="Center" />
+                <TextBox Grid.Column="1" Grid.Row="1" Text="16" HorizontalAlignment="Left" Margin="26,0,0,0" Name="textBoxSampleCount" VerticalAlignment="Center" Width="60" />
+            </Grid>
+        </GroupBox>
+        <GroupBox Header="Waveform Graph" Grid.Row="1"
+>
+            <Canvas Height="200" Name="canvasWaveFormFrom">
+                <Polyline Name="polyLineWF" Stroke="Red" Canvas.Left="0" Canvas.Top="0">
+                    <Polyline.Points>
+                        <Point>0,0</Point>
+                        <Point>50,50</Point>
+                    </Polyline.Points>
+                </Polyline>
+                <Line Name="lineWFY" Stroke="Gray" X1="32" Y1="0" X2="32" Y2="200" />
+                <Line Name="lineWFX" Stroke="Gray" X1="32" Y1="100" X2="766" Y2="100" Width="766" />
+                <Line Name="lineWFArrowYL" Stroke="Gray" X1="27" Y1="10" X2="32" Y2="0" />
+                <Line Name="lineWFArrowYR" Stroke="Gray" X1="37" Y1="10" X2="32" Y2="0" />
+                <Line Name="lineWFTickP1" Stroke="Gray" X1="28" Y1="50" X2="32" Y2="50" />
+                <Line Name="lineWFTickM1" Stroke="Gray" X1="28" Y1="150" X2="32" Y2="150" />
+                <Label Canvas.Left="0" Canvas.Top="37" Content="1" Name="labelWFP1" Width="32" HorizontalContentAlignment="Right" />
+                <Label Canvas.Left="0" Canvas.Top="87" Content="0" Name="labelWF0" Width="32" HorizontalContentAlignment="Right" />
+                <Label Canvas.Left="0" Canvas.Top="137" Content="-1" Name="labelWFM1" Width="32" HorizontalContentAlignment="Right" />
+                <Rectangle Canvas.Left="0" Canvas.Top="0" Height="50" Name="rectangleT" Stroke="{x:Null}" Width="766" Fill="LightGray" Panel.ZIndex="-1" />
+                <Rectangle Canvas.Left="0" Canvas.Top="150" Height="50" Name="rectangleB" Stroke="{x:Null}" Width="766" Fill="LightGray" Panel.ZIndex="-1" />
+            </Canvas>
+        </GroupBox>
+    </Grid>
+</Window>
