@@ -100,7 +100,7 @@
     <Compile Include="JCodeInspect.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WavReader.cs" />
-    <Compile Include="WavRW2.cs">
+    <Compile Include="WavWriter.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

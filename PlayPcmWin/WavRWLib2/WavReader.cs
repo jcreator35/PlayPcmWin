@@ -163,7 +163,9 @@ namespace WavRWLib2 {
             return 8;
         }
 
-        public long ReadFmtChunk(BinaryReader br, byte[] fourcc) {
+        public int FmtSubChunkSize { get; set; }
+
+        private long ReadFmtChunk(BinaryReader br, byte[] fourcc) {
             if (!PcmDataLib.Util.FourCCHeaderIs(fourcc, 0, "fmt ")) {
                 // 起こらない。
                 System.Diagnostics.Debug.Assert(false);
@@ -171,6 +173,7 @@ namespace WavRWLib2 {
             }
 
             uint subChunk1Size = br.ReadUInt32();
+            FmtSubChunkSize = (int)subChunk1Size;
 
             if (40 == subChunk1Size) {
                 // Console.WriteLine("D: FmtSubChunk.ReadRiffChunk() WAVEFORMATEXTENSIBLE\n");
@@ -261,7 +264,7 @@ namespace WavRWLib2 {
             return subChunk1Size + 4;
         }
 
-        public long ReadDS64Chunk(BinaryReader br) {
+        private long ReadDS64Chunk(BinaryReader br) {
             // chunkIdは、既に読んでいる。
 
             uint chunkSize = br.ReadUInt32();
