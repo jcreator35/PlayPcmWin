@@ -182,7 +182,7 @@ namespace PcmDataLib {
             return ID3Result.Success;
         }
 
-        private string ReadNameFrame(BinaryReader br, int frameSize, int frameFlags) {
+        private string ReadTextFrame(BinaryReader br, int frameSize, int frameFlags) {
             // フラグを見る
             bool compression = (frameFlags & 0x0080) != 0;
             bool encryption  = (frameFlags & 0x0040) != 0;
@@ -288,15 +288,15 @@ namespace PcmDataLib {
                 switch (frameId) {
                 case 0x54414c42:
                     // "TALB" Album
-                    AlbumName = ReadNameFrame(br, frameSize, frameFlags);
+                    AlbumName = ReadTextFrame(br, frameSize, frameFlags);
                     break;
                 case 0x54495432:
                     // "TIT2" Title
-                    TitleName = ReadNameFrame(br, frameSize, frameFlags);
+                    TitleName = ReadTextFrame(br, frameSize, frameFlags);
                     break;
                 case 0x54504531:
                     // "TPE1" artist
-                    ArtistName = ReadNameFrame(br, frameSize, frameFlags);
+                    ArtistName = ReadTextFrame(br, frameSize, frameFlags);
                     break;
                 case 0x41504943:
                     // "APIC" attached picture
@@ -335,15 +335,15 @@ namespace PcmDataLib {
                 switch (frameId) {
                 case 0x54414c:
                     // "TAL" Album name
-                    AlbumName = ReadNameFrame(br, frameSize, 0);
+                    AlbumName = ReadTextFrame(br, frameSize, 0);
                     break;
                 case 0x545432:
                     // "TT2" Title
-                    TitleName = ReadNameFrame(br, frameSize, 0);
+                    TitleName = ReadTextFrame(br, frameSize, 0);
                     break;
                 case 0x545031:
                     // "TP1" Artist
-                    ArtistName = ReadNameFrame(br, frameSize, 0);
+                    ArtistName = ReadTextFrame(br, frameSize, 0);
                     break;
                 case 0x504943:
                     // "PIC" Attached Picture

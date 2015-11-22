@@ -1,0 +1,139 @@
+﻿<Window x:Class="WavFormatConv.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="WavFormatConv" Height="900" Width="800" Loaded="Window_Loaded">
+    <ScrollViewer>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="70" />
+            <RowDefinition Height="600" />
+            <RowDefinition Height="70" />
+            <RowDefinition Height="1*" />
+        </Grid.RowDefinitions>
+        <GroupBox Header="Read WAV file" Name="groupBoxInputFile" Margin="6,0,6,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="100" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="100" />
+                </Grid.ColumnDefinitions>
+                <TextBox Margin="6,0,6,0" Name="textBoxInputFile" VerticalAlignment="Center" Grid.Column="1" Text="C:\audio\input.wav" />
+                <Button Content="Browse(_R)..." Margin="0,0,6,0" Name="buttonBrowseInputFile" VerticalAlignment="Center" Grid.Column="2" Click="buttonBrowseInputFile_Click" />
+                <Label Content="Path:" HorizontalAlignment="Right" Margin="0,0,0,0" Name="labelInputFile" VerticalAlignment="Center" />
+            </Grid>
+        </GroupBox>
+        <GroupBox Grid.Row="1" Header="Settings" Margin="6,0,6,0" Name="groupBox1" >
+            <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="150" />
+                        <RowDefinition Height="150" />
+                        <RowDefinition Height="80" />
+                        <RowDefinition Height="1*" />
+                    </Grid.RowDefinitions>
+                    <GroupBox Header="RIFF Chunk" Grid.Row="0" Name="groupBox4" Margin="6,0,6,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                            </Grid.RowDefinitions>
+                            <CheckBox Content="Set chunkSize longer than actual file size" Name="checkBoxRiffChunkSizeLonger" VerticalAlignment="Center" Grid.ColumnSpan="3" Margin="3,7,-3,7" Click="checkBoxRiffChunkSizeLonger_Click" />
+                            <Label Content="by" Grid.Row="1" HorizontalAlignment="Right" Name="label1" VerticalAlignment="Center" />
+                            <TextBox Grid.Column="1" Grid.Row="1" Name="textBoxRiffChunkSizeLongerBytes" Text="1000" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" TextChanged="textBoxRiffChunkSizeLongerBytes_TextChanged" />
+                            <Label Content="bytes" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Left" Name="label2" VerticalAlignment="Center" />
+                            <CheckBox Grid.Row="2" Content="Add garbage on file footer" Name="checkBoxRiffChunkAddFooter" VerticalAlignment="Center" Grid.ColumnSpan="3" Margin="3,7,-3,7" Click="checkBoxRiffChunkAddFooter_Click" />
+                            <Label Content="size:" Grid.Row="3" HorizontalAlignment="Right" Name="labelRiffZeroSize" VerticalAlignment="Center" />
+                            <TextBox Grid.Column="1" Grid.Row="3" Name="textBoxRiffTrailingZeroesBytes" Text="10000" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" TextChanged="textBoxRiffTrailingZeroesBytes_TextChanged" />
+                            <Label Content="bytes" Grid.Row="3" Grid.Column="2" HorizontalAlignment="Left" Name="labelRiffZeroBytes" VerticalAlignment="Center" />
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox Header="FMT Chunk" Grid.Row="1" Name="groupBox2" Margin="6,0,6,0">
+                    <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="3*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                            </Grid.RowDefinitions>
+                            <RadioButton Content="WAVEFORMAT" HorizontalAlignment="Left" Name="radioButtonFmt16" VerticalAlignment="Center" IsChecked="True" Margin="0,6" Checked="radioButtonFmt16_Checked" />
+                            <RadioButton Content="WAVEFORMATEX" Grid.Row="1" HorizontalAlignment="Left" Name="radioButtonFmt18" VerticalAlignment="Center" Margin="0,6" Unchecked="radioButtonFmt18_Unchecked" Checked="radioButtonFmt18_Checked" />
+                            <Label Content="cbSize:" Grid.Row="2" HorizontalAlignment="Right" Margin="0,0,0,0" Name="labelCbSize" VerticalAlignment="Center" />
+                            <RadioButton Content="WAVEFORMATEXTENSIBLE" Grid.Row="4" HorizontalAlignment="Left" Name="radioButtonFmt40" VerticalAlignment="Center" Grid.ColumnSpan="2" Margin="0,6" />
+                            <ListBox Grid.Column="1" Grid.Row="2" Grid.RowSpan="2" Name="listBoxWaveFormatExCbSize" SelectionChanged="listBoxWaveFormatExCbSize_SelectionChanged">
+                                <ListBoxItem Content="0 (correct)" IsSelected="True" />
+                                <ListBoxItem Content="Fill garbage for testing" />
+                            </ListBox>
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox Header="DATA Chunk" Grid.Row="2" Name="groupBox3" Margin="6,0,6,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                            </Grid.RowDefinitions>
+                            <CheckBox Content="Set chunkSize longer than actual data size" Name="checkBoxDataChunkSizeLonger" VerticalAlignment="Center" Grid.ColumnSpan="3" Margin="3,7,-3,7" Click="checkBoxDataChunkSizeLonger_Click" />
+                            <Label Content="by" Grid.Row="1" HorizontalAlignment="Right" Name="label3" VerticalAlignment="Center" />
+                            <Label Content="bytes" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Left" Name="label4" VerticalAlignment="Center" />
+                            <TextBox Grid.Column="1" Grid.Row="1" Name="textBoxDataChunkSizeAppendBytes" Text="1000" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" TextChanged="textBoxDataChunkSizeAppendBytes_TextChanged" />
+                        </Grid>
+                    </GroupBox>
+
+                    <GroupBox Header="Chunk Layout" Grid.Row="3" Name="groupBoxOptionalChunks" Margin="6,0,6,0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="36" />
+                                <RowDefinition Height="36" />
+                                <RowDefinition Height="36" />
+                                <RowDefinition Height="36" />
+                                <RowDefinition Height="1*" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="200" />
+                            </Grid.ColumnDefinitions>
+                            <ListBox Name="listBoxChunkLayout" Grid.RowSpan="5" SelectionChanged="listBoxChunkLayout_SelectionChanged" />
+                            <Button Content="Add optional chunk" Grid.Column="1" Margin="6" Name="buttonChunkAdd" Click="buttonChunkAdd_Click" />
+                            <Button Content="Delete selected chunk" Grid.Column="1" Grid.Row="1" Margin="6" Name="buttonChunkDelete" Click="buttonChunkDelete_Click" />
+                            <Button Content="Move up selected chunk" Grid.Column="1" Grid.Row="2" Margin="6" Name="buttonChunkMoveUp" Click="buttonChunkMoveUp_Click" />
+                            <Button Content="Move down selected chunk" Grid.Column="1" Grid.Row="3" Margin="6" Name="buttonChunkMoveDown" Click="buttonChunkMoveDown_Click" />
+                        </Grid>
+                    </GroupBox>
+                </Grid>
+        </GroupBox>
+        <GroupBox Grid.Row="2" Header="Write WAV file" Name="groupBoxOutputFile" Margin="6,0,6,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="100" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="100" />
+                </Grid.ColumnDefinitions>
+                <TextBox Margin="6,0,6,0" Name="textBoxOutputFile" VerticalAlignment="Center" Grid.Column="1" Text="C:\audio\output.wav" />
+                <Button Content="Browse(_W)..." Margin="0,0,6,0" Name="buttonBrowseOutputFile" VerticalAlignment="Center" Grid.Column="2" Click="buttonBrowseOutputFile_Click" />
+                <Label Content="Path:" HorizontalAlignment="Right" Margin="0,0,0,0" Name="labelOutputFile" VerticalAlignment="Center" />
+            </Grid>
+        </GroupBox>
+        <Button Content="Start Conversion(_C)" Grid.Row="3" Margin="6,6,0,0" Name="buttonStartConversion" VerticalAlignment="Top" Click="buttonStartConversion_Click" HorizontalAlignment="Left" Width="130" />
+        <GroupBox Grid.Row="3" Header="ログ" Name="groupBoxLog" Margin="140,0,6,0" >
+            <Grid>
+                <TextBox Name="textBoxLog" AllowDrop="False" AcceptsReturn="True" AcceptsTab="True" IsReadOnly="True" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Auto" />
+            </Grid>
+        </GroupBox>
+        </Grid>
+</ScrollViewer>
+</Window>
