@@ -26,6 +26,21 @@ namespace WavFormatConv
         private void Window_Loaded(object sender, RoutedEventArgs e) {
             mIntitialized = true;
             UpdateDialogStatus();
+
+            LocalizeUI();
+        }
+
+        private void LocalizeUI() {
+            buttonBext.Content = Properties.Resources.ButtonBext;
+            buttonDS64.Content = Properties.Resources.ButtonDS64;
+            buttonID3.Content = Properties.Resources.ButtonID3;
+            buttonID3BrowseImage.Content = Properties.Resources.buttonID3BrowseImage;
+            buttonJunk.Content = Properties.Resources.ButtonJunk;
+            groupBoxBext.Header = Properties.Resources.GroupBoxBext;
+            groupBoxDS64.Header = Properties.Resources.GroupBoxDS64;
+            groupBoxID3.Header = Properties.Resources.GroupBoxID3;
+            groupBoxJunk.Header = Properties.Resources.GroupBoxJunk;
+            labelAlbumCoverArtFile.Content = Properties.Resources.LabelAlbumCoverArtFile;
         }
 
         private void UpdateDialogStatus() {
@@ -155,7 +170,7 @@ namespace WavFormatConv
 
         private void buttonID3BrowseImage_Click(object sender, RoutedEventArgs e) {
             var dlg = new Microsoft.Win32.OpenFileDialog();
-            dlg.Filter = "JPEG files(*.jpg,*.jpeg)|*.jpg;*.jpeg|PNG files(*.png)|*.png";
+            dlg.Filter = "Image files|*.jpg;*.jpeg;*.png|JPEG files(*.jpg,*.jpeg)|*.jpg;*.jpeg|PNG files(*.png)|*.png";
             dlg.ValidateNames = true;
 
             var result = dlg.ShowDialog();

@@ -33,6 +33,27 @@ namespace WavFormatConv {
 
             textBoxLog.AppendText(string.Format("WavFormatConv version {0}", AssemblyVersion));
 
+            LocalizeUI();
+        }
+
+        private void LocalizeUI() {
+            buttonBrowseInputFile.Content = Properties.Resources.ButtonBrowse;
+            buttonBrowseOutputFile.Content = Properties.Resources.ButtonBrowseWriteFile;
+            buttonChunkAdd.Content = Properties.Resources.ButtonChunkAdd;
+            buttonChunkDelete.Content = Properties.Resources.ButtonChunkDelete;
+            buttonChunkMoveDown.Content = Properties.Resources.ButtonChunkMoveDown;
+            buttonChunkMoveUp.Content = Properties.Resources.ButtonChunkMoveUp;
+            buttonStartConversion.Content = Properties.Resources.ButtonStart;
+            checkBoxDataChunkSizeLonger.Content = Properties.Resources.CheckBoxDataLonger;
+            checkBoxRiffChunkAddFooter.Content = Properties.Resources.CheckBoxRiffAddGarbage;
+            checkBoxRiffChunkSizeLonger.Content = Properties.Resources.CheckBoxRiffLonger;
+            groupBoxChunkLayout.Header = Properties.Resources.GroupBoxChunkLayout;
+            groupBoxData.Header = Properties.Resources.GroupBoxData;
+            groupBoxFmt.Header = Properties.Resources.GroupBoxFmt;
+            groupBoxReadFile.Header = Properties.Resources.GroupBoxReadFile;
+            groupBoxRiff.Header = Properties.Resources.GroupBoxRiff;
+            groupBoxSettings.Header = Properties.Resources.GroupBoxSettings;
+            groupBoxWriteFile.Header = Properties.Resources.GroupBoxWriteFile;
         }
 
         private void UpdateUIStatus() {

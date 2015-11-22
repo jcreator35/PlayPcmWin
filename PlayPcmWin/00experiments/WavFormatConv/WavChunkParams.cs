@@ -44,7 +44,7 @@ namespace WavFormatConv {
         }
 
         public override void UpdateText() {
-            Text = string.Format("RIFF extra={0} garbage={1}", ExtraChunkBytes, GarbageBytes);
+            Text = string.Format("RIFF extra={0}, garbage={1}", ExtraChunkBytes, GarbageBytes);
         }
     }
 
@@ -59,12 +59,12 @@ namespace WavFormatConv {
         public int CbSize { get; set; }
 
         public FmtChunkParams(WaveFormatStructType t)
-            : base(WavChunkType.fmt, "FMT") {
+            : base(WavChunkType.fmt, "fmt ") {
             StructType = t;
         }
 
         public override void UpdateText() {
-            Text = string.Format("FMT {0} CbSize={1}", StructType, CbSize);
+            Text = string.Format("fmt  {0}, CbSize={1}", StructType, CbSize);
         }
     }
 
@@ -121,7 +121,7 @@ namespace WavFormatConv {
         }
 
         public override void UpdateText() {
-            Text = string.Format("bext {0} {1} Description=\"{2}\" Originator=\"{3}\" OriginatorReference=\"{4}\" TimeReference={5}",
+            Text = string.Format("bext {0} {1}, Description=\"{2}\", Originator=\"{3}\", OriginatorReference=\"{4}\", TimeReference={5}",
                 OriginationDate, OriginationTime, Description, Originator, OriginatorReference, TimeReference);
         }
     }
@@ -160,7 +160,7 @@ namespace WavFormatConv {
         }
 
         public override void UpdateText() {
-            Text = string.Format("id3 Title=\"{0}\" Album=\"{1}\" Artists=\"{2}\" AlbumCoverArt={3}bytes MIME=\"{4}\"",
+            Text = string.Format("id3 Title=\"{0}\", Album=\"{1}\", Artists=\"{2}\", AlbumCoverArt={3}bytes, MIME=\"{4}\"",
                 Title, Album, Artists, AlbumCoverArt.Length, AlbumCoverArtMimeType);
         }
     }

@@ -10,7 +10,7 @@
             <RowDefinition Height="70" />
             <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
-        <GroupBox Header="Read WAV file" Name="groupBoxInputFile" Margin="6,0,6,0">
+        <GroupBox Header="Read WAV file" Name="groupBoxReadFile" Margin="6,0,6,0">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="100" />
@@ -22,7 +22,7 @@
                 <Label Content="Path:" HorizontalAlignment="Right" Margin="0,0,0,0" Name="labelInputFile" VerticalAlignment="Center" />
             </Grid>
         </GroupBox>
-        <GroupBox Grid.Row="1" Header="Settings" Margin="6,0,6,0" Name="groupBox1" >
+        <GroupBox Grid.Row="1" Header="Settings" Margin="6,0,6,0" Name="groupBoxSettings" >
             <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="150" />
@@ -30,7 +30,7 @@
                         <RowDefinition Height="80" />
                         <RowDefinition Height="1*" />
                     </Grid.RowDefinitions>
-                    <GroupBox Header="RIFF Chunk" Grid.Row="0" Name="groupBox4" Margin="6,0,6,0">
+                    <GroupBox Header="RIFF Chunk" Grid.Row="0" Name="groupBoxRiff" Margin="6,0,6,0">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="1*" />
@@ -53,7 +53,7 @@
                             <Label Content="bytes" Grid.Row="3" Grid.Column="2" HorizontalAlignment="Left" Name="labelRiffZeroBytes" VerticalAlignment="Center" />
                         </Grid>
                     </GroupBox>
-                    <GroupBox Header="FMT Chunk" Grid.Row="1" Name="groupBox2" Margin="6,0,6,0">
+                    <GroupBox Header="FMT Chunk" Grid.Row="1" Name="groupBoxFmt" Margin="6,0,6,0">
                     <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="2*" />
@@ -76,7 +76,7 @@
                             </ListBox>
                         </Grid>
                     </GroupBox>
-                    <GroupBox Header="DATA Chunk" Grid.Row="2" Name="groupBox3" Margin="6,0,6,0">
+                    <GroupBox Header="DATA Chunk" Grid.Row="2" Name="groupBoxData" Margin="6,0,6,0">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="1*" />
@@ -94,7 +94,7 @@
                         </Grid>
                     </GroupBox>
 
-                    <GroupBox Header="Chunk Layout" Grid.Row="3" Name="groupBoxOptionalChunks" Margin="6,0,6,0">
+                    <GroupBox Header="Chunk Layout" Grid.Row="3" Name="groupBoxChunkLayout" Margin="6,0,6,0">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="36" />
@@ -116,7 +116,7 @@
                     </GroupBox>
                 </Grid>
         </GroupBox>
-        <GroupBox Grid.Row="2" Header="Write WAV file" Name="groupBoxOutputFile" Margin="6,0,6,0">
+        <GroupBox Grid.Row="2" Header="Write WAV file" Name="groupBoxWriteFile" Margin="6,0,6,0">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="100" />
@@ -129,7 +129,7 @@
             </Grid>
         </GroupBox>
         <Button Content="Start Conversion(_C)" Grid.Row="3" Margin="6,6,0,0" Name="buttonStartConversion" VerticalAlignment="Top" Click="buttonStartConversion_Click" HorizontalAlignment="Left" Width="130" />
-        <GroupBox Grid.Row="3" Header="ログ" Name="groupBoxLog" Margin="140,0,6,0" >
+        <GroupBox Grid.Row="3" Header="Logs" Name="groupBoxLog" Margin="140,0,6,0" >
             <Grid>
                 <TextBox Name="textBoxLog" AllowDrop="False" AcceptsReturn="True" AcceptsTab="True" IsReadOnly="True" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Auto" />
             </Grid>

@@ -11,7 +11,7 @@
                 <RowDefinition Height="200" />
                 <RowDefinition Height="1*" />
             </Grid.RowDefinitions>
-            <GroupBox Grid.Row="0" Header="bext chunk (Broadcast Wave File extention)" Name="groupBox2" >
+            <GroupBox Grid.Row="0" Header="bext chunk (Broadcast Wave File extention)" Name="groupBoxBext" >
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2*" />
@@ -41,7 +41,7 @@
                     <Button Grid.Row="6" Margin="4" Content="Add/Replace bext chunk" Name="buttonBext" Click="buttonBext_Click" Grid.ColumnSpan="2" />
                 </Grid>
             </GroupBox>
-            <GroupBox Header="JUNK chunk" Name="groupBox1" Grid.Row="1">
+            <GroupBox Header="JUNK chunk" Name="groupBoxJunk" Grid.Row="1">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1*" />
@@ -58,10 +58,10 @@
             </GroupBox>
             <GroupBox Header="DS64 chunk" Name="groupBoxDS64" Grid.Row="2">
                 <Grid>
-                    <Button Margin="4" Content="Add DS64 chunk" Name="buttonDS64" Click="buttonDS64_Click" />
+                    <Button Margin="4" Content="Add/Replace DS64 chunk" Name="buttonDS64" Click="buttonDS64_Click" />
                 </Grid>
             </GroupBox>
-            <GroupBox Grid.Row="3" Header="ID3 chunk" Name="groupBoxID3" >
+            <GroupBox Grid.Row="3" Header="id3 chunk" Name="groupBoxID3" >
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2*" />
@@ -81,10 +81,10 @@
                     <TextBox Grid.Row="1" Margin="4" Text="ストラヴィンスキー 春の祭典" Grid.Column="1" VerticalContentAlignment="Center" Name="textBoxId3Album" Grid.ColumnSpan="2" />
                     <Label Grid.Row="2" Content="Artists:" VerticalAlignment="Center" HorizontalAlignment="Right" />
                     <TextBox Grid.Row="2" Margin="4" Text="Boulez, Cleveland Orchestra" Grid.Column="1" VerticalContentAlignment="Center" Name="textBoxId3Artists" Grid.ColumnSpan="2" />
-                    <Label Grid.Row="3" Content="Album cover art filename:" VerticalAlignment="Center" HorizontalAlignment="Right" />
+                    <Label Grid.Row="3" Content="Album cover art filename:" VerticalAlignment="Center" HorizontalAlignment="Right" Name="labelAlbumCoverArtFile" />
                     <TextBox Grid.Row="3" Grid.Column="1" Margin="4" Text="" VerticalContentAlignment="Center" Name="textBoxId3AlbumCoverArtPath" Grid.ColumnSpan="1" />
                     <Button Grid.Row="3" Grid.Column="2" Margin="4" Content="_Browse..." Name="buttonID3BrowseImage" Click="buttonID3BrowseImage_Click" Grid.ColumnSpan="3" />
-                    <Button Grid.Row="4" Margin="4" Content="Add/Replace ID3 chunk" Name="buttonID3" Click="buttonID3_Click" Grid.ColumnSpan="3" />
+                    <Button Grid.Row="4" Margin="4" Content="Add/Replace id3 chunk" Name="buttonID3" Click="buttonID3_Click" Grid.ColumnSpan="3" />
                 </Grid>
             </GroupBox>
         </Grid>
