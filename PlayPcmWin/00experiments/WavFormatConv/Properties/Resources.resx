@@ -162,6 +162,9 @@
   <data name="CheckBoxRiffLonger" xml:space="preserve">
     <value>Set chunkSize longer than actual file size</value>
   </data>
+  <data name="ErrorInputAndOutputIsTheSame" xml:space="preserve">
+    <value>Error: Input file and Output file must be different file</value>
+  </data>
   <data name="GroupBoxBext" xml:space="preserve">
     <value>bext chunk</value>
   </data>

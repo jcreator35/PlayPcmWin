@@ -198,4 +198,7 @@
   <data name="LabelAlbumCoverArtFile" xml:space="preserve">
     <value>アルバムカバーアート画像ファイル名:</value>
   </data>
+  <data name="ErrorInputAndOutputIsTheSame" xml:space="preserve">
+    <value>エラー: 読み込むファイルと書き込むファイルは別のファイル名を指定してください</value>
+  </data>
 </root>

@@ -211,6 +211,13 @@ namespace WavFormatConv {
                 return;
             }
 
+            if (0 == textBoxInputFile.Text.CompareTo(textBoxOutputFile.Text)) {
+                MessageBox.Show(Properties.Resources.ErrorInputAndOutputIsTheSame);
+                textBoxLog.AppendText(string.Format("\r\n{0}", Properties.Resources.ErrorInputAndOutputIsTheSame));
+                textBoxLog.ScrollToEnd();
+                return;
+            }
+
             if (!LoadWavFile(textBoxInputFile.Text)) {
                 textBoxLog.AppendText(string.Format("\r\nRead Failed: {0}", textBoxInputFile.Text));
                 textBoxLog.ScrollToEnd();

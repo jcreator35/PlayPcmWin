@@ -196,6 +196,15 @@ namespace WavFormatConv.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Error: Input file and Output file must be different file.
+        /// </summary>
+        internal static string ErrorInputAndOutputIsTheSame {
+            get {
+                return ResourceManager.GetString("ErrorInputAndOutputIsTheSame", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to bext chunk.
         /// </summary>
         internal static string GroupBoxBext {
