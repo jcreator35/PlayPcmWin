@@ -311,5 +311,23 @@ namespace WavFormatConv.Properties {
                 return ResourceManager.GetString("LabelAlbumCoverArtFile", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Read succeeded: {0}.
+        /// </summary>
+        internal static string LogReadSucceeded {
+            get {
+                return ResourceManager.GetString("LogReadSucceeded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Write succeeded: {0}.
+        /// </summary>
+        internal static string LogWriteSucceeded {
+            get {
+                return ResourceManager.GetString("LogWriteSucceeded", resourceCulture);
+            }
+        }
     }
 }

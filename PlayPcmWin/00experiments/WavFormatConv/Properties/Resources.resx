@@ -201,4 +201,10 @@
   <data name="LabelAlbumCoverArtFile" xml:space="preserve">
     <value>Album cover art filename:</value>
   </data>
+  <data name="LogReadSucceeded" xml:space="preserve">
+    <value>Read succeeded: {0}</value>
+  </data>
+  <data name="LogWriteSucceeded" xml:space="preserve">
+    <value>Write succeeded: {0}</value>
+  </data>
 </root>

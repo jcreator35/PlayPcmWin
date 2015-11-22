@@ -223,14 +223,14 @@ namespace WavFormatConv {
                 textBoxLog.ScrollToEnd();
                 return;
             }
-            textBoxLog.AppendText(string.Format("\r\nRead succeeded: {0}", textBoxInputFile.Text)); 
+            textBoxLog.AppendText(string.Format("\r\n" + Properties.Resources.LogReadSucceeded, textBoxInputFile.Text)); 
 
             if (!SaveWavFile(textBoxOutputFile.Text)) {
                 textBoxLog.AppendText(string.Format("\r\nWrite failed: {0}", textBoxOutputFile.Text));
                 textBoxLog.ScrollToEnd();
                 return;
             }
-            textBoxLog.AppendText(string.Format("\r\nWrite succeeded: {0}", textBoxOutputFile.Text));
+            textBoxLog.AppendText(string.Format("\r\n" + Properties.Resources.LogWriteSucceeded, textBoxOutputFile.Text));
             textBoxLog.ScrollToEnd();
         }
 
