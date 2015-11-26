@@ -446,4 +446,13 @@
   <data name="FilterNormalizeDesc" xml:space="preserve">
     <value>Normalize signal level max={0}</value>
   </data>
+  <data name="ErrorFundamentalsGainValue" xml:space="preserve">
+    <value>Please input fundamentals gain in number</value>
+  </data>
+  <data name="FilterAddFundamentalsDesc" xml:space="preserve">
+    <value>Add octave bass unison of the sound below 80Hz: Gain={0}x ({1:0.00}dB)</value>
+  </data>
+  <data name="GroupAddFundamentals" xml:space="preserve">
+    <value>Add octave bass unison of the sound below 80Hz</value>
+  </data>
 </root>

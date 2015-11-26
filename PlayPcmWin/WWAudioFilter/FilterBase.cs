@@ -30,6 +30,7 @@ namespace WWAudioFilter {
         DynamicRangeCompression,
         UnevenBitDac,
         Normalize,
+        AddFundamentals,
     }
 
     public struct TagData {

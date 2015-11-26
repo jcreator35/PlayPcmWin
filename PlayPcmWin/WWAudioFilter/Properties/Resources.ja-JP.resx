@@ -178,10 +178,10 @@
     <value>FIRフィルタ長:</value>
   </data>
   <data name="LabelGainInAmplitude" xml:space="preserve">
-    <value>倍率で指定:</value>
+    <value>ゲインを倍率で指定:</value>
   </data>
   <data name="LabelGainInDb" xml:space="preserve">
-    <value>デシベルで指定:</value>
+    <value>ゲインをデシベルで指定:</value>
   </data>
   <data name="LabelGainRolloffSlopes" xml:space="preserve">
     <value>周波数応答の傾斜:</value>
@@ -397,5 +397,11 @@
   </data>
   <data name="FilterHalfbandDesc" xml:space="preserve">
     <value>ハーフバンドフィルター: タップ数={0}</value>
+  </data>
+  <data name="FilterAddFundamentalsDesc" xml:space="preserve">
+    <value>80Hz以下の音の1オクターブ低いユニゾンを追加する: ゲイン={0}x ({1:0.00}dB)</value>
+  </data>
+  <data name="GroupAddFundamentals" xml:space="preserve">
+    <value>80Hz以下の音の1オクターブ低いユニゾンを追加する</value>
   </data>
 </root>

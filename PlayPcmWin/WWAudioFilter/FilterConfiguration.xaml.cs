@@ -94,6 +94,10 @@
                 groupBoxHalfBandFilter.Header = Properties.Resources.GroupHalfbandFilter;
                 labelHalfBandFilterTap.Content = Properties.Resources.LabelHalfBandFilterTaps;
                 buttonUseHalfBandFilter.Content = Properties.Resources.ButtonUseThisFilter;
+
+                groupBoxAddFundamentals.Header = Properties.Resources.GroupAddFundamentals;
+                labelAddFundamentalsGain.Content = Properties.Resources.LabelGainInDb;
+                buttonUseAddFundamentals.Content = Properties.Resources.ButtonUseThisFilter;
             }
 
             public FilterBase Filter {
@@ -187,6 +191,10 @@
                 case FilterType.UnevenBitDac:
                     var ubd = filter as UnevenBitDacFilter;
                     textBoxUnevenBitDacLsbScaling.Text = string.Format(CultureInfo.CurrentCulture, "{0}", ubd.LsbScalingDb);
+                    break;
+                case FilterType.AddFundamentals:
+                    var af = filter as AddFundamentalsFilter;
+                    textBoxAddFundamentalsGain.Text = string.Format(CultureInfo.CurrentCulture, "{0}", af.Gain);
                     break;
                 }
             }
@@ -688,6 +696,19 @@
                 }
 
                 mFilter = new NormalizeFilter(Math.Pow(10.0, v / 20.0));
+
+                DialogResult = true;
+                Close();
+            }
+
+            private void buttonUseAddFundamentals_Click(object sender, RoutedEventArgs e) {
+                double v;
+                if (!Double.TryParse(textBoxAddFundamentalsGain.Text, out v) || 0.0 < v) {
+                    MessageBox.Show(Properties.Resources.ErrorFundamentalsGainValue);
+                    return;
+                }
+
+                mFilter = new AddFundamentalsFilter(Math.Pow(10.0, v / 20.0));
 
                 DialogResult = true;
                 Close();

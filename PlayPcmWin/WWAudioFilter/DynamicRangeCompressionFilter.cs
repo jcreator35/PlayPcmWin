@@ -9,9 +9,7 @@ namespace WWAudioFilter {
         private const int    FFT_LENGTH  = 4096;
         private const double LSB_DECIBEL = -144.0;
 
-        private WWRadix2Fft mFft;
-        private double[] mOverlapInputSamples;
-        private double[] mOverlapOutputSamples;
+        OverlapSaveFft mOverlapSaveFft = null;
 
         public DynamicRangeCompressionFilter(double lsbScalingDb)
                 : base(FilterType.DynamicRangeCompression) {
@@ -19,13 +17,7 @@ namespace WWAudioFilter {
         }
 
         public override long NumOfSamplesNeeded() {
-            // 1回目のFilterDo()だけFFT_LENGTHサンプルが必要。
-            // 2回目以降はFFT_LENGTH/2サンプルずつもらう。
-            if (mOverlapInputSamples == null) {
-                return FFT_LENGTH;
-            } else {
-                return FFT_LENGTH/2;
-            }
+            return mOverlapSaveFft.NumOfSamplesNeeded();
         }
 
         public override FilterBase CreateCopy() {
@@ -57,30 +49,20 @@ namespace WWAudioFilter {
 
         public override void FilterStart() {
             base.FilterStart();
-
-            mFft = new WWRadix2Fft(FFT_LENGTH);
-            mOverlapInputSamples  = null;
-            mOverlapOutputSamples = null;
+            mOverlapSaveFft = new OverlapSaveFft(FFT_LENGTH);
         }
 
         public override void FilterEnd() {
             base.FilterEnd();
 
-            mFft = null;
-            mOverlapInputSamples  = null;
-            mOverlapOutputSamples = null;
+            mOverlapSaveFft.Clear();
         }
 
-        private double[] Compress(double[] inPcm) {
+
+        public override double[] FilterDo(double[] inPcm) {
+            var pcmF = mOverlapSaveFft.ForwardFft(inPcm);
+
             double scaleLsb = Math.Pow(10, LsbScalingDb / 20.0);
-
-            var inPcmT = new WWComplex[FFT_LENGTH];
-            for (int i = 0; i < inPcmT.Length; ++i) {
-                inPcmT[i] = new WWComplex(inPcm[i], 0);
-            }
-
-            var pcmF = mFft.ForwardFft(inPcmT);
-            inPcmT = null;
 
             double maxMagnitude = FFT_LENGTH / 2;
 
@@ -113,68 +95,7 @@ namespace WWAudioFilter {
                 pcmF[i].Mul(scale);
             }
 
-            var pcmT = mFft.InverseFft(pcmF);
-            pcmF = null;
-
-            var outPcm = new double[FFT_LENGTH];
-            for (int i = 0; i < outPcm.Length; ++i) {
-                outPcm[i] = pcmT[i].real;
-            }
-            pcmT = null;
-
-            return outPcm;
-        }
-
-        private double [] FilterDoFirstTime(double[] inPcm) {
-            System.Diagnostics.Debug.Assert(inPcm.Length == FFT_LENGTH);
-            
-            var outPcm = Compress(inPcm);
-            
-            // store last half part for later processing
-            mOverlapInputSamples = new double[FFT_LENGTH / 2];
-            Array.Copy(inPcm, FFT_LENGTH / 2, mOverlapInputSamples, 0, FFT_LENGTH / 2);
-
-            mOverlapOutputSamples = new double[FFT_LENGTH / 2];
-            Array.Copy(outPcm, FFT_LENGTH / 2, mOverlapOutputSamples, 0, FFT_LENGTH / 2);
-
-            // returns first half part
-            var result = new double[FFT_LENGTH / 2];
-            Array.Copy(outPcm, 0, mOverlapOutputSamples, 0, FFT_LENGTH / 2);
-            return result;
-        }
-
-        private double [] FilterDoOther(double[] inPcmArg) {
-            System.Diagnostics.Debug.Assert(inPcmArg.Length == FFT_LENGTH/2);
-
-            var inPcm = new double[FFT_LENGTH];
-            Array.Copy(mOverlapInputSamples, 0, inPcm, 0, FFT_LENGTH / 2);
-            Array.Copy(inPcmArg, 0, inPcm, FFT_LENGTH/2, FFT_LENGTH / 2);
-
-            var outPcm = Compress(inPcm);
-
-            // store last half part of inPcm for later processing
-            mOverlapInputSamples = new double[FFT_LENGTH / 2];
-            Array.Copy(inPcmArg, 0, mOverlapInputSamples, 0, FFT_LENGTH / 2);
-
-            var outPcmFirstHalf = new double[FFT_LENGTH / 2];
-            Array.Copy(outPcm, 0, outPcmFirstHalf, 0, FFT_LENGTH / 2);
-
-            // returns first half part mixed with last overlap
-            var result = WWUtil.Crossfade(mOverlapOutputSamples, outPcmFirstHalf);
-
-            // store last half part of outPcm for later processing
-            mOverlapOutputSamples = new double[FFT_LENGTH / 2];
-            Array.Copy(outPcm, FFT_LENGTH / 2, mOverlapOutputSamples, 0, FFT_LENGTH / 2);
-
-            return result;
-        }
-
-        public override double[] FilterDo(double[] inPcm) {
-            if (mOverlapInputSamples == null) {
-                return FilterDoFirstTime(inPcm);
-            } else {
-                return FilterDoOther(inPcm);
-            }
+            return mOverlapSaveFft.InverseFft(pcmF);
         }
     }
 }
