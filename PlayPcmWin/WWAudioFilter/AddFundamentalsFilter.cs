@@ -4,9 +4,7 @@ using System.Globalization;
 namespace WWAudioFilter {
     public class AddFundamentalsFilter : FilterBase {
         public double Gain { get; set; }
-
         private int mFftLength;
-
         private OverlappedFft mOverlapSaveFft = null;
         private PcmFormat mPcmFormat;
 
