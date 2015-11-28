@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 
 namespace WWAudioFilter {
-    class OverlapSaveFft {
+    class OverlappedFft {
         private readonly int mFftLength;
         public int FftLength { get { return mFftLength; } }
 
@@ -13,11 +13,11 @@ namespace WWAudioFilter {
         private double[] mOverlapOutputSamples;
         private bool mFirstTime;
 
-        public OverlapSaveFft(int fftLength) {
+        public OverlappedFft(int fftLength) {
             mFftLength = fftLength;
             mFft = new WWRadix2Fft(mFftLength);
-            mOverlapInputSamples  = null;
-            mOverlapOutputSamples = null;
+            mOverlapInputSamples = new double[mFftLength / 2];
+            mOverlapOutputSamples = new double[mFftLength / 2];
             mFirstTime = true;
         }
 
@@ -49,7 +49,6 @@ namespace WWAudioFilter {
             }
 
             // store last half part of input samples for later processing
-            mOverlapInputSamples = new double[mFftLength / 2];
             Array.Copy(timeFull, mFftLength / 2, mOverlapInputSamples, 0, mFftLength / 2);
 
             var timeComplex = new WWComplex[mFftLength];
@@ -79,11 +78,10 @@ namespace WWAudioFilter {
                 result = firstHalf;
             } else {
                 // returns first half part mixed with last overlap
-                result = WWUtil.Crossfade(mOverlapOutputSamples, firstHalf);
+                result = WWUtil.Crossfade(mOverlapInputSamples, firstHalf);
             }
 
             // store last half part of timeReal for later processing
-            mOverlapOutputSamples = new double[mFftLength / 2];
             Array.Copy(timeReal, mFftLength / 2, mOverlapOutputSamples, 0, mFftLength / 2);
 
             mFirstTime = false;

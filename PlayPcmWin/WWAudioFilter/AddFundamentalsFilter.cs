@@ -5,9 +5,9 @@ namespace WWAudioFilter {
     public class AddFundamentalsFilter : FilterBase {
         public double Gain { get; set; }
 
-        private const int FFT_LENGTH = 4096;
+        private int mFftLength;
 
-        private OverlapSaveFft mOverlapSaveFft = null;
+        private OverlappedFft mOverlapSaveFft = null;
         private PcmFormat mPcmFormat;
 
         public AddFundamentalsFilter(double gain)
@@ -25,7 +25,7 @@ namespace WWAudioFilter {
 
         public override string ToDescriptionText() {
             return string.Format(CultureInfo.CurrentCulture, Properties.Resources.FilterAddFundamentalsDesc,
-                Gain, 20.0 * Math.Log10(Gain));
+                20.0 * Math.Log10(Gain));
         }
 
         public override string ToSaveText() {
@@ -51,7 +51,8 @@ namespace WWAudioFilter {
 
         public override PcmFormat Setup(PcmFormat inputFormat) {
             mPcmFormat = new PcmFormat(inputFormat);
-            mOverlapSaveFft = new OverlapSaveFft(FFT_LENGTH);
+            mFftLength = WWUtil.NextPowerOf2(mPcmFormat.SampleRate / 10);
+            mOverlapSaveFft = new OverlappedFft(mFftLength);
             return inputFormat;
         }
 
@@ -68,8 +69,8 @@ namespace WWAudioFilter {
         public override double[] FilterDo(double[] inPcm) {
             var pcmF = mOverlapSaveFft.ForwardFft(inPcm);
 
-            int idx20Hz = (int)(20.0 * FFT_LENGTH / mPcmFormat.SampleRate);
-            int idx40Hz = (int)(40.0 * FFT_LENGTH / mPcmFormat.SampleRate);
+            int idx20Hz = (int)(20.0 * mFftLength / mPcmFormat.SampleRate);
+            int idx40Hz = (int)(40.0 * mFftLength / mPcmFormat.SampleRate);
 
             for (int i = 0; i < idx40Hz - idx20Hz; ++i) {
                 var v = pcmF[i + idx40Hz];

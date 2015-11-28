@@ -152,7 +152,7 @@ namespace WWAudioFilter {
             // 入力データとしてmPcmAllChannelsが使用できる。mPcmAllChannels[0]==左スピーカーの音、mPcmAllChannels[1]==右スピーカーの音。
 
             int fftLength = ((int)mNumSamples < mCoeffs[0].Length) ? mCoeffs[0].Length : (int)mNumSamples;
-            fftLength = WWRadix2Fft.NextPowerOf2(fftLength);
+            fftLength = WWUtil.NextPowerOf2(fftLength);
 
             // 左スピーカーの音=mPcmAllChannels[0]
             // 左スピーカーと耳chの相互作用のCoeff==mCoeffs[ch]

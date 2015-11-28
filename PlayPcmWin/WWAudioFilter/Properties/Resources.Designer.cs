@@ -503,7 +503,7 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Add octave bass unison of the sound below 80Hz: Gain={0}x ({1:0.00}dB).
+        ///   Looks up a localized string similar to Add octave bass unison of the sound below 80Hz: Gain={0:0.00}dB.
         /// </summary>
         internal static string FilterAddFundamentalsDesc {
             get {

@@ -104,7 +104,7 @@
     <Compile Include="JitterAddFilter.cs" />
     <Compile Include="MashFilter.cs" />
     <Compile Include="NormalizeFilter.cs" />
-    <Compile Include="OverlapSaveFft.cs" />
+    <Compile Include="OverlappedFft.cs" />
     <Compile Include="TagEditFilter.cs" />
     <Compile Include="NoiseShaping4thFilter.cs" />
     <Compile Include="NoiseShapingFilter.cs" />

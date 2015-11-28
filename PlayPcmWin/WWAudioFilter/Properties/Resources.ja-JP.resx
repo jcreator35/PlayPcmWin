@@ -399,7 +399,7 @@
     <value>ハーフバンドフィルター: タップ数={0}</value>
   </data>
   <data name="FilterAddFundamentalsDesc" xml:space="preserve">
-    <value>80Hz以下の音の1オクターブ低いユニゾンを追加する: ゲイン={0}x ({1:0.00}dB)</value>
+    <value>80Hz以下の音の1オクターブ低いユニゾンを追加する: ゲイン={0:0.00}dB</value>
   </data>
   <data name="GroupAddFundamentals" xml:space="preserve">
     <value>80Hz以下の音の1オクターブ低いユニゾンを追加する</value>

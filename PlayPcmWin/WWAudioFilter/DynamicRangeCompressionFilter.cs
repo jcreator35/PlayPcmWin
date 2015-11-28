@@ -9,7 +9,7 @@ namespace WWAudioFilter {
         private const int    FFT_LENGTH  = 4096;
         private const double LSB_DECIBEL = -144.0;
 
-        OverlapSaveFft mOverlapSaveFft = null;
+        OverlappedFft mOverlapSaveFft = null;
 
         public DynamicRangeCompressionFilter(double lsbScalingDb)
                 : base(FilterType.DynamicRangeCompression) {
@@ -49,7 +49,7 @@ namespace WWAudioFilter {
 
         public override void FilterStart() {
             base.FilterStart();
-            mOverlapSaveFft = new OverlapSaveFft(FFT_LENGTH);
+            mOverlapSaveFft = new OverlappedFft(FFT_LENGTH);
         }
 
         public override void FilterEnd() {

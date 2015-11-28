@@ -8,7 +8,7 @@ namespace WWAudioFilter {
         private uint [] mBitReversalTable;
 
         public WWRadix2Fft(int numPoints) {
-            if (!IsPowerOfTwo(numPoints) || numPoints < 2) {
+            if (!WWUtil.IsPowerOfTwo(numPoints) || numPoints < 2) {
                 throw new ArgumentException("numPoints must be power of two integer and larger than 2");
             }
             mNumPoints = numPoints;
@@ -34,22 +34,6 @@ namespace WWAudioFilter {
 
         private static int Pow2(int x) {
             return 1 << x;
-        }
-
-        private static bool IsPowerOfTwo(int x) {
-            return (x != 0) && ((x & (x - 1)) == 0);
-        }
-
-        public static int NextPowerOf2(int v) {
-            if (v <= 0 || 0x3fffffff < v) {
-                return 0;
-            }
-            
-            int result = 1;
-            while (result < v) {
-                result *= 2;
-            }
-            return result;
         }
 
         private static uint BitReversal(int numOfBits, uint v) {

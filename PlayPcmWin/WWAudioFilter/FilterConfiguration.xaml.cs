@@ -194,7 +194,7 @@
                     break;
                 case FilterType.AddFundamentals:
                     var af = filter as AddFundamentalsFilter;
-                    textBoxAddFundamentalsGain.Text = string.Format(CultureInfo.CurrentCulture, "{0}", af.Gain);
+                    textBoxAddFundamentalsGain.Text = string.Format(CultureInfo.CurrentCulture, "{0}", 20.0 * Math.Log10(af.Gain));
                     break;
                 }
             }
