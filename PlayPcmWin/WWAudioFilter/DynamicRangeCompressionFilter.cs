@@ -9,7 +9,7 @@ namespace WWAudioFilter {
         private const int    FFT_LENGTH  = 4096;
         private const double LSB_DECIBEL = -144.0;
 
-        OverlappedFft mOverlapSaveFft = null;
+        OverlappedFft mOverlappedFft = null;
 
         public DynamicRangeCompressionFilter(double lsbScalingDb)
                 : base(FilterType.DynamicRangeCompression) {
@@ -17,7 +17,7 @@ namespace WWAudioFilter {
         }
 
         public override long NumOfSamplesNeeded() {
-            return mOverlapSaveFft.NumOfSamplesNeeded();
+            return mOverlappedFft.NumOfSamplesNeeded();
         }
 
         public override FilterBase CreateCopy() {
@@ -49,18 +49,18 @@ namespace WWAudioFilter {
 
         public override void FilterStart() {
             base.FilterStart();
-            mOverlapSaveFft = new OverlappedFft(FFT_LENGTH);
+            mOverlappedFft = new OverlappedFft(FFT_LENGTH);
         }
 
         public override void FilterEnd() {
             base.FilterEnd();
 
-            mOverlapSaveFft.Clear();
+            mOverlappedFft.Clear();
         }
 
 
         public override double[] FilterDo(double[] inPcm) {
-            var pcmF = mOverlapSaveFft.ForwardFft(inPcm);
+            var pcmF = mOverlappedFft.ForwardFft(inPcm);
 
             double scaleLsb = Math.Pow(10, LsbScalingDb / 20.0);
 
@@ -95,7 +95,7 @@ namespace WWAudioFilter {
                 pcmF[i].Mul(scale);
             }
 
-            return mOverlapSaveFft.InverseFft(pcmF);
+            return mOverlappedFft.InverseFft(pcmF);
         }
     }
 }
