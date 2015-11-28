@@ -49,7 +49,7 @@ namespace WWAudioFilter {
 
         public override PcmFormat Setup(PcmFormat inputFormat) {
             mPcmFormat = new PcmFormat(inputFormat);
-            mFftLength = WWUtil.NextPowerOf2(mPcmFormat.SampleRate/10);
+            mFftLength = WWUtil.NextPowerOf2(mPcmFormat.SampleRate);
             mOverlappedFft = new OverlappedFft(mFftLength);
 
             return inputFormat;
