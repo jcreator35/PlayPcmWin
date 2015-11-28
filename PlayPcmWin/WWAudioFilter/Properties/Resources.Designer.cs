@@ -638,7 +638,7 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Normalize signal level max={0}.
+        ///   Looks up a localized string similar to Normalize signal level max={0}dBFS.
         /// </summary>
         internal static string FilterNormalizeDesc {
             get {
@@ -787,6 +787,15 @@ namespace WWAudioFilter.Properties {
         internal static string GroupNoiseShaping {
             get {
                 return ResourceManager.GetString("GroupNoiseShaping", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Normalize.
+        /// </summary>
+        internal static string GroupNormalizeFilter {
+            get {
+                return ResourceManager.GetString("GroupNormalizeFilter", resourceCulture);
             }
         }
         
@@ -940,6 +949,15 @@ namespace WWAudioFilter.Properties {
         internal static string LabelNoiseShapingTargetBit {
             get {
                 return ResourceManager.GetString("LabelNoiseShapingTargetBit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Normalized amplitude (dBFS):.
+        /// </summary>
+        internal static string LabelNormalizeAmplitude {
+            get {
+                return ResourceManager.GetString("LabelNormalizeAmplitude", resourceCulture);
             }
         }
         

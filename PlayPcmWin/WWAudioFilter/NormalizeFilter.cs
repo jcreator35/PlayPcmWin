@@ -24,7 +24,7 @@ namespace WWAudioFilter {
 
         public override string ToDescriptionText() {
             return string.Format(CultureInfo.CurrentCulture, Properties.Resources.FilterNormalizeDesc,
-                Amplitude, 20.0 * Math.Log10(Amplitude));
+                20.0 * Math.Log10(Amplitude));
         }
 
         public override string ToSaveText() {

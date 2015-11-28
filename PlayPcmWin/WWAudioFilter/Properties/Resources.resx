@@ -444,7 +444,7 @@
     <value>Error normalize amplutude value must be number equals to or less than 0.0</value>
   </data>
   <data name="FilterNormalizeDesc" xml:space="preserve">
-    <value>Normalize signal level max={0}</value>
+    <value>Normalize signal level max={0}dBFS</value>
   </data>
   <data name="ErrorFundamentalsGainValue" xml:space="preserve">
     <value>Please input fundamentals gain in number</value>
@@ -454,5 +454,11 @@
   </data>
   <data name="GroupAddFundamentals" xml:space="preserve">
     <value>Add octave bass unison of the sound below 80Hz</value>
+  </data>
+  <data name="GroupNormalizeFilter" xml:space="preserve">
+    <value>Normalize</value>
+  </data>
+  <data name="LabelNormalizeAmplitude" xml:space="preserve">
+    <value>Normalized amplitude (dBFS):</value>
   </data>
 </root>

@@ -31,7 +31,19 @@ namespace WWAudioFilter {
 
             return result;
         }
-        
+
+        public static double[] Mul(double[] first, double[] second) {
+            System.Diagnostics.Debug.Assert(first.Length == second.Length);
+
+            var result = new double[first.Length];
+
+            for (int i = 0; i < first.Length; ++i) {
+                result[i] = first[i] * second[i];
+            }
+
+            return result;
+        }
+
         public static bool IsPowerOfTwo(int x) {
             return (x != 0) && ((x & (x - 1)) == 0);
         }

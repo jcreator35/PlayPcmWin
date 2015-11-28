@@ -11,7 +11,7 @@ namespace WWAudioFilter {
         /// <summary>
         /// ブラックマン窓
         /// </summary>
-        /// <param name="window">[out]窓Wk 左右対称の形状が出てくる。</param>
+        /// <param name="window">[out]窓Wk 左右対称の形状が出てくる。奇数である必要あり。</param>
         /// <returns>窓の長さn(nは奇数) 要素番号(length-1)/2が山のピーク</returns>
         public static double [] BlackmanWindow(int length) {
             // nは奇数

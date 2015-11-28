@@ -404,4 +404,13 @@
   <data name="GroupAddFundamentals" xml:space="preserve">
     <value>80Hz以下の音の1オクターブ低いユニゾンを追加する</value>
   </data>
+  <data name="FilterNormalizeDesc" xml:space="preserve">
+    <value>ノーマライズ 最大レベル={0}dBFS</value>
+  </data>
+  <data name="GroupNormalizeFilter" xml:space="preserve">
+    <value>ノーマライズ</value>
+  </data>
+  <data name="LabelNormalizeAmplitude" xml:space="preserve">
+    <value>最大レベル (dBFS):</value>
+  </data>
 </root>

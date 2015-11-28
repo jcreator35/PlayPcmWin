@@ -53,6 +53,7 @@ namespace WWAudioFilter {
             mPcmFormat = new PcmFormat(inputFormat);
             mFftLength = WWUtil.NextPowerOf2(mPcmFormat.SampleRate / 10);
             mOverlapSaveFft = new OverlappedFft(mFftLength);
+
             return inputFormat;
         }
 
@@ -73,9 +74,19 @@ namespace WWAudioFilter {
             int idx40Hz = (int)(40.0 * mFftLength / mPcmFormat.SampleRate);
 
             for (int i = 0; i < idx40Hz - idx20Hz; ++i) {
-                var v = pcmF[i + idx40Hz];
-                v.Mul(Gain);
-                pcmF[i + idx20Hz].Add(v);
+                // 正の周波数
+                {
+                    var v = pcmF[i + idx40Hz];
+                    v.Mul(Gain);
+                    pcmF[i + idx20Hz].Add(v);
+                }
+
+                // 負の周波数
+                {
+                    var v = pcmF[mFftLength - (i + idx40Hz)];
+                    v.Mul(Gain);
+                    pcmF[mFftLength - (i + idx20Hz)].Add(v);
+                }
             }
 
             return mOverlapSaveFft.InverseFft(pcmF);

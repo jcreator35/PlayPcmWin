@@ -95,6 +95,10 @@
                 labelHalfBandFilterTap.Content = Properties.Resources.LabelHalfBandFilterTaps;
                 buttonUseHalfBandFilter.Content = Properties.Resources.ButtonUseThisFilter;
 
+                groupBoxNormalize.Header = Properties.Resources.GroupNormalizeFilter;
+                labelNormalizeAmplitude.Content = Properties.Resources.LabelNormalizeAmplitude;
+                buttonUseNormalize.Content = Properties.Resources.ButtonUseThisFilter;
+
                 groupBoxAddFundamentals.Header = Properties.Resources.GroupAddFundamentals;
                 labelAddFundamentalsGain.Content = Properties.Resources.LabelGainInDb;
                 buttonUseAddFundamentals.Content = Properties.Resources.ButtonUseThisFilter;
