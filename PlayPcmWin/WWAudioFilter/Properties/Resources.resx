@@ -461,4 +461,10 @@
   <data name="LabelNormalizeAmplitude" xml:space="preserve">
     <value>Normalized amplitude (dBFS):</value>
   </data>
+  <data name="CbItemLineDrawUpsampler" xml:space="preserve">
+    <value>Line draw Upsampler</value>
+  </data>
+  <data name="FilterLineDrawDesc" xml:space="preserve">
+    <value>Line draw upsample: {0}x</value>
+  </data>
 </root>

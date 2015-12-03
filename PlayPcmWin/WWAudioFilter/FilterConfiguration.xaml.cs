@@ -59,6 +59,7 @@
                 cbItemFftUpsampler.Content = Properties.Resources.CbItemFftUpsampler;
                 cbItemZohUpsampler.Content = Properties.Resources.CbItemZohUpsampler;
                 cbItemInsertZeroesUpsampler.Content = Properties.Resources.CbItemInsertZeroesUpsampler;
+                cbItemLineDrawUpsampler.Content = Properties.Resources.CbItemLineDrawUpsampler;
                 labelUpsampleFactor.Content = Properties.Resources.LabelUpsamplingFactor;
                 labelUpsampleLen.Content = Properties.Resources.LabelUpsamplerLength;
                 labelUpsampleLenUnit.Content = Properties.Resources.LabelSamples;
@@ -125,6 +126,11 @@
                     var zoh = filter as ZeroOrderHoldUpsampler;
                     comboBoxUpsamplingFactor.SelectedIndex = (int)UpsamplingFactorToUpsamplingFactorType(zoh.Factor);
                     comboBoxUpsamplerType.SelectedIndex = (int)UpsamplerType.ZOH;
+                    break;
+                case FilterType.LineDrawUpsampler:
+                    var ldu = filter as LineDrawUpsampler;
+                    comboBoxUpsamplingFactor.SelectedIndex = (int)UpsamplingFactorToUpsamplingFactorType(ldu.Factor);
+                    comboBoxUpsamplerType.SelectedIndex = (int)UpsamplerType.LineDraw;
                     break;
                 case FilterType.LowPassFilter:
                     var lpf = filter as LowpassFilter;
@@ -310,7 +316,8 @@
             enum UpsamplerType {
                 FFT,
                 ZOH,
-                InsertZeroes
+                InsertZeroes,
+                LineDraw
             };
 
             enum UpsampleLenType {
@@ -395,6 +402,9 @@
                 case (int)UpsamplerType.ZOH:
                     mFilter = new ZeroOrderHoldUpsampler(factor);
                     break;
+                case (int)UpsamplerType.LineDraw:
+                    mFilter = new LineDrawUpsampler(factor);
+                    break;
                 case (int)UpsamplerType.FFT:
                     mFilter = new FftUpsampler(factor, len, overlap);
                     break;
@@ -478,8 +488,10 @@
 
                 if (comboBoxUpsamplerType.SelectedIndex == (int)UpsamplerType.FFT) {
                     comboBoxUpsampleLen.IsEnabled = true;
+                    comboBoxFftOverlap.IsEnabled = true;
                 } else {
                     comboBoxUpsampleLen.IsEnabled = false;
+                    comboBoxFftOverlap.IsEnabled = false;
                 }
             }
 

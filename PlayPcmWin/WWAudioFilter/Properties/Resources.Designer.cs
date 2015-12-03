@@ -214,6 +214,15 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Line draw Upsampler.
+        /// </summary>
+        internal static string CbItemLineDrawUpsampler {
+            get {
+                return ResourceManager.GetString("CbItemLineDrawUpsampler", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 2nd order.
         /// </summary>
         internal static string CbItemNoiseShaping2nd {
@@ -598,6 +607,15 @@ namespace WWAudioFilter.Properties {
         internal static string FilterJitterAddDesc {
             get {
                 return ResourceManager.GetString("FilterJitterAddDesc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Line draw upsample: {0}x.
+        /// </summary>
+        internal static string FilterLineDrawDesc {
+            get {
+                return ResourceManager.GetString("FilterLineDrawDesc", resourceCulture);
             }
         }
         

@@ -94,6 +94,7 @@
     <Compile Include="ButterworthFilter.cs" />
     <Compile Include="CicFilter.cs" />
     <Compile Include="AddFundamentalsFilter.cs" />
+    <Compile Include="LineDrawUpsampler.cs" />
     <Compile Include="CrossfeedFilter.cs" />
     <Compile Include="Downsampler.cs" />
     <Compile Include="DynamicRangeCompressionFilter.cs" />

@@ -31,6 +31,7 @@ namespace WWAudioFilter {
         UnevenBitDac,
         Normalize,
         AddFundamentals,
+        LineDrawUpsampler,
     }
 
     public struct TagData {

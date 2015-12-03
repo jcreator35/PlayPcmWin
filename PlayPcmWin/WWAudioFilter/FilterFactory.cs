@@ -103,6 +103,8 @@ namespace WWAudioFilter {
                 return GainFilter.Restore(tokens);
             case "ZohUpsampler":
                 return ZeroOrderHoldUpsampler.Restore(tokens);
+            case "LineDrawUpsampler":
+                return LineDrawUpsampler.Restore(tokens);
             case "LowPassFilter":
                 return LowpassFilter.Restore(tokens);
             case "FftUpsampler":

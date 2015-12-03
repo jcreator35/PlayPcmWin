@@ -413,4 +413,10 @@
   <data name="LabelNormalizeAmplitude" xml:space="preserve">
     <value>最大レベル (dBFS):</value>
   </data>
+  <data name="CbItemLineDrawUpsampler" xml:space="preserve">
+    <value>直線補間アップサンプル</value>
+  </data>
+  <data name="FilterLineDrawDesc" xml:space="preserve">
+    <value>直線補間アップサンプル: {0}x</value>
+  </data>
 </root>
