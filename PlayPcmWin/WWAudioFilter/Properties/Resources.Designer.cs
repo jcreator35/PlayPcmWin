@@ -160,6 +160,15 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cubic Hermite Spline upsampler.
+        /// </summary>
+        internal static string CbIteCubicHermiteSplineUpsampler {
+            get {
+                return ResourceManager.GetString("CbIteCubicHermiteSplineUpsampler", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Single stage CIC.
         /// </summary>
         internal static string CbItemCicTypeSingleStage {
@@ -535,6 +544,15 @@ namespace WWAudioFilter.Properties {
         internal static string FilterCrossfeedDesc {
             get {
                 return ResourceManager.GetString("FilterCrossfeedDesc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cubic Hermite Spline upsample: {0}x.
+        /// </summary>
+        internal static string FilterCubicHermiteSplineDesc {
+            get {
+                return ResourceManager.GetString("FilterCubicHermiteSplineDesc", resourceCulture);
             }
         }
         

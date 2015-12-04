@@ -81,7 +81,8 @@
                                 <ComboBoxItem Content="FFT Upsampler" IsSelected="True" Name="cbItemFftUpsampler" />
                                 <ComboBoxItem Content="Zero-Order Hold Upsampler" Name="cbItemZohUpsampler" />
                                 <ComboBoxItem Content="Insert Zeroes Upsampler" Name="cbItemInsertZeroesUpsampler" />
-                                <ComboBoxItem Content="Insert Zeroes Upsampler" Name="cbItemLineDrawUpsampler" />
+                                <ComboBoxItem Content="Line draw Upsampler" Name="cbItemLineDrawUpsampler" />
+                                <ComboBoxItem Content="Cubic Hermite Spline Upsampler" Name="cbItemCubicHermiteSplineUpsampler" />
                             </ComboBox>
                             <Label Grid.Row="1" Content="Upsampling factor:" HorizontalAlignment="Right" Margin="0,0,6,0" Name="labelUpsampleFactor" VerticalAlignment="Center" />
                             <ComboBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" Margin="6,0,6,0" Name="comboBoxUpsamplingFactor" VerticalAlignment="Center" HorizontalContentAlignment="Center">

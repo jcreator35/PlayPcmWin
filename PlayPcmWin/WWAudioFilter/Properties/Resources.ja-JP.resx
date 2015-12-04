@@ -419,4 +419,10 @@
   <data name="FilterLineDrawDesc" xml:space="preserve">
     <value>直線補間アップサンプル: {0}x</value>
   </data>
+  <data name="CbIteCubicHermiteSplineUpsampler" xml:space="preserve">
+    <value>キュービック エルミート スプライン アップサンプル</value>
+  </data>
+  <data name="FilterCubicHermiteSplineDesc" xml:space="preserve">
+    <value>キュービック エルミート スプライン アップサンプル: {0}x</value>
+  </data>
 </root>

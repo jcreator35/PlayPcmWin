@@ -60,6 +60,7 @@
                 cbItemZohUpsampler.Content = Properties.Resources.CbItemZohUpsampler;
                 cbItemInsertZeroesUpsampler.Content = Properties.Resources.CbItemInsertZeroesUpsampler;
                 cbItemLineDrawUpsampler.Content = Properties.Resources.CbItemLineDrawUpsampler;
+                cbItemCubicHermiteSplineUpsampler.Content = Properties.Resources.CbIteCubicHermiteSplineUpsampler;
                 labelUpsampleFactor.Content = Properties.Resources.LabelUpsamplingFactor;
                 labelUpsampleLen.Content = Properties.Resources.LabelUpsamplerLength;
                 labelUpsampleLenUnit.Content = Properties.Resources.LabelSamples;
@@ -131,6 +132,11 @@
                     var ldu = filter as LineDrawUpsampler;
                     comboBoxUpsamplingFactor.SelectedIndex = (int)UpsamplingFactorToUpsamplingFactorType(ldu.Factor);
                     comboBoxUpsamplerType.SelectedIndex = (int)UpsamplerType.LineDraw;
+                    break;
+                case FilterType.CubicHermiteSplineUpsampler:
+                    var chu = filter as CubicHermiteSplineUpsampler;
+                    comboBoxUpsamplingFactor.SelectedIndex = (int)UpsamplingFactorToUpsamplingFactorType(chu.Factor);
+                    comboBoxUpsamplerType.SelectedIndex = (int)UpsamplerType.CubicHermiteSpline;
                     break;
                 case FilterType.LowPassFilter:
                     var lpf = filter as LowpassFilter;
@@ -317,7 +323,8 @@
                 FFT,
                 ZOH,
                 InsertZeroes,
-                LineDraw
+                LineDraw,
+                CubicHermiteSpline
             };
 
             enum UpsampleLenType {
@@ -404,6 +411,9 @@
                     break;
                 case (int)UpsamplerType.LineDraw:
                     mFilter = new LineDrawUpsampler(factor);
+                    break;
+                case (int)UpsamplerType.CubicHermiteSpline:
+                    mFilter = new CubicHermiteSplineUpsampler(factor);
                     break;
                 case (int)UpsamplerType.FFT:
                     mFilter = new FftUpsampler(factor, len, overlap);
