@@ -473,4 +473,7 @@
   <data name="FilterCubicHermiteSplineDesc" xml:space="preserve">
     <value>Cubic Hermite Spline upsample: {0}x</value>
   </data>
+  <data name="FilterPcmFiles" xml:space="preserve">
+    <value>Audio files(*.wav, *.flac)|*.wav;*.flac</value>
+  </data>
 </root>

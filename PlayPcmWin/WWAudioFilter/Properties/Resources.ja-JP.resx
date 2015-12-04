@@ -425,4 +425,7 @@
   <data name="FilterCubicHermiteSplineDesc" xml:space="preserve">
     <value>キュービック エルミート スプライン アップサンプル: {0}x</value>
   </data>
+  <data name="FilterPcmFiles" xml:space="preserve">
+    <value>音声ファイル(*.wav,*.flac)|*.wav;*.flac</value>
+  </data>
 </root>

@@ -157,6 +157,6 @@ namespace WWAudioFilter {
         public WWFlacRWCS.Metadata meta;
         public List<AudioDataPerChannel> pcm;
         public byte[] picture;
-        public FileFormatType fileFormat;
+        public FileFormatType preferredSaveFormat;
     };
 }

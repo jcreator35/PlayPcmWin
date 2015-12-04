@@ -66,6 +66,79 @@ namespace PcmDataLib {
         public static long ChunkSizeWithPad(long ckSize) {
             return ((~(1L)) & (ckSize + 1));
         }
+
+        public static byte[] ConvertTo24bit(int bitsPerSample, long numSamples, PcmData.ValueRepresentationType valueType, byte [] data) {
+            if (bitsPerSample == 24 && valueType == PcmData.ValueRepresentationType.SInt) {
+                return data;
+            }
+
+            byte[] data24 = new byte[numSamples * 3];
+
+            switch (valueType) {
+            case PcmData.ValueRepresentationType.SInt:
+                switch (bitsPerSample) {
+                case 16:
+                    for (long i = 0; i < numSamples; ++i) {
+                        short v16 = (short)((uint)data[i * 2] + ((uint)data[i * 2 + 1] << 8));
+                        int v32 = v16;
+                        v32 *= 65536;
+                        data24[i * 3 + 0] = (byte)((v32 & 0x0000ff00) >> 8);
+                        data24[i * 3 + 1] = (byte)((v32 & 0x00ff0000) >> 16);
+                        data24[i * 3 + 2] = (byte)((v32 & 0xff000000) >> 24);
+                    }
+                    return data24;
+                case 32:
+                    for (long i = 0; i < numSamples; ++i) {
+                        int v32 = (int)(/* data[i * 4] + */ ((uint)data[i * 4 + 1] << 8) + ((uint)data[i * 4 + 2] << 16) + ((uint)data[i * 4 + 3] << 24));
+                        data24[i * 3 + 0] = (byte)((v32 & 0x0000ff00) >> 8);
+                        data24[i * 3 + 1] = (byte)((v32 & 0x00ff0000) >> 16);
+                        data24[i * 3 + 2] = (byte)((v32 & 0xff000000) >> 24);
+                    }
+                    return data24;
+                default:
+                    System.Diagnostics.Debug.Assert(false);
+                    return null;
+                }
+            case PcmData.ValueRepresentationType.SFloat:
+                for (long i = 0; i < numSamples; ++i) {
+                    double v;
+                    switch (bitsPerSample) {
+                    case 32:
+                        v = BitConverter.ToSingle(data, (int)(i*4));
+                        break;
+                    case 64:
+                        v = BitConverter.ToDouble(data, (int)(i*8));
+                        break;
+                    default:
+                        System.Diagnostics.Debug.Assert(false);
+                        return null;
+                    }
+
+                    int v32 = 0;
+                    if (1.0f <= v) {
+                        v32 = Int32.MaxValue;
+                    } else if (v < -1.0f) {
+                        v32 = Int32.MinValue;
+                    } else {
+                        long vMax = -((long)Int32.MinValue);
+
+                        long v64 = (long)(v * vMax);
+                        if (Int32.MaxValue < v64) {
+                            v64 = Int32.MaxValue;
+                        }
+                        v32 = (int)v64;
+                    }
+
+                    data24[i * 3 + 0] = (byte)((v32 & 0x0000ff00) >> 8);
+                    data24[i * 3 + 1] = (byte)((v32 & 0x00ff0000) >> 16);
+                    data24[i * 3 + 2] = (byte)((v32 & 0xff000000) >> 24);
+                }
+                return data24;
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                return null;
+            }
+        }
     }
 
     /// <summary>

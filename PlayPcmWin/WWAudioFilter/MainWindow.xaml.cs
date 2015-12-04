@@ -349,7 +349,7 @@ namespace WWAudioFilter {
 
         private void buttonBrowseInputFile_Click(object sender, RoutedEventArgs e) {
             var dlg = new Microsoft.Win32.OpenFileDialog();
-            dlg.Filter = Properties.Resources.FilterFlacFiles;
+            dlg.Filter = Properties.Resources.FilterPcmFiles;
             dlg.ValidateNames = true;
 
             var result = dlg.ShowDialog();

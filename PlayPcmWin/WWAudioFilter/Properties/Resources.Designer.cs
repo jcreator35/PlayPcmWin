@@ -683,6 +683,15 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Audio files(*.wav, *.flac)|*.wav;*.flac.
+        /// </summary>
+        internal static string FilterPcmFiles {
+            get {
+                return ResourceManager.GetString("FilterPcmFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Edit Tag : {0} = &quot;{1}&quot;.
         /// </summary>
         internal static string FilterTagEdit {

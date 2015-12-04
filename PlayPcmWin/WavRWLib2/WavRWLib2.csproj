@@ -123,13 +123,13 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <None Include="WavRWLib2.snk" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\PcmData\PcmDataLib.csproj">
       <Project>{7AF36E7B-839D-4C2F-AAFD-6D8319714D66}</Project>
       <Name>PcmDataLib</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="WavRWLib2.snk" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

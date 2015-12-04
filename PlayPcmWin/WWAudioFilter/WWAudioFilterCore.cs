@@ -94,7 +94,7 @@ namespace WWAudioFilter {
 
         private int SetupResultPcm(AudioData from,  List<FilterBase> filters, out AudioData to, FileFormatType toFileFormat) {
             to = new AudioData();
-            to.fileFormat = toFileFormat;
+            to.preferredSaveFormat = toFileFormat;
 
             var fmt = FilterSetup(from, 0, filters);
 
@@ -164,10 +164,60 @@ namespace WWAudioFilter {
             return fmt;
         }
 
-        private static int ReadFlacFile(string path, out AudioData ad) {
+        private static int ReadWavFile(string path, out AudioData ad) {
             ad = new AudioData();
 
-            ad.fileFormat = FileFormatType.FLAC;
+            using (var br = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))) {
+                var reader = new WavRWLib2.WavReader();
+                if (!reader.ReadHeaderAndSamples(br, 0, -1)) {
+                    MessageBox.Show(
+                        string.Format("Error: Failed to read WAV file: {0}", path));
+                    return -1;
+                }
+
+                ad.meta = new WWFlacRWCS.Metadata();
+                ad.meta.albumStr = reader.AlbumName;
+                ad.meta.artistStr = reader.ArtistName;
+                ad.meta.titleStr = reader.Title;
+                ad.meta.pictureBytes = reader.PictureBytes;
+                ad.picture = reader.PictureData;
+                ad.meta.totalSamples = reader.NumFrames;
+                ad.meta.channels = reader.NumChannels;
+                ad.meta.sampleRate = reader.SampleRate;
+
+                var interleaved = reader.GetSampleArray();
+                int bytesPerSample = reader.BitsPerSample / 8;
+
+                ad.pcm = new List<AudioDataPerChannel>();
+                for (int ch = 0; ch < reader.NumChannels; ++ch) {
+
+                    var pcmOneChannel = new byte[reader.NumFrames * bytesPerSample];
+                    for (int i = 0; i < reader.NumFrames; ++i) {
+                        for (int b = 0; b < reader.BitsPerSample / 8; ++b) {
+                            pcmOneChannel[bytesPerSample * i + b] =
+                                interleaved[bytesPerSample * (reader.NumChannels * i + ch) + b];
+                        }
+                    }
+
+                    var pcm24 = PcmDataLib.Util.ConvertTo24bit(reader.BitsPerSample, reader.NumFrames, reader.SampleValueRepresentationType, pcmOneChannel);
+
+                    var adp = new AudioDataPerChannel();
+                    adp.data = pcm24;
+                    adp.offsBytes = 0;
+                    adp.bitsPerSample = 24;
+                    adp.totalSamples = ad.meta.totalSamples;
+                    ad.pcm.Add(adp);
+                }
+
+                // converted to 24bit
+                ad.meta.bitsPerSample = 24;
+                ad.preferredSaveFormat = FileFormatType.FLAC;
+                return 0;
+            }
+        }
+
+        private static int ReadFlacFile(string path, out AudioData ad) {
+            ad = new AudioData();
 
             var flac = new WWFlacRWCS.FlacRW();
             int rv = flac.DecodeAll(path);
@@ -187,19 +237,25 @@ namespace WWAudioFilter {
 
             ad.pcm = new List<AudioDataPerChannel>();
             for (int ch = 0; ch < ad.meta.channels; ++ch) {
-                byte[] data;
-                long lrv = flac.GetDecodedPcmBytes(ch, 0, out data, ad.meta.totalSamples * (ad.meta.bitsPerSample / 8));
+                byte[] pcm;
+                long lrv = flac.GetDecodedPcmBytes(ch, 0, out pcm, ad.meta.totalSamples * (ad.meta.bitsPerSample / 8));
                 if (lrv < 0) {
                     return (int)lrv;
                 }
 
+                var pcm24 = PcmDataLib.Util.ConvertTo24bit(ad.meta.bitsPerSample, ad.meta.totalSamples, PcmDataLib.PcmData.ValueRepresentationType.SInt, pcm);
+
                 var adp = new AudioDataPerChannel();
-                adp.data = data;
+                adp.data = pcm24;
                 adp.offsBytes = 0;
-                adp.bitsPerSample = ad.meta.bitsPerSample;
+                adp.bitsPerSample = 24;
                 adp.totalSamples = ad.meta.totalSamples;
                 ad.pcm.Add(adp);
             }
+            
+            // converted to 24bit
+            ad.meta.bitsPerSample = 24;
+            ad.preferredSaveFormat = FileFormatType.FLAC;
 
             flac.DecodeEnd();
 
@@ -406,8 +462,13 @@ namespace WWAudioFilter {
         public int Run(string fromPath, List<FilterBase> aFilters, string toPath, ProgressReportCallback Callback) {
             AudioData audioDataFrom;
             AudioData audioDataTo;
+            int rv;
 
-            int rv = ReadFlacFile(fromPath, out audioDataFrom);
+            if (0 == Path.GetExtension(fromPath).CompareTo(".wav")) {
+                rv = ReadWavFile(fromPath, out audioDataFrom);
+            } else {
+                rv = ReadFlacFile(fromPath, out audioDataFrom);
+            }
             if (rv < 0) {
                 return rv;
             }
@@ -473,7 +534,7 @@ namespace WWAudioFilter {
 
             Callback(FILE_PROCESS_COMPLETE_PERCENTAGE, new ProgressArgs(string.Format(CultureInfo.CurrentCulture, Properties.Resources.LogfileWriteStarted, toPath), 0));
 
-            switch (audioDataTo.fileFormat) {
+            switch (audioDataTo.preferredSaveFormat) {
             case FileFormatType.FLAC:
                 rv = WriteFlacFile(ref audioDataTo, toPath);
                 break;

@@ -176,6 +176,14 @@
     <None Include="WWAudioFilter.snk" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\PcmData\PcmDataLib.csproj">
+      <Project>{7AF36E7B-839D-4C2F-AAFD-6D8319714D66}</Project>
+      <Name>PcmDataLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WavRWLib2\WavRWLib2.csproj">
+      <Project>{77005090-E2C5-4063-9681-0D0EED33A2B2}</Project>
+      <Name>WavRWLib2</Name>
+    </ProjectReference>
     <ProjectReference Include="..\WWFlacRWCS\WWFlacRWCS.csproj">
       <Project>{DA071B6A-B2E2-4567-84D1-5A9122DAB75C}</Project>
       <Name>WWFlacRWCS</Name>
