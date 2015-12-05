@@ -4,6 +4,8 @@ using System.Globalization;
 namespace WWAudioFilter {
     class LineDrawUpsampler : FilterBase {
         public int Factor { get; set; }
+        private bool mFirst;
+
         private double mLastOriginalSampleValue;
 
         public LineDrawUpsampler(int factor)
@@ -44,15 +46,26 @@ namespace WWAudioFilter {
             var r = new PcmFormat(inputFormat);
             r.SampleRate *= Factor;
             r.NumSamples *= Factor;
-            mLastOriginalSampleValue = 0.0;
+            mFirst = true;
             return r;
         }
 
         public override double[] FilterDo(double[] inPcm) {
-            double [] outPcm = new double[inPcm.LongLength * Factor];
-            long pos=0;
-            for (long i=0; i < inPcm.LongLength; ++i) {
+            double[] outPcm;
+            int i = 0;
 
+            if (mFirst) {
+                outPcm = new double[(inPcm.Length - 1) * Factor];
+                mLastOriginalSampleValue = inPcm[0];
+                mFirst = false;
+                i = 1;
+            } else {
+                outPcm = new double[inPcm.Length * Factor];
+                // i==0
+            }
+
+            long pos=0;
+            for (; i < inPcm.Length; ++i) {
                 for (int r=0; r < Factor; ++r) {
                     double ratio = (r + 1.0) / Factor;
                     outPcm[pos] = inPcm[i] * ratio + mLastOriginalSampleValue * (1.0 - ratio);
@@ -60,6 +73,7 @@ namespace WWAudioFilter {
                 }
                 mLastOriginalSampleValue = inPcm[i];
             }
+
             return outPcm;
         }
     }
