@@ -223,7 +223,7 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Line draw Upsampler.
+        ///   Looks up a localized string similar to Linear interpolation Upsampler.
         /// </summary>
         internal static string CbItemLineDrawUpsampler {
             get {
@@ -629,7 +629,7 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Line draw upsample: {0}x.
+        ///   Looks up a localized string similar to Linear inerpolation upsample: {0}x.
         /// </summary>
         internal static string FilterLineDrawDesc {
             get {

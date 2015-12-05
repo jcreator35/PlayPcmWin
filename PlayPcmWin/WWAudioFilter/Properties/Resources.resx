@@ -462,10 +462,10 @@
     <value>Normalized amplitude (dBFS):</value>
   </data>
   <data name="CbItemLineDrawUpsampler" xml:space="preserve">
-    <value>Line draw Upsampler</value>
+    <value>Linear interpolation Upsampler</value>
   </data>
   <data name="FilterLineDrawDesc" xml:space="preserve">
-    <value>Line draw upsample: {0}x</value>
+    <value>Linear inerpolation upsample: {0}x</value>
   </data>
   <data name="CbIteCubicHermiteSplineUpsampler" xml:space="preserve">
     <value>Cubic Hermite Spline upsampler</value>
