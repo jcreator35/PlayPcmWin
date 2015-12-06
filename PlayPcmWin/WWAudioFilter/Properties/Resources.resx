@@ -476,4 +476,16 @@
   <data name="FilterPcmFiles" xml:space="preserve">
     <value>Audio files(*.wav, *.flac)|*.wav;*.flac</value>
   </data>
+  <data name="ErrorTargetBitDepth" xml:space="preserve">
+    <value>Error: target bit depth b must number in the range:  1 ≤ b ≤ 23</value>
+  </data>
+  <data name="FilterReduceBitDepthDesc" xml:space="preserve">
+    <value>Reduce bit depth to {0} bit</value>
+  </data>
+  <data name="GroupReduceBitDepth" xml:space="preserve">
+    <value>Reduce bit depth</value>
+  </data>
+  <data name="LabelTargetBitDepth" xml:space="preserve">
+    <value>Target bit depth (bit)</value>
+  </data>
 </root>

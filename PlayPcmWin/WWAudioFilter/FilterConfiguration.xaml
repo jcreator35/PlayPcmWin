@@ -350,6 +350,21 @@
 
                         </Grid>
                     </GroupBox>
+                    <GroupBox Header="Reduce bit depth" Height="100" HorizontalAlignment="Left" Name="groupBoxReduceBitDepth" VerticalAlignment="Top" Width="380">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                            </Grid.ColumnDefinitions>
+                            <Label Grid.Column="0" Grid.Row="0" Content="Target bit depth (bit):"  Name="labelQuantizerBit" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                            <TextBox Grid.Column="1" Grid.Row="0" Margin="3" Text="8" Name="textBoxTargetBitDepth" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                            <Button Content="Use this filter" Grid.Row="1" Margin="6,0" Name="buttonUseReduceBitDepth" VerticalAlignment="Center" Grid.ColumnSpan="2" Click="buttonUseReduceBitDepth_Click" />
+                        </Grid>
+                    </GroupBox>
 
                 </WrapPanel>
             </Grid>

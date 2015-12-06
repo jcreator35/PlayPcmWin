@@ -428,4 +428,13 @@
   <data name="FilterPcmFiles" xml:space="preserve">
     <value>音声ファイル(*.wav,*.flac)|*.wav;*.flac</value>
   </data>
+  <data name="ErrorTargetBitDepth" xml:space="preserve">
+    <value>Error: 量子化ビット数bは 1 ≤ b ≤ 23 の範囲の整数値を指定して下さい。</value>
+  </data>
+  <data name="FilterReduceBitDepthDesc" xml:space="preserve">
+    <value>量子化ビット数を減らす: {0}ビット</value>
+  </data>
+  <data name="GroupReduceBitDepth" xml:space="preserve">
+    <value>量子化ビット数を減らす</value>
+  </data>
 </root>

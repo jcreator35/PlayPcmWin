@@ -104,6 +104,10 @@
                 groupBoxAddFundamentals.Header = Properties.Resources.GroupAddFundamentals;
                 labelAddFundamentalsGain.Content = Properties.Resources.LabelGainInDb;
                 buttonUseAddFundamentals.Content = Properties.Resources.ButtonUseThisFilter;
+
+                groupBoxReduceBitDepth.Header = Properties.Resources.GroupReduceBitDepth;
+                labelQuantizerBit.Content = Properties.Resources.LabelTargetBitDepth;
+                buttonUseReduceBitDepth.Content = Properties.Resources.ButtonUseThisFilter;
             }
 
             public FilterBase Filter {
@@ -160,6 +164,10 @@
                     var ns = filter as NoiseShapingFilter;
                     textBoxNoiseShapingTargetBit.Text = string.Format(CultureInfo.CurrentCulture, "{0}", ns.TargetBitsPerSample);
                     comboBoxNoiseShapingMethod.SelectedIndex = (int)NoiseShapingCbItemType.NoiseShaping2nd;
+                    break;
+                case FilterType.ReduceBitDepth:
+                    var q = filter as ReduceBitDepth;
+                    textBoxTargetBitDepth.Text = string.Format(CultureInfo.CurrentCulture, "{0}", q.TargetBitsPerSample);
                     break;
                 case FilterType.NoiseShaping4th:
                     var ns4 = filter as NoiseShaping4thFilter;
@@ -735,6 +743,19 @@
                 }
 
                 mFilter = new AddFundamentalsFilter(Math.Pow(10.0, v / 20.0));
+
+                DialogResult = true;
+                Close();
+            }
+
+            private void buttonUseReduceBitDepth_Click(object sender, RoutedEventArgs e) {
+                int v;
+                if (!Int32.TryParse(textBoxTargetBitDepth.Text, out v) || 24 <= v || v < 1) {
+                    MessageBox.Show(Properties.Resources.ErrorTargetBitDepth);
+                    return;
+                }
+
+                mFilter = new ReduceBitDepth(v);
 
                 DialogResult = true;
                 Close();

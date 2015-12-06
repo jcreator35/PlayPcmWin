@@ -32,7 +32,8 @@ namespace WWAudioFilter {
         Normalize,
         AddFundamentals,
         LineDrawUpsampler,
-        CubicHermiteSplineUpsampler
+        CubicHermiteSplineUpsampler,
+        ReduceBitDepth,
     }
 
     public struct TagData {

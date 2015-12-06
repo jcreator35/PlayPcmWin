@@ -494,6 +494,15 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Error: target bit depth b must number in the range:  1 ≤ b ≤ 23.
+        /// </summary>
+        internal static string ErrorTargetBitDepth {
+            get {
+                return ResourceManager.GetString("ErrorTargetBitDepth", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to TPDF Jitter Amount must be 0 or larger value.
         /// </summary>
         internal static string ErrorTpdfJitterAmount {
@@ -692,6 +701,15 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Reduce bit depth to {0} bit.
+        /// </summary>
+        internal static string FilterReduceBitDepthDesc {
+            get {
+                return ResourceManager.GetString("FilterReduceBitDepthDesc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Edit Tag : {0} = &quot;{1}&quot;.
         /// </summary>
         internal static string FilterTagEdit {
@@ -850,6 +868,15 @@ namespace WWAudioFilter.Properties {
         internal static string GroupOutputFile {
             get {
                 return ResourceManager.GetString("GroupOutputFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reduce bit depth.
+        /// </summary>
+        internal static string GroupReduceBitDepth {
+            get {
+                return ResourceManager.GetString("GroupReduceBitDepth", resourceCulture);
             }
         }
         
@@ -1039,6 +1066,15 @@ namespace WWAudioFilter.Properties {
         internal static string LabelTagType {
             get {
                 return ResourceManager.GetString("LabelTagType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Target bit depth (bit).
+        /// </summary>
+        internal static string LabelTargetBitDepth {
+            get {
+                return ResourceManager.GetString("LabelTargetBitDepth", resourceCulture);
             }
         }
         

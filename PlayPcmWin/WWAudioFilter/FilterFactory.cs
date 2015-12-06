@@ -141,6 +141,8 @@ namespace WWAudioFilter {
                 return UnevenBitDacFilter.Restore(tokens);
             case "Normalize":
                 return NormalizeFilter.Restore(tokens);
+            case "ReduceBitDepth":
+                return ReduceBitDepth.Restore(tokens);
             default:
                 return null;
             }
