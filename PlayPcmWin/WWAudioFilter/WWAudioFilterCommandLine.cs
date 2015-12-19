@@ -8,7 +8,7 @@ namespace WWAudioFilter {
         private static readonly string COMMAND_CONVERT = "-convert";
 
         private void PrintUsage(string programName) {
-            Console.WriteLine("Commandline Usage: {0} {1} filterFile FLACinputFile FLACoutputFile", programName, COMMAND_CONVERT);
+            Console.WriteLine("Commandline Usage: {0} {1} filterFile inputAudioFile outputAudioFile", programName, COMMAND_CONVERT);
         }
 
         void ProgressReportCallback(int percentage, WWAudioFilterCore.ProgressArgs args) {

@@ -488,4 +488,10 @@
   <data name="LabelTargetBitDepth" xml:space="preserve">
     <value>Target bit depth (bit)</value>
   </data>
+  <data name="FilterFirstOrderMinimumPhaseIIRDesc" xml:space="preserve">
+    <value>First Order Minimum-phase IIR: k={0}</value>
+  </data>
+  <data name="ErrorFirstOrderMinimumPhaseIIR" xml:space="preserve">
+    <value>Error First order minimum phase iir k parameter</value>
+  </data>
 </root>

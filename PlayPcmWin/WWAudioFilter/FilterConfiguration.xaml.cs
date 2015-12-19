@@ -169,6 +169,10 @@
                     var q = filter as ReduceBitDepth;
                     textBoxTargetBitDepth.Text = string.Format(CultureInfo.CurrentCulture, "{0}", q.TargetBitsPerSample);
                     break;
+                case FilterType.FirstOrderMinimumPhaseIIR:
+                    var fomp = filter as FirstOrderMinimumPhaseIIRFilter;
+                    textBoxFirstOrderMinimumPhaseIirK.Text = string.Format(CultureInfo.CurrentCulture, "{0}", fomp.K);
+                    break;
                 case FilterType.NoiseShaping4th:
                     var ns4 = filter as NoiseShaping4thFilter;
                     textBoxNoiseShapingTargetBit.Text = string.Format(CultureInfo.CurrentCulture, "{0}", ns4.TargetBitsPerSample);
@@ -756,6 +760,19 @@
                 }
 
                 mFilter = new ReduceBitDepth(v);
+
+                DialogResult = true;
+                Close();
+            }
+
+            private void buttonUseFirstOrderMinimumPhaseIir_Click(object sender, RoutedEventArgs e) {
+                double v;
+                if (!Double.TryParse(textBoxFirstOrderMinimumPhaseIirK.Text, out v)) {
+                    MessageBox.Show(Properties.Resources.ErrorFirstOrderMinimumPhaseIIR);
+                    return;
+                }
+
+                mFilter = new FirstOrderMinimumPhaseIIRFilter(v);
 
                 DialogResult = true;
                 Close();

@@ -143,6 +143,8 @@ namespace WWAudioFilter {
                 return NormalizeFilter.Restore(tokens);
             case "ReduceBitDepth":
                 return ReduceBitDepth.Restore(tokens);
+            case "FirstOrderMinimumPhaseIIR":
+                return FirstOrderMinimumPhaseIIRFilter.Restore(tokens);
             default:
                 return null;
             }

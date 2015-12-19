@@ -340,6 +340,15 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Error First order minimum phase iir k parameter.
+        /// </summary>
+        internal static string ErrorFirstOrderMinimumPhaseIIR {
+            get {
+                return ResourceManager.GetString("ErrorFirstOrderMinimumPhaseIIR", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Please input fundamentals gain in number.
         /// </summary>
         internal static string ErrorFundamentalsGainValue {
@@ -589,6 +598,15 @@ namespace WWAudioFilter.Properties {
         internal static string FilterFftUpsampleDesc {
             get {
                 return ResourceManager.GetString("FilterFftUpsampleDesc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to First Order Minimum-phase IIR: k={0}.
+        /// </summary>
+        internal static string FilterFirstOrderMinimumPhaseIIRDesc {
+            get {
+                return ResourceManager.GetString("FilterFirstOrderMinimumPhaseIIRDesc", resourceCulture);
             }
         }
         
