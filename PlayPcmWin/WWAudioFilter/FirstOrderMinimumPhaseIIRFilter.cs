@@ -4,7 +4,6 @@ using System.Globalization;
 namespace WWAudioFilter {
     public class FirstOrderMinimumPhaseIIRFilter : FilterBase {
         public double K { get; set; }
-        private bool mFirst;
         private double mLastX;
         private double mLastY;
 
@@ -44,7 +43,8 @@ namespace WWAudioFilter {
         }
 
         public override void FilterStart() {
-            mFirst = true;
+            mLastX = 0;
+            mLastY = 0;
             base.FilterStart();
         }
 
@@ -53,24 +53,13 @@ namespace WWAudioFilter {
         }
 
         public override double[] FilterDo(double[] inPcm) {
-            int readPos = 0;
-            double[] outPcm;
-
-            if (mFirst) {
-                outPcm = new double[inPcm.Length - 1];
-                mLastX = inPcm[0];
-                mLastY = 0;
-                readPos = 1;
-            } else {
-                outPcm = new double[inPcm.Length];
-                readPos = 0;
-            }
+            var outPcm = new double[inPcm.Length];
 
             int writePos = 0;
-            for (; readPos < inPcm.Length; ++readPos, ++writePos) {
+            for (int readPos=0; readPos < inPcm.Length; ++readPos, ++writePos) {
                 double x = inPcm[readPos];
-                double y = K * x + mLastX;
-                y += K * mLastY;
+                double y = -K * x + mLastX;
+                y += -K * mLastY;
 
                 outPcm[writePos] = y;
 
