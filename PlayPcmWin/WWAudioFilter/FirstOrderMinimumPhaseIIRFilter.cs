@@ -55,13 +55,13 @@ namespace WWAudioFilter {
         public override double[] FilterDo(double[] inPcm) {
             var outPcm = new double[inPcm.Length];
 
-            int writePos = 0;
-            for (int readPos=0; readPos < inPcm.Length; ++readPos, ++writePos) {
-                double x = inPcm[readPos];
+            for (int i=0; i < inPcm.Length; ++i) {
+                double x = inPcm[i];
+
                 double y = -K * x + mLastX;
                 y += -K * mLastY;
 
-                outPcm[writePos] = y;
+                outPcm[i] = y;
 
                 mLastX = x;
                 mLastY = y;
