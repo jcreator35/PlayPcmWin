@@ -52,6 +52,18 @@ namespace WWAudioFilter {
             base.FilterEnd();
         }
 
+        /*
+         * Transfer function H(z):
+         *             -k + z^{-1}
+         *   H(z) = ------------------
+         *            1 - k * z^{-1}
+         *
+         * Differential equation:
+         * Input:  x[n]
+         * Output: y[n]
+         * 
+         * y[n] = -k * x[n] + x[n-1] - k * y[n-1]
+         */
         public override double[] FilterDo(double[] inPcm) {
             var outPcm = new double[inPcm.Length];
 
