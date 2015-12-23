@@ -74,7 +74,7 @@ namespace WWAudioFilter {
                 mLastX = x;
                 mLastY = y;
 
-                Console.WriteLine("K={0:g} n={1:g} y={2:g}", K, i, y);
+                //Console.WriteLine("K={0:g} n={1:g} y={2:g}", K, i, y);
             }
 
             return outPcm;
