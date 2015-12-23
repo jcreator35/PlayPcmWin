@@ -66,6 +66,7 @@ namespace WWAudioFilter {
             for (int i=0; i < inPcm.Length; ++i) {
                 double x = inPcm[i];
 
+                // direct form implementation of the difference equation
                 double y = K * x + mLastX;
                 y += -K * mLastY;
 
