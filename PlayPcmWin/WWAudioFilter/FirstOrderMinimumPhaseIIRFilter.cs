@@ -56,7 +56,7 @@ namespace WWAudioFilter {
          * Transfer function H(z):
          *             -k + z^{-1}
          *   H(z) = ------------------
-         *            1 - k * z^{-1}
+         *            1 + k * z^{-1}
          *
          * Differential equation:
          * Input:  x[n]
