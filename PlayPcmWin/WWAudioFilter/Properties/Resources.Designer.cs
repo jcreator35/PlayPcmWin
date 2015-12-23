@@ -602,7 +602,7 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to First Order Minimum-phase IIR: k={0}.
+        ///   Looks up a localized string similar to First Order All-pass Minimum-phase IIR: k={0}.
         /// </summary>
         internal static string FilterFirstOrderMinimumPhaseIIRDesc {
             get {

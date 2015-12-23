@@ -438,7 +438,7 @@
     <value>量子化ビット数を減らす</value>
   </data>
   <data name="FilterFirstOrderMinimumPhaseIIRDesc" xml:space="preserve">
-    <value>1次のミニマムフェーズIIR: k={0}</value>
+    <value>1次のオールパス・ミニマムフェーズIIR: k={0}</value>
   </data>
   <data name="ErrorFirstOrderMinimumPhaseIIR" xml:space="preserve">
     <value>1次ミニマムフェーズIIRフィルターのパラメーターエラー</value>
