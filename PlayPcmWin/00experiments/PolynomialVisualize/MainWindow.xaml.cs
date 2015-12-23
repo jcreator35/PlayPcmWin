@@ -70,8 +70,6 @@ namespace PolynomialVisualize {
 
         private void UpdateZ()
         {
-            canvasZ.Children.Clear();
-
             var im = new Image();
 
             var bm = new WriteableBitmap(
@@ -109,7 +107,46 @@ namespace PolynomialVisualize {
 
             bm.WritePixels(new Int32Rect(0, 0, bm.PixelWidth, bm.PixelHeight), px, bm.BackBufferStride, 0);
 
+            canvasZ.Children.Clear();
             canvasZ.Children.Add(im);
+        }
+
+        private void UpdateGradation() {
+            float maxMagnitude = 5.0f;
+
+            var im = new Image();
+
+            var bm = new WriteableBitmap(
+                (int)canvasGradation.Width,
+                (int)canvasGradation.Height,
+                96, 
+                96, 
+                PixelFormats.Gray32Float, 
+                null);
+            im.Source = bm;
+            im.Stretch = Stretch.None;
+            im.HorizontalAlignment = HorizontalAlignment.Left;
+            im.VerticalAlignment   = VerticalAlignment.Top;
+            
+            var px = new float[bm.PixelHeight*bm.PixelWidth];
+
+            int pos = 0;
+            for (int yI = 0; yI < bm.PixelHeight; yI++) {
+                double hM = maxMagnitude * yI / bm.PixelHeight;
+                if (hM < 0.1) {
+                    hM = 0.1;
+                }
+                float hL = (float)((Math.Log10(hM) + 1.0f) / 5.0f);
+
+                for (int xI = 0; xI < bm.PixelWidth; xI++) {
+                    // 下から上に塗る。
+                    px[xI + (bm.PixelHeight - 1 - yI) * bm.PixelWidth] = hL;
+                }
+            }
+            bm.WritePixels(new Int32Rect(0, 0, bm.PixelWidth, bm.PixelHeight), px, bm.BackBufferStride, 0);
+
+            canvasGradation.Children.Clear();
+            canvasGradation.Children.Add(im);
         }
 
         private void LineSetX1Y1X2Y2(Line l, double x1, double y1, double x2, double y2) {
@@ -536,6 +573,7 @@ namespace PolynomialVisualize {
             mNumerators[8] = float.Parse(textBoxN8.Text);
 
             UpdateZ();
+            UpdateGradation();
             UpdateFR();
         }
 
