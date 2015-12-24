@@ -437,10 +437,10 @@
   <data name="GroupReduceBitDepth" xml:space="preserve">
     <value>量子化ビット数を減らす</value>
   </data>
-  <data name="FilterFirstOrderMinimumPhaseIIRDesc" xml:space="preserve">
-    <value>1次のオールパス・ミニマムフェーズIIR: k={0}</value>
+  <data name="FilterFirstOrderAllPassIIRDesc" xml:space="preserve">
+    <value>1次のオールパスIIR: k={0}</value>
   </data>
-  <data name="ErrorFirstOrderMinimumPhaseIIR" xml:space="preserve">
-    <value>1次ミニマムフェーズIIRフィルターのパラメーターエラー</value>
+  <data name="ErrorFirstOrderAllPassIIR" xml:space="preserve">
+    <value>1次オールパスIIRフィルターのパラメーターエラー</value>
   </data>
 </root>

@@ -94,7 +94,7 @@
     <Compile Include="ButterworthFilter.cs" />
     <Compile Include="CicFilter.cs" />
     <Compile Include="AddFundamentalsFilter.cs" />
-    <Compile Include="FirstOrderMinimumPhaseIIRFilter.cs" />
+    <Compile Include="FirstOrderAllPassIIRFilter.cs" />
     <Compile Include="ReduceBitDepth.cs" />
     <Compile Include="CubicHermiteSplineUpsampler.cs" />
     <Compile Include="LineDrawUpsampler.cs" />

@@ -34,7 +34,7 @@ namespace WWAudioFilter {
         LineDrawUpsampler,
         CubicHermiteSplineUpsampler,
         ReduceBitDepth,
-        FirstOrderMinimumPhaseIIR,
+        FirstOrderAllPassIIR,
     }
 
     public struct TagData {

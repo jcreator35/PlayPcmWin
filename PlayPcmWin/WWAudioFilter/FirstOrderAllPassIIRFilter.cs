@@ -2,22 +2,22 @@
 using System.Globalization;
 
 namespace WWAudioFilter {
-    public class FirstOrderMinimumPhaseIIRFilter : FilterBase {
+    public class FirstOrderAllPassIIRFilter : FilterBase {
         public double K { get; set; }
         private double mLastX;
         private double mLastY;
 
-        public FirstOrderMinimumPhaseIIRFilter(double k)
-                : base(FilterType.FirstOrderMinimumPhaseIIR) {
+        public FirstOrderAllPassIIRFilter(double k)
+                : base(FilterType.FirstOrderAllPassIIR) {
             K = k;
         }
 
         public override FilterBase CreateCopy() {
-            return new FirstOrderMinimumPhaseIIRFilter(K);
+            return new FirstOrderAllPassIIRFilter(K);
         }
 
         public override string ToDescriptionText() {
-            return string.Format(CultureInfo.CurrentCulture, Properties.Resources.FilterFirstOrderMinimumPhaseIIRDesc,
+            return string.Format(CultureInfo.CurrentCulture, Properties.Resources.FilterFirstOrderAllPassIIRDesc,
                 K);
         }
 
@@ -35,7 +35,7 @@ namespace WWAudioFilter {
                 return null;
             }
 
-            return new FirstOrderMinimumPhaseIIRFilter(k);
+            return new FirstOrderAllPassIIRFilter(k);
         }
 
         public override void FilterStart() {

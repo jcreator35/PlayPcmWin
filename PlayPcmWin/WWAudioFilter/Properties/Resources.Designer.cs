@@ -340,11 +340,11 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Error First order minimum phase iir k parameter.
+        ///   Looks up a localized string similar to Error First order all-pass IIR k parameter.
         /// </summary>
-        internal static string ErrorFirstOrderMinimumPhaseIIR {
+        internal static string ErrorFirstOrderAllPassIIR {
             get {
-                return ResourceManager.GetString("ErrorFirstOrderMinimumPhaseIIR", resourceCulture);
+                return ResourceManager.GetString("ErrorFirstOrderAllPassIIR", resourceCulture);
             }
         }
         
@@ -602,11 +602,11 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to First Order All-pass Minimum-phase IIR: k={0}.
+        ///   Looks up a localized string similar to First Order All-pass IIR: k={0}.
         /// </summary>
-        internal static string FilterFirstOrderMinimumPhaseIIRDesc {
+        internal static string FilterFirstOrderAllPassIIRDesc {
             get {
-                return ResourceManager.GetString("FilterFirstOrderMinimumPhaseIIRDesc", resourceCulture);
+                return ResourceManager.GetString("FilterFirstOrderAllPassIIRDesc", resourceCulture);
             }
         }
         
