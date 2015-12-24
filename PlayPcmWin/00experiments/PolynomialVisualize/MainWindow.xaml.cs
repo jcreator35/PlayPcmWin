@@ -22,6 +22,16 @@ namespace PolynomialVisualize {
             Pole
         };
 
+        enum PoleZeroScaleType {
+            Scale1x,
+            Scale0_5x,
+        };
+
+        static double[] mPoleZeroScale = new double[] {
+            1.0,
+            0.5
+        };
+
         private bool mInitialized = false;
 
         float [] mDenominators = new float[9];
@@ -70,6 +80,8 @@ namespace PolynomialVisualize {
 
         private void UpdateZ()
         {
+            double scale = mPoleZeroScale[comboBoxPoleZeroScale.SelectedIndex];
+
             var im = new Image();
 
             var bm = new WriteableBitmap(
@@ -89,8 +101,8 @@ namespace PolynomialVisualize {
             int pos = 0;
             for (int yI = 0; yI < bm.PixelHeight; yI++) {
                 for (int xI = 0; xI < bm.PixelWidth; xI++) {
-                    double y = 2.6666666666666 * (bm.PixelHeight / 2 - yI) / bm.PixelHeight;
-                    double x = 2.6666666666666 * (xI - bm.PixelWidth / 2) / bm.PixelHeight;
+                    double y = 2.6666666666666 / scale * (bm.PixelHeight / 2 - yI) / bm.PixelHeight;
+                    double x = 2.6666666666666 / scale * (xI - bm.PixelWidth / 2) / bm.PixelHeight;
                     var z = new WWComplex(x, y);
 
                     var h = EvalH(z);
@@ -109,8 +121,20 @@ namespace PolynomialVisualize {
 
             canvasZ.Children.Clear();
             canvasZ.Children.Add(im);
+
+            double circleRadius = 192.0 * scale;
+            Ellipse unitCircle = new Ellipse { Width = circleRadius * 2, Height = circleRadius * 2, Stroke = new SolidColorBrush {Color = Colors.Black} };
+            unitCircle.Width = circleRadius * 2;
+            unitCircle.Height = circleRadius * 2;
+            canvasZ.Children.Add(unitCircle);
+            Canvas.SetLeft(unitCircle, 256.0 - circleRadius);
+            Canvas.SetTop(unitCircle, 256.0 - circleRadius);
+            Canvas.SetZIndex(unitCircle, 1);
         }
 
+        /// <summary>
+        /// グラデーションサンプル表示。
+        /// </summary>
         private void UpdateGradation() {
             float maxMagnitude = 5.0f;
 
@@ -130,7 +154,6 @@ namespace PolynomialVisualize {
             
             var px = new float[bm.PixelHeight*bm.PixelWidth];
 
-            int pos = 0;
             for (int yI = 0; yI < bm.PixelHeight; yI++) {
                 double hM = maxMagnitude * yI / bm.PixelHeight;
                 if (hM < 0.1) {
@@ -176,6 +199,7 @@ namespace PolynomialVisualize {
             M90,
             M135,
             M180,
+            NUM
         };
 
         enum SampleFreqType {
@@ -205,6 +229,8 @@ namespace PolynomialVisualize {
             11289600,
             22579200,
         };
+
+
 
         private List<Line> mLineList = new List<Line>();
         private const int FR_LINE_LEFT    = 64;
@@ -301,6 +327,31 @@ namespace PolynomialVisualize {
             return (freqLog - startLog) / (endLog - startLog);
         }
 
+        /// <summary>
+        /// 位相目盛りの値
+        /// </summary>
+        struct PhaseGraduation {
+            public double phaseShiftRad;
+            public int phaseShiftDeg;
+
+            public PhaseGraduation(double rad, int deg) {
+                phaseShiftRad = rad;
+                phaseShiftDeg = deg;
+            }
+        };
+
+        private static PhaseGraduation[] mPhaseGraduationArray = new PhaseGraduation[] {
+            new PhaseGraduation(0, 0),
+            new PhaseGraduation(-1.0 * Math.PI / 4.0, 45),
+            new PhaseGraduation(-2.0 * Math.PI / 4.0, 90),
+            new PhaseGraduation(-3.0 * Math.PI / 4.0, 135),
+            new PhaseGraduation(-4.0 * Math.PI / 4.0, 180),
+            new PhaseGraduation(1.0 * Math.PI / 4.0, -45),
+            new PhaseGraduation(2.0 * Math.PI / 4.0, -90),
+            new PhaseGraduation(3.0 * Math.PI / 4.0, -135),
+            new PhaseGraduation(4.0 * Math.PI / 4.0, -180),
+        };
+
         private void UpdateFR() {
             foreach (var item in mLineList) {
                 canvasFR.Children.Remove(item);
@@ -331,83 +382,13 @@ namespace PolynomialVisualize {
             // draw result
             int sampleFrequency = SAMPLE_FREQS[comboBoxSampleFreq.SelectedIndex];
 
-            double phaseShift = 0;
-
-            // 配列に入れてデータ化するといい。
-            switch (comboBoxPhaseShift.SelectedIndex) {
-            case (int)PhaseShiftType.Zero:
-                phaseShift = 0;
-                labelPhase180.Content = "180";
-                labelPhase90.Content = "90";
-                labelPhase0.Content = "0";
-                labelPhaseM90.Content = "-90";
-                labelPhaseM180.Content = "-180";
-                break;
-            case (int)PhaseShiftType.P45:
-                phaseShift = -1.0 * Math.PI / 4.0;
-                labelPhase180.Content = "225";
-                labelPhase90.Content = "135";
-                labelPhase0.Content = "45";
-                labelPhaseM90.Content = "-45";
-                labelPhaseM180.Content = "-135";
-                break;
-            case (int)PhaseShiftType.P90:
-                phaseShift = -2.0 * Math.PI / 4.0;
-                labelPhase180.Content = "270";
-                labelPhase90.Content = "180";
-                labelPhase0.Content = "90";
-                labelPhaseM90.Content = "00";
-                labelPhaseM180.Content = "-90";
-                break;
-            case (int)PhaseShiftType.P135:
-                phaseShift = -3.0 * Math.PI / 4.0;
-                labelPhase180.Content = "315";
-                labelPhase90.Content = "225";
-                labelPhase0.Content = "135";
-                labelPhaseM90.Content = "45";
-                labelPhaseM180.Content = "-45";
-                break;
-            case (int)PhaseShiftType.P180:
-                phaseShift = -4.0 * Math.PI / 4.0;
-                labelPhase180.Content = "360";
-                labelPhase90.Content = "270";
-                labelPhase0.Content = "180";
-                labelPhaseM90.Content = "90";
-                labelPhaseM180.Content = "0";
-                break;
-            case (int)PhaseShiftType.M45:
-                phaseShift = 1.0 * Math.PI / 4.0;
-                labelPhase180.Content = "135";
-                labelPhase90.Content = "45";
-                labelPhase0.Content = "-45";
-                labelPhaseM90.Content = "-135";
-                labelPhaseM180.Content = "-225";
-                break;
-            case (int)PhaseShiftType.M90:
-                phaseShift = 2.0 * Math.PI / 4.0;
-                labelPhase180.Content = "90";
-                labelPhase90.Content = "0";
-                labelPhase0.Content = "-90";
-                labelPhaseM90.Content = "-180";
-                labelPhaseM180.Content = "-270";
-                break;
-            case (int)PhaseShiftType.M135:
-                phaseShift = 3.0 * Math.PI/4.0;
-                labelPhase180.Content = "45";
-                labelPhase90.Content = "-45";
-                labelPhase0.Content = "-135";
-                labelPhaseM90.Content = "-225";
-                labelPhaseM180.Content = "-315";
-                break;
-            case (int)PhaseShiftType.M180:
-                phaseShift = Math.PI;
-                labelPhase180.Content = "0";
-                labelPhase90.Content = "-90";
-                labelPhase0.Content = "-180";
-                labelPhaseM90.Content = "-270";
-                labelPhaseM180.Content = "-360";
-                break;
-            }
+            PhaseGraduation pg = mPhaseGraduationArray[comboBoxPhaseShift.SelectedIndex];
+            double phaseShift = pg.phaseShiftRad;
+            labelPhase180.Content  = string.Format("{0}", 180 + pg.phaseShiftDeg);
+            labelPhase90.Content = string.Format("{0}", 90 + pg.phaseShiftDeg);
+            labelPhase0.Content = string.Format("{0}", 0 + pg.phaseShiftDeg);
+            labelPhaseM90.Content = string.Format("{0}", -90 + pg.phaseShiftDeg);
+            labelPhaseM180.Content = string.Format("{0}", -180 + pg.phaseShiftDeg);
 
             switch (comboBoxFreqScale.SelectedIndex) {
             case (int)FreqScaleType.Linear:
@@ -624,6 +605,10 @@ namespace PolynomialVisualize {
         }
 
         private void comboBoxPhaseShift_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+            Update();
+        }
+
+        private void comboBoxPoleZeroScale_SelectionChanged(object sender, SelectionChangedEventArgs e) {
             Update();
         }
     }
