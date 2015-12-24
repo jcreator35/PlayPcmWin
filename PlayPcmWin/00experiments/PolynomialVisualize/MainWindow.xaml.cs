@@ -25,11 +25,19 @@ namespace PolynomialVisualize {
         enum PoleZeroScaleType {
             Scale1x,
             Scale0_5x,
+            Scale0_2x,
+            Scale0_1x,
         };
-
         static double[] mPoleZeroScale = new double[] {
             1.0,
-            0.5
+            0.5,
+            0.2,
+            0.1
+        };
+
+        enum PoleZeroDispMode {
+            Magnitude,
+            Phase
         };
 
         private bool mInitialized = false;
@@ -81,6 +89,7 @@ namespace PolynomialVisualize {
         private void UpdateZ()
         {
             double scale = mPoleZeroScale[comboBoxPoleZeroScale.SelectedIndex];
+            PoleZeroDispMode dispMode = (PoleZeroDispMode)comboBoxPoleZeroDispMode.SelectedIndex;
 
             var im = new Image();
 
@@ -89,14 +98,15 @@ namespace PolynomialVisualize {
                 512,
                 96, 
                 96, 
-                PixelFormats.Gray32Float, 
+                dispMode == PoleZeroDispMode.Magnitude ? PixelFormats.Gray32Float : PixelFormats.Bgra32,
                 null);
+            var pxF = new float[bm.PixelHeight * bm.PixelWidth];
+            var pxBgra = new int[bm.PixelHeight * bm.PixelWidth];
+
             im.Source = bm;
             im.Stretch = Stretch.None;
             im.HorizontalAlignment = HorizontalAlignment.Left;
             im.VerticalAlignment   = VerticalAlignment.Top;
-            
-            var px = new float[bm.PixelHeight*bm.PixelWidth];
 
             int pos = 0;
             for (int yI = 0; yI < bm.PixelHeight; yI++) {
@@ -112,12 +122,20 @@ namespace PolynomialVisualize {
                         hM = 0.1;
                     }
                     float hL = (float)((Math.Log10(hM) + 1.0f) / 5.0f);
-                    px[pos] = hL;
+                    pxF[pos] = hL;
+                    pxBgra[pos] = Util.HsvToBgra(h.Phase() * 180.0 / Math.PI + 240.0, 1.0, 1.0);
                     ++pos;
                 }
             }
 
-            bm.WritePixels(new Int32Rect(0, 0, bm.PixelWidth, bm.PixelHeight), px, bm.BackBufferStride, 0);
+            switch (dispMode) {
+            case PoleZeroDispMode.Magnitude:
+                bm.WritePixels(new Int32Rect(0, 0, bm.PixelWidth, bm.PixelHeight), pxF, bm.BackBufferStride, 0);
+                break;
+            case PoleZeroDispMode.Phase:
+                bm.WritePixels(new Int32Rect(0, 0, bm.PixelWidth, bm.PixelHeight), pxBgra, bm.BackBufferStride, 0);
+                break;
+            }
 
             canvasZ.Children.Clear();
             canvasZ.Children.Add(im);
@@ -136,6 +154,7 @@ namespace PolynomialVisualize {
         /// グラデーションサンプル表示。
         /// </summary>
         private void UpdateGradation() {
+            PoleZeroDispMode dispMode = (PoleZeroDispMode)comboBoxPoleZeroDispMode.SelectedIndex;
             float maxMagnitude = 5.0f;
 
             var im = new Image();
@@ -144,15 +163,16 @@ namespace PolynomialVisualize {
                 (int)canvasGradation.Width,
                 (int)canvasGradation.Height,
                 96, 
-                96, 
-                PixelFormats.Gray32Float, 
+                96,
+                dispMode == PoleZeroDispMode.Magnitude ? PixelFormats.Gray32Float : PixelFormats.Bgra32,
                 null);
             im.Source = bm;
             im.Stretch = Stretch.None;
             im.HorizontalAlignment = HorizontalAlignment.Left;
             im.VerticalAlignment   = VerticalAlignment.Top;
             
-            var px = new float[bm.PixelHeight*bm.PixelWidth];
+            var pxF = new float[bm.PixelHeight * bm.PixelWidth];
+            var pxBgra = new int[bm.PixelHeight * bm.PixelWidth];
 
             for (int yI = 0; yI < bm.PixelHeight; yI++) {
                 double hM = maxMagnitude * yI / bm.PixelHeight;
@@ -161,15 +181,43 @@ namespace PolynomialVisualize {
                 }
                 float hL = (float)((Math.Log10(hM) + 1.0f) / 5.0f);
 
+                double phase = yI * 360.0 / bm.PixelHeight;
+                int bgra = Util.HsvToBgra(phase+240.0, 1.0, 1.0);
+
                 for (int xI = 0; xI < bm.PixelWidth; xI++) {
                     // 下から上に塗る。
-                    px[xI + (bm.PixelHeight - 1 - yI) * bm.PixelWidth] = hL;
+                    pxF[xI + (bm.PixelHeight - 1 - yI) * bm.PixelWidth] = hL;
+                    pxBgra[xI + (bm.PixelHeight - 1 - yI) * bm.PixelWidth] = bgra;
                 }
             }
-            bm.WritePixels(new Int32Rect(0, 0, bm.PixelWidth, bm.PixelHeight), px, bm.BackBufferStride, 0);
-
+            if (dispMode == PoleZeroDispMode.Magnitude) {
+                bm.WritePixels(new Int32Rect(0, 0, bm.PixelWidth, bm.PixelHeight), pxF, bm.BackBufferStride, 0);
+            } else {
+                bm.WritePixels(new Int32Rect(0, 0, bm.PixelWidth, bm.PixelHeight), pxBgra, bm.BackBufferStride, 0);
+            }
+            
             canvasGradation.Children.Clear();
             canvasGradation.Children.Add(im);
+
+            double graduationScale;
+            string unitText;
+            if (dispMode == PoleZeroDispMode.Magnitude) {
+                groupBoxPoleZeroLegend.Header = "Magnitude";
+                graduationScale = 1.0;
+                unitText = "";
+            } else {
+                groupBoxPoleZeroLegend.Header = "Phase";
+                graduationScale = 60.0;
+                unitText = "°";
+            }
+
+            labelGradation0.Content = string.Format("{0}{1}", 0.0 * graduationScale, unitText);
+            labelGradation1.Content = string.Format("{0}{1}", 1.0 * graduationScale, unitText);
+            labelGradation2.Content = string.Format("{0}{1}", 2.0 * graduationScale, unitText);
+            labelGradation3.Content = string.Format("{0}{1}", 3.0 * graduationScale, unitText);
+            labelGradation4.Content = string.Format("{0}{1}", 4.0 * graduationScale, unitText);
+            labelGradation5.Content = string.Format("{0}{1}", 5.0 * graduationScale, unitText);
+            labelGradation6.Content = string.Format("{0}{1}", 6.0 * graduationScale, unitText);
         }
 
         private void LineSetX1Y1X2Y2(Line l, double x1, double y1, double x2, double y2) {
@@ -229,8 +277,6 @@ namespace PolynomialVisualize {
             11289600,
             22579200,
         };
-
-
 
         private List<Line> mLineList = new List<Line>();
         private const int FR_LINE_LEFT    = 64;
@@ -609,6 +655,10 @@ namespace PolynomialVisualize {
         }
 
         private void comboBoxPoleZeroScale_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+            Update();
+        }
+
+        private void comboBoxPoleZeroDispMode_SelectionChanged(object sender, SelectionChangedEventArgs e) {
             Update();
         }
     }
