@@ -438,9 +438,36 @@
     <value>量子化ビット数を減らす</value>
   </data>
   <data name="FilterFirstOrderAllPassIIRDesc" xml:space="preserve">
-    <value>1次のオールパスIIR: k={0}</value>
+    <value>1次のオールパスIIRフィルター: a={0}</value>
   </data>
   <data name="ErrorFirstOrderAllPassIIR" xml:space="preserve">
-    <value>1次オールパスIIRフィルターのパラメーターエラー</value>
+    <value>エラー: 1次オールパスIIRフィルターのパラメーター a  </value>
+  </data>
+  <data name="ErrorSecondOrderAllPassIirR" xml:space="preserve">
+    <value>エラー: 2次のオールパスIIRフィルターのrパラメータ</value>
+  </data>
+  <data name="ErrorSecondOrderAllPassIirT" xml:space="preserve">
+    <value>エラー: 2次のオールパスIIRフィルターのθパラメータ</value>
+  </data>
+  <data name="FilterSecondOrderAllPassIIRDesc" xml:space="preserve">
+    <value>2次のオールパスIIRフィルター: r={0}, θ={1}°</value>
+  </data>
+  <data name="GroupAddGaussianNoise" xml:space="preserve">
+    <value>ガウス雑音を加算</value>
+  </data>
+  <data name="GroupAddJitter" xml:space="preserve">
+    <value>ジッターを増やす</value>
+  </data>
+  <data name="GroupDynamicRangeCompression" xml:space="preserve">
+    <value>ダイナミックレンジ圧縮</value>
+  </data>
+  <data name="GroupFirstOrderAllPassIIR" xml:space="preserve">
+    <value>1次のオールパスIIRフィルター</value>
+  </data>
+  <data name="GroupSecondOrderAllPassIIR" xml:space="preserve">
+    <value>2次のオールパスIIRフィルター</value>
+  </data>
+  <data name="LabelSecondAllPassIirT" xml:space="preserve">
+    <value>θ (度, -180 ≤ θ &lt; 180):</value>
   </data>
 </root>

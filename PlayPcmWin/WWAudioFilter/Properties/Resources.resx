@@ -489,9 +489,36 @@
     <value>Target bit depth (bit)</value>
   </data>
   <data name="FilterFirstOrderAllPassIIRDesc" xml:space="preserve">
-    <value>First Order All-pass IIR: k={0}</value>
+    <value>First Order All-pass IIR Filter: a={0}</value>
   </data>
   <data name="ErrorFirstOrderAllPassIIR" xml:space="preserve">
-    <value>Error First order all-pass IIR k parameter</value>
+    <value>Error First order all-pass IIR a parameter</value>
+  </data>
+  <data name="ErrorSecondOrderAllPassIirR" xml:space="preserve">
+    <value>Error Second order all-pass IIR r parameter</value>
+  </data>
+  <data name="ErrorSecondOrderAllPassIirT" xml:space="preserve">
+    <value>Error Second order all-pass IIR θ parameter</value>
+  </data>
+  <data name="FilterSecondOrderAllPassIIRDesc" xml:space="preserve">
+    <value>Second Order All-pass IIR Filter: r={0}, θ={1}°</value>
+  </data>
+  <data name="GroupAddGaussianNoise" xml:space="preserve">
+    <value>Add Gaussian noise</value>
+  </data>
+  <data name="GroupAddJitter" xml:space="preserve">
+    <value>Add Jitter</value>
+  </data>
+  <data name="GroupDynamicRangeCompression" xml:space="preserve">
+    <value>Dynamic Range Compression</value>
+  </data>
+  <data name="GroupFirstOrderAllPassIIR" xml:space="preserve">
+    <value>First-order All-pass IIR Filter</value>
+  </data>
+  <data name="GroupSecondOrderAllPassIIR" xml:space="preserve">
+    <value>Second-order All-pass IIR Filter</value>
+  </data>
+  <data name="LabelSecondAllPassIirT" xml:space="preserve">
+    <value>θ (degrees, -180 ≤ θ &lt; 180):</value>
   </data>
 </root>

@@ -14,8 +14,8 @@
         <GroupBox Header="Pole-Zero Plot" Margin="6,2,0,0" Grid.Row="1" Height="680" VerticalAlignment="Top">
             <Grid >
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="560" />
-                    <RowDefinition Height="107*" />
+                    <RowDefinition Height="550" />
+                    <RowDefinition Height="80" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="560" />
@@ -56,7 +56,7 @@
                             <RowDefinition Height="1*" />
                             <RowDefinition Height="1*" />
                         </Grid.RowDefinitions>
-                        <Label Content="Scale:" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                        <Label Content="Plot scale:" HorizontalAlignment="Right" VerticalAlignment="Center" />
                         <ComboBox Grid.Column="1" HorizontalAlignment="Left" Margin="6,0,0,0" Name="comboBoxPoleZeroScale" VerticalAlignment="Center" Width="156" SelectedIndex="0" HorizontalContentAlignment="Center" SelectionChanged="comboBoxPoleZeroScale_SelectionChanged">
                             <ComboBoxItem Content="1x" />
                             <ComboBoxItem Content="0.5x" />

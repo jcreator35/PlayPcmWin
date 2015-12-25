@@ -340,7 +340,7 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Error First order all-pass IIR k parameter.
+        ///   Looks up a localized string similar to Error First order all-pass IIR a parameter.
         /// </summary>
         internal static string ErrorFirstOrderAllPassIIR {
             get {
@@ -485,6 +485,24 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Error Second order all-pass IIR r parameter.
+        /// </summary>
+        internal static string ErrorSecondOrderAllPassIirR {
+            get {
+                return ResourceManager.GetString("ErrorSecondOrderAllPassIirR", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error Second order all-pass IIR θ parameter.
+        /// </summary>
+        internal static string ErrorSecondOrderAllPassIirT {
+            get {
+                return ResourceManager.GetString("ErrorSecondOrderAllPassIirT", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Sinusoidal Jitter Amount must be 0 or larger value.
         /// </summary>
         internal static string ErrorSinusolidalJitterAmount {
@@ -602,7 +620,7 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to First Order All-pass IIR: k={0}.
+        ///   Looks up a localized string similar to First Order All-pass IIR Filter: a={0}.
         /// </summary>
         internal static string FilterFirstOrderAllPassIIRDesc {
             get {
@@ -728,6 +746,15 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Second Order All-pass IIR Filter: r={0}, θ={1}°.
+        /// </summary>
+        internal static string FilterSecondOrderAllPassIIRDesc {
+            get {
+                return ResourceManager.GetString("FilterSecondOrderAllPassIIRDesc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Edit Tag : {0} = &quot;{1}&quot;.
         /// </summary>
         internal static string FilterTagEdit {
@@ -791,6 +818,24 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add Gaussian noise.
+        /// </summary>
+        internal static string GroupAddGaussianNoise {
+            get {
+                return ResourceManager.GetString("GroupAddGaussianNoise", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add Jitter.
+        /// </summary>
+        internal static string GroupAddJitter {
+            get {
+                return ResourceManager.GetString("GroupAddJitter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to CIC Filter.
         /// </summary>
         internal static string GroupCic {
@@ -809,11 +854,29 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Dynamic Range Compression.
+        /// </summary>
+        internal static string GroupDynamicRangeCompression {
+            get {
+                return ResourceManager.GetString("GroupDynamicRangeCompression", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Filter settings.
         /// </summary>
         internal static string GroupFilterSettings {
             get {
                 return ResourceManager.GetString("GroupFilterSettings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to First-order All-pass IIR Filter.
+        /// </summary>
+        internal static string GroupFirstOrderAllPassIIR {
+            get {
+                return ResourceManager.GetString("GroupFirstOrderAllPassIIR", resourceCulture);
             }
         }
         
@@ -895,6 +958,15 @@ namespace WWAudioFilter.Properties {
         internal static string GroupReduceBitDepth {
             get {
                 return ResourceManager.GetString("GroupReduceBitDepth", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Second-order All-pass IIR Filter.
+        /// </summary>
+        internal static string GroupSecondOrderAllPassIIR {
+            get {
+                return ResourceManager.GetString("GroupSecondOrderAllPassIIR", resourceCulture);
             }
         }
         
@@ -1066,6 +1138,15 @@ namespace WWAudioFilter.Properties {
         internal static string LabelSamples {
             get {
                 return ResourceManager.GetString("LabelSamples", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to θ (degrees, -180 ≤ θ &lt; 180):.
+        /// </summary>
+        internal static string LabelSecondAllPassIirT {
+            get {
+                return ResourceManager.GetString("LabelSecondAllPassIirT", resourceCulture);
             }
         }
         

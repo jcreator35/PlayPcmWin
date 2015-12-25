@@ -3,26 +3,26 @@ using System.Globalization;
 
 namespace WWAudioFilter {
     public class FirstOrderAllPassIIRFilter : FilterBase {
-        public double K { get; set; }
+        public double A { get; set; }
         private double mLastX;
         private double mLastY;
 
-        public FirstOrderAllPassIIRFilter(double k)
+        public FirstOrderAllPassIIRFilter(double a)
                 : base(FilterType.FirstOrderAllPassIIR) {
-            K = k;
+            A = a;
         }
 
         public override FilterBase CreateCopy() {
-            return new FirstOrderAllPassIIRFilter(K);
+            return new FirstOrderAllPassIIRFilter(A);
         }
 
         public override string ToDescriptionText() {
             return string.Format(CultureInfo.CurrentCulture, Properties.Resources.FilterFirstOrderAllPassIIRDesc,
-                K);
+                A);
         }
 
         public override string ToSaveText() {
-            return string.Format(CultureInfo.InvariantCulture, "{0}", K);
+            return string.Format(CultureInfo.InvariantCulture, "{0}", A);
         }
 
         public static FilterBase Restore(string[] tokens) {
@@ -50,15 +50,17 @@ namespace WWAudioFilter {
 
         /*
          * Transfer function H(z):
-         *             k + z^{-1}
+         *            -a + z^{-1}
          *   H(z) = ------------------
-         *            1 + k * z^{-1}
-         *
+         *            1 - a * z^{-1}
+         * 
+         *       for a : real value
+         * 
          * Differential equation:
          * Input:  x[n]
          * Output: y[n]
          * 
-         * y[n] = k * x[n] + x[n-1] - k * y[n-1]
+         * y[n] = -a * x[n] + x[n-1] + a * y[n-1]
          */
         public override double[] FilterDo(double[] inPcm) {
             var outPcm = new double[inPcm.Length];
@@ -67,15 +69,15 @@ namespace WWAudioFilter {
                 double x = inPcm[i];
 
                 // direct form implementation of the difference equation
-                double y = K * x + mLastX;
-                y += -K * mLastY;
+                double y = -A * x + mLastX;
+                y += A * mLastY;
 
                 outPcm[i] = y;
 
                 mLastX = x;
                 mLastY = y;
 
-                //Console.WriteLine("K={0:g} n={1:g} y={2:g}", K, i, y);
+                //Console.WriteLine("A={0:g} n={1:g} y={2:g}", A, i, y);
             }
 
             return outPcm;

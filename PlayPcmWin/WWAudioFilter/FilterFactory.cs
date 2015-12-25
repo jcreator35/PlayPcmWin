@@ -145,6 +145,8 @@ namespace WWAudioFilter {
                 return ReduceBitDepth.Restore(tokens);
             case "FirstOrderAllPassIIR":
                 return FirstOrderAllPassIIRFilter.Restore(tokens);
+            case "SecondOrderAllPassIIR":
+                return SecondOrderAllPassIIRFilter.Restore(tokens);
             default:
                 return null;
             }

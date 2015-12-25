@@ -108,6 +108,21 @@
                 groupBoxReduceBitDepth.Header = Properties.Resources.GroupReduceBitDepth;
                 labelQuantizerBit.Content = Properties.Resources.LabelTargetBitDepth;
                 buttonUseReduceBitDepth.Content = Properties.Resources.ButtonUseThisFilter;
+
+                groupBoxFirstOrderAllPassIIR.Header = Properties.Resources.GroupFirstOrderAllPassIIR;
+                groupBoxSecondOrderAllPassIIR.Header = Properties.Resources.GroupSecondOrderAllPassIIR;
+                labelSecondAllPassIirT.Content = Properties.Resources.LabelSecondAllPassIirT;
+
+                buttonUseCrossfeedFilter.Content = Properties.Resources.ButtonUseThisFilter;
+                buttonUseAddJitter.Content = Properties.Resources.ButtonUseThisFilter;
+                buttonUseGaussianNoise.Content = Properties.Resources.ButtonUseThisFilter;
+                buttonUseDynamicRangeCompression.Content = Properties.Resources.ButtonUseThisFilter;
+                buttonUseFirstOrderAllPassIir.Content = Properties.Resources.ButtonUseThisFilter;
+                buttonUseSecondOrderAllPassIir.Content = Properties.Resources.ButtonUseThisFilter;
+
+                groupBoxDynamicRangeCompression.Header = Properties.Resources.GroupDynamicRangeCompression;
+                groupBoxAddGaussianNoise.Header = Properties.Resources.GroupAddGaussianNoise;
+                groupBoxAddJitter.Header = Properties.Resources.GroupAddJitter;
             }
 
             public FilterBase Filter {
@@ -171,7 +186,12 @@
                     break;
                 case FilterType.FirstOrderAllPassIIR:
                     var fomp = filter as FirstOrderAllPassIIRFilter;
-                    textBoxFirstOrderAllPassIirK.Text = string.Format(CultureInfo.CurrentCulture, "{0}", fomp.K);
+                    textBoxFirstOrderAllPassIirA.Text = string.Format(CultureInfo.CurrentCulture, "{0}", fomp.A);
+                    break;
+                case FilterType.SecondOrderAllPassIIR:
+                    var somp = filter as SecondOrderAllPassIIRFilter;
+                    textBoxSecondOrderAllPassIirR.Text = string.Format(CultureInfo.CurrentCulture, "{0}", somp.R);
+                    textBoxSecondOrderAllPassIirT.Text = string.Format(CultureInfo.CurrentCulture, "{0}", somp.T);
                     break;
                 case FilterType.NoiseShaping4th:
                     var ns4 = filter as NoiseShaping4thFilter;
@@ -766,13 +786,32 @@
             }
 
             private void buttonUseFirstOrderAllPassIir_Click(object sender, RoutedEventArgs e) {
-                double v;
-                if (!Double.TryParse(textBoxFirstOrderAllPassIirK.Text, out v)) {
+                double a;
+                if (!Double.TryParse(textBoxFirstOrderAllPassIirA.Text, out a) || 1.0 < Math.Abs(a) || a == 0) {
                     MessageBox.Show(Properties.Resources.ErrorFirstOrderAllPassIIR);
                     return;
                 }
 
-                mFilter = new FirstOrderAllPassIIRFilter(v);
+                mFilter = new FirstOrderAllPassIIRFilter(a);
+
+                DialogResult = true;
+                Close();
+            }
+
+            private void buttonUseSecondOrderAllPassIir_Click(object sender, RoutedEventArgs e) {
+                double r;
+                if (!Double.TryParse(textBoxSecondOrderAllPassIirR.Text, out r) || 1.0 < Math.Abs(r) || r== 0) {
+                    MessageBox.Show(Properties.Resources.ErrorSecondOrderAllPassIirR);
+                    return;
+                }
+
+                double t;
+                if (!Double.TryParse(textBoxSecondOrderAllPassIirT.Text, out t)) {
+                    MessageBox.Show(Properties.Resources.ErrorSecondOrderAllPassIirT);
+                    return;
+                }
+
+                mFilter = new SecondOrderAllPassIIRFilter(r, t);
 
                 DialogResult = true;
                 Close();

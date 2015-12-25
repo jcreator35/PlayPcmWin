@@ -110,6 +110,7 @@
     <Compile Include="MashFilter.cs" />
     <Compile Include="NormalizeFilter.cs" />
     <Compile Include="OverlappedFft.cs" />
+    <Compile Include="SecondOrderAllPassIIRFilter.cs" />
     <Compile Include="TagEditFilter.cs" />
     <Compile Include="NoiseShaping4thFilter.cs" />
     <Compile Include="NoiseShapingFilter.cs" />
