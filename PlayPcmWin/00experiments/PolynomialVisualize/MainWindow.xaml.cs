@@ -86,6 +86,10 @@ namespace PolynomialVisualize {
             return h;
         }
 
+        private int PhaseToBgra(double phase) {
+            return Util.HsvToBgra(phase * 180.0 / Math.PI + 240.0, 1.0, 1.0);
+        }
+
         private void UpdateZ()
         {
             double scale = mPoleZeroScale[comboBoxPoleZeroScale.SelectedIndex];
@@ -123,7 +127,7 @@ namespace PolynomialVisualize {
                     }
                     float hL = (float)((Math.Log10(hM) + 1.0f) / 5.0f);
                     pxF[pos] = hL;
-                    pxBgra[pos] = Util.HsvToBgra(h.Phase() * 180.0 / Math.PI + 240.0, 1.0, 1.0);
+                    pxBgra[pos] = PhaseToBgra(h.Phase());
                     ++pos;
                 }
             }
@@ -181,8 +185,8 @@ namespace PolynomialVisualize {
                 }
                 float hL = (float)((Math.Log10(hM) + 1.0f) / 5.0f);
 
-                double phase = yI * 360.0 / bm.PixelHeight;
-                int bgra = Util.HsvToBgra(phase+240.0, 1.0, 1.0);
+                double phase = yI * 2.0 * Math.PI / bm.PixelHeight;
+                int bgra = PhaseToBgra(phase);
 
                 for (int xI = 0; xI < bm.PixelWidth; xI++) {
                     // 下から上に塗る。
