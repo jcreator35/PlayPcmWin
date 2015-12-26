@@ -87,7 +87,7 @@ namespace PolynomialVisualize {
         }
 
         private int PhaseToBgra(double phase) {
-            return Util.HsvToBgra(phase * 180.0 / Math.PI + 240.0, 1.0, 1.0);
+            return Util.HsvToBgra(-phase * 180.0 / Math.PI + 240.0, 1.0, 1.0);
         }
 
         private void UpdateZ()
