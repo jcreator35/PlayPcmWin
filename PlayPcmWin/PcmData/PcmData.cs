@@ -11,10 +11,14 @@ namespace PcmDataLib {
     public class Util {
         /// <summary>
         /// readerのデータをcountバイトだけスキップする。
+        /// ファイルの終わりを超えたときEndOfStreamExceptionを出す
         /// </summary>
-        public static void BinaryReaderSkip(BinaryReader reader, long count) {
+        public static long BinaryReaderSkip(BinaryReader reader, long count) {
             if (count == 0) {
-                return;
+                return 0;
+            }
+            if (reader.BaseStream.Length < reader.BaseStream.Position + count) {
+                throw new EndOfStreamException();
             }
 
             if (reader.BaseStream.CanSeek) {
@@ -24,6 +28,7 @@ namespace PcmDataLib {
                     reader.ReadByte();
                 }
             }
+            return count;
         }
 
         public static bool BinaryReaderSeekFromBegin(BinaryReader reader, long offset) {
@@ -920,6 +925,44 @@ namespace PcmDataLib {
             return scale;
         }
 
+        public PcmData AddSilentForEvenChannel() {
+            if ((NumChannels & 1) == 0) {
+                // 既にチャンネル数が偶数。
+                return this;
+            }
+
+            // サンプルあたりビット数が8の倍数でないとこのアルゴリズムは使えない
+            System.Diagnostics.Debug.Assert((BitsPerSample & 7) == 0);
+
+            // 新しいサンプルサイズ
+            // NumFramesは総フレーム数。sampleArrayのフレーム数はこれよりも少ないことがある。
+            // 実際に存在するサンプル数sampleFramesだけ処理する。
+            int bytesPerSample = BitsPerSample / 8;
+            long sampleFrames = mSampleArray.LongLength / (BitsPerFrame / 8);
+            var newSampleArray = new byte[(NumChannels + 1) * bytesPerSample * sampleFrames];
+
+            for (long frame = 0; frame < sampleFrames; ++frame) {
+                // 各フレームにNumChannels * bytesPerSampleサンプルのデータがある
+                Array.Copy(mSampleArray, NumChannels * bytesPerSample * frame,
+                    newSampleArray, (NumChannels + 1) * bytesPerSample * frame,
+                    NumChannels * bytesPerSample);
+                if (SampleDataType == DataType.DoP) {
+                    System.Diagnostics.Debug.Assert(bytesPerSample == 3);
+                    // 追加したチャンネルにDSD無音をセットする。
+                    newSampleArray[NumChannels * bytesPerSample * frame + 0] = 0x69;
+                    newSampleArray[NumChannels * bytesPerSample * frame + 1] = 0x69;
+                    newSampleArray[NumChannels * bytesPerSample * frame + 2] = (byte)((frame & 1) == 1 ? 0xfa : 0x05);
+                }
+            }
+
+            PcmData newPcmData = new PcmData();
+            newPcmData.CopyHeaderInfoFrom(this);
+            newPcmData.SetFormat(NumChannels+1, BitsPerSample, ValidBitsPerSample, SampleRate, SampleValueRepresentationType, NumFrames);
+            newPcmData.SetSampleArray(newSampleArray);
+
+            return newPcmData;
+        }
+
         public PcmData MonoToStereo() {
             System.Diagnostics.Debug.Assert(NumChannels == 1);
 
@@ -931,9 +974,9 @@ namespace PcmDataLib {
             {
                 int bytesPerSample = BitsPerSample / 8;
 
-                // NumFramesは総フレーム数。sampleArrayのフレーム数はこれよりも少ないことがある。
+                // sampleArrayのフレーム数はこれよりも少ないことがある。
                 // 実際に存在するサンプル数sampleFramesだけ処理する。
-                long sampleFrames = mSampleArray.LongLength / bytesPerSample;
+                long sampleFrames = mSampleArray.LongLength / bytesPerSample; // NumChannels==1なので。
                 long fromPosBytes = 0;
                 for (long frame = 0; frame < sampleFrames; ++frame) {
                     for (int offs = 0; offs < bytesPerSample; ++offs) {

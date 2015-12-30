@@ -48,7 +48,7 @@ namespace PlayPcmWin {
 
         private void HandleFileReadException(string path, Exception ex) {
             LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + ": {1}{3}{2}{3}",
-                    "WAV", path, ex, Environment.NewLine));
+                    "", path, ex, Environment.NewLine));
         }
 
         /// <summary>
@@ -490,9 +490,13 @@ namespace PlayPcmWin {
             return result;
         }
 
+        /// <summary>
+        /// pathのファイルまたはディレクトリの音声ファイルを読む。
+        /// </summary>
+        /// <returns>エラーの発生回数。0の時正常終了。</returns>
         public int ReadFileHeader(string path, ReadHeaderMode mode, PlaylistTrackInfo plti) {
 
-            int result = 0;
+            int nError = 0;
 
             if (System.IO.Directory.Exists(path)) {
                 // pathはディレクトリである。直下のファイル一覧を作って足す。再帰的にはたぐらない。
@@ -503,13 +507,19 @@ namespace PlayPcmWin {
                 }
 
                 foreach (var file in files) {
-                    result += ReadFileHeader1(file, mode, plti, null);
+                    int rv = ReadFileHeader1(file, mode, plti, null);
+                    if (rv == 0) {
+                        ++nError;
+                    }
                 }
             } else {
                 // pathはファイル。
-                result += ReadFileHeader1(path, mode, plti, null);
+                int rv = ReadFileHeader1(path, mode, plti, null);
+                if (rv == 0) {
+                    ++nError;
+                }
             }
-            return result;
+            return nError;
         }
 
     }

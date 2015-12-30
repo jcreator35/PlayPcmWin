@@ -349,7 +349,7 @@ namespace PlayPcmWin {
                 readFrames = (int)(mDataFrames - mPosFrame);
                 if (mDataFrames != OutputFrames) {
                     // ファイルの最後まで読み込む場合で、フレーム数が奇数の時
-                    // フレーム数が偶数になるように水増しする。
+                    // フレーム数が偶数になるように1フレーム水増しする。
                     appendLastFrame = true;
                 }
             }

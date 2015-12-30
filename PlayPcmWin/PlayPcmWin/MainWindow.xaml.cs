@@ -1155,7 +1155,12 @@ namespace PlayPcmWin
             m_deviceSetupParams.Unsetuped();
         }
 
-        private static int PcmChannelsToSetupChannels(int numChannels) {
+        private int PcmChannelsToSetupChannels(int numChannels) {
+            if (m_preference.AddSilentForEvenChannel) {
+                // 偶数チャンネルに繰り上げする。
+                return (numChannels + 1) & (~1);
+            }
+
             // モノラル1chのPCMデータはMonoToStereo()によってステレオ2chに変換してから再生する。
             switch (numChannels) {
             case 1:
@@ -1163,6 +1168,7 @@ namespace PlayPcmWin
             default:
                 return numChannels;
             }
+
         }
 
         /// <summary>
@@ -1396,7 +1402,16 @@ namespace PlayPcmWin
 
                         pli.PropertyChanged += new PropertyChangedEventHandler(PlayListItemInfoPropertyChanged);
                     });
-            return phr.ReadFileHeader(path, mode, plti);
+            int nError = phr.ReadFileHeader(path, mode, plti);
+            if (nError != 0) {
+                string msg = "";
+                foreach (string s in phr.ErrorMessageList()) {
+                    msg += s + "\n";
+                }
+                AddLogText(msg);
+                MessageBox.Show(msg);
+            }
+            return nError;
         }
 
         //////////////////////////////////////////////////////////////////////////
@@ -2121,6 +2136,10 @@ namespace PlayPcmWin
                 if (pdAfter.NumChannels == 1) {
                     // モノラル1ch→ステレオ2ch変換。
                     pdAfter = pdAfter.MonoToStereo();
+                }
+                if (m_preference.AddSilentForEvenChannel) {
+                    // 偶数チャンネルにするために無音を追加。
+                    pdAfter = pdAfter.AddSilentForEvenChannel();
                 }
 
                 long posBytes = (writeOffsFrame + frameCount) * pdAfter.BitsPerFrame / 8;

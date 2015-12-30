@@ -137,6 +137,7 @@
                             <CheckBox Content="Sort dropped files" HorizontalAlignment="Left" IsChecked="False" Margin="6,6,6,0" Name="checkBoxSortDroppedFiles" VerticalAlignment="Top" />
                             <CheckBox Content="Set [Batch read endpoint] on file drop" HorizontalAlignment="Left" IsChecked="False" Margin="6,6,6,0" Name="checkBoxBatchReadEndpointToEveryTrack" VerticalAlignment="Top" />
                             <CheckBox Content="Verify FLAC MD5sum on file read" HorizontalAlignment="Left" IsChecked="False" Margin="6,6,6,0" Name="checkBoxVerifyFlacMD5Sum" VerticalAlignment="Top" />
+                            <CheckBox Content="Add silent channel for ch. count to be even" HorizontalAlignment="Left" IsChecked="False" Margin="6,6,6,0" Name="checkBoxChannelCountEven" VerticalAlignment="Top" />
                         </StackPanel>
                     </GroupBox>
                 </WrapPanel>

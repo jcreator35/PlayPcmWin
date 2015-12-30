@@ -646,4 +646,7 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
   <data name="MainStatusReadingFilesDoP" xml:space="preserve">
     <value>音楽ファイルからDSDデータを読み込み、DoPデータを組み立ててメモリに配置…</value>
   </data>
+  <data name="SettingsCheckBoxChannelCountEven" xml:space="preserve">
+    <value>偶数チャンネルになるよう無音を追加</value>
+  </data>
 </root>

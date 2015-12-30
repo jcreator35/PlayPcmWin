@@ -291,9 +291,12 @@ namespace PlayPcmWin {
             }
 
             if (0 == SampleRate ||   // SampleRateChunkが存在しないとき。
-                2 != NumChannels ||
                 0 == mDataFrames) {
                 return ResultType.ReadError;
+            }
+
+            if (NumChannels < 1) {
+                return ResultType.NotSupportNumChannels;
             }
 
             // 読み込めるデータのフレーム数DataFramesと出力するデータのフレーム数OutputFrames。
