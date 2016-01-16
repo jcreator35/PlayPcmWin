@@ -212,8 +212,8 @@ namespace PlayPcmWin
             int readAttemptCount = 0;
             int readSuccessCount=0;
             foreach (var p in arg.pl.Items) {
-                int rv = ReadFileHeader(p.PathName, PcmHeaderReader.ReadHeaderMode.OnlyConcreteFile, null);
-                if (1 == rv) {
+                int errCount = ReadFileHeader(p.PathName, PcmHeaderReader.ReadHeaderMode.OnlyConcreteFile, null);
+                if (0 == errCount) {
                     // 読み込み成功。読み込んだPcmDataの曲名、アーティスト名、アルバム名、startTick等を上書きする。
 
                     // pcmDataのメンバ。
@@ -255,7 +255,8 @@ namespace PlayPcmWin
             var arg = e.Result as PlaylistReadWorkerArg;
 
             // Showing error MessageBox must be delayed until Window Loaded state because SplashScreen closes all MessageBoxes whose owner is DesktopWindow
-            if (null != m_loadErrorMessages && 0 < m_loadErrorMessages.Length) {
+            if (0 < m_loadErrorMessages.Length) {
+                AddLogText(m_loadErrorMessages.ToString());
                 MessageBox.Show(m_loadErrorMessages.ToString(), Properties.Resources.RestoreFailedFiles, MessageBoxButton.OK, MessageBoxImage.Information);
             }
             m_loadErrorMessages = null;
@@ -1355,6 +1356,10 @@ namespace PlayPcmWin
             }
         }
 
+        /// <summary>
+        /// ファイルヘッダを読んでメタ情報を抽出する。
+        /// </summary>
+        /// <returns>エラー発生回数。mode == OnlyConcreteFileの時、0: 成功、1: 失敗。</returns>
         int ReadFileHeader(string path, PcmHeaderReader.ReadHeaderMode mode, PlaylistTrackInfo plti) {
             PcmHeaderReader phr = new PcmHeaderReader(Encoding.GetEncoding(m_preference.CueEncodingCodePage),
                     m_preference.SortDropFolder, (pcmData, readSeparatorAfter, readFromPpwPlaylist) => {
@@ -1403,13 +1408,11 @@ namespace PlayPcmWin
                         pli.PropertyChanged += new PropertyChangedEventHandler(PlayListItemInfoPropertyChanged);
                     });
             int nError = phr.ReadFileHeader(path, mode, plti);
-            if (nError != 0) {
-                string msg = "";
+            if (phr.ErrorMessageList().Count != 0) {
                 foreach (string s in phr.ErrorMessageList()) {
-                    msg += s + "\n";
+                    m_loadErrorMessages.Append(s);
+                    m_loadErrorMessages.Append("\n");
                 }
-                AddLogText(msg);
-                MessageBox.Show(msg);
             }
             return nError;
         }
@@ -1457,6 +1460,7 @@ namespace PlayPcmWin
             }
 
             if (0 < m_loadErrorMessages.Length) {
+                AddLogText(m_loadErrorMessages.ToString());
                 MessageBox.Show(m_loadErrorMessages.ToString(), Properties.Resources.ReadFailedFiles, MessageBoxButton.OK, MessageBoxImage.Information);
             }
             
@@ -1575,6 +1579,7 @@ namespace PlayPcmWin
                 }
 
                 if (0 < m_loadErrorMessages.Length) {
+                    AddLogText(m_loadErrorMessages.ToString());
                     MessageBox.Show(m_loadErrorMessages.ToString(),
                             Properties.Resources.ReadFailedFiles,
                             MessageBoxButton.OK, MessageBoxImage.Information);

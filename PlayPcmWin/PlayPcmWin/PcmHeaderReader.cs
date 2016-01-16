@@ -290,7 +290,7 @@ namespace PlayPcmWin {
         /// <summary>
         /// FLACファイルのヘッダ部分を読み込む。
         /// </summary>
-        /// <returns>読めたらtrue</returns>
+        /// <returns>読めたらtrue、失敗false</returns>
         private bool ReadFlacFileHeader(string path, ReadHeaderMode mode) {
             PcmDataLib.PcmData pcmData;
             List<FlacDecodeIF.FlacCuesheetTrackInfo> ctiList;
@@ -354,7 +354,7 @@ namespace PlayPcmWin {
         /// <summary>
         /// CUEシートを読み込む。
         /// </summary>
-        /// <returns>読めたファイルの数を戻す</returns>
+        /// <returns>エラーの発生回数を戻す</returns>
         private int ReadCueSheet(string path) {
             PlaylistReader plr = null;
             switch (Path.GetExtension(path).ToUpperInvariant()) {
@@ -374,15 +374,15 @@ namespace PlayPcmWin {
             if (!result) {
                 LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + ": {1}{2}",
                         Path.GetExtension(path), path, Environment.NewLine));
-                return 0;
+                return 1;
             }
 
-            int readCount = 0;
+            int errCount = 0;
             for (int i = 0; i < plr.GetTrackInfoCount(); ++i) {
                 var plti = plr.GetTrackInfo(i);
-                readCount += ReadFileHeader1(plti.path, ReadHeaderMode.OnlyConcreteFile, plti, null);
+                errCount += ReadFileHeader1(plti.path, ReadHeaderMode.OnlyConcreteFile, plti, null);
             }
-            return readCount;
+            return errCount;
         }
 
         /// <summary>
@@ -390,7 +390,7 @@ namespace PlayPcmWin {
         /// UpdateUIは行わない。
         /// </summary>
         /// <param name="path">string.Emptyのとき: IsolatedStorageに保存された再生リストを読む。</param>
-        /// <returns>読み込まれたファイルの数。</returns>
+        /// <returns>エラーの発生回数。</returns>
         private int ReadPpwPlaylist(string path) {
             int count = 0;
 
@@ -412,12 +412,12 @@ namespace PlayPcmWin {
         /// N.B. PcmReader.StreamBeginも参照(へぼい)。
         /// MenuItemFileOpen_Clickも参照。
         /// </summary>
-        /// <returns>読めたファイルの数を戻す</returns>
+        /// <returns>エラーの発生回数を戻す</returns>
         private int ReadFileHeader1(string path, ReadHeaderMode mode, PlaylistTrackInfo plti, PlaylistItemSave plis) {
             mPlaylistTrackMeta = plti;
             mPlis = plis;
 
-            int result = 0;
+            int errCount = 0;
             var ext = System.IO.Path.GetExtension(path).ToUpperInvariant();
 
             try {
@@ -425,7 +425,7 @@ namespace PlayPcmWin {
                 case ".PPWPL":
                     if (mode != ReadHeaderMode.OnlyConcreteFile) {
                         // PPWプレイリストを読み込み
-                        result += ReadPpwPlaylist(path);
+                        errCount += ReadPpwPlaylist(path);
                     }
                     break;
                 case ".CUE":
@@ -433,12 +433,12 @@ namespace PlayPcmWin {
                 case ".M3U8":
                     if (mode != ReadHeaderMode.OnlyConcreteFile) {
                         // CUEシートかM3U8再生リストを読み込み。
-                        result += ReadCueSheet(path);
+                        errCount += ReadCueSheet(path);
                     }
                     break;
                 case ".FLAC":
                     if (mode != ReadHeaderMode.OnlyMetaFile) {
-                        result += ReadFlacFileHeader(path, mode) ? 1 : 0;
+                        errCount += !ReadFlacFileHeader(path, mode) ? 1 : 0;
                     }
                     break;
                 case ".AIF":
@@ -446,23 +446,23 @@ namespace PlayPcmWin {
                 case ".AIFC":
                 case ".AIFFC":
                     if (mode != ReadHeaderMode.OnlyMetaFile) {
-                        result += ReadAiffFileHeader(path) ? 1 : 0;
+                        errCount += !ReadAiffFileHeader(path) ? 1 : 0;
                     }
                     break;
                 case ".WAV":
                 case ".WAVE":
                     if (mode != ReadHeaderMode.OnlyMetaFile) {
-                        result += ReadWavFileHeader(path) ? 1 : 0;
+                        errCount += !ReadWavFileHeader(path) ? 1 : 0;
                     }
                     break;
                 case ".DSF":
                     if (mode != ReadHeaderMode.OnlyMetaFile) {
-                        result += ReadDsfFileHeader(path) ? 1 : 0;
+                        errCount += !ReadDsfFileHeader(path) ? 1 : 0;
                     }
                     break;
                 case ".DFF":
                     if (mode != ReadHeaderMode.OnlyMetaFile) {
-                        result += ReadDsdiffFileHeader(path) ? 1 : 0;
+                        errCount += !ReadDsdiffFileHeader(path) ? 1 : 0;
                     }
                     break;
                 case ".JPG":
@@ -474,6 +474,7 @@ namespace PlayPcmWin {
                 default:
                     LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, "{0}: {1}{2}",
                             Properties.Resources.NotSupportedFileFormat, path, Environment.NewLine));
+                    ++errCount;
                     break;
                 }
             } catch (IOException ex) {
@@ -487,7 +488,7 @@ namespace PlayPcmWin {
                 HandleFileReadException(path, ex);
             }
 
-            return result;
+            return errCount;
         }
 
         /// <summary>
@@ -507,17 +508,11 @@ namespace PlayPcmWin {
                 }
 
                 foreach (var file in files) {
-                    int rv = ReadFileHeader1(file, mode, plti, null);
-                    if (rv == 0) {
-                        ++nError;
-                    }
+                    nError += ReadFileHeader1(file, mode, plti, null);
                 }
             } else {
                 // pathはファイル。
-                int rv = ReadFileHeader1(path, mode, plti, null);
-                if (rv == 0) {
-                    ++nError;
-                }
+                nError += ReadFileHeader1(path, mode, plti, null);
             }
             return nError;
         }
