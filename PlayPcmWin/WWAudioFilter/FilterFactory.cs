@@ -147,6 +147,8 @@ namespace WWAudioFilter {
                 return FirstOrderAllPassIIRFilter.Restore(tokens);
             case "SecondOrderAllPassIIR":
                 return SecondOrderAllPassIIRFilter.Restore(tokens);
+            case "DftUpsampler":
+                return DftUpsampler.Restore(tokens);
             default:
                 return null;
             }

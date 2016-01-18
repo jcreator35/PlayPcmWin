@@ -178,6 +178,15 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to DFT Upsampler.
+        /// </summary>
+        internal static string CbItemDftUpsampler {
+            get {
+                return ResourceManager.GetString("CbItemDftUpsampler", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to pick 1st sample from incoming two samples.
         /// </summary>
         internal static string CbItemDownsamplerOption0 {
@@ -589,6 +598,15 @@ namespace WWAudioFilter.Properties {
         internal static string FilterCubicHermiteSplineDesc {
             get {
                 return ResourceManager.GetString("FilterCubicHermiteSplineDesc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to DFT upsample: {0}x, DFT length={1}, Method={2}.
+        /// </summary>
+        internal static string FilterDftUpsampleDesc {
+            get {
+                return ResourceManager.GetString("FilterDftUpsampleDesc", resourceCulture);
             }
         }
         
@@ -1021,6 +1039,15 @@ namespace WWAudioFilter.Properties {
         internal static string LabelCutoffFreq {
             get {
                 return ResourceManager.GetString("LabelCutoffFreq", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to DFT Method.
+        /// </summary>
+        internal static string LabelDftMethod {
+            get {
+                return ResourceManager.GetString("LabelDftMethod", resourceCulture);
             }
         }
         

@@ -521,4 +521,13 @@
   <data name="LabelSecondAllPassIirT" xml:space="preserve">
     <value>θ (degrees, -180 ≤ θ &lt; 180):</value>
   </data>
+  <data name="CbItemDftUpsampler" xml:space="preserve">
+    <value>DFT Upsampler</value>
+  </data>
+  <data name="FilterDftUpsampleDesc" xml:space="preserve">
+    <value>DFT upsample: {0}x, DFT length={1}, Method={2}</value>
+  </data>
+  <data name="LabelDftMethod" xml:space="preserve">
+    <value>DFT Method</value>
+  </data>
 </root>

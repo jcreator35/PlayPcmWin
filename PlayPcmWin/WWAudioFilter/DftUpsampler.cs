@@ -1,0 +1,216 @@
+﻿using System;
+using System.Globalization;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Text;
+using System.Linq;
+
+namespace WWAudioFilter {
+    class DftUpsampler : FilterBase {
+        private const int DEFAULT_WINDOW_LENGTH = 65535;
+        private const int DFT_PROCESS_SLICE = 4096;
+
+        public int Factor { get; set; }
+        public int WindowLength { get; set; }
+
+        private bool mFirst;
+
+        public enum MethodType {
+            OrderedAdd,
+            SortedAdd,
+            NUM
+        };
+
+        public MethodType Method { get; set; }
+
+        private List<double> mInputDelay = new List<double>();
+        private double[] mCoeffs;
+
+        public DftUpsampler(int factor, int windowLength, MethodType method)
+                : base(FilterType.DftUpsampler) {
+
+            if (factor <= 1 || !IsPowerOfTwo(factor)) {
+                throw new ArgumentException("factor must be power of two integer and larger than 1");
+            }
+            Factor = factor;
+
+            WindowLength = windowLength;
+            
+            Method = method;
+            mFirst = true;
+        }
+
+        public override FilterBase CreateCopy() {
+            return new DftUpsampler(Factor, WindowLength, Method);
+        }
+
+        public override string ToDescriptionText() {
+            return string.Format(CultureInfo.CurrentCulture, Properties.Resources.FilterDftUpsampleDesc, Factor, WindowLength, Method);
+        }
+
+        public override string ToSaveText() {
+            return string.Format(CultureInfo.InvariantCulture, "{0} {1} {2}", Factor, WindowLength, Method);
+        }
+
+        public static FilterBase Restore(string[] tokens) {
+            if (tokens.Length != 4) {
+                return null;
+            }
+
+            int factor;
+            if (!Int32.TryParse(tokens[1], out factor) || factor <= 1 || !IsPowerOfTwo(factor)) {
+                return null;
+            }
+
+            int windowLength;
+            if (!Int32.TryParse(tokens[2], out windowLength) || windowLength < 4 || !IsPowerOfTwo(windowLength+1)) {
+                return null;
+            }
+
+            MethodType method = MethodType.NUM;
+            for (int i = 0; i < (int)MethodType.NUM; ++i) {
+                MethodType t = (MethodType)i;
+                if (0 == string.Compare(tokens[3], t.ToString())) {
+                    method = t;
+                }
+            }
+            if (method == MethodType.NUM) {
+                return null;
+            }
+
+            return new DftUpsampler(factor, windowLength, method);
+        }
+
+        public override long NumOfSamplesNeeded() {
+            if (mFirst) {
+                //     最初のサンプル
+                return (WindowLength + 1) / Factor / 2 + DFT_PROCESS_SLICE;
+            } else {
+                return DFT_PROCESS_SLICE;
+            }
+        }
+
+        public override void FilterStart() {
+            base.FilterStart();
+            mFirst = true;
+            mInputDelay.Clear();
+        }
+
+        public override void FilterEnd() {
+            base.FilterEnd();
+            mFirst = true;
+            mInputDelay.Clear();
+            mCoeffs = null;
+        }
+
+        private PcmFormat mInputPcmFormat;
+        private PcmFormat mOutputPcmFormat;
+
+        public override PcmFormat Setup(PcmFormat inputFormat) {
+            mInputPcmFormat = inputFormat;
+
+            var r = new PcmFormat(inputFormat);
+            r.SampleRate *= Factor;
+            r.NumSamples *= Factor;
+
+            mOutputPcmFormat = r;
+
+            SetupCoeffs();
+            return r;
+        }
+
+        private void SetupCoeffs() {
+            var window = WWWindowFunc.BlackmanWindow(WindowLength);
+
+            // ループ処理を簡単にするため最初と最後に0を置く。
+            mCoeffs = new double[1 + WindowLength+1];
+            int center = WindowLength / 2;
+
+            for (int i = 0; i < WindowLength / 2 + 1; ++i) {
+                int numerator = i;
+                int denominator = Factor;
+                int numeratorReminder = numerator % (denominator*2);
+                if (numerator == 0) {
+                    mCoeffs[1 + center + i] = 1.0f;
+                } else if (numerator % denominator == 0) {
+                    // sinc(180 deg) == 0, sinc(360 deg) == 0, ...
+                    mCoeffs[1 + center + i] = 0.0f;
+                } else {
+                    mCoeffs[1 + center + i] = Math.Sin(Math.PI * numeratorReminder / denominator)
+                        / (Math.PI * numerator / denominator)
+                        * window[center + i];
+                }
+                mCoeffs[1 + center - i] = mCoeffs[1 + center + i];
+            }
+        }
+
+        public override double[] FilterDo(double[] inPcm) {
+            System.Diagnostics.Debug.Assert(inPcm.Length == NumOfSamplesNeeded());
+
+            int inputSamples = (WindowLength + 1) / Factor + DFT_PROCESS_SLICE;
+
+            if (mFirst) {
+                var silence = new double[(WindowLength+1) /Factor/ 2];
+                mInputDelay.AddRange(silence);
+            }
+
+            mInputDelay.AddRange(inPcm);
+            if (inputSamples < mInputDelay.Count) {
+                int count = mInputDelay.Count - inputSamples;
+                mInputDelay.RemoveRange(0, count);
+            }
+
+            var fromPcm = mInputDelay.ToArray();
+            var toPcm = new double[DFT_PROCESS_SLICE * Factor];
+
+            switch (Method) {
+            case MethodType.OrderedAdd:
+                Parallel.For(0, DFT_PROCESS_SLICE, i => {
+                    for (int f = 0; f < Factor; ++f) {
+                        double sampleValue = 0;
+                        for (int offs = 0; offs <= WindowLength; offs += Factor) {
+                            sampleValue += mCoeffs[offs + Factor - f] * mInputDelay[offs / Factor + i];
+                        }
+                        toPcm[i * Factor + f] = sampleValue;
+                    } 
+                });
+                break;
+            case MethodType.SortedAdd:
+                Parallel.For(0, DFT_PROCESS_SLICE, i => {
+                    for (int f = 0; f < Factor; ++f) {
+                        var positiveValues = new List<double>();
+                        var negativeValues = new List<double>();
+                        for (int offs = 0; offs <= WindowLength; offs += Factor) {
+                            double v = mCoeffs[offs + Factor - f] * mInputDelay[offs / Factor + i];
+                            if (0 <= v) {
+                                positiveValues.Add(v);
+                            } else {
+                                negativeValues.Add(v);
+                            }
+                        }
+
+                        // 絶対値が小さい値から大きい値の順に加算する。
+                        positiveValues.Sort();
+                        double positiveAcc = 0.0;
+                        foreach (double n in positiveValues) {
+                            positiveAcc += n;
+                        }
+
+                        negativeValues.Sort();
+                        double negativeAcc = 0.0;
+                        foreach (double n in negativeValues.Reverse<double>()) {
+                            negativeAcc += n;
+                        }
+
+                        double sampleValue = positiveAcc + negativeAcc;
+                        toPcm[i * Factor + f] = sampleValue;
+                    }
+                });
+                break;
+            }
+
+            mFirst = false;
+            return toPcm;
+        }
+    }
+}
