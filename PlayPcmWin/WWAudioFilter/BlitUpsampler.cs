@@ -6,9 +6,9 @@ using System.Text;
 using System.Linq;
 
 namespace WWAudioFilter {
-    class DftUpsampler : FilterBase {
+    class BlitUpsampler : FilterBase {
         private const int DEFAULT_WINDOW_LENGTH = 65535;
-        private const int DFT_PROCESS_SLICE = 4096;
+        private const int PROCESS_SLICE = 4096;
 
         public int Factor { get; set; }
         public int WindowLength { get; set; }
@@ -26,8 +26,8 @@ namespace WWAudioFilter {
         private List<double> mInputDelay = new List<double>();
         private double[] mCoeffs;
 
-        public DftUpsampler(int factor, int windowLength, MethodType method)
-                : base(FilterType.DftUpsampler) {
+        public BlitUpsampler(int factor, int windowLength, MethodType method)
+                : base(FilterType.BlitUpsampler) {
 
             if (factor <= 1 || !IsPowerOfTwo(factor)) {
                 throw new ArgumentException("factor must be power of two integer and larger than 1");
@@ -41,11 +41,11 @@ namespace WWAudioFilter {
         }
 
         public override FilterBase CreateCopy() {
-            return new DftUpsampler(Factor, WindowLength, Method);
+            return new BlitUpsampler(Factor, WindowLength, Method);
         }
 
         public override string ToDescriptionText() {
-            return string.Format(CultureInfo.CurrentCulture, Properties.Resources.FilterDftUpsampleDesc, Factor, WindowLength, Method);
+            return string.Format(CultureInfo.CurrentCulture, Properties.Resources.FilterBlitUpsampleDesc, Factor, WindowLength, Method);
         }
 
         public override string ToSaveText() {
@@ -78,15 +78,15 @@ namespace WWAudioFilter {
                 return null;
             }
 
-            return new DftUpsampler(factor, windowLength, method);
+            return new BlitUpsampler(factor, windowLength, method);
         }
 
         public override long NumOfSamplesNeeded() {
             if (mFirst) {
                 //     最初のサンプル
-                return (WindowLength + 1) / Factor / 2 + DFT_PROCESS_SLICE;
+                return (WindowLength + 1) / Factor / 2 + PROCESS_SLICE;
             } else {
-                return DFT_PROCESS_SLICE;
+                return PROCESS_SLICE;
             }
         }
 
@@ -147,7 +147,7 @@ namespace WWAudioFilter {
         public override double[] FilterDo(double[] inPcm) {
             System.Diagnostics.Debug.Assert(inPcm.Length == NumOfSamplesNeeded());
 
-            int inputSamples = (WindowLength + 1) / Factor + DFT_PROCESS_SLICE;
+            int inputSamples = (WindowLength + 1) / Factor + PROCESS_SLICE;
 
             if (mFirst) {
                 var silence = new double[(WindowLength+1) /Factor/ 2];
@@ -161,11 +161,11 @@ namespace WWAudioFilter {
             }
 
             var fromPcm = mInputDelay.ToArray();
-            var toPcm = new double[DFT_PROCESS_SLICE * Factor];
+            var toPcm = new double[PROCESS_SLICE * Factor];
 
             switch (Method) {
             case MethodType.OrderedAdd:
-                Parallel.For(0, DFT_PROCESS_SLICE, i => {
+                Parallel.For(0, PROCESS_SLICE, i => {
                     for (int f = 0; f < Factor; ++f) {
                         double sampleValue = 0;
                         for (int offs = 0; offs <= WindowLength; offs += Factor) {
@@ -176,7 +176,7 @@ namespace WWAudioFilter {
                 });
                 break;
             case MethodType.SortedAdd:
-                Parallel.For(0, DFT_PROCESS_SLICE, i => {
+                Parallel.For(0, PROCESS_SLICE, i => {
                     for (int f = 0; f < Factor; ++f) {
                         var positiveValues = new List<double>();
                         var negativeValues = new List<double>();

@@ -169,20 +169,20 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to BLIT Upsampler.
+        /// </summary>
+        internal static string CbItemBlitUpsampler {
+            get {
+                return ResourceManager.GetString("CbItemBlitUpsampler", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Single stage CIC.
         /// </summary>
         internal static string CbItemCicTypeSingleStage {
             get {
                 return ResourceManager.GetString("CbItemCicTypeSingleStage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to DFT Upsampler.
-        /// </summary>
-        internal static string CbItemDftUpsampler {
-            get {
-                return ResourceManager.GetString("CbItemDftUpsampler", resourceCulture);
             }
         }
         
@@ -575,6 +575,15 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to BLIT upsample: {0}x, length={1}, Method={2}.
+        /// </summary>
+        internal static string FilterBlitUpsampleDesc {
+            get {
+                return ResourceManager.GetString("FilterBlitUpsampleDesc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to CIC Filter: {0}, Comb delay={1}.
         /// </summary>
         internal static string FilterCicFilterDesc {
@@ -598,15 +607,6 @@ namespace WWAudioFilter.Properties {
         internal static string FilterCubicHermiteSplineDesc {
             get {
                 return ResourceManager.GetString("FilterCubicHermiteSplineDesc", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to DFT upsample: {0}x, DFT length={1}, Method={2}.
-        /// </summary>
-        internal static string FilterDftUpsampleDesc {
-            get {
-                return ResourceManager.GetString("FilterDftUpsampleDesc", resourceCulture);
             }
         }
         
@@ -1007,6 +1007,15 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to BLIT Method.
+        /// </summary>
+        internal static string LabelBlitMethod {
+            get {
+                return ResourceManager.GetString("LabelBlitMethod", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Delay:.
         /// </summary>
         internal static string LabelCicDelay {
@@ -1039,15 +1048,6 @@ namespace WWAudioFilter.Properties {
         internal static string LabelCutoffFreq {
             get {
                 return ResourceManager.GetString("LabelCutoffFreq", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to DFT Method.
-        /// </summary>
-        internal static string LabelDftMethod {
-            get {
-                return ResourceManager.GetString("LabelDftMethod", resourceCulture);
             }
         }
         

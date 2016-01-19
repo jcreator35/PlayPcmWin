@@ -470,13 +470,13 @@
   <data name="LabelSecondAllPassIirT" xml:space="preserve">
     <value>θ (度, -180 ≤ θ &lt; 180):</value>
   </data>
-  <data name="CbItemDftUpsampler" xml:space="preserve">
-    <value>DFTアップサンプル</value>
+  <data name="CbItemBlitUpsampler" xml:space="preserve">
+    <value>BLITアップサンプル</value>
   </data>
-  <data name="FilterDftUpsampleDesc" xml:space="preserve">
-    <value>DFTアップサンプル: {0}倍, DFT長={1}, 方法={2}</value>
+  <data name="FilterBlitUpsampleDesc" xml:space="preserve">
+    <value>BLITアップサンプル: {0}倍, 長さ={1}, 方法={2}</value>
   </data>
-  <data name="LabelDftMethod" xml:space="preserve">
-    <value>DFT 方法</value>
+  <data name="LabelBlitMethod" xml:space="preserve">
+    <value>BLIT 方法</value>
   </data>
 </root>
