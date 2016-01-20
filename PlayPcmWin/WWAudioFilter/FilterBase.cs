@@ -36,7 +36,7 @@ namespace WWAudioFilter {
         ReduceBitDepth,
         FirstOrderAllPassIIR,
         SecondOrderAllPassIIR,
-        BlitUpsampler
+        WindowedSincUpsampler
     }
 
     public struct TagData {

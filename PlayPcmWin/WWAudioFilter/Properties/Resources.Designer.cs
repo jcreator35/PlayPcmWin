@@ -169,15 +169,6 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to BLIT Upsampler.
-        /// </summary>
-        internal static string CbItemBlitUpsampler {
-            get {
-                return ResourceManager.GetString("CbItemBlitUpsampler", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Single stage CIC.
         /// </summary>
         internal static string CbItemCicTypeSingleStage {
@@ -255,6 +246,15 @@ namespace WWAudioFilter.Properties {
         internal static string CbItemNoiseShaping4th {
             get {
                 return ResourceManager.GetString("CbItemNoiseShaping4th", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Windowed Sinc Upsampler.
+        /// </summary>
+        internal static string cbItemWindowedSincUpsampler {
+            get {
+                return ResourceManager.GetString("cbItemWindowedSincUpsampler", resourceCulture);
             }
         }
         
@@ -575,15 +575,6 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to BLIT upsample: {0}x, length={1}, Method={2}.
-        /// </summary>
-        internal static string FilterBlitUpsampleDesc {
-            get {
-                return ResourceManager.GetString("FilterBlitUpsampleDesc", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to CIC Filter: {0}, Comb delay={1}.
         /// </summary>
         internal static string FilterCicFilterDesc {
@@ -787,6 +778,15 @@ namespace WWAudioFilter.Properties {
         internal static string FilterUnevenBitDacDesc {
             get {
                 return ResourceManager.GetString("FilterUnevenBitDacDesc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Windowed Sinc upsample: {0}x, window length={1}, Method={2}.
+        /// </summary>
+        internal static string FilterWindowedSincUpsampleDesc {
+            get {
+                return ResourceManager.GetString("FilterWindowedSincUpsampleDesc", resourceCulture);
             }
         }
         
@@ -1007,15 +1007,6 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to BLIT Method.
-        /// </summary>
-        internal static string LabelBlitMethod {
-            get {
-                return ResourceManager.GetString("LabelBlitMethod", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Delay:.
         /// </summary>
         internal static string LabelCicDelay {
@@ -1205,7 +1196,7 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to FFT Length:.
+        ///   Looks up a localized string similar to Length:.
         /// </summary>
         internal static string LabelUpsamplerLength {
             get {
@@ -1228,6 +1219,15 @@ namespace WWAudioFilter.Properties {
         internal static string LabelUpsamplingFactor {
             get {
                 return ResourceManager.GetString("LabelUpsamplingFactor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Windowed Sinc Method.
+        /// </summary>
+        internal static string labelWindowedSincMethod {
+            get {
+                return ResourceManager.GetString("labelWindowedSincMethod", resourceCulture);
             }
         }
         

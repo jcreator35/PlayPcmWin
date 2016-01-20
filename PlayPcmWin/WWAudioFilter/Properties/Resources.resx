@@ -300,7 +300,7 @@
     <value>Noise shaping: order={0}, targetBitsPerSample={1}</value>
   </data>
   <data name="LabelUpsamplerLength" xml:space="preserve">
-    <value>FFT Length:</value>
+    <value>Length:</value>
   </data>
   <data name="DroppedDataIsNotFile" xml:space="preserve">
     <value>Dropped data is not file</value>
@@ -521,13 +521,13 @@
   <data name="LabelSecondAllPassIirT" xml:space="preserve">
     <value>θ (degrees, -180 ≤ θ &lt; 180):</value>
   </data>
-  <data name="CbItemBlitUpsampler" xml:space="preserve">
-    <value>BLIT Upsampler</value>
+  <data name="cbItemWindowedSincUpsampler" xml:space="preserve">
+    <value>Windowed Sinc Upsampler</value>
   </data>
-  <data name="FilterBlitUpsampleDesc" xml:space="preserve">
-    <value>BLIT upsample: {0}x, length={1}, Method={2}</value>
+  <data name="FilterWindowedSincUpsampleDesc" xml:space="preserve">
+    <value>Windowed Sinc upsample: {0}x, window length={1}, Method={2}</value>
   </data>
-  <data name="LabelBlitMethod" xml:space="preserve">
-    <value>BLIT Method</value>
+  <data name="labelWindowedSincMethod" xml:space="preserve">
+    <value>Windowed Sinc Method</value>
   </data>
 </root>

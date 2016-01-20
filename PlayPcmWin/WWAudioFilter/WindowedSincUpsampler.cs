@@ -6,7 +6,7 @@ using System.Text;
 using System.Linq;
 
 namespace WWAudioFilter {
-    class BlitUpsampler : FilterBase {
+    class WindowedSincUpsampler : FilterBase {
         private const int DEFAULT_WINDOW_LENGTH = 65535;
         private const int PROCESS_SLICE = 4096;
 
@@ -26,8 +26,8 @@ namespace WWAudioFilter {
         private List<double> mInputDelay = new List<double>();
         private double[] mCoeffs;
 
-        public BlitUpsampler(int factor, int windowLength, MethodType method)
-                : base(FilterType.BlitUpsampler) {
+        public WindowedSincUpsampler(int factor, int windowLength, MethodType method)
+                : base(FilterType.WindowedSincUpsampler) {
 
             if (factor <= 1 || !IsPowerOfTwo(factor)) {
                 throw new ArgumentException("factor must be power of two integer and larger than 1");
@@ -41,11 +41,11 @@ namespace WWAudioFilter {
         }
 
         public override FilterBase CreateCopy() {
-            return new BlitUpsampler(Factor, WindowLength, Method);
+            return new WindowedSincUpsampler(Factor, WindowLength, Method);
         }
 
         public override string ToDescriptionText() {
-            return string.Format(CultureInfo.CurrentCulture, Properties.Resources.FilterBlitUpsampleDesc, Factor, WindowLength, Method);
+            return string.Format(CultureInfo.CurrentCulture, Properties.Resources.FilterWindowedSincUpsampleDesc, Factor, WindowLength, Method);
         }
 
         public override string ToSaveText() {
@@ -78,7 +78,7 @@ namespace WWAudioFilter {
                 return null;
             }
 
-            return new BlitUpsampler(factor, windowLength, method);
+            return new WindowedSincUpsampler(factor, windowLength, method);
         }
 
         public override long NumOfSamplesNeeded() {

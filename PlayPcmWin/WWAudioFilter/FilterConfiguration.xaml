@@ -84,7 +84,7 @@
                                 <ComboBoxItem Content="Insert Zeroes Upsampler" Name="cbItemInsertZeroesUpsampler" />
                                 <ComboBoxItem Content="Linear interpolation Upsampler" Name="cbItemLineDrawUpsampler" />
                                 <ComboBoxItem Content="Cubic Hermite Spline Upsampler" Name="cbItemCubicHermiteSplineUpsampler" />
-                                <ComboBoxItem Content="BLIT Upsampler" Name="cbItemBlitUpsampler" />
+                                <ComboBoxItem Content="Windowed Sinc Upsampler" Name="cbItemWindowedSincUpsampler" />
                             </ComboBox>
                             <Label Grid.Row="1" Content="Upsampling factor:" HorizontalAlignment="Right" Margin="0,0,6,0" Name="labelUpsampleFactor" VerticalAlignment="Center" />
                             <ComboBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" Margin="6,0,6,0" Name="comboBoxUpsamplingFactor" VerticalAlignment="Center" HorizontalContentAlignment="Center">
@@ -107,8 +107,8 @@
                                 <ComboBoxItem Content="1/2 " IsSelected="True"/>
                                 <ComboBoxItem Content="3/4 " />
                             </ComboBox>
-                            <Label Grid.Column="0" Grid.Row="4" Content="BLIT Method:" Name="labelBlitMethod" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
-                            <ComboBox Grid.Column="1" Grid.Row="4" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" Margin="6,0,6,0" Name="comboBoxBlitMethod" VerticalAlignment="Center" HorizontalContentAlignment="Center" IsEnabled="False">
+                            <Label Grid.Column="0" Grid.Row="4" Content="WindowedSinc Method:" Name="labelWindowedSincMethod" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                            <ComboBox Grid.Column="1" Grid.Row="4" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" Margin="6,0,6,0" Name="comboBoxWindowedSincMethod" VerticalAlignment="Center" HorizontalContentAlignment="Center" IsEnabled="False">
                                 <ComboBoxItem Content="Ordered Add" IsSelected="True"/>
                                 <ComboBoxItem Content="Sorted Add" />
                             </ComboBox>

@@ -61,12 +61,12 @@
                 cbItemInsertZeroesUpsampler.Content = Properties.Resources.CbItemInsertZeroesUpsampler;
                 cbItemLineDrawUpsampler.Content = Properties.Resources.CbItemLineDrawUpsampler;
                 cbItemCubicHermiteSplineUpsampler.Content = Properties.Resources.CbIteCubicHermiteSplineUpsampler;
-                cbItemBlitUpsampler.Content = Properties.Resources.CbItemBlitUpsampler;
+                cbItemWindowedSincUpsampler.Content = Properties.Resources.cbItemWindowedSincUpsampler;
                 labelUpsampleFactor.Content = Properties.Resources.LabelUpsamplingFactor;
                 labelUpsampleLen.Content = Properties.Resources.LabelUpsamplerLength;
                 labelUpsampleLenUnit.Content = Properties.Resources.LabelSamples;
                 buttonUseUpsampler.Content = Properties.Resources.ButtonUseThisFilter;
-                labelBlitMethod.Content = Properties.Resources.LabelBlitMethod;
+                labelWindowedSincMethod.Content = Properties.Resources.labelWindowedSincMethod;
 
                 groupBoxNoiseShaping.Header = Properties.Resources.GroupNoiseShaping;
                 labelNoiseShapingTargetBit.Content = Properties.Resources.LabelNoiseShapingTargetBit;
@@ -172,12 +172,12 @@
                     comboBoxUpsampleLen.SelectedIndex = (int)UpsampleLenToUpsampleLenType(fftu.FftLength);
                     comboBoxFftOverlap.SelectedIndex = (int)fftu.Overlap;
                     break;
-                case FilterType.BlitUpsampler:
-                    var blitu = filter as BlitUpsampler;
-                    comboBoxUpsamplingFactor.SelectedIndex = (int)UpsamplingFactorToUpsamplingFactorType(blitu.Factor);
-                    comboBoxUpsamplerType.SelectedIndex = (int)UpsamplerType.BLIT;
-                    comboBoxUpsampleLen.SelectedIndex = (int)UpsampleLenToUpsampleLenType(blitu.WindowLength+1);
-                    comboBoxBlitMethod.SelectedIndex = (int)blitu.Method;
+                case FilterType.WindowedSincUpsampler:
+                    var wsu = filter as WindowedSincUpsampler;
+                    comboBoxUpsamplingFactor.SelectedIndex = (int)UpsamplingFactorToUpsamplingFactorType(wsu.Factor);
+                    comboBoxUpsamplerType.SelectedIndex = (int)UpsamplerType.WindowedSinc;
+                    comboBoxUpsampleLen.SelectedIndex = (int)UpsampleLenToUpsampleLenType(wsu.WindowLength+1);
+                    comboBoxWindowedSincMethod.SelectedIndex = (int)wsu.Method;
                     break;
                 case FilterType.Mash2:
                     var mash = filter as MashFilter;
@@ -366,7 +366,7 @@
                 InsertZeroes,
                 LineDraw,
                 CubicHermiteSpline,
-                BLIT
+                WindowedSinc
             };
 
             enum UpsampleLenType {
@@ -445,7 +445,7 @@
                 int len = UpsampleLenTypeToLpfLen(comboBoxUpsampleLen.SelectedIndex);
 
                 FftUpsampler.OverlapType overlap = (FftUpsampler.OverlapType)comboBoxFftOverlap.SelectedIndex;
-                BlitUpsampler.MethodType method = (BlitUpsampler.MethodType)comboBoxBlitMethod.SelectedIndex;
+                WindowedSincUpsampler.MethodType method = (WindowedSincUpsampler.MethodType)comboBoxWindowedSincMethod.SelectedIndex;
 
                 switch (comboBoxUpsamplerType.SelectedIndex) {
                 case (int)UpsamplerType.ZOH:
@@ -460,8 +460,8 @@
                 case (int)UpsamplerType.FFT:
                     mFilter = new FftUpsampler(factor, len, overlap);
                     break;
-                case (int)UpsamplerType.BLIT:
-                    mFilter = new BlitUpsampler(factor, len - 1, method);
+                case (int)UpsamplerType.WindowedSinc:
+                    mFilter = new WindowedSincUpsampler(factor, len - 1, method);
                     break;
                 case (int)UpsamplerType.InsertZeroes:
                     mFilter = new InsertZeroesUpsampler(factor);
@@ -545,17 +545,17 @@
                 case (int)UpsamplerType.FFT:
                     comboBoxUpsampleLen.IsEnabled = true;
                     comboBoxFftOverlap.IsEnabled = true;
-                    comboBoxBlitMethod.IsEnabled = false;
+                    comboBoxWindowedSincMethod.IsEnabled = false;
                     break;
-                case (int)UpsamplerType.BLIT:
+                case (int)UpsamplerType.WindowedSinc:
                     comboBoxUpsampleLen.IsEnabled = true;
                     comboBoxFftOverlap.IsEnabled = false;
-                    comboBoxBlitMethod.IsEnabled = true;
+                    comboBoxWindowedSincMethod.IsEnabled = true;
                     break;
                 default:
                     comboBoxUpsampleLen.IsEnabled = false;
                     comboBoxFftOverlap.IsEnabled = false;
-                    comboBoxBlitMethod.IsEnabled = false;
+                    comboBoxWindowedSincMethod.IsEnabled = false;
                     break;
                 }
             }

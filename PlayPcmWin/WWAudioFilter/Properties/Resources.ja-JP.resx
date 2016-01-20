@@ -300,7 +300,7 @@
     <value>ノイズシェイピング: {0}次, 出力量子化ビット数={1}</value>
   </data>
   <data name="LabelUpsamplerLength" xml:space="preserve">
-    <value>FFT長:</value>
+    <value>長さ:</value>
   </data>
   <data name="DroppedFileIsNotFile" xml:space="preserve">
     <value>ファイルではないものがドロップされました。何もできません。</value>
@@ -470,13 +470,13 @@
   <data name="LabelSecondAllPassIirT" xml:space="preserve">
     <value>θ (度, -180 ≤ θ &lt; 180):</value>
   </data>
-  <data name="CbItemBlitUpsampler" xml:space="preserve">
-    <value>BLITアップサンプル</value>
+  <data name="cbItemWindowedSincUpsampler" xml:space="preserve">
+    <value>Windowed Sincアップサンプル</value>
   </data>
-  <data name="FilterBlitUpsampleDesc" xml:space="preserve">
-    <value>BLITアップサンプル: {0}倍, 長さ={1}, 方法={2}</value>
+  <data name="FilterWindowedSincUpsampleDesc" xml:space="preserve">
+    <value>Windowed Sincアップサンプル: {0}倍, ウィンドウの長さ={1}, 方法={2}</value>
   </data>
-  <data name="LabelBlitMethod" xml:space="preserve">
-    <value>BLIT 方法</value>
+  <data name="labelWindowedSincMethod" xml:space="preserve">
+    <value>Windowed Sinc 方法</value>
   </data>
 </root>
