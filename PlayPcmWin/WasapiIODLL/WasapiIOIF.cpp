@@ -8,6 +8,7 @@
 #include "WWAudioFilterPolarityInvert.h"
 #include "WWAudioFilterMonauralMix.h"
 #include "WWAudioFilterChannelMapping.h"
+#include "WWAudioFilterMuteSoloChannel.h"
 #include <assert.h>
 #include <map>
 
@@ -705,6 +706,12 @@ WasapiIO_AppendAudioFilter(int instanceId, int audioFilterType, PCWSTR args)
             break;
         case WWAF_ChannelMapping:
             self->wasapi.AudioFilterSequencer().Append(new WWAudioFilterChannelMapping(args));
+            break;
+        case WWAF_MuteChannel:
+            self->wasapi.AudioFilterSequencer().Append(new WWAudioFilterMuteSoloChannel(WWAFMSMode_Mute, args));
+            break;
+        case WWAF_SoloChannel:
+            self->wasapi.AudioFilterSequencer().Append(new WWAudioFilterMuteSoloChannel(WWAFMSMode_Solo, args));
             break;
         default:
             assert(0);

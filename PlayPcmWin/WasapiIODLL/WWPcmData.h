@@ -32,6 +32,7 @@ enum WWPcmDataSampleFormatType {
 const char *
 WWPcmDataSampleFormatTypeToStr(WWPcmDataSampleFormatType w);
 int WWPcmDataSampleFormatTypeToBitsPerSample(WWPcmDataSampleFormatType t);
+int WWPcmDataSampleFormatTypeToBytesPerSample(WWPcmDataSampleFormatType t);
 int WWPcmDataSampleFormatTypeToValidBitsPerSample(WWPcmDataSampleFormatType t);
 bool WWPcmDataSampleFormatTypeIsFloat(WWPcmDataSampleFormatType t);
 bool WWPcmDataSampleFormatTypeIsInt(WWPcmDataSampleFormatType t);

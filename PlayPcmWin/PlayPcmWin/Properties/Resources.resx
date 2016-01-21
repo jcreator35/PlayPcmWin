@@ -652,4 +652,16 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   <data name="SettingsCheckBoxChannelCountEven" xml:space="preserve">
     <value>Add silent channel for ch. count to be even</value>
   </data>
+  <data name="AudioFilterMuteChannel" xml:space="preserve">
+    <value>Mute Channel</value>
+  </data>
+  <data name="AudioFilterMuteChannelDesc" xml:space="preserve">
+    <value>Mute Channel {0}</value>
+  </data>
+  <data name="AudioFilterSoloChannel" xml:space="preserve">
+    <value>Solo Channel</value>
+  </data>
+  <data name="AudioFilterSoloChannelDesc" xml:space="preserve">
+    <value>Solo Channel {0}</value>
+  </data>
 </root>

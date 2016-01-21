@@ -87,6 +87,19 @@ WWPcmDataSampleFormatTypeToBitsPerSample(WWPcmDataSampleFormatType t)
 }
 
 int
+WWPcmDataSampleFormatTypeToBytesPerSample(WWPcmDataSampleFormatType t)
+{
+    static const int result[WWPcmDataSampleFormatNUM]
+        = { 2, 3, 4, 4, 4 };
+
+    if (t < 0 || WWPcmDataSampleFormatNUM <= t) {
+        assert(0);
+        return -1;
+    }
+    return result[t];
+}
+
+int
 WWPcmDataSampleFormatTypeToValidBitsPerSample(WWPcmDataSampleFormatType t)
 {
     static const int result[WWPcmDataSampleFormatNUM]

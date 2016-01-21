@@ -649,4 +649,16 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
   <data name="SettingsCheckBoxChannelCountEven" xml:space="preserve">
     <value>偶数チャンネルになるよう無音を追加</value>
   </data>
+  <data name="AudioFilterMuteChannel" xml:space="preserve">
+    <value>ミュート</value>
+  </data>
+  <data name="AudioFilterMuteChannelDesc" xml:space="preserve">
+    <value>ミュート : チャンネル {0}</value>
+  </data>
+  <data name="AudioFilterSoloChannel" xml:space="preserve">
+    <value>ソロ</value>
+  </data>
+  <data name="AudioFilterSoloChannelDesc" xml:space="preserve">
+    <value>ソロ : チャンネル {0}</value>
+  </data>
 </root>

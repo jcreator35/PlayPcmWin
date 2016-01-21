@@ -14,6 +14,8 @@ namespace PlayPcmWin {
         PolarityInvert,
         MonauralMix,
         ChannelRouting, //< ChannelMapping。設定ファイルで使用されるフィルター名称は互換性のためにChannelRoutingとする。
+        MuteChannel,
+        SoloChannel,
         NUM
     };
 
@@ -47,6 +49,9 @@ namespace PlayPcmWin {
             case PreferenceAudioFilterType.MonauralMix:
             case PreferenceAudioFilterType.PolarityInvert:
                 return "";
+            case PreferenceAudioFilterType.MuteChannel:
+            case PreferenceAudioFilterType.SoloChannel:
+                return string.Format("{0}", mArgArray[0]);
             default:
                 System.Diagnostics.Debug.Assert(false);
                 return "";
@@ -239,18 +244,14 @@ namespace PlayPcmWin {
                 return null;
             }
 
-            PreferenceAudioFilterType t;
-            switch (tokens[0]) {
-            case "PolarityInvert":
-                t = PreferenceAudioFilterType.PolarityInvert;
-                break;
-            case "MonauralMix":
-                t = PreferenceAudioFilterType.MonauralMix;
-                break;
-            case "ChannelRouting":
-                t = PreferenceAudioFilterType.ChannelRouting;
-                break;
-            default:
+            PreferenceAudioFilterType t = PreferenceAudioFilterType.NUM;
+            for (int i = 0; i < (int)PreferenceAudioFilterType.NUM; ++i) {
+                var paf = (PreferenceAudioFilterType)i;
+                if (0 == paf.ToString().CompareTo(tokens[0])) {
+                    t = paf;
+                }
+            }
+            if (t == PreferenceAudioFilterType.NUM) {
                 return null;
             }
 
@@ -304,6 +305,14 @@ namespace PlayPcmWin {
             return new Tuple<int, int>(from, to);
         }
 
+        private static string ChannelToString(int ch) {
+            switch (ch) {
+            case 0: return "1 (L)";
+            case 1: return "2 (R)";
+            default: return (ch+1).ToString();
+            }
+        }
+
         public string DescriptionText {
             get {
                 switch (FilterType) {
@@ -320,6 +329,20 @@ namespace PlayPcmWin {
                             sb.AppendFormat(" {0}→{1}", m.Item1+1, m.Item2+1);
                         }
                         return sb.ToString();
+                    }
+                case PreferenceAudioFilterType.MuteChannel: {
+                        int ch;
+                        if (!Int32.TryParse(mArgArray[0], out ch)) {
+                            return null;
+                        }
+                        return string.Format(Properties.Resources.AudioFilterMuteChannelDesc, ChannelToString(ch));
+                    }
+                case PreferenceAudioFilterType.SoloChannel: {
+                        int ch;
+                        if (!Int32.TryParse(mArgArray[0], out ch)) {
+                            return null;
+                        }
+                        return string.Format(Properties.Resources.AudioFilterSoloChannelDesc, ChannelToString(ch));
                     }
                 default:
                     System.Diagnostics.Debug.Assert(false);

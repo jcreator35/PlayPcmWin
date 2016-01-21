@@ -106,11 +106,47 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Mute Channel.
+        /// </summary>
+        internal static string AudioFilterMuteChannel {
+            get {
+                return ResourceManager.GetString("AudioFilterMuteChannel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mute Channel {0}.
+        /// </summary>
+        internal static string AudioFilterMuteChannelDesc {
+            get {
+                return ResourceManager.GetString("AudioFilterMuteChannelDesc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invert polarity.
         /// </summary>
         internal static string AudioFilterPolarityInvert {
             get {
                 return ResourceManager.GetString("AudioFilterPolarityInvert", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Solo Channel.
+        /// </summary>
+        internal static string AudioFilterSoloChannel {
+            get {
+                return ResourceManager.GetString("AudioFilterSoloChannel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Solo Channel {0}.
+        /// </summary>
+        internal static string AudioFilterSoloChannelDesc {
+            get {
+                return ResourceManager.GetString("AudioFilterSoloChannelDesc", resourceCulture);
             }
         }
         

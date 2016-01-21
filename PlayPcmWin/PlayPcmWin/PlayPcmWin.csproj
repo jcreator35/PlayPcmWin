@@ -117,6 +117,9 @@
     <Compile Include="ChannelMappingSettings.xaml.cs">
       <DependentUpon>ChannelMappingSettings.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ChannelSelect.xaml.cs">
+      <DependentUpon>ChannelSelect.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CueSheetRW.cs" />
     <Compile Include="DeviceAttributes.cs" />
     <Compile Include="DeviceSetupParams.cs" />
@@ -145,6 +148,10 @@
     <Page Include="ChannelMappingSettings.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="ChannelSelect.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

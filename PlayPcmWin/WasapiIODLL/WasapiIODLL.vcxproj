@@ -165,6 +165,7 @@
     <ClInclude Include="WWAudioFilter.h" />
     <ClInclude Include="WWAudioFilterChannelMapping.h" />
     <ClInclude Include="WWAudioFilterMonauralMix.h" />
+    <ClInclude Include="WWAudioFilterMuteSoloChannel.h" />
     <ClInclude Include="WWAudioFilterType.h" />
     <ClInclude Include="WWAudioFilterPolarityInvert.h" />
     <ClInclude Include="WWAudioFilterSequencer.h" />
@@ -186,6 +187,7 @@
     <ClCompile Include="WWAudioDeviceEnumerator.cpp" />
     <ClCompile Include="WWAudioFilterChannelMapping.cpp" />
     <ClCompile Include="WWAudioFilterMonauralMix.cpp" />
+    <ClCompile Include="WWAudioFilterMuteSoloChannel.cpp" />
     <ClCompile Include="WWAudioFilterPolarityInvert.cpp" />
     <ClCompile Include="WWAudioFilterSequencer.cpp" />
     <ClCompile Include="WWMFResampler.cpp" />

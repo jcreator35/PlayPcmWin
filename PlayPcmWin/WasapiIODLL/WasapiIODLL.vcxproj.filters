@@ -50,6 +50,9 @@
     <ClCompile Include="WWAudioFilterChannelMapping.cpp">
       <Filter>source files</Filter>
     </ClCompile>
+    <ClCompile Include="WWAudioFilterMuteSoloChannel.cpp">
+      <Filter>source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WasapiIOIF.h">
@@ -107,6 +110,9 @@
       <Filter>header files</Filter>
     </ClInclude>
     <ClInclude Include="WWAudioFilterChannelMapping.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWAudioFilterMuteSoloChannel.h">
       <Filter>header files</Filter>
     </ClInclude>
   </ItemGroup>
