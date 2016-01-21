@@ -20,6 +20,9 @@ WWAudioFilterMuteSoloChannel::IsMuteChannel(int ch) const
         return mMuteChannel == ch;
     case WWAFMSMode_Solo:
         return mMuteChannel != ch;
+    default:
+        assert(0);
+        return false;
     }
 }
 
