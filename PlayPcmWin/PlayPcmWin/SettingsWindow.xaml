@@ -45,7 +45,7 @@
                                     <ComboBoxItem x:Uid="cbItemTaskNone" Content="None" Name="cbItemTaskNone" />
                                     <ComboBoxItem x:Uid="cbItemTaskPlayback" Content="Playback" Name="cbItemTaskPlayback" />
                                 </ComboBox>
-                                <ComboBox Name="comboBoxRenderThreadPriority"  Margin="4" VerticalAlignment="Top" SelectedIndex="0" SelectionChanged="comboBoxRenderThreadPriority_SelectionChanged">
+                                <ComboBox Name="comboBoxRenderThreadPriority"  Margin="4" VerticalAlignment="Top" SelectedIndex="0">
                                         <ComboBoxItem Content="Priority: Not set" Name="cbItemPrioNotSet" />
                                         <ComboBoxItem Content="Priority: Low" Name="cbItemPrioLow" />
                                         <ComboBoxItem Content="Priority: Normal" Name="cbItemPrioNormal" />
@@ -96,6 +96,18 @@
                             <Label x:Uid="labelZeroFlush" Content="Zero flush period on playback starts:" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Margin="0,0,0,0" Name="labelZeroFlushSeconds" VerticalAlignment="Center" />
                             <TextBox x:Uid="textBoxZeroFlushSeconds" HorizontalContentAlignment="Right" Margin="6,0,6,0" Name="textBoxZeroFlushSeconds" VerticalAlignment="Center" Text="0" Grid.Column="1" />
                             <Label x:Uid="labelZeroFlushUnit" Content="sec" HorizontalAlignment="Left" Margin="0,0,0,0" Name="labelZeroFlushUnit" VerticalAlignment="Center" Grid.Column="2" />
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox Header="Channel count settings" Margin="4" Height="59" Name="groupBoxChannelCountSettings" Width="350">
+                        <Grid>
+                            <ComboBox Name="comboBoxChannelCount" Margin="4,0,4,0" HorizontalContentAlignment="Center" VerticalAlignment="Center" SelectedIndex="0">
+                                <ComboBoxItem Content="Not changed, use original channel count" Name="cbItemChannelCountNotChange" />
+                                <ComboBoxItem Content="2 ch" Name="cbItemChannelCount2" />
+                                <ComboBoxItem Content="4 ch" Name="cbItemChannelCount4" />
+                                <ComboBoxItem Content="6 ch" Name="cbItemChannelCount6" />
+                                <ComboBoxItem Content="8 ch" Name="cbItemChannelCount8" />
+                                <ComboBoxItem Content="10 ch" Name="cbItemChannelCount10" />
+                            </ComboBox>
                         </Grid>
                     </GroupBox>
                     <GroupBox x:Uid="groupBoxDisplaySettings" Header="Display settings" Margin="4" Height="200" Width="440" Name="groupBoxDisplaySettings" >

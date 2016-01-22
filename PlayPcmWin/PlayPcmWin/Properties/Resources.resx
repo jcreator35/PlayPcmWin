@@ -664,4 +664,25 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   <data name="AudioFilterSoloChannelDesc" xml:space="preserve">
     <value>Solo Channel {0}</value>
   </data>
+  <data name="SettingsCbItemChannelCount10" xml:space="preserve">
+    <value>10 ch</value>
+  </data>
+  <data name="SettingsCbItemChannelCount2" xml:space="preserve">
+    <value>2 ch stereo</value>
+  </data>
+  <data name="SettingsCbItemChannelCount4" xml:space="preserve">
+    <value>4 ch</value>
+  </data>
+  <data name="SettingsCbItemChannelCount6" xml:space="preserve">
+    <value>6 ch (5.1 ch)</value>
+  </data>
+  <data name="SettingsCbItemChannelCount8" xml:space="preserve">
+    <value>8 ch (7.1 ch)</value>
+  </data>
+  <data name="SettingsCbItemChannelCountNotChanged" xml:space="preserve">
+    <value>Use original channel count</value>
+  </data>
+  <data name="SettingsGroupBoxChannelCount" xml:space="preserve">
+    <value>Channel Count Settings</value>
+  </data>
 </root>

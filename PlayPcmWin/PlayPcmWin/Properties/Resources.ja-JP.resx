@@ -661,4 +661,25 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
   <data name="AudioFilterSoloChannelDesc" xml:space="preserve">
     <value>ソロ : チャンネル {0}</value>
   </data>
+  <data name="SettingsCbItemChannelCount10" xml:space="preserve">
+    <value>10チャンネル</value>
+  </data>
+  <data name="SettingsCbItemChannelCount2" xml:space="preserve">
+    <value>2チャンネル ステレオ</value>
+  </data>
+  <data name="SettingsCbItemChannelCount4" xml:space="preserve">
+    <value>4チャンネル</value>
+  </data>
+  <data name="SettingsCbItemChannelCount6" xml:space="preserve">
+    <value>6チャンネル (5.1チャンネル)</value>
+  </data>
+  <data name="SettingsCbItemChannelCount8" xml:space="preserve">
+    <value>8チャンネル (7.1チャンネル)</value>
+  </data>
+  <data name="SettingsCbItemChannelCountNotChanged" xml:space="preserve">
+    <value>無変更 (音源のチャンネル数を使用)</value>
+  </data>
+  <data name="SettingsGroupBoxChannelCount" xml:space="preserve">
+    <value>チャンネル数変更</value>
+  </data>
 </root>

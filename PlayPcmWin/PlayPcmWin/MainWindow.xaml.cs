@@ -1157,19 +1157,24 @@ namespace PlayPcmWin
         }
 
         private int PcmChannelsToSetupChannels(int numChannels) {
+            int ch = numChannels;
+
             if (m_preference.AddSilentForEvenChannel) {
                 // 偶数チャンネルに繰り上げする。
-                return (numChannels + 1) & (~1);
+                ch = (ch + 1) & (~1);
             }
 
             // モノラル1chのPCMデータはMonoToStereo()によってステレオ2chに変換してから再生する。
-            switch (numChannels) {
-            case 1:
-                return 2;
-            default:
-                return numChannels;
+            if (1 == numChannels) {
+                ch = 2;
             }
 
+            if (0 != m_preference.ChannelCount) {
+                // チャンネル数変更。
+                ch = m_preference.ChannelCount;
+            }
+
+            return ch;
         }
 
         /// <summary>
@@ -2145,6 +2150,9 @@ namespace PlayPcmWin
                 if (m_preference.AddSilentForEvenChannel) {
                     // 偶数チャンネルにするために無音を追加。
                     pdAfter = pdAfter.AddSilentForEvenChannel();
+                }
+                if (0 != m_preference.ChannelCount) {
+                    pdAfter = pdAfter.ConvertChannelCount(m_preference.ChannelCount);
                 }
 
                 long posBytes = (writeOffsFrame + frameCount) * pdAfter.BitsPerFrame / 8;

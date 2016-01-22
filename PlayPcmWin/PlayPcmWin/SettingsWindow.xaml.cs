@@ -108,6 +108,14 @@ namespace PlayPcmWin {
             checkBoxVerifyFlacMD5Sum.Content = Properties.Resources.SettingsCheckBoxVerifyFlacMD5Sum;
             checkBoxGpuRendering.Content = Properties.Resources.SettingsCheckBoxGpuRendering;
             checkBoxChannelCountEven.Content = Properties.Resources.SettingsCheckBoxChannelCountEven;
+
+            groupBoxChannelCountSettings.Header = Properties.Resources.SettingsGroupBoxChannelCount;
+            cbItemChannelCountNotChange.Content = Properties.Resources.SettingsCbItemChannelCountNotChanged;
+            cbItemChannelCount2.Content = Properties.Resources.SettingsCbItemChannelCount2;
+            cbItemChannelCount4.Content = Properties.Resources.SettingsCbItemChannelCount4;
+            cbItemChannelCount6.Content = Properties.Resources.SettingsCbItemChannelCount6;
+            cbItemChannelCount8.Content = Properties.Resources.SettingsCbItemChannelCount8;
+            cbItemChannelCount10.Content = Properties.Resources.SettingsCbItemChannelCount10;
         }
 
         public void SetPreference(Preference preference) {
@@ -260,6 +268,30 @@ namespace PlayPcmWin {
 
             checkBoxGpuRendering.IsChecked = preference.GpuRendering;
             checkBoxChannelCountEven.IsChecked = preference.AddSilentForEvenChannel;
+
+            switch (preference.ChannelCount) {
+            case 0:
+                comboBoxChannelCount.SelectedItem = cbItemChannelCountNotChange;
+                break;
+            case 2:
+                comboBoxChannelCount.SelectedItem = cbItemChannelCount2;
+                break;
+            case 4:
+                comboBoxChannelCount.SelectedItem = cbItemChannelCount4;
+                break;
+            case 6:
+                comboBoxChannelCount.SelectedItem = cbItemChannelCount6;
+                break;
+            case 8:
+                comboBoxChannelCount.SelectedItem = cbItemChannelCount8;
+                break;
+            case 10:
+                comboBoxChannelCount.SelectedItem = cbItemChannelCount10;
+                break;
+            default:
+                comboBoxChannelCount.SelectedItem = cbItemChannelCountNotChange;
+                break;
+            }
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
@@ -408,6 +440,25 @@ namespace PlayPcmWin {
             m_preference.GpuRendering = (checkBoxGpuRendering.IsChecked == true);
             m_preference.AddSilentForEvenChannel = (checkBoxChannelCountEven.IsChecked == true);
 
+            if (comboBoxChannelCount.SelectedItem == cbItemChannelCountNotChange) {
+                m_preference.ChannelCount = 0;
+            }
+            if (comboBoxChannelCount.SelectedItem == cbItemChannelCount2) {
+                m_preference.ChannelCount = 2;
+            }
+            if (comboBoxChannelCount.SelectedItem == cbItemChannelCount4) {
+                m_preference.ChannelCount = 4;
+            }
+            if (comboBoxChannelCount.SelectedItem == cbItemChannelCount6) {
+                m_preference.ChannelCount = 6;
+            }
+            if (comboBoxChannelCount.SelectedItem == cbItemChannelCount8) {
+                m_preference.ChannelCount = 8;
+            }
+            if (comboBoxChannelCount.SelectedItem == cbItemChannelCount10) {
+                m_preference.ChannelCount = 10;
+            }
+
             Close();
         }
 
@@ -538,10 +589,6 @@ namespace PlayPcmWin {
             } else {
                 comboBoxRenderThreadPriority.IsEnabled = true;
             }
-        }
-
-        private void comboBoxRenderThreadPriority_SelectionChanged(object sender, SelectionChangedEventArgs e) {
-
         }
     }
 }

@@ -1119,6 +1119,60 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 10 ch.
+        /// </summary>
+        internal static string SettingsCbItemChannelCount10 {
+            get {
+                return ResourceManager.GetString("SettingsCbItemChannelCount10", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 2 ch stereo.
+        /// </summary>
+        internal static string SettingsCbItemChannelCount2 {
+            get {
+                return ResourceManager.GetString("SettingsCbItemChannelCount2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 4 ch.
+        /// </summary>
+        internal static string SettingsCbItemChannelCount4 {
+            get {
+                return ResourceManager.GetString("SettingsCbItemChannelCount4", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 6 ch (5.1 ch).
+        /// </summary>
+        internal static string SettingsCbItemChannelCount6 {
+            get {
+                return ResourceManager.GetString("SettingsCbItemChannelCount6", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 8 ch (7.1 ch).
+        /// </summary>
+        internal static string SettingsCbItemChannelCount8 {
+            get {
+                return ResourceManager.GetString("SettingsCbItemChannelCount8", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use original channel count.
+        /// </summary>
+        internal static string SettingsCbItemChannelCountNotChanged {
+            get {
+                return ResourceManager.GetString("SettingsCbItemChannelCountNotChanged", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Alternating row background.
         /// </summary>
         internal static string SettingsCheckBoxAlternateBackground {
@@ -1259,6 +1313,15 @@ namespace PlayPcmWin.Properties {
         internal static string SettingsCueEncoding {
             get {
                 return ResourceManager.GetString("SettingsCueEncoding", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Channel Count Settings.
+        /// </summary>
+        internal static string SettingsGroupBoxChannelCount {
+            get {
+                return ResourceManager.GetString("SettingsGroupBoxChannelCount", resourceCulture);
             }
         }
         

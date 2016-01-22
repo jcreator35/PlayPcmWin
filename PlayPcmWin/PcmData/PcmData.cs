@@ -925,9 +925,9 @@ namespace PcmDataLib {
             return scale;
         }
 
-        public PcmData AddSilentForEvenChannel() {
-            if ((NumChannels & 1) == 0) {
-                // 既にチャンネル数が偶数。
+        public PcmData ConvertChannelCount(int newCh) {
+            if (NumChannels == newCh) {
+                // 既に希望のチャンネル数である。
                 return this;
             }
 
@@ -939,28 +939,55 @@ namespace PcmDataLib {
             // 実際に存在するサンプル数sampleFramesだけ処理する。
             int bytesPerSample = BitsPerSample / 8;
             long sampleFrames = mSampleArray.LongLength / (BitsPerFrame / 8);
-            var newSampleArray = new byte[(NumChannels + 1) * bytesPerSample * sampleFrames];
+            var newSampleArray = new byte[newCh * bytesPerSample * sampleFrames];
 
             for (long frame = 0; frame < sampleFrames; ++frame) {
-                // 各フレームにNumChannels * bytesPerSampleサンプルのデータがある
+                int copyBytes = NumChannels * bytesPerSample;
+                if (newCh < NumChannels) {
+                    // チャンネル数が減る場合。
+                    copyBytes = newCh * bytesPerSample;
+                }
+
                 Array.Copy(mSampleArray, NumChannels * bytesPerSample * frame,
-                    newSampleArray, (NumChannels + 1) * bytesPerSample * frame,
-                    NumChannels * bytesPerSample);
-                if (SampleDataType == DataType.DoP) {
-                    System.Diagnostics.Debug.Assert(bytesPerSample == 3);
+                    newSampleArray, newCh * bytesPerSample * frame,
+                    copyBytes);
+                if (SampleDataType == DataType.DoP
+                        && NumChannels < newCh) {
                     // 追加したチャンネルにDSD無音をセットする。
-                    newSampleArray[NumChannels * bytesPerSample * frame + 0] = 0x69;
-                    newSampleArray[NumChannels * bytesPerSample * frame + 1] = 0x69;
-                    newSampleArray[NumChannels * bytesPerSample * frame + 2] = (byte)((frame & 1) == 1 ? 0xfa : 0x05);
+                    switch (bytesPerSample) {
+                    case 3:
+                        for (int ch = NumChannels; ch < newCh; ++ch) {
+                            newSampleArray[(frame * newCh + ch) * bytesPerSample + 0] = 0x69;
+                            newSampleArray[(frame * newCh + ch) * bytesPerSample + 1] = 0x69;
+                            newSampleArray[(frame * newCh + ch) * bytesPerSample + 2] = (byte)((frame & 1) == 1 ? 0xfa : 0x05);
+                        }
+                        break;
+                    case 4:
+                        for (int ch = NumChannels; ch < newCh; ++ch) {
+                            newSampleArray[(frame * newCh + ch) * bytesPerSample + 1] = 0x69;
+                            newSampleArray[(frame * newCh + ch) * bytesPerSample + 2] = 0x69;
+                            newSampleArray[(frame * newCh + ch) * bytesPerSample + 3] = (byte)((frame & 1) == 1 ? 0xfa : 0x05);
+                        }
+                        break;
+                    }
                 }
             }
 
             PcmData newPcmData = new PcmData();
             newPcmData.CopyHeaderInfoFrom(this);
-            newPcmData.SetFormat(NumChannels+1, BitsPerSample, ValidBitsPerSample, SampleRate, SampleValueRepresentationType, NumFrames);
+            newPcmData.SetFormat(newCh, BitsPerSample, ValidBitsPerSample, SampleRate, SampleValueRepresentationType, NumFrames);
             newPcmData.SetSampleArray(newSampleArray);
 
             return newPcmData;
+        }
+
+        public PcmData AddSilentForEvenChannel() {
+            if ((NumChannels & 1) == 0) {
+                // 既にチャンネル数が偶数。
+                return this;
+            }
+
+            return ConvertChannelCount(NumChannels + 1);
         }
 
         public PcmData MonoToStereo() {

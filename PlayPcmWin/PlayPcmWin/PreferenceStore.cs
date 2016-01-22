@@ -92,6 +92,8 @@ namespace PlayPcmWin {
 
         public bool AddSilentForEvenChannel { get; set; }
 
+        public int ChannelCount { get; set; }
+
         public void PlayListColumnsOrderRemoveRange(int idx, int count) {
             playListColumnsOrder.RemoveRange(idx, count);
         }
@@ -175,6 +177,8 @@ namespace PlayPcmWin {
             OpenFileDialogFilterIndex = -1;
             SoundEffectsEnabled = false;
             AddSilentForEvenChannel = true;
+
+            ChannelCount = 0;
         }
 
         /// <summary>
