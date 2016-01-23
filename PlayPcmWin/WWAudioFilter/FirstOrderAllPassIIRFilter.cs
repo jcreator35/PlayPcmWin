@@ -56,7 +56,7 @@ namespace WWAudioFilter {
          * 
          *       for a : real value
          * 
-         * Differential equation:
+         * Difference equation:
          * Input:  x[n]
          * Output: y[n]
          * 

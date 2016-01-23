@@ -70,7 +70,7 @@ namespace WWAudioFilter {
          *        = -------------------------------
          *           1 - 2r・cos(θ)z^{-1} + r^2・z^{-2}
          *           
-         * Differential equation:
+         * Difference equation:
          * Input:  x[n]
          * Output: y[n]
          * 
