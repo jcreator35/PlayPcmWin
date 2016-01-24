@@ -213,7 +213,7 @@ namespace PlayPcmWin
             int readSuccessCount=0;
             foreach (var p in arg.pl.Items) {
                 int errCount = ReadFileHeader(p.PathName, PcmHeaderReader.ReadHeaderMode.OnlyConcreteFile, null);
-                if (0 == errCount) {
+                if (0 == errCount && 0 < m_pcmDataListForDisp.Count()) {
                     // 読み込み成功。読み込んだPcmDataの曲名、アーティスト名、アルバム名、startTick等を上書きする。
 
                     // pcmDataのメンバ。
