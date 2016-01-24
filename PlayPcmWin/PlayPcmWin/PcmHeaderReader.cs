@@ -479,13 +479,17 @@ namespace PlayPcmWin {
                 }
             } catch (IOException ex) {
                 HandleFileReadException(path, ex);
+                ++errCount;
             } catch (ArgumentException ex) {
                 HandleFileReadException(path, ex);
+                ++errCount;
             } catch (UnauthorizedAccessException ex) {
                 HandleFileReadException(path, ex);
+                ++errCount;
             } catch (Exception ex) {
                 // 未知のエラー。
                 HandleFileReadException(path, ex);
+                ++errCount;
             }
 
             return errCount;
