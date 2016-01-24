@@ -6,7 +6,7 @@ using System.IO.IsolatedStorage;
 
 namespace PlayPcmWin {
     class PreferenceAudioFilterStore {
-        private const string m_fileName = "PlayPcmWinAudioFilterSettings.xml";
+        private const string m_fileName = "PlayPcmWinAudioFilterSettings.txt";
 
         public static void Save(List<PreferenceAudioFilter> audioFilterList) {
             using (IsolatedStorageFileStream isfs = new IsolatedStorageFileStream(
