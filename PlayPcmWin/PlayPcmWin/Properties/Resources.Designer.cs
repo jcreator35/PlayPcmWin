@@ -1182,7 +1182,7 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Add silent channel for ch. count to be even.
+        ///   Looks up a localized string similar to Add silent channel for ch. count to be even number.
         /// </summary>
         internal static string SettingsCheckBoxChannelCountEven {
             get {

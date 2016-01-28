@@ -650,7 +650,7 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
     <value>Reading DSD from file and building DoP data onto main memory...</value>
   </data>
   <data name="SettingsCheckBoxChannelCountEven" xml:space="preserve">
-    <value>Add silent channel for ch. count to be even</value>
+    <value>Add silent channel for ch. count to be even number</value>
   </data>
   <data name="AudioFilterMuteChannel" xml:space="preserve">
     <value>Mute Channel</value>
