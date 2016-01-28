@@ -659,10 +659,10 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
     <value>Mute Channel {0}</value>
   </data>
   <data name="AudioFilterSoloChannel" xml:space="preserve">
-    <value>Solo Channel</value>
+    <value>Play the channel selected</value>
   </data>
   <data name="AudioFilterSoloChannelDesc" xml:space="preserve">
-    <value>Solo Channel {0}</value>
+    <value>Play the channel {0}</value>
   </data>
   <data name="SettingsCbItemChannelCount10" xml:space="preserve">
     <value>10 ch</value>

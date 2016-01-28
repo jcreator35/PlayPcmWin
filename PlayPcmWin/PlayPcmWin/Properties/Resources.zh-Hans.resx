@@ -605,4 +605,25 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   <data name="MainStatusReadingFilesDoP" xml:space="preserve">
     <value>正在从文件读取DSD数据并将DoP数据载入到内存...</value>
   </data>
+  <data name="AudioFilterMuteChannel" xml:space="preserve">
+    <value>静音</value>
+  </data>
+  <data name="AudioFilterMuteChannelDesc" xml:space="preserve">
+    <value>静音：声道{0}</value>
+  </data>
+  <data name="AudioFilterSoloChannel" xml:space="preserve">
+    <value>仅播放选定的声道</value>
+  </data>
+  <data name="AudioFilterSoloChannelDesc" xml:space="preserve">
+    <value>仅播放选定的声道{0}</value>
+  </data>
+  <data name="SettingsCbItemChannelCountNotChanged" xml:space="preserve">
+    <value>与音源声道数一致</value>
+  </data>
+  <data name="SettingsCheckBoxChannelCountEven" xml:space="preserve">
+    <value>添加静音声道使声道数为偶数</value>
+  </data>
+  <data name="SettingsGroupBoxChannelCount" xml:space="preserve">
+    <value>多声道设置</value>
+  </data>
 </root>

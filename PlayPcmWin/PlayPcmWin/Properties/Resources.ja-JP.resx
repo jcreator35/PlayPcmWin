@@ -656,10 +656,10 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
     <value>ミュート : チャンネル {0}</value>
   </data>
   <data name="AudioFilterSoloChannel" xml:space="preserve">
-    <value>ソロ</value>
+    <value>指定チャンネルのみ再生</value>
   </data>
   <data name="AudioFilterSoloChannelDesc" xml:space="preserve">
-    <value>ソロ : チャンネル {0}</value>
+    <value>指定チャンネルのみ再生: チャンネル {0}</value>
   </data>
   <data name="SettingsCbItemChannelCount10" xml:space="preserve">
     <value>10チャンネル</value>

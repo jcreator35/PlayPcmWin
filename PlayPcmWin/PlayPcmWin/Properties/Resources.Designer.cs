@@ -133,7 +133,7 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Solo Channel.
+        ///   Looks up a localized string similar to Play the channel selected.
         /// </summary>
         internal static string AudioFilterSoloChannel {
             get {
@@ -142,7 +142,7 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Solo Channel {0}.
+        ///   Looks up a localized string similar to Play the channel {0}.
         /// </summary>
         internal static string AudioFilterSoloChannelDesc {
             get {
