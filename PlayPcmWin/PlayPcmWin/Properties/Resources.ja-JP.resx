@@ -677,9 +677,12 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
     <value>8チャンネル (7.1チャンネル)</value>
   </data>
   <data name="SettingsCbItemChannelCountNotChanged" xml:space="preserve">
-    <value>無変更 (音源のチャンネル数を使用)</value>
+    <value>音源のチャンネル数を使用</value>
   </data>
   <data name="SettingsGroupBoxChannelCount" xml:space="preserve">
     <value>チャンネル数変更</value>
+  </data>
+  <data name="SettingsCbItemChannelCountMixFormat" xml:space="preserve">
+    <value>再生デバイスのMix Formatのチャンネル数を使用</value>
   </data>
 </root>

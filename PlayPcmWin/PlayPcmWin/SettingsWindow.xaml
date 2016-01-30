@@ -101,6 +101,7 @@
                     <GroupBox Header="Channel count settings" Margin="4" Height="59" Name="groupBoxChannelCountSettings" Width="350">
                         <Grid>
                             <ComboBox Name="comboBoxChannelCount" Margin="4,0,4,0" HorizontalContentAlignment="Center" VerticalAlignment="Center" SelectedIndex="0">
+                                <ComboBoxItem Content="Use Mix Format channel count" Name="cbItemChannelCountMixFormat" />
                                 <ComboBoxItem Content="Not changed, use original channel count" Name="cbItemChannelCountNotChange" />
                                 <ComboBoxItem Content="2 ch" Name="cbItemChannelCount2" />
                                 <ComboBoxItem Content="4 ch" Name="cbItemChannelCount4" />

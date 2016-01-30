@@ -43,13 +43,26 @@ bool __stdcall
 WasapiIO_GetDeviceAttributes(int instanceId, int deviceId, WasapiIoDeviceAttributes &attr_return);
 
 #pragma pack(push, 4)
+struct WasapiIoMixFormat {
+    int sampleRate;
+    int sampleFormat;    ///< WWPcmDataSampleFormatType
+    int numChannels;
+    int dwChannelMask;
+};
+#pragma pack(pop)
+
+__declspec(dllexport)
+int __stdcall
+WasapiIO_GetMixFormat(int instanceId, int deviceId, WasapiIoMixFormat &mixFormat_return);
+
+#pragma pack(push, 4)
 struct WasapiIoInspectArgs {
     int sampleRate;
     int sampleFormat;    ///< WWPcmDataSampleFormatType
     int numChannels;
 };
-
 #pragma pack(pop)
+
 __declspec(dllexport)
 int __stdcall
 WasapiIO_InspectDevice(int instanceId, int deviceId, const WasapiIoInspectArgs &args);

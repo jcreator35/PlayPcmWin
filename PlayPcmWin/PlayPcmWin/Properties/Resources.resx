@@ -685,4 +685,7 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   <data name="SettingsGroupBoxChannelCount" xml:space="preserve">
     <value>Channel Count Settings</value>
   </data>
+  <data name="SettingsCbItemChannelCountMixFormat" xml:space="preserve">
+    <value>Use Mix Format channel count</value>
+  </data>
 </root>

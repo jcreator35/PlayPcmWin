@@ -50,6 +50,14 @@ PcmFormatToWfex(const WWPcmFormat &pcmFormat, WAVEFORMATEXTENSIBLE *wfex)
     wfex->dwChannelMask               = pcmFormat.dwChannelMask;
 }
 
+static void
+WfexToPcmFormat(const WAVEFORMATEXTENSIBLE *wfex, WWPcmFormat &pcmFormat)
+{
+    pcmFormat.Set(wfex->Format.nSamplesPerSec,
+            WWPcmDataSampleFormatTypeGenerate(wfex->Format.wBitsPerSample, wfex->Samples.wValidBitsPerSample, wfex->SubFormat),
+            wfex->Format.nChannels, wfex->dwChannelMask, WWStreamUnknown);
+}
+
 static EDataFlow
 WWDeviceTypeToEDataFlow(WWDeviceType t)
 {
@@ -142,6 +150,39 @@ WasapiUser::Term(void)
     if (m_coInitializeSuccess) {
         CoUninitialize();
     }
+}
+
+int
+WasapiUser::GetMixFormat(IMMDevice *device, WWPcmFormat &mixFormat_return)
+{
+    HRESULT hr;
+    WAVEFORMATEX *waveFormat = nullptr;
+    IAudioClient *audioClient = nullptr;
+
+    HRG(device->Activate(__uuidof(IAudioClient), CLSCTX_INPROC_SERVER, nullptr, (void**)&audioClient));
+
+    assert(!waveFormat);
+    HRG(audioClient->GetMixFormat(&waveFormat));
+    assert(waveFormat);
+
+    WAVEFORMATEXTENSIBLE * wfex = (WAVEFORMATEXTENSIBLE*)waveFormat;
+
+    dprintf("original Mix Format:\n");
+    WWWaveFormatDebug(waveFormat);
+    WWWFEXDebug(wfex);
+
+    WfexToPcmFormat(wfex, mixFormat_return);
+
+end:
+    SafeRelease(&device);
+    SafeRelease(&audioClient);
+
+    if (waveFormat) {
+        CoTaskMemFree(waveFormat);
+        waveFormat = nullptr;
+    }
+
+    return hr;
 }
 
 int

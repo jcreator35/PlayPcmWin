@@ -34,6 +34,18 @@ namespace Wasapi {
         WasapiIO_GetDeviceAttributes(int instanceId, int deviceId, out WasapiIoDeviceAttributes attr);
 
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        internal struct MixFormatArgs {
+            public int sampleRate;
+            public int sampleFormat;    ///< WWPcmDataSampleFormatType
+            public int numChannels;
+            public int dwChannelMask;
+        };
+
+        [DllImport("WasapiIODLL.dll")]
+        private extern static int
+        WasapiIO_GetMixFormat(int instanceId, int deviceId, out MixFormatArgs mixFormat);
+
+        [StructLayout(LayoutKind.Sequential, Pack = 4)]
         internal struct InspectArgs {
             public int sampleRate;
             public int sampleFormat;    ///< WWPcmDataSampleFormatType
@@ -459,6 +471,27 @@ namespace Wasapi {
                 return null;
             }
             return new DeviceAttributes(a.deviceId, a.name, a.deviceIdString);
+        }
+
+        public class MixFormat {
+            public int sampleRate;
+            public SampleFormatType sampleFormat;    ///< WWPcmDataSampleFormatType
+            public int numChannels;
+            public int dwChannelMask;
+            public MixFormat(int sampleRate, SampleFormatType sampleFormat, int numChannels, int dwChannelMask) {
+                this.sampleRate = sampleRate;
+                this.sampleFormat = sampleFormat;
+                this.numChannels = numChannels;
+                this.dwChannelMask = dwChannelMask;
+            }
+        };
+
+        public MixFormat GetMixFormat(int deviceId) {
+            MixFormatArgs args;
+            if (WasapiIO_GetMixFormat(mId, deviceId, out args) < 0) {
+                return null;
+            }
+            return new MixFormat(args.sampleRate, (SampleFormatType)args.sampleFormat, args.numChannels, args.dwChannelMask);
         }
 
         public int InspectDevice(int deviceId, int sampleRate, SampleFormatType format, int numChannels) {

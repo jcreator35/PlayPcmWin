@@ -18,6 +18,16 @@ namespace PlayPcmWin {
         EditItem,
     }
 
+    public enum ChannelCount2Type {
+        SourceChannelCount = 0,
+        Ch2 = 2,
+        Ch4 = 4,
+        Ch6 = 6,
+        Ch8 = 8,
+        Ch10 = 10,
+        MixFormatChannelCount = 65536,
+    };
+
     public class Preference : WWXmlRW.SaveLoadContents {
         // SaveLoadContents IF
         public int GetCurrentVersionNumber() { return CurrentVersion; }
@@ -92,7 +102,10 @@ namespace PlayPcmWin {
 
         public bool AddSilentForEvenChannel { get; set; }
 
-        public int ChannelCount { get; set; }
+        // deprecated (because it has wrong default value) ChannelCount2 is now used
+        //public int ChannelCount { get; set; }
+
+        public ChannelCount2Type ChannelCount2 { get; set; }
 
         public void PlayListColumnsOrderRemoveRange(int idx, int count) {
             playListColumnsOrder.RemoveRange(idx, count);
@@ -178,7 +191,7 @@ namespace PlayPcmWin {
             SoundEffectsEnabled = false;
             AddSilentForEvenChannel = true;
 
-            ChannelCount = 0;
+            ChannelCount2 = ChannelCount2Type.MixFormatChannelCount;
         }
 
         /// <summary>

@@ -1169,9 +1169,23 @@ namespace PlayPcmWin
                 ch = 2;
             }
 
-            if (0 != m_preference.ChannelCount) {
+            switch (m_preference.ChannelCount2) {
+            case ChannelCount2Type.SourceChannelCount:
+                break;
+            case ChannelCount2Type.Ch2:
+            case ChannelCount2Type.Ch4:
+            case ChannelCount2Type.Ch6:
+            case ChannelCount2Type.Ch8:
+            case ChannelCount2Type.Ch10:
                 // チャンネル数変更。
-                ch = m_preference.ChannelCount;
+                ch = (int)m_preference.ChannelCount2;
+                break;
+            case ChannelCount2Type.MixFormatChannelCount: {
+                    // ミックスフォーマットのチャンネル数にする。
+                    var mixFormat = wasapi.GetMixFormat(listBoxDevices.SelectedIndex);
+                    ch = mixFormat.numChannels;
+                }
+                break;
             }
 
             return ch;
@@ -2151,9 +2165,8 @@ namespace PlayPcmWin
                     // 偶数チャンネルにするために無音を追加。
                     pdAfter = pdAfter.AddSilentForEvenChannel();
                 }
-                if (0 != m_preference.ChannelCount) {
-                    pdAfter = pdAfter.ConvertChannelCount(m_preference.ChannelCount);
-                }
+
+                pdAfter = pdAfter.ConvertChannelCount(m_deviceSetupParams.NumChannels);
 
                 long posBytes = (writeOffsFrame + frameCount) * pdAfter.BitsPerFrame / 8;
 
@@ -2912,6 +2925,10 @@ namespace PlayPcmWin
                 AddLogText(sb.ToString());
                 AddLogText(string.Format(CultureInfo.InvariantCulture, "++-------------++-------------++-------------++-------------++-------------++-------------++-------------++-------------++{0}", Environment.NewLine));
             }
+
+            var mixFormat = wasapi.GetMixFormat(listBoxDevices.SelectedIndex);
+            AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.GetMixFormat() sampleRate={0} sampleFormat={1} numChannels={2} dwChannelMask=0x{3:X}",
+                mixFormat.sampleRate, mixFormat.sampleFormat, mixFormat.numChannels, mixFormat.dwChannelMask));
         }
 
         /// <summary>

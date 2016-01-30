@@ -1164,6 +1164,15 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Use Mix Format channel count.
+        /// </summary>
+        internal static string SettingsCbItemChannelCountMixFormat {
+            get {
+                return ResourceManager.GetString("SettingsCbItemChannelCountMixFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Use original channel count.
         /// </summary>
         internal static string SettingsCbItemChannelCountNotChanged {

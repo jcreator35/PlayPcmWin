@@ -735,4 +735,26 @@ WasapiIO_ClearAudioFilter(int instanceId)
     self->wasapi.MutexRelease();
 }
 
+__declspec(dllexport)
+int __stdcall
+WasapiIO_GetMixFormat(int instanceId, int deviceId, WasapiIoMixFormat &mixFormat_return)
+{
+    WasapiIO *self = Instance(instanceId);
+    assert(self);
+
+    IMMDevice *device = self->deviceEnumerator.GetDevice(deviceId);
+    assert(device);
+
+    WWPcmFormat pcmFormat;
+    int hr = self->wasapi.GetMixFormat(device, pcmFormat);
+    if (SUCCEEDED(hr)) {
+        mixFormat_return.sampleFormat = pcmFormat.sampleFormat;
+        mixFormat_return.sampleRate = pcmFormat.sampleRate;
+        mixFormat_return.numChannels = pcmFormat.numChannels;
+        mixFormat_return.dwChannelMask = pcmFormat.dwChannelMask;
+    }
+
+    return hr;
+}
+
 }; // extern "C"

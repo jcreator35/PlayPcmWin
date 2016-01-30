@@ -116,6 +116,7 @@ namespace PlayPcmWin {
             cbItemChannelCount6.Content = Properties.Resources.SettingsCbItemChannelCount6;
             cbItemChannelCount8.Content = Properties.Resources.SettingsCbItemChannelCount8;
             cbItemChannelCount10.Content = Properties.Resources.SettingsCbItemChannelCount10;
+            cbItemChannelCountMixFormat.Content = Properties.Resources.SettingsCbItemChannelCountMixFormat;
         }
 
         public void SetPreference(Preference preference) {
@@ -269,27 +270,30 @@ namespace PlayPcmWin {
             checkBoxGpuRendering.IsChecked = preference.GpuRendering;
             checkBoxChannelCountEven.IsChecked = preference.AddSilentForEvenChannel;
 
-            switch (preference.ChannelCount) {
-            case 0:
+            switch (preference.ChannelCount2) {
+            case ChannelCount2Type.MixFormatChannelCount:
+                comboBoxChannelCount.SelectedItem = cbItemChannelCountMixFormat;
+                break;
+            case ChannelCount2Type.SourceChannelCount:
                 comboBoxChannelCount.SelectedItem = cbItemChannelCountNotChange;
                 break;
-            case 2:
+            case ChannelCount2Type.Ch2:
                 comboBoxChannelCount.SelectedItem = cbItemChannelCount2;
                 break;
-            case 4:
+            case ChannelCount2Type.Ch4:
                 comboBoxChannelCount.SelectedItem = cbItemChannelCount4;
                 break;
-            case 6:
+            case ChannelCount2Type.Ch6:
                 comboBoxChannelCount.SelectedItem = cbItemChannelCount6;
                 break;
-            case 8:
+            case ChannelCount2Type.Ch8:
                 comboBoxChannelCount.SelectedItem = cbItemChannelCount8;
                 break;
-            case 10:
+            case ChannelCount2Type.Ch10:
                 comboBoxChannelCount.SelectedItem = cbItemChannelCount10;
                 break;
             default:
-                comboBoxChannelCount.SelectedItem = cbItemChannelCountNotChange;
+                comboBoxChannelCount.SelectedItem = cbItemChannelCountMixFormat;
                 break;
             }
         }
@@ -441,22 +445,25 @@ namespace PlayPcmWin {
             m_preference.AddSilentForEvenChannel = (checkBoxChannelCountEven.IsChecked == true);
 
             if (comboBoxChannelCount.SelectedItem == cbItemChannelCountNotChange) {
-                m_preference.ChannelCount = 0;
+                m_preference.ChannelCount2 = ChannelCount2Type.SourceChannelCount;
             }
             if (comboBoxChannelCount.SelectedItem == cbItemChannelCount2) {
-                m_preference.ChannelCount = 2;
+                m_preference.ChannelCount2 = ChannelCount2Type.Ch2;
             }
             if (comboBoxChannelCount.SelectedItem == cbItemChannelCount4) {
-                m_preference.ChannelCount = 4;
+                m_preference.ChannelCount2 = ChannelCount2Type.Ch4;
             }
             if (comboBoxChannelCount.SelectedItem == cbItemChannelCount6) {
-                m_preference.ChannelCount = 6;
+                m_preference.ChannelCount2 = ChannelCount2Type.Ch6;
             }
             if (comboBoxChannelCount.SelectedItem == cbItemChannelCount8) {
-                m_preference.ChannelCount = 8;
+                m_preference.ChannelCount2 = ChannelCount2Type.Ch8;
             }
             if (comboBoxChannelCount.SelectedItem == cbItemChannelCount10) {
-                m_preference.ChannelCount = 10;
+                m_preference.ChannelCount2 = ChannelCount2Type.Ch10;
+            }
+            if (comboBoxChannelCount.SelectedItem == cbItemChannelCountMixFormat) {
+                m_preference.ChannelCount2 = ChannelCount2Type.MixFormatChannelCount;
             }
 
             Close();
