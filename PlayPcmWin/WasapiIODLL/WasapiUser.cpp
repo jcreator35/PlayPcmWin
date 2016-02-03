@@ -298,7 +298,8 @@ WasapiUser::Setup(IMMDevice *device, WWDeviceType deviceType, const WWPcmFormat 
         assert(wfex->Samples.wValidBitsPerSample == 32);
         assert(wfex->SubFormat == KSDATAFORMAT_SUBTYPE_IEEE_FLOAT);
 
-        // sample rate cannot be changed. use MixFormat sample rate.
+        // sample rate cannot be changed. use MixFormat sample rate. m_pcmFormat.sampleRate is not used.
+        // On shared mode, after this Setup() call, caller must change sample rate to m_deviceFormat.sampleRate
         // assert(wfex->Format.nSamplesPerSec == m_pcmFormat.sampleRate);
 
         // try changing channel count
