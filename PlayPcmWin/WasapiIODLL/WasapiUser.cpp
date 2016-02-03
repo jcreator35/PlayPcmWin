@@ -291,22 +291,21 @@ WasapiUser::Setup(IMMDevice *device, WWDeviceType deviceType, const WWPcmFormat 
     } else {
         // shared mode specific task
         // on shared mode, wBitsPerSample, nSamplesPerSec, wValidBitsPerSample and subFormat are fixed.
-        // also numChannels and dwChannelMask are defined by MixFormat and cannot be changed.
+        // numChannels and dwChannelMask can be changed on some devices.
 
+        // 32bit float is used to represent sample value on wasapi shared
         assert(wfex->Format.wBitsPerSample == 32);
         assert(wfex->Samples.wValidBitsPerSample == 32);
         assert(wfex->SubFormat == KSDATAFORMAT_SUBTYPE_IEEE_FLOAT);
 
-        /*
-        assert(wfex->Format.nChannels == (WORD)m_pcmFormat.numChannels);
-        assert(wfex->Format.nSamplesPerSec == m_pcmFormat.sampleRate);
-        */
+        // sample rate cannot be changed
+        // assert(wfex->Format.nSamplesPerSec == m_pcmFormat.sampleRate);
 
-        // following code is basically not necessary
-        // because nChannels, wBitsPerSample and nSamplesPerSec are fixed on shared mode.
-        // wfex->Format.nBlockAlign     = (WORD)((wfex->Format.wBitsPerSample / 8) * wfex->Format.nChannels);
-        // wfex->Format.nAvgBytesPerSec = wfex->Format.nSamplesPerSec*wfex->Format.nBlockAlign;
-        // wfex->dwChannelMask          = m_pcmFormat.dwChannelMask;
+        // try changing channel count
+        wfex->Format.nChannels       = (WORD)m_pcmFormat.numChannels;
+        wfex->Format.nBlockAlign     = (WORD)((wfex->Format.wBitsPerSample / 8) * wfex->Format.nChannels);
+        wfex->Format.nAvgBytesPerSec = wfex->Format.nSamplesPerSec*wfex->Format.nBlockAlign;
+        wfex->dwChannelMask          = m_pcmFormat.dwChannelMask;
     }
 
     DWORD streamFlags      = 0;
