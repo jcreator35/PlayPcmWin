@@ -284,7 +284,7 @@ WasapiUser::Setup(IMMDevice *device, WWDeviceType deviceType, const WWPcmFormat 
         WWWaveFormatDebug(waveFormat);
         WWWFEXDebug(wfex);
 
-        // on iFi devices IAudioClient::IsFormatSupported(705600Hz) returns false
+        // on iFi nano iDSD, IAudioClient::IsFormatSupported(705600Hz) returns false
         // but IAudioClient::Initialize(705600Hz) succeeds and play 705600Hz PCM smoothly
         // therefore following line is commented out.
         // HRG(m_audioClient->IsFormatSupported(audClientSm, waveFormat,nullptr));
@@ -298,7 +298,7 @@ WasapiUser::Setup(IMMDevice *device, WWDeviceType deviceType, const WWPcmFormat 
         assert(wfex->Samples.wValidBitsPerSample == 32);
         assert(wfex->SubFormat == KSDATAFORMAT_SUBTYPE_IEEE_FLOAT);
 
-        // sample rate cannot be changed
+        // sample rate cannot be changed. use MixFormat sample rate.
         // assert(wfex->Format.nSamplesPerSec == m_pcmFormat.sampleRate);
 
         // try changing channel count
@@ -330,21 +330,16 @@ WasapiUser::Setup(IMMDevice *device, WWDeviceType deviceType, const WWPcmFormat 
     m_deviceFormat.sampleRate    = waveFormat->nSamplesPerSec;
     m_deviceFormat.numChannels   = waveFormat->nChannels;
     m_deviceFormat.dwChannelMask = wfex->dwChannelMask;
-    m_deviceFormat.sampleFormat  = m_pcmFormat.sampleFormat;
 
-    m_pcmFormat.dwChannelMask = m_deviceFormat.dwChannelMask;
-
-    if (WWSMShared == m_shareMode) {
-        // 共有モードでデバイスサンプルレートとPCMファイルのサンプルレートが異なる場合、
-        // 誰かが別のところでリサンプリングを行ってデバイスサンプルレートにする必要がある。
-        // この後誰かが別のところでリサンプリングを行った結果
-        // WAVファイルのサンプルレートが変わったらWasapiUser::UpdatePcmDataFormat()で更新する。
-        //
-        // 共有モード イベント駆動の場合、bufferPeriodicityに0をセットする。
-
+    if (WWSMExclusive == m_shareMode) {
+        // exclusive mode specific task.
+        m_deviceFormat.sampleFormat  = m_pcmFormat.sampleFormat;
+    } else {
+        // shared mode specific task.
         m_deviceFormat.sampleFormat = WWPcmDataSampleFormatSfloat;
 
         if (WWDFMEventDriven == m_dataFeedMode) {
+            // shared mode event driven specific task.
             bufferPeriodicity = 0;
         }
     }
