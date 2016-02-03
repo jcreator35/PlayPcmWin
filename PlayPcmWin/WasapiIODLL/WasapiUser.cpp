@@ -42,12 +42,15 @@ PcmFormatToWfex(const WWPcmFormat &pcmFormat, WAVEFORMATEXTENSIBLE *wfex)
         wfex->SubFormat = KSDATAFORMAT_SUBTYPE_IEEE_FLOAT;
     }
 
+    wfex->Format.nChannels            = (WORD)pcmFormat.numChannels;
     wfex->Format.wBitsPerSample       = (WORD)WWPcmDataSampleFormatTypeToBitsPerSample(pcmFormat.sampleFormat);
+    wfex->Samples.wValidBitsPerSample = (WORD)WWPcmDataSampleFormatTypeToValidBitsPerSample(pcmFormat.sampleFormat);
     wfex->Format.nSamplesPerSec       = pcmFormat.sampleRate;
+    wfex->dwChannelMask               = pcmFormat.dwChannelMask;
+
+    // あとは計算で決まる。
     wfex->Format.nBlockAlign          = (WORD)((wfex->Format.wBitsPerSample / 8) * wfex->Format.nChannels);
     wfex->Format.nAvgBytesPerSec      = wfex->Format.nSamplesPerSec * wfex->Format.nBlockAlign;
-    wfex->Samples.wValidBitsPerSample = (WORD)WWPcmDataSampleFormatTypeToValidBitsPerSample(pcmFormat.sampleFormat);
-    wfex->dwChannelMask               = pcmFormat.dwChannelMask;
 }
 
 static void
@@ -268,17 +271,12 @@ WasapiUser::Setup(IMMDevice *device, WWDeviceType deviceType, const WWPcmFormat 
     WWWaveFormatDebug(waveFormat);
     WWWFEXDebug(wfex);
 
-    if (waveFormat->wFormatTag != WAVE_FORMAT_EXTENSIBLE) {
-        dprintf("E: unsupported device ! mixformat == 0x%08x\n", waveFormat->wFormatTag);
-        hr = E_FAIL;
-        goto end;
-    }
-
-    // exclusive/shared common task
-    wfex->Format.nChannels = (WORD)m_pcmFormat.numChannels;
+    assert(waveFormat->wFormatTag == WAVE_FORMAT_EXTENSIBLE);
 
     if (WWSMExclusive == m_shareMode) {
         // exclusive mode specific task
+        // on exclusive mode, sampleRate, bitsPerSample can be changed on most devices.
+        // also nChannels can be changed on some audio devices.
 
         PcmFormatToWfex(m_pcmFormat, wfex);
 
@@ -286,17 +284,29 @@ WasapiUser::Setup(IMMDevice *device, WWDeviceType deviceType, const WWPcmFormat 
         WWWaveFormatDebug(waveFormat);
         WWWFEXDebug(wfex);
 
+        // on iFi devices IAudioClient::IsFormatSupported(705600Hz) returns false
+        // but IAudioClient::Initialize(705600Hz) succeeds and play 705600Hz PCM smoothly
+        // therefore following line is commented out.
         // HRG(m_audioClient->IsFormatSupported(audClientSm, waveFormat,nullptr));
     } else {
         // shared mode specific task
-        // wBitsPerSample, nSamplesPerSec, wValidBitsPerSample are fixed
+        // on shared mode, wBitsPerSample, nSamplesPerSec, wValidBitsPerSample and subFormat are fixed.
+        // also numChannels and dwChannelMask are defined by MixFormat and cannot be changed.
 
-        // FIXME: This code snippet does not work properly!
-        if (2 != m_pcmFormat.numChannels) {
-            wfex->Format.nBlockAlign     = (WORD)((wfex->Format.wBitsPerSample / 8) * wfex->Format.nChannels);
-            wfex->Format.nAvgBytesPerSec = wfex->Format.nSamplesPerSec*wfex->Format.nBlockAlign;
-            wfex->dwChannelMask          = m_pcmFormat.dwChannelMask;
-        }
+        assert(wfex->Format.wBitsPerSample == 32);
+        assert(wfex->Samples.wValidBitsPerSample == 32);
+        assert(wfex->SubFormat == KSDATAFORMAT_SUBTYPE_IEEE_FLOAT);
+
+        /*
+        assert(wfex->Format.nChannels == (WORD)m_pcmFormat.numChannels);
+        assert(wfex->Format.nSamplesPerSec == m_pcmFormat.sampleRate);
+        */
+
+        // following code is basically not necessary
+        // because nChannels, wBitsPerSample and nSamplesPerSec are fixed on shared mode.
+        // wfex->Format.nBlockAlign     = (WORD)((wfex->Format.wBitsPerSample / 8) * wfex->Format.nChannels);
+        // wfex->Format.nAvgBytesPerSec = wfex->Format.nSamplesPerSec*wfex->Format.nBlockAlign;
+        // wfex->dwChannelMask          = m_pcmFormat.dwChannelMask;
     }
 
     DWORD streamFlags      = 0;
@@ -323,16 +333,11 @@ WasapiUser::Setup(IMMDevice *device, WWDeviceType deviceType, const WWPcmFormat 
     m_deviceFormat.dwChannelMask = wfex->dwChannelMask;
     m_deviceFormat.sampleFormat  = m_pcmFormat.sampleFormat;
 
-    // shared modeの場合、nBlockAlign=nChannel*4となるので一致しない。
-    // assert(m_deviceFormat.BytesPerFrame() == waveFormat->nBlockAlign);
-
     m_pcmFormat.dwChannelMask = m_deviceFormat.dwChannelMask;
 
     if (WWSMShared == m_shareMode) {
-        // 共有モードでデバイスサンプルレートとWAVファイルのサンプルレートが異なる場合、
+        // 共有モードでデバイスサンプルレートとPCMファイルのサンプルレートが異なる場合、
         // 誰かが別のところでリサンプリングを行ってデバイスサンプルレートにする必要がある。
-        // デバイスサンプルレートはWasapiUser::GetDeviceSampleRate()
-        // WAVファイルのサンプルレートはWasapiUser::GetPcmDataSampleRate()で取得できる。
         // この後誰かが別のところでリサンプリングを行った結果
         // WAVファイルのサンプルレートが変わったらWasapiUser::UpdatePcmDataFormat()で更新する。
         //
