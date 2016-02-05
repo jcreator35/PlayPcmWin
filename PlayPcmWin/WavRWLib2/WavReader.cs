@@ -201,10 +201,12 @@ namespace WavRWLib2 {
             BitsPerSample = br.ReadUInt16();
 
             if (BitsPerSample == 20) {
-                // WaveLab creates such WAVE file. (1 sample==3bytes)
+                // WaveLab creates such WAVE file. (WAVEFORMAT structure with BitsPerSample==20 and apparently 1 sample==3bytes)
                 BitsPerSample = 24;
                 ValidBitsPerSample = 20;
             } else {
+                // WAVEFORMATの場合、ValidBitsPerSampleはここで確定する。
+                // WAVEFORMATEXの場合、真のValidBitsPerSampleが20行後に判明する。
                 ValidBitsPerSample = BitsPerSample;
             }
 
