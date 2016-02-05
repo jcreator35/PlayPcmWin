@@ -96,6 +96,7 @@ namespace WasapiPcmUtil {
             switch (validBitsPerSample) {
             case 16:
                 return mTryFormat16.Length;
+            case 20:
             case 24:
             default:
                 return mTryFormat24.Length;

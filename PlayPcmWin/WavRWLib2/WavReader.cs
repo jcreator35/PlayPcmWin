@@ -199,7 +199,14 @@ namespace WavRWLib2 {
             uint byteRate = br.ReadUInt32();
             ushort blockAlign = br.ReadUInt16();
             BitsPerSample = br.ReadUInt16();
-            ValidBitsPerSample = BitsPerSample;
+
+            if (BitsPerSample == 20) {
+                // WaveLab creates such WAVE file. (1 sample==3bytes)
+                BitsPerSample = 24;
+                ValidBitsPerSample = 20;
+            } else {
+                ValidBitsPerSample = BitsPerSample;
+            }
 
             int extensibleSize = 0;
 

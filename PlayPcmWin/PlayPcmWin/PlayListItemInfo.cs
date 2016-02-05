@@ -77,7 +77,7 @@ namespace PlayPcmWin {
                     return mPcmData.BitsPerSample.ToString(CultureInfo.CurrentCulture)
                             + "bit (" + Properties.Resources.FloatingPointNumbers + ")";
                 }
-                return mPcmData.BitsPerSample.ToString(CultureInfo.CurrentCulture) + "bit";
+                return mPcmData.ValidBitsPerSample.ToString(CultureInfo.CurrentCulture) + "bit";
             }
         }
 
