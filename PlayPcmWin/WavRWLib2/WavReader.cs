@@ -1,6 +1,4 @@
-﻿// WavRW2.csから読み込み部分だけを切り出したコード。
-
-using System;
+﻿using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
@@ -136,7 +134,7 @@ namespace WavRWLib2 {
             OnlyHeader
         }
 
-        // 大体100テラぐらい
+        // 大体100テラバイトぐらい
         const long INT64_DATA_SIZE_LIMIT = 0x0000ffffffffffffL;
 
         public long ReadRiffChunk(BinaryReader br, byte[] chunkId) {

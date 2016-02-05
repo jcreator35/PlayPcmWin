@@ -86,7 +86,7 @@ namespace PlayPcmWin {
                 if (mPcmData.SampleDataType == PcmDataLib.PcmData.DataType.DoP) {
                     return (mPcmData.SampleRate * 16 * mPcmData.NumChannels / 1000).ToString(CultureInfo.CurrentCulture) + " kbps";
                 }
-                return ((long)mPcmData.BitsPerSample * mPcmData.SampleRate * mPcmData.NumChannels / 1000).ToString(CultureInfo.CurrentCulture) + " kbps";
+                return ((long)mPcmData.ValidBitsPerSample * mPcmData.SampleRate * mPcmData.NumChannels / 1000).ToString(CultureInfo.CurrentCulture) + " kbps";
             }
         }
 
