@@ -2718,10 +2718,12 @@ namespace PlayPcmWin
                     if (pcmData.CueSheetIndex == 0) {
                         // INDEX 00区間はマイナス表示。
                         // INDEX 00区間の曲長さ表示は次の曲の長さを表示する。
+                        long nextSampleRate = stat.DeviceSampleRate;
                         long nextTotalFrameNum = playPos.TotalFrameNum;
                         var nextPcmData = m_pcmDataListForPlay.FindById(pcmDataId+1);
                         if (nextPcmData != null) {
                             nextTotalFrameNum = nextPcmData.NumFrames;
+                            nextSampleRate = nextPcmData.SampleRate;
                         } else {
                             // シャッフル再生時に起こるｗｗｗｗ
                         }
@@ -2729,7 +2731,7 @@ namespace PlayPcmWin
                         playingTimeString = string.Format(CultureInfo.InvariantCulture, "Tr.{0:D2} -{1} / {2}",
                                 pcmData.TrackId,
                                 Util.SecondsToMSString((int)((playPos.TotalFrameNum + stat.DeviceSampleRate - playPos.PosFrame) / stat.DeviceSampleRate)),
-                                Util.SecondsToMSString((int)(nextTotalFrameNum / stat.DeviceSampleRate)));
+                                Util.SecondsToMSString((int)(nextTotalFrameNum / nextSampleRate)));
                     } else {
                         playingTimeString = string.Format(CultureInfo.InvariantCulture, "Tr.{0:D2}  {1} / {2}",
                                 pcmData.TrackId,
