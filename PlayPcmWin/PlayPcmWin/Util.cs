@@ -8,12 +8,14 @@ namespace PlayPcmWin {
         private Util() {
         }
 
+        /*
         public static string SecondsToHMSString(int seconds) {
             int h = seconds / 3600;
             int m = seconds / 60 - h * 60;
             int s = seconds - h * 3600 - m * 60;
             return string.Format(CultureInfo.CurrentCulture, "{0:D1}:{1:D2}:{2:D2}", h, m, s);
         }
+        */
 
         public static string SecondsToMSString(int seconds) {
             int m = seconds / 60;

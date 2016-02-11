@@ -48,7 +48,7 @@ namespace PlayPcmWin {
         /// 長さ表示用文字列
         /// </summary>
         public string Duration {
-            get { return Util.SecondsToHMSString(mPcmData.DurationSeconds); }
+            get { return Util.SecondsToMSString(mPcmData.DurationSeconds); }
         }
 
         public int NumChannels {

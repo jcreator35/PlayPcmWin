@@ -32,8 +32,8 @@ namespace PlayPcmWin
         /// </summary>
         const int PROGRESS_REPORT_INTERVAL_MS = 100;
 
-        private const string PLAYING_TIME_UNKNOWN = "--:--/--:--";
-        private const string PLAYING_TIME_ALLZERO = "00:00/00:00";
+        private const string PLAYING_TIME_UNKNOWN = "--:-- / --:--";
+        private const string PLAYING_TIME_ALLZERO = "00:00 / 00:00";
 
         /// <summary>
         /// スライダー位置の更新頻度 (500ミリ秒)
@@ -2717,18 +2717,27 @@ namespace PlayPcmWin
                     // CUEシートなのでトラック番号を表示する。
                     if (pcmData.CueSheetIndex == 0) {
                         // INDEX 00区間はマイナス表示。
-                        playingTimeString = string.Format(CultureInfo.InvariantCulture, "Tr.{0:D2} -{1}/{2}",
+                        // INDEX 00区間の曲長さ表示は次の曲の長さを表示する。
+                        long nextTotalFrameNum = playPos.TotalFrameNum;
+                        var nextPcmData = m_pcmDataListForPlay.FindById(pcmDataId+1);
+                        if (nextPcmData != null) {
+                            nextTotalFrameNum = nextPcmData.NumFrames;
+                        } else {
+                            // シャッフル再生時に起こるｗｗｗｗ
+                        }
+
+                        playingTimeString = string.Format(CultureInfo.InvariantCulture, "Tr.{0:D2} -{1} / {2}",
                                 pcmData.TrackId,
                                 Util.SecondsToMSString((int)((playPos.TotalFrameNum + stat.DeviceSampleRate - playPos.PosFrame) / stat.DeviceSampleRate)),
-                                Util.SecondsToMSString((int)(playPos.TotalFrameNum / stat.DeviceSampleRate)));
+                                Util.SecondsToMSString((int)(nextTotalFrameNum / stat.DeviceSampleRate)));
                     } else {
-                        playingTimeString = string.Format(CultureInfo.InvariantCulture, "Tr.{0:D2}  {1}/{2}",
+                        playingTimeString = string.Format(CultureInfo.InvariantCulture, "Tr.{0:D2}  {1} / {2}",
                                 pcmData.TrackId,
                                 Util.SecondsToMSString((int)(playPos.PosFrame / stat.DeviceSampleRate)),
                                 Util.SecondsToMSString((int)(playPos.TotalFrameNum / stat.DeviceSampleRate)));
                     }
                 } else {
-                    playingTimeString = string.Format(CultureInfo.InvariantCulture, "{0}/{1}",
+                    playingTimeString = string.Format(CultureInfo.InvariantCulture, "{0} / {1}",
                             Util.SecondsToMSString((int)(playPos.PosFrame / stat.DeviceSampleRate)),
                             Util.SecondsToMSString((int)(playPos.TotalFrameNum / stat.DeviceSampleRate)));
                 }
