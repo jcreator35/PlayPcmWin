@@ -124,6 +124,7 @@ namespace PlayPcmWin {
             pl.Add("QuantizationBitRate");
             pl.Add("NumChannels");
             pl.Add("BitRate");
+            pl.Add("TrackNr");
             pl.Add("IndexNr");
             pl.Add("ReadSeparaterAfter");
         }

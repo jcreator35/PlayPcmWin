@@ -55,6 +55,10 @@ namespace PlayPcmWin {
             get { return mPcmData.NumChannels; }
         }
 
+        public int TrackNr {
+            get { return mPcmData.TrackId; }
+        }
+
         public int IndexNr {
             get { return mPcmData.CueSheetIndex; }
         }

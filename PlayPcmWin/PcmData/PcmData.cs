@@ -164,6 +164,7 @@ namespace PcmDataLib {
     ///   ・表示名
     ///   ・開始Tick
     ///   ・終了Tick
+    ///   ・トラック番号(CUEシート)
     /// </summary>
     public class PcmData {
 
@@ -283,6 +284,11 @@ namespace PcmDataLib {
         public int CueSheetIndex { get; set; }
 
         /// <summary>
+        /// トラック番号(CUEシート)
+        /// </summary>
+        public int TrackId { get; set; }
+
+        /// <summary>
         /// 画像バイト数
         /// </summary>
         public int PictureBytes { get; set; }
@@ -342,6 +348,7 @@ namespace PcmDataLib {
             PictureData = rhs.PictureData;
             SampleDataType = rhs.SampleDataType;
             LastWriteTime = rhs.LastWriteTime;
+            TrackId = rhs.TrackId;
         }
 
         public PcmData() {
@@ -367,6 +374,7 @@ namespace PcmDataLib {
             PictureData = null;
             SampleDataType = DataType.PCM;
             LastWriteTime = -1;
+            TrackId = 0;
         }
 
 

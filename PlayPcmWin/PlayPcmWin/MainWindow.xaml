@@ -67,7 +67,8 @@
                     DragLeave="dataGridPlayList_CheckDropTarget"
                     DragOver="dataGridPlayList_CheckDropTarget"
                     Drop="dataGridPlayList_Drop"
-                    MouseMove="dataGridPlayList_MouseMove" AllowDrop="True" SelectedCellsChanged="dataGridPlayList_SelectedCellsChanged" IsReadOnly="True" LoadingRow="dataGrid1_LoadingRow" Background="{x:Null}" IsEnabled="False">
+                    MouseMove="dataGridPlayList_MouseMove" AllowDrop="True" SelectedCellsChanged="dataGridPlayList_SelectedCellsChanged" IsReadOnly="True"
+                    LoadingRow="dataGrid1_LoadingRow" Background="{x:Null}" IsEnabled="False">
                     
                     <DataGrid.RowHeaderStyle>
                         <Style x:Uid="Style_1" TargetType="{x:Type DataGridRowHeader}">
@@ -96,6 +97,7 @@
                         <DataGridTextColumn x:Uid="dataGridColumnQuantizationBitRate" x:Name="dataGridColumnQuantizationBitRate" Width="Auto" Binding="{Binding Path=QuantizationBitRate}" Header="Quantization bit rate"/>
                         <DataGridTextColumn x:Uid="dataGridColumnNumChannels" x:Name="dataGridColumnNumChannels" Width="SizeToCells"  Binding="{Binding Path=NumChannels}" Header="Num of channels"/>
                         <DataGridTextColumn x:Uid="dataGridColumnBitRate" x:Name="dataGridColumnBitRate" Width="Auto" Binding="{Binding Path=BitRate}" Header="Bitrate"/>
+                        <DataGridTextColumn x:Name="dataGridColumnTrackNr" Width="SizeToCells" Binding="{Binding Path=TrackNr}" Header="Track"/>
                         <DataGridTextColumn x:Uid="dataGridColumnIndexNr" x:Name="dataGridColumnIndexNr" Width="SizeToCells" Binding="{Binding Path=IndexNr}" Header="Index"/>
                         <DataGridCheckBoxColumn x:Uid="dataGridColumnReadSeparaterAfter" x:Name="dataGridColumnReadSeparaterAfter" Width="SizeToCells" Binding="{Binding Path=ReadSeparaterAfter}" Header="Batch read endpoint"/>
                     </DataGrid.Columns>
@@ -114,7 +116,7 @@
                         <Button x:Uid="buttonPause" Content="Pa_use" HorizontalAlignment="Left" IsEnabled="False" Margin="149,6,0,0" Name="buttonPause" VerticalAlignment="Top" Width="89" Click="buttonPause_Click" />
                         <Button x:Uid="buttonPrev" Content="Prev" HorizontalAlignment="Left" IsEnabled="False" Margin="256,6,0,0" Name="buttonPrev" VerticalAlignment="Top" Width="50" Click="buttonPrev_Click" />
                         <Button x:Uid="buttonNext" Content="Next" HorizontalAlignment="Left" IsEnabled="False" Margin="311,6,0,0" Name="buttonNext" VerticalAlignment="Top" Width="50" Click="buttonNext_Click" />
-                        <Label x:Uid="labelPlayingTime" Content="00:00:00/00:00:00" Margin="148,30,6,0" Name="labelPlayingTime" Height="29" VerticalAlignment="Top" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" FontWeight="Bold" FontSize="16" FontFamily="Courier New" />
+                        <Label x:Uid="labelPlayingTime" Content="0:00:00/0:00:00" Margin="148,30,6,0" Name="labelPlayingTime" Height="29" VerticalAlignment="Top" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" FontWeight="Bold" FontSize="16" FontFamily="Courier New" />
                         <ComboBox x:Uid="comboBoxPlayMode" HorizontalAlignment="Left" Margin="6,33,0,0" Name="comboBoxPlayMode" VerticalAlignment="Top" />
                     </Grid>
                 </GroupBox>

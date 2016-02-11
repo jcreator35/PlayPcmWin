@@ -30,10 +30,15 @@ namespace PlayPcmWin
         /// <summary>
         /// 再生の進捗状況を取りに行き表示を更新する時間間隔。単位はミリ秒
         /// </summary>
-        const int PROGRESS_REPORT_INTERVAL_MS = 500;
+        const int PROGRESS_REPORT_INTERVAL_MS = 100;
 
-        private const string PLAYING_TIME_UNKNOWN = "--:--:--/--:--:--";
-        private const string PLAYING_TIME_ALLZERO = "00:00:00/00:00:00";
+        private const string PLAYING_TIME_UNKNOWN = "--:--/--:--";
+        private const string PLAYING_TIME_ALLZERO = "00:00/00:00";
+
+        /// <summary>
+        /// スライダー位置の更新頻度 (500ミリ秒)
+        /// </summary>
+        private const long SLIDER_UPDATE_TICKS = 500 * 10000;
 
         /// <summary>
         /// 共有モードの音量制限。
@@ -66,6 +71,7 @@ namespace PlayPcmWin
             new PlayListColumnInfo("QuantizationBitRate", DataGridLength.Auto),
             new PlayListColumnInfo("NumChannels", DataGridLength.SizeToCells),
             new PlayListColumnInfo("BitRate", DataGridLength.Auto),
+            new PlayListColumnInfo("TrackNr", DataGridLength.SizeToCells),
             new PlayListColumnInfo("IndexNr", DataGridLength.SizeToCells),
             new PlayListColumnInfo("ReadSeparaterAfter", DataGridLength.SizeToCells)
         };
@@ -165,9 +171,9 @@ namespace PlayPcmWin
         };
 
         private class PlaylistReadWorkerArg {
-            public PlaylistSave pl;
+            public PlaylistSave2 pl;
             public ReadPpwPlaylistMode mode;
-            public PlaylistReadWorkerArg(PlaylistSave pl, ReadPpwPlaylistMode mode) {
+            public PlaylistReadWorkerArg(PlaylistSave2 pl, ReadPpwPlaylistMode mode) {
                 this.pl   = pl;
                 this.mode = mode;
             }
@@ -185,7 +191,7 @@ namespace PlayPcmWin
 
             m_loadErrorMessages = new StringBuilder();
 
-            PlaylistSave pl;
+            PlaylistSave2 pl;
             if (path.Length == 0) {
                 pl = PpwPlaylistRW.Load();
             } else {
@@ -224,6 +230,7 @@ namespace PlayPcmWin
                     pcmData.StartTick = p.StartTick;
                     pcmData.EndTick = p.EndTick;
                     pcmData.CueSheetIndex = p.CueSheetIndex;
+                    pcmData.TrackId = p.TrackId;
 
                     // playList表のメンバ。
                     var playListItem = m_playListItems[readSuccessCount];
@@ -279,15 +286,15 @@ namespace PlayPcmWin
         }
 
         private bool SavePpwPlaylist(string path) {
-            var s = new PlaylistSave();
+            var s = new PlaylistSave2();
 
             for (int i=0; i<m_pcmDataListForDisp.Count(); ++i) {
                 var p = m_pcmDataListForDisp.At(i);
                 var playListItem = m_playListItems[i];
 
-                s.Add(new PlaylistItemSave().Set(
+                s.Add(new PlaylistItemSave2().Set(
                         p.DisplayName, p.AlbumTitle, p.ArtistName, p.FullPath,
-                        p.CueSheetIndex, p.StartTick, p.EndTick, playListItem.ReadSeparaterAfter, p.LastWriteTime));
+                        p.CueSheetIndex, p.StartTick, p.EndTick, playListItem.ReadSeparaterAfter, p.LastWriteTime, p.TrackId));
             }
 
             if (path.Length == 0) {
@@ -2586,6 +2593,7 @@ namespace PlayPcmWin
                 if (m_preference.RenderThreadTaskType != RenderThreadTaskType.None) {
                     AddLogText(string.Format(CultureInfo.InvariantCulture, "AvSetMMThreadCharacteristics({0}) result={1:X8}{2}",
                         m_preference.RenderThreadTaskType, stat.AvSetMmThreadCharacteristicsResult, Environment.NewLine));
+                    
 
                     if (m_preference.MMThreadPriority != WasapiCS.MMThreadPriorityType.None) {
                         AddLogText(string.Format(CultureInfo.InvariantCulture, "AvSetMMThreadPriority({0}) result={1:X8}{2}",
@@ -2652,6 +2660,8 @@ namespace PlayPcmWin
             // 停止完了後タスクの処理は、ここではなく、PlayRunWorkerCompletedで行う。
         }
 
+        long mLastSliderPositionUpdateTime = 0;
+
         /// <summary>
         /// 再生の進行状況をUIに反映する。
         /// </summary>
@@ -2679,8 +2689,9 @@ namespace PlayPcmWin
                 usageType = WasapiCS.PcmDataUsageType.SpliceNext;
             }
 
+            string playingTimeString = string.Empty;
             if (pcmDataId < 0) {
-                labelPlayingTime.Content = PLAYING_TIME_UNKNOWN;
+                playingTimeString = PLAYING_TIME_UNKNOWN;
             } else {
                 if (dataGridPlayList.SelectedIndex != GetPlayListIndexOfPcmDataId(pcmDataId)) {
                     dataGridPlayList.SelectedIndex = GetPlayListIndexOfPcmDataId(pcmDataId);
@@ -2692,14 +2703,42 @@ namespace PlayPcmWin
                 var stat    = wasapi.GetSessionStatus();
                 var playPos = wasapi.GetPlayCursorPosition(usageType);
 
-                slider1.Maximum = playPos.TotalFrameNum;
-                if (!mSliderSliding || playPos.TotalFrameNum <= slider1.Value) {
-                    slider1.Value = playPos.PosFrame;
+                long now = DateTime.Now.Ticks;
+                if (now - mLastSliderPositionUpdateTime > SLIDER_UPDATE_TICKS) {
+                    // スライダー位置の更新。0.5秒に1回
+                    slider1.Maximum = playPos.TotalFrameNum;
+                    if (!mSliderSliding || playPos.TotalFrameNum <= slider1.Value) {
+                        slider1.Value = playPos.PosFrame;
+                    }
+                    mLastSliderPositionUpdateTime = now;
                 }
 
-                labelPlayingTime.Content = string.Format(CultureInfo.InvariantCulture, "{0}/{1}",
-                        Util.SecondsToHMSString((int)(slider1.Value / stat.DeviceSampleRate)),
-                        Util.SecondsToHMSString((int)(playPos.TotalFrameNum / stat.DeviceSampleRate)));
+                if (pcmData.TrackId != 0) {
+                    // CUEシートなのでトラック番号を表示する。
+                    if (pcmData.CueSheetIndex == 0) {
+                        // INDEX 00区間はマイナス表示。
+                        playingTimeString = string.Format(CultureInfo.InvariantCulture, "Tr.{0:D2} -{1}/{2}",
+                                pcmData.TrackId,
+                                Util.SecondsToMSString((int)((playPos.TotalFrameNum + stat.DeviceSampleRate - playPos.PosFrame) / stat.DeviceSampleRate)),
+                                Util.SecondsToMSString((int)(playPos.TotalFrameNum / stat.DeviceSampleRate)));
+                    } else {
+                        playingTimeString = string.Format(CultureInfo.InvariantCulture, "Tr.{0:D2}  {1}/{2}",
+                                pcmData.TrackId,
+                                Util.SecondsToMSString((int)(playPos.PosFrame / stat.DeviceSampleRate)),
+                                Util.SecondsToMSString((int)(playPos.TotalFrameNum / stat.DeviceSampleRate)));
+                    }
+                } else {
+                    playingTimeString = string.Format(CultureInfo.InvariantCulture, "{0}/{1}",
+                            Util.SecondsToMSString((int)(playPos.PosFrame / stat.DeviceSampleRate)),
+                            Util.SecondsToMSString((int)(playPos.TotalFrameNum / stat.DeviceSampleRate)));
+                }
+            }
+
+            // 再生時間表示の再描画をできるだけ抑制する。負荷が減る効果がある
+            if (playingTimeString != string.Empty && 0 != string.Compare((string)labelPlayingTime.Content, playingTimeString)) {
+                labelPlayingTime.Content = playingTimeString;
+            } else {
+                //System.Console.WriteLine("time disp update skipped");
             }
         }
 
