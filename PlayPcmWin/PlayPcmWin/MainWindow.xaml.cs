@@ -3216,24 +3216,42 @@ namespace PlayPcmWin
             }
 
             var ordinal = playingPcmData.Ordinal;
-            ordinal = updateOrdinal(ordinal);
-            if (ordinal < 0) {
-                ordinal = 0;
-            }
-
-            if (IsPlayModeOneTrack()) {
-                // 1曲再生モードの時
+            int nextPcmDataId = 0;
+            for (int i = 0; i < 2; ++i) {
+                ordinal = updateOrdinal(ordinal);
+                if (ordinal < 0) {
+                    ordinal = 0;
+                }
                 if (m_pcmDataListForDisp.Count() <= ordinal) {
                     ordinal = 0;
                 }
-                ChangePlayWavDataById(m_pcmDataListForDisp.At(ordinal).Id, nextTask);
-            } else {
-                // 全曲再生またはシャッフル再生モードの時。
-                if (m_pcmDataListForPlay.Count() <= ordinal) {
-                    ordinal = 0;
+
+                int nextCueSheetIndex = -1;
+                if (IsPlayModeShuffle()) {
+                    // シャッフル再生。
+                    nextCueSheetIndex = m_pcmDataListForPlay.At(ordinal).CueSheetIndex;
+                    nextPcmDataId     = m_pcmDataListForPlay.At(ordinal).Id;
+                } else {
+                    // 全曲再生、1曲再生。1曲再生の時はPlayには1曲だけ入っている。
+                    nextCueSheetIndex = m_pcmDataListForDisp.At(ordinal).CueSheetIndex;
+                    nextPcmDataId     = m_pcmDataListForDisp.At(ordinal).Id;
                 }
-                ChangePlayWavDataById(m_pcmDataListForPlay.At(ordinal).Id, nextTask);
+
+                // 次の曲がIndex0の時、その次の曲にする。
+                if (nextCueSheetIndex == 0) {
+                    continue;
+                } else {
+                    break;
+                }
             }
+
+            if (ordinal == playingPcmData.Ordinal) {
+                // 1曲目再生中に前の曲を押した場合頭出しする。
+                wasapi.SetPosFrame(0);
+                return;
+            }
+
+            ChangePlayWavDataById(nextPcmDataId, nextTask);
         }
 
         private void buttonNextOrPrevClickedWhenStop(UpdateOrdinal updateOrdinal) {

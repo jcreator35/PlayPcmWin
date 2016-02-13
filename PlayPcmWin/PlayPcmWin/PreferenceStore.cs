@@ -126,6 +126,7 @@ namespace PlayPcmWin {
             pl.Add("BitRate");
             pl.Add("TrackNr");
             pl.Add("IndexNr");
+
             pl.Add("ReadSeparaterAfter");
         }
 
@@ -220,11 +221,15 @@ namespace PlayPcmWin {
             Preference p = xmlRW.Load();
 
             // postprocess playlist columns order info...
-            if (p.PlayListColumnsOrder.Count == 10) {
-                // OK: older format. no playlist column info.
-            } else if (p.PlayListColumnsOrder.Count == 20) {
-                // OK: load success. delete former 10 items inserted by Reset()
-                p.PlayListColumnsOrderRemoveRange(0, 10);
+            // column count must be 11
+            if (p.PlayListColumnsOrder.Count == 11) {
+                // OK: older format. no playlist column info in preference file.
+            } else if (p.PlayListColumnsOrder.Count == 21) {
+                // OK: loaded old format. delete latter 10 items inserted by file load.
+                p.PlayListColumnsOrderRemoveRange(11, 10);
+            } else if (p.PlayListColumnsOrder.Count == 22) {
+                // PlayPcmWin 4.0.98 format. delete former 11 items inserted by Reset()
+                p.PlayListColumnsOrderRemoveRange(0, 11);
             } else {
                 System.Console.WriteLine("E: Preference PlayListColumnOrder item count {0}", p.PlayListColumnsOrder.Count);
                 p.Reset();
