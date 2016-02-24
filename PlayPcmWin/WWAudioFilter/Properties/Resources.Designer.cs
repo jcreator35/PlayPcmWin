@@ -1288,5 +1288,14 @@ namespace WWAudioFilter.Properties {
                 return ResourceManager.GetString("NothingToStore", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Subsonic filter: Cutoff freq={0}Hz.
+        /// </summary>
+        internal static string SubsonicFilterDesc {
+            get {
+                return ResourceManager.GetString("SubsonicFilterDesc", resourceCulture);
+            }
+        }
     }
 }

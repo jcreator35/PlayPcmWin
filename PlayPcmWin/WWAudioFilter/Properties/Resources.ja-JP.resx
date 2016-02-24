@@ -479,4 +479,7 @@
   <data name="labelWindowedSincMethod" xml:space="preserve">
     <value>Windowed Sinc 方法</value>
   </data>
+  <data name="SubsonicFilterDesc" xml:space="preserve">
+    <value>サブソニックフィルター: カットオフ周波数={0}Hz</value>
+  </data>
 </root>
