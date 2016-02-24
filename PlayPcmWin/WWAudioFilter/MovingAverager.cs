@@ -1,10 +1,10 @@
 ﻿
 namespace WWAudioFilter {
     class MovingAverager {
-        public int AverageSamples { get; set; }
+        public int AverageSamples { get { return mDelayX.DelaySamples; } }
+
         public MovingAverager(int averageSamples) {
-            AverageSamples = averageSamples;
-            mDelayX = new Delay(AverageSamples);
+            mDelayX = new Delay(averageSamples);
             mLastY = 0;
         }
 
