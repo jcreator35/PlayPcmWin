@@ -3,26 +3,40 @@ using System.Collections.Generic;
 
 namespace WWAudioFilter {
     class Delay {
+        public int DelaySamples { get { return mDelay.Length -1; } }
+
+        // ring buffer
+        private int mReadPos;
+        private int mWritePos;
+        private double[] mDelay;
+
         public Delay(int n) {
             if (n < 1) {
                 throw new ArgumentOutOfRangeException("n");
             }
 
-            DelaySamples = n;
-            mDelay = new List<double>();
-            for (int i = 0; i < DelaySamples+1; ++i) {
-                mDelay.Add(0);
-            }
+            mDelay = new double[n+1];
+            mReadPos = 1;
+            mWritePos = 0;
         }
 
         public double Filter(double x) {
-            mDelay.Add(x);
-            mDelay.RemoveAt(0);
+            mDelay[mWritePos] = x;
+            double y = mDelay[mReadPos];
 
-            return mDelay[0];
+            // advance positions
+            ++mWritePos;
+            if (mDelay.Length <= mWritePos) {
+                mWritePos = 0;
+            }
+
+            ++mReadPos;
+            if (mDelay.Length <= mReadPos) {
+                mReadPos = 0;
+            }
+
+            return y;
         }
 
-        public int DelaySamples { get; set; }
-        private List<double> mDelay;
     }
 }

@@ -57,7 +57,7 @@ namespace WWAudioFilter {
             for (int i = 0; i < MOVING_AVERAGER_NUM; ++i) {
                 mMovingAveragerList.Add(new MovingAverager(mDelaySamples));
             }
-            mDelayX = new Delay(mDelaySamples - 1);
+            mDelayX = new Delay(mDelaySamples*2 - 2);
             return inputFormat;
         }
 
