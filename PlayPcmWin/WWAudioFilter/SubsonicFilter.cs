@@ -51,7 +51,7 @@ namespace WWAudioFilter {
 
         public override PcmFormat Setup(PcmFormat inputFormat) {
             mSampleRate = inputFormat.SampleRate;
-            mDelaySamples = (int)(mSampleRate / CutoffFreq);
+            mDelaySamples = (int)(mSampleRate / CutoffFreq / 2);
 
             mMovingAveragerList = new List<MovingAverager>();
             for (int i = 0; i < MOVING_AVERAGER_NUM; ++i) {
