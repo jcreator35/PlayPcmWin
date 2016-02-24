@@ -125,6 +125,10 @@
                 groupBoxDynamicRangeCompression.Header = Properties.Resources.GroupDynamicRangeCompression;
                 groupBoxAddGaussianNoise.Header = Properties.Resources.GroupAddGaussianNoise;
                 groupBoxAddJitter.Header = Properties.Resources.GroupAddJitter;
+
+                groupBoxSubsonicFilter.Header = Properties.Resources.GroupSubsonicFilter;
+                labelSubsonicFilterCutoffFrequency.Content = Properties.Resources.LabelSubsonicFilterCutoffFrequency;
+                buttonUseSubsonicFilter.Content = Properties.Resources.ButtonUseThisFilter;
             }
 
             public FilterBase Filter {
@@ -253,6 +257,11 @@
                     var af = filter as AddFundamentalsFilter;
                     textBoxAddFundamentalsGain.Text = string.Format(CultureInfo.CurrentCulture, "{0}", 20.0 * Math.Log10(af.Gain));
                     break;
+                case FilterType.SubsonicFilter: {
+                        var f = filter as SubsonicFilter;
+                        textBoxSubsonicFilterCutoffFrequency.Text = string.Format(CultureInfo.CurrentCulture, "{0}", f.CutoffFreq);
+                        break;
+                    }
                 }
             }
 
@@ -835,6 +844,19 @@
                 }
 
                 mFilter = new SecondOrderAllPassIIRFilter(r, t);
+
+                DialogResult = true;
+                Close();
+            }
+
+            private void buttonUseSubsonicFilter_Click(object sender, RoutedEventArgs e) {
+                double v;
+                if (!Double.TryParse(textBoxSubsonicFilterCutoffFrequency.Text, out v) || v < 1.0) {
+                    MessageBox.Show(Properties.Resources.ErrorSubsonicFilterCutoffFrequency);
+                    return;
+                }
+
+                mFilter = new SubsonicFilter(v);
 
                 DialogResult = true;
                 Close();

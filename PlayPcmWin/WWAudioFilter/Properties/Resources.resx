@@ -530,6 +530,15 @@
   <data name="labelWindowedSincMethod" xml:space="preserve">
     <value>Windowed Sinc Method</value>
   </data>
+  <data name="ErrorSubsonicFilterCutoffFrequency" xml:space="preserve">
+    <value>Error: Subsonic filter cutoff frequency must greater than or equal to 1.0</value>
+  </data>
+  <data name="GroupSubsonicFilter" xml:space="preserve">
+    <value>Subsonic Filter</value>
+  </data>
+  <data name="LabelSubsonicFilterCutoffFrequency" xml:space="preserve">
+    <value>Cutoff Frequency (Hz)</value>
+  </data>
   <data name="SubsonicFilterDesc" xml:space="preserve">
     <value>Subsonic filter: Cutoff freq={0}Hz</value>
   </data>

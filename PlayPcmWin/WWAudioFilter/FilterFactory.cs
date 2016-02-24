@@ -149,6 +149,8 @@ namespace WWAudioFilter {
                 return SecondOrderAllPassIIRFilter.Restore(tokens);
             case "WindowedSincUpsampler":
                 return WindowedSincUpsampler.Restore(tokens);
+            case "SubsonicFilter":
+                return SubsonicFilter.Restore(tokens);
             default:
                 return null;
             }

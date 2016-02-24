@@ -530,6 +530,15 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Error: Subsonic filter cutoff frequency must greater than or equal to 1.0.
+        /// </summary>
+        internal static string ErrorSubsonicFilterCutoffFrequency {
+            get {
+                return ResourceManager.GetString("ErrorSubsonicFilterCutoffFrequency", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Error: target bit depth b must number in the range:  1 ≤ b ≤ 23.
         /// </summary>
         internal static string ErrorTargetBitDepth {
@@ -989,6 +998,15 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Subsonic Filter.
+        /// </summary>
+        internal static string GroupSubsonicFilter {
+            get {
+                return ResourceManager.GetString("GroupSubsonicFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Edit Tag.
         /// </summary>
         internal static string GroupTagEdit {
@@ -1165,6 +1183,15 @@ namespace WWAudioFilter.Properties {
         internal static string LabelSecondAllPassIirT {
             get {
                 return ResourceManager.GetString("LabelSecondAllPassIirT", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cutoff Frequency (Hz).
+        /// </summary>
+        internal static string LabelSubsonicFilterCutoffFrequency {
+            get {
+                return ResourceManager.GetString("LabelSubsonicFilterCutoffFrequency", resourceCulture);
             }
         }
         
