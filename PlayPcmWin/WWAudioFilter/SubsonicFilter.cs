@@ -15,6 +15,7 @@ namespace WWAudioFilter {
         private int mDelaySamples;
         private List<MovingAverager> mMovingAveragerList;
         private Delay mDelayX;
+        private int mDiscardSamples;
 
         private const int MOVING_AVERAGER_NUM = 4;
 
@@ -58,6 +59,7 @@ namespace WWAudioFilter {
                 mMovingAveragerList.Add(new MovingAverager(mDelaySamples));
             }
             mDelayX = new Delay(mDelaySamples*2 - 2);
+            mDiscardSamples = mDelaySamples * 2 - 2;
             return inputFormat;
         }
 
@@ -75,6 +77,19 @@ namespace WWAudioFilter {
 
                 double y = delayedY - x;
                 outPcm[i] = y;
+            }
+
+            if (0 < mDiscardSamples) {
+                if (outPcm.Length < mDiscardSamples) {
+                    mDiscardSamples -= outPcm.Length;
+                    return new double[0];
+                } else {
+                    var outPcm2 = new double[outPcm.Length - mDiscardSamples];
+                    Array.Copy(outPcm, mDiscardSamples, outPcm2, 0, outPcm2.Length);
+
+                    mDiscardSamples = 0;
+                    return outPcm2;
+                }
             }
 
             return outPcm;
