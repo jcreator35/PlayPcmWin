@@ -155,7 +155,8 @@
                 <Line X1="64" Y1="224" X2="576" Y2="224" Stroke="LightGray" Name="lineFRMag0"/>
                 <Line X1="64" Y1="32" X2="576" Y2="32" Stroke="LightGray" />
 
-                <Line X1="104" Y1="32" X2="104" Y2="288" Stroke="LightGray" Name="lineFR10" />
+                <Line X1="94" Y1="32" X2="94" Y2="288" Stroke="LightGray" Name="lineFR10" />
+                <Line X1="114" Y1="32" X2="114" Y2="288" Stroke="LightGray" Name="lineFR20" />
                 <Line X1="134" Y1="32" X2="134" Y2="288" Stroke="LightGray" Name="lineFR100" />
                 <Line X1="288" Y1="32" X2="288" Y2="288" Stroke="LightGray" Name="lineFR1k" />
                 <Line X1="416" Y1="32" X2="416" Y2="288" Stroke="LightGray" Name="lineFR10k" />
@@ -163,6 +164,7 @@
 
                 <Label Canvas.Left="54" Canvas.Top="292" Content="1" Name="labelFR1"/>
                 <Label Canvas.Left="70" Canvas.Top="292" Content="10" Name="labelFR10"/>
+                <Label Canvas.Left="90" Canvas.Top="292" Content="20" Name="labelFR20"/>
                 <Label Canvas.Left="124" Canvas.Top="292" Content="100" Name="labelFR100"/>
                 <Label Canvas.Left="274" Canvas.Top="292" Content="1k" Name="labelFR1k"/>
                 <Label Canvas.Left="399" Canvas.Top="292" Content="10k" Name="labelFR10k"/>
@@ -247,6 +249,7 @@
                 <ComboBox Grid.Column="3" Grid.Row="2" HorizontalContentAlignment="Center" HorizontalAlignment="Left" Margin="6,0,0,0" Name="comboBoxMagnitudeRange" VerticalAlignment="Center" Width="120" SelectionChanged="comboBoxMagnitudeRange_SelectionChanged">
                     <ComboBoxItem Content="Full" IsSelected="True" Name="cbItemMagnitudeRangeFull" />
                     <ComboBoxItem Content="-1dB" />
+                    <ComboBoxItem Content="-3dB" />
                 </ComboBox>
             </Grid>
         </GroupBox>

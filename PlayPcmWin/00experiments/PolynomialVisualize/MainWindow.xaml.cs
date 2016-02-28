@@ -16,6 +16,14 @@ namespace PolynomialVisualize {
             InitializeComponent();
         }
 
+        private List<Line> mLineList = new List<Line>();
+        private const int FR_LINE_LEFT = 64;
+        private const int FR_LINE_HEIGHT = 256;
+        private const int FR_LINE_NUM = 512;
+        private const int FR_LINE_TOP = 32;
+        private const int FR_LINE_BOTTOM = FR_LINE_TOP + FR_LINE_HEIGHT;
+        private const int FR_LINE_YCENTER = (FR_LINE_TOP + FR_LINE_BOTTOM) / 2;
+
         enum PoleZeroType {
             Zero,
             Other,
@@ -40,12 +48,87 @@ namespace PolynomialVisualize {
             Phase
         };
 
+        enum MagScaleType {
+            Linear,
+            Logarithmic,
+        };
+
+        enum FreqScaleType {
+            Linear,
+            Logarithmic,
+        };
+
+        enum PhaseShiftType {
+            Zero,
+            P45,
+            P90,
+            P135,
+            P180,
+            M45,
+            M90,
+            M135,
+            M180,
+            NUM
+        };
+
+        enum SampleFreqType {
+            SF44100,
+            SF48000,
+            SF88200,
+            SF96000,
+            SF176400,
+
+            SF192000,
+            SF2822400,
+            SF5644800,
+            SF11289600,
+            SF22579200,
+        };
+
+        private readonly int[] SAMPLE_FREQS = new int[] {
+            44100,
+            48000,
+            88200,
+            96000,
+            176400,
+
+            192000,
+            2822400,
+            5644800,
+            11289600,
+            22579200,
+        };
+
+        static private float LogSampleFreq(int freq, int idx) {
+            switch (freq) {
+            case 44100:
+            case 48000:
+            case 88200:
+            case 96000:
+            case 176400:
+            case 192000:
+                return new int[] { 1, 10, 20, 100, 1000, 10000, 20000 }[idx];
+            case 2822400:
+            case 5644800:
+            case 11289600:
+                return new int[] { 10, 100, 1000, 10 * 1000, 20 * 1000, 100 * 1000, 1000 * 1000 }[idx];
+            case 22579200:
+                return new int[] { 100, 1000, 10 * 1000, 20 * 1000, 100 * 1000, 1000 * 1000, 10 * 1000 * 1000 }[idx];
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                return 10;
+            }
+        }
+
+        private static double[] mMagnitudeRange = new double[] {
+            1.0/16,
+            0.97162795157710617416734286616884, // -1dBの4乗根
+            0.91727593538977958470087508027281, // -3dBの4乗根
+        };
+
         private bool mInitialized = false;
 
-        float [] mDenominators = new float[9];
-        float [] mNumerators = new float[9];
-
-        private WWComplex EvalH(WWComplex z) {
+        private WWComplex EvalH(double[] numerators, double[] denominators, WWComplex z) {
             var zRecip = new WWComplex(z).Reciprocal();
 #if true
             var zRecip2 = new WWComplex(zRecip).Mul(zRecip);
@@ -56,26 +139,26 @@ namespace PolynomialVisualize {
             var zRecip7 = new WWComplex(zRecip6).Mul(zRecip);
             var zRecip8 = new WWComplex(zRecip7).Mul(zRecip);
 
-            var hDenom0 = new WWComplex(mDenominators[0], 0.0f);
-            var hDenom1 = new WWComplex(mDenominators[1], 0.0f).Mul(zRecip);
-            var hDenom2 = new WWComplex(mDenominators[2], 0.0f).Mul(zRecip2);
-            var hDenom3 = new WWComplex(mDenominators[3], 0.0f).Mul(zRecip3);
-            var hDenom4 = new WWComplex(mDenominators[4], 0.0f).Mul(zRecip4);
-            var hDenom5 = new WWComplex(mDenominators[5], 0.0f).Mul(zRecip5);
-            var hDenom6 = new WWComplex(mDenominators[6], 0.0f).Mul(zRecip6);
-            var hDenom7 = new WWComplex(mDenominators[7], 0.0f).Mul(zRecip7);
-            var hDenom8 = new WWComplex(mDenominators[8], 0.0f).Mul(zRecip8);
+            var hDenom0 = new WWComplex(denominators[0], 0.0f);
+            var hDenom1 = new WWComplex(denominators[1], 0.0f).Mul(zRecip);
+            var hDenom2 = new WWComplex(denominators[2], 0.0f).Mul(zRecip2);
+            var hDenom3 = new WWComplex(denominators[3], 0.0f).Mul(zRecip3);
+            var hDenom4 = new WWComplex(denominators[4], 0.0f).Mul(zRecip4);
+            var hDenom5 = new WWComplex(denominators[5], 0.0f).Mul(zRecip5);
+            var hDenom6 = new WWComplex(denominators[6], 0.0f).Mul(zRecip6);
+            var hDenom7 = new WWComplex(denominators[7], 0.0f).Mul(zRecip7);
+            var hDenom8 = new WWComplex(denominators[8], 0.0f).Mul(zRecip8);
             var hDenom = new WWComplex(hDenom0).Add(hDenom1).Add(hDenom2).Add(hDenom3).Add(hDenom4).Add(hDenom5).Add(hDenom6).Add(hDenom7).Add(hDenom8).Reciprocal();
 
-            var hNumer0 = new WWComplex(mNumerators[0], 0.0f);
-            var hNumer1 = new WWComplex(mNumerators[1], 0.0f).Mul(zRecip);
-            var hNumer2 = new WWComplex(mNumerators[2], 0.0f).Mul(zRecip2);
-            var hNumer3 = new WWComplex(mNumerators[3], 0.0f).Mul(zRecip3);
-            var hNumer4 = new WWComplex(mNumerators[4], 0.0f).Mul(zRecip4);
-            var hNumer5 = new WWComplex(mNumerators[5], 0.0f).Mul(zRecip5);
-            var hNumer6 = new WWComplex(mNumerators[6], 0.0f).Mul(zRecip6);
-            var hNumer7 = new WWComplex(mNumerators[7], 0.0f).Mul(zRecip7);
-            var hNumer8 = new WWComplex(mNumerators[8], 0.0f).Mul(zRecip8);
+            var hNumer0 = new WWComplex(numerators[0], 0.0f);
+            var hNumer1 = new WWComplex(numerators[1], 0.0f).Mul(zRecip);
+            var hNumer2 = new WWComplex(numerators[2], 0.0f).Mul(zRecip2);
+            var hNumer3 = new WWComplex(numerators[3], 0.0f).Mul(zRecip3);
+            var hNumer4 = new WWComplex(numerators[4], 0.0f).Mul(zRecip4);
+            var hNumer5 = new WWComplex(numerators[5], 0.0f).Mul(zRecip5);
+            var hNumer6 = new WWComplex(numerators[6], 0.0f).Mul(zRecip6);
+            var hNumer7 = new WWComplex(numerators[7], 0.0f).Mul(zRecip7);
+            var hNumer8 = new WWComplex(numerators[8], 0.0f).Mul(zRecip8);
             var hNumer = new WWComplex(hNumer0).Add(hNumer1).Add(hNumer2).Add(hNumer3).Add(hNumer4).Add(hNumer5).Add(hNumer6).Add(hNumer7).Add(hNumer8);
             var h = new WWComplex(hNumer).Mul(hDenom);
 #else
@@ -101,7 +184,7 @@ namespace PolynomialVisualize {
             return Util.HsvToBgra(-phase * 180.0 / Math.PI + 240.0, 1.0, 1.0);
         }
 
-        private void UpdateZ()
+        private void UpdateZ(double[] numerators, double[] denominators)
         {
             if (checkBoxShowPoleZero.IsChecked == false) {
                 canvasZ.Visibility = System.Windows.Visibility.Hidden;
@@ -135,7 +218,7 @@ namespace PolynomialVisualize {
                     double x = 2.6666666666666 / scale * (xI - bm.PixelWidth / 2) / bm.PixelHeight;
                     var z = new WWComplex(x, y);
 
-                    var h = EvalH(z);
+                    var h = EvalH(numerators, denominators, z);
                     var hM = h.Magnitude();
 
                     if (hM < 0.1) {
@@ -249,65 +332,6 @@ namespace PolynomialVisualize {
             l.Y2 = y2;
         }
 
-        enum MagScaleType {
-            Linear,
-            Logarithmic,
-        };
-
-        enum FreqScaleType {
-            Linear,
-            Logarithmic,
-        };
-
-        enum PhaseShiftType {
-            Zero,
-            P45,
-            P90,
-            P135,
-            P180,
-            M45,
-            M90,
-            M135,
-            M180,
-            NUM
-        };
-
-        enum SampleFreqType {
-            SF44100,
-            SF48000,
-            SF88200,
-            SF96000,
-            SF176400,
-
-            SF192000,
-            SF2822400,
-            SF5644800,
-            SF11289600,
-            SF22579200,
-        };
-
-        private readonly int [] SAMPLE_FREQS = new int [] {
-            44100,
-            48000,
-            88200,
-            96000,
-            176400,
-
-            192000,
-            2822400,
-            5644800,
-            11289600,
-            22579200,
-        };
-
-        private List<Line> mLineList = new List<Line>();
-        private const int FR_LINE_LEFT    = 64;
-        private const int FR_LINE_HEIGHT  = 256;
-        private const int FR_LINE_NUM     = 512;
-        private const int FR_LINE_TOP     = 32;
-        private const int FR_LINE_BOTTOM  = FR_LINE_TOP + FR_LINE_HEIGHT;
-        private const int FR_LINE_YCENTER = (FR_LINE_TOP + FR_LINE_BOTTOM)/2;
-
         static private string SampleFreqString(float freq) {
             if (freq < 1000) {
                 return string.Format("{0}", freq);
@@ -344,27 +368,6 @@ namespace PolynomialVisualize {
             }
 
             return string.Format("{0.00}G", freq / 1000 / 1000 / 1000);
-        }
-
-        static private float LogSampleFreq(int freq, int idx) {
-            switch (freq) {
-            case 44100:
-            case 48000:
-            case 88200:
-            case 96000:
-            case 176400:
-            case 192000:
-                return new int[] { 1, 10, 100, 1000, 10000, 20000 } [idx];
-            case 2822400:
-            case 5644800:
-            case 11289600:
-                return new int[] { 100, 1000,      10 * 1000, 20*1000,    100 * 1000,  1000 * 1000 }[idx];
-            case 22579200:
-                return new int[] { 1000, 10 * 1000, 20 * 1000, 100 * 1000, 1000 * 1000, 10 * 1000 * 1000 }[idx];
-            default:
-                System.Diagnostics.Debug.Assert(false);
-                return 10;
-            }
         }
 
         private double AngleFrequency(int idx) {
@@ -420,12 +423,7 @@ namespace PolynomialVisualize {
             new PhaseGraduation(4.0 * Math.PI / 4.0, -180),
         };
 
-        private static double[] mMagnitudeRange = new double[] {
-            1.0/16,
-            0.97162795157710617416734286616884
-        };
-
-        private void UpdateFR() {
+        private void UpdateFR(double[] numerators, double[] denominators) {
             foreach (var item in mLineList) {
                 canvasFR.Children.Remove(item);
             }
@@ -440,7 +438,7 @@ namespace PolynomialVisualize {
             for (int i = 0; i < FR_LINE_NUM; ++i) {
                 double theta = AngleFrequency(i);
                 var z = new WWComplex(Math.Cos(theta), Math.Sin(theta));
-                var h = EvalH(z);
+                var h = EvalH(numerators, denominators, z);
                 frMagnitude[i] = h.Magnitude();
                 if (maxMagnitude < frMagnitude[i]) {
                     maxMagnitude = frMagnitude[i];
@@ -468,20 +466,23 @@ namespace PolynomialVisualize {
                 labelFR10.Visibility = Visibility.Visible;
                 labelFRMax.Visibility = System.Windows.Visibility.Hidden;
                 labelFR1.Content = SampleFreqString(0);
-                labelFR10.Content = SampleFreqString(sampleFrequency * 1.0f / 10);
-                labelFR100.Content = SampleFreqString(sampleFrequency * 2.0f / 10);
-                labelFR1k.Content = SampleFreqString(sampleFrequency * 3.0f / 10);
-                labelFR10k.Content = SampleFreqString(sampleFrequency * 4.0f / 10);
-                labelFR20k.Content = SampleFreqString(sampleFrequency * 5.0f / 10);
+                labelFR10.Content = SampleFreqString(sampleFrequency * 1.0f / 12);
+                labelFR20.Content = SampleFreqString(sampleFrequency * 2.0f / 12);
+                labelFR100.Content = SampleFreqString(sampleFrequency * 3.0f / 12);
+                labelFR1k.Content = SampleFreqString(sampleFrequency * 4.0f / 12);
+                labelFR10k.Content = SampleFreqString(sampleFrequency * 5.0f / 12);
+                labelFR20k.Content = SampleFreqString(sampleFrequency * 6.0f / 12);
 
-                lineFR10.X1 = lineFR10.X2 = FR_LINE_LEFT + FR_LINE_NUM * 1 / 5;
-                lineFR100.X1 = lineFR100.X2 = FR_LINE_LEFT + FR_LINE_NUM * 2 / 5;
-                lineFR1k.X1 = lineFR1k.X2 = FR_LINE_LEFT + FR_LINE_NUM * 3 / 5;
-                lineFR10k.X1 = lineFR10k.X2 = FR_LINE_LEFT + FR_LINE_NUM * 4 / 5;
+                lineFR10.X1 = lineFR10.X2 = FR_LINE_LEFT + FR_LINE_NUM * 1 / 6;
+                lineFR20.X1 = lineFR20.X2 = FR_LINE_LEFT + FR_LINE_NUM * 2 / 6;
+                lineFR100.X1 = lineFR100.X2 = FR_LINE_LEFT + FR_LINE_NUM * 3 / 6;
+                lineFR1k.X1 = lineFR1k.X2 = FR_LINE_LEFT + FR_LINE_NUM * 4 / 6;
+                lineFR10k.X1 = lineFR10k.X2 = FR_LINE_LEFT + FR_LINE_NUM * 5 / 6;
                 lineFR20k.Visibility = System.Windows.Visibility.Hidden;
 
                 Canvas.SetLeft(labelFR1, FR_LINE_LEFT - 10);
                 Canvas.SetLeft(labelFR10, lineFR10.X1 - 20);
+                Canvas.SetLeft(labelFR20, lineFR20.X1 - 20);
                 Canvas.SetLeft(labelFR100, lineFR100.X1 - 20);
                 Canvas.SetLeft(labelFR1k, lineFR1k.X1 - 20);
                 Canvas.SetLeft(labelFR10k, lineFR10k.X1 - 20);
@@ -492,19 +493,22 @@ namespace PolynomialVisualize {
                 labelFRMax.Visibility = System.Windows.Visibility.Visible;
                 labelFR1.Content = SampleFreqString(LogSampleFreq(sampleFrequency, 0));
                 labelFR10.Content = SampleFreqString(LogSampleFreq(sampleFrequency, 1));
-                labelFR100.Content = SampleFreqString(LogSampleFreq(sampleFrequency, 2));
-                labelFR1k.Content = SampleFreqString(LogSampleFreq(sampleFrequency, 3));
-                labelFR10k.Content = SampleFreqString(LogSampleFreq(sampleFrequency, 4));
-                labelFR20k.Content = SampleFreqString(LogSampleFreq(sampleFrequency, 5));
+                labelFR20.Content = SampleFreqString(LogSampleFreq(sampleFrequency, 2));
+                labelFR100.Content = SampleFreqString(LogSampleFreq(sampleFrequency, 3));
+                labelFR1k.Content = SampleFreqString(LogSampleFreq(sampleFrequency, 4));
+                labelFR10k.Content = SampleFreqString(LogSampleFreq(sampleFrequency, 5));
+                labelFR20k.Content = SampleFreqString(LogSampleFreq(sampleFrequency, 6));
                 labelFRMax.Content = SampleFreqString(sampleFrequency / 2);
                 lineFR10.X1 = lineFR10.X2 = FR_LINE_LEFT + FR_LINE_NUM * LogFrequencyX(LogSampleFreq(sampleFrequency, 1));
-                lineFR100.X1 = lineFR100.X2 = FR_LINE_LEFT + FR_LINE_NUM * LogFrequencyX(LogSampleFreq(sampleFrequency, 2));
-                lineFR1k.X1 = lineFR1k.X2 = FR_LINE_LEFT + FR_LINE_NUM * LogFrequencyX(LogSampleFreq(sampleFrequency, 3));
-                lineFR10k.X1 = lineFR10k.X2 = FR_LINE_LEFT + FR_LINE_NUM * LogFrequencyX(LogSampleFreq(sampleFrequency, 4));
-                lineFR20k.X1 = lineFR20k.X2 = FR_LINE_LEFT + FR_LINE_NUM * LogFrequencyX(LogSampleFreq(sampleFrequency, 5));
+                lineFR20.X1 = lineFR20.X2 = FR_LINE_LEFT + FR_LINE_NUM * LogFrequencyX(LogSampleFreq(sampleFrequency, 2));
+                lineFR100.X1 = lineFR100.X2 = FR_LINE_LEFT + FR_LINE_NUM * LogFrequencyX(LogSampleFreq(sampleFrequency, 3));
+                lineFR1k.X1 = lineFR1k.X2 = FR_LINE_LEFT + FR_LINE_NUM * LogFrequencyX(LogSampleFreq(sampleFrequency, 4));
+                lineFR10k.X1 = lineFR10k.X2 = FR_LINE_LEFT + FR_LINE_NUM * LogFrequencyX(LogSampleFreq(sampleFrequency, 5));
+                lineFR20k.X1 = lineFR20k.X2 = FR_LINE_LEFT + FR_LINE_NUM * LogFrequencyX(LogSampleFreq(sampleFrequency, 6));
                 lineFR20k.Visibility = System.Windows.Visibility.Visible;
                 Canvas.SetLeft(labelFR1, FR_LINE_LEFT - 20);
                 Canvas.SetLeft(labelFR10, lineFR10.X1 - 20);
+                Canvas.SetLeft(labelFR20, lineFR20.X1 - 20);
                 Canvas.SetLeft(labelFR100, lineFR100.X1 - 20);
                 Canvas.SetLeft(labelFR1k, lineFR1k.X1 - 20);
                 Canvas.SetLeft(labelFR10k, lineFR10k.X1 - 20);
@@ -635,29 +639,32 @@ namespace PolynomialVisualize {
                 return;
             }
 
-            mDenominators[0] = 1.0f;
-            mDenominators[1] = float.Parse(textBoxD1.Text);
-            mDenominators[2] = float.Parse(textBoxD2.Text);
-            mDenominators[3] = float.Parse(textBoxD3.Text);
-            mDenominators[4] = float.Parse(textBoxD4.Text);
-            mDenominators[5] = float.Parse(textBoxD5.Text);
-            mDenominators[6] = float.Parse(textBoxD6.Text);
-            mDenominators[7] = float.Parse(textBoxD7.Text);
-            mDenominators[8] = float.Parse(textBoxD8.Text);
+            var numerators = new double[9];
+            var denominators = new double[9];
 
-            mNumerators[0] = float.Parse(textBoxN0.Text);
-            mNumerators[1] = float.Parse(textBoxN1.Text);
-            mNumerators[2] = float.Parse(textBoxN2.Text);
-            mNumerators[3] = float.Parse(textBoxN3.Text);
-            mNumerators[4] = float.Parse(textBoxN4.Text);
-            mNumerators[5] = float.Parse(textBoxN5.Text);
-            mNumerators[6] = float.Parse(textBoxN6.Text);
-            mNumerators[7] = float.Parse(textBoxN7.Text);
-            mNumerators[8] = float.Parse(textBoxN8.Text);
+            numerators[0] = double.Parse(textBoxN0.Text);
+            numerators[1] = double.Parse(textBoxN1.Text);
+            numerators[2] = double.Parse(textBoxN2.Text);
+            numerators[3] = double.Parse(textBoxN3.Text);
+            numerators[4] = double.Parse(textBoxN4.Text);
+            numerators[5] = double.Parse(textBoxN5.Text);
+            numerators[6] = double.Parse(textBoxN6.Text);
+            numerators[7] = double.Parse(textBoxN7.Text);
+            numerators[8] = double.Parse(textBoxN8.Text);
 
-            UpdateZ();
+            denominators[0] = 1.0;
+            denominators[1] = double.Parse(textBoxD1.Text);
+            denominators[2] = double.Parse(textBoxD2.Text);
+            denominators[3] = double.Parse(textBoxD3.Text);
+            denominators[4] = double.Parse(textBoxD4.Text);
+            denominators[5] = double.Parse(textBoxD5.Text);
+            denominators[6] = double.Parse(textBoxD6.Text);
+            denominators[7] = double.Parse(textBoxD7.Text);
+            denominators[8] = double.Parse(textBoxD8.Text);
+
+            UpdateZ(numerators, denominators);
             UpdateGradation();
-            UpdateFR();
+            UpdateFR(numerators, denominators);
         }
 
         private void Reset() {
