@@ -155,16 +155,18 @@
                 <Line X1="64" Y1="224" X2="576" Y2="224" Stroke="LightGray" Name="lineFRMag0"/>
                 <Line X1="64" Y1="32" X2="576" Y2="32" Stroke="LightGray" />
 
-                <Line X1="134" Y1="32" X2="134" Y2="288" Stroke="LightGray" Name="lineFR0" />
-                <Line X1="288" Y1="32" X2="288" Y2="288" Stroke="LightGray" Name="lineFR1" />
-                <Line X1="416" Y1="32" X2="416" Y2="288" Stroke="LightGray" Name="lineFR2" />
-                <Line X1="480" Y1="32" X2="480" Y2="288" Stroke="LightGray" Name="lineFR3" />
+                <Line X1="104" Y1="32" X2="104" Y2="288" Stroke="LightGray" Name="lineFR10" />
+                <Line X1="134" Y1="32" X2="134" Y2="288" Stroke="LightGray" Name="lineFR100" />
+                <Line X1="288" Y1="32" X2="288" Y2="288" Stroke="LightGray" Name="lineFR1k" />
+                <Line X1="416" Y1="32" X2="416" Y2="288" Stroke="LightGray" Name="lineFR10k" />
+                <Line X1="480" Y1="32" X2="480" Y2="288" Stroke="LightGray" Name="lineFR20k" />
 
-                <Label Canvas.Left="54" Canvas.Top="292" Content="0" Name="labelFRMin"/>
-                <Label Canvas.Left="124" Canvas.Top="292" Content="100" Name="labelFR0"/>
-                <Label Canvas.Left="274" Canvas.Top="292" Content="1k" Name="labelFR1"/>
-                <Label Canvas.Left="399" Canvas.Top="292" Content="10k" Name="labelFR2"/>
-                <Label Canvas.Left="463" Canvas.Top="292" Content="20k" Name="labelFR3"/>
+                <Label Canvas.Left="54" Canvas.Top="292" Content="1" Name="labelFR1"/>
+                <Label Canvas.Left="70" Canvas.Top="292" Content="10" Name="labelFR10"/>
+                <Label Canvas.Left="124" Canvas.Top="292" Content="100" Name="labelFR100"/>
+                <Label Canvas.Left="274" Canvas.Top="292" Content="1k" Name="labelFR1k"/>
+                <Label Canvas.Left="399" Canvas.Top="292" Content="10k" Name="labelFR10k"/>
+                <Label Canvas.Left="463" Canvas.Top="292" Content="20k" Name="labelFR20k"/>
                 <Label Canvas.Left="566" Canvas.Top="292" Content="Max" Name="labelFRMax" />
                 <Label Canvas.Left="15" Canvas.Top="20" Content="1.0" Name="labelFRMagMax" Foreground="Blue" HorizontalContentAlignment="Right" Width="50" />
                 <Label Canvas.Left="15" Canvas.Top="84" Content="0.75" Name="labelFRMag2" Foreground="Blue" HorizontalContentAlignment="Right" Width="50" />
@@ -177,7 +179,7 @@
                         <RotateTransform Angle="-90" />
                     </Label.RenderTransform>
                 </Label>
-                <Label Canvas.Left="611" Canvas.Top="212" Content="Phase (degree)" Height="28" Foreground="Red">
+                <Label Name="labelPhase" Canvas.Left="611" Canvas.Top="212" Content="Phase (degree)" Height="28" Foreground="Red">
                     <Label.RenderTransform>
                         <RotateTransform Angle="-90" />
                     </Label.RenderTransform>
@@ -189,11 +191,13 @@
                 <Label Canvas.Left="576" Canvas.Top="210" Content="-90" Foreground="Red" Name="labelPhaseM90"/>
             </Canvas>
         </GroupBox>
-        <GroupBox Header="Settings" Height="168" HorizontalAlignment="Left" Margin="3,2,0,0" Name="groupBox2" VerticalAlignment="Top" Width="302" Grid.Column="1" Grid.Row="1">
+        <GroupBox Header="Settings" Height="168" HorizontalAlignment="Left" Margin="3,2,0,0" Name="groupBox2" VerticalAlignment="Top" Width="604" Grid.Column="1" Grid.Row="1">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="3*" />
-                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="1*" />
@@ -202,7 +206,7 @@
                     <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
                 <Label Content="Sampling Frequency:" HorizontalAlignment="Right" Name="label15" VerticalAlignment="Center" />
-                <ComboBox Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="6" Name="comboBoxSampleFreq" SelectionChanged="comboBoxSampleFreq_SelectionChanged">
+                <ComboBox Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="6,6,0,6" Name="comboBoxSampleFreq" SelectionChanged="comboBoxSampleFreq_SelectionChanged">
                     <ComboBoxItem Content="44.1 kHz" IsSelected="True" />
                     <ComboBoxItem Content="48 kHz" />
                     <ComboBoxItem Content="88.2 kHz" />
@@ -215,17 +219,17 @@
                     <ComboBoxItem Content="22.5792 MHz" />
                 </ComboBox>
                 <Label Content="Frequency Scale:" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Center" />
-                <ComboBox Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" Margin="6" Name="comboBoxFreqScale" VerticalAlignment="Center" SelectionChanged="comboBoxFreqScale_SelectionChanged">
+                <ComboBox Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" Margin="6,6,0,6" Name="comboBoxFreqScale" VerticalAlignment="Center" SelectionChanged="comboBoxFreqScale_SelectionChanged">
                     <ComboBoxItem Content="Linear" />
                     <ComboBoxItem Content="Logarithmic" IsSelected="True" />
                 </ComboBox>
                 <Label Content="Magnitude Scale:" Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Center" />
-                <ComboBox Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" Margin="6" Name="comboBoxMagScale" VerticalAlignment="Center" SelectionChanged="comboBoxMagScale_SelectionChanged">
+                <ComboBox Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" Margin="6,6,0,6" Name="comboBoxMagScale" VerticalAlignment="Center" SelectionChanged="comboBoxMagScale_SelectionChanged">
                     <ComboBoxItem Content="Linear" />
                     <ComboBoxItem Content="Logarithmic" IsSelected="True" />
                 </ComboBox>
                 <Label Content="Phase Display Shift:" Grid.Row="3" HorizontalAlignment="Right" VerticalAlignment="Center" />
-                <ComboBox Grid.Column="1" Grid.Row="3" HorizontalAlignment="Left" Margin="6" Name="comboBoxPhaseShift" VerticalAlignment="Center" SelectionChanged="comboBoxPhaseShift_SelectionChanged">
+                <ComboBox Grid.Column="1" Grid.Row="3" HorizontalAlignment="Left" Margin="6,6,0,6" Name="comboBoxPhaseShift" VerticalAlignment="Center" SelectionChanged="comboBoxPhaseShift_SelectionChanged">
                     <ComboBoxItem Content="0 degree" IsSelected="True" />
                     <ComboBoxItem Content="+45 degree" />
                     <ComboBoxItem Content="+90 degree" />
@@ -235,6 +239,14 @@
                     <ComboBoxItem Content="-90 degree" />
                     <ComboBoxItem Content="-135 degree" />
                     <ComboBoxItem Content="-180 degree" />
+                </ComboBox>
+                <CheckBox Content="Show Gain" Grid.Column="2" HorizontalAlignment="Left" Margin="6,0,0,0" Name="checkBoxShowGain" VerticalAlignment="Center" IsChecked="True" Checked="checkBoxShowGain_Checked" Unchecked="checkBoxShowGain_Unchecked" />
+                <CheckBox Content="Show Phase" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Left" Margin="6,0,0,0" Name="checkBoxShowPhase" VerticalAlignment="Center" IsChecked="True" Checked="checkBoxShowPhase_Checked" Unchecked="checkBoxShowPhase_Unchecked" />
+                <CheckBox Content="Show Pole-Zero" Grid.Column="3" HorizontalAlignment="Left" Margin="6,0,0,0" Name="checkBoxShowPoleZero" VerticalAlignment="Center" IsChecked="False" Checked="checkBoxShowPoleZero_Checked" Unchecked="checkBoxShowPoleZero_Unchecked" />
+                <Label Content="Magnitude Range:" Grid.Column="2" Grid.Row="2" HorizontalAlignment="Right" Margin="6,0,0,0" Name="labelMagnitudeRange" VerticalAlignment="Center" />
+                <ComboBox Grid.Column="3" Grid.Row="2" HorizontalContentAlignment="Center" HorizontalAlignment="Left" Margin="6,0,0,0" Name="comboBoxMagnitudeRange" VerticalAlignment="Center" Width="120" SelectionChanged="comboBoxMagnitudeRange_SelectionChanged">
+                    <ComboBoxItem Content="Full" IsSelected="True" Name="cbItemMagnitudeRangeFull" />
+                    <ComboBoxItem Content="-1dB" />
                 </ComboBox>
             </Grid>
         </GroupBox>

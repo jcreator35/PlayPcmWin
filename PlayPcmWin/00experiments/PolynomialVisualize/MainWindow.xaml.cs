@@ -47,7 +47,7 @@ namespace PolynomialVisualize {
 
         private WWComplex EvalH(WWComplex z) {
             var zRecip = new WWComplex(z).Reciprocal();
-
+#if true
             var zRecip2 = new WWComplex(zRecip).Mul(zRecip);
             var zRecip3 = new WWComplex(zRecip2).Mul(zRecip);
             var zRecip4 = new WWComplex(zRecip3).Mul(zRecip);
@@ -78,7 +78,18 @@ namespace PolynomialVisualize {
             var hNumer8 = new WWComplex(mNumerators[8], 0.0f).Mul(zRecip8);
             var hNumer = new WWComplex(hNumer0).Add(hNumer1).Add(hNumer2).Add(hNumer3).Add(hNumer4).Add(hNumer5).Add(hNumer6).Add(hNumer7).Add(hNumer8);
             var h = new WWComplex(hNumer).Mul(hDenom);
-
+#else
+            int D = 2205;
+            var zRecipArray = new WWComplex[D*4+1];
+            zRecipArray[0] = new WWComplex(1, 0);
+            for (int i = 1; i < zRecipArray.Length; ++i) {
+                zRecipArray[i] = new WWComplex(zRecip).Mul(zRecipArray[i - 1]);
+            }
+            var ma = new WWComplex(1,0).Sub(zRecipArray[D]).Div(new WWComplex(1,0).Sub(zRecipArray[1]).Mul(D));
+            var ma2 = ma.Mul(ma);
+            var ma4 = ma2.Mul(ma2);
+            var h = new WWComplex(zRecipArray[2 * D - 2]).Sub(ma4);
+#endif
             // 孤立特異点や極で起きる異常を適当に除去する
             if (double.IsNaN(h.Magnitude())) {
                 return new WWComplex(0.0f, 0.0f);
@@ -92,6 +103,11 @@ namespace PolynomialVisualize {
 
         private void UpdateZ()
         {
+            if (checkBoxShowPoleZero.IsChecked == false) {
+                canvasZ.Visibility = System.Windows.Visibility.Hidden;
+                return;
+            }
+
             double scale = mPoleZeroScale[comboBoxPoleZeroScale.SelectedIndex];
             PoleZeroDispMode dispMode = (PoleZeroDispMode)comboBoxPoleZeroDispMode.SelectedIndex;
 
@@ -152,6 +168,8 @@ namespace PolynomialVisualize {
             Canvas.SetLeft(unitCircle, 256.0 - circleRadius);
             Canvas.SetTop(unitCircle, 256.0 - circleRadius);
             Canvas.SetZIndex(unitCircle, 1);
+            canvasZ.Visibility = System.Windows.Visibility.Visible;
+
         }
 
         /// <summary>
@@ -336,13 +354,13 @@ namespace PolynomialVisualize {
             case 96000:
             case 176400:
             case 192000:
-                return new int[] { 10, 100, 1000, 10000, 20000 } [idx];
+                return new int[] { 1, 10, 100, 1000, 10000, 20000 } [idx];
             case 2822400:
             case 5644800:
             case 11289600:
-                return new int[] { 1000,      10 * 1000, 20*1000,    100 * 1000,  1000 * 1000 }[idx];
+                return new int[] { 100, 1000,      10 * 1000, 20*1000,    100 * 1000,  1000 * 1000 }[idx];
             case 22579200:
-                return new int[] { 10 * 1000, 20 * 1000, 100 * 1000, 1000 * 1000, 10 * 1000 * 1000 }[idx];
+                return new int[] { 1000, 10 * 1000, 20 * 1000, 100 * 1000, 1000 * 1000, 10 * 1000 * 1000 }[idx];
             default:
                 System.Diagnostics.Debug.Assert(false);
                 return 10;
@@ -402,6 +420,11 @@ namespace PolynomialVisualize {
             new PhaseGraduation(4.0 * Math.PI / 4.0, -180),
         };
 
+        private static double[] mMagnitudeRange = new double[] {
+            1.0/16,
+            0.97162795157710617416734286616884
+        };
+
         private void UpdateFR() {
             foreach (var item in mLineList) {
                 canvasFR.Children.Remove(item);
@@ -410,11 +433,11 @@ namespace PolynomialVisualize {
 
             // calc frequency response
 
-            double [] frMagnitude = new double[FR_LINE_NUM];
-            double [] frPhase     = new double[FR_LINE_NUM];
+            double[] frMagnitude = new double[FR_LINE_NUM];
+            double[] frPhase = new double[FR_LINE_NUM];
             double maxMagnitude = 0.0f;
 
-            for (int i=0; i < FR_LINE_NUM; ++i) {
+            for (int i = 0; i < FR_LINE_NUM; ++i) {
                 double theta = AngleFrequency(i);
                 var z = new WWComplex(Math.Cos(theta), Math.Sin(theta));
                 var h = EvalH(z);
@@ -434,7 +457,7 @@ namespace PolynomialVisualize {
 
             PhaseGraduation pg = mPhaseGraduationArray[comboBoxPhaseShift.SelectedIndex];
             double phaseShift = pg.phaseShiftRad;
-            labelPhase180.Content  = string.Format("{0}", 180 + pg.phaseShiftDeg);
+            labelPhase180.Content = string.Format("{0}", 180 + pg.phaseShiftDeg);
             labelPhase90.Content = string.Format("{0}", 90 + pg.phaseShiftDeg);
             labelPhase0.Content = string.Format("{0}", 0 + pg.phaseShiftDeg);
             labelPhaseM90.Content = string.Format("{0}", -90 + pg.phaseShiftDeg);
@@ -442,42 +465,50 @@ namespace PolynomialVisualize {
 
             switch (comboBoxFreqScale.SelectedIndex) {
             case (int)FreqScaleType.Linear:
-                labelFRMin.Visibility = Visibility.Visible;
+                labelFR10.Visibility = Visibility.Visible;
                 labelFRMax.Visibility = System.Windows.Visibility.Hidden;
-                labelFRMin.Content = SampleFreqString(0);
-                labelFR0.Content = SampleFreqString(sampleFrequency * 1.0f / 8);
-                labelFR1.Content = SampleFreqString(sampleFrequency * 2.0f / 8);
-                labelFR2.Content = SampleFreqString(sampleFrequency * 3.0f / 8);
-                labelFR3.Content = SampleFreqString(sampleFrequency * 4.0f / 8);
-                lineFR0.X1 = lineFR0.X2 = FR_LINE_LEFT + FR_LINE_NUM * 1 / 4;
-                lineFR1.X1 = lineFR1.X2 = FR_LINE_LEFT + FR_LINE_NUM * 2 / 4;
-                lineFR2.X1 = lineFR2.X2 = FR_LINE_LEFT + FR_LINE_NUM * 3 / 4;
-                lineFR3.Visibility = System.Windows.Visibility.Hidden;
-                Canvas.SetLeft(labelFRMin, FR_LINE_LEFT - 10);
-                Canvas.SetLeft(labelFR0, lineFR0.X1 - 20);
-                Canvas.SetLeft(labelFR1, lineFR1.X1 - 20);
-                Canvas.SetLeft(labelFR2, lineFR2.X1 - 20);
-                Canvas.SetLeft(labelFR3, FR_LINE_LEFT + FR_LINE_NUM - 20);
+                labelFR1.Content = SampleFreqString(0);
+                labelFR10.Content = SampleFreqString(sampleFrequency * 1.0f / 10);
+                labelFR100.Content = SampleFreqString(sampleFrequency * 2.0f / 10);
+                labelFR1k.Content = SampleFreqString(sampleFrequency * 3.0f / 10);
+                labelFR10k.Content = SampleFreqString(sampleFrequency * 4.0f / 10);
+                labelFR20k.Content = SampleFreqString(sampleFrequency * 5.0f / 10);
+
+                lineFR10.X1 = lineFR10.X2 = FR_LINE_LEFT + FR_LINE_NUM * 1 / 5;
+                lineFR100.X1 = lineFR100.X2 = FR_LINE_LEFT + FR_LINE_NUM * 2 / 5;
+                lineFR1k.X1 = lineFR1k.X2 = FR_LINE_LEFT + FR_LINE_NUM * 3 / 5;
+                lineFR10k.X1 = lineFR10k.X2 = FR_LINE_LEFT + FR_LINE_NUM * 4 / 5;
+                lineFR20k.Visibility = System.Windows.Visibility.Hidden;
+
+                Canvas.SetLeft(labelFR1, FR_LINE_LEFT - 10);
+                Canvas.SetLeft(labelFR10, lineFR10.X1 - 20);
+                Canvas.SetLeft(labelFR100, lineFR100.X1 - 20);
+                Canvas.SetLeft(labelFR1k, lineFR1k.X1 - 20);
+                Canvas.SetLeft(labelFR10k, lineFR10k.X1 - 20);
+                Canvas.SetLeft(labelFR20k, FR_LINE_LEFT + FR_LINE_NUM - 20);
                 break;
             case (int)FreqScaleType.Logarithmic:
-                labelFRMin.Visibility = Visibility.Visible;
+                labelFR10.Visibility = Visibility.Visible;
                 labelFRMax.Visibility = System.Windows.Visibility.Visible;
-                labelFRMin.Content = SampleFreqString(LogSampleFreq(sampleFrequency, 0));
-                labelFR0.Content = SampleFreqString(LogSampleFreq(sampleFrequency, 1));
-                labelFR1.Content = SampleFreqString(LogSampleFreq(sampleFrequency, 2));
-                labelFR2.Content = SampleFreqString(LogSampleFreq(sampleFrequency, 3));
-                labelFR3.Content = SampleFreqString(LogSampleFreq(sampleFrequency, 4));
-                labelFRMax.Content = SampleFreqString(sampleFrequency/2);
-                lineFR0.X1 = lineFR0.X2 = FR_LINE_LEFT + FR_LINE_NUM * LogFrequencyX(LogSampleFreq(sampleFrequency, 1));
-                lineFR1.X1 = lineFR1.X2 = FR_LINE_LEFT + FR_LINE_NUM * LogFrequencyX(LogSampleFreq(sampleFrequency, 2));
-                lineFR2.X1 = lineFR2.X2 = FR_LINE_LEFT + FR_LINE_NUM * LogFrequencyX(LogSampleFreq(sampleFrequency, 3));
-                lineFR3.X1 = lineFR3.X2 = FR_LINE_LEFT + FR_LINE_NUM * LogFrequencyX(LogSampleFreq(sampleFrequency, 4));
-                lineFR3.Visibility = System.Windows.Visibility.Visible;
-                Canvas.SetLeft(labelFRMin, FR_LINE_LEFT - 20);
-                Canvas.SetLeft(labelFR0, lineFR0.X1 - 20);
-                Canvas.SetLeft(labelFR1, lineFR1.X1 - 20);
-                Canvas.SetLeft(labelFR2, lineFR2.X1 - 20);
-                Canvas.SetLeft(labelFR3, lineFR3.X1 - 25);
+                labelFR1.Content = SampleFreqString(LogSampleFreq(sampleFrequency, 0));
+                labelFR10.Content = SampleFreqString(LogSampleFreq(sampleFrequency, 1));
+                labelFR100.Content = SampleFreqString(LogSampleFreq(sampleFrequency, 2));
+                labelFR1k.Content = SampleFreqString(LogSampleFreq(sampleFrequency, 3));
+                labelFR10k.Content = SampleFreqString(LogSampleFreq(sampleFrequency, 4));
+                labelFR20k.Content = SampleFreqString(LogSampleFreq(sampleFrequency, 5));
+                labelFRMax.Content = SampleFreqString(sampleFrequency / 2);
+                lineFR10.X1 = lineFR10.X2 = FR_LINE_LEFT + FR_LINE_NUM * LogFrequencyX(LogSampleFreq(sampleFrequency, 1));
+                lineFR100.X1 = lineFR100.X2 = FR_LINE_LEFT + FR_LINE_NUM * LogFrequencyX(LogSampleFreq(sampleFrequency, 2));
+                lineFR1k.X1 = lineFR1k.X2 = FR_LINE_LEFT + FR_LINE_NUM * LogFrequencyX(LogSampleFreq(sampleFrequency, 3));
+                lineFR10k.X1 = lineFR10k.X2 = FR_LINE_LEFT + FR_LINE_NUM * LogFrequencyX(LogSampleFreq(sampleFrequency, 4));
+                lineFR20k.X1 = lineFR20k.X2 = FR_LINE_LEFT + FR_LINE_NUM * LogFrequencyX(LogSampleFreq(sampleFrequency, 5));
+                lineFR20k.Visibility = System.Windows.Visibility.Visible;
+                Canvas.SetLeft(labelFR1, FR_LINE_LEFT - 20);
+                Canvas.SetLeft(labelFR10, lineFR10.X1 - 20);
+                Canvas.SetLeft(labelFR100, lineFR100.X1 - 20);
+                Canvas.SetLeft(labelFR1k, lineFR1k.X1 - 20);
+                Canvas.SetLeft(labelFR10k, lineFR10k.X1 - 20);
+                Canvas.SetLeft(labelFR20k, lineFR20k.X1 - 25);
                 Canvas.SetLeft(labelFRMax, FR_LINE_LEFT + FR_LINE_NUM);
                 break;
             default:
@@ -485,41 +516,62 @@ namespace PolynomialVisualize {
                 break;
             }
 
+            double magRange = mMagnitudeRange[comboBoxMagnitudeRange.SelectedIndex];
+
             switch (comboBoxMagScale.SelectedIndex) {
             case (int)MagScaleType.Linear:
                 labelMagnitude.Content = "Magnitude";
                 labelFRMagMax.Content = string.Format("{0:0.00}", maxMagnitude);
-                labelFRMag2.Content   = string.Format("{0:0.00}", maxMagnitude*0.75);
-                labelFRMag1.Content   = string.Format("{0:0.00}", maxMagnitude*0.5);
-                labelFRMag0.Content   = string.Format("{0:0.00}", maxMagnitude*0.25);
+                labelFRMag2.Content = string.Format("{0:0.00}", maxMagnitude * 0.75);
+                labelFRMag1.Content = string.Format("{0:0.00}", maxMagnitude * 0.5);
+                labelFRMag0.Content = string.Format("{0:0.00}", maxMagnitude * 0.25);
                 labelFRMagMin.Content = string.Format("{0:0.00}", 0);
 
-                lineFRMag0.Y1 = lineFRMag0.Y2 = FR_LINE_BOTTOM - FR_LINE_HEIGHT *1 / 4;
-                lineFRMag1.Y1 = lineFRMag1.Y2 = FR_LINE_BOTTOM - FR_LINE_HEIGHT *2 / 4;
-                lineFRMag2.Y1 = lineFRMag2.Y2 = FR_LINE_BOTTOM - FR_LINE_HEIGHT *3 / 4;
+                lineFRMag0.Y1 = lineFRMag0.Y2 = FR_LINE_BOTTOM - FR_LINE_HEIGHT * 1 / 4;
+                lineFRMag1.Y1 = lineFRMag1.Y2 = FR_LINE_BOTTOM - FR_LINE_HEIGHT * 2 / 4;
+                lineFRMag2.Y1 = lineFRMag2.Y2 = FR_LINE_BOTTOM - FR_LINE_HEIGHT * 3 / 4;
                 break;
             case (int)MagScaleType.Logarithmic:
                 labelMagnitude.Content = "Magnitude (dB)";
                 labelFRMagMax.Content = string.Format("{0:0.00}", 20.0 * Math.Log10(maxMagnitude));
-                labelFRMag2.Content   = string.Format("{0:0.00}", 20.0 * Math.Log10(maxMagnitude / 16));
-                labelFRMag1.Content   = string.Format("{0:0.00}", 20.0 * Math.Log10(maxMagnitude / 256));
-                labelFRMag0.Content   = string.Format("{0:0.00}", 20.0 * Math.Log10(maxMagnitude / 4096));
-                labelFRMagMin.Content = string.Format("{0:0.00}", 20.0 * Math.Log10(maxMagnitude / 65536));
+                labelFRMag2.Content = string.Format("{0:0.00}", 20.0 * Math.Log10(maxMagnitude * magRange));
+                labelFRMag1.Content = string.Format("{0:0.00}", 20.0 * Math.Log10(maxMagnitude * magRange * magRange));
+                labelFRMag0.Content = string.Format("{0:0.00}", 20.0 * Math.Log10(maxMagnitude * magRange * magRange * magRange));
+                labelFRMagMin.Content = string.Format("{0:0.00}", 20.0 * Math.Log10(maxMagnitude * magRange * magRange * magRange * magRange));
 
-                lineFRMag0.Y1 = lineFRMag0.Y2 = FR_LINE_BOTTOM - FR_LINE_HEIGHT *1 / 4;
-                lineFRMag1.Y1 = lineFRMag1.Y2 = FR_LINE_BOTTOM - FR_LINE_HEIGHT *2 / 4;
-                lineFRMag2.Y1 = lineFRMag2.Y2 = FR_LINE_BOTTOM - FR_LINE_HEIGHT *3 / 4;
+                lineFRMag0.Y1 = lineFRMag0.Y2 = FR_LINE_BOTTOM - FR_LINE_HEIGHT * 1 / 4;
+                lineFRMag1.Y1 = lineFRMag1.Y2 = FR_LINE_BOTTOM - FR_LINE_HEIGHT * 2 / 4;
+                lineFRMag2.Y1 = lineFRMag2.Y2 = FR_LINE_BOTTOM - FR_LINE_HEIGHT * 3 / 4;
                 break;
             default:
                 System.Diagnostics.Debug.Assert(false);
                 break;
             }
 
+            {
+                var visibility = (checkBoxShowGain.IsChecked == true) ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+                labelFRMag0.Visibility = visibility;
+                labelFRMag1.Visibility = visibility;
+                labelFRMag2.Visibility = visibility;
+                labelFRMagMax.Visibility = visibility;
+                labelFRMagMin.Visibility = visibility;
+                labelMagnitude.Visibility = visibility;
+            }
+
+            {
+                var visibility = (checkBoxShowPhase.IsChecked == true) ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+                labelPhase.Visibility = visibility;
+                labelPhase0.Visibility = visibility;
+                labelPhase90.Visibility = visibility;
+                labelPhase180.Visibility = visibility;
+                labelPhaseM180.Visibility = visibility;
+                labelPhaseM90.Visibility = visibility;
+            }
 
             var lastPosM = new Point();
             var lastPosP = new Point();
 
-            for (int i=0; i < FR_LINE_NUM; ++i) {
+            for (int i = 0; i < FR_LINE_NUM; ++i) {
                 Point posM = new Point();
                 Point posP = new Point();
 
@@ -539,7 +591,7 @@ namespace PolynomialVisualize {
                     break;
                 case (int)MagScaleType.Logarithmic:
                     posM = new Point(FR_LINE_LEFT + i,
-                        FR_LINE_TOP + FR_LINE_HEIGHT * 20.0 * Math.Log10(frMagnitude[i] / maxMagnitude) / (20.0 * Math.Log10(1.0/65536)) );
+                        FR_LINE_TOP + FR_LINE_HEIGHT * 20.0 * Math.Log10(frMagnitude[i] / maxMagnitude) / (20.0 * Math.Log10(magRange * magRange * magRange * magRange)));
                     break;
                 default:
                     System.Diagnostics.Debug.Assert(false);
@@ -557,7 +609,7 @@ namespace PolynomialVisualize {
                     }
 
 
-                    if (bDraw) {
+                    if (bDraw && (checkBoxShowGain.IsChecked == true)) {
                         var lineM = new Line();
                         lineM.Stroke = Brushes.Blue;
                         LineSetX1Y1X2Y2(lineM, lastPosM.X, lastPosM.Y, posM.X, posM.Y);
@@ -566,7 +618,7 @@ namespace PolynomialVisualize {
                     }
                 }
 
-                if (2 <= i) {
+                if (2 <= i && (checkBoxShowPhase.IsChecked == true)) {
                     var lineP = new Line();
                     lineP.Stroke = Brushes.Red;
                     LineSetX1Y1X2Y2(lineP, lastPosP.X, lastPosP.Y, posP.X, posP.Y);
@@ -663,6 +715,34 @@ namespace PolynomialVisualize {
         }
 
         private void comboBoxPoleZeroDispMode_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+            Update();
+        }
+
+        private void checkBoxShowPhase_Checked(object sender, RoutedEventArgs e) {
+            Update();
+        }
+
+        private void checkBoxShowGain_Checked(object sender, RoutedEventArgs e) {
+            Update();
+        }
+
+        private void checkBoxShowGain_Unchecked(object sender, RoutedEventArgs e) {
+            Update();
+        }
+
+        private void checkBoxShowPhase_Unchecked(object sender, RoutedEventArgs e) {
+            Update();
+        }
+
+        private void checkBoxShowPoleZero_Checked(object sender, RoutedEventArgs e) {
+            Update();
+        }
+
+        private void checkBoxShowPoleZero_Unchecked(object sender, RoutedEventArgs e) {
+            Update();
+        }
+
+        private void comboBoxMagnitudeRange_SelectionChanged(object sender, SelectionChangedEventArgs e) {
             Update();
         }
     }

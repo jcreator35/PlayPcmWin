@@ -41,11 +41,21 @@ namespace WWAudioFilter {
             imaginary += rhs.imaginary;
             return this;
         }
+        public WWComplex Sub(WWComplex rhs) {
+            real -= rhs.real;
+            imaginary -= rhs.imaginary;
+            return this;
+        }
 
         public WWComplex Mul(double v) {
             real      *= v;
             imaginary *= v;
             return this;
+        }
+
+        public WWComplex Div(WWComplex rhs) {
+            var denom = new WWComplex(rhs).Reciprocal();
+            return Mul(denom);
         }
 
         public WWComplex Mul(WWComplex rhs) {
