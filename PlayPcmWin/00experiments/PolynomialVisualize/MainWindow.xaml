@@ -247,9 +247,11 @@
                 <CheckBox Content="Show Pole-Zero" Grid.Column="3" HorizontalAlignment="Left" Margin="6,0,0,0" Name="checkBoxShowPoleZero" VerticalAlignment="Center" IsChecked="False" Checked="checkBoxShowPoleZero_Checked" Unchecked="checkBoxShowPoleZero_Unchecked" />
                 <Label Content="Magnitude Range:" Grid.Column="2" Grid.Row="2" HorizontalAlignment="Right" Margin="6,0,0,0" Name="labelMagnitudeRange" VerticalAlignment="Center" />
                 <ComboBox Grid.Column="3" Grid.Row="2" HorizontalContentAlignment="Center" HorizontalAlignment="Left" Margin="6,0,0,0" Name="comboBoxMagnitudeRange" VerticalAlignment="Center" Width="120" SelectionChanged="comboBoxMagnitudeRange_SelectionChanged">
-                    <ComboBoxItem Content="Full" IsSelected="True" Name="cbItemMagnitudeRangeFull" />
+                    <ComboBoxItem Content="-96dB" IsSelected="True" Name="cbItemMagnitudeRangeFull" />
                     <ComboBoxItem Content="-1dB" />
                     <ComboBoxItem Content="-3dB" />
+                    <ComboBoxItem Content="-12dB" />
+                    <ComboBoxItem Content="-48dB" />
                 </ComboBox>
             </Grid>
         </GroupBox>
