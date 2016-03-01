@@ -12,10 +12,6 @@ namespace PolynomialVisualize {
     /// MainWindow.xaml の相互作用ロジック
     /// </summary>
     public partial class MainWindow : Window {
-        public MainWindow() {
-            InitializeComponent();
-        }
-
         private List<Line> mLineList = new List<Line>();
         private const int FR_LINE_LEFT = 64;
         private const int FR_LINE_HEIGHT = 256;
@@ -107,13 +103,12 @@ namespace PolynomialVisualize {
             case 96000:
             case 176400:
             case 192000:
-                return new int[] { 1, 10, 20, 100, 1000, 10000, 20000 }[idx];
+                return new int[] { 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 22050 }[idx];
             case 2822400:
             case 5644800:
             case 11289600:
-                return new int[] { 10, 100, 1000, 10 * 1000, 20 * 1000, 100 * 1000, 1000 * 1000 }[idx];
             case 22579200:
-                return new int[] { 100, 1000, 10 * 1000, 20 * 1000, 100 * 1000, 1000 * 1000, 10 * 1000 * 1000 }[idx];
+                return new int[] { 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10 * 1000, 20 * 1000, 50 * 1000, 100 * 1000, 200 * 1000, 220 * 1000 }[idx];
             default:
                 System.Diagnostics.Debug.Assert(false);
                 return 10;
@@ -127,6 +122,68 @@ namespace PolynomialVisualize {
             0.70794578438413791080221494218931, // -12dBの4乗根
             0.25118864315095801110850320677993, // -48dBの4乗根
         };
+
+        private enum XLineType {
+            X1,
+            X2,
+            X5,
+            X10,
+            X20,
+            X50,
+            X100,
+            X200,
+            X500,
+            X1k,
+            X2k,
+            X5k,
+            X10k,
+            X20k,
+            XMax,
+            NUM
+        };
+        private Label[] mXLabelList;
+        private Line[] mXLineList;
+
+        public MainWindow() {
+            InitializeComponent();
+
+            mXLabelList = new Label[] {
+                labelFR1,
+                labelFR2,
+                labelFR5,
+                labelFR10,
+                labelFR20,
+                labelFR50,
+                labelFR100,
+                labelFR200,
+                labelFR500,
+                labelFR1k,
+                labelFR2k,
+                labelFR5k,
+                labelFR10k,
+                labelFR20k,
+                labelFRMax,
+            };
+
+            mXLineList = new Line[] {
+                lineFR1,
+                lineFR2,
+                lineFR5,
+                lineFR10,
+                lineFR20,
+                lineFR50,
+                lineFR100,
+                lineFR200,
+                lineFR500,
+                lineFR1k,
+                lineFR2k,
+                lineFR5k,
+                lineFR10k,
+                lineFR20k,
+                lineFRMax,
+            };
+        }
+
 
         private bool mInitialized = false;
 
@@ -164,7 +221,7 @@ namespace PolynomialVisualize {
             var hNumer = new WWComplex(hNumer0).Add(hNumer1).Add(hNumer2).Add(hNumer3).Add(hNumer4).Add(hNumer5).Add(hNumer6).Add(hNumer7).Add(hNumer8);
             var h = new WWComplex(hNumer).Mul(hDenom);
 #else
-            int D = 2205;
+            int D = (int)(2205 / 1.2);
             var zRecipArray = new WWComplex[D*4+1];
             zRecipArray[0] = new WWComplex(1, 0);
             for (int i = 1; i < zRecipArray.Length; ++i) {
@@ -334,6 +391,8 @@ namespace PolynomialVisualize {
             l.Y2 = y2;
         }
 
+
+
         static private string SampleFreqString(float freq) {
             if (freq < 1000) {
                 return string.Format("{0}", freq);
@@ -430,6 +489,8 @@ namespace PolynomialVisualize {
                 canvasFR.Children.Remove(item);
             }
             mLineList.Clear();
+            
+            int sampleFrequency = SAMPLE_FREQS[comboBoxSampleFreq.SelectedIndex];
 
             // calc frequency response
 
@@ -445,6 +506,9 @@ namespace PolynomialVisualize {
                 if (maxMagnitude < frMagnitude[i]) {
                     maxMagnitude = frMagnitude[i];
                 }
+
+                //Console.WriteLine("{0}Hz: {1}dB", sampleFrequency * theta / 2 / Math.PI, 20.0 * Math.Log10(frMagnitude[i]));
+
                 frPhase[i] = h.Phase();
             }
 
@@ -453,8 +517,6 @@ namespace PolynomialVisualize {
             }
 
             // draw result
-            int sampleFrequency = SAMPLE_FREQS[comboBoxSampleFreq.SelectedIndex];
-
             PhaseGraduation pg = mPhaseGraduationArray[comboBoxPhaseShift.SelectedIndex];
             double phaseShift = pg.phaseShiftRad;
             labelPhase180.Content = string.Format("{0}", 180 + pg.phaseShiftDeg);
@@ -465,57 +527,31 @@ namespace PolynomialVisualize {
 
             switch (comboBoxFreqScale.SelectedIndex) {
             case (int)FreqScaleType.Linear:
-                labelFR10.Visibility = Visibility.Visible;
-                labelFRMax.Visibility = System.Windows.Visibility.Hidden;
-                labelFR1.Content = SampleFreqString(0);
-                labelFR10.Content = SampleFreqString(sampleFrequency * 1.0f / 12);
-                labelFR20.Content = SampleFreqString(sampleFrequency * 2.0f / 12);
-                labelFR100.Content = SampleFreqString(sampleFrequency * 3.0f / 12);
-                labelFR1k.Content = SampleFreqString(sampleFrequency * 4.0f / 12);
-                labelFR10k.Content = SampleFreqString(sampleFrequency * 5.0f / 12);
-                labelFR20k.Content = SampleFreqString(sampleFrequency * 6.0f / 12);
+                for (int i=0; i<mXLabelList.Length; ++i) {
+                    mXLineList[i].X1 = mXLineList[i].X2 = FR_LINE_LEFT + FR_LINE_NUM * i / 6;
+                    mXLineList[i].Visibility = (1 <= i && i <= 5) ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
 
-                lineFR10.X1 = lineFR10.X2 = FR_LINE_LEFT + FR_LINE_NUM * 1 / 6;
-                lineFR20.X1 = lineFR20.X2 = FR_LINE_LEFT + FR_LINE_NUM * 2 / 6;
-                lineFR100.X1 = lineFR100.X2 = FR_LINE_LEFT + FR_LINE_NUM * 3 / 6;
-                lineFR1k.X1 = lineFR1k.X2 = FR_LINE_LEFT + FR_LINE_NUM * 4 / 6;
-                lineFR10k.X1 = lineFR10k.X2 = FR_LINE_LEFT + FR_LINE_NUM * 5 / 6;
-                lineFR20k.Visibility = System.Windows.Visibility.Hidden;
-
-                Canvas.SetLeft(labelFR1, FR_LINE_LEFT - 10);
-                Canvas.SetLeft(labelFR10, lineFR10.X1 - 20);
-                Canvas.SetLeft(labelFR20, lineFR20.X1 - 20);
-                Canvas.SetLeft(labelFR100, lineFR100.X1 - 20);
-                Canvas.SetLeft(labelFR1k, lineFR1k.X1 - 20);
-                Canvas.SetLeft(labelFR10k, lineFR10k.X1 - 20);
-                Canvas.SetLeft(labelFR20k, FR_LINE_LEFT + FR_LINE_NUM - 20);
+                    mXLabelList[i].Content = SampleFreqString(sampleFrequency * i / 12.0f);
+                    mXLabelList[i].Visibility = (i <= 6) ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+                    Canvas.SetLeft(mXLabelList[i], mXLineList[i].X1 - 10);
+                }
                 break;
             case (int)FreqScaleType.Logarithmic:
-                labelFR10.Visibility = Visibility.Visible;
-                labelFRMax.Visibility = System.Windows.Visibility.Visible;
-                labelFR1.Content = SampleFreqString(LogSampleFreq(sampleFrequency, 0));
-                labelFR10.Content = SampleFreqString(LogSampleFreq(sampleFrequency, 1));
-                labelFR20.Content = SampleFreqString(LogSampleFreq(sampleFrequency, 2));
-                labelFR100.Content = SampleFreqString(LogSampleFreq(sampleFrequency, 3));
-                labelFR1k.Content = SampleFreqString(LogSampleFreq(sampleFrequency, 4));
-                labelFR10k.Content = SampleFreqString(LogSampleFreq(sampleFrequency, 5));
-                labelFR20k.Content = SampleFreqString(LogSampleFreq(sampleFrequency, 6));
-                labelFRMax.Content = SampleFreqString(sampleFrequency / 2);
-                lineFR10.X1 = lineFR10.X2 = FR_LINE_LEFT + FR_LINE_NUM * LogFrequencyX(LogSampleFreq(sampleFrequency, 1));
-                lineFR20.X1 = lineFR20.X2 = FR_LINE_LEFT + FR_LINE_NUM * LogFrequencyX(LogSampleFreq(sampleFrequency, 2));
-                lineFR100.X1 = lineFR100.X2 = FR_LINE_LEFT + FR_LINE_NUM * LogFrequencyX(LogSampleFreq(sampleFrequency, 3));
-                lineFR1k.X1 = lineFR1k.X2 = FR_LINE_LEFT + FR_LINE_NUM * LogFrequencyX(LogSampleFreq(sampleFrequency, 4));
-                lineFR10k.X1 = lineFR10k.X2 = FR_LINE_LEFT + FR_LINE_NUM * LogFrequencyX(LogSampleFreq(sampleFrequency, 5));
-                lineFR20k.X1 = lineFR20k.X2 = FR_LINE_LEFT + FR_LINE_NUM * LogFrequencyX(LogSampleFreq(sampleFrequency, 6));
-                lineFR20k.Visibility = System.Windows.Visibility.Visible;
-                Canvas.SetLeft(labelFR1, FR_LINE_LEFT - 20);
-                Canvas.SetLeft(labelFR10, lineFR10.X1 - 20);
-                Canvas.SetLeft(labelFR20, lineFR20.X1 - 20);
-                Canvas.SetLeft(labelFR100, lineFR100.X1 - 20);
-                Canvas.SetLeft(labelFR1k, lineFR1k.X1 - 20);
-                Canvas.SetLeft(labelFR10k, lineFR10k.X1 - 20);
-                Canvas.SetLeft(labelFR20k, lineFR20k.X1 - 25);
-                Canvas.SetLeft(labelFRMax, FR_LINE_LEFT + FR_LINE_NUM);
+                for (int i = 0; i < mXLabelList.Length; ++i) {
+                    mXLineList[i].X1 = mXLineList[i].X2 = FR_LINE_LEFT + FR_LINE_NUM * LogFrequencyX(LogSampleFreq(sampleFrequency, i));
+                    mXLineList[i].Visibility = (1 <= i && i < (int)XLineType.XMax) ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+
+                    if (i < (int)XLineType.XMax) {
+                        mXLabelList[i].Content = SampleFreqString(LogSampleFreq(sampleFrequency, i));
+                        Canvas.SetLeft(mXLabelList[i], mXLineList[i].X1 - 10);
+                    } else {
+                        // 最後の値 = ナイキスト周波数を表示。
+                        mXLabelList[i].Content = SampleFreqString(sampleFrequency / 2);
+                        Canvas.SetLeft(mXLabelList[i], FR_LINE_LEFT + FR_LINE_NUM + 10);
+                    }
+                    mXLabelList[i].Visibility = System.Windows.Visibility.Visible;
+                }
+                
                 break;
             default:
                 System.Diagnostics.Debug.Assert(false);

@@ -155,18 +155,34 @@
                 <Line X1="64" Y1="224" X2="576" Y2="224" Stroke="LightGray" Name="lineFRMag0"/>
                 <Line X1="64" Y1="32" X2="576" Y2="32" Stroke="LightGray" />
 
+                <Line X1="94" Y1="32" X2="94" Y2="288" Stroke="LightGray" Name="lineFR1" Visibility="Collapsed"/>
+                <Line X1="94" Y1="32" X2="94" Y2="288" Stroke="LightGray" Name="lineFR2" />
+                <Line X1="94" Y1="32" X2="94" Y2="288" Stroke="LightGray" Name="lineFR5" />
                 <Line X1="94" Y1="32" X2="94" Y2="288" Stroke="LightGray" Name="lineFR10" />
                 <Line X1="114" Y1="32" X2="114" Y2="288" Stroke="LightGray" Name="lineFR20" />
+                <Line X1="114" Y1="32" X2="114" Y2="288" Stroke="LightGray" Name="lineFR50" />
                 <Line X1="134" Y1="32" X2="134" Y2="288" Stroke="LightGray" Name="lineFR100" />
+                <Line X1="134" Y1="32" X2="134" Y2="288" Stroke="LightGray" Name="lineFR200" />
+                <Line X1="134" Y1="32" X2="134" Y2="288" Stroke="LightGray" Name="lineFR500" />
                 <Line X1="288" Y1="32" X2="288" Y2="288" Stroke="LightGray" Name="lineFR1k" />
+                <Line X1="288" Y1="32" X2="288" Y2="288" Stroke="LightGray" Name="lineFR2k" />
+                <Line X1="288" Y1="32" X2="288" Y2="288" Stroke="LightGray" Name="lineFR5k" />
                 <Line X1="416" Y1="32" X2="416" Y2="288" Stroke="LightGray" Name="lineFR10k" />
                 <Line X1="480" Y1="32" X2="480" Y2="288" Stroke="LightGray" Name="lineFR20k" />
+                <Line X1="480" Y1="32" X2="480" Y2="288" Stroke="LightGray" Name="lineFRMax" Visibility="Collapsed"/>
 
                 <Label Canvas.Left="54" Canvas.Top="292" Content="1" Name="labelFR1"/>
-                <Label Canvas.Left="70" Canvas.Top="292" Content="10" Name="labelFR10"/>
+                <Label Canvas.Left="64" Canvas.Top="292" Content="2" Name="labelFR2"/>
+                <Label Canvas.Left="74" Canvas.Top="292" Content="5" Name="labelFR5"/>
+                <Label Canvas.Left="80" Canvas.Top="292" Content="10" Name="labelFR10"/>
                 <Label Canvas.Left="90" Canvas.Top="292" Content="20" Name="labelFR20"/>
+                <Label Canvas.Left="100" Canvas.Top="292" Content="50" Name="labelFR50"/>
                 <Label Canvas.Left="124" Canvas.Top="292" Content="100" Name="labelFR100"/>
-                <Label Canvas.Left="274" Canvas.Top="292" Content="1k" Name="labelFR1k"/>
+                <Label Canvas.Left="134" Canvas.Top="292" Content="200" Name="labelFR200"/>
+                <Label Canvas.Left="144" Canvas.Top="292" Content="500" Name="labelFR500"/>
+                <Label Canvas.Left="174" Canvas.Top="292" Content="1k" Name="labelFR1k"/>
+                <Label Canvas.Left="184" Canvas.Top="292" Content="2k" Name="labelFR2k"/>
+                <Label Canvas.Left="194" Canvas.Top="292" Content="5k" Name="labelFR5k"/>
                 <Label Canvas.Left="399" Canvas.Top="292" Content="10k" Name="labelFR10k"/>
                 <Label Canvas.Left="463" Canvas.Top="292" Content="20k" Name="labelFR20k"/>
                 <Label Canvas.Left="566" Canvas.Top="292" Content="Max" Name="labelFRMax" />
