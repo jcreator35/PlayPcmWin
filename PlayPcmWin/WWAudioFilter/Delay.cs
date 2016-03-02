@@ -2,36 +2,34 @@
 
 namespace WWAudioFilter {
     class Delay {
-        public int DelaySamples { get { return mDelay.Length -1; } }
+        public int DelaySamples { get { return mDelay.Length; } }
 
         // ring buffer
-        private int mReadPos;
-        private int mWritePos;
+        private int mPos;
         private double[] mDelay;
 
+        /// <summary>
+        /// n samples delay
+        /// </summary>
         public Delay(int n) {
             if (n < 1) {
                 throw new ArgumentOutOfRangeException("n");
             }
 
-            mDelay = new double[n+1];
-            mReadPos = 1;
-            mWritePos = 0;
+            mDelay = new double[n];
+            mPos = 0;
         }
 
         public double Filter(double x) {
-            mDelay[mWritePos] = x;
-            double y = mDelay[mReadPos];
+            // 元々mDelay[mPos]に入っていた値をyに複製してからxで上書きする。
+            // この2行は順番が重要だ
+            double y = mDelay[mPos];
+            mDelay[mPos] = x;
 
-            // advance positions
-            ++mWritePos;
-            if (mDelay.Length <= mWritePos) {
-                mWritePos = 0;
-            }
-
-            ++mReadPos;
-            if (mDelay.Length <= mReadPos) {
-                mReadPos = 0;
+            // advance the position
+            ++mPos;
+            if (mDelay.Length <= mPos) {
+                mPos = 0;
             }
 
             return y;
