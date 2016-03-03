@@ -37,7 +37,8 @@ namespace WWAudioFilter {
         FirstOrderAllPassIIR,
         SecondOrderAllPassIIR,
         WindowedSincUpsampler,
-        SubsonicFilter
+        SubsonicFilter,
+        TimeReversal,
     }
 
     public struct TagData {

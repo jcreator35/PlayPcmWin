@@ -782,6 +782,15 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Time Reversal Filter.
+        /// </summary>
+        internal static string FilterTimeReversalDesc {
+            get {
+                return ResourceManager.GetString("FilterTimeReversalDesc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Uneven bit DAC simulation. 16bit LSB unevenness +{0} dB.
         /// </summary>
         internal static string FilterUnevenBitDacDesc {
@@ -1012,6 +1021,15 @@ namespace WWAudioFilter.Properties {
         internal static string GroupTagEdit {
             get {
                 return ResourceManager.GetString("GroupTagEdit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Time Reversal Filter.
+        /// </summary>
+        internal static string GroupTimeReversalFilter {
+            get {
+                return ResourceManager.GetString("GroupTimeReversalFilter", resourceCulture);
             }
         }
         

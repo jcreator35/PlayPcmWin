@@ -542,4 +542,10 @@
   <data name="SubsonicFilterDesc" xml:space="preserve">
     <value>Subsonic filter: Cutoff freq={0}Hz</value>
   </data>
+  <data name="FilterTimeReversalDesc" xml:space="preserve">
+    <value>Time Reversal Filter</value>
+  </data>
+  <data name="GroupTimeReversalFilter" xml:space="preserve">
+    <value>Time Reversal Filter</value>
+  </data>
 </root>

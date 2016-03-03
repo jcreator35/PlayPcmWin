@@ -491,4 +491,10 @@
   <data name="SubsonicFilterDesc" xml:space="preserve">
     <value>サブソニックフィルター: カットオフ周波数={0}Hz</value>
   </data>
+  <data name="FilterTimeReversalDesc" xml:space="preserve">
+    <value>タイムリバーサルフィルター</value>
+  </data>
+  <data name="GroupTimeReversalFilter" xml:space="preserve">
+    <value>タイムリバーサルフィルター</value>
+  </data>
 </root>

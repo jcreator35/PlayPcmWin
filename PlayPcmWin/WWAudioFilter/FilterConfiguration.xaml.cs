@@ -129,6 +129,9 @@
                 groupBoxSubsonicFilter.Header = Properties.Resources.GroupSubsonicFilter;
                 labelSubsonicFilterCutoffFrequency.Content = Properties.Resources.LabelSubsonicFilterCutoffFrequency;
                 buttonUseSubsonicFilter.Content = Properties.Resources.ButtonUseThisFilter;
+
+                groupBoxTimeReversalFilter.Header = Properties.Resources.GroupTimeReversalFilter;
+                buttonUseTimeReversalFilter.Content = Properties.Resources.ButtonUseThisFilter;
             }
 
             public FilterBase Filter {
@@ -262,6 +265,8 @@
                         textBoxSubsonicFilterCutoffFrequency.Text = string.Format(CultureInfo.CurrentCulture, "{0}", f.CutoffFreq);
                         break;
                     }
+                case FilterType.TimeReversal:
+                    break;
                 }
             }
 
@@ -857,6 +862,13 @@
                 }
 
                 mFilter = new SubsonicFilter(v);
+
+                DialogResult = true;
+                Close();
+            }
+
+            private void buttonUseTimeReversalFilter_Click(object sender, RoutedEventArgs e) {
+                mFilter = new TimeReversalFilter();
 
                 DialogResult = true;
                 Close();

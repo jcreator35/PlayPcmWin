@@ -427,6 +427,11 @@
 
                         </Grid>
                     </GroupBox>
+                    <GroupBox Header="Time Reversal Filter" Height="100" HorizontalAlignment="Left" Name="groupBoxTimeReversalFilter" VerticalAlignment="Top" Width="380">
+                        <Grid>
+                            <Button Content="Use this filter" Margin="6,0" Name="buttonUseTimeReversalFilter" VerticalAlignment="Center" Click="buttonUseTimeReversalFilter_Click" />
+                        </Grid>
+                    </GroupBox>
 
                 </WrapPanel>
             </Grid>

@@ -97,6 +97,7 @@
     <Compile Include="Delay.cs" />
     <Compile Include="MovingAverager.cs" />
     <Compile Include="SubsonicFilter.cs" />
+    <Compile Include="TimeReversalFilter.cs" />
     <Compile Include="WindowedSincUpsampler.cs" />
     <Compile Include="FirstOrderAllPassIIRFilter.cs" />
     <Compile Include="ReduceBitDepth.cs" />
