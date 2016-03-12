@@ -1,7 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿/* NOSDAC high frequency roll-off compensation filter
+ * 
+ * NOSDAC frequency response (continuous-time): Hr_zoh(jΩ)=sinc(jΩ/2)
+ * Compensation filter frequency response (discrete-time): Hr_comp(ω) = 1 / sinc(ω/2)
+ * 
+ * FIR filter coefficients calculated by Frequency-Sampling design method:
+ * filter taps=M, M is odd
+ * G(k) = Hr_comp(2πk/M) * (-1)^k, G(k)=-G(M-k)
+ * U=(M-1)/2
+ * h(n) = (1/M)*{G(0)+2*Σ_{k=1}^{U}{G(k)*cos{2πk*(n+0.5)/M}}
+ * 
+ * Reference:
+ * A. V. Oppenheim, R. W. Schafer, Discrete-Time Signal Processing, 3rd Ed, Prentice Hall, 2009, pp. 600-604
+ * J.G. Proakis & D.G. Manolakis: Digital Signal Processing, 4th edition, 2007, Chapter 10, pp. 671-678
+ */
+
+using System;
 using System.Globalization;
 
 namespace WWAudioFilter {
