@@ -432,6 +432,25 @@
                             <Button Content="Use this filter" Margin="6,0" Name="buttonUseTimeReversalFilter" VerticalAlignment="Center" Click="buttonUseTimeReversalFilter_Click" />
                         </Grid>
                     </GroupBox>
+                    <GroupBox Header="ZOH NOSDAC Frequency Response Compensation Filter" Height="100" HorizontalAlignment="Left" Name="groupBoxNosdacCompensationFilter" VerticalAlignment="Top" Width="380">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                            </Grid.ColumnDefinitions>
+                            <Label Grid.Column="0" Grid.Row="0" Content="FIR Taps:"  Name="labelNosdacCompensationTaps" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                            <ComboBox Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" Margin="6,0,6,0" Name="comboBoxNosdacCompensationTaps" VerticalAlignment="Center" HorizontalContentAlignment="Center">
+                                <ComboBoxItem Content="9 Taps" Name="cbItemNosdacCompensationTaps9" />
+                                <ComboBoxItem Content="17 Taps" Name="cbItemNosdacCompensationTaps17" />
+                                <ComboBoxItem Content="33 Taps" Name="cbItemNosdacCompensationTaps33" IsSelected="True"/>
+                            </ComboBox>
+                            <Button Grid.Row="1" Grid.ColumnSpan="2" Content="Use this filter" Margin="6,0" Name="buttonUseNosdacCompensationFilter" VerticalAlignment="Center" Click="buttonUseNosdacCompensationFilter_Click" />
+                        </Grid>
+                    </GroupBox>
 
                 </WrapPanel>
             </Grid>

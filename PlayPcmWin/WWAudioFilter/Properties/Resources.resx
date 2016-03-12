@@ -548,4 +548,13 @@
   <data name="GroupTimeReversalFilter" xml:space="preserve">
     <value>Time Reversal Filter</value>
   </data>
+  <data name="FilterZohNosdacCompensationDesc" xml:space="preserve">
+    <value>ZOH NOSDAC Compensation FIR Filter: taps={0}</value>
+  </data>
+  <data name="GroupNosdacCompensationFilter" xml:space="preserve">
+    <value>ZOH NOSDAC Frequency Response Compensation Filter</value>
+  </data>
+  <data name="LabelNosdacCompensationTaps" xml:space="preserve">
+    <value>FIR filter taps:</value>
+  </data>
 </root>

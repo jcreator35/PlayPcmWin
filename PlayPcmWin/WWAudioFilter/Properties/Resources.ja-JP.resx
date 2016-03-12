@@ -497,4 +497,13 @@
   <data name="GroupTimeReversalFilter" xml:space="preserve">
     <value>タイムリバーサルフィルター</value>
   </data>
+  <data name="FilterZohNosdacCompensationDesc" xml:space="preserve">
+    <value>ZOH NOSDACハイ落ち補正FIRフィルター: タップ数={0}</value>
+  </data>
+  <data name="GroupNosdacCompensationFilter" xml:space="preserve">
+    <value>ZOH NOSDACハイ落ち補正FIRフィルター</value>
+  </data>
+  <data name="LabelNosdacCompensationTaps" xml:space="preserve">
+    <value>FIRフィルタータップ数:</value>
+  </data>
 </root>

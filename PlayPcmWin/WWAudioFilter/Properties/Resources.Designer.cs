@@ -836,6 +836,15 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to ZOH NOSDAC Compensation FIR Filter: taps={0}.
+        /// </summary>
+        internal static string FilterZohNosdacCompensationDesc {
+            get {
+                return ResourceManager.GetString("FilterZohNosdacCompensationDesc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Add Gaussian noise: {0} dB.
         /// </summary>
         internal static string GaussianNoiseDesc {
@@ -976,6 +985,15 @@ namespace WWAudioFilter.Properties {
         internal static string GroupNormalizeFilter {
             get {
                 return ResourceManager.GetString("GroupNormalizeFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ZOH NOSDAC Frequency Response Compensation Filter.
+        /// </summary>
+        internal static string GroupNosdacCompensationFilter {
+            get {
+                return ResourceManager.GetString("GroupNosdacCompensationFilter", resourceCulture);
             }
         }
         
@@ -1174,6 +1192,15 @@ namespace WWAudioFilter.Properties {
         internal static string LabelNormalizeAmplitude {
             get {
                 return ResourceManager.GetString("LabelNormalizeAmplitude", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to FIR filter taps:.
+        /// </summary>
+        internal static string LabelNosdacCompensationTaps {
+            get {
+                return ResourceManager.GetString("LabelNosdacCompensationTaps", resourceCulture);
             }
         }
         

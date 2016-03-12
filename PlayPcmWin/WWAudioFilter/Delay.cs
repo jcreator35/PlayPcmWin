@@ -35,5 +35,26 @@ namespace WWAudioFilter {
             return y;
         }
 
+        /// <summary>
+        /// nthサンプル過去のサンプル値を戻す。
+        /// </summary>
+        /// <param name="nth">0: 最新のサンプル、1: 1サンプル過去のサンプル。</param>
+        public double GetNthDelayedSampleValue(int nth) {
+            int pos = mPos - 1 - nth;
+
+            if (pos < 0) {
+                pos += mDelay.Length;
+            }
+
+            System.Diagnostics.Debug.Assert(0 <= pos && pos < mDelay.Length);
+            return mDelay[pos];
+        }
+
+        public void FillZeroes() {
+            for (int i = 0; i < mDelay.Length; ++i) {
+                mDelay[i] = 0.0;
+            }
+            mPos = 0;
+        }
     }
 }

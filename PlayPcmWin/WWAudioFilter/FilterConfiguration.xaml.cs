@@ -132,6 +132,10 @@
 
                 groupBoxTimeReversalFilter.Header = Properties.Resources.GroupTimeReversalFilter;
                 buttonUseTimeReversalFilter.Content = Properties.Resources.ButtonUseThisFilter;
+
+                groupBoxNosdacCompensationFilter.Header = Properties.Resources.GroupNosdacCompensationFilter;
+                labelNosdacCompensationTaps.Content = Properties.Resources.LabelNosdacCompensationTaps;
+                buttonUseNosdacCompensationFilter.Content = Properties.Resources.ButtonUseThisFilter;
             }
 
             public FilterBase Filter {
@@ -267,6 +271,11 @@
                     }
                 case FilterType.TimeReversal:
                     break;
+                case FilterType.ZohNosdacCompensation: {
+                        var f = filter as ZohNosdacCompensationFilter;
+                        comboBoxNosdacCompensationTaps.SelectedIndex = ZohNosdacTapsToComboBoxIndex(f.Taps);
+                        break;
+                    }
                 }
             }
 
@@ -869,6 +878,38 @@
 
             private void buttonUseTimeReversalFilter_Click(object sender, RoutedEventArgs e) {
                 mFilter = new TimeReversalFilter();
+
+                DialogResult = true;
+                Close();
+            }
+
+            private static int ZohNosdacTapsToComboBoxIndex(int taps) {
+                switch (taps) {
+                case 9:
+                    return 0;
+                case 17:
+                    return 1;
+                case 33:
+                    return 2;
+                default:
+                    return -1;
+                }
+            }
+
+            private static int ZohNosdacComboBoxIndexToTaps(int idx) {
+                switch (idx) {
+                case 0:
+                    return 9;
+                case 1:
+                    return 17;
+                case 2:
+                default:
+                    return 33;
+                }
+            }
+
+            private void buttonUseNosdacCompensationFilter_Click(object sender, RoutedEventArgs e) {
+                mFilter = new ZohNosdacCompensationFilter(ZohNosdacComboBoxIndexToTaps(comboBoxNosdacCompensationTaps.SelectedIndex));
 
                 DialogResult = true;
                 Close();

@@ -131,6 +131,7 @@
     <Compile Include="WWWindowFunc.cs" />
     <Compile Include="InsertZeroesUpsampler.cs" />
     <Compile Include="ZeroOrderHoldUpsampler.cs" />
+    <Compile Include="ZohNosdacCompensationFilter.cs" />
     <Page Include="FilterConfiguration.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
