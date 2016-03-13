@@ -38,7 +38,7 @@ public:
         /// nthサンプル過去のサンプル値を戻す。
         /// </summary>
         /// <param name="nth">0: 最新のサンプル、1: 1サンプル過去のサンプル。</param>
-        float GetNthDelayedSampleValue(int nth) {
+        float GetNthDelayedSampleValue(int nth) const {
             int pos = mPos - 1 - nth;
 
             if (pos < 0) {
@@ -51,7 +51,7 @@ public:
 
         void FillZeroes(void);
 
-        int DelaySamples(void) { mDelayLength; }
+        int DelaySamples(void) const { mDelayLength; }
 
 private:
     int mDelayLength;
