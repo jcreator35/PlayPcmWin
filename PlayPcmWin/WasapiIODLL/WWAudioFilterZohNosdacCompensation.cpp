@@ -32,12 +32,13 @@ float
 WWAudioFilterZohNosdacCompensation::Convolution(int ch)
 {
     float v = 0.0f;
-#if 0
+#if 1
     for (int i = 0; i < sCoeffLength; ++i) {
         v += sCoeffs33[i] * mDelay[ch].GetNthDelayedSampleValue(i);
     }
 #else
     // フィルター係数がsymmetricなので、[3]の高速化(乗算回数削減)が使える。
+    // バグっている
     for (int i = 0; i < sCoeffLength/2; ++i) {
         v += sCoeffs33[i] * (
             mDelay[ch].GetNthDelayedSampleValue(i) +
