@@ -293,6 +293,10 @@ namespace Wasapi {
             PolarityInvert,
             Monaural,
             ChannelMapping,
+            MuteChannel,
+            SoloChannel,
+
+            ZohNosdacCompensation,
         };
 
         /// <summary>

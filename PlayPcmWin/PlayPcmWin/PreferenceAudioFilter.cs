@@ -16,6 +16,7 @@ namespace PlayPcmWin {
         ChannelRouting, //< ChannelMapping。設定ファイルで使用されるフィルター名称は互換性のためにChannelRoutingとする。
         MuteChannel,
         SoloChannel,
+        ZohNosdacCompensation,
         NUM
     };
 
@@ -48,6 +49,7 @@ namespace PlayPcmWin {
                 }
             case PreferenceAudioFilterType.MonauralMix:
             case PreferenceAudioFilterType.PolarityInvert:
+            case PreferenceAudioFilterType.ZohNosdacCompensation:
                 return "";
             case PreferenceAudioFilterType.MuteChannel:
             case PreferenceAudioFilterType.SoloChannel:
@@ -344,6 +346,8 @@ namespace PlayPcmWin {
                         }
                         return string.Format(Properties.Resources.AudioFilterSoloChannelDesc, ChannelToString(ch));
                     }
+                case PreferenceAudioFilterType.ZohNosdacCompensation:
+                    return Properties.Resources.AudioFilterZohNosdacCompensation;
                 default:
                     System.Diagnostics.Debug.Assert(false);
                     return "Unknown";

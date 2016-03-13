@@ -151,6 +151,15 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to ZOH NOSDAC high frequency roll-off compensation (PCM).
+        /// </summary>
+        internal static string AudioFilterZohNosdacCompensation {
+            get {
+                return ResourceManager.GetString("AudioFilterZohNosdacCompensation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Settings....
         /// </summary>
         internal static string ButtonSoundEffectsSettings {

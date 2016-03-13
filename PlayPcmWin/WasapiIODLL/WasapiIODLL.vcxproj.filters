@@ -53,6 +53,12 @@
     <ClCompile Include="WWAudioFilterMuteSoloChannel.cpp">
       <Filter>source files</Filter>
     </ClCompile>
+    <ClCompile Include="WWAudioFilterZohNosdacCompensation.cpp">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="WWPcmDelay.cpp">
+      <Filter>source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WasapiIOIF.h">
@@ -113,6 +119,12 @@
       <Filter>header files</Filter>
     </ClInclude>
     <ClInclude Include="WWAudioFilterMuteSoloChannel.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWAudioFilterZohNosdacCompensation.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWPcmDelay.h">
       <Filter>header files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -37,6 +37,7 @@ namespace PlayPcmWin {
             listBoxAvailableEffects.Items.Add(Properties.Resources.AudioFilterChannelMapping);
             listBoxAvailableEffects.Items.Add(Properties.Resources.AudioFilterMuteChannel);
             listBoxAvailableEffects.Items.Add(Properties.Resources.AudioFilterSoloChannel);
+            listBoxAvailableEffects.Items.Add(Properties.Resources.AudioFilterZohNosdacCompensation);
 
             listBoxAvailableEffects.SelectedIndex = 0;
             buttonLeftArrow.IsEnabled = true;
@@ -120,6 +121,9 @@ namespace PlayPcmWin {
                     }
                     filter = new PreferenceAudioFilter(filterType, new string[1] { dlg.SelectedChannel.ToString() });
                 }
+                break;
+            case PreferenceAudioFilterType.ZohNosdacCompensation:
+                filter = new PreferenceAudioFilter(PreferenceAudioFilterType.ZohNosdacCompensation, null);
                 break;
             default:
                 System.Diagnostics.Debug.Assert(false);

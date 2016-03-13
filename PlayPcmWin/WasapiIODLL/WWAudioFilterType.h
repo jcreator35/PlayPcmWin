@@ -9,5 +9,7 @@ enum WWAudioFilterType {
     WWAF_MuteChannel,
     WWAF_SoloChannel,
 
+    WWAF_ZohNosdacCompensation,
+
     WWAF_NUM
 };

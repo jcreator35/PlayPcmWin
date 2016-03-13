@@ -9,6 +9,7 @@
 #include "WWAudioFilterMonauralMix.h"
 #include "WWAudioFilterChannelMapping.h"
 #include "WWAudioFilterMuteSoloChannel.h"
+#include "WWAudioFilterZohNosdacCompensation.h"
 #include <assert.h>
 #include <map>
 
@@ -712,6 +713,9 @@ WasapiIO_AppendAudioFilter(int instanceId, int audioFilterType, PCWSTR args)
             break;
         case WWAF_SoloChannel:
             self->wasapi.AudioFilterSequencer().Append(new WWAudioFilterMuteSoloChannel(WWAFMSMode_Solo, args));
+            break;
+        case WWAF_ZohNosdacCompensation:
+            self->wasapi.AudioFilterSequencer().Append(new WWAudioFilterZohNosdacCompensation());
             break;
         default:
             assert(0);
