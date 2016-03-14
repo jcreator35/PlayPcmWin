@@ -10,8 +10,9 @@
  * h(n) = (1/M)*{G(0)+2*Σ_{k=1}^{U}{G(k)*cos{2πk*(n+0.5)/M}}
  * 
  * Reference:
- * A. V. Oppenheim, R. W. Schafer, Discrete-Time Signal Processing, 3rd Ed, Prentice Hall, 2009, pp. 600-604
- * J.G. Proakis & D.G. Manolakis: Digital Signal Processing, 4th edition, 2007, Chapter 10, pp. 671-678
+ * [1] A. V. Oppenheim, R. W. Schafer, Discrete-Time Signal Processing, 3rd Ed, Prentice Hall, 2009, pp. 600-604
+ * [2] J.G. Proakis & D.G. Manolakis: Digital Signal Processing, 4th edition, 2007, Chapter 10, pp. 671-678
+ * [3] Richard G. Lyons, Understanding Digital Signal Processing, 3 rd Ed., Pearson, 2011, pp. 702
  */
 
 using System;
@@ -95,9 +96,20 @@ namespace WWAudioFilter {
 
         private double Convolution() {
             double v = 0.0;
+#if false
             for (int i = 0; i < mCoeffs.Length; ++i) {
                 v += mCoeffs[i] * mDelay.GetNthDelayedSampleValue(i);
             }
+#else
+            // FIRフィルター係数が左右対称なので参考文献[3]の方法で乗算回数を半分に削減できる。
+            int center = mCoeffs.Length / 2;
+            for (int i = 0; i < center; ++i) {
+                v += mCoeffs[i] * (
+                    mDelay.GetNthDelayedSampleValue(i) +
+                    mDelay.GetNthDelayedSampleValue(mCoeffs.Length-i-1));
+            }
+            v += mCoeffs[center] * mDelay.GetNthDelayedSampleValue(center);
+#endif
             return v;
         }
 
