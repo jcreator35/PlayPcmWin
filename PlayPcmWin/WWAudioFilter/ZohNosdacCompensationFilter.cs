@@ -97,6 +97,7 @@ namespace WWAudioFilter {
         private double Convolution() {
             double v = 0.0;
 #if false
+            // 畳みこみ和を計算。
             for (int i = 0; i < mCoeffs.Length; ++i) {
                 v += mCoeffs[i] * mDelay.GetNthDelayedSampleValue(i);
             }
