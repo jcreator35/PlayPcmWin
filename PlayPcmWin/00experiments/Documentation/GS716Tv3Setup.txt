@@ -100,9 +100,9 @@ Enableを選択しAPPLYを押す
 全てのポートをチェックしてAdmin ModeをDisableに設定。APPLYを押す。
 
 ・Switching > VLAN > Basic > VLAN Configuration
-VLAN ID=10, VLAN Name=Generic Use
+VLAN ID=10, VLAN Name=GenericUse
 ADDを押す
-VLAN ID=2002, VLAN Name=Dedicated Audio VLAN
+VLAN ID=2002, VLAN Name=DedicatedAudioVLAN
 ADDを押す
 
 ・Switching > VLAN > Advanced > VLAN Membership
