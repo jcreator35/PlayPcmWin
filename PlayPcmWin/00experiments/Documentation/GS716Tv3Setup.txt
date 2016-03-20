@@ -1,0 +1,224 @@
+﻿■機器の構成
+・PC3台
+・ファイルサーバー
+・インターネット接続ルーター
+・GS716Tv3
+・VLAN対応L2スイッチ (XS708E)
+
+■gs716tv3にファームウェア6.3.0.9を焼く
+・スイッチのLANポート15番にLANケーブルを1本だけ接続、PCをつなげる。
+・PCのIP設定を以下のようにする
+　　・IP：192.168.0.72
+　　・サブネットマスク: 255.255.255.0
+　　・ルーターIP: 空欄
+　　・DNSサーバーIP: 空欄
+・スイッチの電源を投入し2分待つ。
+・ウェブブラウザを開いてhttp://192.168.0.239を開くとスイッチの設定画面が出る。
+・スイッチにログインする
+・ファクトリーデフォルトにリセットする
+　　・Maintenance > Factory Default チェックしてAPPLY。スイッチが再起動するまで2分待つ
+・Netgear SmartControlCenterを起動しスイッチを発見する。
+・Maintenance > Firmwareでスイッチを選択し、Download Firmwareボタンを押す。
+・ファイル選択画面でgs716tv3用のファームウェアファイルgs7xxt_v6.3.0.9.stkを選択し開く。
+・APPLYを押し、パスワードを入力する
+・1分半の間LANポート15番のアクセスランプが点滅しファームウェアファイルがスイッチに送出される。その後1分半の間ファームウェアのフラッシュが行われ、自動的にスイッチがリセットし2分かけて起動する。
+
+■gs716tv3の設定
+
+・スイッチのポート15にPCを接続し、他のLANケーブルは全て抜く
+・スイッチの電源を入れて起動するまで2分待つ
+・ウェブブラウザを開いてhttp://192.168.0.239を開くとスイッチの設定画面が出る。
+・スイッチにログインする
+・ファクトリーデフォルトにリセットする
+ Maintenance > Factory Default チェックしてAPPLY。スイッチが再起動するまで2分待つ
+
+・スイッチにログインする
+・System > Management > System Information
+System Name: gs716tv3-1
+System Location: Room A
+System Contact: Me
+APPLYを押す。これらの設定はSNMPで使用される
+
+・System > Management > IP Configuration
+ Static IP Addressを選択しAPPLYを押す
+
+・System > Management > IPv6 Network Configuration
+Admin Mode: Disable
+APPLY
+
+・System > Management > Time > SNTP Server Configuration
+Server Type: IPv4
+Address: NTPサーバーのIPアドレスを入力
+ADDを押す
+
+・System > Management > Time > Time Configuration
+Clock Source: SNTP
+Client Mode: Unicast
+APPLYを押す。するとClock Source:がLocalが選択されている状態に見えるが気にしなくてよい。NTPリクエストが成功したときに自動的にSNTPが選択されるようである
+
+
+・System > Management > DNS > DNS Configuration
+DNS Default Name: local (このネットワークのドメイン名を入力)
+DNS Server: (このネットワークのDNSサーバーのIPアドレスを入力。空欄で良い)
+ADDを押す
+
+・System > Management > Green Ethernet > Green Ethernet Configuration
+Auto Power Down Mode: Enable
+EEE Mode: Enable
+APPLY
+
+・System > Management > Green Ethernet > Green Ethernet Interface Configuration
+すべてのポートをチェックしてAuto Power Down ModeとEEE ModeをEnableにする。
+LANポートに機器を接続してリンクランプが点灯しない場合、そのポートのEEE ModeをDisableに設定する。
+
+・System > LLDP > Advanced > LLDP Port Settings
+全てのポートをチェックしてAdmin StatusをDisabledに設定。APPLYを押す。
+
+・Switching > Ports > Port Configuration
+各ポートを選択してDescription欄にポートの名前を入力。APPLYを押す
+g1: Internet Router
+g2: Server
+g3: Client10-1
+g4: Client10-2
+g5: Client10-3
+g6: Client10-4
+g7: Client10-5
+g8: Client10-6
+g9: Audio2002-1
+g10: Audio2002-2
+g11: Audio2002-3
+g12: Audio2002-4
+g13: Audio2002-5
+g14: Audio2002-6
+g15: Service Port
+g16: Trunk
+
+・Switching > Ports > Flow Control
+Enableを選択しAPPLYを押す
+
+・Switching > LAG > Advanced > LAG Configuration
+全てのポートをチェックしてAdmin ModeをDisableに設定。APPLYを押す。
+
+・Switching > VLAN > Basic > VLAN Configuration
+VLAN ID=10, VLAN Name=Generic Use
+ADDを押す
+VLAN ID=2002, VLAN Name=Dedicated Audio VLAN
+ADDを押す
+
+・Switching > VLAN > Advanced > VLAN Membership
+VLAN ID=1を選択、Port 15をUに設定、Port16をTに設定、他のポートは空欄に設定しAPPLY
+VLAN ID=10を選択、Port 1～8をUに設定、Port16をTに設定、他のポートは空欄に設定しAPPLY
+VLAN ID=2002を選択、Port 9～14をUに設定、Port16をTに設定、他のポートは空欄に設定しAPPLY
+
+・Switching > VLAN > Advanced > VLAN Status
+以下のようになっていることを確認する
+ 1 	Default 	Default 		g15 - g16, lag 1 - lag 26
+ 2 	Auto VoIP 	AUTO VoIP 		
+ 3 	Auto-Video 	Auto-Video 		
+ 10 	GenericUse 	Static 		g1 - g8, g16
+ 2002 	DedicatedAudioVLAN 	Static 		g9 - g14, g16
+
+・Switching > VLAN > Advanced > Port PVID Configuration
+g1～g8をチェックし、Configured PVIDに10と入力してAPPLY
+g9～g14をチェックし、Configured PVIDに2002と入力してAPPLY
+
+
+・Switching > STP > Basic > STP Configuration
+Spanning Tree State: Disableに設定しAPPLY
+
+・Switching > STP > Advanced > CST Port Configuration
+全てのインターフェースを選択してSTP StatusをDisableに設定しAPPLY
+
+・Routing > IP
+Routing ModeをEnableに設定しAPPLY
+
+・Routing > VLAN > VLAN Routing
+VLAN 10を選択、IP Addressに192.168.1.253、Subnet Maskに255.255.255.0、IP MTUに1500と入力しADD
+VLAN 2002を選択、IP Addressに192.168.2.253、Subnet Maskに255.255.255.0、IP MTUに1500と入力しADD
+ 
+・Routing > Routing Table > Route Configuration
+Route Type=DefaultRoute、Next Hop IP Addressにインターネット接続ルーターのLAN側IPアドレスを入力、Preference=1, Description=Internetと入力しADD
+
+以上で設定終わり。スイッチの電源を切る。
+
+ポート1にインターネット接続ルーターを接続
+ポート2にサーバーを接続
+ポート3にVLAN10動作テスト用PCを接続
+ポート9にVLAN2002動作テスト用PC1を接続
+ポート10にVLAN2002動作テスト用PC2を接続
+
+VLAN10のサーバーPCのIP設定は以下のようにする
+　　・IPアドレス: 192.168.1.1
+　　・サブネットマスク: 255.255.255.0
+　　・ルーターIP: 192.168.1.253
+　　・DNSサーバーIP：(このネットワークのDNSサーバーIP)
+
+VLAN10動作テスト用PCのIP設定は以下のようにする
+　　・IPアドレス: 192.168.1.100
+　　・サブネットマスク: 255.255.255.0
+　　・ルーターIP: 192.168.1.253
+　　・DNSサーバーIP：(このネットワークのDNSサーバーIP)
+
+インターネット接続ルーターのルーティングテーブルに以下の経路を追加
+　　・ネットワーク: 192.168.2.0
+　　・サブネットマスク: 255.255.255.0
+　　・ルーターIP: 192.168.1.253
+
+VLAN2002動作テスト用PC1のIP設定は以下のようにする
+　　・IPアドレス: 192.168.2.2
+　　・サブネットマスク: 255.255.255.0
+　　・ルーターIP: 192.168.2.253
+　　・DNSサーバーIP: (このネットワークのDNSサーバーIP)
+
+VLAN2002動作テスト用PC2のIP設定は以下のようにする
+　　・IPアドレス: 192.168.2.3
+　　・サブネットマスク: 255.255.255.0
+　　・ルーターIP: 192.168.2.253
+　　・DNSサーバーIP: (このネットワークのDNSサーバーIP)
+
+VLAN10動作テスト用PCでコマンドプロンプトを開いて通信の動作テストをする
+> ping 192.168.1.1
+> ping 192.168.1.254
+> ping 192.168.2.2
+> ping www.yahoo.com
+
+VLAN2002動作テスト用PC1でコマンドプロンプトを開いて通信の動作テストをする
+> ping 192.168.2.3
+> ping 192.168.1.1
+> ping 192.168.1.254
+> ping www.yahoo.com
+
+DNSサーバーの設定ファイルに192.168.2.0/24ネットワークの設定を記述する。
+
+
+192.168.2.3のPCから192.168.1.254にtracertする
+　　C:\>tracert 192.168.1.254
+　　
+　　internetrouter.prv [192.168.1.254] へのルートをトレースしています
+　　経由するホップ数は最大 30 です:
+　　
+　　  1     1 ms     1 ms     1 ms  vlan2002router.prv2 [192.168.2.253]
+　　  2    <1 ms    <1 ms    <1 ms  internetrouter.prv [192.168.1.254]
+　　
+　　トレースを完了しました。
+　　
+　　C:\>
+
+■VLAN対応L2スイッチXS708Eの設定
+
+スイッチの設定画面を出す:
+XS708Eに何も接続せず起動、20秒ほど待ってPowerランプが緑消灯するのを待つ。
+PCのIPv4アドレスをスタティック設定で192.168.0.72、ネットマスク255.255.255.0に設定してXS708Eのポート7番に接続。
+Netgear Prosafe Plus Utilityを起動するとXS708Eが一覧に出てくるので選択して適用ボタンを押すとパスワード入力画面が出るのでパスワードを入力するとシステムタブに移動する。
+
+VLANタブの802.1Q > 拡張設定 > VLAN設定メニューで拡張802.1Q VLANを有効にする。
+VLAN ID 10とVLAN ID 2002を追加する 。
+
+VLANタブの802.1Q > 拡張設定 > VLANメンバーシップメニューでVLAN 1を選択し、ポート7のタギングをUに設定、ポート8のタギングをTに設定。
+VLAN 10を選択し、ポート1～4のタギングをUに設定、ポート8のタギングをTに設定。
+VLAN 2002を選択し、ポート5～6のタギングをUに設定、ポート8のタギングをTに設定。
+
+VLANタブの802.1Q > 拡張設定 > Port VLAN ID(PVID)メニューでポート1～4をPVID 10に設定し、ポート5～6をPVID 2002に設定。
+
+以上ですべての設定が完了したので、XS708Eの電源を切り、XS708Eのポート8とGS716Tv3のポート16を接続し、XS708Eの電源を投入する。
+
