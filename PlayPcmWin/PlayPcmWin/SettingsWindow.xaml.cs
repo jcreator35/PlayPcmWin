@@ -116,6 +116,11 @@ namespace PlayPcmWin {
             cbItemChannelCount6.Content = Properties.Resources.SettingsCbItemChannelCount6;
             cbItemChannelCount8.Content = Properties.Resources.SettingsCbItemChannelCount8;
             cbItemChannelCount10.Content = Properties.Resources.SettingsCbItemChannelCount10;
+            cbItemChannelCount16.Content = Properties.Resources.SettingsCbItemChannelCount16;
+            cbItemChannelCount18.Content = Properties.Resources.SettingsCbItemChannelCount18;
+            cbItemChannelCount24.Content = Properties.Resources.SettingsCbItemChannelCount24;
+            cbItemChannelCount26.Content = Properties.Resources.SettingsCbItemChannelCount26;
+            cbItemChannelCount32.Content = Properties.Resources.SettingsCbItemChannelCount32;
             cbItemChannelCountMixFormat.Content = Properties.Resources.SettingsCbItemChannelCountMixFormat;
         }
 
@@ -292,6 +297,21 @@ namespace PlayPcmWin {
             case ChannelCount2Type.Ch10:
                 comboBoxChannelCount.SelectedItem = cbItemChannelCount10;
                 break;
+            case ChannelCount2Type.Ch16:
+                comboBoxChannelCount.SelectedItem = cbItemChannelCount16;
+                break;
+            case ChannelCount2Type.Ch18:
+                comboBoxChannelCount.SelectedItem = cbItemChannelCount18;
+                break;
+            case ChannelCount2Type.Ch24:
+                comboBoxChannelCount.SelectedItem = cbItemChannelCount24;
+                break;
+            case ChannelCount2Type.Ch26:
+                comboBoxChannelCount.SelectedItem = cbItemChannelCount26;
+                break;
+            case ChannelCount2Type.Ch32:
+                comboBoxChannelCount.SelectedItem = cbItemChannelCount32;
+                break;
             default:
                 comboBoxChannelCount.SelectedItem = cbItemChannelCountMixFormat;
                 break;
@@ -461,6 +481,21 @@ namespace PlayPcmWin {
             }
             if (comboBoxChannelCount.SelectedItem == cbItemChannelCount10) {
                 m_preference.ChannelCount2 = ChannelCount2Type.Ch10;
+            }
+            if (comboBoxChannelCount.SelectedItem == cbItemChannelCount16) {
+                m_preference.ChannelCount2 = ChannelCount2Type.Ch16;
+            }
+            if (comboBoxChannelCount.SelectedItem == cbItemChannelCount18) {
+                m_preference.ChannelCount2 = ChannelCount2Type.Ch18;
+            }
+            if (comboBoxChannelCount.SelectedItem == cbItemChannelCount24) {
+                m_preference.ChannelCount2 = ChannelCount2Type.Ch24;
+            }
+            if (comboBoxChannelCount.SelectedItem == cbItemChannelCount26) {
+                m_preference.ChannelCount2 = ChannelCount2Type.Ch26;
+            }
+            if (comboBoxChannelCount.SelectedItem == cbItemChannelCount32) {
+                m_preference.ChannelCount2 = ChannelCount2Type.Ch32;
             }
             if (comboBoxChannelCount.SelectedItem == cbItemChannelCountMixFormat) {
                 m_preference.ChannelCount2 = ChannelCount2Type.MixFormatChannelCount;

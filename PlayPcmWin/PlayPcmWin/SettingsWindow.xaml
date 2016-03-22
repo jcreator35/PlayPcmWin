@@ -108,6 +108,11 @@
                                 <ComboBoxItem Content="6 ch" Name="cbItemChannelCount6" />
                                 <ComboBoxItem Content="8 ch" Name="cbItemChannelCount8" />
                                 <ComboBoxItem Content="10 ch" Name="cbItemChannelCount10" />
+                                <ComboBoxItem Content="16 ch" Name="cbItemChannelCount16" />
+                                <ComboBoxItem Content="18 ch" Name="cbItemChannelCount18" />
+                                <ComboBoxItem Content="24 ch" Name="cbItemChannelCount24" />
+                                <ComboBoxItem Content="26 ch" Name="cbItemChannelCount26" />
+                                <ComboBoxItem Content="32 ch" Name="cbItemChannelCount32" />
                             </ComboBox>
                         </Grid>
                     </GroupBox>

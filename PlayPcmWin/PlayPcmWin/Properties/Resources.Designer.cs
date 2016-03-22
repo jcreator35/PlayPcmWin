@@ -1137,11 +1137,56 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 16 ch.
+        /// </summary>
+        internal static string SettingsCbItemChannelCount16 {
+            get {
+                return ResourceManager.GetString("SettingsCbItemChannelCount16", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 18 ch.
+        /// </summary>
+        internal static string SettingsCbItemChannelCount18 {
+            get {
+                return ResourceManager.GetString("SettingsCbItemChannelCount18", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 2 ch stereo.
         /// </summary>
         internal static string SettingsCbItemChannelCount2 {
             get {
                 return ResourceManager.GetString("SettingsCbItemChannelCount2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 24 ch.
+        /// </summary>
+        internal static string SettingsCbItemChannelCount24 {
+            get {
+                return ResourceManager.GetString("SettingsCbItemChannelCount24", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 26 ch.
+        /// </summary>
+        internal static string SettingsCbItemChannelCount26 {
+            get {
+                return ResourceManager.GetString("SettingsCbItemChannelCount26", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 32 ch.
+        /// </summary>
+        internal static string SettingsCbItemChannelCount32 {
+            get {
+                return ResourceManager.GetString("SettingsCbItemChannelCount32", resourceCulture);
             }
         }
         

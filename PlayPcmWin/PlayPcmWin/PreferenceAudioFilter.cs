@@ -60,27 +60,6 @@ namespace PlayPcmWin {
             }
         }
 
-        /// <summary>
-        /// 設定ボタンの可視
-        /// </summary>
-        public Visibility SettingsButtonVisibility {
-            get {
-                switch (FilterType) {
-                case PreferenceAudioFilterType.ChannelRouting:
-                    return Visibility.Visible;
-                default:
-                    return Visibility.Collapsed;
-                }
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void NotifyPropertyChanged(string propName) {
-            if (this.PropertyChanged != null)
-                this.PropertyChanged(this, new PropertyChangedEventArgs(propName));
-        }
-
         public static List<PreferenceAudioFilter> LoadFiltersFromStream(Stream stream) {
             try {
                 var filters = new List<PreferenceAudioFilter>();
@@ -268,6 +247,26 @@ namespace PlayPcmWin {
             return new PreferenceAudioFilter(t, argArray);
         }
 
+        /// <summary>
+        /// 設定ボタンの可視
+        /// </summary>
+        public Visibility SettingsButtonVisibility {
+            get {
+                switch (FilterType) {
+                case PreferenceAudioFilterType.ChannelRouting:
+                    return Visibility.Visible;
+                default:
+                    return Visibility.Collapsed;
+                }
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public void NotifyPropertyChanged(string propName) {
+            if (this.PropertyChanged != null)
+                this.PropertyChanged(this, new PropertyChangedEventArgs(propName));
+        }
         public PreferenceAudioFilter(PreferenceAudioFilterType t, string[] argArray) {
             FilterType = t;
             mArgArray = argArray;
@@ -307,12 +306,18 @@ namespace PlayPcmWin {
             return new Tuple<int, int>(from, to);
         }
 
-        private static string ChannelToString(int ch) {
-            switch (ch) {
-            case 0: return "1 (L)";
-            case 1: return "2 (R)";
-            default: return (ch+1).ToString();
+        private static string ChannelListToDisplayString(string channelList) {
+            var sb = new StringBuilder();
+            var s = channelList.Split(new char[]{','});
+            foreach (var ch in s) {
+                int v = Int32.Parse(ch);
+                if (sb.Length == 0) {
+                    sb.AppendFormat("{0}", v + 1);
+                } else {
+                    sb.AppendFormat(",{0}", v + 1);
+                }
             }
+            return sb.ToString();
         }
 
         public string DescriptionText {
@@ -332,20 +337,10 @@ namespace PlayPcmWin {
                         }
                         return sb.ToString();
                     }
-                case PreferenceAudioFilterType.MuteChannel: {
-                        int ch;
-                        if (!Int32.TryParse(mArgArray[0], out ch)) {
-                            return null;
-                        }
-                        return string.Format(Properties.Resources.AudioFilterMuteChannelDesc, ChannelToString(ch));
-                    }
-                case PreferenceAudioFilterType.SoloChannel: {
-                        int ch;
-                        if (!Int32.TryParse(mArgArray[0], out ch)) {
-                            return null;
-                        }
-                        return string.Format(Properties.Resources.AudioFilterSoloChannelDesc, ChannelToString(ch));
-                    }
+                case PreferenceAudioFilterType.MuteChannel:
+                    return string.Format(Properties.Resources.AudioFilterMuteChannelDesc, ChannelListToDisplayString(mArgArray[0]));
+                case PreferenceAudioFilterType.SoloChannel:
+                    return string.Format(Properties.Resources.AudioFilterSoloChannelDesc, ChannelListToDisplayString(mArgArray[0]));
                 case PreferenceAudioFilterType.ZohNosdacCompensation:
                     return Properties.Resources.AudioFilterZohNosdacCompensation;
                 default:

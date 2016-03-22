@@ -691,4 +691,19 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   <data name="AudioFilterZohNosdacCompensation" xml:space="preserve">
     <value>ZOH NOSDAC high frequency roll-off compensation (PCM)</value>
   </data>
+  <data name="SettingsCbItemChannelCount16" xml:space="preserve">
+    <value>16 ch</value>
+  </data>
+  <data name="SettingsCbItemChannelCount18" xml:space="preserve">
+    <value>18 ch</value>
+  </data>
+  <data name="SettingsCbItemChannelCount24" xml:space="preserve">
+    <value>24 ch</value>
+  </data>
+  <data name="SettingsCbItemChannelCount26" xml:space="preserve">
+    <value>26 ch</value>
+  </data>
+  <data name="SettingsCbItemChannelCount32" xml:space="preserve">
+    <value>32 ch</value>
+  </data>
 </root>

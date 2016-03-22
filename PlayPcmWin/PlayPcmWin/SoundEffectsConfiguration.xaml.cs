@@ -78,13 +78,29 @@ namespace PlayPcmWin {
             }
         }
 
-        private string[] BuildChannelMappingArgArray(List<Tuple<int, int>> tupleList) {
+        private static string[] BuildChannelMappingArgArray(List<Tuple<int, int>> tupleList) {
             var rv = new string[tupleList.Count];
 
             for (int i=0; i<tupleList.Count; ++i) {
                 rv[i] = string.Format("{0}>{1}", tupleList[i].Item1, tupleList[i].Item2);
             }
             return rv;
+        }
+
+        private static string SelectedChannelFlagsToString(bool[] channelFlags) {
+            var sb = new StringBuilder();
+
+            for (int i = 0; i < channelFlags.Length; ++i) {
+                if (channelFlags[i]) {
+                    if (sb.Length == 0) {
+                        sb.AppendFormat("{0}", i);
+                    } else {
+                        sb.AppendFormat(",{0}", i);
+                    }
+                }
+            }
+
+            return sb.ToString();
         }
 
         private void buttonLeftArrow_Click(object sender, RoutedEventArgs e) {
@@ -119,7 +135,7 @@ namespace PlayPcmWin {
                     if (dlgResult != true) {
                         return;
                     }
-                    filter = new PreferenceAudioFilter(filterType, new string[1] { dlg.SelectedChannel.ToString() });
+                    filter = new PreferenceAudioFilter(filterType, new string[1] { SelectedChannelFlagsToString(dlg.SelectedChannels) });
                 }
                 break;
             case PreferenceAudioFilterType.ZohNosdacCompensation:

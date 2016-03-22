@@ -83,6 +83,94 @@
             <loc:ChannelEntry Id="16" Name="17" />
             <loc:ChannelEntry Id="17" Name="18" />
         </x:Array>
+        <x:Array Type="{x:Type loc:ChannelEntry}" x:Key="channelList24">
+            <loc:ChannelEntry Id="0" Name="1 (L)" />
+            <loc:ChannelEntry Id="1" Name="2 (R)" />
+            <loc:ChannelEntry Id="2" Name="3" />
+            <loc:ChannelEntry Id="3" Name="4" />
+            <loc:ChannelEntry Id="4" Name="5" />
+            <loc:ChannelEntry Id="5" Name="6" />
+            <loc:ChannelEntry Id="6" Name="7" />
+            <loc:ChannelEntry Id="7" Name="8" />
+            <loc:ChannelEntry Id="8" Name="9" />
+            <loc:ChannelEntry Id="9" Name="10" />
+            <loc:ChannelEntry Id="10" Name="11" />
+            <loc:ChannelEntry Id="11" Name="12" />
+            <loc:ChannelEntry Id="12" Name="13" />
+            <loc:ChannelEntry Id="13" Name="14" />
+            <loc:ChannelEntry Id="14" Name="15" />
+            <loc:ChannelEntry Id="15" Name="16" />
+            <loc:ChannelEntry Id="16" Name="17" />
+            <loc:ChannelEntry Id="17" Name="18" />
+            <loc:ChannelEntry Id="18" Name="19" />
+            <loc:ChannelEntry Id="19" Name="20" />
+            <loc:ChannelEntry Id="20" Name="21" />
+            <loc:ChannelEntry Id="21" Name="22" />
+            <loc:ChannelEntry Id="22" Name="23" />
+            <loc:ChannelEntry Id="23" Name="24" />
+        </x:Array>
+        <x:Array Type="{x:Type loc:ChannelEntry}" x:Key="channelList26">
+            <loc:ChannelEntry Id="0" Name="1 (L)" />
+            <loc:ChannelEntry Id="1" Name="2 (R)" />
+            <loc:ChannelEntry Id="2" Name="3" />
+            <loc:ChannelEntry Id="3" Name="4" />
+            <loc:ChannelEntry Id="4" Name="5" />
+            <loc:ChannelEntry Id="5" Name="6" />
+            <loc:ChannelEntry Id="6" Name="7" />
+            <loc:ChannelEntry Id="7" Name="8" />
+            <loc:ChannelEntry Id="8" Name="9" />
+            <loc:ChannelEntry Id="9" Name="10" />
+            <loc:ChannelEntry Id="10" Name="11" />
+            <loc:ChannelEntry Id="11" Name="12" />
+            <loc:ChannelEntry Id="12" Name="13" />
+            <loc:ChannelEntry Id="13" Name="14" />
+            <loc:ChannelEntry Id="14" Name="15" />
+            <loc:ChannelEntry Id="15" Name="16" />
+            <loc:ChannelEntry Id="16" Name="17" />
+            <loc:ChannelEntry Id="17" Name="18" />
+            <loc:ChannelEntry Id="18" Name="19" />
+            <loc:ChannelEntry Id="19" Name="20" />
+            <loc:ChannelEntry Id="20" Name="21" />
+            <loc:ChannelEntry Id="21" Name="22" />
+            <loc:ChannelEntry Id="22" Name="23" />
+            <loc:ChannelEntry Id="23" Name="24" />
+            <loc:ChannelEntry Id="24" Name="25" />
+            <loc:ChannelEntry Id="25" Name="26" />
+        </x:Array>
+        <x:Array Type="{x:Type loc:ChannelEntry}" x:Key="channelList32">
+            <loc:ChannelEntry Id="0" Name="1 (L)" />
+            <loc:ChannelEntry Id="1" Name="2 (R)" />
+            <loc:ChannelEntry Id="2" Name="3" />
+            <loc:ChannelEntry Id="3" Name="4" />
+            <loc:ChannelEntry Id="4" Name="5" />
+            <loc:ChannelEntry Id="5" Name="6" />
+            <loc:ChannelEntry Id="6" Name="7" />
+            <loc:ChannelEntry Id="7" Name="8" />
+            <loc:ChannelEntry Id="8" Name="9" />
+            <loc:ChannelEntry Id="9" Name="10" />
+            <loc:ChannelEntry Id="10" Name="11" />
+            <loc:ChannelEntry Id="11" Name="12" />
+            <loc:ChannelEntry Id="12" Name="13" />
+            <loc:ChannelEntry Id="13" Name="14" />
+            <loc:ChannelEntry Id="14" Name="15" />
+            <loc:ChannelEntry Id="15" Name="16" />
+            <loc:ChannelEntry Id="16" Name="17" />
+            <loc:ChannelEntry Id="17" Name="18" />
+            <loc:ChannelEntry Id="18" Name="19" />
+            <loc:ChannelEntry Id="19" Name="20" />
+            <loc:ChannelEntry Id="20" Name="21" />
+            <loc:ChannelEntry Id="21" Name="22" />
+            <loc:ChannelEntry Id="22" Name="23" />
+            <loc:ChannelEntry Id="23" Name="24" />
+            <loc:ChannelEntry Id="24" Name="25" />
+            <loc:ChannelEntry Id="25" Name="26" />
+            <loc:ChannelEntry Id="26" Name="27" />
+            <loc:ChannelEntry Id="27" Name="28" />
+            <loc:ChannelEntry Id="28" Name="29" />
+            <loc:ChannelEntry Id="29" Name="30" />
+            <loc:ChannelEntry Id="30" Name="31" />
+            <loc:ChannelEntry Id="31" Name="32" />
+        </x:Array>
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -105,6 +193,9 @@
             <ComboBoxItem Tag="10" Content="10ch" />
             <ComboBoxItem Tag="16" Content="16ch" />
             <ComboBoxItem Tag="18" Content="18ch" />
+            <ComboBoxItem Tag="24" Content="24ch" />
+            <ComboBoxItem Tag="26" Content="26ch" />
+            <ComboBoxItem Tag="32" Content="32ch" />
         </ComboBox>
         <GroupBox Header="Channel Mapping Table" Name="groupBoxChannelMapping" Grid.Row="1" Grid.ColumnSpan="2">
             <Grid>
@@ -124,6 +215,9 @@
                                 <ComboBox VerticalAlignment="Center" HorizontalAlignment="Left" Margin="4" Name="comboBox10" Visibility="{Binding Visibility10}" Tag="{Binding FromCh}" Grid.Column="1" ItemsSource="{StaticResource channelList10}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedIndex="{Binding SelectedChannelIdx, Mode=TwoWay}"/>
                                 <ComboBox VerticalAlignment="Center" HorizontalAlignment="Left" Margin="4" Name="comboBox16" Visibility="{Binding Visibility16}" Tag="{Binding FromCh}" Grid.Column="1" ItemsSource="{StaticResource channelList16}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedIndex="{Binding SelectedChannelIdx, Mode=TwoWay}"/>
                                 <ComboBox VerticalAlignment="Center" HorizontalAlignment="Left" Margin="4" Name="comboBox18" Visibility="{Binding Visibility18}" Tag="{Binding FromCh}" Grid.Column="1" ItemsSource="{StaticResource channelList18}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedIndex="{Binding SelectedChannelIdx, Mode=TwoWay}"/>
+                                <ComboBox VerticalAlignment="Center" HorizontalAlignment="Left" Margin="4" Name="comboBox24" Visibility="{Binding Visibility24}" Tag="{Binding FromCh}" Grid.Column="1" ItemsSource="{StaticResource channelList24}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedIndex="{Binding SelectedChannelIdx, Mode=TwoWay}"/>
+                                <ComboBox VerticalAlignment="Center" HorizontalAlignment="Left" Margin="4" Name="comboBox26" Visibility="{Binding Visibility26}" Tag="{Binding FromCh}" Grid.Column="1" ItemsSource="{StaticResource channelList26}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedIndex="{Binding SelectedChannelIdx, Mode=TwoWay}"/>
+                                <ComboBox VerticalAlignment="Center" HorizontalAlignment="Left" Margin="4" Name="comboBox32" Visibility="{Binding Visibility32}" Tag="{Binding FromCh}" Grid.Column="1" ItemsSource="{StaticResource channelList32}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedIndex="{Binding SelectedChannelIdx, Mode=TwoWay}"/>
                             </Grid>
                         </DataTemplate>
                     </ListBox.ItemTemplate>

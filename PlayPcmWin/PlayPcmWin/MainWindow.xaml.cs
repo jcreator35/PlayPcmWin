@@ -1184,6 +1184,11 @@ namespace PlayPcmWin
             case ChannelCount2Type.Ch6:
             case ChannelCount2Type.Ch8:
             case ChannelCount2Type.Ch10:
+            case ChannelCount2Type.Ch16:
+            case ChannelCount2Type.Ch18:
+            case ChannelCount2Type.Ch24:
+            case ChannelCount2Type.Ch26:
+            case ChannelCount2Type.Ch32:
                 // チャンネル数変更。
                 ch = (int)m_preference.ChannelCount2;
                 break;

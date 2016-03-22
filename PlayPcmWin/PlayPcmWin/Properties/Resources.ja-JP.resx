@@ -688,4 +688,19 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
   <data name="AudioFilterZohNosdacCompensation" xml:space="preserve">
     <value>ZOH NOSDACハイ落ち補正 (PCM用)</value>
   </data>
+  <data name="SettingsCbItemChannelCount16" xml:space="preserve">
+    <value>16チャンネル</value>
+  </data>
+  <data name="SettingsCbItemChannelCount18" xml:space="preserve">
+    <value>18チャンネル</value>
+  </data>
+  <data name="SettingsCbItemChannelCount24" xml:space="preserve">
+    <value>24チャンネル</value>
+  </data>
+  <data name="SettingsCbItemChannelCount26" xml:space="preserve">
+    <value>26チャンネル</value>
+  </data>
+  <data name="SettingsCbItemChannelCount32" xml:space="preserve">
+    <value>32チャンネル</value>
+  </data>
 </root>

@@ -20,11 +20,19 @@ namespace PlayPcmWin {
 
     public enum ChannelCount2Type {
         SourceChannelCount = 0,
+
         Ch2 = 2,
         Ch4 = 4,
         Ch6 = 6,
         Ch8 = 8,
         Ch10 = 10,
+
+        Ch16 = 16,
+        Ch18 = 18,
+        Ch24 = 24,
+        Ch26 = 26,
+        Ch32 = 32,
+
         MixFormatChannelCount = 65536,
     };
 
