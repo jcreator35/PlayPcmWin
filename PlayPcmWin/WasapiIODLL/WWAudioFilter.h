@@ -7,7 +7,8 @@
 class WWAudioFilter {
 public:
     virtual ~WWAudioFilter(void) {}
-    virtual void UpdateSampleFormat(WWPcmDataSampleFormatType format, WWStreamType streamType, int numChannels) = 0;
+    virtual void UpdateSampleFormat(int sampleRate,
+            WWPcmDataSampleFormatType format, WWStreamType streamType, int numChannels) = 0;
     virtual void Filter(unsigned char *buff, int bytes) = 0;
 
     WWAudioFilter *Next(void) { return m_next; }

@@ -10,6 +10,7 @@
 #include "WWAudioFilterChannelMapping.h"
 #include "WWAudioFilterMuteSoloChannel.h"
 #include "WWAudioFilterZohNosdacCompensation.h"
+#include "WWAudioFilterDelay.h"
 #include <assert.h>
 #include <map>
 
@@ -315,8 +316,11 @@ WasapiIO_GetDeviceAttributes(int instanceId, int deviceId, WasapiIoDeviceAttribu
 static DWORD
 GetChannelMask(int numChannels)
 {
-    // maskbit32 is reserved therefore allowable numChannels is smaller than 32
-    assert(numChannels < 32);
+    if (32 <= numChannels) {
+        // maskbit32 is reserved therefore allowable numChannels is smaller than 32
+        // 0 means "channel mask not specified"
+        return 0;
+    }
     DWORD result = 0;
 
     switch (numChannels) {
@@ -716,6 +720,9 @@ WasapiIO_AppendAudioFilter(int instanceId, int audioFilterType, PCWSTR args)
             break;
         case WWAF_ZohNosdacCompensation:
             self->wasapi.AudioFilterSequencer().Append(new WWAudioFilterZohNosdacCompensation());
+            break;
+        case WWAF_Delay:
+            self->wasapi.AudioFilterSequencer().Append(new WWAudioFilterDelay(args));
             break;
         default:
             assert(0);

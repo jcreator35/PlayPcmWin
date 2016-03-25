@@ -706,4 +706,7 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   <data name="SettingsCbItemChannelCount32" xml:space="preserve">
     <value>32 ch</value>
   </data>
+  <data name="AudioFilterDelay" xml:space="preserve">
+    <value>Delay</value>
+  </data>
 </root>

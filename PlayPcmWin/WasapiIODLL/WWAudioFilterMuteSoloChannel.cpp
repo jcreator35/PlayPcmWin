@@ -28,9 +28,11 @@ WWAudioFilterMuteSoloChannel::IsMuteChannel(int ch) const
 
 void
 WWAudioFilterMuteSoloChannel::UpdateSampleFormat(
+        int sampleRate,
         WWPcmDataSampleFormatType format,
         WWStreamType streamType, int numChannels)
 {
+    (void)sampleRate;
     mManip.UpdateFormat(format, streamType, numChannels);
 }
 

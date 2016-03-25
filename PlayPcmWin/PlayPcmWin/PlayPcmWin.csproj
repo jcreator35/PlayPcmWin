@@ -145,6 +145,9 @@
     <Compile Include="SoundEffectsUpdater.cs" />
     <Compile Include="Util.cs" />
     <Compile Include="DsfReader.cs" />
+    <Compile Include="DelaySettingsWindow.xaml.cs">
+      <DependentUpon>DelaySettingsWindow.xaml</DependentUpon>
+    </Compile>
     <Page Include="ChannelMappingSettings.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -170,6 +173,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="SoundEffectsConfiguration.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="DelaySettingsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

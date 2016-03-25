@@ -7,9 +7,10 @@ WWPcmDelay::Init(int n)
 {
     assert(!mDelay);
 
-    mDelayLength = n;
+    mStoreSamples = n + 1;
     mPos = 0;
-    mDelay = new float[n];
+
+    mDelay = new float[mStoreSamples];
     FillZeroes();
 }
 
@@ -18,12 +19,15 @@ WWPcmDelay::Term(void)
 {
     delete[] mDelay;
     mDelay = nullptr;
+
+    mStoreSamples = 0;
+    mPos = 0;
 }
 
 void
 WWPcmDelay::FillZeroes(void)
 {
-    for (int i = 0; i < mDelayLength; ++i) {
+    for (int i = 0; i < mStoreSamples; ++i) {
         mDelay[i] = 0.0;
     }
     mPos = 0;

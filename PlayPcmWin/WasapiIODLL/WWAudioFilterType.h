@@ -10,6 +10,7 @@ enum WWAudioFilterType {
     WWAF_SoloChannel,
 
     WWAF_ZohNosdacCompensation,
+    WWAF_Delay,
 
     WWAF_NUM
 };

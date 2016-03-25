@@ -5,7 +5,8 @@
 #include <assert.h>
 
 WWAudioFilterSequencer::WWAudioFilterSequencer(void)
-      : m_format(WWPcmDataSampleFormatSint16),
+      : m_sampleRate(-1),
+        m_format(WWPcmDataSampleFormatSint16),
         m_streamType(WWStreamPcm),
         m_numChannels(2),
         m_audioFilter(nullptr)
@@ -47,7 +48,7 @@ WWAudioFilterSequencer::Last(void)
 void
 WWAudioFilterSequencer::Append(WWAudioFilter *af)
 {
-    af->UpdateSampleFormat(m_format, m_streamType, m_numChannels);
+    af->UpdateSampleFormat(m_sampleRate, m_format, m_streamType, m_numChannels);
     af->SetNext(nullptr);
 
     if (m_audioFilter == nullptr) {
@@ -83,15 +84,17 @@ WWAudioFilterSequencer::UnregisterAll(void)
 
 void
 WWAudioFilterSequencer::UpdateSampleFormat(
+        int sampleRate,
         WWPcmDataSampleFormatType format,
         WWStreamType streamType, int numChannels)
 {
+    m_sampleRate = sampleRate;
     m_format = format;
     m_streamType = streamType;
     m_numChannels = numChannels;
 
-    Loop([format, streamType, numChannels](WWAudioFilter*p) {
-        p->UpdateSampleFormat(format, streamType, numChannels);
+    Loop([sampleRate, format, streamType, numChannels](WWAudioFilter*p) {
+        p->UpdateSampleFormat(sampleRate, format, streamType, numChannels);
     });
 }
 

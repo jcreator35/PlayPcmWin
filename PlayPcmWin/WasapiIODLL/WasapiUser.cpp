@@ -484,7 +484,8 @@ WasapiUser::Start(void)
 
             m_footerCount = 0;
 
-            m_audioFilterSequencer.UpdateSampleFormat(pcm->sampleFormat, pcm->streamType, pcm->nChannels);
+            m_audioFilterSequencer.UpdateSampleFormat(m_pcmFormat.sampleRate,
+                    pcm->sampleFormat, pcm->streamType, pcm->nChannels);
         }
         break;
 

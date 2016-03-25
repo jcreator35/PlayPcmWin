@@ -11,7 +11,8 @@ class WWAudioFilterChannelMapping : public WWAudioFilter {
 public:
     WWAudioFilterChannelMapping(PCWSTR args);
     virtual ~WWAudioFilterChannelMapping() {}
-    virtual void UpdateSampleFormat(WWPcmDataSampleFormatType format, WWStreamType streamType, int numChannels);
+    virtual void UpdateSampleFormat(int sampleRate, 
+            WWPcmDataSampleFormatType format, WWStreamType streamType, int numChannels);
     virtual void Filter(unsigned char *buff, int bytes);
 
 private:

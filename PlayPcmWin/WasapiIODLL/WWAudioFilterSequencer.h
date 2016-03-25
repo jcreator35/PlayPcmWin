@@ -22,10 +22,12 @@ public:
 
     bool IsAvailable(void) const { return m_audioFilter != nullptr; }
 
-    void UpdateSampleFormat(WWPcmDataSampleFormatType format, WWStreamType streamType, int numChannels);
+    void UpdateSampleFormat(int sampleRate, WWPcmDataSampleFormatType format,
+            WWStreamType streamType, int numChannels);
     void ProcessSamples(unsigned char *buff, int bytes);
 
 private:
+    int m_sampleRate;
     WWPcmDataSampleFormatType m_format;
     WWStreamType m_streamType;
     int m_numChannels;

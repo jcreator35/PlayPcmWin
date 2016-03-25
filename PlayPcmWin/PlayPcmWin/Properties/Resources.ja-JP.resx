@@ -703,4 +703,7 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
   <data name="SettingsCbItemChannelCount32" xml:space="preserve">
     <value>32チャンネル</value>
   </data>
+  <data name="AudioFilterDelay" xml:space="preserve">
+    <value>ディレイ</value>
+  </data>
 </root>

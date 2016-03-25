@@ -8,7 +8,7 @@
 /// nサンプルのディレイ
 class WWPcmDelay {
 public:
-        WWPcmDelay(void) : mDelayLength(0), mPos(0), mDelay(nullptr) {
+        WWPcmDelay(void) : mStoreSamples(0), mPos(0), mDelay(nullptr) {
         }
 
         ~WWPcmDelay(void) {
@@ -20,17 +20,15 @@ public:
         void Term(void);
 
         float Filter(float x) {
-            // 元々mDelay[mPos]に入っていた値をyに複製してからxで上書きする。
-            // この2行は順番が重要だ
-            float y = mDelay[mPos];
             mDelay[mPos] = x;
 
             // advance the position
             ++mPos;
-            if (mDelayLength <= mPos) {
+            if (mStoreSamples <= mPos) {
                 mPos = 0;
             }
 
+            float y = mDelay[mPos];
             return y;
         }
 
@@ -42,19 +40,20 @@ public:
             int pos = mPos - 1 - nth;
 
             if (pos < 0) {
-                pos += mDelayLength;
+                pos += mStoreSamples;
             }
 
-            assert(0 <= pos && pos < mDelayLength);
+            assert(0 <= pos && pos < mStoreSamples);
             return mDelay[pos];
         }
 
         void FillZeroes(void);
 
-        int DelaySamples(void) const { mDelayLength; }
+        int DelaySamples(void) const { return mStoreSamples-1; }
+        int StoreSamples(void) const { return mStoreSamples; }
 
 private:
-    int mDelayLength;
+    int mStoreSamples;
     int mPos;
     float *mDelay;
 };

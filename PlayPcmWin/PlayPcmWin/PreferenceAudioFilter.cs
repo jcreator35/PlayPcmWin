@@ -17,6 +17,7 @@ namespace PlayPcmWin {
         MuteChannel,
         SoloChannel,
         ZohNosdacCompensation,
+        Delay,
         NUM
     };
 
@@ -53,6 +54,7 @@ namespace PlayPcmWin {
                 return "";
             case PreferenceAudioFilterType.MuteChannel:
             case PreferenceAudioFilterType.SoloChannel:
+            case PreferenceAudioFilterType.Delay:
                 return string.Format("{0}", mArgArray[0]);
             default:
                 System.Diagnostics.Debug.Assert(false);
@@ -343,6 +345,18 @@ namespace PlayPcmWin {
                     return string.Format(Properties.Resources.AudioFilterSoloChannelDesc, ChannelListToDisplayString(mArgArray[0]));
                 case PreferenceAudioFilterType.ZohNosdacCompensation:
                     return Properties.Resources.AudioFilterZohNosdacCompensation;
+                case PreferenceAudioFilterType.Delay: {
+                    StringBuilder sb = new StringBuilder(Properties.Resources.AudioFilterDelay);
+                        sb.AppendFormat(": ");
+                        var delaySeconds = mArgArray[0].Split(',');
+                        for (int ch = 0; ch < delaySeconds.Length; ++ch) {
+                            if (0 < ch) {
+                                sb.AppendFormat(", ");
+                            }
+                            sb.AppendFormat("Ch{0}={1}ms", ch + 1, Double.Parse(delaySeconds[ch]) * 1000);
+                        }
+                        return string.Format(sb.ToString());
+                    }
                 default:
                     System.Diagnostics.Debug.Assert(false);
                     return "Unknown";

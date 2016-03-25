@@ -1,0 +1,136 @@
+﻿<Window x:Class="PlayPcmWin.DelaySettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="DelaySettings" Height="300" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+        <GroupBox Header="Set Delay for each channels" >
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="3*" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="3*" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="3*" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="3*" />
+                    <ColumnDefinition Width="1*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="1*" />
+                </Grid.RowDefinitions>
+                <Label Content="Ch1:" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                <Label Content="Ch2:" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Row="1"/>
+                <Label Content="Ch3:" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Row="2"/>
+                <Label Content="Ch4:" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Row="3"/>
+                <Label Content="Ch5:" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Row="4"/>
+                <Label Content="Ch6:" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Row="5"/>
+                <Label Content="Ch7:" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Row="6"/>
+                <Label Content="Ch8:" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Row="7"/>
+                <Label Content="Ch9:" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Column="3"/>
+                <Label Content="Ch10:" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Column="3" Grid.Row="1"/>
+                <Label Content="Ch11:" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Column="3" Grid.Row="2"/>
+                <Label Content="Ch12:" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Column="3" Grid.Row="3"/>
+                <Label Content="Ch13:" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Column="3" Grid.Row="4"/>
+                <Label Content="Ch14:" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Column="3" Grid.Row="5"/>
+                <Label Content="Ch15:" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Column="3" Grid.Row="6"/>
+                <Label Content="Ch16:" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Column="3" Grid.Row="7"/>
+                <Label Content="Ch17:" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Column="6"/>
+                <Label Content="Ch18:" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Column="6" Grid.Row="1"/>
+                <Label Content="Ch19:" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Column="6" Grid.Row="2"/>
+                <Label Content="Ch20:" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Column="6" Grid.Row="3"/>
+                <Label Content="Ch21:" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Column="6" Grid.Row="4"/>
+                <Label Content="Ch22:" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Column="6" Grid.Row="5"/>
+                <Label Content="Ch23:" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Column="6" Grid.Row="6"/>
+                <Label Content="Ch24:" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Column="6" Grid.Row="7"/>
+                <Label Content="Ch25:" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Column="9"/>
+                <Label Content="Ch26:" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Column="9" Grid.Row="1"/>
+                <Label Content="Ch27:" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Column="9" Grid.Row="2"/>
+                <Label Content="Ch28:" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Column="9" Grid.Row="3"/>
+                <Label Content="Ch29:" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Column="9" Grid.Row="4"/>
+                <Label Content="Ch30:" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Column="9" Grid.Row="5"/>
+                <Label Content="Ch31:" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Column="9" Grid.Row="6"/>
+                <Label Content="Ch32:" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Column="9" Grid.Row="7"/>
+                <Label Content="ms" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="2" Grid.Row="0"/>
+                <Label Content="ms" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="2" Grid.Row="1"/>
+                <Label Content="ms" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="2" Grid.Row="2"/>
+                <Label Content="ms" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="2" Grid.Row="3"/>
+                <Label Content="ms" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="2" Grid.Row="4"/>
+                <Label Content="ms" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="2" Grid.Row="5"/>
+                <Label Content="ms" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="2" Grid.Row="6"/>
+                <Label Content="ms" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="2" Grid.Row="7"/>
+                <Label Content="ms" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="5" Grid.Row="0"/>
+                <Label Content="ms" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="5" Grid.Row="1"/>
+                <Label Content="ms" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="5" Grid.Row="2"/>
+                <Label Content="ms" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="5" Grid.Row="3"/>
+                <Label Content="ms" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="5" Grid.Row="4"/>
+                <Label Content="ms" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="5" Grid.Row="5"/>
+                <Label Content="ms" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="5" Grid.Row="6"/>
+                <Label Content="ms" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="5" Grid.Row="7"/>
+                <Label Content="ms" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="8" Grid.Row="0"/>
+                <Label Content="ms" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="8" Grid.Row="1"/>
+                <Label Content="ms" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="8" Grid.Row="2"/>
+                <Label Content="ms" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="8" Grid.Row="3"/>
+                <Label Content="ms" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="8" Grid.Row="4"/>
+                <Label Content="ms" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="8" Grid.Row="5"/>
+                <Label Content="ms" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="8" Grid.Row="6"/>
+                <Label Content="ms" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="8" Grid.Row="7"/>
+                <Label Content="ms" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="11" Grid.Row="0"/>
+                <Label Content="ms" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="11" Grid.Row="1"/>
+                <Label Content="ms" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="11" Grid.Row="2"/>
+                <Label Content="ms" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="11" Grid.Row="3"/>
+                <Label Content="ms" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="11" Grid.Row="4"/>
+                <Label Content="ms" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="11" Grid.Row="5"/>
+                <Label Content="ms" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="11" Grid.Row="6"/>
+                <Label Content="ms" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="11" Grid.Row="7"/>
+                <TextBox Name="textBox1ch" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="0.0" Grid.Column="1" Grid.Row="0" />
+                <TextBox Name="textBox2ch" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="0.0" Grid.Column="1" Grid.Row="1" />
+                <TextBox Name="textBox3ch" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="0.0" Grid.Column="1" Grid.Row="2" />
+                <TextBox Name="textBox4ch" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="0.0" Grid.Column="1" Grid.Row="3" />
+                <TextBox Name="textBox5ch" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="0.0" Grid.Column="1" Grid.Row="4" />
+                <TextBox Name="textBox6ch" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="0.0" Grid.Column="1" Grid.Row="5" />
+                <TextBox Name="textBox7ch" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="0.0" Grid.Column="1" Grid.Row="6" />
+                <TextBox Name="textBox8ch" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="0.0" Grid.Column="1" Grid.Row="7" />
+                <TextBox Name="textBox9ch" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="0.0" Grid.Column="4" Grid.Row="0" />
+                <TextBox Name="textBox10ch" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="0.0" Grid.Column="4" Grid.Row="1" />
+                <TextBox Name="textBox11ch" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="0.0" Grid.Column="4" Grid.Row="2" />
+                <TextBox Name="textBox12ch" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="0.0" Grid.Column="4" Grid.Row="3" />
+                <TextBox Name="textBox13ch" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="0.0" Grid.Column="4" Grid.Row="4" />
+                <TextBox Name="textBox14ch" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="0.0" Grid.Column="4" Grid.Row="5" />
+                <TextBox Name="textBox15ch" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="0.0" Grid.Column="4" Grid.Row="6" />
+                <TextBox Name="textBox16ch" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="0.0" Grid.Column="4" Grid.Row="7" />
+                <TextBox Name="textBox17ch" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="0.0" Grid.Column="7" Grid.Row="0" />
+                <TextBox Name="textBox18ch" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="0.0" Grid.Column="7" Grid.Row="1" />
+                <TextBox Name="textBox19ch" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="0.0" Grid.Column="7" Grid.Row="2" />
+                <TextBox Name="textBox20ch" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="0.0" Grid.Column="7" Grid.Row="3" />
+                <TextBox Name="textBox21ch" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="0.0" Grid.Column="7" Grid.Row="4" />
+                <TextBox Name="textBox22ch" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="0.0" Grid.Column="7" Grid.Row="5" />
+                <TextBox Name="textBox23ch" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="0.0" Grid.Column="7" Grid.Row="6" />
+                <TextBox Name="textBox24ch" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="0.0" Grid.Column="7" Grid.Row="7" />
+                <TextBox Name="textBox25ch" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="0.0" Grid.Column="10" Grid.Row="0" />
+                <TextBox Name="textBox26ch" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="0.0" Grid.Column="10" Grid.Row="1" />
+                <TextBox Name="textBox27ch" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="0.0" Grid.Column="10" Grid.Row="2" />
+                <TextBox Name="textBox28ch" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="0.0" Grid.Column="10" Grid.Row="3" />
+                <TextBox Name="textBox29ch" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="0.0" Grid.Column="10" Grid.Row="4" />
+                <TextBox Name="textBox30ch" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="0.0" Grid.Column="10" Grid.Row="5" />
+                <TextBox Name="textBox31ch" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="0.0" Grid.Column="10" Grid.Row="6" />
+                <TextBox Name="textBox32ch" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Text="0.0" Grid.Column="10" Grid.Row="7" />
+            </Grid>
+        </GroupBox>
+        <Button Content="OK" Grid.Row="1" Margin="6" Name="buttonOK" VerticalAlignment="Center" Click="buttonOK_Click" />
+    </Grid>
+</Window>

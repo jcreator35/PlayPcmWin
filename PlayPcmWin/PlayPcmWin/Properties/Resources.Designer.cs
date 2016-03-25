@@ -97,6 +97,15 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Delay.
+        /// </summary>
+        internal static string AudioFilterDelay {
+            get {
+                return ResourceManager.GetString("AudioFilterDelay", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Monaural mix (forPCM).
         /// </summary>
         internal static string AudioFilterMonauralMix {

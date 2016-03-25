@@ -297,6 +297,7 @@ namespace Wasapi {
             SoloChannel,
 
             ZohNosdacCompensation,
+            Delay
         };
 
         /// <summary>
