@@ -6,6 +6,12 @@
 
 class WWPcmSampleManipulator {
 public:
+    WWPcmSampleManipulator(void)
+            : mFormat(WWPcmDataSampleFormatUnknown), mStreamType(WWStreamUnknown), mNumChannels(0), mBitsPerSample(-1) {
+    }
+
+    ~WWPcmSampleManipulator(void) { }
+
     void UpdateFormat(WWPcmDataSampleFormatType format, WWStreamType streamType, int numChannels);
     bool GetFloatSample(const unsigned char *buff, int64_t buffBytes, int64_t frameIdx, int ch, float &value_return);
     bool SetFloatSample(unsigned char *buff,       int64_t buffBytes, int64_t frameIdx, int ch, float value);
