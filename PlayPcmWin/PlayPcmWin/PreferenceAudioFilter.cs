@@ -335,7 +335,7 @@ namespace PlayPcmWin {
                         sb.AppendFormat(" ({0}ch)", mArgArray.Length);
                         foreach (var s in mArgArray) {
                             var m = ArgToChannelMapping1(s);
-                            sb.AppendFormat(" {0}→{1}", m.Item1+1, m.Item2+1);
+                            sb.AppendFormat(" {0}←{1}", m.Item1+1, m.Item2+1);
                         }
                         return sb.ToString();
                     }
