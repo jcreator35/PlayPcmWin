@@ -313,14 +313,10 @@ WasapiIO_GetDeviceAttributes(int instanceId, int deviceId, WasapiIoDeviceAttribu
 }
 
 /// numChannels to channelMask
+/// please refer this article https://msdn.microsoft.com/en-us/library/windows/hardware/dn653308%28v=vs.85%29.aspx
 static DWORD
 GetChannelMask(int numChannels)
 {
-    if (32 <= numChannels) {
-        // maskbit32 is reserved therefore allowable numChannels is smaller than 32
-        // 0 means "channel mask not specified"
-        return 0;
-    }
     DWORD result = 0;
 
     switch (numChannels) {
@@ -340,8 +336,8 @@ GetChannelMask(int numChannels)
         result = 0x63f; // 7.1 surround (FL FR FC LFE BL BR SL SR)
         break;
     default:
-        // ? unknown sampleFormat
-        result = (DWORD)((1LL << numChannels)-1);
+        // 0 means we does not specify particular speaker locations.
+        result = 0;
         break;
     }
 
