@@ -58,8 +58,8 @@ APPLYを押す。するとClock Source:がLocalが選択されている状態に
 
 
 ・System > Management > DNS > DNS Configuration
-DNS Default Name: local (このネットワークのドメイン名を入力)
-DNS Server: (このネットワークのDNSサーバーのIPアドレスを入力。空欄で良い)
+DNS Default Name: local (このネットワークのドメイン名を入力。空欄で良い)
+DNS Server: (このネットワークのDNSサーバーのIPアドレスを入力)
 ADDを押す
 
 ・System > Management > Green Ethernet > Green Ethernet Configuration
