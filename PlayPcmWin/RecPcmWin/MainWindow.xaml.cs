@@ -6,29 +6,35 @@ using WavRWLib2;
 using System.IO;
 using System.ComponentModel;
 using System.Globalization;
+using PcmDataLib;
+using System.Collections.Generic;
 
 namespace RecPcmWin {
     public partial class MainWindow : Window {
-        private WasapiCS wasapi;
+        private static string AssemblyVersion {
+            get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); }
+        }
+        
+        private WasapiControl mWasapiCtrl = new WasapiControl();
+        private PcmData mPcmData = null;
+        private int mBufferBytes = 0;
+        private int mSamplingFrequency = 44100;
+        private int mNumChannels = 2;
+        private WasapiCS.SampleFormatType mSampleFormat = WasapiCS.SampleFormatType.Sint16;
+        private BackgroundWorker mBW;
 
-        WavData mWavData = null;
-
-        const int DEFAULT_BUFFER_SIZE_MB    = 256;
-        const int DEFAULT_OUTPUT_LATENCY_MS = 200;
-        int mSamplingFrequency     = 44100;
-        int mNumChannels = 2;
-        WasapiCS.SampleFormatType mSampleFormat = WasapiCS.SampleFormatType.Sint16;
-        byte[] mCapturedPcmData;
+        public void AddLog(string text) {
+            textBoxLog.Text += text;
+            textBoxLog.ScrollToEnd();
+        }
 
         public MainWindow() {
             InitializeComponent();
 
             int hr = 0;
-            wasapi = new WasapiCS();
-            hr = wasapi.Init();
-            textBoxLog.Text += string.Format("wasapi.Init() {0:X8}\r\n", hr);
-            textBoxLatency.Text = string.Format("{0}", DEFAULT_OUTPUT_LATENCY_MS);
-            textBoxRecMaxMB.Text = string.Format("{0}", DEFAULT_BUFFER_SIZE_MB);
+            hr = mWasapiCtrl.Init();
+            AddLog(string.Format("RecPcmWin version {0}\r\n", AssemblyVersion));
+            AddLog(string.Format("wasapi.Init() {0:X8}\r\n", hr));
 
             Closed += new EventHandler(MainWindow_Closed);
 
@@ -45,301 +51,195 @@ namespace RecPcmWin {
 
             listBoxDevices.Items.Clear();
 
-            hr = wasapi.DoDeviceEnumeration(WasapiCS.DeviceType.Rec);
+            var deviceNameList = new List<string>();
+            hr = mWasapiCtrl.EnumerateRecDeviceNames(deviceNameList);
             textBoxLog.Text += string.Format("wasapi.DoDeviceEnumeration(Rec) {0:X8}\r\n", hr);
 
-            int nDevices = wasapi.GetDeviceCount();
-            for (int i = 0; i < nDevices; ++i) {
-                listBoxDevices.Items.Add(wasapi.GetDeviceName(i));
+            foreach (var d in deviceNameList) {
+                listBoxDevices.Items.Add(d);
             }
 
-            buttonDeviceSelect.IsEnabled     = true;
-            buttonDeselect.IsEnabled         = false;
-            buttonRec.IsEnabled              = false;
+            buttonRec.IsEnabled              = deviceNameList.Count != 0;
             buttonStop.IsEnabled             = false;
             groupBoxWasapiSettings.IsEnabled = true;
-            buttonInspectDevice.IsEnabled    = false;
+            buttonInspectDevice.IsEnabled = deviceNameList.Count != 0;
 
-            if (0 < nDevices) {
-                if (0 <= selectedIndex && selectedIndex < listBoxDevices.Items.Count) {
-                    listBoxDevices.SelectedIndex = selectedIndex;
-                } else {
-                    listBoxDevices.SelectedIndex = 0;
-                }
+            if (deviceNameList.Count == 0) {
+                return;
+            }
 
-                if (mWavData != null) {
-                    buttonDeviceSelect.IsEnabled = true;
-                }
-                buttonInspectDevice.IsEnabled = true;
+            // 選択されていた項目を選択状態にする。
+            if (0 <= selectedIndex && selectedIndex < listBoxDevices.Items.Count) {
+                listBoxDevices.SelectedIndex = selectedIndex;
+            } else {
+                listBoxDevices.SelectedIndex = 0;
             }
         }
 
         void MainWindow_Closed(object sender, EventArgs e) {
-            wasapi.Stop();
-            wasapi.Unsetup();
-            wasapi.Term();
-            wasapi = null;
+            mWasapiCtrl.Term();
 
             Application.Current.Shutdown(0);
         }
 
-        private static string DfmToStr(WasapiCS.DataFeedMode dfm) {
-            switch (dfm) {
-            case WasapiCS.DataFeedMode.EventDriven:
-                return "イベント駆動モード";
-            case WasapiCS.DataFeedMode.TimerDriven:
-                return "タイマー駆動モード";
-            default:
-                System.Diagnostics.Debug.Assert(false);
-                return "unknown";
-            }
-        }
+        private int DeviceSetup() {
+            int hr;
 
-        private void buttonDeviceSelect_Click(object sender, RoutedEventArgs e) {
+            // read latency millisec from the textbox
             int latencyMillisec = -1;
-            try {
-                latencyMillisec = Int32.Parse(textBoxLatency.Text);
-            } catch (Exception ex) {
-                textBoxLog.Text += string.Format("{0}\r\n", ex);
-            }
-            if (latencyMillisec <= 0) {
-                latencyMillisec = DEFAULT_OUTPUT_LATENCY_MS;
-                textBoxLatency.Text = string.Format("{0}", DEFAULT_OUTPUT_LATENCY_MS);
+            bool result = Int32.TryParse(textBoxLatency.Text, out latencyMillisec);
+            if (!result || latencyMillisec <= 0) {
+                string s = Properties.Resources.ErrorWasapiBufferSize;
+                MessageBox.Show(s);
+                AddLog(s);
+                return -1;
             }
 
-            try {
-                var bytes = Int32.Parse(textBoxRecMaxMB.Text) * 1024L * 1024L;
-                if (0x7fffffff < bytes) {
-                    string s = string.Format("E: 録音バッファーサイズを2047MB以下に減らして下さい。\r\n");
-                    textBoxLog.Text += s;
-                    MessageBox.Show(s);
-                    return;
-                }
-                m_bufferBytes = (int)bytes;
-            } catch (Exception ex) {
-                textBoxLog.Text += string.Format("{0}\r\n", ex);
+            // read num of channels
+            result = Int32.TryParse(textBoxNumOfChannels.Text, out mNumChannels);
+            if (!result || mNumChannels <= 0) {
+                string s = Properties.Resources.ErrorNumChannels;
+                MessageBox.Show(s);
+                AddLog(s);
+                return -1;
             }
-            if (m_bufferBytes < 0) {
-                m_bufferBytes = DEFAULT_BUFFER_SIZE_MB * 1024 * 1024;
-                textBoxRecMaxMB.Text = string.Format("{0}", DEFAULT_BUFFER_SIZE_MB);
+
+            // read recording buffer size
+            int megaBytes = 0;
+            result = Int32.TryParse(textBoxRecMaxMB.Text, out megaBytes);
+            if (megaBytes <= 0 || 2047 < megaBytes) {
+                string s = Properties.Resources.ErrorRecordingBufferSize;
+                MessageBox.Show(s);
+                AddLog(s);
+                return -1;
             }
-            try {
-                mCapturedPcmData = null;
-                mCapturedPcmData = new byte[m_bufferBytes];
-            } catch (Exception ex) {
-                textBoxLog.Text += string.Format("{0}\r\n", ex);
-                MessageBox.Show(string.Format("E: おそらくメモリ不足ですので、録音バッファーサイズを減らして下さい。\r\n{0}", ex));
-                return;
-            }
-            
-            int hr = wasapi.ChooseDevice(listBoxDevices.SelectedIndex);
-            textBoxLog.Text += string.Format("wasapi.ChooseDevice({0}) {1:X8}\r\n",
-                listBoxDevices.SelectedItem.ToString(), hr);
-            if (hr < 0) {
-                return;
+            mBufferBytes = megaBytes * 1024 * 1024;
+
+            if (!mWasapiCtrl.AllocateCaptureMemory(mBufferBytes)) {
+                string s = string.Format("{0}\r\n", Properties.Resources.ErrorCouldNotAllocateMemory);
+                MessageBox.Show(s);
+                AddLog(s);
+                return -1;
             }
 
             WasapiCS.DataFeedMode dfm = WasapiCS.DataFeedMode.EventDriven;
             if (true == radioButtonTimerDriven.IsChecked) {
                 dfm = WasapiCS.DataFeedMode.TimerDriven;
             }
-            
-            wasapi.SetDataFeedMode(dfm);
-            wasapi.SetLatencyMillisec(latencyMillisec);
-            hr = wasapi.Setup(mSamplingFrequency, mSampleFormat, mNumChannels);
-            textBoxLog.Text += string.Format("wasapi.Setup({0}, {1}, {2}, {3}) {4:X8}\r\n",
-                mSamplingFrequency, mSampleFormat, latencyMillisec, dfm, hr);
-            if (hr < 0) {
-                wasapi.Unsetup();
-                textBoxLog.Text += string.Format("wasapi.Unsetup()\r\n");
-                CreateDeviceList();
-                string sDfm = DfmToStr(dfm);
-                string s = string.Format("E: wasapi.Setup({0}, {1}, {2}, {3})失敗。{4:X8}\nこのプログラムのバグか、オーディオデバイスが{0}Hz {1} レイテンシー{2}ms {3}に対応していないのか、どちらかです。\r\n",
-                    mSamplingFrequency, mSampleFormat,
-                    latencyMillisec, sDfm, hr);
-                textBoxLog.Text += s;
-                MessageBox.Show(s);
-                return;
+
+            hr = mWasapiCtrl.Setup(listBoxDevices.SelectedIndex, dfm, latencyMillisec, mSamplingFrequency, mSampleFormat, mNumChannels);
+            {
+                if (hr < 0) {
+                    string s = string.Format("Error: wasapi.Setup({0}Hz, {1}, {2}ms, {3}, {4}ch)\r\nError code = {5:X8}\r\n",
+                            mSamplingFrequency, mSampleFormat, latencyMillisec, dfm, mNumChannels, hr);
+                    MessageBox.Show(s);
+                    AddLog(s);
+
+                    AddLog("wasapi.Unsetup()\r\n");
+                    mWasapiCtrl.Unsetup();
+                    mWasapiCtrl.ReleaseCaptureMemory();
+                    return hr;
+                } else {
+                    string s = string.Format("wasapi.Setup({0}Hz, {1}, {2}ms, {3}, {4}ch) Succeeded {5}\r\n",
+                            mSamplingFrequency, mSampleFormat, latencyMillisec, dfm, mNumChannels, hr);
+                    AddLog(s);
+                }
             }
 
-            buttonDeviceSelect.IsEnabled     = false;
-            buttonDeselect.IsEnabled         = true;
-            buttonRec.IsEnabled              = true;
-            buttonInspectDevice.IsEnabled    = false;
+            buttonRec.IsEnabled = true;
+            buttonInspectDevice.IsEnabled = false;
             groupBoxWasapiSettings.IsEnabled = false;
+            return 0;
         }
-
-        private void buttonDeviceDeselect_Click(object sender, RoutedEventArgs e) {
-            textBoxLog.Text += string.Format("wasapi.Stop()\r\n");
-            wasapi.Stop();
-            textBoxLog.Text += string.Format("wasapi.Unsetup()\r\n");
-            wasapi.Unsetup();
-            CreateDeviceList();
-        }
-
-struct InspectFormat {
-            public int sampleRate;
-            public int bitsPerSample;
-            public int validBitsPerSample;
-            public int bitFormat; // 0:Int, 1:Float
-            public InspectFormat(int sr, int bps, int vbps, int bf) {
-                sampleRate = sr;
-                bitsPerSample = bps;
-                validBitsPerSample = vbps;
-                bitFormat = bf;
-            }
-        };
-
-        const int TEST_SAMPLE_RATE_NUM = 8;
-        const int TEST_BIT_REPRESENTATION_NUM = 5;
-
-        static readonly InspectFormat [] gInspectFormats = new InspectFormat [] {
-                new InspectFormat(44100, 16, 16, 0),
-                new InspectFormat(48000, 16, 16, 0),
-                new InspectFormat(88200, 16, 16, 0),
-                new InspectFormat(96000, 16, 16, 0),
-                new InspectFormat(176400, 16, 16, 0),
-                new InspectFormat(192000, 16, 16, 0),
-                new InspectFormat(352800, 16, 16, 0),
-                new InspectFormat(384000, 16, 16, 0),
-
-                new InspectFormat(44100, 24, 24, 0),
-                new InspectFormat(48000, 24, 24, 0),
-                new InspectFormat(88200, 24, 24, 0),
-                new InspectFormat(96000, 24, 24, 0),
-                new InspectFormat(176400, 24, 24, 0),
-                new InspectFormat(192000, 24, 24, 0),
-                new InspectFormat(352800, 24, 24, 0),
-                new InspectFormat(384000, 24, 24, 0),
-
-                new InspectFormat(44100, 32, 24, 0),
-                new InspectFormat(48000, 32, 24, 0),
-                new InspectFormat(88200, 32, 24, 0),
-                new InspectFormat(96000, 32, 24, 0),
-                new InspectFormat(176400, 32, 24, 0),
-                new InspectFormat(192000, 32, 24, 0),
-                new InspectFormat(352800, 32, 24, 0),
-                new InspectFormat(384000, 32, 24, 0),
-
-                new InspectFormat(44100, 32, 32, 0),
-                new InspectFormat(48000, 32, 32, 0),
-                new InspectFormat(88200, 32, 32, 0),
-                new InspectFormat(96000, 32, 32, 0),
-                new InspectFormat(176400, 32, 32, 0),
-                new InspectFormat(192000, 32, 32, 0),
-                new InspectFormat(352800, 32, 32, 0),
-                new InspectFormat(384000, 32, 32, 0),
-
-                new InspectFormat(44100, 32, 32, 1),
-                new InspectFormat(48000, 32, 32, 1),
-                new InspectFormat(88200, 32, 32, 1),
-                new InspectFormat(96000, 32, 32, 1),
-                new InspectFormat(176400, 32, 32, 1),
-                new InspectFormat(192000, 32, 32, 1),
-                new InspectFormat(352800, 32, 32, 1),
-                new InspectFormat(384000, 32, 32, 1),
-            };
 
         private void buttonInspectDevice_Click(object sender, RoutedEventArgs e) {
-            string dn = wasapi.GetDeviceName(listBoxDevices.SelectedIndex);
-            string did = wasapi.GetDeviceIdString(listBoxDevices.SelectedIndex);
-
-            textBoxLog.Text += string.Format(CultureInfo.InvariantCulture, "wasapi.InspectDevice()\r\nDeviceFriendlyName={0}\r\nDeviceIdString={1}\r\n", dn, did);
-            textBoxLog.Text += "++-------------++-------------++-------------++-------------++-------------++-------------++-------------++-------------++\r\n";
-            for (int fmt = 0; fmt < TEST_BIT_REPRESENTATION_NUM; ++fmt) {
-                var sb = new StringBuilder();
-                for (int sr =0; sr < TEST_SAMPLE_RATE_NUM; ++sr) {
-                    int idx = sr + fmt * TEST_SAMPLE_RATE_NUM;
-                    System.Diagnostics.Debug.Assert(idx < gInspectFormats.Length);
-                    InspectFormat ifmt = gInspectFormats[idx];
-                    sb.Append(string.Format(CultureInfo.InvariantCulture, "||{0,3}kHz {1}{2}V{3}",
-                        ifmt.sampleRate / 1000, ifmt.bitFormat == 0 ? "i" : "f",
-                        ifmt.bitsPerSample, ifmt.validBitsPerSample));
-                }
-                sb.Append("||\r\n");
-                textBoxLog.Text += sb.ToString();
-
-                sb.Clear();
-                for (int sr =0; sr < TEST_SAMPLE_RATE_NUM; ++sr) {
-                    int idx = sr + fmt * TEST_SAMPLE_RATE_NUM;
-                    System.Diagnostics.Debug.Assert(idx < gInspectFormats.Length);
-                    InspectFormat ifmt = gInspectFormats[idx];
-                    int hr = wasapi.InspectDevice(listBoxDevices.SelectedIndex, ifmt.sampleRate, ifmt.bitsPerSample, ifmt.validBitsPerSample, ifmt.bitFormat);
-                    sb.Append(string.Format(CultureInfo.InvariantCulture, "|| {0} {1:X8} ", hr==0 ? "OK" : "NA", hr));
-                }
-                sb.Append("||\r\n");
-                textBoxLog.Text += sb.ToString();
-                textBoxLog.Text += "++-------------++-------------++-------------++-------------++-------------++-------------++-------------++-------------++\r\n";
-            }
+            string s = mWasapiCtrl.InspectDevice(listBoxDevices.SelectedIndex, mNumChannels);
+            AddLog(s);
         }
 
-        BackgroundWorker bw;
+        private int TotalFrames() {
+            if (mBufferBytes < 0) {
+                return 0;
+            }
 
-        private int m_bufferBytes = -1;
+            return mBufferBytes / WasapiCS.SampleFormatTypeToUseBitsPerSample(mSampleFormat) / mNumChannels * 8;
+        }
 
         private void buttonRec_Click(object sender, RoutedEventArgs e) {
-            wasapi.SetupCaptureBuffer(m_bufferBytes);
-            textBoxLog.Text += string.Format("wasapi.SetupCaptureBuffer() {0:X8}\r\n", m_bufferBytes);
-
-            int hr = wasapi.StartRecording();
-            textBoxLog.Text += string.Format("wasapi.StartRecording() {0:X8}\r\n", hr);
-            if (hr < 0) {
+            if (DeviceSetup() < 0) {
                 return;
             }
 
+            AddLog("wasapi.StartRecording()\r\n");
+            mWasapiCtrl.StartRecording();
+
             slider1.Value = 0;
-            slider1.Maximum = wasapi.GetTotalFrameNum(WasapiCS.PcmDataUsageType.Capture);
+            slider1.Maximum = TotalFrames();
             buttonStop.IsEnabled     = true;
             buttonRec.IsEnabled      = false;
-            buttonDeselect.IsEnabled = false;
 
-            bw = new BackgroundWorker();
-            bw.WorkerReportsProgress = true;
-            bw.DoWork += new DoWorkEventHandler(DoWork);
-            bw.ProgressChanged += new ProgressChangedEventHandler(ProgressChanged);
-            bw.RunWorkerCompleted += new RunWorkerCompletedEventHandler(RunWorkerCompleted);
-            bw.RunWorkerAsync();
+            mBW = new BackgroundWorker();
+            mBW.WorkerReportsProgress = true;
+            mBW.DoWork += new DoWorkEventHandler(DoWork);
+            mBW.ProgressChanged += new ProgressChangedEventHandler(ProgressChanged);
+            mBW.RunWorkerCompleted += new RunWorkerCompletedEventHandler(RunWorkerCompleted);
+            mBW.RunWorkerAsync();
         }
 
         private void ProgressChanged(object o, ProgressChangedEventArgs args) {
-            if (null == wasapi) {
+            if (!mWasapiCtrl.IsRunning()) {
                 return;
             }
-            slider1.Value = wasapi.GetPosFrame(WasapiCS.PcmDataUsageType.Capture);
-            label1.Content = string.Format("{0:F1}/{1:F1}",
-                slider1.Value / mSamplingFrequency,
-                slider1.Maximum / mSamplingFrequency);
+
+            slider1.Value = mWasapiCtrl.GetPosFrame();
+
+            double currentSec = (double)mWasapiCtrl.GetPosFrame() / mSamplingFrequency;
+            double maxSec = (double)mWasapiCtrl.GetNumFrames() / mSamplingFrequency;
+
+            int currentMin = (int)(currentSec / 60);
+            currentSec -= currentMin * 60;
+            int maxMin = (int)(maxSec/60);
+            maxSec -= maxMin * 60;
+
+            label1.Content = string.Format("{0}:{1:F1} / {2}:{3:F1} sec",
+                currentMin, currentSec,
+                maxMin, maxSec);
         }
 
         private void RunWorkerCompleted(object o, RunWorkerCompletedEventArgs args) {
-            textBoxLog.Text += string.Format("Rec completed.\r\n");
+            AddLog(string.Format("Rec completed.\r\n"));
 
             SaveRecordedData();
 
+            AddLog("wasapi.Unsetup()\r\n");
+            mWasapiCtrl.Unsetup();
+            mWasapiCtrl.ReleaseCaptureMemory();
+
+            RecordStopped();
+        }
+
+        private void RecordStopped() {
+            buttonInspectDevice.IsEnabled = true;
             buttonRec.IsEnabled = true;
             buttonStop.IsEnabled = false;
-            buttonDeselect.IsEnabled = true;
+            groupBoxWasapiSettings.IsEnabled = true;
         }
 
         private void DoWork(object o, DoWorkEventArgs args) {
-            Console.WriteLine("DoWork started");
-
-            while (!wasapi.Run(200)) {
-                bw.ReportProgress(0);
+            while (!mWasapiCtrl.Run(200)) {
+                mBW.ReportProgress(0);
                 System.Threading.Thread.Sleep(1);
             }
 
-            wasapi.Stop();
-
-            Console.WriteLine("DoWork end");
+            mWasapiCtrl.Stop();
         }
 
         private void buttonStop_Click(object sender, RoutedEventArgs e) {
             buttonStop.IsEnabled = false;
 
-            wasapi.Stop();
-            textBoxLog.Text += string.Format("wasapi.Stop()\r\n");
-
+            mWasapiCtrl.Stop();
+            AddLog(string.Format("wasapi.Stop()\r\n"));
+            buttonStop.IsEnabled = false;
         }
 
         private PcmDataLib.PcmData.ValueRepresentationType SampleFormatToVRT(WasapiCS.SampleFormatType t) {
@@ -358,19 +258,18 @@ struct InspectFormat {
         }
 
         private void SaveRecordedData() {
-            var bytes = wasapi.GetCapturedData(mCapturedPcmData);
-            var nFrames = bytes / WasapiCS.SampleFormatTypeToUseBytesPerSample(mSampleFormat) / mNumChannels;
-
-            if (nFrames == 0) {
+            var pcm = mWasapiCtrl.GetCapturedData();
+            var nFrames = pcm.Length / WasapiCS.SampleFormatTypeToUseBitsPerSample(mSampleFormat) / mNumChannels * 8;
+            if (pcm == null || nFrames == 0) {
                 return;
             }
 
             textBoxLog.Text += string.Format("captured frames={0} ({1:F1} seconds) glichCount={2}\r\n",
-                nFrames, (double)nFrames / mSamplingFrequency, wasapi.GetCaptureGlitchCount());
+                nFrames, (double)nFrames / mSamplingFrequency, mWasapiCtrl.GetCaptureGlitchCount());
 
             Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
             dlg.DefaultExt = ".wav";
-            dlg.Filter = "WAVEファイル|*.wav";
+            dlg.Filter = "WAVE files|*.wav";
 
             Nullable<bool> result = dlg.ShowDialog();
 
@@ -378,29 +277,21 @@ struct InspectFormat {
                 return;
             }
 
-            // あとで本のサイズに戻す。
-            var originalSize = mCapturedPcmData.Length;
-            Array.Resize(ref mCapturedPcmData, (int)bytes);
-
-            mWavData = new WavData();
-            mWavData.Set(mNumChannels, WasapiCS.SampleFormatTypeToUseBytesPerSample(mSampleFormat) * 8, WasapiCS.SampleFormatTypeToValidBitsPerSample(mSampleFormat),
-                mSamplingFrequency, SampleFormatToVRT(mSampleFormat), nFrames, mCapturedPcmData);
-
+            var ww = new WavRWLib2.WavWriter();
             try {
-                using (BinaryWriter w = new BinaryWriter(File.Open(dlg.FileName, FileMode.Create))) {
-                    mWavData.Write(w);
+                using (BinaryWriter bw = new BinaryWriter(File.Open(dlg.FileName, FileMode.Create))) {
+                    ww.Write(bw, mNumChannels, WasapiCS.SampleFormatTypeToUseBitsPerSample(mSampleFormat), WasapiCS.SampleFormatTypeToValidBitsPerSample(mSampleFormat),
+                        mSamplingFrequency, SampleFormatToVRT(mSampleFormat), nFrames, pcm);
 
-                    textBoxLog.Text += string.Format("ファイル保存成功: {0}\r\n", dlg.FileName);
+                    textBoxLog.Text += string.Format("{0} : {1}\r\n", Properties.Resources.SaveFileSucceeded, dlg.FileName);
                 }
             } catch (Exception ex) {
-                string s = string.Format("E: ファイル保存失敗: {0}\r\n{1}\r\n", dlg.FileName, ex);
-                textBoxLog.Text += s;
+                string s = string.Format("{0} : {1}\r\n{2}\r\n", Properties.Resources.SaveFileFailed, dlg.FileName, ex);
                 MessageBox.Show(s);
+                AddLog(s);
             }
 
             slider1.Value = 0;
-            label1.Content = "0/0";
-            Array.Resize(ref mCapturedPcmData, originalSize);
         }
 
         private void radioButton44100_Checked(object sender, RoutedEventArgs e) {

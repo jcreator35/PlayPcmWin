@@ -3,66 +3,120 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="RecPcmWin" Height="578" Width="999">
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="110" />
+            <RowDefinition Height="196" />
+            <RowDefinition Height="1*" />
+        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="488*" />
             <ColumnDefinition Width="489*" />
         </Grid.ColumnDefinitions>
-        <GroupBox Header="録音デバイス" Margin="10,308,0,6" Name="groupBoxDeviceSelect">
+        <GroupBox Header="Recording Devices" Margin="6" Name="groupBoxDeviceSelect" Grid.Row="3">
             <Grid>
-                <ListBox Margin="6,6,6,37" Name="listBoxDevices" />
-                <Button Click="buttonDeviceSelect_Click" Content="選択(_C)" Height="23" HorizontalAlignment="Left" IsEnabled="False" Margin="6,0,0,6" Name="buttonDeviceSelect" VerticalAlignment="Bottom" Width="135" />
-                <Button Click="buttonDeviceDeselect_Click" Content="選択解除(_D)" Height="23" HorizontalAlignment="Left" IsEnabled="False" Margin="147,0,0,6" Name="buttonDeselect" VerticalAlignment="Bottom" Width="138" />
-                <Button Click="buttonInspectDevice_Click" Content="対応フォーマット(_I)" Height="23" HorizontalAlignment="Left" Margin="291,0,0,6" Name="buttonInspectDevice" VerticalAlignment="Bottom" Width="164" />
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="32" />
+                </Grid.RowDefinitions>
+                <ListBox Margin="6,6,6,0" Name="listBoxDevices" />
+                <Button Click="buttonInspectDevice_Click" Content="Print Supported Format List(_I)" HorizontalAlignment="Left" Margin="6,0,0,0" Name="buttonInspectDevice" VerticalAlignment="Center" Width="200" Grid.Row="1" />
             </Grid>
         </GroupBox>
-        <Button Content="録音(_P)" Height="23" HorizontalAlignment="Left" IsEnabled="False" Margin="6,8,0,0" Name="buttonRec" VerticalAlignment="Top" Width="75" Click="buttonRec_Click" Grid.Column="1" />
-        <Slider Height="23" Margin="6,42,12,0" Name="slider1" VerticalAlignment="Top" Grid.Column="1" />
-        <Label Content="0/0" Height="28" HorizontalContentAlignment="Right" Margin="171,8,78,0" Name="label1" VerticalAlignment="Top" Grid.Column="1" />
-        <Label Content="秒" Height="28" HorizontalContentAlignment="Left" Margin="417,8,0,0" Name="labelSeconds" VerticalAlignment="Top" Grid.Column="1" />
-        <Button Content="停止(_S)" Height="23" HorizontalAlignment="Left" IsEnabled="False" Margin="90,8,0,0" Name="buttonStop" VerticalAlignment="Top" Width="75" Click="buttonStop_Click" Grid.Column="1" />
-        <GroupBox Header="ログ" Margin="6,82,12,6" Name="groupBoxLog" Grid.Column="1">
+        <GroupBox Header="Log" Margin="6" Name="groupBoxLog" Grid.Column="1" Grid.RowSpan="2" Grid.Row="1">
             <Grid>
                 <TextBox AcceptsReturn="True" AcceptsTab="True" IsReadOnly="True" Margin="0,0,0,0" Name="textBoxLog" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" />
             </Grid>
         </GroupBox>
-        <GroupBox Header="WASAPI設定" Height="295" Margin="10,7,0,0" Name="groupBoxWasapiSettings" VerticalAlignment="Top">
+        <GroupBox Header="WASAPI settings" Margin="6" Name="groupBoxWasapiSettings" VerticalAlignment="Top" Grid.RowSpan="2">
             <Grid>
-                <GroupBox Header="動作モード" Height="79" HorizontalAlignment="Left" Margin="211,72,0,0" Name="groupBox5" VerticalAlignment="Top" Width="199">
+                <GroupBox Header="Operation mode" Height="79" HorizontalAlignment="Left" Margin="211,72,0,0" Name="groupBox5" VerticalAlignment="Top" Width="199">
                     <Grid>
-                        <RadioButton Content="イベント駆動(_E)" Height="16" HorizontalAlignment="Left" IsChecked="True" Margin="6,6,0,0" Name="radioButtonEventDriven" VerticalAlignment="Top" />
-                        <RadioButton Content="タイマー駆動(_T)" Height="16" HorizontalAlignment="Left" Margin="6,28,0,0" Name="radioButtonTimerDriven" VerticalAlignment="Top" />
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                        </Grid.RowDefinitions>
+                        <RadioButton Content="Event Driven(_E)" HorizontalAlignment="Left" IsChecked="True" Margin="6,0,0,0" Name="radioButtonEventDriven" VerticalAlignment="Center" />
+                        <RadioButton Content="Timer Driven(_T)" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonTimerDriven" VerticalAlignment="Center" Grid.Row="1" />
                     </Grid>
                 </GroupBox>
-                <GroupBox Header="出力レイテンシー" Height="63" HorizontalAlignment="Left" Margin="211,6,0,0" Name="groupBox3" VerticalAlignment="Top" Width="200">
+                <GroupBox Header="WASAPI buffer size" Height="63" HorizontalAlignment="Left" Margin="211,6,0,0" Name="groupBox3" VerticalAlignment="Top" Width="200">
                     <Grid>
-                        <TextBox Height="24" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="6,6,0,0" Name="textBoxLatency" Text="latency" VerticalAlignment="Top" Width="120" />
-                        <Label Content="ミリ秒" Height="28" HorizontalAlignment="Left" Margin="132,4,0,0" Name="label2" VerticalAlignment="Top" Width="71" />
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox HorizontalContentAlignment="Right" Margin="6,0,0,0" Name="textBoxLatency" Text="200" VerticalAlignment="Center" />
+                        <Label Content="ms" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="1" />
                     </Grid>
                 </GroupBox>
-                <GroupBox Header="サンプリング周波数" Height="169" HorizontalAlignment="Left" Margin="6,6,0,0" Name="groupBox4" VerticalAlignment="Top" Width="199" DataContext="{Binding}">
+                <GroupBox Header="Sample rate (Hz)" Height="104" HorizontalAlignment="Left" Margin="6,3,0,0" Name="groupBox4" VerticalAlignment="Top" Width="199" DataContext="{Binding}">
                     <Grid>
-                        <RadioButton Content="44100" Height="16" HorizontalAlignment="Left" Margin="6,6,0,0" Name="radioButton44100" VerticalAlignment="Top" DataContext="{Binding}" IsChecked="True" Checked="radioButton44100_Checked" />
-                        <RadioButton Content="48000" Height="16" HorizontalAlignment="Left" Margin="6,28,0,0" Name="radioButton48000" VerticalAlignment="Top" Checked="radioButton48000_Checked" />
-                        <RadioButton Content="88200" Height="16" HorizontalAlignment="Left" Margin="6,50,0,0" Name="radioButton88200" VerticalAlignment="Top" Checked="radioButton88200_Checked" />
-                        <RadioButton Content="96000" Height="16" HorizontalAlignment="Left" Margin="6,72,0,0" Name="radioButton96000" VerticalAlignment="Top" Checked="radioButton96000_Checked" />
-                        <RadioButton Content="176400" Height="16" HorizontalAlignment="Left" Margin="6,94,0,0" Name="radioButton176400" VerticalAlignment="Top" Checked="radioButton176400_Checked" />
-                        <RadioButton Content="192000" Height="16" HorizontalAlignment="Left" Margin="6,116,0,0" Name="radioButton192000" VerticalAlignment="Top" Checked="radioButton192000_Checked" />
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                        </Grid.RowDefinitions>
+                        <RadioButton Content="44100" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButton44100" VerticalAlignment="Center" IsChecked="True" Checked="radioButton44100_Checked" />
+                        <RadioButton Content="48000" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButton48000" VerticalAlignment="Center" Checked="radioButton48000_Checked" Grid.Row="0" Grid.Column="1"/>
+                        <RadioButton Content="88200" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButton88200" VerticalAlignment="Center" Checked="radioButton88200_Checked" Grid.Row="1" Grid.Column="0"/>
+                        <RadioButton Content="96000" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButton96000" VerticalAlignment="Center" Checked="radioButton96000_Checked" Grid.Row="1" Grid.Column="1" />
+                        <RadioButton Content="176400" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButton176400" VerticalAlignment="Center" Checked="radioButton176400_Checked" Grid.Row="2" Grid.Column="0" />
+                        <RadioButton Content="192000" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButton192000" VerticalAlignment="Center" Checked="radioButton192000_Checked" Grid.Row="2" Grid.Column="1" />
                     </Grid>
                 </GroupBox>
-                <GroupBox Header="量子化ビット数" Height="106" HorizontalAlignment="Left" Margin="211,151,0,0" Name="groupBox6" VerticalAlignment="Top" Width="200">
+                <GroupBox Header="Quantization bit rate" Height="106" HorizontalAlignment="Left" Margin="6,105,0,0" Name="groupBox6" VerticalAlignment="Top" Width="199">
                     <Grid>
-                        <RadioButton Content="16bit" Height="16" HorizontalAlignment="Left" Margin="6,6,0,0" Name="radioButton16" VerticalAlignment="Top" IsChecked="True" Checked="radioButton16_Checked" />
-                        <RadioButton Content="24bit" Height="16" HorizontalAlignment="Left" Margin="6,28,0,0" Name="radioButton24" VerticalAlignment="Top" Checked="radioButton24_Checked" />
-                        <RadioButton Content="32bit" Height="16" HorizontalAlignment="Left" Margin="6,50,0,0" Name="radioButton32" VerticalAlignment="Top" Checked="radioButton32_Checked" />
-                        <RadioButton Content="32bit(有効24bit)" Height="16" HorizontalAlignment="Left" Margin="70,50,0,0" Name="radioButton32v24" VerticalAlignment="Top" Checked="radioButton32v24_Checked" />
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+                        <RadioButton Content="16bit" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButton16" VerticalAlignment="Center" IsChecked="True" Checked="radioButton16_Checked" />
+                        <RadioButton Content="24bit" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButton24" VerticalAlignment="Center" Checked="radioButton24_Checked" Grid.Column="1" />
+                        <RadioButton Content="32bit, valid 24bit" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButton32v24" VerticalAlignment="Center" Checked="radioButton32v24_Checked" Grid.Row="1" Grid.ColumnSpan="2" />
+                        <RadioButton Content="32bit, valid 32bit" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButton32" VerticalAlignment="Center" Checked="radioButton32_Checked" Grid.Row="2" Grid.ColumnSpan="2" />
                     </Grid>
                 </GroupBox>
-                <GroupBox Header="録音バッファーサイズ" Height="62" HorizontalAlignment="Left" Margin="6,181,0,0" Name="groupBox7" VerticalAlignment="Top" Width="199">
+                <GroupBox Header="Recording buffer size" Height="62" HorizontalAlignment="Left" Margin="211,159,0,0" Name="groupBox7" VerticalAlignment="Top" Width="199">
                     <Grid>
-                        <TextBox Height="24" Margin="6,6,61,0" Name="textBoxRecMaxMB" VerticalAlignment="Top" Text="bufferSizeMB" HorizontalContentAlignment="Right" />
-                        <Label Content="MB" Height="25" Margin="0,6,6,0" Name="label3" VerticalAlignment="Top" HorizontalAlignment="Right" Width="52" VerticalContentAlignment="Center" />
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox Margin="6,0,0,0" Name="textBoxRecMaxMB" VerticalAlignment="Center" Text="256" HorizontalContentAlignment="Right" />
+                        <Label Content="MB" VerticalAlignment="Center" HorizontalAlignment="Left" Grid.Column="1" />
                     </Grid>
                 </GroupBox>
+                <GroupBox Header="Num of Channels" Height="62" HorizontalAlignment="Left" Margin="6,210,0,0" Name="groupBox1" VerticalAlignment="Top" Width="199">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox HorizontalContentAlignment="Right" Margin="6,0,0,0" Name="textBoxNumOfChannels" Text="2" VerticalAlignment="Center" />
+                        <Label Content="ch" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                    </Grid>
+                </GroupBox>
+            </Grid>
+        </GroupBox>
+        <GroupBox Grid.Column="1" Header="Recording Control" Margin="6" Name="groupBox2">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="1*" />
+                </Grid.RowDefinitions>
+                <Button Content="Record(_R)" HorizontalAlignment="Left" IsEnabled="False" Margin="6,0,0,0" Name="buttonRec" VerticalAlignment="Center" Width="100" Click="buttonRec_Click" />
+                <Button Content="Stop(_S)" HorizontalAlignment="Left" IsEnabled="False" Margin="112,0,0,0" Name="buttonStop" VerticalAlignment="Center" Width="100" Click="buttonStop_Click" />
+                <Slider Margin="6,0,6,0" Name="slider1" VerticalAlignment="Center" Grid.Row="1" />
+                <Label Content="00:00.0 / 00:00.0" HorizontalContentAlignment="Right" Margin="218,0,6,0" Name="label1" VerticalAlignment="Top" />
             </Grid>
         </GroupBox>
     </Grid>
