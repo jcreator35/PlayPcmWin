@@ -121,7 +121,7 @@
     <value>Error: Memory allocation failed: please reduce recording buffer size</value>
   </data>
   <data name="ErrorNumChannels" xml:space="preserve">
-    <value>Error: Num of channels must be integer number larger than 0</value>
+    <value>Error: Num of channels must be integer number larger than 1</value>
   </data>
   <data name="ErrorRecordingBufferSize" xml:space="preserve">
     <value>Error: Recording buffer size must be larger than 0 and smaller than 2048</value>

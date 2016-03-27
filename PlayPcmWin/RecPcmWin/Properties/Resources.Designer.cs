@@ -70,7 +70,7 @@ namespace RecPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Error: Num of channels must be integer number larger than 0.
+        ///   Looks up a localized string similar to Error: Num of channels must be integer number larger than 1.
         /// </summary>
         internal static string ErrorNumChannels {
             get {

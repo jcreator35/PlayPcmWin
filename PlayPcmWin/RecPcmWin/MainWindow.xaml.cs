@@ -96,7 +96,7 @@ namespace RecPcmWin {
 
             // read num of channels
             result = Int32.TryParse(textBoxNumOfChannels.Text, out mNumChannels);
-            if (!result || mNumChannels <= 0) {
+            if (!result || mNumChannels <= 1) {
                 string s = Properties.Resources.ErrorNumChannels;
                 MessageBox.Show(s);
                 AddLog(s);
@@ -152,6 +152,11 @@ namespace RecPcmWin {
         }
 
         private void buttonInspectDevice_Click(object sender, RoutedEventArgs e) {
+            if (!Int32.TryParse(textBoxNumOfChannels.Text, out mNumChannels) || mNumChannels <= 1) {
+                MessageBox.Show(Properties.Resources.ErrorNumChannels);
+                return;
+            }
+
             string s = mWasapiCtrl.InspectDevice(listBoxDevices.SelectedIndex, mNumChannels);
             AddLog(s);
         }
