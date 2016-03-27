@@ -16,7 +16,6 @@ namespace RecPcmWin {
         }
         
         private WasapiControl mWasapiCtrl = new WasapiControl();
-        private PcmData mPcmData = null;
         private int mBufferBytes = 0;
         private int mSamplingFrequency = 44100;
         private int mNumChannels = 2;
