@@ -38,6 +38,23 @@ namespace RecPcmWin {
             Closed += new EventHandler(MainWindow_Closed);
 
             CreateDeviceList();
+
+            groupBoxWasapiSettings.Header = Properties.Resources.MainWasapiSettings;
+            groupBoxSampleRate.Header = Properties.Resources.MainSampleRate;
+            groupBoxDeviceSelect.Header = Properties.Resources.MainListOfRecordingDevices;
+            groupBoxLog.Header = Properties.Resources.MainLog;
+            groupBoxNumOfChannels.Header = Properties.Resources.MainNumOfChannels;
+            groupBoxOperationMode.Header = Properties.Resources.MainOperationMode;
+            groupBoxRecordingBufferSize.Header = Properties.Resources.MainRecordingDataSize;
+            groupBoxWasapiBufferSize.Header = Properties.Resources.MainWasapiBufferSize;
+            groupBoxRecordingControl.Header = Properties.Resources.MainRecordingControl;
+            groupBoxQuantizationBitRate.Header = Properties.Resources.MainQuantizationBitRate;
+            radioButtonEventDriven.Content = Properties.Resources.EventDriven;
+            radioButtonTimerDriven.Content = Properties.Resources.TimerDriven;
+            buttonInspectDevice.Content = Properties.Resources.MainAvailableFormats;
+            buttonRec.Content = Properties.Resources.MainRecord;
+            buttonStop.Content = Properties.Resources.MainStop;
+
         }
 
         private void CreateDeviceList() {
@@ -200,18 +217,12 @@ namespace RecPcmWin {
             double currentSec = (double)mWasapiCtrl.GetPosFrame() / mSamplingFrequency;
             double maxSec = (double)mWasapiCtrl.GetNumFrames() / mSamplingFrequency;
 
-            int currentMin = (int)(currentSec / 60);
-            currentSec -= currentMin * 60;
-            int maxMin = (int)(maxSec/60);
-            maxSec -= maxMin * 60;
-
-            label1.Content = string.Format("{0}:{1:F1} / {2}:{3:F1} sec",
-                currentMin, currentSec,
-                maxMin, maxSec);
+            label1.Content = string.Format(CultureInfo.CurrentCulture, "{0:F1} / {1:F1}",
+                currentSec, maxSec);
         }
 
         private void RunWorkerCompleted(object o, RunWorkerCompletedEventArgs args) {
-            AddLog(string.Format("Rec completed.\r\n"));
+            AddLog(string.Format("Recording completed.\r\n"));
 
             SaveRecordedData();
 
@@ -268,8 +279,9 @@ namespace RecPcmWin {
                 return;
             }
 
-            textBoxLog.Text += string.Format("captured frames={0} ({1:F1} seconds) glichCount={2}\r\n",
-                nFrames, (double)nFrames / mSamplingFrequency, mWasapiCtrl.GetCaptureGlitchCount());
+            textBoxLog.Text += string.Format("captured frames={0} ({1:F1} {2}) glichCount={3}\r\n",
+                nFrames, (double)nFrames / mSamplingFrequency, 
+                Properties.Resources.Seconds, mWasapiCtrl.GetCaptureGlitchCount());
 
             Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
             dlg.DefaultExt = ".wav";

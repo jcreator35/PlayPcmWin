@@ -29,7 +29,7 @@
         </GroupBox>
         <GroupBox Header="WASAPI settings" Margin="6" Name="groupBoxWasapiSettings" VerticalAlignment="Top" Grid.RowSpan="2">
             <Grid>
-                <GroupBox Header="Operation mode" Height="79" HorizontalAlignment="Left" Margin="211,72,0,0" Name="groupBox5" VerticalAlignment="Top" Width="199">
+                <GroupBox Header="Operation mode" Height="79" HorizontalAlignment="Left" Margin="211,72,0,0" Name="groupBoxOperationMode" VerticalAlignment="Top" Width="199">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="1*" />
@@ -39,7 +39,7 @@
                         <RadioButton Content="Timer Driven(_T)" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonTimerDriven" VerticalAlignment="Center" Grid.Row="1" />
                     </Grid>
                 </GroupBox>
-                <GroupBox Header="WASAPI buffer size" Height="63" HorizontalAlignment="Left" Margin="211,6,0,0" Name="groupBox3" VerticalAlignment="Top" Width="200">
+                <GroupBox Header="WASAPI buffer size" Height="63" HorizontalAlignment="Left" Margin="211,6,0,0" Name="groupBoxWasapiBufferSize" VerticalAlignment="Top" Width="200">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="2*" />
@@ -49,7 +49,7 @@
                         <Label Content="ms" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="1" />
                     </Grid>
                 </GroupBox>
-                <GroupBox Header="Sample rate (Hz)" Height="104" HorizontalAlignment="Left" Margin="6,3,0,0" Name="groupBox4" VerticalAlignment="Top" Width="199" DataContext="{Binding}">
+                <GroupBox Header="Sample rate (Hz)" Height="104" HorizontalAlignment="Left" Margin="6,3,0,0" Name="groupBoxSampleRate" VerticalAlignment="Top" Width="199" DataContext="{Binding}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="1*" />
@@ -68,7 +68,7 @@
                         <RadioButton Content="192000" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButton192000" VerticalAlignment="Center" Checked="radioButton192000_Checked" Grid.Row="2" Grid.Column="1" />
                     </Grid>
                 </GroupBox>
-                <GroupBox Header="Quantization bit rate" Height="106" HorizontalAlignment="Left" Margin="6,105,0,0" Name="groupBox6" VerticalAlignment="Top" Width="199">
+                <GroupBox Header="Quantization bit rate" Height="106" HorizontalAlignment="Left" Margin="6,105,0,0" Name="groupBoxQuantizationBitRate" VerticalAlignment="Top" Width="199">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="1*" />
@@ -85,7 +85,7 @@
                         <RadioButton Content="32bit, valid 32bit" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButton32" VerticalAlignment="Center" Checked="radioButton32_Checked" Grid.Row="2" Grid.ColumnSpan="2" />
                     </Grid>
                 </GroupBox>
-                <GroupBox Header="Recording buffer size" Height="62" HorizontalAlignment="Left" Margin="211,159,0,0" Name="groupBox7" VerticalAlignment="Top" Width="199">
+                <GroupBox Header="Recording buffer size" Height="62" HorizontalAlignment="Left" Margin="211,159,0,0" Name="groupBoxRecordingBufferSize" VerticalAlignment="Top" Width="199">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="2*" />
@@ -95,7 +95,7 @@
                         <Label Content="MB" VerticalAlignment="Center" HorizontalAlignment="Left" Grid.Column="1" />
                     </Grid>
                 </GroupBox>
-                <GroupBox Header="Num of Channels" Height="62" HorizontalAlignment="Left" Margin="6,210,0,0" Name="groupBox1" VerticalAlignment="Top" Width="199">
+                <GroupBox Header="Num of Channels" Height="62" HorizontalAlignment="Left" Margin="6,210,0,0" Name="groupBoxNumOfChannels" VerticalAlignment="Top" Width="199">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="2*" />
@@ -107,7 +107,7 @@
                 </GroupBox>
             </Grid>
         </GroupBox>
-        <GroupBox Grid.Column="1" Header="Recording Control" Margin="6" Name="groupBox2">
+        <GroupBox Grid.Column="1" Header="Recording Control" Margin="6" Name="groupBoxRecordingControl">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="1*" />
@@ -116,7 +116,7 @@
                 <Button Content="Record(_R)" HorizontalAlignment="Left" IsEnabled="False" Margin="6,0,0,0" Name="buttonRec" VerticalAlignment="Center" Width="100" Click="buttonRec_Click" />
                 <Button Content="Stop(_S)" HorizontalAlignment="Left" IsEnabled="False" Margin="112,0,0,0" Name="buttonStop" VerticalAlignment="Center" Width="100" Click="buttonStop_Click" />
                 <Slider Margin="6,0,6,0" Name="slider1" VerticalAlignment="Center" Grid.Row="1" />
-                <Label Content="00:00.0 / 00:00.0" HorizontalContentAlignment="Right" Margin="218,0,6,0" Name="label1" VerticalAlignment="Top" />
+                <Label Content="0.0 / 0.0" HorizontalContentAlignment="Right" Margin="218,0,6,0" Name="label1" VerticalAlignment="Center" />
             </Grid>
         </GroupBox>
     </Grid>

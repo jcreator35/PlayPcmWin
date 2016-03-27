@@ -130,52 +130,49 @@
     <value>Error: Wasapi buffer size must be integer number greater than 0</value>
   </data>
   <data name="EventDriven" xml:space="preserve">
-    <value>Event Driven (_E)</value>
+    <value>Událost (_E)</value>
   </data>
   <data name="MainAvailableFormats" xml:space="preserve">
-    <value>Print Available formats (_A)</value>
+    <value>Dostupné formáty (_A)</value>
   </data>
   <data name="MainDeselect" xml:space="preserve">
-    <value>Deselect</value>
+    <value>Odpojit</value>
   </data>
   <data name="MainListOfRecordingDevices" xml:space="preserve">
-    <value>List of Recording Devices</value>
+    <value>Seznam nahrávacích zařízení</value>
   </data>
   <data name="MainLog" xml:space="preserve">
-    <value>Log</value>
-  </data>
-  <data name="MainNumOfChannels" xml:space="preserve">
-    <value>Num of Channels</value>
+    <value>Deník</value>
   </data>
   <data name="MainOperationMode" xml:space="preserve">
-    <value>Operation Mode</value>
+    <value>Provozní režim</value>
   </data>
   <data name="MainQuantizationBitRate" xml:space="preserve">
-    <value>Quantization Bit Rate</value>
+    <value>Kvantizační přenosová rychlost</value>
   </data>
   <data name="MainRecord" xml:space="preserve">
-    <value>Record (_R)</value>
+    <value>Záznam (_R)</value>
   </data>
   <data name="MainRecordingControl" xml:space="preserve">
-    <value>Recording Control</value>
+    <value>Ovládání nahrávání</value>
   </data>
   <data name="MainRecordingDataSize" xml:space="preserve">
-    <value>Recording Data Size</value>
+    <value>Velikost nahrávaných dat</value>
   </data>
   <data name="MainSampleRate" xml:space="preserve">
-    <value>Sample Rate (Hz)</value>
+    <value>Vzorkovací frekvence (Hz)</value>
   </data>
   <data name="MainSelect" xml:space="preserve">
-    <value>Select</value>
+    <value>Připojit</value>
   </data>
   <data name="MainStop" xml:space="preserve">
     <value>Stop (_S)</value>
   </data>
   <data name="MainWasapiBufferSize" xml:space="preserve">
-    <value>WASAPI Buffer Size</value>
+    <value>Velikost vyrovnávací paměti WASAPI</value>
   </data>
   <data name="MainWasapiSettings" xml:space="preserve">
-    <value>WASAPI Settings</value>
+    <value>Nastavení WASAPI</value>
   </data>
   <data name="SaveFileFailed" xml:space="preserve">
     <value>Save file Failed</value>
@@ -184,9 +181,9 @@
     <value>Save file Succeeded</value>
   </data>
   <data name="Seconds" xml:space="preserve">
-    <value>seconds</value>
+    <value>Vteřiny</value>
   </data>
   <data name="TimerDriven" xml:space="preserve">
-    <value>Timer Driven (_T)</value>
+    <value>Čas (_T)</value>
   </data>
 </root>

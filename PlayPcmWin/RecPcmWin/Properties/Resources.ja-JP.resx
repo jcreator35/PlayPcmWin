@@ -118,75 +118,75 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ErrorCouldNotAllocateMemory" xml:space="preserve">
-    <value>Error: Memory allocation failed: please reduce recording buffer size</value>
+    <value>エラー: メモリ割り当て失敗。録音バッファーサイズを減らして下さい。</value>
   </data>
   <data name="ErrorNumChannels" xml:space="preserve">
-    <value>Error: Num of channels must be integer number larger than 1</value>
+    <value>エラー: チャンネル数は2以上の整数を入れて下さい。</value>
   </data>
   <data name="ErrorRecordingBufferSize" xml:space="preserve">
-    <value>Error: Recording buffer size must be larger than 0 and smaller than 2048</value>
+    <value>エラー: 録音バッファーサイズは1以上2047以下の整数を入れて下さい。</value>
   </data>
   <data name="ErrorWasapiBufferSize" xml:space="preserve">
-    <value>Error: Wasapi buffer size must be integer number greater than 0</value>
+    <value>エラー: WASAPIバッファーサイズは1以上の整数を入れて下さい。</value>
   </data>
   <data name="EventDriven" xml:space="preserve">
-    <value>Event Driven (_E)</value>
+    <value>イベント駆動 (_E)</value>
   </data>
   <data name="MainAvailableFormats" xml:space="preserve">
-    <value>Print Available formats (_A)</value>
+    <value>利用可能なフォーマットを一覧 (_A)</value>
   </data>
   <data name="MainDeselect" xml:space="preserve">
-    <value>Deselect</value>
+    <value>選択解除</value>
   </data>
   <data name="MainListOfRecordingDevices" xml:space="preserve">
-    <value>List of Recording Devices</value>
+    <value>録音デバイス一覧</value>
   </data>
   <data name="MainLog" xml:space="preserve">
-    <value>Log</value>
+    <value>ログ</value>
   </data>
   <data name="MainNumOfChannels" xml:space="preserve">
-    <value>Num of Channels</value>
+    <value>チャンネル数</value>
   </data>
   <data name="MainOperationMode" xml:space="preserve">
-    <value>Operation Mode</value>
+    <value>動作モード</value>
   </data>
   <data name="MainQuantizationBitRate" xml:space="preserve">
-    <value>Quantization Bit Rate</value>
+    <value>量子化ビット数</value>
   </data>
   <data name="MainRecord" xml:space="preserve">
-    <value>Record (_R)</value>
+    <value>録音 (_R)</value>
   </data>
   <data name="MainRecordingControl" xml:space="preserve">
-    <value>Recording Control</value>
+    <value>録音コントロール</value>
   </data>
   <data name="MainRecordingDataSize" xml:space="preserve">
-    <value>Recording Data Size</value>
+    <value>録音データサイズ</value>
   </data>
   <data name="MainSampleRate" xml:space="preserve">
-    <value>Sample Rate (Hz)</value>
+    <value>サンプルレート (Hz)</value>
   </data>
   <data name="MainSelect" xml:space="preserve">
-    <value>Select</value>
+    <value>選択</value>
   </data>
   <data name="MainStop" xml:space="preserve">
-    <value>Stop (_S)</value>
+    <value>停止 (_S)</value>
   </data>
   <data name="MainWasapiBufferSize" xml:space="preserve">
-    <value>WASAPI Buffer Size</value>
+    <value>WASAPIバッファーサイズ</value>
   </data>
   <data name="MainWasapiSettings" xml:space="preserve">
-    <value>WASAPI Settings</value>
+    <value>WASAPI設定</value>
   </data>
   <data name="SaveFileFailed" xml:space="preserve">
-    <value>Save file Failed</value>
+    <value>ファイル保存失敗</value>
   </data>
   <data name="SaveFileSucceeded" xml:space="preserve">
-    <value>Save file Succeeded</value>
+    <value>ファイル保存成功</value>
   </data>
   <data name="Seconds" xml:space="preserve">
-    <value>seconds</value>
+    <value>秒</value>
   </data>
   <data name="TimerDriven" xml:space="preserve">
-    <value>Timer Driven (_T)</value>
+    <value>タイマー駆動 (_T)</value>
   </data>
 </root>
