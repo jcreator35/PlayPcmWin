@@ -16,11 +16,10 @@ namespace RecPcmWin {
         }
         
         private WasapiControl mWasapiCtrl = new WasapiControl();
-        private int mBufferBytes = 0;
-        private int mSamplingFrequency = 44100;
-        private int mNumChannels = 2;
-        private WasapiCS.SampleFormatType mSampleFormat = WasapiCS.SampleFormatType.Sint16;
+        private Preference mPref = null;
         private BackgroundWorker mBW;
+        private bool mInitialized = false;
+        private List<WasapiCS.DeviceAttributes> mDeviceList = null;
 
         public void AddLog(string text) {
             textBoxLog.Text += text;
@@ -29,6 +28,8 @@ namespace RecPcmWin {
 
         public MainWindow() {
             InitializeComponent();
+
+            mPref = PreferenceStore.Load();
 
             int hr = 0;
             hr = mWasapiCtrl.Init();
@@ -55,99 +56,189 @@ namespace RecPcmWin {
             buttonRec.Content = Properties.Resources.MainRecord;
             buttonStop.Content = Properties.Resources.MainStop;
 
+            PreferenceToUI();
+
+            mInitialized = true;
+        }
+
+        private void PreferenceToUI() {
+            switch (mPref.SampleRate) {
+            case 44100:
+            default:
+                radioButton44100.IsChecked = true;
+                break;
+            case 48000:
+                radioButton48000.IsChecked = true;
+                break;
+            case 88200:
+                radioButton88200.IsChecked = true;
+                break;
+            case 96000:
+                radioButton96000.IsChecked = true;
+                break;
+            case 176400:
+                radioButton176400.IsChecked = true;
+                break;
+            case 192000:
+                radioButton192000.IsChecked = true;
+                break;
+            }
+
+            switch (mPref.SampleFormat) {
+            case WasapiCS.SampleFormatType.Sint16:
+            default:
+                radioButtonSint16.IsChecked = true;
+                break;
+            case WasapiCS.SampleFormatType.Sint24:
+                radioButtonSint24.IsChecked = true;
+                break;
+            case WasapiCS.SampleFormatType.Sint32V24:
+                radioButtonSint32v24.IsChecked = true;
+                break;
+            case WasapiCS.SampleFormatType.Sint32:
+                radioButtonSint32.IsChecked = true;
+                break;
+            }
+
+            if (mPref.NumOfChannels < 2) {
+                mPref.NumOfChannels = 2;
+            }
+            textBoxNumOfChannels.Text = string.Format(
+                    CultureInfo.InvariantCulture, "{0}",
+                    mPref.NumOfChannels);
+
+            if (mPref.WasapiBufferSizeMS < 3) {
+                mPref.WasapiBufferSizeMS = 3;
+            }
+            textBoxWasapiBufferSizeMS.Text = string.Format(
+                    CultureInfo.InvariantCulture, "{0}",
+                    mPref.WasapiBufferSizeMS);
+
+            switch (mPref.WasapiDataFeedMode) {
+            case WasapiCS.DataFeedMode.EventDriven:
+            default:
+                radioButtonEventDriven.IsChecked = true;
+                break;
+            case WasapiCS.DataFeedMode.TimerDriven:
+                radioButtonTimerDriven.IsChecked = true;
+                break;
+            }
+
+            if (mPref.RecordingBufferSizeMB < 1) {
+                mPref.RecordingBufferSizeMB = 1;
+            }
+            textBoxRecordingBufferSizeMB.Text = string.Format(
+                CultureInfo.InvariantCulture, "{0}",
+                mPref.RecordingBufferSizeMB);
         }
 
         private void CreateDeviceList() {
             int hr;
 
             int selectedIndex = -1;
-            if (0 < listBoxDevices.Items.Count) {
-                selectedIndex = listBoxDevices.SelectedIndex;
-            }
 
             listBoxDevices.Items.Clear();
 
-            var deviceNameList = new List<string>();
-            hr = mWasapiCtrl.EnumerateRecDeviceNames(deviceNameList);
+            mDeviceList = new List<WasapiCS.DeviceAttributes>();
+            hr = mWasapiCtrl.EnumerateRecDeviceNames(mDeviceList);
             textBoxLog.Text += string.Format("wasapi.DoDeviceEnumeration(Rec) {0:X8}\r\n", hr);
 
-            foreach (var d in deviceNameList) {
-                listBoxDevices.Items.Add(d);
+            for (int i = 0; i < mDeviceList.Count; ++i) {
+                var d = mDeviceList[i];
+                listBoxDevices.Items.Add(d.Name);
+
+                if (0 < mPref.PreferredDeviceIdString.Length
+                        && 0 == string.CompareOrdinal(mPref.PreferredDeviceIdString, d.DeviceIdString)) {
+                    // お気に入りデバイスを選択状態にする。
+                    selectedIndex = i;
+                }
             }
 
-            buttonRec.IsEnabled              = deviceNameList.Count != 0;
+            buttonRec.IsEnabled              = mDeviceList.Count != 0;
             buttonStop.IsEnabled             = false;
             groupBoxWasapiSettings.IsEnabled = true;
-            buttonInspectDevice.IsEnabled = deviceNameList.Count != 0;
+            buttonInspectDevice.IsEnabled    = mDeviceList.Count != 0;
 
-            if (deviceNameList.Count == 0) {
+            if (mDeviceList.Count == 0) {
                 return;
             }
 
-            // 選択されていた項目を選択状態にする。
-            if (0 <= selectedIndex && selectedIndex < listBoxDevices.Items.Count) {
-                listBoxDevices.SelectedIndex = selectedIndex;
-            } else {
-                listBoxDevices.SelectedIndex = 0;
+            if (selectedIndex < 0) {
+                selectedIndex = 0;
             }
+            listBoxDevices.SelectedIndex = selectedIndex;
         }
 
         void MainWindow_Closed(object sender, EventArgs e) {
             mWasapiCtrl.Term();
+
+            // 設定ファイルを書き出す。
+            PreferenceStore.Save(mPref);
 
             Application.Current.Shutdown(0);
         }
 
         private int DeviceSetup() {
             int hr;
+            bool bRv;
 
-            // read latency millisec from the textbox
-            int latencyMillisec = -1;
-            bool result = Int32.TryParse(textBoxLatency.Text, out latencyMillisec);
-            if (!result || latencyMillisec <= 0) {
-                string s = Properties.Resources.ErrorWasapiBufferSize;
+            {   // read num of channels
+                int numOfChannels;
+                bRv = Int32.TryParse(textBoxNumOfChannels.Text, out numOfChannels);
+                if (!bRv || numOfChannels <= 1) {
+                    string s = Properties.Resources.ErrorNumChannels;
+                    MessageBox.Show(s);
+                    AddLog(s);
+                    AddLog("\r\n");
+                    return -1;
+                }
+                mPref.NumOfChannels = numOfChannels;
+            }
+
+            {   // read WASAPI buffer millisec from the textbox
+                int wasapiBufferSizeMS = -1;
+                bRv = Int32.TryParse(textBoxWasapiBufferSizeMS.Text, out wasapiBufferSizeMS);
+                if (!bRv || wasapiBufferSizeMS <= 0) {
+                    string s = Properties.Resources.ErrorWasapiBufferSize;
+                    MessageBox.Show(s);
+                    AddLog(s);
+                    AddLog("\r\n");
+                    return -1;
+                }
+                mPref.WasapiBufferSizeMS = wasapiBufferSizeMS;
+            }
+
+            {   // read recording buffer size
+                int megaBytes = 0;
+                bRv = Int32.TryParse(textBoxRecordingBufferSizeMB.Text, out megaBytes);
+                if (megaBytes <= 0 || 2047 < megaBytes) {
+                    string s = Properties.Resources.ErrorRecordingBufferSize;
+                    MessageBox.Show(s);
+                    AddLog(s);
+                    AddLog("\r\n");
+                    return -1;
+                }
+                mPref.RecordingBufferSizeMB = megaBytes;
+            }
+
+            if (!mWasapiCtrl.AllocateCaptureMemory(
+                    1024 * 1024 * mPref.RecordingBufferSizeMB)) {
+                string s = Properties.Resources.ErrorCouldNotAllocateMemory;
                 MessageBox.Show(s);
                 AddLog(s);
+                AddLog("\r\n");
                 return -1;
             }
 
-            // read num of channels
-            result = Int32.TryParse(textBoxNumOfChannels.Text, out mNumChannels);
-            if (!result || mNumChannels <= 1) {
-                string s = Properties.Resources.ErrorNumChannels;
-                MessageBox.Show(s);
-                AddLog(s);
-                return -1;
-            }
-
-            // read recording buffer size
-            int megaBytes = 0;
-            result = Int32.TryParse(textBoxRecMaxMB.Text, out megaBytes);
-            if (megaBytes <= 0 || 2047 < megaBytes) {
-                string s = Properties.Resources.ErrorRecordingBufferSize;
-                MessageBox.Show(s);
-                AddLog(s);
-                return -1;
-            }
-            mBufferBytes = megaBytes * 1024 * 1024;
-
-            if (!mWasapiCtrl.AllocateCaptureMemory(mBufferBytes)) {
-                string s = string.Format("{0}\r\n", Properties.Resources.ErrorCouldNotAllocateMemory);
-                MessageBox.Show(s);
-                AddLog(s);
-                return -1;
-            }
-
-            WasapiCS.DataFeedMode dfm = WasapiCS.DataFeedMode.EventDriven;
-            if (true == radioButtonTimerDriven.IsChecked) {
-                dfm = WasapiCS.DataFeedMode.TimerDriven;
-            }
-
-            hr = mWasapiCtrl.Setup(listBoxDevices.SelectedIndex, dfm, latencyMillisec, mSamplingFrequency, mSampleFormat, mNumChannels);
+            hr = mWasapiCtrl.Setup(listBoxDevices.SelectedIndex,
+                mPref.WasapiDataFeedMode, mPref.WasapiBufferSizeMS,
+                mPref.SampleRate, mPref.SampleFormat, mPref.NumOfChannels);
             {
                 if (hr < 0) {
                     string s = string.Format("Error: wasapi.Setup({0}Hz, {1}, {2}ms, {3}, {4}ch)\r\nError code = {5:X8}\r\n",
-                            mSamplingFrequency, mSampleFormat, latencyMillisec, dfm, mNumChannels, hr);
+                            mPref.SampleRate, mPref.SampleFormat,
+                            mPref.WasapiBufferSizeMS, mPref.WasapiDataFeedMode,
+                            mPref.NumOfChannels, hr);
                     MessageBox.Show(s);
                     AddLog(s);
 
@@ -156,8 +247,10 @@ namespace RecPcmWin {
                     mWasapiCtrl.ReleaseCaptureMemory();
                     return hr;
                 } else {
-                    string s = string.Format("wasapi.Setup({0}Hz, {1}, {2}ms, {3}, {4}ch) Succeeded {5}\r\n",
-                            mSamplingFrequency, mSampleFormat, latencyMillisec, dfm, mNumChannels, hr);
+                    string s = string.Format("wasapi.Setup({0}Hz, {1}, {2}ms, {3}, {4}ch) Succeeded {5:X8}\r\n",
+                            mPref.SampleRate, mPref.SampleFormat,
+                            mPref.WasapiBufferSizeMS, mPref.WasapiDataFeedMode,
+                            mPref.NumOfChannels, hr);
                     AddLog(s);
                 }
             }
@@ -165,25 +258,40 @@ namespace RecPcmWin {
             buttonRec.IsEnabled = true;
             buttonInspectDevice.IsEnabled = false;
             groupBoxWasapiSettings.IsEnabled = false;
+
+            mPref.PreferredDeviceIdString = mDeviceList[listBoxDevices.SelectedIndex].DeviceIdString;
+
             return 0;
         }
 
         private void buttonInspectDevice_Click(object sender, RoutedEventArgs e) {
-            if (!Int32.TryParse(textBoxNumOfChannels.Text, out mNumChannels) || mNumChannels <= 1) {
-                MessageBox.Show(Properties.Resources.ErrorNumChannels);
-                return;
+            bool bRv;
+
+            {   // read num of channels
+                int numOfChannels;
+                bRv = Int32.TryParse(textBoxNumOfChannels.Text, out numOfChannels);
+                if (!bRv || numOfChannels <= 1) {
+                    string s = Properties.Resources.ErrorNumChannels;
+                    MessageBox.Show(s);
+                    AddLog(s);
+                    AddLog("\r\n");
+                    return;
+                }
+                mPref.NumOfChannels = numOfChannels;
             }
 
-            string s = mWasapiCtrl.InspectDevice(listBoxDevices.SelectedIndex, mNumChannels);
-            AddLog(s);
+            {
+                string s = mWasapiCtrl.InspectDevice(listBoxDevices.SelectedIndex, mPref.NumOfChannels);
+                AddLog(s);
+            }
         }
 
         private int TotalFrames() {
-            if (mBufferBytes < 0) {
+            if (mPref.RecordingBufferSizeMB < 0) {
                 return 0;
             }
 
-            return mBufferBytes / WasapiCS.SampleFormatTypeToUseBitsPerSample(mSampleFormat) / mNumChannels * 8;
+            return mPref.RecordingBufferSizeMB * 1024 * 1024 / WasapiCS.SampleFormatTypeToUseBitsPerSample(mPref.SampleFormat) / mPref.NumOfChannels * 8;
         }
 
         private void buttonRec_Click(object sender, RoutedEventArgs e) {
@@ -214,8 +322,8 @@ namespace RecPcmWin {
 
             slider1.Value = mWasapiCtrl.GetPosFrame();
 
-            double currentSec = (double)mWasapiCtrl.GetPosFrame() / mSamplingFrequency;
-            double maxSec = (double)mWasapiCtrl.GetNumFrames() / mSamplingFrequency;
+            double currentSec = (double)mWasapiCtrl.GetPosFrame() / mPref.SampleRate;
+            double maxSec = (double)mWasapiCtrl.GetNumFrames() / mPref.SampleRate;
 
             label1.Content = string.Format(CultureInfo.CurrentCulture, "{0:F1} / {1:F1}",
                 currentSec, maxSec);
@@ -274,13 +382,13 @@ namespace RecPcmWin {
 
         private void SaveRecordedData() {
             var pcm = mWasapiCtrl.GetCapturedData();
-            var nFrames = pcm.Length / WasapiCS.SampleFormatTypeToUseBitsPerSample(mSampleFormat) / mNumChannels * 8;
+            var nFrames = pcm.Length / WasapiCS.SampleFormatTypeToUseBitsPerSample(mPref.SampleFormat) / mPref.NumOfChannels * 8;
             if (pcm == null || nFrames == 0) {
                 return;
             }
 
             textBoxLog.Text += string.Format("captured frames={0} ({1:F1} {2}) glichCount={3}\r\n",
-                nFrames, (double)nFrames / mSamplingFrequency, 
+                nFrames, (double)nFrames / mPref.SampleRate, 
                 Properties.Resources.Seconds, mWasapiCtrl.GetCaptureGlitchCount());
 
             Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
@@ -296,8 +404,10 @@ namespace RecPcmWin {
             var ww = new WavRWLib2.WavWriter();
             try {
                 using (BinaryWriter bw = new BinaryWriter(File.Open(dlg.FileName, FileMode.Create))) {
-                    ww.Write(bw, mNumChannels, WasapiCS.SampleFormatTypeToUseBitsPerSample(mSampleFormat), WasapiCS.SampleFormatTypeToValidBitsPerSample(mSampleFormat),
-                        mSamplingFrequency, SampleFormatToVRT(mSampleFormat), nFrames, pcm);
+                    ww.Write(bw, mPref.NumOfChannels,
+                        WasapiCS.SampleFormatTypeToUseBitsPerSample(mPref.SampleFormat),
+                        WasapiCS.SampleFormatTypeToValidBitsPerSample(mPref.SampleFormat),
+                        mPref.SampleRate, SampleFormatToVRT(mPref.SampleFormat), nFrames, pcm);
 
                     textBoxLog.Text += string.Format("{0} : {1}\r\n", Properties.Resources.SaveFileSucceeded, dlg.FileName);
                 }
@@ -311,43 +421,87 @@ namespace RecPcmWin {
         }
 
         private void radioButton44100_Checked(object sender, RoutedEventArgs e) {
-            mSamplingFrequency = 44100;
+            if (!mInitialized) {
+                return;
+            }
+            mPref.SampleRate = 44100;
         }
 
         private void radioButton48000_Checked(object sender, RoutedEventArgs e) {
-            mSamplingFrequency = 48000;
+            if (!mInitialized) {
+                return;
+            }
+            mPref.SampleRate = 48000;
         }
 
         private void radioButton88200_Checked(object sender, RoutedEventArgs e) {
-            mSamplingFrequency = 88200;
+            if (!mInitialized) {
+                return;
+            }
+            mPref.SampleRate = 88200;
         }
 
         private void radioButton96000_Checked(object sender, RoutedEventArgs e) {
-            mSamplingFrequency = 96000;
+            if (!mInitialized) {
+                return;
+            }
+            mPref.SampleRate = 96000;
         }
 
         private void radioButton176400_Checked(object sender, RoutedEventArgs e) {
-            mSamplingFrequency = 176400;
+            if (!mInitialized) {
+                return;
+            }
+            mPref.SampleRate = 176400;
         }
 
         private void radioButton192000_Checked(object sender, RoutedEventArgs e) {
-            mSamplingFrequency = 192000;
+            if (!mInitialized) {
+                return;
+            }
+            mPref.SampleRate = 192000;
         }
 
         private void radioButton16_Checked(object sender, RoutedEventArgs e) {
-            mSampleFormat = WasapiCS.SampleFormatType.Sint16;
+            if (!mInitialized) {
+                return;
+            }
+            mPref.SampleFormat = WasapiCS.SampleFormatType.Sint16;
         }
 
         private void radioButton24_Checked(object sender, RoutedEventArgs e) {
-            mSampleFormat = WasapiCS.SampleFormatType.Sint24;
+            if (!mInitialized) {
+                return;
+            }
+            mPref.SampleFormat = WasapiCS.SampleFormatType.Sint24;
         }
 
         private void radioButton32v24_Checked(object sender, RoutedEventArgs e) {
-            mSampleFormat = WasapiCS.SampleFormatType.Sint32V24;
+            if (!mInitialized) {
+                return;
+            }
+            mPref.SampleFormat = WasapiCS.SampleFormatType.Sint32V24;
         }
 
         private void radioButton32_Checked(object sender, RoutedEventArgs e) {
-            mSampleFormat = WasapiCS.SampleFormatType.Sint32;
+            if (!mInitialized) {
+                return;
+            }
+            mPref.SampleFormat = WasapiCS.SampleFormatType.Sint32;
+        }
+
+        private void radioButtonEventDriven_Checked(object sender, RoutedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            }
+            mPref.WasapiDataFeedMode = WasapiCS.DataFeedMode.EventDriven;
+        }
+
+        private void radioButtonTimerDriven_Checked(object sender, RoutedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            }
+            mPref.WasapiDataFeedMode = WasapiCS.DataFeedMode.TimerDriven;
         }
     }
 }

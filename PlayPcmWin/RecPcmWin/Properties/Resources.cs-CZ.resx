@@ -118,16 +118,16 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ErrorCouldNotAllocateMemory" xml:space="preserve">
-    <value>Error: Memory allocation failed: please reduce recording buffer size</value>
+    <value>Chyba: Přidělení paměti se nezdařilo: snižte velikost nahrávací vyrovnávací paměti</value>
   </data>
   <data name="ErrorNumChannels" xml:space="preserve">
-    <value>Error: Num of channels must be integer number larger than 1</value>
+    <value>Chyba: Počet kanálů musí být celé číslo větší než 1</value>
   </data>
   <data name="ErrorRecordingBufferSize" xml:space="preserve">
-    <value>Error: Recording buffer size must be larger than 0 and smaller than 2048</value>
+    <value>Chyba: Velikost nahrávací vyrovnávací paměti musí být větší než 0 a menší než 2048</value>
   </data>
   <data name="ErrorWasapiBufferSize" xml:space="preserve">
-    <value>Error: Wasapi buffer size must be integer number greater than 0</value>
+    <value>Chyba: Velikost vyrovnávací paměti Wasapi musí být celé číslo větší než 0</value>
   </data>
   <data name="EventDriven" xml:space="preserve">
     <value>Událost (_E)</value>
@@ -143,6 +143,9 @@
   </data>
   <data name="MainLog" xml:space="preserve">
     <value>Deník</value>
+  </data>
+  <data name="MainNumOfChannels" xml:space="preserve">
+    <value>Počet kanálů</value>
   </data>
   <data name="MainOperationMode" xml:space="preserve">
     <value>Provozní režim</value>
@@ -175,10 +178,10 @@
     <value>Nastavení WASAPI</value>
   </data>
   <data name="SaveFileFailed" xml:space="preserve">
-    <value>Save file Failed</value>
+    <value>Při ukládání souboru se vyskytla chyba</value>
   </data>
   <data name="SaveFileSucceeded" xml:space="preserve">
-    <value>Save file Succeeded</value>
+    <value>Uložení souboru proběhlo v pořádku</value>
   </data>
   <data name="Seconds" xml:space="preserve">
     <value>Vteřiny</value>

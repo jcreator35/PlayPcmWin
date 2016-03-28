@@ -29,23 +29,23 @@
         </GroupBox>
         <GroupBox Header="WASAPI settings" Margin="6" Name="groupBoxWasapiSettings" VerticalAlignment="Top" Grid.RowSpan="2">
             <Grid>
-                <GroupBox Header="Operation mode" Height="79" HorizontalAlignment="Left" Margin="211,72,0,0" Name="groupBoxOperationMode" VerticalAlignment="Top" Width="199">
+                <GroupBox Header="Operation mode" Height="79" HorizontalAlignment="Left" Margin="211,72,0,0" Name="groupBoxOperationMode" VerticalAlignment="Top" Width="232">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="1*" />
                             <RowDefinition Height="1*" />
                         </Grid.RowDefinitions>
-                        <RadioButton Content="Event Driven(_E)" HorizontalAlignment="Left" IsChecked="True" Margin="6,0,0,0" Name="radioButtonEventDriven" VerticalAlignment="Center" />
-                        <RadioButton Content="Timer Driven(_T)" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonTimerDriven" VerticalAlignment="Center" Grid.Row="1" />
+                        <RadioButton Content="Event Driven(_E)" HorizontalAlignment="Left" IsChecked="True" Margin="6,0,0,0" Name="radioButtonEventDriven" VerticalAlignment="Center" Checked="radioButtonEventDriven_Checked" />
+                        <RadioButton Content="Timer Driven(_T)" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonTimerDriven" VerticalAlignment="Center" Grid.Row="1" Checked="radioButtonTimerDriven_Checked" />
                     </Grid>
                 </GroupBox>
-                <GroupBox Header="WASAPI buffer size" Height="63" HorizontalAlignment="Left" Margin="211,6,0,0" Name="groupBoxWasapiBufferSize" VerticalAlignment="Top" Width="200">
+                <GroupBox Header="WASAPI buffer size" Height="63" HorizontalAlignment="Left" Margin="211,6,0,0" Name="groupBoxWasapiBufferSize" VerticalAlignment="Top" Width="232">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="2*" />
                             <ColumnDefinition Width="1*" />
                         </Grid.ColumnDefinitions>
-                        <TextBox HorizontalContentAlignment="Right" Margin="6,0,0,0" Name="textBoxLatency" Text="200" VerticalAlignment="Center" />
+                        <TextBox HorizontalContentAlignment="Right" Margin="6,0,0,0" Name="textBoxWasapiBufferSizeMS" Text="200" VerticalAlignment="Center" />
                         <Label Content="ms" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="1" />
                     </Grid>
                 </GroupBox>
@@ -79,19 +79,19 @@
                             <ColumnDefinition Width="1*" />
                             <ColumnDefinition Width="1*" />
                         </Grid.ColumnDefinitions>
-                        <RadioButton Content="16bit" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButton16" VerticalAlignment="Center" IsChecked="True" Checked="radioButton16_Checked" />
-                        <RadioButton Content="24bit" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButton24" VerticalAlignment="Center" Checked="radioButton24_Checked" Grid.Column="1" />
-                        <RadioButton Content="32bit, valid 24bit" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButton32v24" VerticalAlignment="Center" Checked="radioButton32v24_Checked" Grid.Row="1" Grid.ColumnSpan="2" />
-                        <RadioButton Content="32bit, valid 32bit" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButton32" VerticalAlignment="Center" Checked="radioButton32_Checked" Grid.Row="2" Grid.ColumnSpan="2" />
+                        <RadioButton Content="16bit" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonSint16" VerticalAlignment="Center" IsChecked="True" Checked="radioButton16_Checked" />
+                        <RadioButton Content="24bit" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonSint24" VerticalAlignment="Center" Checked="radioButton24_Checked" Grid.Column="1" />
+                        <RadioButton Content="32bit, valid 24bit" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonSint32v24" VerticalAlignment="Center" Checked="radioButton32v24_Checked" Grid.Row="1" Grid.ColumnSpan="2" />
+                        <RadioButton Content="32bit, valid 32bit" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonSint32" VerticalAlignment="Center" Checked="radioButton32_Checked" Grid.Row="2" Grid.ColumnSpan="2" />
                     </Grid>
                 </GroupBox>
-                <GroupBox Header="Recording buffer size" Height="62" HorizontalAlignment="Left" Margin="211,159,0,0" Name="groupBoxRecordingBufferSize" VerticalAlignment="Top" Width="199">
+                <GroupBox Header="Recording buffer size" Height="62" HorizontalAlignment="Left" Margin="211,159,0,0" Name="groupBoxRecordingBufferSize" VerticalAlignment="Top" Width="232">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="2*" />
                             <ColumnDefinition Width="1*" />
                         </Grid.ColumnDefinitions>
-                        <TextBox Margin="6,0,0,0" Name="textBoxRecMaxMB" VerticalAlignment="Center" Text="256" HorizontalContentAlignment="Right" />
+                        <TextBox Margin="6,0,0,0" Name="textBoxRecordingBufferSizeMB" VerticalAlignment="Center" Text="256" HorizontalContentAlignment="Right" />
                         <Label Content="MB" VerticalAlignment="Center" HorizontalAlignment="Left" Grid.Column="1" />
                     </Grid>
                 </GroupBox>

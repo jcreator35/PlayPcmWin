@@ -102,9 +102,9 @@ namespace RecPcmWin {
             mWasapi = null;
         }
 
-        public int EnumerateRecDeviceNames(List<string> deviceNamesList) {
+        public int EnumerateRecDeviceNames(List<WasapiCS.DeviceAttributes> deviceList) {
             mDeviceAttributeList.Clear();
-            deviceNamesList.Clear();
+            deviceList.Clear();
 
             int hr = mWasapi.EnumerateDevices(WasapiCS.DeviceType.Rec);
             if (hr < 0) {
@@ -115,7 +115,7 @@ namespace RecPcmWin {
             for (int i = 0; i < nDevices; ++i) {
                 var att = mWasapi.GetDeviceAttributes(i);
                 mDeviceAttributeList.Add(att);
-                deviceNamesList.Add(att.Name);
+                deviceList.Add(att);
             }
 
             return hr;
