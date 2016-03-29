@@ -36,17 +36,19 @@ WWShareModeToAudClientShareMode(WWShareMode sm)
 static void
 PcmFormatToWfex(const WWPcmFormat &pcmFormat, WAVEFORMATEXTENSIBLE *wfex)
 {
+    wfex->Format.wFormatTag           = WAVE_FORMAT_EXTENSIBLE;
+    wfex->Format.nChannels            = (WORD)pcmFormat.numChannels;
+    wfex->Format.nSamplesPerSec       = pcmFormat.sampleRate;
+    wfex->Format.wBitsPerSample       = (WORD)WWPcmDataSampleFormatTypeToBitsPerSample(pcmFormat.sampleFormat);
+    wfex->Format.cbSize               = 22;
+    wfex->Samples.wValidBitsPerSample = (WORD)WWPcmDataSampleFormatTypeToValidBitsPerSample(pcmFormat.sampleFormat);
+    wfex->dwChannelMask               = pcmFormat.dwChannelMask;
+
     if (WWPcmDataSampleFormatTypeIsInt(pcmFormat.sampleFormat)) {
         wfex->SubFormat = KSDATAFORMAT_SUBTYPE_PCM;
     } else {
         wfex->SubFormat = KSDATAFORMAT_SUBTYPE_IEEE_FLOAT;
     }
-
-    wfex->Format.nChannels            = (WORD)pcmFormat.numChannels;
-    wfex->Format.wBitsPerSample       = (WORD)WWPcmDataSampleFormatTypeToBitsPerSample(pcmFormat.sampleFormat);
-    wfex->Samples.wValidBitsPerSample = (WORD)WWPcmDataSampleFormatTypeToValidBitsPerSample(pcmFormat.sampleFormat);
-    wfex->Format.nSamplesPerSec       = pcmFormat.sampleRate;
-    wfex->dwChannelMask               = pcmFormat.dwChannelMask;
 
     // あとは計算で決まる。
     wfex->Format.nBlockAlign          = (WORD)((wfex->Format.wBitsPerSample / 8) * wfex->Format.nChannels);
@@ -220,7 +222,6 @@ WasapiUser::InspectDevice(IMMDevice *device, const WWPcmFormat &pcmFormat)
 
     hr = m_audioClient->IsFormatSupported(AUDCLNT_SHAREMODE_EXCLUSIVE, waveFormat, nullptr);
     dprintf("IsFormatSupported=%08x\n", hr);
-
 
 end:
     SafeRelease(&device);

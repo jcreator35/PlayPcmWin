@@ -351,8 +351,13 @@ WasapiIO_InspectDevice(int instanceId, int deviceId, const WasapiIoInspectArgs &
     WasapiIO *self = Instance(instanceId);
     assert(self);
 
+    DWORD dwChannelMask = 0;
+    if (args.deviceType == WWDTPlay) {
+        dwChannelMask = GetChannelMask(args.numChannels);
+    }
+
     WWPcmFormat pcmFormat;
-    pcmFormat.Set(args.sampleRate, (WWPcmDataSampleFormatType)args.sampleFormat, args.numChannels, GetChannelMask(args.numChannels), WWStreamPcm);
+    pcmFormat.Set(args.sampleRate, (WWPcmDataSampleFormatType)args.sampleFormat, args.numChannels, dwChannelMask, WWStreamPcm);
 
     IMMDevice *device = self->deviceEnumerator.GetDevice(deviceId);
     return self->wasapi.InspectDevice(device, pcmFormat);
@@ -369,8 +374,13 @@ WasapiIO_Setup(int instanceId, int deviceId, const WasapiIoSetupArgs &args)
     IMMDevice *device = self->deviceEnumerator.GetDevice(deviceId);
     assert(device);
 
+    DWORD dwChannelMask = 0;
+    if (args.deviceType == WWDTPlay) {
+        dwChannelMask = GetChannelMask(args.numChannels);
+    }
+
     WWPcmFormat pcmFormat;
-    pcmFormat.Set(args.sampleRate, (WWPcmDataSampleFormatType)args.sampleFormat, args.numChannels, GetChannelMask(args.numChannels), (WWStreamType)args.streamType);
+    pcmFormat.Set(args.sampleRate, (WWPcmDataSampleFormatType)args.sampleFormat, args.numChannels, dwChannelMask, (WWStreamType)args.streamType);
 
     self->wasapi.ThreadCharacteristics().Set((WWMMCSSCallType)args.mmcssCall,
         (WWMMThreadPriorityType) args.mmThreadPriority, (WWSchedulerTaskType)args.schedulerTask);

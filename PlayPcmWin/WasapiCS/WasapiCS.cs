@@ -47,6 +47,7 @@ namespace Wasapi {
 
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
         internal struct InspectArgs {
+            public int deviceType;      ///< DeviceType
             public int sampleRate;
             public int sampleFormat;    ///< WWPcmDataSampleFormatType
             public int numChannels;
@@ -499,8 +500,9 @@ namespace Wasapi {
             return new MixFormat(args.sampleRate, (SampleFormatType)args.sampleFormat, args.numChannels, args.dwChannelMask);
         }
 
-        public int InspectDevice(int deviceId, int sampleRate, SampleFormatType format, int numChannels) {
+        public int InspectDevice(int deviceId, DeviceType dt, int sampleRate, SampleFormatType format, int numChannels) {
             var args = new InspectArgs();
+            args.deviceType = (int)dt;
             args.sampleRate = sampleRate;
             args.numChannels = numChannels;
             args.sampleFormat = (int)format;

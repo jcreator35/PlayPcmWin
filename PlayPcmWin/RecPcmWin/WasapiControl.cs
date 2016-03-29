@@ -158,7 +158,7 @@ namespace RecPcmWin {
             foreach (int sr in mSampleRateList) {
                 sb.AppendFormat("\r\n{0}Hz: ", sr);
                 foreach (var fmt in mSampleFormatList) {
-                    int hr = mWasapi.InspectDevice(deviceIdx, sr, fmt, numChannels);
+                    int hr = mWasapi.InspectDevice(deviceIdx, WasapiCS.DeviceType.Rec, sr, fmt, numChannels);
                     string resultStr = "OK";
                     if (hr < 0) {
                         resultStr = string.Format("{0:X8}", hr);

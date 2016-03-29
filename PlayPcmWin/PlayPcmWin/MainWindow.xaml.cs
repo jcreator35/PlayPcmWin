@@ -2972,7 +2972,8 @@ namespace PlayPcmWin
                     int idx = sr + fmt * TEST_SAMPLE_RATE_NUM;
                     System.Diagnostics.Debug.Assert(idx < gInspectFormats.Length);
                     var ifmt = gInspectFormats[idx];
-                    int hr = wasapi.InspectDevice(listBoxDevices.SelectedIndex, ifmt.sampleRate,
+                    int hr = wasapi.InspectDevice(listBoxDevices.SelectedIndex,
+                            WasapiCS.DeviceType.Play, ifmt.sampleRate,
                             WasapiCS.BitAndFormatToSampleFormatType(ifmt.bitsPerSample, ifmt.validBitsPerSample, ifmt.bitFormat), 2);
                     sb.Append(string.Format(CultureInfo.InvariantCulture, "|| {0} {1:X8} ", hr==0 ? "OK" : "NA", hr));
                 }

@@ -57,6 +57,7 @@ WasapiIO_GetMixFormat(int instanceId, int deviceId, WasapiIoMixFormat &mixFormat
 
 #pragma pack(push, 4)
 struct WasapiIoInspectArgs {
+    int deviceType;      ///< WWDeviceType, 0: Play, 1: Rec
     int sampleRate;
     int sampleFormat;    ///< WWPcmDataSampleFormatType
     int numChannels;
