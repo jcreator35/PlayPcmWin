@@ -124,6 +124,24 @@ namespace RecPcmWin.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Display Settings.
+        /// </summary>
+        internal static string MainDisplaySettings {
+            get {
+                return ResourceManager.GetString("MainDisplaySettings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Language:.
+        /// </summary>
+        internal static string MainLanguage {
+            get {
+                return ResourceManager.GetString("MainLanguage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to List of Recording Devices.
         /// </summary>
         internal static string MainListOfRecordingDevices {

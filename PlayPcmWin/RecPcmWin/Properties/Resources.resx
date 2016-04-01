@@ -138,6 +138,12 @@
   <data name="MainDeselect" xml:space="preserve">
     <value>Deselect</value>
   </data>
+  <data name="MainDisplaySettings" xml:space="preserve">
+    <value>Display Settings</value>
+  </data>
+  <data name="MainLanguage" xml:space="preserve">
+    <value>Language:</value>
+  </data>
   <data name="MainListOfRecordingDevices" xml:space="preserve">
     <value>List of Recording Devices</value>
   </data>

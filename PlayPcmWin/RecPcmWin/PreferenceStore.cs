@@ -4,6 +4,7 @@ using System.Xml.Serialization;
 using System.Collections.ObjectModel;
 using System.Text;
 using Wasapi;
+using System.Threading;
 
 namespace RecPcmWin {
     public class Preference : WWXmlRW.SaveLoadContents {
@@ -23,6 +24,8 @@ namespace RecPcmWin {
 
         public string PreferredDeviceIdString { get; set; }
 
+        public string CultureString { get; set; }
+
         public Preference() {
             Reset();
         }
@@ -40,6 +43,7 @@ namespace RecPcmWin {
             WasapiDataFeedMode = WasapiCS.DataFeedMode.EventDriven;
             RecordingBufferSizeMB = 256;
             PreferredDeviceIdString = "";
+            CultureString = Thread.CurrentThread.CurrentCulture.Name;
         }
     }
 

@@ -138,6 +138,12 @@
   <data name="MainDeselect" xml:space="preserve">
     <value>Odpojit</value>
   </data>
+  <data name="MainDisplaySettings" xml:space="preserve">
+    <value>Nastavení obrazovky</value>
+  </data>
+  <data name="MainLanguage" xml:space="preserve">
+    <value>Jazyk:</value>
+  </data>
   <data name="MainListOfRecordingDevices" xml:space="preserve">
     <value>Seznam nahrávacích zařízení</value>
   </data>

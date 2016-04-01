@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Globalization;
 using PcmDataLib;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace RecPcmWin {
     public partial class MainWindow : Window {
@@ -21,6 +22,23 @@ namespace RecPcmWin {
         private bool mInitialized = false;
         private List<WasapiCS.DeviceAttributes> mDeviceList = null;
 
+        private string [] mResourceCultureNameArray = new string[] {
+            "cs-CZ",
+            "en-US",
+            "ja-JP",
+        };
+
+        private int CultureStringToIdx(string s) {
+            int idx = 1; // US-English
+            for (int i = 0; i < mResourceCultureNameArray.Length; ++i) {
+                if (0 == string.CompareOrdinal(s, mResourceCultureNameArray[i])) {
+                    idx = i;
+                }
+            }
+
+            return idx;
+        }
+
         public void AddLog(string text) {
             textBoxLog.Text += text;
             textBoxLog.ScrollToEnd();
@@ -31,6 +49,15 @@ namespace RecPcmWin {
 
             mPref = PreferenceStore.Load();
 
+            if (0 != string.CompareOrdinal(Thread.CurrentThread.CurrentUICulture.Name, mPref.CultureString)) {
+                // カルチャーをセットする。
+                CultureInfo newCulture = new CultureInfo(mPref.CultureString);
+                Thread.CurrentThread.CurrentCulture = newCulture;
+                Thread.CurrentThread.CurrentUICulture = newCulture;
+            }
+
+            comboBoxLang.SelectedIndex = CultureStringToIdx(Thread.CurrentThread.CurrentUICulture.Name);
+
             int hr = 0;
             hr = mWasapiCtrl.Init();
             AddLog(string.Format("RecPcmWin version {0}\r\n", AssemblyVersion));
@@ -40,6 +67,15 @@ namespace RecPcmWin {
 
             CreateDeviceList();
 
+            UpdateUITexts();
+
+            PreferenceToUI();
+
+            mInitialized = true;
+        }
+
+        private void UpdateUITexts() {
+            groupBoxUISettings.Header = Properties.Resources.MainDisplaySettings;
             groupBoxWasapiSettings.Header = Properties.Resources.MainWasapiSettings;
             groupBoxSampleRate.Header = Properties.Resources.MainSampleRate;
             groupBoxDeviceSelect.Header = Properties.Resources.MainListOfRecordingDevices;
@@ -55,10 +91,7 @@ namespace RecPcmWin {
             buttonInspectDevice.Content = Properties.Resources.MainAvailableFormats;
             buttonRec.Content = Properties.Resources.MainRecord;
             buttonStop.Content = Properties.Resources.MainStop;
-
-            PreferenceToUI();
-
-            mInitialized = true;
+            labelLanguage.Content = Properties.Resources.MainLanguage;
         }
 
         private void PreferenceToUI() {
@@ -502,6 +535,20 @@ namespace RecPcmWin {
                 return;
             }
             mPref.WasapiDataFeedMode = WasapiCS.DataFeedMode.TimerDriven;
+        }
+
+        private void comboBoxLang_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            }
+
+            string cultureName = mResourceCultureNameArray[comboBoxLang.SelectedIndex];
+            var newCulture = new CultureInfo(cultureName);
+
+            Thread.CurrentThread.CurrentCulture = newCulture;
+            Thread.CurrentThread.CurrentUICulture = newCulture;
+
+            UpdateUITexts();
         }
     }
 }

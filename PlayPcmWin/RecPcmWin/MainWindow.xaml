@@ -4,8 +4,9 @@
         Title="RecPcmWin" Height="578" Width="999">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="110" />
-            <RowDefinition Height="196" />
+            <RowDefinition Height="63" />
+            <RowDefinition Height="47" />
+            <RowDefinition Height="258" />
             <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -22,12 +23,26 @@
                 <Button Click="buttonInspectDevice_Click" Content="Print Supported Format List(_I)" HorizontalAlignment="Left" Margin="6,0,0,0" Name="buttonInspectDevice" VerticalAlignment="Center" Width="200" Grid.Row="1" />
             </Grid>
         </GroupBox>
-        <GroupBox Header="Log" Margin="6" Name="groupBoxLog" Grid.Column="1" Grid.RowSpan="2" Grid.Row="1">
+        <GroupBox Header="Log" Margin="6" Name="groupBoxLog" Grid.Column="1" Grid.RowSpan="2" Grid.Row="2">
             <Grid>
                 <TextBox AcceptsReturn="True" AcceptsTab="True" IsReadOnly="True" Margin="0,0,0,0" Name="textBoxLog" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" />
             </Grid>
         </GroupBox>
-        <GroupBox Header="WASAPI settings" Margin="6" Name="groupBoxWasapiSettings" VerticalAlignment="Top" Grid.RowSpan="2">
+        <GroupBox Header="UI Settings" Margin="6,6,6,0" Name="groupBoxUISettings" >
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="2*" />
+                </Grid.ColumnDefinitions>
+                <ComboBox Margin="6" Name="comboBoxLang" VerticalAlignment="Center" Grid.Column="1" SelectionChanged="comboBoxLang_SelectionChanged">
+                    <ComboBoxItem Content="Čeština" />
+                    <ComboBoxItem Content="US English" IsSelected="True" />
+                    <ComboBoxItem Content="日本語" />
+                </ComboBox>
+                <Label Content="Language:" HorizontalAlignment="Right" Name="labelLanguage" VerticalAlignment="Center" />
+            </Grid>
+        </GroupBox>
+        <GroupBox Header="WASAPI settings" Margin="6,6,6,0" Name="groupBoxWasapiSettings" VerticalAlignment="Top" Grid.Row="1" Grid.RowSpan="2">
             <Grid>
                 <GroupBox Header="Operation mode" Height="79" HorizontalAlignment="Left" Margin="211,72,0,0" Name="groupBoxOperationMode" VerticalAlignment="Top" Width="232">
                     <Grid>
@@ -107,7 +122,7 @@
                 </GroupBox>
             </Grid>
         </GroupBox>
-        <GroupBox Grid.Column="1" Header="Recording Control" Margin="6" Name="groupBoxRecordingControl">
+        <GroupBox Grid.Column="1" Header="Recording Control" Margin="6" Name="groupBoxRecordingControl" Grid.RowSpan="2">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="1*" />

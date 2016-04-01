@@ -138,6 +138,12 @@
   <data name="MainDeselect" xml:space="preserve">
     <value>選択解除</value>
   </data>
+  <data name="MainDisplaySettings" xml:space="preserve">
+    <value>表示設定</value>
+  </data>
+  <data name="MainLanguage" xml:space="preserve">
+    <value>言語:</value>
+  </data>
   <data name="MainListOfRecordingDevices" xml:space="preserve">
     <value>録音デバイス一覧</value>
   </data>
