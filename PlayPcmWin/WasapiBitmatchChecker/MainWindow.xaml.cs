@@ -470,8 +470,11 @@ namespace WasapiBitmatchChecker {
             lock (mLock) {
                 int hr = 0;
 
-                hr = mWasapiPlay.Setup(listBoxPlayDevices.SelectedIndex, WasapiCS.DeviceType.Play, WasapiCS.StreamType.PCM, mSampleRate, mPlaySampleFormat,
-                        NUM_CHANNELS, WasapiCS.MMCSSCallType.Enable, WasapiCS.SchedulerTaskType.ProAudio, WasapiCS.ShareMode.Exclusive,
+                hr = mWasapiPlay.Setup(listBoxPlayDevices.SelectedIndex,
+                        WasapiCS.DeviceType.Play, WasapiCS.StreamType.PCM,
+                        mSampleRate, mPlaySampleFormat, NUM_CHANNELS,
+                        WasapiCS.MMCSSCallType.Enable, WasapiCS.MMThreadPriorityType.None,
+                        WasapiCS.SchedulerTaskType.ProAudio, WasapiCS.ShareMode.Exclusive,
                         mPlayDataFeedMode, mPlayBufferMillisec, 1000, 10000);
                 if (hr < 0) {
                     MessageBox.Show(string.Format(Properties.Resources.msgPlaySetupError,
@@ -510,8 +513,11 @@ namespace WasapiBitmatchChecker {
                 // 録音
                 mCapturedBytes = 0;
 
-                hr = mWasapiRec.Setup(listBoxRecDevices.SelectedIndex, WasapiCS.DeviceType.Rec, WasapiCS.StreamType.PCM, mSampleRate, mRecSampleFormat,
-                        NUM_CHANNELS, WasapiCS.MMCSSCallType.Enable, WasapiCS.SchedulerTaskType.ProAudio, WasapiCS.ShareMode.Exclusive,
+                hr = mWasapiRec.Setup(listBoxRecDevices.SelectedIndex,
+                        WasapiCS.DeviceType.Rec, WasapiCS.StreamType.PCM,
+                        mSampleRate, mRecSampleFormat, NUM_CHANNELS,
+                        WasapiCS.MMCSSCallType.Enable, WasapiCS.MMThreadPriorityType.None,
+                        WasapiCS.SchedulerTaskType.ProAudio, WasapiCS.ShareMode.Exclusive,
                         mRecDataFeedMode, mRecBufferMillisec, 1000, 10000);
                 if (hr < 0) {
                     MessageBox.Show(string.Format(Properties.Resources.msgRecSetupError,
