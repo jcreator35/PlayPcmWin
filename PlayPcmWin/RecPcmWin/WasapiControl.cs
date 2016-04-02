@@ -33,6 +33,10 @@ namespace RecPcmWin {
                 WasapiCS.SampleFormatType.Sint32V24,
                 WasapiCS.SampleFormatType.Sint32};
 
+        public readonly int[] mChannelCountList = {
+            2,4,6,8,10,16,18,24,26,32,
+        };
+
         public bool AllocateCaptureMemory(int bytes) {
             try {
                 mCapturedPcmData = null;
@@ -144,7 +148,7 @@ namespace RecPcmWin {
             return mWasapi.Run(millisec);
         }
 
-        public string InspectDevice(int deviceIdx, int numChannels) {
+        public string InspectDevice(int deviceIdx) {
             if (deviceIdx < 0 || mDeviceAttributeList.Count <= deviceIdx) {
                 return "";
             }
@@ -153,21 +157,22 @@ namespace RecPcmWin {
             string dn = mDeviceAttributeList[deviceIdx].Name;
             string did = mDeviceAttributeList[deviceIdx].DeviceIdString;
 
-            sb.AppendFormat(CultureInfo.InvariantCulture, "wasapi.InspectDevice()\r\nDeviceFriendlyName={0}\r\nDeviceIdString={1}\r\nTested numChannels={2}",
-                    dn, did, numChannels);
-            foreach (int sr in mSampleRateList) {
-                sb.AppendFormat("\r\n{0}Hz: ", sr);
-                foreach (var fmt in mSampleFormatList) {
-                    int hr = mWasapi.InspectDevice(deviceIdx, WasapiCS.DeviceType.Rec, sr, fmt, numChannels);
-                    string resultStr = "OK";
-                    if (hr < 0) {
-                        resultStr = string.Format("{0:X8}", hr);
+            sb.AppendFormat(CultureInfo.InvariantCulture, "wasapi.InspectDevice({0})\r\n"
+                +"  DeviceIdString={1}",
+                    dn, did);
+            sb.Append("\r\n  Available formats:");
+            foreach (int ch in mChannelCountList) {
+                foreach (int sr in mSampleRateList) {
+                    foreach (var fmt in mSampleFormatList) {
+                        int hr = mWasapi.InspectDevice(deviceIdx, WasapiCS.DeviceType.Rec, sr, fmt, ch);
+                        if (0 <= hr) {
+                            sb.AppendFormat("\r\n    {0}Hz {2}ch {1,-16}", sr, fmt, ch);
+                        }
                     }
-                    sb.AppendFormat("{0}={1}, ", fmt, resultStr);
                 }
             }
 
-            sb.Append("\r\nDone.\r\n");
+            sb.Append("\r\nwasapi.InspectDevice completed.\r\n");
 
             return sb.ToString();
         }

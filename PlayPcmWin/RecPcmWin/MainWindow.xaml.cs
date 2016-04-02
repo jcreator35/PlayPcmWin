@@ -314,7 +314,7 @@ namespace RecPcmWin {
             }
 
             {
-                string s = mWasapiCtrl.InspectDevice(listBoxDevices.SelectedIndex, mPref.NumOfChannels);
+                string s = mWasapiCtrl.InspectDevice(listBoxDevices.SelectedIndex);
                 AddLog(s);
             }
         }
