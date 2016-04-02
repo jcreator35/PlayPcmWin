@@ -34,7 +34,7 @@ namespace RecPcmWin {
                 WasapiCS.SampleFormatType.Sint32};
 
         public readonly int[] mChannelCountList = {
-            2,4,6,8,10,16,18,24,26,32,
+            2,4,6,8,10,12,16,18,24,26,32,48,64
         };
 
         public bool AllocateCaptureMemory(int bytes) {
