@@ -106,7 +106,7 @@
                             <ColumnDefinition Width="2*" />
                             <ColumnDefinition Width="1*" />
                         </Grid.ColumnDefinitions>
-                        <TextBox Margin="6,0,0,0" Name="textBoxRecordingBufferSizeMB" VerticalAlignment="Center" Text="256" HorizontalContentAlignment="Right" />
+                        <TextBox Margin="6,0,0,0" Name="textBoxRecordingBufferSizeMB" VerticalAlignment="Center" Text="256" HorizontalContentAlignment="Right" TextChanged="textBoxRecordingBufferSizeMB_TextChanged" />
                         <Label Content="MB" VerticalAlignment="Center" HorizontalAlignment="Left" Grid.Column="1" />
                     </Grid>
                 </GroupBox>
@@ -131,7 +131,7 @@
                 <Button Content="Record(_R)" HorizontalAlignment="Left" IsEnabled="False" Margin="6,0,0,0" Name="buttonRec" VerticalAlignment="Center" Width="100" Click="buttonRec_Click" />
                 <Button Content="Stop(_S)" HorizontalAlignment="Left" IsEnabled="False" Margin="112,0,0,0" Name="buttonStop" VerticalAlignment="Center" Width="100" Click="buttonStop_Click" />
                 <Slider Margin="6,0,6,0" Name="slider1" VerticalAlignment="Center" Grid.Row="1" />
-                <Label Content="0.0 / 0.0" HorizontalContentAlignment="Right" Margin="218,0,6,0" Name="label1" VerticalAlignment="Center" />
+                <Label Content="00:00 / 00:00" HorizontalContentAlignment="Right" Margin="218,0,6,0" VerticalContentAlignment="Center" Name="labelDuration" FontSize="16" FontWeight="Bold" />
             </Grid>
         </GroupBox>
     </Grid>

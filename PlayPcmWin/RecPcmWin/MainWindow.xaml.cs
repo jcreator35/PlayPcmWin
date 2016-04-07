@@ -71,6 +71,10 @@ namespace RecPcmWin {
 
             PreferenceToUI();
 
+            int currentSec = 0;
+            int maxSec = (int)((long)mPref.RecordingBufferSizeMB * 1024 * 1024 / GetBytesPerSec(mPref));
+            UpdateDurationLabel(currentSec, maxSec);
+
             mInitialized = true;
         }
 
@@ -357,9 +361,19 @@ namespace RecPcmWin {
 
             double currentSec = (double)mWasapiCtrl.GetPosFrame() / mPref.SampleRate;
             double maxSec = (double)mWasapiCtrl.GetNumFrames() / mPref.SampleRate;
+            UpdateDurationLabel((int)currentSec, (int)maxSec);
 
-            label1.Content = string.Format(CultureInfo.CurrentCulture, "{0:F1} / {1:F1}",
-                currentSec, maxSec);
+        }
+        
+        private static string SecondsToMSString(int seconds) {
+            int m = seconds / 60;
+            int s = seconds - m * 60;
+            return string.Format(CultureInfo.CurrentCulture, "{0:D2}:{1:D2}", m, s);
+        }
+
+        private void UpdateDurationLabel(int currentSec, int maxSec) {
+            labelDuration.Content = string.Format(CultureInfo.CurrentCulture, "{0:F1} / {1:F1}",
+                SecondsToMSString(currentSec), SecondsToMSString(maxSec));
         }
 
         private void RunWorkerCompleted(object o, RunWorkerCompletedEventArgs args) {
@@ -549,6 +563,31 @@ namespace RecPcmWin {
             Thread.CurrentThread.CurrentUICulture = newCulture;
 
             UpdateUITexts();
+        }
+
+        private static int GetBytesPerSec(Preference pref) {
+            return pref.NumOfChannels * pref.SampleRate *
+                WasapiCS.SampleFormatTypeToUseBitsPerSample(pref.SampleFormat) / 8;
+        }
+
+        private void textBoxRecordingBufferSizeMB_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            } 
+            
+            int sizeMB = 0;
+            if (!Int32.TryParse(textBoxRecordingBufferSizeMB.Text, out sizeMB)) {
+                return;
+            }
+            
+            int currentSec = 0;
+            int maxSec = (int)((long)sizeMB * 1024 * 1024 / GetBytesPerSec(mPref));
+            UpdateDurationLabel(currentSec, maxSec);
+
+            if (sizeMB <= 0 || 2048 < sizeMB) {
+                MessageBox.Show(Properties.Resources.ErrorRecordingBufferSize,
+                    Properties.Resources.ErrorRecordingBufferSize, MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
     }
 }
