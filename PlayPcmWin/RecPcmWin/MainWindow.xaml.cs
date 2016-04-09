@@ -115,7 +115,8 @@ namespace RecPcmWin {
             groupBoxNominalPeakLevel.Header = Properties.Resources.MainNominalPeakLevel;
             groupBoxLevelMeterOther.Header = Properties.Resources.MainLevelMeterOther;
             checkBoxLevelMeterUpdateWhileRecording.Content = Properties.Resources.MainLevelMeterUpdateWhileRecording;
-
+            //radioButtonPeakHold1sec.Content = "1 " + Properties.Resources.Seconds;
+            //radioButtonPeakHold3sec.Content = "3 " + Properties.Resources.Seconds;
         }
 
         private void PreferenceToUI() {
@@ -262,19 +263,8 @@ namespace RecPcmWin {
 
         // 桁数を右揃えにして表示する。
         private static string DbToString(double db) {
-            if (db <= -100.0) {
-                return string.Format(CultureInfo.CurrentCulture, "{0:F1}", db);
-            } else if (db <= -10.0) {
-                return string.Format(CultureInfo.CurrentCulture, " {0:F1}", db);
-            } else if (db < 0) {
-                return string.Format(CultureInfo.CurrentCulture, "  {0:F1}", db);
-            } else if (db < 10.0) {
-                return string.Format(CultureInfo.CurrentCulture, "  +{0:F1}", db);
-            } else if (db < 100.0) {
-                return string.Format(CultureInfo.CurrentCulture, " +{0:F1}", db);
-            } else {
-                return string.Format(CultureInfo.CurrentCulture, "+{0:F1}", db);
-            }
+            var s = string.Format(CultureInfo.CurrentCulture, "{0:+0.0;-0.0;+0.0}", db);
+            return string.Format(CultureInfo.InvariantCulture, "{0,6}", s);
         }
 
         private void UpdateLevelMeter(double [] peakDb, double [] peakHoldDb) {
@@ -525,7 +515,6 @@ namespace RecPcmWin {
             mBW.ProgressChanged += new ProgressChangedEventHandler(ProgressChanged);
             mBW.RunWorkerCompleted += new RunWorkerCompletedEventHandler(RunWorkerCompleted);
             mBW.RunWorkerAsync();
-
         }
 
         private void buttonDeselectDevice_Click(object sender, RoutedEventArgs e) {

@@ -144,17 +144,32 @@
   <data name="MainLanguage" xml:space="preserve">
     <value>Jazyk:</value>
   </data>
+  <data name="MainLevelMeter" xml:space="preserve">
+    <value>Indikátor úrovně</value>
+  </data>
+  <data name="MainLevelMeterOther" xml:space="preserve">
+    <value>Další nastavení</value>
+  </data>
+  <data name="MainLevelMeterUpdateWhileRecording" xml:space="preserve">
+    <value>Zobrazit během nahrávání</value>
+  </data>
   <data name="MainListOfRecordingDevices" xml:space="preserve">
     <value>Seznam nahrávacích zařízení</value>
   </data>
   <data name="MainLog" xml:space="preserve">
     <value>Deník</value>
   </data>
+  <data name="MainNominalPeakLevel" xml:space="preserve">
+    <value>Střední hodnota</value>
+  </data>
   <data name="MainNumOfChannels" xml:space="preserve">
     <value>Počet kanálů</value>
   </data>
   <data name="MainOperationMode" xml:space="preserve">
     <value>Provozní režim</value>
+  </data>
+  <data name="MainPeakHold" xml:space="preserve">
+    <value>Podržení špiček</value>
   </data>
   <data name="MainQuantizationBitRate" xml:space="preserve">
     <value>Kvantizační přenosová rychlost</value>

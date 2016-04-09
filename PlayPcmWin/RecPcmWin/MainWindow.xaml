@@ -31,12 +31,8 @@
                     <RowDefinition Height="1*" />
                     <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
-                <GroupBox Header="Peak Hold" Height="104" HorizontalAlignment="Left" Name="groupBoxPeakHold" Width="151" Margin="6,0,0,0">
+                <GroupBox Header="Peak Hold" Height="104" HorizontalAlignment="Left" Name="groupBoxPeakHold" Width="142" Margin="6,0,0,0">
                     <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1*" />
-                            <ColumnDefinition Width="1*" />
-                        </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="1*" />
                             <RowDefinition Height="1*" />
@@ -45,10 +41,10 @@
                         <RadioButton Content="1 sec" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonPeakHold1sec" VerticalAlignment="Center" IsChecked="True" Checked="radioButtonPeakHold1sec_Checked" />
                         <RadioButton Content="3 sec" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonPeakHold3sec" Grid.Row="1"  VerticalAlignment="Center" Checked="radioButtonPeakHold3sec_Checked" />
                         <RadioButton Content="∞" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonPeakHoldInfinity" Grid.Row="2" VerticalAlignment="Center" Checked="radioButtonPeakHoldInfinity_Checked" />
-                        <Button Content="Reset" Grid.Row="2" HorizontalAlignment="Center" Name="buttonPeakHoldReset" VerticalAlignment="Center" Width="75" Grid.ColumnSpan="2" Margin="61,4,3,4" Click="buttonPeakHoldReset_Click" />
+                        <Button Content="Reset" Grid.Row="2" HorizontalAlignment="Right" Name="buttonPeakHoldReset" VerticalAlignment="Center" Width="75" Grid.ColumnSpan="2" Click="buttonPeakHoldReset_Click" />
                     </Grid>
                 </GroupBox>
-                <GroupBox Header="Yellow Level" Height="104" HorizontalAlignment="Left" Margin="163,0,0,0" Name="groupBoxNominalPeakLevel" Width="117">
+                <GroupBox Header="Yellow Level" Height="104" HorizontalAlignment="Left" Margin="154,5,0,6" Name="groupBoxNominalPeakLevel" Width="117">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="1*" />
@@ -60,9 +56,9 @@
                         <RadioButton Content="-12 dBFS" Grid.Row="2" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonNominalPeakM12" VerticalAlignment="Center" IsChecked="True" Checked="radioButtonNominalPeakM12_Checked" />
                     </Grid>
                 </GroupBox>
-                <GroupBox Header="Other Settings"  Margin="286,6,6,6" Name="groupBoxLevelMeterOther">
+                <GroupBox Header="Other Settings"  Margin="277,6,6,6" Name="groupBoxLevelMeterOther">
                     <Grid>
-                        <CheckBox Content="Update while recording" HorizontalAlignment="Left" Margin="6,6,0,0" Name="checkBoxLevelMeterUpdateWhileRecording" VerticalAlignment="Top" Checked="checkBoxLevelMeterUpdateWhileRecording_Checked" Unchecked="checkBoxLevelMeterUpdateWhileRecording_Unchecked" />
+                        <CheckBox Content="Update while recording" HorizontalAlignment="Left" Margin="4,6,0,0" Name="checkBoxLevelMeterUpdateWhileRecording" VerticalAlignment="Top" Checked="checkBoxLevelMeterUpdateWhileRecording_Checked" Unchecked="checkBoxLevelMeterUpdateWhileRecording_Unchecked" />
                     </Grid>
                 </GroupBox>
                 <Canvas Grid.Row="1" Name="canvasLevelMeter">
