@@ -16,7 +16,7 @@ namespace RecPcmWin {
             PeakDb = Double.NegativeInfinity;
             PeakHoldDb = Double.NegativeInfinity;
 
-            delay = new Delay(3);
+            delay = new Delay(7);
 
             if (0 < peakHoldDelayCount) {
                 delayPeakHoldDb = new Delay(peakHoldDelayCount);
@@ -33,8 +33,10 @@ namespace RecPcmWin {
         public void NextSample(double newValue) {
             delay.Filter(newValue);
 
-            double levelReal = delay.GetNthDelayedSampleValue(1);
-            double levelImaginary = (delay.GetNthDelayedSampleValue(0) - delay.GetNthDelayedSampleValue(2)) * 2.0 / Math.PI;
+            double levelReal = delay.GetNthDelayedSampleValue(3);
+            double levelImaginary =
+                (delay.GetNthDelayedSampleValue(2) - delay.GetNthDelayedSampleValue(4)) * 2.0 / 1.0 / Math.PI +
+                (delay.GetNthDelayedSampleValue(0) - delay.GetNthDelayedSampleValue(6)) * 2.0 / 3.0 / Math.PI;
             double levelMagnitude = Math.Sqrt(levelReal * levelReal + levelImaginary * levelImaginary);
 
             double db = Double.NegativeInfinity;
