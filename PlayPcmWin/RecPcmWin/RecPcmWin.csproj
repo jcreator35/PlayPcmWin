@@ -87,6 +87,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Delay.cs" />
+    <Compile Include="LevelMeter.cs" />
+    <Compile Include="PeakCalculator.cs" />
     <Compile Include="PreferenceStore.cs" />
     <Compile Include="Properties\Resources.ja-JP.Designer.cs">
       <DependentUpon>Resources.ja-JP.resx</DependentUpon>

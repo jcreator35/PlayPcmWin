@@ -1,0 +1,78 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using WWAudioFilter;
+
+namespace RecPcmWin {
+    class PeakCalculator {
+        public double PeakDb { get; set; }
+        public double PeakHoldDb { get; set; }
+
+        public Delay delay;
+        public Delay delayPeakHoldDb;
+
+        public PeakCalculator(int peakHoldDelayCount) {
+            PeakDb = Double.NegativeInfinity;
+            PeakHoldDb = Double.NegativeInfinity;
+
+            delay = new Delay(3);
+
+            if (0 < peakHoldDelayCount) {
+                delayPeakHoldDb = new Delay(peakHoldDelayCount);
+                delayPeakHoldDb.Fill(Double.NegativeInfinity);
+            } else {
+                delayPeakHoldDb = null;
+            }
+        }
+
+        public void UpdateBegin() {
+            PeakDb = double.NegativeInfinity;
+        }
+
+        public void NextSample(double newValue) {
+            delay.Filter(newValue);
+
+            double levelReal = delay.GetNthDelayedSampleValue(1);
+            double levelImaginary = (delay.GetNthDelayedSampleValue(0) - delay.GetNthDelayedSampleValue(2)) * 2.0 / Math.PI;
+            double levelMagnitude = Math.Sqrt(levelReal * levelReal + levelImaginary * levelImaginary);
+
+            double db = Double.NegativeInfinity;
+            if (Double.Epsilon < levelMagnitude) {
+                db = 20.0 * Math.Log10(levelMagnitude);
+            }
+
+            if (PeakDb < db) {
+                PeakDb = db;
+            }
+        }
+
+        public void PeakHoldReset() {
+            PeakDb = Double.NegativeInfinity;
+            PeakHoldDb = Double.NegativeInfinity;
+
+            if (delayPeakHoldDb != null) {
+            delayPeakHoldDb.Fill(Double.NegativeInfinity);
+            }
+        }
+
+        public void UpdateEnd() {
+            if (delayPeakHoldDb == null) {
+                // ピークホールドがずっと持続
+                if (PeakHoldDb < PeakDb) {
+                    PeakHoldDb = PeakDb;
+                }
+                return;
+            }
+
+            delayPeakHoldDb.Filter(PeakDb);
+
+            PeakHoldDb = Double.NegativeInfinity;
+            for (int i = 0; i < delayPeakHoldDb.DelaySamples; ++i) {
+                if (PeakHoldDb < delayPeakHoldDb.GetNthDelayedSampleValue(i)) {
+                    PeakHoldDb = delayPeakHoldDb.GetNthDelayedSampleValue(i);
+                }
+            }
+        }
+    };
+}

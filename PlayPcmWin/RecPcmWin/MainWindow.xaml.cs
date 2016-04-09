@@ -9,18 +9,28 @@ using System.Globalization;
 using PcmDataLib;
 using System.Collections.Generic;
 using System.Threading;
+using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace RecPcmWin {
     public partial class MainWindow : Window {
         private static string AssemblyVersion {
             get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); }
         }
-        
+
+        private long mLevelMeterLastDispTick = 0;
+        private const long LEVEL_METER_UPDATE_INTERVAL_MS = 66;
+        private const double METER_LEFT_X = 50.0;
+        private const double METER_WIDTH = 400.0;
+        private const double METER_0DB_W = 395.0;
+        private const double METER_SMALLEST_DB = -48.0;
+
         private WasapiControl mWasapiCtrl = new WasapiControl();
         private Preference mPref = null;
         private BackgroundWorker mBW;
         private bool mInitialized = false;
         private List<WasapiCS.DeviceAttributes> mDeviceList = null;
+        private LevelMeter mLevelMeter;
 
         private string [] mResourceCultureNameArray = new string[] {
             "cs-CZ",
@@ -74,6 +84,8 @@ namespace RecPcmWin {
             int currentSec = 0;
             int maxSec = (int)((long)mPref.RecordingBufferSizeMB * 1024 * 1024 / GetBytesPerSec(mPref));
             UpdateDurationLabel(currentSec, maxSec);
+            
+            ResetLevelMeter();
 
             mInitialized = true;
         }
@@ -95,6 +107,8 @@ namespace RecPcmWin {
             buttonInspectDevice.Content = Properties.Resources.MainAvailableFormats;
             buttonRec.Content = Properties.Resources.MainRecord;
             buttonStop.Content = Properties.Resources.MainStop;
+            buttonSelectDevice.Content = Properties.Resources.MainSelect;
+            buttonDeselectDevice.Content = Properties.Resources.MainDeselect;
             labelLanguage.Content = Properties.Resources.MainLanguage;
         }
 
@@ -167,6 +181,142 @@ namespace RecPcmWin {
             textBoxRecordingBufferSizeMB.Text = string.Format(
                 CultureInfo.InvariantCulture, "{0}",
                 mPref.RecordingBufferSizeMB);
+
+            switch (mPref.PeakHoldSeconds) {
+            case 1:
+            default:
+                radioButtonPeakHold1sec.IsChecked = true;
+                break;
+            case 3:
+                radioButtonPeakHold3sec.IsChecked = true;
+                break;
+            case -1:
+                radioButtonPeakHoldInfinity.IsChecked = true;
+                break;
+            }
+
+            switch (mPref.YellowLevelDb) {
+            case -6:
+                radioButtonNominalPeakM6.IsChecked = true;
+                break;
+            case -10:
+                radioButtonNominalPeakM10.IsChecked = true;
+                break;
+            case -12:
+            default:
+                radioButtonNominalPeakM12.IsChecked = true;
+                break;
+            }
+
+            checkBoxLevelMeterUpdateWhileRecording.IsChecked = mPref.UpdateLevelMeterWhileRecording;
+
+            UpdateLevelMeterScale();
+        }
+
+        /// <summary>
+        /// -48dBのとき0
+        /// 0dBよりわずかに少ないとき390
+        /// 0dB以上の時400
+        /// </summary>
+        private static double MeterValueDbToW(double db) {
+            if (db < METER_SMALLEST_DB) {
+                return 0;
+            }
+            if (0 <= db) {
+                return METER_0DB_W;
+            }
+
+            return -(db / METER_SMALLEST_DB) * METER_0DB_W + METER_0DB_W;
+        }
+
+        private Brush DbToBrush(double dB) {
+            if (dB < mPref.YellowLevelDb) {
+                return new SolidColorBrush(Colors.Lime);
+            }
+            if (dB < -0.1) {
+                return new SolidColorBrush(Colors.Yellow);
+            }
+            return new SolidColorBrush(Colors.Red);
+        }
+
+        private void UpdateLevelMeterScale() {
+            double greenW = MeterValueDbToW(mPref.YellowLevelDb);
+            labelLevelMeterM12dB.Content = string.Format("{0}", mPref.YellowLevelDb);
+            Canvas.SetLeft(labelLevelMeterM12dB, METER_LEFT_X + greenW -15);
+
+            rectangleGL.Width = greenW;
+            rectangleGR.Width = greenW;
+            Canvas.SetLeft(rectangleYL, METER_LEFT_X + greenW);
+            Canvas.SetLeft(rectangleYR, METER_LEFT_X + greenW);
+            rectangleYL.Width = METER_0DB_W - greenW;
+            rectangleYR.Width = METER_0DB_W - greenW;
+            Canvas.SetLeft(rectangleRL, METER_LEFT_X + METER_0DB_W);
+            Canvas.SetLeft(rectangleRR, METER_LEFT_X + METER_0DB_W);
+        }
+
+        private void UpdateLevelMeter(double [] peakDb, double [] peakHoldDb) {
+            switch (peakDb.Length) {
+            case 2:
+                {
+                    double maskLW = METER_WIDTH - MeterValueDbToW(peakDb[0]);
+                    double maskRW = METER_WIDTH - MeterValueDbToW(peakDb[1]);
+
+                    Canvas.SetLeft(rectangleMaskL, METER_LEFT_X + (METER_WIDTH - maskLW));
+                    Canvas.SetLeft(rectangleMaskR, METER_LEFT_X + (METER_WIDTH - maskRW));
+                    rectangleMaskL.Width = maskLW;
+                    rectangleMaskR.Width = maskRW;
+
+                    double peakHoldLX = METER_LEFT_X + MeterValueDbToW(peakHoldDb[0]);
+                    double peakHoldRX = METER_LEFT_X + MeterValueDbToW(peakHoldDb[1]);
+                    Canvas.SetLeft(rectanglePeakL, peakHoldLX);
+                    Canvas.SetLeft(rectanglePeakR, peakHoldRX);
+
+                    rectanglePeakL.Fill = DbToBrush(peakHoldDb[0]);
+                    rectanglePeakR.Fill = DbToBrush(peakHoldDb[1]);
+
+                    textBoxLevelMeterL.Text = string.Format(CultureInfo.CurrentCulture, "  L\n{0:+#.0;-#.0;+0.0}", peakDb[0]);
+                    textBoxLevelMeterR.Text = string.Format(CultureInfo.CurrentCulture, "  R\n{0:+#.0;-#.0;+0.0}", peakDb[1]);
+                }
+                break;
+            default:
+                break;
+            }
+        }
+
+        private void ResetLevelMeter() {
+            Canvas.SetLeft(rectangleMaskL, METER_LEFT_X);
+            Canvas.SetLeft(rectangleMaskR, METER_LEFT_X);
+            rectangleMaskL.Width = METER_WIDTH;
+            rectangleMaskR.Width = METER_WIDTH;
+            Canvas.SetLeft(rectanglePeakL, METER_LEFT_X);
+            Canvas.SetLeft(rectanglePeakR, METER_LEFT_X);
+            rectanglePeakL.Fill = new SolidColorBrush(Colors.Transparent);
+            rectanglePeakR.Fill = new SolidColorBrush(Colors.Transparent);
+            textBoxLevelMeterL.Text = string.Format(CultureInfo.CurrentCulture, "  L");
+            textBoxLevelMeterR.Text = string.Format(CultureInfo.CurrentCulture, "  R");
+        }
+
+        private void ControlCaptureCallback(byte[] pcmData) {
+            // このスレッドは描画できないので注意。
+
+            mLevelMeter.Update(pcmData);
+            double[] peakDb = new double[2];
+            double[] peakHoldDb = new double[2];
+            for (int ch = 0; ch < 2; ++ch) {
+                peakDb[ch] = mLevelMeter.GetPeakDb(ch);
+                peakHoldDb[ch] = mLevelMeter.GetPeakHoldDb(ch);
+            }
+
+            if (DateTime.Now.Ticks - mLevelMeterLastDispTick < LEVEL_METER_UPDATE_INTERVAL_MS * 10000) {
+                return;
+            }
+
+            mLevelMeterLastDispTick = DateTime.Now.Ticks;
+
+            Dispatcher.BeginInvoke(new Action(delegate() {
+                // 描画スレッドで描画する。
+                UpdateLevelMeter(peakDb, peakHoldDb);
+            }));
         }
 
         private void CreateDeviceList() {
@@ -191,7 +341,9 @@ namespace RecPcmWin {
                 }
             }
 
-            buttonRec.IsEnabled              = mDeviceList.Count != 0;
+            buttonSelectDevice.IsEnabled     = mDeviceList.Count != 0;
+            buttonDeselectDevice.IsEnabled   = false;
+            buttonRec.IsEnabled              = false;
             buttonStop.IsEnabled             = false;
             groupBoxWasapiSettings.IsEnabled = true;
             buttonInspectDevice.IsEnabled    = mDeviceList.Count != 0;
@@ -292,10 +444,6 @@ namespace RecPcmWin {
                 }
             }
 
-            buttonRec.IsEnabled = true;
-            buttonInspectDevice.IsEnabled = false;
-            groupBoxWasapiSettings.IsEnabled = false;
-
             mPref.PreferredDeviceIdString = mDeviceList[listBoxDevices.SelectedIndex].DeviceIdString;
 
             return 0;
@@ -331,18 +479,22 @@ namespace RecPcmWin {
             return mPref.RecordingBufferSizeMB * 1024 * 1024 / WasapiCS.SampleFormatTypeToUseBitsPerSample(mPref.SampleFormat) / mPref.NumOfChannels * 8;
         }
 
-        private void buttonRec_Click(object sender, RoutedEventArgs e) {
+        private void buttonSelectDevice_Click(object sender, RoutedEventArgs e) {
             if (DeviceSetup() < 0) {
                 return;
             }
 
-            AddLog("wasapi.StartRecording()\r\n");
+            mLevelMeter = new LevelMeter(mPref.SampleFormat, mPref.NumOfChannels, mPref.PeakHoldSeconds, mPref.WasapiBufferSizeMS * 0.001);
+            mWasapiCtrl.SetCaptureCallback(ControlCaptureCallback);
+            mWasapiCtrl.StorePcm(false);
             mWasapiCtrl.StartRecording();
 
-            slider1.Value = 0;
-            slider1.Maximum = TotalFrames();
-            buttonStop.IsEnabled     = true;
-            buttonRec.IsEnabled      = false;
+            buttonSelectDevice.IsEnabled = false;
+            buttonDeselectDevice.IsEnabled = true;
+            buttonRec.IsEnabled = true;
+            buttonStop.IsEnabled = false;
+            buttonInspectDevice.IsEnabled = false;
+            groupBoxWasapiSettings.IsEnabled = false;
 
             mBW = new BackgroundWorker();
             mBW.WorkerReportsProgress = true;
@@ -350,6 +502,38 @@ namespace RecPcmWin {
             mBW.ProgressChanged += new ProgressChangedEventHandler(ProgressChanged);
             mBW.RunWorkerCompleted += new RunWorkerCompletedEventHandler(RunWorkerCompleted);
             mBW.RunWorkerAsync();
+
+        }
+
+        private void buttonDeselectDevice_Click(object sender, RoutedEventArgs e) {
+            mWasapiCtrl.SetCaptureCallback(null);
+
+            mWasapiCtrl.Stop();
+            buttonDeselectDevice.IsEnabled = false;
+            AddLog(string.Format("wasapi.Stop()\r\n"));
+        }
+
+        private void buttonRec_Click(object sender, RoutedEventArgs e) {
+            if (checkBoxLevelMeterUpdateWhileRecording.IsChecked != true) {
+                mWasapiCtrl.SetCaptureCallback(null);
+                ResetLevelMeter();
+            }
+
+            AddLog(string.Format("StorePcm(true)\r\n"));
+            mWasapiCtrl.StorePcm(true);
+
+            slider1.Value = 0;
+            slider1.Maximum = TotalFrames();
+            buttonStop.IsEnabled     = true;
+            buttonRec.IsEnabled      = false;
+            buttonSelectDevice.IsEnabled = false;
+            buttonDeselectDevice.IsEnabled = false;
+        }
+
+        private void buttonStop_Click(object sender, RoutedEventArgs e) {
+            mWasapiCtrl.Stop();
+            buttonStop.IsEnabled = false;
+            AddLog(string.Format("wasapi.Stop()\r\n"));
         }
 
         private void ProgressChanged(object o, ProgressChangedEventArgs args) {
@@ -377,8 +561,6 @@ namespace RecPcmWin {
         }
 
         private void RunWorkerCompleted(object o, RunWorkerCompletedEventArgs args) {
-            AddLog(string.Format("Recording completed.\r\n"));
-
             SaveRecordedData();
 
             AddLog("wasapi.Unsetup()\r\n");
@@ -390,9 +572,12 @@ namespace RecPcmWin {
 
         private void RecordStopped() {
             buttonInspectDevice.IsEnabled = true;
-            buttonRec.IsEnabled = true;
+            buttonSelectDevice.IsEnabled = true;
+            buttonDeselectDevice.IsEnabled = false;
+            buttonRec.IsEnabled = false;
             buttonStop.IsEnabled = false;
             groupBoxWasapiSettings.IsEnabled = true;
+            ResetLevelMeter();
         }
 
         private void DoWork(object o, DoWorkEventArgs args) {
@@ -402,14 +587,6 @@ namespace RecPcmWin {
             }
 
             mWasapiCtrl.Stop();
-        }
-
-        private void buttonStop_Click(object sender, RoutedEventArgs e) {
-            buttonStop.IsEnabled = false;
-
-            mWasapiCtrl.Stop();
-            AddLog(string.Format("wasapi.Stop()\r\n"));
-            buttonStop.IsEnabled = false;
         }
 
         private PcmDataLib.PcmData.ValueRepresentationType SampleFormatToVRT(WasapiCS.SampleFormatType t) {
@@ -466,6 +643,8 @@ namespace RecPcmWin {
 
             slider1.Value = 0;
         }
+
+        // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
         private void radioButton44100_Checked(object sender, RoutedEventArgs e) {
             if (!mInitialized) {
@@ -589,5 +768,79 @@ namespace RecPcmWin {
                     Properties.Resources.ErrorRecordingBufferSize, MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        private void radioButtonPeakHold1sec_Checked(object sender, RoutedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            }
+
+            mPref.PeakHoldSeconds = 1;
+            mLevelMeter = new LevelMeter(mPref.SampleFormat, mPref.NumOfChannels, mPref.PeakHoldSeconds, mPref.WasapiBufferSizeMS * 0.001);
+        }
+
+        private void radioButtonPeakHold3sec_Checked(object sender, RoutedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            }
+            mPref.PeakHoldSeconds = 3;
+            mLevelMeter = new LevelMeter(mPref.SampleFormat, mPref.NumOfChannels, mPref.PeakHoldSeconds, mPref.WasapiBufferSizeMS * 0.001);
+        }
+
+        private void radioButtonPeakHoldInfinity_Checked(object sender, RoutedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            }
+            mPref.PeakHoldSeconds = -1;
+            mLevelMeter = new LevelMeter(mPref.SampleFormat, mPref.NumOfChannels, mPref.PeakHoldSeconds, mPref.WasapiBufferSizeMS * 0.001);
+        }
+
+        private void radioButtonNominalPeakM6_Checked(object sender, RoutedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            }
+            mPref.YellowLevelDb = -6;
+            UpdateLevelMeterScale();
+        }
+
+        private void radioButtonNominalPeakM10_Checked(object sender, RoutedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            }
+            mPref.YellowLevelDb = -10;
+            UpdateLevelMeterScale();
+        }
+
+        private void radioButtonNominalPeakM12_Checked(object sender, RoutedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            }
+            mPref.YellowLevelDb = -12;
+            UpdateLevelMeterScale();
+        }
+
+        private void checkBoxLevelMeterUpdateWhileRecording_Checked(object sender, RoutedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            }
+
+            mPref.UpdateLevelMeterWhileRecording = true;
+
+            mWasapiCtrl.SetCaptureCallback(ControlCaptureCallback);
+        }
+
+        private void checkBoxLevelMeterUpdateWhileRecording_Unchecked(object sender, RoutedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            }
+
+            mPref.UpdateLevelMeterWhileRecording = false;
+            mWasapiCtrl.SetCaptureCallback(null);
+            ResetLevelMeter();
+        }
+
+        private void buttonPeakHoldReset_Click(object sender, RoutedEventArgs e) {
+            mLevelMeter.PeakHoldReset();
+        }
+
     }
 }

@@ -20,10 +20,71 @@
                     <RowDefinition Height="32" />
                 </Grid.RowDefinitions>
                 <ListBox Margin="6,6,6,0" Name="listBoxDevices" />
-                <Button Click="buttonInspectDevice_Click" Content="Print Supported Format List(_I)" HorizontalAlignment="Left" Margin="6,0,0,0" Name="buttonInspectDevice" VerticalAlignment="Center" Width="200" Grid.Row="1" />
+                <Button Click="buttonSelectDevice_Click" Content="Select" HorizontalAlignment="Left" Margin="6,0,0,0" Name="buttonSelectDevice" VerticalAlignment="Center" Width="120" Grid.Row="1" />
+                <Button Click="buttonDeselectDevice_Click" Content="Deselect" HorizontalAlignment="Left" Margin="130,0,0,0" Name="buttonDeselectDevice" VerticalAlignment="Center" Width="120" Grid.Row="1" IsEnabled="False" />
+                <Button Click="buttonInspectDevice_Click" Content="Print Supported Format List(_I)" HorizontalAlignment="Left" Margin="257,0,0,0" Name="buttonInspectDevice" VerticalAlignment="Center" Width="200" Grid.Row="1" />
             </Grid>
         </GroupBox>
-        <GroupBox Header="Log" Margin="6" Name="groupBoxLog" Grid.Column="1" Grid.RowSpan="2" Grid.Row="2">
+        <GroupBox Header="Level Meter" Margin="6,6,6,0" Name="groupBoxLevelMeter" Grid.Column="1" Grid.Row="2" Height="252" VerticalAlignment="Top">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="1*" />
+                </Grid.RowDefinitions>
+                <GroupBox Header="Peak Hold" Height="104" HorizontalAlignment="Left" Name="groupBoxPeakHold" Width="151" Margin="6,0,0,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                        </Grid.RowDefinitions>
+                        <RadioButton Content="1 sec" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonPeakHold1sec" VerticalAlignment="Center" IsChecked="True" Checked="radioButtonPeakHold1sec_Checked" />
+                        <RadioButton Content="3 sec" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonPeakHold3sec" Grid.Row="1"  VerticalAlignment="Center" Checked="radioButtonPeakHold3sec_Checked" />
+                        <RadioButton Content="∞" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonPeakHoldInfinity" Grid.Row="2" VerticalAlignment="Center" Checked="radioButtonPeakHoldInfinity_Checked" />
+                        <Button Content="Reset" Grid.Row="2" HorizontalAlignment="Center" Name="buttonPeakHoldReset" VerticalAlignment="Center" Width="75" Grid.ColumnSpan="2" Margin="61,4,3,4" Click="buttonPeakHoldReset_Click" />
+                    </Grid>
+                </GroupBox>
+                <GroupBox Header="Yellow Level" Height="104" HorizontalAlignment="Left" Margin="163,0,0,0" Name="groupBoxNominalPeakLevel" Width="117">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                        </Grid.RowDefinitions>
+                        <RadioButton Content="-6 dBFS" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonNominalPeakM6" VerticalAlignment="Center" Checked="radioButtonNominalPeakM6_Checked" />
+                        <RadioButton Content="-10 dBFS" Grid.Row="1" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonNominalPeakM10" VerticalAlignment="Center" Checked="radioButtonNominalPeakM10_Checked" />
+                        <RadioButton Content="-12 dBFS" Grid.Row="2" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonNominalPeakM12" VerticalAlignment="Center" IsChecked="True" Checked="radioButtonNominalPeakM12_Checked" />
+                    </Grid>
+                </GroupBox>
+                <GroupBox Header="Other Settings"  Margin="286,6,6,6" >
+                    <Grid>
+                        <CheckBox Content="Update while recording" HorizontalAlignment="Left" Margin="6,6,0,0" Name="checkBoxLevelMeterUpdateWhileRecording" VerticalAlignment="Top" Checked="checkBoxLevelMeterUpdateWhileRecording_Checked" Unchecked="checkBoxLevelMeterUpdateWhileRecording_Unchecked" />
+                    </Grid>
+                </GroupBox>
+                <Canvas Grid.Row="1" Name="canvasLevelMeter">
+                    <Rectangle Canvas.Left="50" Canvas.Top="16" Height="30" Name="rectangleGL" Fill="Lime" Width="300" />
+                    <Rectangle Canvas.Left="350" Canvas.Top="16" Height="30" Name="rectangleYL" Fill="Yellow" Width="95" />
+                    <Rectangle Canvas.Left="445" Canvas.Top="16" Height="30" Name="rectangleRL" Fill="Red" Width="5" />
+                    <Rectangle Canvas.Left="50" Canvas.Top="16" Height="30" Name="rectangleMaskL" Fill="#c0000000" Width="400" Panel.ZIndex="1" />
+                    <Rectangle Canvas.Left="50" Canvas.Top="16" Height="30" Name="rectanglePeakL" Fill="Lime" Width="5" Panel.ZIndex="2" />
+                    <TextBlock Canvas.Left="6" Canvas.Top="16" Text="  L" Width="40" Height="40" Name="textBoxLevelMeterL" />
+                    <Rectangle Canvas.Left="50" Canvas.Top="65" Height="30" Name="rectangleGR" Fill="Lime" Width="300" />
+                    <Rectangle Canvas.Left="350" Canvas.Top="65" Height="30" Name="rectangleYR" Fill="Yellow" Width="95" />
+                    <Rectangle Canvas.Left="445" Canvas.Top="65" Height="30" Name="rectangleRR" Fill="Red" Width="5" />
+                    <Rectangle Canvas.Left="50" Canvas.Top="65" Height="30" Name="rectangleMaskR" Fill="#c0000000" Width="400" Panel.ZIndex="1" />
+                    <Rectangle Canvas.Left="50" Canvas.Top="65" Height="30" Name="rectanglePeakR" Fill="Lime" Width="5" Panel.ZIndex="2" />
+                    <TextBlock Canvas.Left="6" Canvas.Top="65" Text="  R" Width="40" Height="40" Name="textBoxLevelMeterR" />
+                    <Label Canvas.Left="33" Canvas.Top="44" Content="-48" Name="labelLevelMeterM48dB" />
+                    <Label Canvas.Left="335" Canvas.Top="44" Content="-12" Name="labelLevelMeterM12dB" />
+                    <Label Canvas.Left="425" Canvas.Top="44" Content="0dBFS" Name="labelLevelMeter0dB" />
+                </Canvas>
+            </Grid>
+        </GroupBox>
+        <GroupBox Header="Log" Margin="6" Name="groupBoxLog" Grid.Column="1" Grid.Row="3">
             <Grid>
                 <TextBox AcceptsReturn="True" AcceptsTab="True" IsReadOnly="True" Margin="0,0,0,0" Name="textBoxLog" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" />
             </Grid>
@@ -42,7 +103,7 @@
                 <Label Content="Language:" HorizontalAlignment="Right" Name="labelLanguage" VerticalAlignment="Center" />
             </Grid>
         </GroupBox>
-        <GroupBox Header="WASAPI settings" Margin="6,6,6,0" Name="groupBoxWasapiSettings" VerticalAlignment="Top" Grid.Row="1" Grid.RowSpan="2">
+        <GroupBox Header="WASAPI settings" Margin="6,6,6,0" Name="groupBoxWasapiSettings" VerticalAlignment="Top" Grid.Row="1" Grid.RowSpan="2" Height="299">
             <Grid>
                 <GroupBox Header="Operation mode" Height="79" HorizontalAlignment="Left" Margin="211,72,0,0" Name="groupBoxOperationMode" VerticalAlignment="Top" Width="232">
                     <Grid>
@@ -122,7 +183,7 @@
                 </GroupBox>
             </Grid>
         </GroupBox>
-        <GroupBox Grid.Column="1" Header="Recording Control" Margin="6" Name="groupBoxRecordingControl" Grid.RowSpan="2">
+        <GroupBox Grid.Column="1" Header="Recording Control" Margin="6,6,6,0" Name="groupBoxRecordingControl" Grid.RowSpan="2" Height="104" VerticalAlignment="Top">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="1*" />

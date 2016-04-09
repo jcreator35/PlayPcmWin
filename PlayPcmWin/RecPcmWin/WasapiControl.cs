@@ -11,10 +11,15 @@ namespace RecPcmWin {
         List<WasapiCS.DeviceAttributes> mDeviceAttributeList = new List<WasapiCS.DeviceAttributes>();
         private byte[] mCapturedPcmData;
         private int mNextWritePos = 0;
-        private Wasapi.WasapiCS.CaptureCallback mCaptureCallback;
+        private Wasapi.WasapiCS.CaptureCallback mCsCaptureCallback;
         private WasapiCS.SampleFormatType mSampleFormat;
         private int mSampleRate;
         private int mNumChannels;
+
+        private bool mRecord = false;
+
+        public delegate void ControlCaptureCallback(byte[] data);
+        private ControlCaptureCallback mControlCaptureCallback = null;
 
         struct InspectFormat {
             public int sampleRate;
@@ -36,6 +41,10 @@ namespace RecPcmWin {
         public readonly int[] mChannelCountList = {
             2,4,6,8,10,12,16,18,24,26,32,48,64
         };
+
+        public void SetCaptureCallback(ControlCaptureCallback cb) {
+            mControlCaptureCallback = cb;
+        }
 
         public bool AllocateCaptureMemory(int bytes) {
             try {
@@ -61,17 +70,23 @@ namespace RecPcmWin {
             return mCapturedPcmData;
         }
 
-        private void CaptureCallback(byte[] pcmData) {
+        private void CsCaptureCallback(byte[] pcmData) {
             if (pcmData == null || pcmData.Length == 0) {
                 return;
             }
 
-            if (mCapturedPcmData.Length <= mNextWritePos + pcmData.Length) {
-                return;
+            if (mRecord) {
+                if (mCapturedPcmData.Length <= mNextWritePos + pcmData.Length) {
+                    return;
+                }
+
+                Array.Copy(pcmData, 0, mCapturedPcmData, mNextWritePos, pcmData.Length);
+                mNextWritePos += pcmData.Length;
             }
 
-            Array.Copy(pcmData, 0, mCapturedPcmData, mNextWritePos, pcmData.Length);
-            mNextWritePos += pcmData.Length;
+            if (mControlCaptureCallback != null) {
+                mControlCaptureCallback(pcmData);
+            }
         }
 
         public int GetPosFrame() {
@@ -92,8 +107,8 @@ namespace RecPcmWin {
                 return hr;
             }
             
-            mCaptureCallback = new WasapiCS.CaptureCallback(CaptureCallback);
-            mWasapi.RegisterCaptureCallback(mCaptureCallback);
+            mCsCaptureCallback = new WasapiCS.CaptureCallback(CsCaptureCallback);
+            mWasapi.RegisterCaptureCallback(mCsCaptureCallback);
 
             return hr;
         }
@@ -180,6 +195,10 @@ namespace RecPcmWin {
         public int StartRecording() {
             int hr = mWasapi.StartRecording();
             return hr;
+        }
+
+        public void StorePcm(bool b) {
+            mRecord = b;
         }
 
         public long GetCaptureGlitchCount() {

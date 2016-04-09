@@ -26,6 +26,14 @@ namespace RecPcmWin {
 
         public string CultureString { get; set; }
 
+        public int YellowLevelDb { get; set; }
+        public bool UpdateLevelMeterWhileRecording { get; set; }
+
+        /// <summary>
+        ///  -1: PeakHold = ∞
+        /// </summary>
+        public int PeakHoldSeconds { get; set; }
+
         public Preference() {
             Reset();
         }
@@ -44,6 +52,9 @@ namespace RecPcmWin {
             RecordingBufferSizeMB = 256;
             PreferredDeviceIdString = "";
             CultureString = Thread.CurrentThread.CurrentCulture.Name;
+            YellowLevelDb = -12;
+            UpdateLevelMeterWhileRecording = false;
+            PeakHoldSeconds = 1;
         }
     }
 
