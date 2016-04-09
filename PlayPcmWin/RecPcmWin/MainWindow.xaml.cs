@@ -110,6 +110,12 @@ namespace RecPcmWin {
             buttonSelectDevice.Content = Properties.Resources.MainSelect;
             buttonDeselectDevice.Content = Properties.Resources.MainDeselect;
             labelLanguage.Content = Properties.Resources.MainLanguage;
+            groupBoxLevelMeter.Header = Properties.Resources.MainLevelMeter;
+            groupBoxPeakHold.Header = Properties.Resources.MainPeakHold;
+            groupBoxNominalPeakLevel.Header = Properties.Resources.MainNominalPeakLevel;
+            groupBoxLevelMeterOther.Header = Properties.Resources.MainLevelMeterOther;
+            checkBoxLevelMeterUpdateWhileRecording.Content = Properties.Resources.MainLevelMeterUpdateWhileRecording;
+
         }
 
         private void PreferenceToUI() {

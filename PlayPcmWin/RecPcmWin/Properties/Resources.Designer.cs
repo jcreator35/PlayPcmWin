@@ -142,6 +142,33 @@ namespace RecPcmWin.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Level Meter.
+        /// </summary>
+        internal static string MainLevelMeter {
+            get {
+                return ResourceManager.GetString("MainLevelMeter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Other Settings.
+        /// </summary>
+        internal static string MainLevelMeterOther {
+            get {
+                return ResourceManager.GetString("MainLevelMeterOther", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update while recording.
+        /// </summary>
+        internal static string MainLevelMeterUpdateWhileRecording {
+            get {
+                return ResourceManager.GetString("MainLevelMeterUpdateWhileRecording", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to List of Recording Devices.
         /// </summary>
         internal static string MainListOfRecordingDevices {
@@ -160,6 +187,15 @@ namespace RecPcmWin.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Amber Level.
+        /// </summary>
+        internal static string MainNominalPeakLevel {
+            get {
+                return ResourceManager.GetString("MainNominalPeakLevel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Num of Channels.
         /// </summary>
         internal static string MainNumOfChannels {
@@ -174,6 +210,15 @@ namespace RecPcmWin.Properties {
         internal static string MainOperationMode {
             get {
                 return ResourceManager.GetString("MainOperationMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Peak Hold.
+        /// </summary>
+        internal static string MainPeakHold {
+            get {
+                return ResourceManager.GetString("MainPeakHold", resourceCulture);
             }
         }
         

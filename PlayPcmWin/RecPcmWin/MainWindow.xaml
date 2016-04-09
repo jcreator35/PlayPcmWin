@@ -60,7 +60,7 @@
                         <RadioButton Content="-12 dBFS" Grid.Row="2" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonNominalPeakM12" VerticalAlignment="Center" IsChecked="True" Checked="radioButtonNominalPeakM12_Checked" />
                     </Grid>
                 </GroupBox>
-                <GroupBox Header="Other Settings"  Margin="286,6,6,6" >
+                <GroupBox Header="Other Settings"  Margin="286,6,6,6" Name="groupBoxLevelMeterOther">
                     <Grid>
                         <CheckBox Content="Update while recording" HorizontalAlignment="Left" Margin="6,6,0,0" Name="checkBoxLevelMeterUpdateWhileRecording" VerticalAlignment="Top" Checked="checkBoxLevelMeterUpdateWhileRecording_Checked" Unchecked="checkBoxLevelMeterUpdateWhileRecording_Unchecked" />
                     </Grid>
