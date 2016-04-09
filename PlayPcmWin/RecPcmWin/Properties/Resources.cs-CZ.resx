@@ -136,7 +136,7 @@
     <value>Dostupné formáty (_A)</value>
   </data>
   <data name="MainDeselect" xml:space="preserve">
-    <value>Odpojit</value>
+    <value>Odpojit (_D)</value>
   </data>
   <data name="MainDisplaySettings" xml:space="preserve">
     <value>Nastavení obrazovky</value>
@@ -172,7 +172,7 @@
     <value>Vzorkovací frekvence (Hz)</value>
   </data>
   <data name="MainSelect" xml:space="preserve">
-    <value>Připojit</value>
+    <value>Připojit (_L)</value>
   </data>
   <data name="MainStop" xml:space="preserve">
     <value>Stop (_S)</value>

@@ -71,16 +71,16 @@
                     <Rectangle Canvas.Left="445" Canvas.Top="16" Height="30" Name="rectangleRL" Fill="Red" Width="5" />
                     <Rectangle Canvas.Left="50" Canvas.Top="16" Height="30" Name="rectangleMaskL" Fill="#c0000000" Width="400" Panel.ZIndex="1" />
                     <Rectangle Canvas.Left="50" Canvas.Top="16" Height="30" Name="rectanglePeakL" Fill="Lime" Width="5" Panel.ZIndex="2" />
-                    <TextBlock Canvas.Left="6" Canvas.Top="16" Text="  L" Width="40" Height="40" Name="textBoxLevelMeterL" />
+                    <TextBlock Canvas.Left="6" Canvas.Top="20" Text="  L" Width="40" Height="40" Name="textBoxLevelMeterL" FontFamily="Courier New" FontSize="10" />
                     <Rectangle Canvas.Left="50" Canvas.Top="65" Height="30" Name="rectangleGR" Fill="Lime" Width="300" />
                     <Rectangle Canvas.Left="350" Canvas.Top="65" Height="30" Name="rectangleYR" Fill="Yellow" Width="95" />
                     <Rectangle Canvas.Left="445" Canvas.Top="65" Height="30" Name="rectangleRR" Fill="Red" Width="5" />
                     <Rectangle Canvas.Left="50" Canvas.Top="65" Height="30" Name="rectangleMaskR" Fill="#c0000000" Width="400" Panel.ZIndex="1" />
                     <Rectangle Canvas.Left="50" Canvas.Top="65" Height="30" Name="rectanglePeakR" Fill="Lime" Width="5" Panel.ZIndex="2" />
-                    <TextBlock Canvas.Left="6" Canvas.Top="65" Text="  R" Width="40" Height="40" Name="textBoxLevelMeterR" />
-                    <Label Canvas.Left="33" Canvas.Top="44" Content="-48" Name="labelLevelMeterM48dB" />
-                    <Label Canvas.Left="335" Canvas.Top="44" Content="-12" Name="labelLevelMeterM12dB" />
-                    <Label Canvas.Left="425" Canvas.Top="44" Content="0dBFS" Name="labelLevelMeter0dB" />
+                    <TextBlock Canvas.Left="6" Canvas.Top="69" Text="  R" Width="40" Height="40" Name="textBoxLevelMeterR" FontFamily="Courier New" FontSize="10" />
+                    <Label Canvas.Left="33" Canvas.Top="42" Content="-48" Name="labelLevelMeterM48dB" />
+                    <Label Canvas.Left="335" Canvas.Top="42" Content="-12" Name="labelLevelMeterM12dB" />
+                    <Label Canvas.Left="425" Canvas.Top="42" Content="0dBFS" Name="labelLevelMeter0dB" />
                 </Canvas>
             </Grid>
         </GroupBox>
@@ -192,7 +192,7 @@
                 <Button Content="Record(_R)" HorizontalAlignment="Left" IsEnabled="False" Margin="6,0,0,0" Name="buttonRec" VerticalAlignment="Center" Width="100" Click="buttonRec_Click" />
                 <Button Content="Stop(_S)" HorizontalAlignment="Left" IsEnabled="False" Margin="112,0,0,0" Name="buttonStop" VerticalAlignment="Center" Width="100" Click="buttonStop_Click" />
                 <Slider Margin="6,0,6,0" Name="slider1" VerticalAlignment="Center" Grid.Row="1" />
-                <Label Content="00:00 / 00:00" HorizontalContentAlignment="Right" Margin="218,0,6,0" VerticalContentAlignment="Center" Name="labelDuration" FontSize="16" FontWeight="Bold" />
+                <Label Content="00:00 / 00:00" HorizontalContentAlignment="Right" Margin="218,0,6,0" VerticalContentAlignment="Center" Name="labelDuration" FontSize="16" FontWeight="Bold" FontFamily="Courier New" />
             </Grid>
         </GroupBox>
     </Grid>

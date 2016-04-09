@@ -254,6 +254,23 @@ namespace RecPcmWin {
             Canvas.SetLeft(rectangleRR, METER_LEFT_X + METER_0DB_W);
         }
 
+        // 桁数を右揃えにして表示する。
+        private static string DbToString(double db) {
+            if (db <= -100.0) {
+                return string.Format(CultureInfo.CurrentCulture, "{0:F1}", db);
+            } else if (db <= -10.0) {
+                return string.Format(CultureInfo.CurrentCulture, " {0:F1}", db);
+            } else if (db < 0) {
+                return string.Format(CultureInfo.CurrentCulture, "  {0:F1}", db);
+            } else if (db < 10.0) {
+                return string.Format(CultureInfo.CurrentCulture, "  +{0:F1}", db);
+            } else if (db < 100.0) {
+                return string.Format(CultureInfo.CurrentCulture, " +{0:F1}", db);
+            } else {
+                return string.Format(CultureInfo.CurrentCulture, "+{0:F1}", db);
+            }
+        }
+
         private void UpdateLevelMeter(double [] peakDb, double [] peakHoldDb) {
             switch (peakDb.Length) {
             case 2:
@@ -274,8 +291,8 @@ namespace RecPcmWin {
                     rectanglePeakL.Fill = DbToBrush(peakHoldDb[0]);
                     rectanglePeakR.Fill = DbToBrush(peakHoldDb[1]);
 
-                    textBoxLevelMeterL.Text = string.Format(CultureInfo.CurrentCulture, "  L\n{0:+#.0;-#.0;+0.0}", peakDb[0]);
-                    textBoxLevelMeterR.Text = string.Format(CultureInfo.CurrentCulture, "  R\n{0:+#.0;-#.0;+0.0}", peakDb[1]);
+                    textBoxLevelMeterL.Text = string.Format(CultureInfo.CurrentCulture, "  L\n{0}", DbToString(peakDb[0]));
+                    textBoxLevelMeterR.Text = string.Format(CultureInfo.CurrentCulture, "  R\n{0}", DbToString(peakDb[1]));
                 }
                 break;
             default:
@@ -561,6 +578,7 @@ namespace RecPcmWin {
         }
 
         private void RunWorkerCompleted(object o, RunWorkerCompletedEventArgs args) {
+            mWasapiCtrl.Stop();
             SaveRecordedData();
 
             AddLog("wasapi.Unsetup()\r\n");
@@ -585,8 +603,6 @@ namespace RecPcmWin {
                 mBW.ReportProgress(0);
                 System.Threading.Thread.Sleep(1);
             }
-
-            mWasapiCtrl.Stop();
         }
 
         private PcmDataLib.PcmData.ValueRepresentationType SampleFormatToVRT(WasapiCS.SampleFormatType t) {

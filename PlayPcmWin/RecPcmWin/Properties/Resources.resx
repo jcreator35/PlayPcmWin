@@ -136,7 +136,7 @@
     <value>Print Available formats (_A)</value>
   </data>
   <data name="MainDeselect" xml:space="preserve">
-    <value>Deselect</value>
+    <value>Deselect (_D)</value>
   </data>
   <data name="MainDisplaySettings" xml:space="preserve">
     <value>Display Settings</value>
@@ -172,7 +172,7 @@
     <value>Sample Rate (Hz)</value>
   </data>
   <data name="MainSelect" xml:space="preserve">
-    <value>Select</value>
+    <value>Select (_L)</value>
   </data>
   <data name="MainStop" xml:space="preserve">
     <value>Stop (_S)</value>

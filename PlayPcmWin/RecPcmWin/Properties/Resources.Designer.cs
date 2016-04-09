@@ -115,7 +115,7 @@ namespace RecPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Deselect.
+        ///   Looks up a localized string similar to Deselect (_D).
         /// </summary>
         internal static string MainDeselect {
             get {
@@ -223,7 +223,7 @@ namespace RecPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Select.
+        ///   Looks up a localized string similar to Select (_L).
         /// </summary>
         internal static string MainSelect {
             get {

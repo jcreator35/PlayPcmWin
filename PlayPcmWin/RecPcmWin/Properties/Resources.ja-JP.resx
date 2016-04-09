@@ -136,7 +136,7 @@
     <value>利用可能なフォーマットを一覧 (_A)</value>
   </data>
   <data name="MainDeselect" xml:space="preserve">
-    <value>選択解除</value>
+    <value>選択解除 (_D)</value>
   </data>
   <data name="MainDisplaySettings" xml:space="preserve">
     <value>表示設定</value>
@@ -172,7 +172,7 @@
     <value>サンプルレート (Hz)</value>
   </data>
   <data name="MainSelect" xml:space="preserve">
-    <value>選択</value>
+    <value>選択 (_L)</value>
   </data>
   <data name="MainStop" xml:space="preserve">
     <value>停止 (_S)</value>
