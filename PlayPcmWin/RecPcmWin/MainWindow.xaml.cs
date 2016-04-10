@@ -861,8 +861,12 @@ namespace RecPcmWin {
             }
 
             mPref.UpdateLevelMeterWhileRecording = false;
-            mWasapiCtrl.SetCaptureCallback(null);
-            ResetLevelMeter();
+
+            if (!buttonRec.IsEnabled) {
+                // 録音中。
+                mWasapiCtrl.SetCaptureCallback(null);
+                ResetLevelMeter();
+            }
         }
 
         private void buttonPeakHoldReset_Click(object sender, RoutedEventArgs e) {
