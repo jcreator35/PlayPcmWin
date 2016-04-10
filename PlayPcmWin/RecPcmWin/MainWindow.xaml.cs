@@ -248,9 +248,6 @@ namespace RecPcmWin {
 
         private void UpdateLevelMeterScale() {
             double greenW = MeterValueDbToW(mPref.YellowLevelDb);
-            labelLevelMeterM12dB.Content = string.Format("{0}", mPref.YellowLevelDb);
-            Canvas.SetLeft(labelLevelMeterM12dB, METER_LEFT_X + greenW -15);
-
             rectangleGL.Width = greenW;
             rectangleGR.Width = greenW;
             Canvas.SetLeft(rectangleYL, METER_LEFT_X + greenW);
@@ -259,6 +256,25 @@ namespace RecPcmWin {
             rectangleYR.Width = METER_0DB_W - greenW;
             Canvas.SetLeft(rectangleRL, METER_LEFT_X + METER_0DB_W);
             Canvas.SetLeft(rectangleRR, METER_LEFT_X + METER_0DB_W);
+
+            switch (mPref.YellowLevelDb) {
+            case -12:
+            case -6:
+                lineM10dB.Visibility = System.Windows.Visibility.Hidden;
+                labelLevelMeterM10dB.Visibility = System.Windows.Visibility.Hidden;
+                lineM12dB.Visibility = System.Windows.Visibility.Visible;
+                labelLevelMeterM12dB.Visibility = System.Windows.Visibility.Visible;
+                break;
+            case -10:
+                lineM10dB.Visibility = System.Windows.Visibility.Visible;
+                labelLevelMeterM10dB.Visibility = System.Windows.Visibility.Visible;
+                lineM12dB.Visibility = System.Windows.Visibility.Hidden;
+                labelLevelMeterM12dB.Visibility = System.Windows.Visibility.Hidden;
+                break;
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                break;
+            }
         }
 
         // 桁数を右揃えにして表示する。

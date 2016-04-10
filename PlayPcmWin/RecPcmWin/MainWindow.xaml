@@ -61,7 +61,7 @@
                         <CheckBox Content="Update while recording" HorizontalAlignment="Left" Margin="4,6,0,0" Name="checkBoxLevelMeterUpdateWhileRecording" VerticalAlignment="Top" Checked="checkBoxLevelMeterUpdateWhileRecording_Checked" Unchecked="checkBoxLevelMeterUpdateWhileRecording_Unchecked" />
                     </Grid>
                 </GroupBox>
-                <Canvas Grid.Row="1" Name="canvasLevelMeter">
+                <Canvas Grid.Row="1" Name="canvasLevelMeter" Background="White">
                     <Rectangle Canvas.Left="50" Canvas.Top="16" Height="30" Name="rectangleGL" Fill="Lime" Width="300" />
                     <Rectangle Canvas.Left="350" Canvas.Top="16" Height="30" Name="rectangleYL" Fill="Yellow" Width="95" />
                     <Rectangle Canvas.Left="445" Canvas.Top="16" Height="30" Name="rectangleRL" Fill="Red" Width="5" />
@@ -74,9 +74,22 @@
                     <Rectangle Canvas.Left="50" Canvas.Top="65" Height="30" Name="rectangleMaskR" Fill="#c0000000" Width="400" Panel.ZIndex="1" />
                     <Rectangle Canvas.Left="50" Canvas.Top="65" Height="30" Name="rectanglePeakR" Fill="Lime" Width="5" Panel.ZIndex="2" />
                     <TextBlock Canvas.Left="6" Canvas.Top="69" Text="  R" Width="40" Height="40" Name="textBoxLevelMeterR" FontFamily="Courier New" FontSize="10" />
-                    <Label Canvas.Left="33" Canvas.Top="42" Content="-48" Name="labelLevelMeterM48dB" />
-                    <Label Canvas.Left="335" Canvas.Top="42" Content="-12" Name="labelLevelMeterM12dB" />
-                    <Label Canvas.Left="425" Canvas.Top="42" Content="0dBFS" Name="labelLevelMeter0dB" />
+                    <Line X1="149" X2="149" Y1="10" Y2="101" Stroke="Black" Panel.ZIndex="-2" Name="lineM36dB" />
+                    <Line X1="198" X2="198" Y1="10" Y2="101" Stroke="Black" Panel.ZIndex="-2" Name="lineM30dB" />
+                    <Line X1="247" X2="247" Y1="10" Y2="101" Stroke="Black" Panel.ZIndex="-2" Name="lineM24dB" />
+                    <Line X1="297" X2="297" Y1="10" Y2="101" Stroke="Black" Panel.ZIndex="-2" Name="lineM18dB" />
+                    <Line X1="346" X2="346" Y1="10" Y2="101" Stroke="Black" Panel.ZIndex="-2" Name="lineM12dB" />
+                    <Line X1="363" X2="363" Y1="10" Y2="101" Stroke="Black" Panel.ZIndex="-2" Name="lineM10dB" />
+                    <Line X1="396" X2="396" Y1="10" Y2="101" Stroke="Black" Panel.ZIndex="-2" Name="lineM6dB" />
+                    <Label Canvas.Left="33" Canvas.Top="42" Content="-48" Panel.ZIndex="-1" Name="labelLevelMeterM48dB" Background="White" />
+                    <Label Canvas.Left="134" Canvas.Top="42" Content="-36" Panel.ZIndex="-1" Name="labelLevelMeterM36dB" Background="White" />
+                    <Label Canvas.Left="183" Canvas.Top="42" Content="-30" Panel.ZIndex="-1" Name="labelLevelMeterM30dB" Background="White" />
+                    <Label Canvas.Left="232" Canvas.Top="42" Content="-24" Panel.ZIndex="-1" Name="labelLevelMeterM24dB" Background="White" />
+                    <Label Canvas.Left="282" Canvas.Top="42" Content="-18" Panel.ZIndex="-1" Name="labelLevelMeterM18dB" Background="White" />
+                    <Label Canvas.Left="331" Canvas.Top="42" Content="-12" Panel.ZIndex="-1" Name="labelLevelMeterM12dB" Background="White" />
+                    <Label Canvas.Left="348" Canvas.Top="42" Content="-10" Panel.ZIndex="-1" Name="labelLevelMeterM10dB" Background="White" />
+                    <Label Canvas.Left="383" Canvas.Top="42" Content="-6" Panel.ZIndex="-1" Name="labelLevelMeterM6dB" Background="White" />
+                    <Label Canvas.Left="425" Canvas.Top="42" Content="0dBFS" Panel.ZIndex="-1" Name="labelLevelMeter0dB" Background="White" />
                 </Canvas>
             </Grid>
         </GroupBox>
