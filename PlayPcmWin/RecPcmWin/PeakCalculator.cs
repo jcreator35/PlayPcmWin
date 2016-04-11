@@ -55,7 +55,7 @@ namespace RecPcmWin {
             PeakHoldDb = Double.NegativeInfinity;
 
             if (delayPeakHoldDb != null) {
-            delayPeakHoldDb.Fill(Double.NegativeInfinity);
+                delayPeakHoldDb.Fill(Double.NegativeInfinity);
             }
         }
 
