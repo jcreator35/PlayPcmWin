@@ -33,7 +33,11 @@ namespace RecPcmWin {
         public void NextSample(double newValue) {
             delay.Filter(newValue);
 
+            // Create Analytic signal and calculate absolute value "levelMagnitude"
+
             double levelReal = delay.GetNthDelayedSampleValue(3);
+
+            // Discrete Hilbert transform
             double levelImaginary =
                 (delay.GetNthDelayedSampleValue(2) - delay.GetNthDelayedSampleValue(4)) * 2.0 / 1.0 / Math.PI +
                 (delay.GetNthDelayedSampleValue(0) - delay.GetNthDelayedSampleValue(6)) * 2.0 / 3.0 / Math.PI;
