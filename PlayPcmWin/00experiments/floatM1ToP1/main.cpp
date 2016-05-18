@@ -4,6 +4,10 @@
 int main(void)
 {
     FILE *fp = fopen("output.bin", "wb");
+    if (fp == nullptr) {
+        printf("Error: failed to open file\n");
+        return 1;
+    }
 
     float m1 = -1.0f;
     float p1 = 1.0f;
