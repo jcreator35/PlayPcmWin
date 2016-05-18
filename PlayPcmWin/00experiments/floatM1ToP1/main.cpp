@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdint.h>
 
 int main(void)
 {
@@ -7,8 +8,8 @@ int main(void)
     float m1 = -1.0f;
     float p1 = 1.0f;
 
-    int normalCount = 0;
-    int subNormalCount = 0;
+    int64_t normalCount = 0;
+    int64_t subNormalCount = 0;
 
     int *v = (int*)&m1;
     while (p1 != m1) {
@@ -22,7 +23,7 @@ int main(void)
         }
     }
 
-    printf("subnormal=%d normal=%d total=%d\n",
+    printf("subnormal=%lld normal=%lld total=%lld\n",
             subNormalCount, normalCount, normalCount+subNormalCount);
 
     fclose(fp);
