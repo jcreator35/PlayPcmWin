@@ -21,15 +21,15 @@ static bool
 Int16ToFloatToInt16(void)
 {
     std::set<float> floatSet;
-	for (int v = -S16_SUP; v<S16_SUP; ++v) {
-		float f = v * RECIP_S16SUP;
+    for (int v = -S16_SUP; v<S16_SUP; ++v) {
+        float f = v * RECIP_S16SUP;
         floatSet.insert(f);
     }
     printf("Int16 to Float: %lld elements\n", (int64_t)floatSet.size());
 
     std::set<int> intSet;
     for (auto ite = floatSet.begin(); ite != floatSet.end(); ++ite) {
-		int v = (int)(S16_SUP * (*ite));
+        int v = (int)(S16_SUP * (*ite));
         intSet.insert(v);
     }
     printf("Int16 to Float to Int16: %lld elements\n", (int64_t)intSet.size());
@@ -41,7 +41,7 @@ static bool
 Int24ToFloatToInt24(void)
 {
     std::set<float> floatSet;
-	for (int v = -S24_SUP; v<S24_SUP; ++v) {
+    for (int v = -S24_SUP; v<S24_SUP; ++v) {
         float f = v * RECIP_S24SUP;
         floatSet.insert(f);
     }
@@ -49,7 +49,7 @@ Int24ToFloatToInt24(void)
 
     std::set<int> intSet;
     for (auto ite = floatSet.begin(); ite != floatSet.end(); ++ite) {
-		int v = (int)(S24_SUP * (*ite));
+        int v = (int)(S24_SUP * (*ite));
         intSet.insert(v);
     }
     printf("Int24 to Float to Int24: %lld elements\n", (int64_t)intSet.size());
@@ -65,7 +65,7 @@ Int32ToFloatToInt32(void)
         float f = v * RECIP_S32SUP;
         const int *fi = (int*)&f;
         auto r = floatSet.insert(f);
-#if 1
+#if 0
         if (r.second) {
             printf("Succeeded to insert %lld:%.17e %x\n", v, f, *fi);
         } else {
@@ -108,7 +108,7 @@ Float32ToInt32(void)
         if (-1.0f <= *f && *f < 1.0f) {
             int64_t v = (int64_t)(S32_SUP * *f);
             auto r= intSet.insert(v);
-#if 0
+#if 1
             if (r.second) {
                 printf("Succeeded to insert %lld:%.17e %x\n", v, *f, fi);
             } else {
@@ -171,23 +171,23 @@ FloatCount(void)
 int main(void)
 {
 #if 0
-	// experiment 1
-	FloatCount();
+    // experiment 1
+    FloatCount();
 #else
-	// experiment 2
+    // experiment 2
     
     Float32ToInt32();
     Int16ToFloatToInt16();
     Int24ToFloatToInt24();
     Int32ToFloatToInt32();
 
-	EnableFtz();
-	printf("FTZ enabled. subnormal flushes to zero.\n");
+    EnableFtz();
+    printf("FTZ enabled. subnormal flushes to zero.\n");
 
-	Int16ToFloatToInt16();
-	Int24ToFloatToInt24();
-	Int32ToFloatToInt32();
+    Int16ToFloatToInt16();
+    Int24ToFloatToInt24();
+    Int32ToFloatToInt32();
 #endif
 
-	return 0;
+    return 0;
 }
