@@ -1,3 +1,5 @@
+// æ—¥æœ¬èªžUTF-8
+
 #include <stdio.h>
 #include <stdint.h>
 #include <xmmintrin.h> //< _MM_SET_FLUSH_ZERO_MODE
@@ -97,7 +99,7 @@ Float32ToInt32(void)
 {
     uint32_t fi;
 
-    // fi‚ð‰î‚µ‚ÄŠÔÚ“I‚É‘‚«Š·‚¦‚é‚Ì‚Åˆê‰žvolatile‚ð‚Â‚¯‚Ä‚¨‚­B
+    // fiã‚’ä»‹ã—ã¦é–“æŽ¥çš„ã«æ›¸ãæ›ãˆã‚‹ã®ã§ä¸€å¿œvolatileã‚’ã¤ã‘ã¦ãŠãã€‚
     volatile float *f = (volatile float*)&fi;
 
     int histogram[1024];
