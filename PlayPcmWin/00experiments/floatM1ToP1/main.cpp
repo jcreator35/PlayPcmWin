@@ -61,23 +61,77 @@ static bool
 Int32ToFloatToInt32(void)
 {
     std::set<float> floatSet;
-	for (int64_t v = -S32_SUP; v<S32_SUP; ++v) {
-		float f = v * RECIP_S32SUP;
-        floatSet.insert(f);
+    for (int64_t v = -S32_SUP; v<S32_SUP; ++v) {
+        float f = v * RECIP_S32SUP;
+        const int *fi = (int*)&f;
+        auto r = floatSet.insert(f);
+#if 1
+        if (r.second) {
+            printf("Succeeded to insert %lld:%.17e %x\n", v, f, *fi);
+        } else {
+            printf("Failed    to insert %lld:%.17e %x\n", v, f, *fi);
+        }
+#endif
     }
     printf("Int32 to Float: %lld elements\n", (int64_t)floatSet.size());
 
-    std::set<int> intSet;
+    std::set<int64_t> intSet;
     for (auto ite = floatSet.begin(); ite != floatSet.end(); ++ite) {
-		int v = (int)(S32_SUP * (*ite));
-        intSet.insert(v);
+        float f = *ite;
+        const int *fi = (int*)&f;
+        int64_t v = (int64_t)(S32_SUP * f);
+        auto r = intSet.insert(v);
+        if (r.second) {
+            //printf("Succeeded to insert %lld:%.17e %x\n", v, f, *fi);
+        } else {
+            printf("Failed    to insert %lld:%.17e %x\n", v, f, *fi);
+        }
     }
     printf("Int32 to Float to Int32: %lld elements\n", (int64_t)intSet.size());
 
     return true;
 }
 
+static bool
+Float32ToInt32(void)
+{
+    uint32_t fi;
+
+    // fi‚ğ‰î‚µ‚ÄŠÔÚ“I‚É‘‚«Š·‚¦‚é‚Ì‚Åˆê‰volatile‚ğ‚Â‚¯‚Ä‚¨‚­B
+    volatile float *f = (volatile float*)&fi;
+
+    int histogram[1024];
+    memset((void*)histogram, 0, sizeof histogram);
+
+    std::set<int64_t> intSet;
+    for (fi = 0; fi != 0xffffffff; ++fi) {
+        if (-1.0f <= *f && *f < 1.0f) {
+            int64_t v = (int64_t)(S32_SUP * *f);
+            auto r= intSet.insert(v);
 #if 0
+            if (r.second) {
+                printf("Succeeded to insert %lld:%.17e %x\n", v, *f, fi);
+            } else {
+                printf("Failed    to insert %lld:%.17e %x\n", v, *f, fi);
+            }
+#endif
+            int h = (int)((double)*f * 256.0 + 512);
+            ++histogram[h];
+        }
+    }
+    printf("Float to Int32: %lld elements\n", (int64_t)intSet.size());
+
+    for (int i=0; i<1024; ++i) {
+        if (histogram[i]) {
+            printf("%d %d\n", i, histogram[i]);
+        }
+    }
+
+    return true;
+}
+
+#if 0
+// experiment 1
 static bool
 FloatCount(void)
 {
@@ -121,6 +175,8 @@ int main(void)
 	FloatCount();
 #else
 	// experiment 2
+    
+    Float32ToInt32();
     Int16ToFloatToInt16();
     Int24ToFloatToInt24();
     Int32ToFloatToInt32();
