@@ -796,12 +796,15 @@ namespace WasapiPcmUtil {
                            + ((int)from[fromPos + 1] << 8)
                            + ((int)from[fromPos + 2] << 16)
                            + ((int)from[fromPos + 3] << 24);
+
+                    // float値 0x3f7fffffは整数値2147483520に対応する。
+                    // より厳密には +2147483584 ～ +2147483647が範囲外のfloat値 3f800000に
+                    // 写像するのでこの範囲の値を2147483583以下にクランプすればよい。
+                    // だが以下の処理でも結局同じことである。
                     if (INT32_TO_FLOAT_MAX_INT < iv) {
-                        // float値 0x3f7fffffは整数値2147483520に対応する。
-                        // より厳密には +2147483584 ～ +2147483647は float値 3f800000に写像するので2147483583以下にクランプすればよいが
-                        // 結局同じことである。
                         iv = INT32_TO_FLOAT_MAX_INT;
                     }
+
                     float fv = ((float)iv) * INT32_TO_FLOAT_SCALE;
 
                     byte [] b = System.BitConverter.GetBytes(fv);
