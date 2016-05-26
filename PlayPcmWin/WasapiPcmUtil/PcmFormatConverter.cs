@@ -798,9 +798,8 @@ namespace WasapiPcmUtil {
                            + ((int)from[fromPos + 3] << 24);
 
                     // float値 0x3f7fffffは整数値2147483520に対応する。
-                    // より厳密には +2147483584 ～ +2147483647が範囲外のfloat値 3f800000に
-                    // 写像するのでこの範囲の値を2147483583以下にクランプすればよい。
-                    // だが以下の処理でも結局同じことである。
+                    // 範囲外のfloat値 3f800000 (== +1.0f) が
+                    // 出てこないようにクランプする。
                     if (INT32_TO_FLOAT_MAX_INT < iv) {
                         iv = INT32_TO_FLOAT_MAX_INT;
                     }
