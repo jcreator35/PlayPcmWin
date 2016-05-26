@@ -534,13 +534,14 @@ namespace WasapiPcmUtil {
         private static readonly double SAMPLE_VALUE_MIN_DOUBLE = -1.0;
         private static readonly float  SAMPLE_VALUE_MIN_FLOAT  = -1.0f;
 
+        // これらの定数は正確に右辺の値を保持する。
         private static readonly float SAMPLE_VALUE_MAX_FLOAT_TO_I16 = 32767.0f / 32768.0f;
         private static readonly float SAMPLE_VALUE_MAX_FLOAT_TO_I24 = 8388607.0f / 8388608.0f;  //< 0x3f7ffffe
         private static readonly float SAMPLE_VALUE_MAX_FLOAT_TO_I32 = 16777215.0f / 8388608.0f; //< 0x3f7fffff
         private static readonly float FLOAT_TO_INT16_SCALE = 32768.0f;
         private static readonly float INT16_TO_FLOAT_SCALE = 1.0f / 32768.0f;
         private static readonly float FLOAT_TO_INT24_SCALE = 8388608.0f;
-        private static readonly double FLOAT_TO_INT32_SCALE = 2147483648.0f;
+        private static readonly float FLOAT_TO_INT32_SCALE = 2147483648.0f;
         private static readonly float INT32_TO_FLOAT_SCALE = 1.0f / 2147483648.0f;
         private static readonly int INT32_TO_FLOAT_MAX_INT = 2147483520;
 
