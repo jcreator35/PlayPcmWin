@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <xmmintrin.h> //< _MM_SET_FLUSH_ZERO_MODE
 #include <set>
+#include <float.h>
 
 static const int S16_SUP = 32768;
 static const int S24_SUP = 8388608;
@@ -132,7 +133,7 @@ Float32ToInt32(void)
     return true;
 }
 
-#if 0
+#if 1
 // experiment 1
 static bool
 FloatCount(void)
@@ -148,21 +149,24 @@ FloatCount(void)
 
     int64_t normalCount = 0;
     int64_t subNormalCount = 0;
+    int64_t nanCount = 0;
 
     int *v = (int*)&m1;
     while (p1 != m1) {
         fwrite(&v, 1, 4, fp);
         (*v) = *v + 1;
 
-        if (*v & 0x7f800000) {
+        if (_isnan(*v)) {
+            ++nanCount;
+        } else if (*v & 0x7f800000) {
             ++normalCount;
         } else {
             ++subNormalCount;
         }
     }
 
-    printf("subnormal=%lld normal=%lld total=%lld\n",
-            subNormalCount, normalCount, normalCount+subNormalCount);
+    printf("nan=%lld subnormal=%lld normal=%lld subnormal+normal=%lld\n",
+            nanCount, subNormalCount, normalCount, normalCount+subNormalCount);
 
     fclose(fp);
 
@@ -172,7 +176,7 @@ FloatCount(void)
 
 int main(void)
 {
-#if 0
+#if 1
     // experiment 1
     FloatCount();
 #else
