@@ -5,6 +5,8 @@
 #include <xmmintrin.h> //< _MM_SET_FLUSH_ZERO_MODE
 #include <set>
 #include <float.h>
+#include <cmath>
+#include <assert.h>
 
 static const int S16_SUP = 32768;
 static const int S24_SUP = 8388608;
@@ -133,30 +135,80 @@ Float32ToInt32(void)
     return true;
 }
 
+enum FpClassType {
+    FpClass_SNAN,
+    FpClass_QNAN,
+    FpClass_NINF,
+    FpClass_NN,
+    FpClass_ND,
+
+    FpClass_NZ,
+    FpClass_PZ,
+    FpClass_PD,
+    FpClass_PN,
+    FpClass_PINF,
+
+    FpClass_NUM
+};
+
 #if 1
 // experiment 1
 static bool
 FloatCount(void)
 {
-
-    int64_t normalCount = 0;
-    int64_t subNormalCount = 0;
-    int64_t nanCount = 0;
+    int64_t counter[FpClass_NUM];
+    memset(counter, 0, sizeof counter);
 
     int v = 0;
     float *f = (float*)&v;
     for (v = 0; v != 0xffffffff; ++v) {
-        if (_isnan(*f)) {
-            ++nanCount;
-        } else if (v & 0x7f800000) {
-            ++normalCount;
-        } else {
-            ++subNormalCount;
+        auto c = _fpclass(*f);
+        switch (c) {
+        case _FPCLASS_SNAN:
+            ++counter[FpClass_SNAN];
+            break;
+        case _FPCLASS_QNAN:
+            ++counter[FpClass_QNAN];
+            break;
+        case _FPCLASS_NINF:
+            ++counter[FpClass_NINF];
+            break;
+        case _FPCLASS_NN:
+            ++counter[FpClass_NN];
+            break;
+        case _FPCLASS_ND:
+            ++counter[FpClass_ND];
+            break;
+
+        case _FPCLASS_NZ:
+            ++counter[FpClass_NZ];
+            break;
+        case _FPCLASS_PZ:
+            ++counter[FpClass_PZ];
+            break;
+        case _FPCLASS_PD:
+            ++counter[FpClass_PD];
+            break;
+        case _FPCLASS_PN:
+            ++counter[FpClass_PN];
+            break;
+        case _FPCLASS_PINF:
+            ++counter[FpClass_PINF];
+            break;
+        default:
+            assert(0);
+            break;
         }
     }
 
-    printf("nan=%lld subnormal=%lld normal=%lld subnormal+normal=%lld\n",
-            nanCount, subNormalCount, normalCount, normalCount+subNormalCount);
+    printf("Signaling NAN=%lld, Quiet NAN=%lld, Negative INF=%lld, Negative normal nonzero=%lld, Negative denormalized=%lld\n",
+        counter[FpClass_SNAN], counter[FpClass_QNAN],
+        counter[FpClass_NINF], counter[FpClass_NN],
+        counter[FpClass_ND]);
+    printf("Negative Zero=%lld, Positive Zero=%lld, Positive denormalized=%lld, Positive normalized nonzero=%lld, Positive INF=%lld\n",
+        counter[FpClass_NZ], counter[FpClass_PZ],
+        counter[FpClass_PD], counter[FpClass_PN],
+        counter[FpClass_PINF]);
 
     return true;
 }
