@@ -138,27 +138,17 @@ Float32ToInt32(void)
 static bool
 FloatCount(void)
 {
-    FILE *fp = fopen("output.bin", "wb");
-    if (fp == nullptr) {
-        printf("Error: failed to open file\n");
-        return false;
-    }
-
-    float m1 = -1.0f;
-    float p1 = 1.0f;
 
     int64_t normalCount = 0;
     int64_t subNormalCount = 0;
     int64_t nanCount = 0;
 
-    int *v = (int*)&m1;
-    while (p1 != m1) {
-        fwrite(&v, 1, 4, fp);
-        (*v) = *v + 1;
-
-        if (_isnan(*v)) {
+    int v = 0;
+    float *f = (float*)&v;
+    for (v = 0; v != 0xffffffff; ++v) {
+        if (_isnan(*f)) {
             ++nanCount;
-        } else if (*v & 0x7f800000) {
+        } else if (v & 0x7f800000) {
             ++normalCount;
         } else {
             ++subNormalCount;
@@ -167,8 +157,6 @@ FloatCount(void)
 
     printf("nan=%lld subnormal=%lld normal=%lld subnormal+normal=%lld\n",
             nanCount, subNormalCount, normalCount, normalCount+subNormalCount);
-
-    fclose(fp);
 
     return true;
 }
