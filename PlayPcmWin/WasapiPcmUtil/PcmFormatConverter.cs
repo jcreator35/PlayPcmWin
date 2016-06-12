@@ -337,22 +337,26 @@ namespace WasapiPcmUtil {
 
                         for (int i = 0; i < nFrame; ++i) {
                             for (int ch=0; ch < pcmFrom.NumChannels; ++ch) {
-                                int v = (short)(from[fromPos + 1] + (from[fromPos + 2] << 8) + (from[fromPos + 3] << 16));
+                                long v = (int)((from[fromPos + 0] << 0) + (from[fromPos + 1] << 8) + (from[fromPos + 2] << 16) + (from[fromPos + 3] << 24));
 
-                                v += mErr[ch] >> 8;
-                                if (8388607 < v) {
-                                    v = 8388607;
+                                int vOut;
+                                if (Int32.MaxValue < v) {
+                                    vOut = Int32.MaxValue;
+                                } else if (v < Int32.MinValue) {
+                                    vOut = Int32.MinValue;
+                                } else {
+                                    vOut = (int)v;
                                 }
+                                vOut = (int)(vOut & 0xffffff00);
 
-                                mErr[ch] -= ((mErr[ch]) >> 8) << 8;
-                                mErr[ch] += from[fromPos];
+                                mErr[ch] = (int)(v - vOut);
 
                                 if (writePad) {
                                     to[toPos++] = 0;
                                 }
-                                to[toPos++] = (byte)(v & 0xff);
-                                to[toPos++] = (byte)((v >> 8) & 0xff);
-                                to[toPos++] = (byte)((v >> 16) & 0xff);
+                                to[toPos++] = (byte)((vOut >> 8) & 0xff);
+                                to[toPos++] = (byte)((vOut >> 16) & 0xff);
+                                to[toPos++] = (byte)((vOut >> 24) & 0xff);
 
                                 fromPos += 4;
                             }
