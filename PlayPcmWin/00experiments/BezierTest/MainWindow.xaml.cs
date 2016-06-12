@@ -21,11 +21,12 @@ namespace BezierTest {
             InitializeComponent();
         }
 
+        const int SLIDER_VALUE_NUM = 3;
         private void Update() {
-            double [] p = new double[3];
+            double[] p = new double[SLIDER_VALUE_NUM];
             p[0] = slider1.Value;
-            p[1] = slider2.Value;
-            p[2] = slider3.Value;
+            p[1] = slider3.Value;
+            p[2] = slider2.Value;
 
             var path = new Path();
             path.Stroke = new SolidColorBrush(Colors.Black);
@@ -39,7 +40,7 @@ namespace BezierTest {
 
             for (int i = 0; i < 100; ++i) {
                 double t = i / 100.0;
-                double y = p[0] * (1-t*t) + p[1] * 2 * (1-t) * t + p[2] * t * t;
+                double y = p[0] * (1-t*t) + p[2] * 2 * (1-t) * t + p[1] * t * t;
 
                 double x = t;
 
@@ -55,8 +56,10 @@ namespace BezierTest {
                 prevY = y;
             }
 
-            for (int i = 0; i < 3; ++i) {
-                var point = new EllipseGeometry(new Point(i*actualWidth/2, actualHeight * (0.5 - 0.5 * p[i])), 10, 10);
+            for (int i = 0; i < 2; ++i) {
+                var point = new EllipseGeometry(new Point(
+                    i*actualWidth,
+                    actualHeight * (0.5 - 0.5 * p[i])), 10, 10);
                 gg.Children.Add(point);
             }
 
