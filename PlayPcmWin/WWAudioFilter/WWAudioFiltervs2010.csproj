@@ -95,6 +95,7 @@
     <Compile Include="CicFilter.cs" />
     <Compile Include="AddFundamentalsFilter.cs" />
     <Compile Include="Delay.cs" />
+    <Compile Include="LargeArray.cs" />
     <Compile Include="MovingAverager.cs" />
     <Compile Include="SubsonicFilter.cs" />
     <Compile Include="TimeReversalFilter.cs" />
