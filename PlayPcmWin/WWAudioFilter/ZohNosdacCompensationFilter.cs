@@ -114,14 +114,15 @@ namespace WWAudioFilter {
             return v;
         }
 
-        public override double[] FilterDo(double[] inPcm) {
+        public override PcmDataLib.LargeArray<double> FilterDo(PcmDataLib.LargeArray<double> inPcmLA) {
+            var inPcm = inPcmLA.ToArray();
             double [] outPcm = new double[inPcm.Length];
 
             for (long i=0; i < outPcm.Length; ++i) {
                 mDelay.Filter(inPcm[i]);
                 outPcm[i] = Convolution();
             }
-            return outPcm;
+            return new PcmDataLib.LargeArray<double>(outPcm);
         }
     }
 }

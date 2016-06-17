@@ -218,11 +218,13 @@ namespace WWAudioFilter {
             return mTotalSamples;
         }
 
-        public override double[] FilterDo(double[] inPcm) {
+        public override PcmDataLib.LargeArray<double> FilterDo(PcmDataLib.LargeArray<double> inPcmLA) {
+            var inPcm = inPcmLA.ToArray();
+
             System.Diagnostics.Debug.Assert(inPcm.Length == mResamplePosArray.Length);
             System.Diagnostics.Debug.Assert(inPcm.Length == mFractionArray.Length);
 
-            double [] outPcm = new double[inPcm.LongLength];
+            double [] outPcm = new double[inPcm.Length];
 
             Parallel.For(0, inPcm.Length, toPos => {
                 int fromPos = mResamplePosArray[toPos];
@@ -248,7 +250,7 @@ namespace WWAudioFilter {
                 outPcm[toPos] = v;
             });
 
-            return outPcm;
+            return new PcmDataLib.LargeArray<double>(outPcm);
         }
     }
 }

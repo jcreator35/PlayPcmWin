@@ -50,7 +50,9 @@ namespace WWAudioFilter {
             return r;
         }
 
-        public override double[] FilterDo(double[] inPcm) {
+        public override PcmDataLib.LargeArray<double> FilterDo(PcmDataLib.LargeArray<double> inPcmLA) {
+            var inPcm = inPcmLA.ToArray();
+
             double[] outPcm;
             int i = 0;
 
@@ -64,9 +66,9 @@ namespace WWAudioFilter {
                 // i==0
             }
 
-            long pos=0;
+            int pos = 0;
             for (; i < inPcm.Length; ++i) {
-                for (int r=0; r < Factor; ++r) {
+                for (int r = 0; r < Factor; ++r) {
                     double ratio = (r + 1.0) / Factor;
                     outPcm[pos] = inPcm[i] * ratio + mLastOriginalSampleValue * (1.0 - ratio);
                     ++pos;
@@ -74,7 +76,7 @@ namespace WWAudioFilter {
                 mLastOriginalSampleValue = inPcm[i];
             }
 
-            return outPcm;
+            return new PcmDataLib.LargeArray<double>(outPcm);
         }
     }
 }

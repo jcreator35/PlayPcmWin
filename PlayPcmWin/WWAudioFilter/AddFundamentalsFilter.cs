@@ -65,7 +65,9 @@ namespace WWAudioFilter {
             mOverlappedFft.Clear();
         }
 
-        public override double[] FilterDo(double[] inPcm) {
+        public override PcmDataLib.LargeArray<double> FilterDo(PcmDataLib.LargeArray<double> inPcmLA) {
+            var inPcm = inPcmLA.ToArray();
+
             var pcmF = mOverlappedFft.ForwardFft(inPcm);
 
             int idx20Hz = (int)(20.0 * mFftLength / mPcmFormat.SampleRate);
@@ -87,7 +89,7 @@ namespace WWAudioFilter {
                 }
             }
 
-            return mOverlappedFft.InverseFft(pcmF);
+            return new PcmDataLib.LargeArray<double>(mOverlappedFft.InverseFft(pcmF));
         }
     }
 }

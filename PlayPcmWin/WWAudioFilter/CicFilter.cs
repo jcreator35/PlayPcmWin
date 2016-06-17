@@ -67,11 +67,12 @@ namespace WWAudioFilter {
         private Queue<double> mCombQueue = new Queue<double>();
         private double mIntegratorZ = 0.0;
 
-        public override double[] FilterDo(double[] inPcm) {
-            System.Diagnostics.Debug.Assert(inPcm.LongLength == NumOfSamplesNeeded());
+        public override PcmDataLib.LargeArray<double> FilterDo(PcmDataLib.LargeArray<double> inPcmLA) {
+            System.Diagnostics.Debug.Assert(inPcmLA.LongLength == NumOfSamplesNeeded());
+            var inPcm = inPcmLA.ToArray();
 
-            var result = new double[inPcm.LongLength];
-            for (int i = 0; i < inPcm.LongLength; ++i) {
+            var result = new double[inPcm.Length];
+            for (int i = 0; i < inPcm.Length; ++i) {
                 double v = inPcm[i];
 
                 mCombQueue.Enqueue(v);
@@ -85,7 +86,7 @@ namespace WWAudioFilter {
                 result[i] = v;
             }
 
-            return result;
+            return new PcmDataLib.LargeArray<double>(result);
         }
     }
 }

@@ -144,8 +144,9 @@ namespace WWAudioFilter {
             }
         }
 
-        public override double[] FilterDo(double[] inPcm) {
-            System.Diagnostics.Debug.Assert(inPcm.Length == NumOfSamplesNeeded());
+        public override PcmDataLib.LargeArray<double> FilterDo(PcmDataLib.LargeArray<double> inPcmLA) {
+            System.Diagnostics.Debug.Assert(inPcmLA.LongLength == NumOfSamplesNeeded());
+            var inPcm = inPcmLA.ToArray();
 
             int inputSamples = (WindowLength + 1) / Factor + PROCESS_SLICE;
 
@@ -210,7 +211,7 @@ namespace WWAudioFilter {
             }
 
             mFirst = false;
-            return toPcm;
+            return new PcmDataLib.LargeArray<double>(toPcm);
         }
     }
 }

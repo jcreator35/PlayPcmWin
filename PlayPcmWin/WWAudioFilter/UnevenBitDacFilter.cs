@@ -38,7 +38,8 @@ namespace WWAudioFilter {
             return new UnevenBitDacFilter(lsbScalingDb);
         }
 
-        public override double[] FilterDo(double[] inPcm) {
+        public override PcmDataLib.LargeArray<double> FilterDo(PcmDataLib.LargeArray<double> inPcmLA) {
+            var inPcm = inPcmLA.ToArray();
 
             double scaleLsb = Math.Pow(10, LsbScalingDb / 20.0);
 
@@ -50,7 +51,7 @@ namespace WWAudioFilter {
 
             var outPcm = new double[inPcm.Length];
 
-            for (long i = 0; i < outPcm.Length; ++i) {
+            for (int i = 0; i < outPcm.Length; ++i) {
                 double d = inPcm[i] * (Int16.MaxValue+1);
                 bool plus = true;
                 int v;
@@ -85,7 +86,7 @@ namespace WWAudioFilter {
                 outPcm[i] = result;
             }
 
-            return outPcm;
+            return new PcmDataLib.LargeArray<double>(outPcm);
          }
     }
 }

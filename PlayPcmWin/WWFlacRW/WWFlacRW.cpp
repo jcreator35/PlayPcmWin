@@ -102,7 +102,7 @@ struct FlacDecodeInfo {
         memset(path, 0, sizeof path);
 
         errorCode = FRT_OtherError;
-        decoder = NULL;
+        decoder = nullptr;
 
         id = -1;
         sampleRate = 0;
@@ -119,7 +119,7 @@ struct FlacDecodeInfo {
 
         numFramesPerBlock = 0;
 
-        buffPerChannel = NULL;
+        buffPerChannel = nullptr;
         retrievedFrames = 0;
 
         memset(titleStr,       0, sizeof titleStr);
@@ -137,7 +137,7 @@ struct FlacDecodeInfo {
         memset(md5sum,         0, sizeof md5sum);
 
         pictureBytes = 0;
-        pictureData = NULL;
+        pictureData = nullptr;
         cueSheetTracks.clear();
     }
    
@@ -145,14 +145,14 @@ struct FlacDecodeInfo {
         if (buffPerChannel) {
             for (int ch=0; ch<channels; ++ch) {
                 delete [] buffPerChannel[ch];
-                buffPerChannel[ch] = NULL;
+                buffPerChannel[ch] = nullptr;
             }
             delete [] buffPerChannel;
-            buffPerChannel = NULL;
+            buffPerChannel = nullptr;
         }
 
         delete [] pictureData;
-        pictureData = NULL;
+        pictureData = nullptr;
     }
 
     static int nextId;
@@ -170,8 +170,8 @@ static T *
 FlacTInfoNew(std::map<int, T*> &storage)
 {
     T * fdi = new T();
-    if (NULL == fdi) {
-        return NULL;
+    if (nullptr == fdi) {
+        return nullptr;
     }
 
     fdi->id = T::nextId;
@@ -185,13 +185,13 @@ template <typename T>
 static void
 FlacTInfoDelete(std::map<int, T*> &storage, T *fdi)
 {
-    if (NULL == fdi) {
+    if (nullptr == fdi) {
         return;
     }
 
     storage.erase(fdi->id);
     delete fdi;
-    fdi = NULL; // あんまり意味ないが、一応
+    fdi = nullptr; // あんまり意味ないが、一応
 }
 
 template <typename T>
@@ -201,7 +201,7 @@ FlacTInfoFindById(std::map<int, T*> &storage, int id)
     std::map<int, T*>::iterator ite
         = storage.find(id);
     if (ite == storage.end()) {
-        return NULL;
+        return nullptr;
     }
     return ite->second;
 }
@@ -288,7 +288,7 @@ MetadataCallback(const FLAC__StreamDecoder *decoder,
         assert(!fdi->buffPerChannel);
         fdi->totalBytesPerChannel = fdi->totalSamples * (fdi->bitsPerSample/ 8);
         fdi->buffPerChannel = new uint8_t*[fdi->channels];
-        if (fdi->buffPerChannel == NULL) {
+        if (fdi->buffPerChannel == nullptr) {
             dprintf("memory exhausted");
             fdi->errorCode = FRT_MemoryExhausted;
             return;
@@ -297,13 +297,13 @@ MetadataCallback(const FLAC__StreamDecoder *decoder,
 
         for (int ch=0; ch<fdi->channels; ++ch) {
             fdi->buffPerChannel[ch] = new uint8_t[fdi->totalBytesPerChannel];
-            if (fdi->buffPerChannel[ch] == NULL) {
+            if (fdi->buffPerChannel[ch] == nullptr) {
                 for (int i=0; i<fdi->channels; ++i) {
                     delete [] fdi->buffPerChannel[i];
-                    fdi->buffPerChannel[i] = NULL;
+                    fdi->buffPerChannel[i] = nullptr;
                 }
                 delete [] fdi->buffPerChannel;
-                fdi->buffPerChannel = NULL;
+                fdi->buffPerChannel = nullptr;
                 dprintf("memory exhausted");
                 fdi->errorCode = FRT_MemoryExhausted;
                 return;
@@ -348,9 +348,9 @@ MetadataCallback(const FLAC__StreamDecoder *decoder,
 
             fdi->pictureBytes = PIC.data_length;
 
-            assert(NULL == fdi->pictureData);
+            assert(nullptr == fdi->pictureData);
             fdi->pictureData = new uint8_t[fdi->pictureBytes];
-            if (fdi->pictureData == NULL) {
+            if (fdi->pictureData == nullptr) {
                 fdi->pictureBytes = 0;
                 dprintf("memory exhausted");
                 fdi->errorCode = FRT_MemoryExhausted;
@@ -361,7 +361,7 @@ MetadataCallback(const FLAC__StreamDecoder *decoder,
         }
     }
 
-    if (metadata->type == FLAC__METADATA_TYPE_CUESHEET && CUE.tracks != NULL) {
+    if (metadata->type == FLAC__METADATA_TYPE_CUESHEET && CUE.tracks != nullptr) {
         dprintf("cuesheet num tracks=%d\n", CUE.num_tracks);
 
         fdi->cueSheetTracks.clear();
@@ -389,7 +389,7 @@ MetadataCallback(const FLAC__StreamDecoder *decoder,
                     (unsigned int)track.isrc[4], (unsigned int)track.isrc[5], (unsigned int)track.isrc[6], (unsigned int)track.isrc[7],
                     (unsigned int)track.isrc[8], (unsigned int)track.isrc[9], (unsigned int)track.isrc[10], (unsigned int)track.isrc[11]);
 
-            if (from->indices != NULL) {
+            if (from->indices != nullptr) {
                 uint32_t numOfIndices = from->num_indices;
                 if (FLACDECODE_TRACK_IDX_MAX < numOfIndices) {
                     numOfIndices = FLACDECODE_TRACK_IDX_MAX;
@@ -450,19 +450,19 @@ int __stdcall
 WWFlacRW_DecodeAll(const wchar_t *path)
 {
     FLAC__bool                    ok = true;
-    FILE *fp = NULL;
+    FILE *fp = nullptr;
     errno_t ercd;
     FLAC__StreamDecoderInitStatus initStatus = FLAC__STREAM_DECODER_INIT_STATUS_ERROR_OPENING_FILE;
 
     FlacDecodeInfo *fdi = FlacTInfoNew<FlacDecodeInfo>(g_flacDecodeInfoMap);
-    if (NULL == fdi) {
+    if (nullptr == fdi) {
         return FRT_OtherError;
     }
 
     fdi->errorCode = FRT_Success;
 
     fdi->decoder = FLAC__stream_decoder_new();
-    if(fdi->decoder == NULL) {
+    if(fdi->decoder == nullptr) {
         fdi->errorCode = FRT_FlacStreamDecoderNewFailed;
         dprintf("%s Flac decode error %d. set complete event.\n",
                 __FUNCTION__, fdi->errorCode);
@@ -480,7 +480,7 @@ WWFlacRW_DecodeAll(const wchar_t *path)
 
     // Windowsでは、この方法でファイルを開かなければならぬ。
     ercd = _wfopen_s(&fp, fdi->path, L"rb");
-    if (ercd != 0 || NULL == fp) {
+    if (ercd != 0 || nullptr == fp) {
         fdi->errorCode = FRT_FileOpenError;
         goto end;
     }
@@ -489,7 +489,7 @@ WWFlacRW_DecodeAll(const wchar_t *path)
             fdi->decoder, fp, WriteCallback, MetadataCallback, ErrorCallback, fdi);
 
     // FLAC__stream_decoder_finish()がfcloseしてくれるので、忘れる。
-    fp = NULL;
+    fp = nullptr;
 
     if(initStatus != FLAC__STREAM_DECODER_INIT_STATUS_OK) {
         fdi->errorCode = FRT_FlacStreamDecoderInitFailed;
@@ -523,17 +523,17 @@ WWFlacRW_DecodeAll(const wchar_t *path)
 
 end:
     if (fdi->errorCode < 0) {
-        if (NULL != fdi->decoder) {
+        if (nullptr != fdi->decoder) {
             if (initStatus == FLAC__STREAM_DECODER_INIT_STATUS_OK) {
                 FLAC__stream_decoder_finish(fdi->decoder);
             }
             FLAC__stream_decoder_delete(fdi->decoder);
-            fdi->decoder = NULL;
+            fdi->decoder = nullptr;
         }
 
         int result = fdi->errorCode;
         FlacTInfoDelete<FlacDecodeInfo>(g_flacDecodeInfoMap, fdi);
-        fdi = NULL;
+        fdi = nullptr;
 
         return result;
     }
@@ -548,7 +548,7 @@ int __stdcall
 WWFlacRW_GetDecodedMetadata(int id, WWFlacMetadata &metaReturn)
 {
     FlacDecodeInfo *fdi = FlacTInfoFindById<FlacDecodeInfo>(g_flacDecodeInfoMap, id);
-    if (NULL == fdi) {
+    if (nullptr == fdi) {
         return FRT_IdNotFound;
     }
 
@@ -579,12 +579,12 @@ extern "C" __declspec(dllexport)
 int __stdcall
 WWFlacRW_GetDecodedPicture(int id, uint8_t * pictureReturn, int pictureBytes)
 {
-    if (NULL == pictureReturn) {
+    if (nullptr == pictureReturn) {
         return FRT_BadParams;
     }
 
     FlacDecodeInfo *fdi = FlacTInfoFindById<FlacDecodeInfo>(g_flacDecodeInfoMap, id);
-    if (NULL == fdi) {
+    if (nullptr == fdi) {
         return FRT_IdNotFound;
     }
 
@@ -597,15 +597,15 @@ WWFlacRW_GetDecodedPicture(int id, uint8_t * pictureReturn, int pictureBytes)
 }
 
 extern "C" __declspec(dllexport)
-int64_t __stdcall
-WWFlacRW_GetDecodedPcmBytes(int id, int channel, int64_t startBytes, uint8_t * pcmReturn, int64_t pcmBytes)
+int __stdcall
+WWFlacRW_GetDecodedPcmBytes(int id, int channel, int64_t startBytes, uint8_t * pcmReturn, int pcmBytes)
 {
-    if (NULL == pcmReturn || pcmBytes <= 0) {
+    if (nullptr == pcmReturn || pcmBytes <= 0) {
         return FRT_BadParams;
     }
 
     FlacDecodeInfo *fdi = FlacTInfoFindById<FlacDecodeInfo>(g_flacDecodeInfoMap, id);
-    if (NULL == fdi) {
+    if (nullptr == fdi) {
         return FRT_IdNotFound;
     }
 
@@ -617,9 +617,9 @@ WWFlacRW_GetDecodedPcmBytes(int id, int channel, int64_t startBytes, uint8_t * p
         return FRT_RecvBufferSizeInsufficient;
     }
 
-    int64_t copyBytes = pcmBytes;
+    int copyBytes = pcmBytes;
     if (fdi->totalBytesPerChannel < startBytes + pcmBytes) {
-        copyBytes = fdi->totalBytesPerChannel - startBytes;
+        copyBytes = (int)(fdi->totalBytesPerChannel - startBytes);
     }
 
     memcpy(pcmReturn, &fdi->buffPerChannel[channel][startBytes], copyBytes);
@@ -630,12 +630,12 @@ extern "C" __declspec(dllexport)
 int __stdcall
 WWFlacRW_GetDecodedPictureBytes(int id, uint8_t * pictureReturn, int pictureBytes)
 {
-    if (NULL == pictureReturn || pictureBytes <= 0) {
+    if (nullptr == pictureReturn || pictureBytes <= 0) {
         return FRT_BadParams;
     }
 
     FlacDecodeInfo *fdi = FlacTInfoFindById<FlacDecodeInfo>(g_flacDecodeInfoMap, id);
-    if (NULL == fdi) {
+    if (nullptr == fdi) {
         return FRT_IdNotFound;
     }
 
@@ -652,13 +652,13 @@ int __stdcall
 WWFlacRW_DecodeEnd(int id)
 {
     FlacDecodeInfo *fdi = FlacTInfoFindById<FlacDecodeInfo>(g_flacDecodeInfoMap, id);
-    if (NULL == fdi) {
+    if (nullptr == fdi) {
         return FRT_OtherError;
     }
 
     int ercd = fdi->errorCode;
     FlacTInfoDelete<FlacDecodeInfo>(g_flacDecodeInfoMap, fdi);
-    fdi = NULL;
+    fdi = nullptr;
 
     return ercd;
 }
@@ -715,10 +715,10 @@ struct FlacEncodeInfo {
         memset(path, 0, sizeof path);
 
         errorCode = FRT_OtherError;
-        encoder = NULL;
+        encoder = nullptr;
 
         for (int i=0; i<FMT_NUM; ++i) {
-            flacMetaArray[i] = NULL;
+            flacMetaArray[i] = nullptr;
         }
 
         id = -1;
@@ -729,7 +729,7 @@ struct FlacEncodeInfo {
         totalSamples = 0;
         totalBytesPerChannel = 0;
 
-        buffPerChannel = NULL;
+        buffPerChannel = nullptr;
 
         memset(titleStr,       0, sizeof titleStr);
         memset(artistStr,      0, sizeof artistStr);
@@ -744,7 +744,7 @@ struct FlacEncodeInfo {
         memset(pictureDescriptionStr,    0, sizeof pictureDescriptionStr);
 
         pictureBytes = 0;
-        pictureData = NULL;
+        pictureData = nullptr;
 
         flacMetaCount = 0;
 
@@ -755,14 +755,14 @@ struct FlacEncodeInfo {
         if (buffPerChannel) {
             for (int ch=0; ch<channels; ++ch) {
                 delete [] buffPerChannel[ch];
-                buffPerChannel[ch] = NULL;
+                buffPerChannel[ch] = nullptr;
             }
             delete [] buffPerChannel;
-            buffPerChannel = NULL;
+            buffPerChannel = nullptr;
         }
 
         delete [] pictureData;
-        pictureData = NULL;
+        pictureData = nullptr;
     }
 
     static int nextId;
@@ -789,7 +789,7 @@ DeleteFlacMetaArray(FlacEncodeInfo *fei)
 {
     for (int i=0; i<FMT_NUM; ++i) {
         FLAC__metadata_object_delete(fei->flacMetaArray[i]);
-        fei->flacMetaArray[i] = NULL;
+        fei->flacMetaArray[i] = nullptr;
     }
 }
 
@@ -799,7 +799,7 @@ DeleteFlacMetaArray(FlacEncodeInfo *fei)
             FLAC__metadata_object_vorbiscomment_append_comment(fei->flacMetaArray[FMT_VorbisComment], entry, false)) { \
     }
 
-#define WCTOUTF8(X) WideCharToMultiByte(CP_UTF8, 0, meta.X, -1, fei->X, sizeof fei->X-1,  NULL, NULL)
+#define WCTOUTF8(X) WideCharToMultiByte(CP_UTF8, 0, meta.X, -1, fei->X, sizeof fei->X-1,  nullptr, nullptr)
 
 extern "C" __declspec(dllexport)
 int __stdcall
@@ -809,7 +809,7 @@ WWFlacRW_EncodeInit(const WWFlacMetadata &meta)
     FLAC__StreamMetadata_VorbisComment_Entry entry;
 
     FlacEncodeInfo *fei = FlacTInfoNew<FlacEncodeInfo>(g_flacEncodeInfoMap);
-    if (NULL == fei) {
+    if (nullptr == fei) {
         return FRT_OtherError;
     }
     
@@ -822,12 +822,21 @@ WWFlacRW_EncodeInit(const WWFlacMetadata &meta)
     fei->totalBytesPerChannel = meta.totalSamples * fei->bitsPerSample/8;
     fei->pictureBytes = meta.pictureBytes;
 
-    assert(NULL == fei->buffPerChannel);
+    assert(nullptr == fei->buffPerChannel);
     fei->buffPerChannel = new uint8_t*[fei->channels];
-    if (NULL == fei->buffPerChannel) {
+    if (nullptr == fei->buffPerChannel) {
         return FRT_MemoryExhausted;
     }
     memset(fei->buffPerChannel, 0, sizeof(uint8_t*)*fei->channels);
+
+    for (int ch=0; ch < fei->channels; ++ch) {
+        fei->buffPerChannel[ch] = new uint8_t[fei->totalBytesPerChannel];
+        if (nullptr == fei->buffPerChannel) {
+            dprintf("WWFlacRW_EncodeInit() memory exhausted\n");
+            fei->errorCode = FRT_MemoryExhausted;
+            goto end;
+        }
+    }
     
     WCTOUTF8(titleStr);
     WCTOUTF8(artistStr);
@@ -841,7 +850,7 @@ WWFlacRW_EncodeInit(const WWFlacMetadata &meta)
     WCTOUTF8(pictureMimeTypeStr);
     WCTOUTF8(pictureDescriptionStr);
 
-    if((fei->encoder = FLAC__stream_encoder_new()) == NULL) {
+    if((fei->encoder = FLAC__stream_encoder_new()) == nullptr) {
         dprintf("FLAC__stream_encoder_new failed\n");
         fei->errorCode = FRT_OtherError;
         goto end;
@@ -860,12 +869,12 @@ WWFlacRW_EncodeInit(const WWFlacMetadata &meta)
         goto end;
     }
 
-    if((fei->flacMetaArray[FMT_VorbisComment] = FLAC__metadata_object_new(FLAC__METADATA_TYPE_VORBIS_COMMENT)) == NULL) {
+    if((fei->flacMetaArray[FMT_VorbisComment] = FLAC__metadata_object_new(FLAC__METADATA_TYPE_VORBIS_COMMENT)) == nullptr) {
         dprintf("FLAC__metadata_object_new vorbis comment failed\n");
         fei->errorCode = FRT_OtherError;
         goto end;
     }
-    if((fei->flacMetaArray[FMT_Picture] = FLAC__metadata_object_new(FLAC__METADATA_TYPE_PICTURE)) == NULL) {
+    if((fei->flacMetaArray[FMT_Picture] = FLAC__metadata_object_new(FLAC__METADATA_TYPE_PICTURE)) == nullptr) {
         dprintf("FLAC__metadata_object_new picture failed\n");
         fei->errorCode = FRT_OtherError;
         goto end;
@@ -885,16 +894,25 @@ WWFlacRW_EncodeInit(const WWFlacMetadata &meta)
 
 end:
     if (fei->errorCode < 0) {
-        if (NULL != fei->encoder) {
+        if (nullptr != fei->encoder) {
             FLAC__stream_encoder_delete(fei->encoder);
-            fei->encoder = NULL;
+            fei->encoder = nullptr;
         }
+
+        for (int ch=0; ch < fei->channels; ++ch) {
+            if (fei->buffPerChannel) {
+                delete[] fei->buffPerChannel[ch];
+                fei->buffPerChannel[ch] = nullptr;
+            }
+        }
+        delete[] fei->buffPerChannel;
+        fei->buffPerChannel = nullptr;
 
         DeleteFlacMetaArray(fei);
 
         int result = fei->errorCode;
         FlacTInfoDelete<FlacEncodeInfo>(g_flacEncodeInfoMap, fei);
-        fei = NULL;
+        fei = nullptr;
 
         return result;
     }
@@ -906,17 +924,17 @@ extern "C" __declspec(dllexport)
 int __stdcall
 WWFlacRW_EncodeSetPicture(int id, const uint8_t * pictureData, int pictureBytes)
 {
-    if (NULL == pictureData || pictureBytes <= 0) {
+    if (nullptr == pictureData || pictureBytes <= 0) {
         dprintf("%s parameter pictureData or pictureBytes error\n", __FUNCTION__);
         return FRT_BadParams;
     }
 
     FlacEncodeInfo *fei = FlacTInfoFindById<FlacEncodeInfo>(g_flacEncodeInfoMap, id);
-    if (NULL == fei) {
+    if (nullptr == fei) {
         return FRT_IdNotFound;
     }
 
-    if (fei->pictureData != NULL) {
+    if (fei->pictureData != nullptr) {
         dprintf("%s already has picture data!\n", __FUNCTION__);
         return FRT_BadParams;
     }
@@ -942,7 +960,7 @@ WWFlacRW_EncodeSetPicture(int id, const uint8_t * pictureData, int pictureBytes)
 
     fei->pictureBytes = pictureBytes;
     fei->pictureData = new uint8_t[fei->pictureBytes];
-    if (NULL == fei->pictureData) {
+    if (nullptr == fei->pictureData) {
         dprintf("%s could not alloc picture data!\n", __FUNCTION__);
         fei->errorCode = FRT_MemoryExhausted;
         goto end;
@@ -963,15 +981,15 @@ end:
 
 extern "C" __declspec(dllexport)
 int __stdcall
-WWFlacRW_EncodeAddPcm(int id, int channel, const uint8_t * pcmData, int64_t pcmBytes)
+WWFlacRW_EncodeSetPcmFragment(int id, int channel, int64_t offs, const uint8_t * pcmData, int copyBytes)
 {
-    if (NULL == pcmData || pcmBytes <= 0 || channel < 0) {
+    if (nullptr == pcmData || copyBytes < 0 || channel < 0) {
         dprintf("%s parameter pcmData or pcmBytes or channel error\n", __FUNCTION__);
         return FRT_BadParams;
     }
 
     FlacEncodeInfo *fei = FlacTInfoFindById<FlacEncodeInfo>(g_flacEncodeInfoMap, id);
-    if (NULL == fei) {
+    if (nullptr == fei) {
         return FRT_IdNotFound;
     }
 
@@ -980,23 +998,16 @@ WWFlacRW_EncodeAddPcm(int id, int channel, const uint8_t * pcmData, int64_t pcmB
         return FRT_BadParams;
     }
 
-    if (fei->totalBytesPerChannel != pcmBytes) {
-        dprintf("%s parameter pcmBytes mismatch. must be %lld\n", __FUNCTION__, fei->totalBytesPerChannel);
-        return FRT_BadParams;
+    if (fei->totalBytesPerChannel < offs + copyBytes) {
+        copyBytes = (int)(fei->totalBytesPerChannel - offs);
+        dprintf("%s copy size is too large. trimmed to %d\n", __FUNCTION__, copyBytes);
     }
 
-    if (fei->buffPerChannel[channel]) {
-        dprintf("%s channel %d already has data!\n", __FUNCTION__, fei->channels);
-        return FRT_BadParams;
-    }
-
-    fei->buffPerChannel[channel] = new uint8_t[pcmBytes];
-    if (NULL == fei->buffPerChannel[channel]) {
-        dprintf("%s could not allocm memory\n", __FUNCTION__);
+    if (nullptr == fei->buffPerChannel[channel]) {
         return FRT_MemoryExhausted;
     }
 
-    memcpy(fei->buffPerChannel[channel], pcmData, pcmBytes);
+    memcpy(&fei->buffPerChannel[channel][offs], pcmData, copyBytes);
     return FRT_Success;
 }
 
@@ -1006,26 +1017,26 @@ extern "C" __declspec(dllexport)
 int __stdcall
 WWFlacRW_EncodeRun(int id, const wchar_t *path)
 {
-    FILE *fp = NULL;
+    FILE *fp = nullptr;
     errno_t ercd;
     int64_t left;
     int64_t readPos;
     int64_t writePos;
     FLAC__bool ok = true;
-    FLAC__int32 *pcm = NULL;
+    FLAC__int32 *pcm = nullptr;
 
-    if (NULL == path || wcslen(path) == 0) {
+    if (nullptr == path || wcslen(path) == 0) {
         return FRT_BadParams;
     }
 
     FLAC__StreamEncoderInitStatus initStatus = FLAC__STREAM_ENCODER_INIT_STATUS_ENCODER_ERROR;
 
     FlacEncodeInfo *fei = FlacTInfoFindById<FlacEncodeInfo>(g_flacEncodeInfoMap, id);
-    if (NULL == fei) {
+    if (nullptr == fei) {
         return FRT_IdNotFound;
     }
 
-    if (0 < fei->pictureBytes && fei->pictureData == NULL) {
+    if (0 < fei->pictureBytes && fei->pictureData == nullptr) {
         dprintf("%s picture data is not set yet.\n", __FUNCTION__);
         return FRT_DataNotReady;
     }
@@ -1040,7 +1051,7 @@ WWFlacRW_EncodeRun(int id, const wchar_t *path)
     }
 
     for (int ch=0; ch<fei->channels; ++ch) {
-        if (fei->buffPerChannel[ch] == NULL){
+        if (fei->buffPerChannel[ch] == nullptr) {
             dprintf("%s pcm buffer is not set yet.\n", __FUNCTION__);
             return FRT_DataNotReady;
         }
@@ -1051,14 +1062,14 @@ WWFlacRW_EncodeRun(int id, const wchar_t *path)
     }
 
     pcm = new FLAC__int32[FLACENCODE_READFRAMES * fei->channels];
-    if (pcm == NULL) {
+    if (pcm == nullptr) {
         return FRT_MemoryExhausted;
     }
 
     // Windowsでは、この方法でファイルを開かなければならぬ。
     wcsncpy_s(fei->path, path, (sizeof fei->path)/2-1);
     ercd = _wfopen_s(&fp, fei->path, L"wb");
-    if (ercd != 0 || NULL == fp) {
+    if (ercd != 0 || nullptr == fp) {
         fei->errorCode = FRT_FileOpenError;
         goto end;
     }
@@ -1099,7 +1110,7 @@ WWFlacRW_EncodeRun(int id, const wchar_t *path)
             goto end;
         }
     }
-    fp = NULL;
+    fp = nullptr;
 
     readPos = 0;
     left = fei->totalSamples;
@@ -1146,14 +1157,14 @@ WWFlacRW_EncodeRun(int id, const wchar_t *path)
 
 end:
     delete [] pcm;
-    pcm = NULL;
+    pcm = nullptr;
 
-    if (NULL != fp) {
+    if (nullptr != fp) {
         fclose(fp);
-        fp = NULL;
+        fp = nullptr;
     }
 
-    if (NULL != fei->encoder) {
+    if (nullptr != fei->encoder) {
         if (initStatus == FLAC__STREAM_ENCODER_INIT_STATUS_OK) {
             FLAC__stream_encoder_finish(fei->encoder);
         }
@@ -1161,13 +1172,13 @@ end:
         DeleteFlacMetaArray(fei);
 
         FLAC__stream_encoder_delete(fei->encoder);
-        fei->encoder = NULL;
+        fei->encoder = nullptr;
     }
 
     if (fei->errorCode < 0) {
         int result = fei->errorCode;
         FlacTInfoDelete<FlacEncodeInfo>(g_flacEncodeInfoMap, fei);
-        fei = NULL;
+        fei = nullptr;
 
         return result;
     }
@@ -1182,14 +1193,24 @@ int __stdcall
 WWFlacRW_EncodeEnd(int id)
 {
     FlacEncodeInfo *fei = FlacTInfoFindById<FlacEncodeInfo>(g_flacEncodeInfoMap, id);
-    if (NULL == fei) {
+    if (nullptr == fei) {
         return FRT_IdNotFound;
     }
 
-    if (NULL != fei->encoder) {
+    if (nullptr != fei->encoder) {
         FLAC__stream_encoder_delete(fei->encoder);
-        fei->encoder = NULL;
+        fei->encoder = nullptr;
     }
+
+    if (fei->buffPerChannel) {
+        for (int ch=0; ch < fei->channels; ++ch) {
+            delete[] fei->buffPerChannel[ch];
+            fei->buffPerChannel[ch] = nullptr;
+        }
+    }
+    delete[] fei->buffPerChannel;
+    fei->buffPerChannel = nullptr;
+
     FlacTInfoDelete<FlacEncodeInfo>(g_flacEncodeInfoMap, fei);
 
     return FRT_Success;

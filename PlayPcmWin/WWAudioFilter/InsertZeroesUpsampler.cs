@@ -54,14 +54,17 @@ namespace WWAudioFilter {
             return r;
         }
 
-        public override double[] FilterDo(double[] inPcm) {
-            System.Diagnostics.Debug.Assert(inPcm.Length == NumOfSamplesNeeded());
+        public override PcmDataLib.LargeArray<double> FilterDo(PcmDataLib.LargeArray<double> inPcmLA) {
+            System.Diagnostics.Debug.Assert(inPcmLA.LongLength == NumOfSamplesNeeded());
 
-            double [] outPcm = new double[inPcm.Length * Factor];
+            var inPcm = inPcmLA.ToArray();
+
+            var outPcm = new double[inPcm.Length * Factor];
             for (int i = 0; i < inPcm.Length; ++i) {
                 outPcm[i*Factor] = inPcm[i];
             }
-            return outPcm;
+
+            return new PcmDataLib.LargeArray<double>(outPcm);
         }
     }
 }

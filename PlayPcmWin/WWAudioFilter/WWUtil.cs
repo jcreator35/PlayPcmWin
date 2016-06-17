@@ -48,12 +48,24 @@ namespace WWAudioFilter {
             return (x != 0) && ((x & (x - 1)) == 0);
         }
 
+        public static bool IsPowerOfTwo(long x) {
+            return (x != 0) && ((x & (x - 1)) == 0);
+        }
+
         public static int NextPowerOf2(int v) {
             if (v <= 0 || 0x3fffffff < v) {
                 return 0;
             }
 
             int result = 1;
+            while (result < v) {
+                result *= 2;
+            }
+            return result;
+        }
+
+        public static long NextPowerOf2(long v) {
+            long result = 1;
             while (result < v) {
                 result *= 2;
             }

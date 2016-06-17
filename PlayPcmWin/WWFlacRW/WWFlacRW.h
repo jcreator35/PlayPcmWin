@@ -96,8 +96,8 @@ WWFlacRW_GetDecodedPicture(int id, uint8_t * pictureReturn, int pictureBytes);
 
 /// @return 0以上: コピーしたバイト数。負: エラー。FlacRWResultType参照。
 extern "C" WWFLACRW_API
-int64_t __stdcall
-WWFlacRW_GetDecodedPcmBytes(int id, int channel, int64_t startBytes, uint8_t * pcmReturn, int64_t pcmBytes);
+int __stdcall
+WWFlacRW_GetDecodedPcmBytes(int id, int channel, int64_t startBytes, uint8_t * pcmReturn, int pcmBytes);
 
 /// @return 0以上: 成功。負: エラー。FlacRWResultType参照。
 extern "C" WWFLACRW_API
@@ -121,7 +121,7 @@ WWFlacRW_EncodeSetPicture(int id, const uint8_t * pictureData, int pictureBytes)
 /// @return 0以上: 成功。負: エラー。FlacRWResultType参照。
 extern "C" WWFLACRW_API
 int __stdcall
-WWFlacRW_EncodeAddPcm(int id, int channel, const uint8_t * pcmData, int64_t pcmBytes);
+WWFlacRW_EncodeSetPcmFragment(int id, int channel, int64_t offs, const uint8_t * pcmData, int copyBytes);
 
 /// @return 0以上: 成功。負: エラー。FlacRWResultType参照。
 extern "C" WWFLACRW_API

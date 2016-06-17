@@ -68,7 +68,9 @@ namespace WWAudioFilter {
         }
 
 
-        public override double[] FilterDo(double[] inPcm) {
+        public override PcmDataLib.LargeArray<double> FilterDo(PcmDataLib.LargeArray<double> inPcmLA) {
+            var inPcm = inPcmLA.ToArray();
+
             int i = 0;
             double[] outPcm;
             if (mDelay.Count == 0) {
@@ -102,7 +104,7 @@ namespace WWAudioFilter {
                 mDelay.RemoveAt(0);
                 mDelay.Add(inPcm[i]);
             }
-            return outPcm;
+            return new PcmDataLib.LargeArray<double>(outPcm);
         }
     }
 }

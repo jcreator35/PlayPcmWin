@@ -8,11 +8,11 @@ namespace WWAudioFilter {
     class WWDsfWriter {
         private WWFlacRWCS.Metadata mMeta;
         private byte [] mPictureData;
-        private List<byte[]> mDsdData;
+        private List<PcmDataLib.LargeArray<byte>> mDsdData;
 
         public int EncodeInit(WWFlacRWCS.Metadata meta) {
             mMeta = meta;
-            mDsdData = new List<byte[]>();
+            mDsdData = new List<PcmDataLib.LargeArray<byte>>();
             return 0;
         }
 
@@ -27,7 +27,7 @@ namespace WWAudioFilter {
             return 0;
         }
 
-        public int EncodeAddPcm(int channel, byte[] pcmData) {
+        public int EncodeAddPcm(int channel, PcmDataLib.LargeArray<byte> pcmData) {
             mDsdData.Add(pcmData);
             return 0;
         }
@@ -329,7 +329,7 @@ namespace WWAudioFilter {
                     }
                     
                     for (int j=0; j<copyBytes; ++j) {
-                        data[j] = mDsdData[ch][pos+j];
+                        data[j] = mDsdData[ch].At(pos+j);
                     }
                     for (int j=copyBytes; j < data.Length; ++j) {
                         data[j] = 0x69;

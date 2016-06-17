@@ -182,9 +182,9 @@ namespace WWFlacRWCS {
             return NativeMethods.WWFlacRW_GetDecodedPicture(mId, pictureReturn, pictureReturn.Length);
         }
 
-        public long GetDecodedPcmBytes(int channel, long startBytes, out byte[] pcmReturn, long pcmBytes) {
+        public int GetDecodedPcmBytes(int channel, long startBytes, out byte[] pcmReturn, int pcmBytes) {
             pcmReturn = new byte[pcmBytes];
-            return NativeMethods.WWFlacRW_GetDecodedPcmBytes(mId, channel, startBytes, pcmReturn, pcmReturn.LongLength);
+            return NativeMethods.WWFlacRW_GetDecodedPcmBytes(mId, channel, startBytes, pcmReturn, pcmReturn.Length);
         }
 
         public void DecodeEnd() {
@@ -222,8 +222,24 @@ namespace WWFlacRWCS {
             return NativeMethods.WWFlacRW_EncodeSetPicture(mId, pictureData, pictureData.Length);
         }
 
-        public int EncodeAddPcm(int channel, byte[] pcmData) {
-            return NativeMethods.WWFlacRW_EncodeAddPcm(mId, channel, pcmData, pcmData.LongLength);
+        public int EncodeAddPcm(int channel, PcmDataLib.LargeArray<byte> pcmData) {
+            for (long offs = 0; offs < pcmData.LongLength; offs += PcmDataLib.LargeArray<byte>.ARRAY_FRAGMENT_LENGTH_MAX) {
+                int fragmentBytes = PcmDataLib.LargeArray<byte>.ARRAY_FRAGMENT_LENGTH_MAX;
+                if (pcmData.LongLength < offs + fragmentBytes) {
+                    fragmentBytes = (int)(pcmData.LongLength - offs);
+                }
+
+                var fragment = new byte[fragmentBytes];
+                pcmData.CopyTo(offs, fragment, 0, fragmentBytes);
+
+                int rv = NativeMethods.WWFlacRW_EncodeSetPcmFragment(mId, channel, offs, fragment, fragmentBytes);
+                if (rv < 0) {
+                    return rv;
+                }
+
+                offs += fragmentBytes;
+            }
+            return 0;
         }
 
         public int EncodeRun(string path) {
@@ -290,7 +306,7 @@ namespace WWFlacRWCS {
 
         [DllImport("WWFlacRW.dll", CharSet = CharSet.Unicode)]
         internal extern static
-        long WWFlacRW_GetDecodedPcmBytes(int id, int channel, long startBytes, byte[] pcmReturn, long pcmBytes);
+        int WWFlacRW_GetDecodedPcmBytes(int id, int channel, long startBytes, byte[] pcmReturn, int pcmBytes);
 
         [DllImport("WWFlacRW.dll", CharSet = CharSet.Unicode)]
         internal extern static
@@ -306,7 +322,7 @@ namespace WWFlacRWCS {
 
         [DllImport("WWFlacRW.dll", CharSet = CharSet.Unicode)]
         internal extern static
-        int WWFlacRW_EncodeAddPcm(int id, int channel, byte[] pcmData, long pcmBytes);
+        int WWFlacRW_EncodeSetPcmFragment(int id, int channel, long offs, byte[] pcmData, int copyBytes);
 
         [DllImport("WWFlacRW.dll", CharSet = CharSet.Unicode)]
         internal extern static

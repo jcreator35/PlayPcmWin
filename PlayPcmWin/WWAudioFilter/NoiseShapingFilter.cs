@@ -67,10 +67,12 @@ namespace WWAudioFilter {
             mNoiseShaper = null;
         }
 
-        public override double[] FilterDo(double[] inPcm) {
-            double [] outPcm = new double[inPcm.LongLength];
+        public override PcmDataLib.LargeArray<double> FilterDo(PcmDataLib.LargeArray<double> inPcmLA) {
+            var inPcm = inPcmLA.ToArray();
+
+            var outPcm = new double[inPcm.Length];
             
-            for (long i=0; i < outPcm.LongLength; ++i) {
+            for (int i=0; i < outPcm.Length; ++i) {
                 double sampleD = inPcm[i];
 
                 int sampleI24;
@@ -87,7 +89,7 @@ namespace WWAudioFilter {
                 outPcm[i] = (double)sampleI24 * (1.0 / 8388608);
             }
 
-            return outPcm;
+            return new PcmDataLib.LargeArray<double>(outPcm);
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////

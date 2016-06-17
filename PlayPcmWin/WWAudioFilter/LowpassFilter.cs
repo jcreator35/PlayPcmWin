@@ -104,8 +104,10 @@ namespace WWAudioFilter {
             return FFT_LEN - FILTER_LENP1;
         }
 
-        public override double[] FilterDo(double[] inPcm) {
-            System.Diagnostics.Debug.Assert(inPcm.LongLength <= NumOfSamplesNeeded());
+        public override PcmDataLib.LargeArray<double> FilterDo(PcmDataLib.LargeArray<double> inPcmLA) {
+            System.Diagnostics.Debug.Assert(inPcmLA.LongLength <= NumOfSamplesNeeded());
+            var inPcm = inPcmLA.ToArray();
+
             var fft = new WWRadix2Fft(FFT_LEN);
 
             // Overlap and add continuous FFT
@@ -156,7 +158,7 @@ namespace WWAudioFilter {
             }
             outTime = null;
 
-            return outReal;
+            return new PcmDataLib.LargeArray<double>(outReal);
         }
     }
 }

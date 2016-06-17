@@ -35,10 +35,10 @@ namespace WWAudioFilter {
             return mFormat.NumSamples;
         }
 
-        public override double[] FilterDo(double[] inPcm) {
-            double [] outPcm = new double[inPcm.Length];
-            for (long i=0; i < outPcm.Length; ++i) {
-                outPcm[i] = inPcm[inPcm.Length - i - 1];
+        public override PcmDataLib.LargeArray<double> FilterDo(PcmDataLib.LargeArray<double> inPcm) {
+            PcmDataLib.LargeArray<double> outPcm = new PcmDataLib.LargeArray<double>(inPcm.LongLength);
+            for (long i=0; i < outPcm.LongLength; ++i) {
+                outPcm.Set(i, inPcm.At(inPcm.LongLength - i - 1));
             }
             return outPcm;
         }

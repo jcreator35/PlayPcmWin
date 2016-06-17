@@ -90,9 +90,7 @@ namespace WWAudioFilter {
             return false;
         }
 
-
-
-        private int SetupResultPcm(AudioData from,  List<FilterBase> filters, out AudioData to, FileFormatType toFileFormat) {
+        private int SetupResultPcm(AudioData from, List<FilterBase> filters, out AudioData to, FileFormatType toFileFormat) {
             to = new AudioData();
             to.preferredSaveFormat = toFileFormat;
 
@@ -106,12 +104,12 @@ namespace WWAudioFilter {
             switch (toFileFormat) {
             case FileFormatType.FLAC:
 #if true
-            to.meta.bitsPerSample = 24;
+                to.meta.bitsPerSample = 24;
 #endif
-            break;
+                break;
             case FileFormatType.DSF:
-            to.meta.bitsPerSample = 1;
-            break;
+                to.meta.bitsPerSample = 1;
+                break;
             }
 
             if (from.picture != null) {
@@ -122,29 +120,29 @@ namespace WWAudioFilter {
             // allocate "to" pcm data
             to.pcm = new List<AudioDataPerChannel>();
             for (int ch = 0; ch < to.meta.channels; ++ch) {
-                byte[] data;
+                PcmDataLib.LargeArray<byte> data;
 
                 // set silent sample values to output buffer
                 switch (toFileFormat) {
                 case FileFormatType.DSF:
-                if (0x7FFFFFC7 < (to.meta.totalSamples + 7) / 8) {
-                    return (int)WWFlacRWCS.FlacErrorCode.OutputFileTooLarge;
-                }
-                data = new byte[(to.meta.totalSamples + 7) / 8];
-                for (long i = 0; i < data.LongLength; ++i) {
-                    data[i] = 0x69;
-                }
-                break;
+                    if (0x7FFFFFC7 < (to.meta.totalSamples + 7) / 8) {
+                        return (int)WWFlacRWCS.FlacErrorCode.OutputFileTooLarge;
+                    }
+                    data = new PcmDataLib.LargeArray<byte>((to.meta.totalSamples + 7) / 8);
+                    for (long i = 0; i < data.LongLength; ++i) {
+                        data.Set(i, 0x69);
+                    }
+                    break;
                 case FileFormatType.FLAC:
-                if (0x7FFFFFC7 < to.meta.totalSamples * (to.meta.bitsPerSample / 8)) {
-                    return (int)WWFlacRWCS.FlacErrorCode.OutputFileTooLarge;
-                }
-                data = new byte[to.meta.totalSamples * (to.meta.bitsPerSample / 8)];
-                break;
+                    if (0x7FFFFFC7 < to.meta.totalSamples * (to.meta.bitsPerSample / 8)) {
+                        return (int)WWFlacRWCS.FlacErrorCode.OutputFileTooLarge;
+                    }
+                    data = new PcmDataLib.LargeArray<byte>(to.meta.totalSamples * (to.meta.bitsPerSample / 8));
+                    break;
                 default:
-                System.Diagnostics.Debug.Assert(false);
-                data = null;
-                break;
+                    System.Diagnostics.Debug.Assert(false);
+                    data = null;
+                    break;
                 }
 
                 var adp = new AudioDataPerChannel();
@@ -190,16 +188,16 @@ namespace WWAudioFilter {
 
                 ad.pcm = new List<AudioDataPerChannel>();
                 for (int ch = 0; ch < reader.NumChannels; ++ch) {
-
-                    var pcmOneChannel = new byte[reader.NumFrames * bytesPerSample];
+                    var pcmOneChannel = new PcmDataLib.LargeArray<byte>(reader.NumFrames * bytesPerSample);
                     for (int i = 0; i < reader.NumFrames; ++i) {
                         for (int b = 0; b < reader.BitsPerSample / 8; ++b) {
-                            pcmOneChannel[bytesPerSample * i + b] =
-                                interleaved[bytesPerSample * (reader.NumChannels * i + ch) + b];
+                            pcmOneChannel.Set(bytesPerSample * i + b,
+                                interleaved[bytesPerSample * (reader.NumChannels * i + ch) + b]);
                         }
                     }
 
-                    var pcm24 = PcmDataLib.Util.ConvertTo24bit(reader.BitsPerSample, reader.NumFrames, reader.SampleValueRepresentationType, pcmOneChannel);
+                    var pcm24 = PcmDataLib.Util.ConvertTo24bit(reader.BitsPerSample, reader.NumFrames,
+                            reader.SampleValueRepresentationType, pcmOneChannel);
 
                     var adp = new AudioDataPerChannel();
                     adp.data = pcm24;
@@ -237,13 +235,31 @@ namespace WWAudioFilter {
 
             ad.pcm = new List<AudioDataPerChannel>();
             for (int ch = 0; ch < ad.meta.channels; ++ch) {
-                byte[] pcm;
-                long lrv = flac.GetDecodedPcmBytes(ch, 0, out pcm, ad.meta.totalSamples * (ad.meta.bitsPerSample / 8));
-                if (lrv < 0) {
-                    return (int)lrv;
+
+                // ■■■ 1チャンネル分のデータを取り出す。■■■
+                long totalBytes = ad.meta.totalSamples * ad.meta.bitsPerSample / 8;
+
+                var pcm = new PcmDataLib.LargeArray<byte>(totalBytes);
+                int fragmentBytes = 4096 * ad.meta.bitsPerSample / 8;
+                for (long pos = 0; pos < totalBytes; ) {
+                    int copyBytes = fragmentBytes;
+                    if (pos + fragmentBytes < totalBytes) {
+                        copyBytes = (int)(totalBytes - pos);
+                    }
+
+                    var fragment = new byte[copyBytes];
+                    int lrv = flac.GetDecodedPcmBytes(ch, pos, out fragment, copyBytes);
+                    if (lrv < 0) {
+                        return lrv;
+                    }
+
+                    // fragmentに入っているPCMデータのサイズはlrvバイト。
+                    pcm.CopyFrom(fragment, 0, pos, lrv);
+                    pos += copyBytes;
                 }
 
-                var pcm24 = PcmDataLib.Util.ConvertTo24bit(ad.meta.bitsPerSample, ad.meta.totalSamples, PcmDataLib.PcmData.ValueRepresentationType.SInt, pcm);
+                var pcm24 = PcmDataLib.Util.ConvertTo24bit(ad.meta.bitsPerSample,
+                    ad.meta.totalSamples, PcmDataLib.PcmData.ValueRepresentationType.SInt, pcm);
 
                 var adp = new AudioDataPerChannel();
                 adp.data = pcm24;
@@ -252,7 +268,7 @@ namespace WWAudioFilter {
                 adp.totalSamples = ad.meta.totalSamples;
                 ad.pcm.Add(adp);
             }
-            
+
             // converted to 24bit
             ad.meta.bitsPerSample = 24;
             ad.preferredSaveFormat = FileFormatType.FLAC;
@@ -327,7 +343,7 @@ namespace WWAudioFilter {
             return 0;
         }
 
-        private static long CountTotalSamples(List<double[]> data) {
+        private static long CountTotalSamples(List<PcmDataLib.LargeArray<double>> data) {
             long count = 0;
             foreach (var k in data) {
                 count += k.LongLength;
@@ -335,8 +351,9 @@ namespace WWAudioFilter {
             return count;
         }
 
-        private static void AssembleSample(List<double[]> dataList, long count, out double[] gathered, out double[] remainings) {
-            gathered = new double[count];
+        private static void AssembleSample(List<PcmDataLib.LargeArray<double>> dataList, long count,
+                out PcmDataLib.LargeArray<double> gathered, out PcmDataLib.LargeArray<double> remainings) {
+            gathered = new PcmDataLib.LargeArray<double>(count);
             long offs = 0;
             long remainLength = 0;
             foreach (var d in dataList) {
@@ -347,33 +364,33 @@ namespace WWAudioFilter {
                     remainLength = d.LongLength - length;
                 }
 
-                Array.Copy(d, 0, gathered, offs, length);
+                gathered.CopyFrom(d, 0, offs, length);
                 offs += length;
             }
 
-            remainings = new double[remainLength];
+            remainings = new PcmDataLib.LargeArray<double>(remainLength);
             if (0 < remainLength) {
                 long lastDataLength = dataList[dataList.Count - 1].LongLength;
-                Array.Copy(dataList[dataList.Count - 1], lastDataLength - remainLength, remainings, 0, remainLength);
+                remainings.CopyFrom(dataList[dataList.Count - 1], lastDataLength - remainLength, 0, remainLength);
             }
         }
 
         private Barrier mBarrierReady;
         private Barrier mBarrierSet;
 
-        private double[][] mInPcmArray;
+        private PcmDataLib.LargeArray<double>[] mInPcmArray;
 
-        private double[] FilterNth(List<FilterBase> filters, int nth, int channelId,
+        private PcmDataLib.LargeArray<double> FilterNth(List<FilterBase> filters, int nth, int channelId,
                 ref AudioDataPerChannel from) {
             if (nth == -1) {
                 return from.GetPcmInDouble(filters[0].NumOfSamplesNeeded());
             } else {
                 // サンプル数が貯まるまでn-1番目のフィルターを実行する。
 
-                List<double[]> inPcmList = new List<double[]>();
+                var inPcmList = new List<PcmDataLib.LargeArray<double>>();
                 {
                     // 前回フィルタ処理で余った入力データ
-                    double[] prevRemainings = filters[nth].GetPreviousProcessRemains();
+                    var prevRemainings = filters[nth].GetPreviousProcessRemains();
                     if (prevRemainings != null && 0 < prevRemainings.LongLength) {
                         inPcmList.Add(prevRemainings);
                     }
@@ -383,9 +400,8 @@ namespace WWAudioFilter {
                     inPcmList.Add(FilterNth(filters, nth - 1, channelId, ref from));
                 }
 
-
-                double[] inPcm;
-                double[] remainings;
+                PcmDataLib.LargeArray<double> inPcm;
+                PcmDataLib.LargeArray<double> remainings;
                 AssembleSample(inPcmList, filters[nth].NumOfSamplesNeeded(), out inPcm, out remainings);
 
                 if (filters[nth].WaitUntilAllChannelDataAvailable()) {
@@ -412,7 +428,7 @@ namespace WWAudioFilter {
                 // n番目のフィルター実行準備が整った。
                 // n番目のフィルターを実行する。
 
-                double[] outPcm = filters[nth].FilterDo(inPcm);
+                var outPcm = filters[nth].FilterDo(inPcm);
 
                 // length-1番目のフィルター後に余った入力データremainingsをn番目のフィルターにセットする
                 filters[nth].SetPreviousProcessRemains(remainings);
@@ -475,7 +491,7 @@ namespace WWAudioFilter {
 
             mBarrierReady = new Barrier(audioDataFrom.meta.channels);
             mBarrierSet = new Barrier(audioDataFrom.meta.channels);
-            mInPcmArray = new double[audioDataFrom.meta.channels][];
+            mInPcmArray = new PcmDataLib.LargeArray<double>[audioDataFrom.meta.channels];
 
             Callback(FILE_READ_COMPLETE_PERCENTAGE, new ProgressArgs(Properties.Resources.LogFileReadCompleted, 0));
 

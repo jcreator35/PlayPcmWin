@@ -69,15 +69,15 @@ namespace WWAudioFilter {
         /// WaitUntilAllChannelDataAvailable()==trueの時呼び出される。
         /// 全てのチャンネルについてSetChannelPcm()が呼び出されたあとFilterDo()が呼び出される。
         /// </summary>
-        public virtual void SetChannelPcm(int ch, double[] inPcm) {
+        public virtual void SetChannelPcm(int ch, PcmDataLib.LargeArray<double> inPcm) {
         }
 
         // 物置
-        private double [] mPreviousProcessRemains;
-        public double[] GetPreviousProcessRemains() {
+        private PcmDataLib.LargeArray<double> mPreviousProcessRemains;
+        public PcmDataLib.LargeArray<double> GetPreviousProcessRemains() {
             return mPreviousProcessRemains;
         }
-        public void SetPreviousProcessRemains(double[] remains) {
+        public void SetPreviousProcessRemains(PcmDataLib.LargeArray<double> remains) {
             mPreviousProcessRemains = remains;
         }
         public FilterBase(FilterType type) {
@@ -124,18 +124,18 @@ namespace WWAudioFilter {
             return 4096;
         }
 
-        public virtual double [] FilterDo(double [] inPcm) {
+        public virtual PcmDataLib.LargeArray<double> FilterDo(PcmDataLib.LargeArray<double> inPcm) {
             long num = NumOfSamplesNeeded();
             if (inPcm.LongLength != num) {
                 throw new ArgumentOutOfRangeException("inPcm");
             }
 
-            double [] outPcm = new double[num];
-            Array.Copy(inPcm, 0, outPcm, 0, num);
+            PcmDataLib.LargeArray<double> outPcm = new PcmDataLib.LargeArray<double>(num);
+            outPcm.CopyFrom(inPcm, 0, 0, num);
             return outPcm;
         }
 
-        protected static bool IsPowerOfTwo(int length) {
+        protected static bool IsPowerOfTwo(long length) {
             return (0 < length) && ((length & (length - 1)) == 0);
         }
     }
