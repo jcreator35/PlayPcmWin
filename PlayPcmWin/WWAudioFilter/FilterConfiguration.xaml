@@ -97,10 +97,11 @@
                                 
                                 <ComboBoxItem Content="8x" />
                                 <ComboBoxItem Content="16x" />
+                                <ComboBoxItem Content="40x" />
                                 <ComboBoxItem Content="80x" />
                                 <ComboBoxItem Content="147x" />
-                                <ComboBoxItem Content="160x" />
 
+                                <ComboBoxItem Content="160x" />
                                 <ComboBoxItem Content="320x" />
                             </ComboBox>
                             <Label Grid.Column="0" Grid.Row="2" Content="Filter length:" Name="labelUpsampleLen" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
@@ -148,10 +149,11 @@
                                 
                                 <ComboBoxItem Content="8x" />
                                 <ComboBoxItem Content="16x" />
+                                <ComboBoxItem Content="40x" />
                                 <ComboBoxItem Content="80x" />
                                 <ComboBoxItem Content="147x" />
-                                <ComboBoxItem Content="160x" />
 
+                                <ComboBoxItem Content="160x" />
                                 <ComboBoxItem Content="320x" />
                             </ComboBox>
                             <Label x:Name="labelDownsamplerOption" Content="Option:" Grid.Row="1" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
