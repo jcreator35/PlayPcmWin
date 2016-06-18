@@ -82,7 +82,7 @@
 
                 groupBoxDownsampler.Header = Properties.Resources.GroupDownsampler;
                 labelDownsamplerOption.Content = Properties.Resources.LabelDownsamplerOption;
-                labelDownsamplerType.Content = Properties.Resources.LabelDownsamplerType;
+                labelDownsamplerFactor.Content = Properties.Resources.LabelDownsamplerFactor;
                 cbItemDownsamplerOption0.Content = Properties.Resources.CbItemDownsamplerOption0;
                 cbItemDownsamplerOption1.Content = Properties.Resources.CbItemDownsamplerOption1;
                 buttonUseDownsampler.Content = Properties.Resources.ButtonUseThisFilter;
@@ -313,76 +313,46 @@
 
                 x8,
                 x16,
+                x20,
                 x40,
                 x80,
-                x147,
 
+                x147,
                 x160,
                 x320
             };
 
+            private static readonly int[] ResamplingFactorNumbers = {
+                2,
+                3,
+                4,
+                5,
+                7,
+
+                8,
+                16,
+                20,
+                40,
+                80,
+
+                147,
+                160,
+                320
+            };
+
             private static ResamplingFactorType ResamplingFactorToResamplingFactorType(int factor) {
-                switch (factor) {
-                case 2:
-                default:
-                    return ResamplingFactorType.x2;
-                case 3:
-                    return ResamplingFactorType.x3;
-                case 4:
-                    return ResamplingFactorType.x4;
-                case 5:
-                    return ResamplingFactorType.x5;
-                case 7:
-                    return ResamplingFactorType.x7;
-
-                case 8:
-                    return ResamplingFactorType.x8;
-                case 16:
-                    return ResamplingFactorType.x16;
-                case 40:
-                    return ResamplingFactorType.x40;
-                case 80:
-                    return ResamplingFactorType.x80;
-                case 147:
-                    return ResamplingFactorType.x147;
-
-                case 160:
-                    return ResamplingFactorType.x160;
-                case 320:
-                    return ResamplingFactorType.x320;
+                for (int i = 0; i < ResamplingFactorNumbers.Length; ++i) {
+                    if (factor == ResamplingFactorNumbers[i]) {
+                        return (ResamplingFactorType)i;
+                    }
                 }
+
+                // 該当しない。
+                return ResamplingFactorType.x2;
             }
 
             private static int ResamplingFactorTypeToResampingfactor(ResamplingFactorType t) {
-                switch (t) {
-                case ResamplingFactorType.x2:
-                default:
-                    return 2;
-                case ResamplingFactorType.x3:
-                    return 3;
-                case ResamplingFactorType.x4:
-                    return 4;
-                case ResamplingFactorType.x5:
-                    return 5;
-                case ResamplingFactorType.x7:
-                    return 7;
-
-                case ResamplingFactorType.x8:
-                    return 8;
-                case ResamplingFactorType.x16:
-                    return 16;
-                case ResamplingFactorType.x40:
-                    return 40;
-                case ResamplingFactorType.x80:
-                    return 80;
-                case ResamplingFactorType.x147:
-                    return 147;
-
-                case ResamplingFactorType.x160:
-                    return 160;
-                case ResamplingFactorType.x320:
-                    return 320;
-                }
+                return ResamplingFactorNumbers[(int)t];
             }
 
             enum LpfLenType {

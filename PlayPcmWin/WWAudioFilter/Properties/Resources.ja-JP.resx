@@ -356,8 +356,8 @@
   <data name="LabelDownsamplerOption" xml:space="preserve">
     <value>オプション:</value>
   </data>
-  <data name="LabelDownsamplerType" xml:space="preserve">
-    <value>種類:</value>
+  <data name="LabelDownsamplerFactor" xml:space="preserve">
+    <value>倍率 (f):</value>
   </data>
   <data name="GroupCic" xml:space="preserve">
     <value>CICフィルター</value>

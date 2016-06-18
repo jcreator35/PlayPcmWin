@@ -353,7 +353,7 @@
   <data name="LabelDownsamplerOption" xml:space="preserve">
     <value>Option:</value>
   </data>
-  <data name="LabelDownsamplerType" xml:space="preserve">
+  <data name="LabelDownsamplerFactor" xml:space="preserve">
     <value>Factor (f) :</value>
   </data>
   <data name="FilterCicFilterDesc" xml:space="preserve">

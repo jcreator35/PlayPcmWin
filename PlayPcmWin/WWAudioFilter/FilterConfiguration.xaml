@@ -97,10 +97,11 @@
                                 
                                 <ComboBoxItem Content="8x" />
                                 <ComboBoxItem Content="16x" />
+                                <ComboBoxItem Content="20x" />
                                 <ComboBoxItem Content="40x" />
                                 <ComboBoxItem Content="80x" />
+                                
                                 <ComboBoxItem Content="147x" />
-
                                 <ComboBoxItem Content="160x" />
                                 <ComboBoxItem Content="320x" />
                             </ComboBox>
@@ -139,7 +140,7 @@
                                 <RowDefinition Height="1*" />
                                 <RowDefinition Height="1*" />
                             </Grid.RowDefinitions>
-                            <Label x:Name="labelDownsamplerType" Content="Factor (f):" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                            <Label x:Name="labelDownsamplerFactor" Content="Factor (f):" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
                             <ComboBox HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Grid.Row="0" Grid.Column="1" Name="comboBoxDownsamplingFactor" VerticalAlignment="Center">
                                 <ComboBoxItem Content="2x" IsSelected="True" />
                                 <ComboBoxItem Content="3x" />
@@ -149,10 +150,11 @@
                                 
                                 <ComboBoxItem Content="8x" />
                                 <ComboBoxItem Content="16x" />
+                                <ComboBoxItem Content="20x" />
                                 <ComboBoxItem Content="40x" />
                                 <ComboBoxItem Content="80x" />
+                                
                                 <ComboBoxItem Content="147x" />
-
                                 <ComboBoxItem Content="160x" />
                                 <ComboBoxItem Content="320x" />
                             </ComboBox>

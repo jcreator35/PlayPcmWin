@@ -1106,20 +1106,20 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Factor (f) :.
+        /// </summary>
+        internal static string LabelDownsamplerFactor {
+            get {
+                return ResourceManager.GetString("LabelDownsamplerFactor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Option:.
         /// </summary>
         internal static string LabelDownsamplerOption {
             get {
                 return ResourceManager.GetString("LabelDownsamplerOption", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Factor (f) :.
-        /// </summary>
-        internal static string LabelDownsamplerType {
-            get {
-                return ResourceManager.GetString("LabelDownsamplerType", resourceCulture);
             }
         }
         
