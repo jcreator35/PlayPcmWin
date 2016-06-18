@@ -386,6 +386,8 @@ namespace WWAudioFilter {
                 return;
             }
 
+            
+
             textBoxLog.Text = string.Empty;
             textBoxLog.Text += string.Format(CultureInfo.CurrentCulture, Properties.Resources.LogFileReadStarted, textBoxInputFile.Text);
             progressBar1.Value = 0;

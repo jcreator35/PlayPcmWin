@@ -2,11 +2,11 @@
 
 namespace WWFlacRWCS {
     public class Metadata {
-        public int          sampleRate;
-        public int          channels;
-        public int          bitsPerSample;
-        public int          pictureBytes;
-        public long         totalSamples;
+        public int sampleRate;
+        public int channels;
+        public int bitsPerSample;
+        public int pictureBytes;
+        public long totalSamples;
 
         public string titleStr = string.Empty;
         public string artistStr = string.Empty;
@@ -20,7 +20,7 @@ namespace WWFlacRWCS {
         public string pictureMimeTypeStr = string.Empty;
         public string pictureDescriptionStr = string.Empty;
 
-        public byte [] md5sum = new byte[NativeMethods.WWFLAC_MD5SUM_BYTES];
+        public byte[] md5sum = new byte[NativeMethods.WWFLAC_MD5SUM_BYTES];
 
         public Metadata() {
         }
@@ -43,7 +43,7 @@ namespace WWFlacRWCS {
             SafeCopy(rhs.albumStr, ref albumStr);
             SafeCopy(rhs.albumArtistStr, ref albumArtistStr);
             SafeCopy(rhs.genreStr, ref genreStr);
-            
+
             SafeCopy(rhs.dateStr, ref dateStr);
             SafeCopy(rhs.trackNumberStr, ref trackNumberStr);
             SafeCopy(rhs.discNumberStr, ref discNumberStr);
@@ -84,64 +84,64 @@ namespace WWFlacRWCS {
         BadParams = -22,
         IdNotFound = -23,
         EncoderProcessFailed = -24,
-        OutputFileTooLarge = -25,
+        OutputFileTooLarge = -25
     };
 
     public class FlacRW {
         public static string ErrorCodeToStr(int ercd) {
             switch (ercd) {
             case (int)WWFlacRWCS.FlacErrorCode.OK:
-            return "OK";
+                return "OK";
             case (int)WWFlacRWCS.FlacErrorCode.DataNotReady:
-            return Properties.Resources.FlacErrorDataNotReady;
+                return Properties.Resources.FlacErrorDataNotReady;
             case (int)WWFlacRWCS.FlacErrorCode.WriteOpenFailed:
-            return Properties.Resources.FlacerrorWriteOpenFailed;
+                return Properties.Resources.FlacerrorWriteOpenFailed;
             case (int)WWFlacRWCS.FlacErrorCode.StreamDecoderNewFailed:
-            return Properties.Resources.FlacErrorStreamDecoderNewFailed;
+                return Properties.Resources.FlacErrorStreamDecoderNewFailed;
             case (int)WWFlacRWCS.FlacErrorCode.StreamDecoderInitFailed:
-            return Properties.Resources.FlacErrorStreamDecoderInitFailed;
+                return Properties.Resources.FlacErrorStreamDecoderInitFailed;
             case (int)WWFlacRWCS.FlacErrorCode.DecoderProcessFailed:
-            return Properties.Resources.FlacErrorDecoderProcessFailed;
+                return Properties.Resources.FlacErrorDecoderProcessFailed;
             case (int)WWFlacRWCS.FlacErrorCode.LostSync:
-            return Properties.Resources.FlacErrorLostSync;
+                return Properties.Resources.FlacErrorLostSync;
             case (int)WWFlacRWCS.FlacErrorCode.BadHeader:
-            return Properties.Resources.FlacErrorBadHeader;
+                return Properties.Resources.FlacErrorBadHeader;
             case (int)WWFlacRWCS.FlacErrorCode.FrameCrcMismatch:
-            return Properties.Resources.FlacErrorFrameCrcMismatch;
+                return Properties.Resources.FlacErrorFrameCrcMismatch;
             case (int)WWFlacRWCS.FlacErrorCode.Unparseable:
-            return Properties.Resources.FlacErrorUnparseable;
+                return Properties.Resources.FlacErrorUnparseable;
             case (int)WWFlacRWCS.FlacErrorCode.NumFrameIsNotAligned:
-            return Properties.Resources.FlacErrorNumFrameIsNotAligned;
+                return Properties.Resources.FlacErrorNumFrameIsNotAligned;
             case (int)WWFlacRWCS.FlacErrorCode.RecvBufferSizeInsufficient:
-            return Properties.Resources.FlacErrorRecvBufferSizeInsufficient;
+                return Properties.Resources.FlacErrorRecvBufferSizeInsufficient;
             case (int)WWFlacRWCS.FlacErrorCode.Other:
-            return Properties.Resources.FlacErrorOther;
+                return Properties.Resources.FlacErrorOther;
             case (int)WWFlacRWCS.FlacErrorCode.FileReadOpen:
-            return Properties.Resources.FlacErrorFileReadOpen;
+                return Properties.Resources.FlacErrorFileReadOpen;
             case (int)WWFlacRWCS.FlacErrorCode.BufferSizeMismatch:
-            return Properties.Resources.FlacErrorBufferSizeMismatch;
+                return Properties.Resources.FlacErrorBufferSizeMismatch;
             case (int)WWFlacRWCS.FlacErrorCode.MemoryExhausted:
-            return Properties.Resources.FlacErrorMemoryExhausted;
+                return Properties.Resources.FlacErrorMemoryExhausted;
             case (int)WWFlacRWCS.FlacErrorCode.Encoder:
-            return Properties.Resources.FlacErrorEncoder;
+                return Properties.Resources.FlacErrorEncoder;
             case (int)WWFlacRWCS.FlacErrorCode.InvalidNumberOfChannels:
-            return Properties.Resources.FlacErrorInvalidNumberOfChannels;
+                return Properties.Resources.FlacErrorInvalidNumberOfChannels;
             case (int)WWFlacRWCS.FlacErrorCode.InvalidBitsPerSample:
-            return Properties.Resources.FlacErrorInvalidBitsPerSample;
+                return Properties.Resources.FlacErrorInvalidBitsPerSample;
             case (int)WWFlacRWCS.FlacErrorCode.InvalidSampleRate:
-            return Properties.Resources.FlacErrorInvalidSampleRate;
+                return Properties.Resources.FlacErrorInvalidSampleRate;
             case (int)WWFlacRWCS.FlacErrorCode.InvalidMetadata:
-            return Properties.Resources.FlacErrorInvalidMetadata;
+                return Properties.Resources.FlacErrorInvalidMetadata;
             case (int)WWFlacRWCS.FlacErrorCode.BadParams:
-            return Properties.Resources.FlacErrorBadParams;
+                return Properties.Resources.FlacErrorBadParams;
             case (int)WWFlacRWCS.FlacErrorCode.IdNotFound:
-            return Properties.Resources.FlacErrorIdNotFound;
+                return Properties.Resources.FlacErrorIdNotFound;
             case (int)WWFlacRWCS.FlacErrorCode.EncoderProcessFailed:
-            return Properties.Resources.FlacErrorEncoderProcessFailed;
+                return Properties.Resources.FlacErrorEncoderProcessFailed;
             case (int)WWFlacRWCS.FlacErrorCode.OutputFileTooLarge:
-            return Properties.Resources.FlacErrorOutputFileTooLarge;
+                return Properties.Resources.FlacErrorOutputFileTooLarge;
             default:
-            return Properties.Resources.FlacErrorOther;
+                return Properties.Resources.FlacErrorOther;
             }
         }
 
@@ -157,27 +157,27 @@ namespace WWFlacRWCS {
             int result = NativeMethods.WWFlacRW_GetDecodedMetadata(mId, out nMeta);
             meta = new Metadata();
             if (0 <= result) {
-                meta.sampleRate     = nMeta.sampleRate;
-                meta.channels       = nMeta.channels;
-                meta.bitsPerSample  = nMeta.bitsPerSample;
-                meta.pictureBytes   = nMeta.pictureBytes;
-                meta.totalSamples   = nMeta.totalSamples;
-                meta.titleStr       = nMeta.titleStr;
-                meta.albumStr       = nMeta.albumStr;
-                meta.artistStr      = nMeta.artistStr;
+                meta.sampleRate = nMeta.sampleRate;
+                meta.channels = nMeta.channels;
+                meta.bitsPerSample = nMeta.bitsPerSample;
+                meta.pictureBytes = nMeta.pictureBytes;
+                meta.totalSamples = nMeta.totalSamples;
+                meta.titleStr = nMeta.titleStr;
+                meta.albumStr = nMeta.albumStr;
+                meta.artistStr = nMeta.artistStr;
                 meta.albumArtistStr = nMeta.albumArtistStr;
-                meta.genreStr       = nMeta.genreStr;
-                meta.dateStr        = nMeta.dateStr;
+                meta.genreStr = nMeta.genreStr;
+                meta.dateStr = nMeta.dateStr;
                 meta.trackNumberStr = nMeta.trackNumberStr;
-                meta.discNumberStr  = nMeta.discNumberStr;
-                meta.pictureMimeTypeStr    = nMeta.pictureMimeTypeStr;
+                meta.discNumberStr = nMeta.discNumberStr;
+                meta.pictureMimeTypeStr = nMeta.pictureMimeTypeStr;
                 meta.pictureDescriptionStr = nMeta.pictureDescriptionStr;
                 meta.md5sum = nMeta.md5sum;
             }
             return result;
         }
 
-        public int GetDecodedPicture(out byte [] pictureReturn, int pictureBytes) {
+        public int GetDecodedPicture(out byte[] pictureReturn, int pictureBytes) {
             pictureReturn = new byte[pictureBytes];
             return NativeMethods.WWFlacRW_GetDecodedPicture(mId, pictureReturn, pictureReturn.Length);
         }
@@ -245,7 +245,7 @@ namespace WWFlacRWCS {
         public int EncodeRun(string path) {
             return NativeMethods.WWFlacRW_EncodeRun(mId, path);
         }
-        
+
         public void EncodeEnd() {
             NativeMethods.WWFlacRW_EncodeEnd(mId);
             mId = (int)FlacErrorCode.IdNotFound;
@@ -258,12 +258,12 @@ namespace WWFlacRWCS {
 
         [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Unicode)]
         internal struct Metadata {
-            public int          sampleRate;
-            public int          channels;
-            public int          bitsPerSample;
-            public int          pictureBytes;
+            public int sampleRate;
+            public int channels;
+            public int bitsPerSample;
+            public int pictureBytes;
 
-            public long         totalSamples;
+            public long totalSamples;
 
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = WWFLAC_TEXT_STRSZ)]
             public string titleStr;
@@ -289,7 +289,7 @@ namespace WWFlacRWCS {
             public string pictureDescriptionStr;
 
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
-            public byte [] md5sum;
+            public byte[] md5sum;
         };
 
         [DllImport("WWFlacRW.dll", CharSet = CharSet.Unicode)]

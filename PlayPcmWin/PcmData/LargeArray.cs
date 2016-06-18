@@ -54,12 +54,39 @@ namespace PcmDataLib {
         }
 
         /// <summary>
-        /// 配列から作成する。
+        /// 配列から作成する。fromを参照することがある。
         /// </summary>
         public LargeArray(T[] from) {
+
+            // mCountはINT_MAXよりも少ないはずである。
             mCount = from.Length;
-            mArrayArray = new T[1][];
-            mArrayArray[0] = from;
+
+            if (mCount == 0) {
+                mArrayArray=new T[1][];
+                mArrayArray[0] = new T[0];
+                return;
+            }
+            
+            int arrayNum = (int)((mCount + ARRAY_FRAGMENT_LENGTH_MAX - 1) / ARRAY_FRAGMENT_LENGTH_MAX);
+            mArrayArray = new T[arrayNum][];
+
+            if (arrayNum == 1) {
+                mArrayArray[0] = from;
+                return;
+            }
+
+            int arrayIdx = 0;
+            for (int offs = 0; offs < mCount; offs += ARRAY_FRAGMENT_LENGTH_MAX) {
+                int fragmentCount = ARRAY_FRAGMENT_LENGTH_MAX;
+                if (mCount < offs+fragmentCount) {
+                    fragmentCount = (int)mCount - offs;
+                }
+
+                var fragment = new T[fragmentCount];
+                Array.Copy(from, offs, fragment, 0, fragmentCount);
+                mArrayArray[arrayIdx] = fragment;
+                ++arrayIdx;
+            }
         }
 
         /// <summary>
@@ -74,6 +101,8 @@ namespace PcmDataLib {
 
             int arrayIdx = (int)(pos / ARRAY_FRAGMENT_LENGTH_MAX);
             int arrayOffs = (int)(pos % ARRAY_FRAGMENT_LENGTH_MAX);
+
+            // System.Diagnostics.Debug.Assert(arrayIdx < mArrayArray.Length && arrayOffs < mArrayArray[arrayIdx].Length);
 
             return mArrayArray[arrayIdx][arrayOffs];
         }
@@ -185,7 +214,7 @@ namespace PcmDataLib {
                 CopyFrom(fragment, 0, toPos, fragmentCount);
 
                 fromPos += fragmentCount;
-                toPos += fragmentCount;
+                toPos   += fragmentCount;
             }
 
             return totalCopyCount;

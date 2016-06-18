@@ -125,17 +125,14 @@ namespace WWAudioFilter {
                 // set silent sample values to output buffer
                 switch (toFileFormat) {
                 case FileFormatType.DSF:
-                    if (0x7FFFFFC7 < (to.meta.totalSamples + 7) / 8) {
-                        return (int)WWFlacRWCS.FlacErrorCode.OutputFileTooLarge;
-                    }
                     data = new PcmDataLib.LargeArray<byte>((to.meta.totalSamples + 7) / 8);
                     for (long i = 0; i < data.LongLength; ++i) {
                         data.Set(i, 0x69);
                     }
                     break;
                 case FileFormatType.FLAC:
-                    if (0x7FFFFFC7 < to.meta.totalSamples * (to.meta.bitsPerSample / 8)) {
-                        return (int)WWFlacRWCS.FlacErrorCode.OutputFileTooLarge;
+                    if (655350 < to.meta.sampleRate) {
+                        return (int)WWFlacRWCS.FlacErrorCode.InvalidSampleRate;
                     }
                     data = new PcmDataLib.LargeArray<byte>(to.meta.totalSamples * (to.meta.bitsPerSample / 8));
                     break;
@@ -354,6 +351,7 @@ namespace WWAudioFilter {
         private static void AssembleSample(List<PcmDataLib.LargeArray<double>> dataList, long count,
                 out PcmDataLib.LargeArray<double> gathered, out PcmDataLib.LargeArray<double> remainings) {
             gathered = new PcmDataLib.LargeArray<double>(count);
+
             long offs = 0;
             long remainLength = 0;
             foreach (var d in dataList) {

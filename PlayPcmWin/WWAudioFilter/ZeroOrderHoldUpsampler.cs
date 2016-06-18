@@ -10,8 +10,8 @@ namespace WWAudioFilter {
 
         public ZeroOrderHoldUpsampler(int factor)
                 : base(FilterType.ZohUpsampler) {
-            if (factor <= 1 || !IsPowerOfTwo(factor)) {
-                throw new ArgumentException("factor must be power of two integer and larger than 1");
+            if (factor <= 1) {
+                throw new ArgumentException("factor must be larger than 1");
             }
 
             Factor = factor;
@@ -35,7 +35,7 @@ namespace WWAudioFilter {
             }
 
             int factor;
-            if (!Int32.TryParse(tokens[1], out factor) || factor <= 1 || !IsPowerOfTwo(factor)) {
+            if (!Int32.TryParse(tokens[1], out factor) || factor <= 1) {
                 return null;
             }
 

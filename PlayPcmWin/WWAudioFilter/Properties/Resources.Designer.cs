@@ -178,7 +178,7 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to pick 1st sample from incoming two samples.
+        ///   Looks up a localized string similar to pick 1st sample from incoming f samples.
         /// </summary>
         internal static string CbItemDownsamplerOption0 {
             get {
@@ -187,7 +187,7 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to pick 2nd sample from incoming two samples.
+        ///   Looks up a localized string similar to pick 2nd sample from incoming f samples.
         /// </summary>
         internal static string CbItemDownsamplerOption1 {
             get {
@@ -462,6 +462,15 @@ namespace WWAudioFilter.Properties {
         internal static string ErrorNormalizeValue {
             get {
                 return ResourceManager.GetString("ErrorNormalizeValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error: Following upsamplers do not support non-power-of-2 upsample: FFT. Please select CubicHermiteSpline, LineDraw, InsertZeroes, WindowedSinc or ZOH. .
+        /// </summary>
+        internal static string ErrorNotImplementedUpsampler {
+            get {
+                return ResourceManager.GetString("ErrorNotImplementedUpsampler", resourceCulture);
             }
         }
         
@@ -1106,7 +1115,7 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Type:.
+        ///   Looks up a localized string similar to Factor (f) :.
         /// </summary>
         internal static string LabelDownsamplerType {
             get {

@@ -57,6 +57,7 @@
                                 <ComboBoxItem Content="4095" IsSelected="True" />
                                 <ComboBoxItem Content="16383" />
                                 <ComboBoxItem Content="65535" />
+                                <ComboBoxItem Content="1048575" />
                             </ComboBox>
                             <Label Grid.Column="2" Grid.Row="2" Content="samples" Name="labelLpfLenUnit" VerticalAlignment="Center" />
                             <Button Content="Use this filter" Grid.Row="3" Margin="6,0" Name="buttonUseLpf" VerticalAlignment="Center" Grid.ColumnSpan="3" Click="buttonUseLpf_Click" />
@@ -77,8 +78,8 @@
                                 <RowDefinition Height="1*" />
                                 <RowDefinition Height="1*" />
                             </Grid.RowDefinitions>
-                            <Label Grid.Row="0" Content="Upsampler type:" HorizontalAlignment="Right" Margin="0,0,6,0" Name="labelUpsamplerType" VerticalAlignment="Center" />
-                            <ComboBox Grid.Column="1" HorizontalAlignment="Stretch" Margin="6,0" Name="comboBoxUpsamplerType" VerticalAlignment="Center" HorizontalContentAlignment="Center" Grid.ColumnSpan="2" SelectionChanged="comboBoxUpsamplerType_SelectionChanged">
+                            <Label Grid.Row="1" Content="Upsampler type:" HorizontalAlignment="Right" Margin="0,0,6,0" Name="labelUpsamplerType" VerticalAlignment="Center" />
+                            <ComboBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch" Margin="6,0" Name="comboBoxUpsamplerType" VerticalAlignment="Center" HorizontalContentAlignment="Center" Grid.ColumnSpan="2" SelectionChanged="comboBoxUpsamplerType_SelectionChanged">
                                 <ComboBoxItem Content="FFT Upsampler" IsSelected="True" Name="cbItemFftUpsampler" />
                                 <ComboBoxItem Content="Zero-Order Hold Upsampler" Name="cbItemZohUpsampler" />
                                 <ComboBoxItem Content="Insert Zeroes Upsampler" Name="cbItemInsertZeroesUpsampler" />
@@ -86,12 +87,21 @@
                                 <ComboBoxItem Content="Cubic Hermite Spline Upsampler" Name="cbItemCubicHermiteSplineUpsampler" />
                                 <ComboBoxItem Content="Windowed Sinc Upsampler" Name="cbItemWindowedSincUpsampler" />
                             </ComboBox>
-                            <Label Grid.Row="1" Content="Upsampling factor:" HorizontalAlignment="Right" Margin="0,0,6,0" Name="labelUpsampleFactor" VerticalAlignment="Center" />
-                            <ComboBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" Margin="6,0,6,0" Name="comboBoxUpsamplingFactor" VerticalAlignment="Center" HorizontalContentAlignment="Center">
+                            <Label Grid.Row="0" Content="Upsampling factor:" HorizontalAlignment="Right" Margin="0,0,6,0" Name="labelUpsampleFactor" VerticalAlignment="Center" />
+                            <ComboBox Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" Margin="6,0,6,0" Name="comboBoxUpsamplingFactor" VerticalAlignment="Center" HorizontalContentAlignment="Center">
                                 <ComboBoxItem Content="2x" IsSelected="True" />
+                                <ComboBoxItem Content="3x" />
                                 <ComboBoxItem Content="4x" />
+                                <ComboBoxItem Content="5x" />
+                                <ComboBoxItem Content="7x" />
+                                
                                 <ComboBoxItem Content="8x" />
                                 <ComboBoxItem Content="16x" />
+                                <ComboBoxItem Content="80x" />
+                                <ComboBoxItem Content="147x" />
+                                <ComboBoxItem Content="160x" />
+
+                                <ComboBoxItem Content="320x" />
                             </ComboBox>
                             <Label Grid.Column="0" Grid.Row="2" Content="Filter length:" Name="labelUpsampleLen" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
                             <ComboBox Grid.Column="1" Grid.Row="2" HorizontalAlignment="Stretch" Margin="6,0,6,0" Name="comboBoxUpsampleLen" VerticalAlignment="Center" HorizontalContentAlignment="Center">
@@ -100,6 +110,7 @@
                                 <ComboBoxItem Content="16384" />
                                 <ComboBoxItem Content="65536" />
                                 <ComboBoxItem Content="262144" />
+                                <ComboBoxItem Content="1048576" />
                             </ComboBox>
                             <Label Grid.Column="2" Grid.Row="2" Content="samples" Name="labelUpsampleLenUnit" VerticalAlignment="Center" />
                             <Label Grid.Column="0" Grid.Row="3" Content="FFT Overlap:" Name="labelFftOverlap" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
@@ -127,14 +138,26 @@
                                 <RowDefinition Height="1*" />
                                 <RowDefinition Height="1*" />
                             </Grid.RowDefinitions>
-                            <Label x:Name="labelDownsamplerType" Content="Type:" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
-                            <ComboBox HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Grid.Row="0" Grid.Column="1" Name="comboBoxDownsampleType" VerticalAlignment="Center">
-                                <ComboBoxItem x:Name="cbItemDownsamplerType2x" Content="2x" IsSelected="True" />
+                            <Label x:Name="labelDownsamplerType" Content="Factor (f):" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                            <ComboBox HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Grid.Row="0" Grid.Column="1" Name="comboBoxDownsamplingFactor" VerticalAlignment="Center">
+                                <ComboBoxItem Content="2x" IsSelected="True" />
+                                <ComboBoxItem Content="3x" />
+                                <ComboBoxItem Content="4x" />
+                                <ComboBoxItem Content="5x" />
+                                <ComboBoxItem Content="7x" />
+                                
+                                <ComboBoxItem Content="8x" />
+                                <ComboBoxItem Content="16x" />
+                                <ComboBoxItem Content="80x" />
+                                <ComboBoxItem Content="147x" />
+                                <ComboBoxItem Content="160x" />
+
+                                <ComboBoxItem Content="320x" />
                             </ComboBox>
                             <Label x:Name="labelDownsamplerOption" Content="Option:" Grid.Row="1" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
                             <ComboBox HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Grid.Row="1" Grid.Column="1" Name="comboBoxDownsampleOption" VerticalAlignment="Center">
-                                <ComboBoxItem x:Name="cbItemDownsamplerOption0" Content="pick 1st sample from incoming two samples" IsSelected="True" />
-                                <ComboBoxItem x:Name="cbItemDownsamplerOption1" Content="pick 2nd sample from incoming two samples" />
+                                <ComboBoxItem x:Name="cbItemDownsamplerOption0" Content="pick 1st sample from incoming f samples" IsSelected="True" />
+                                <ComboBoxItem x:Name="cbItemDownsamplerOption1" Content="pick 2nd sample from incoming f samples" />
                             </ComboBox>
                             <Button x:Name="buttonUseDownsampler" Content="Use this filter" VerticalAlignment="Center" Grid.Row="2" Grid.ColumnSpan="2" Click="buttonUseDownsampler_Click" />
                         </Grid>

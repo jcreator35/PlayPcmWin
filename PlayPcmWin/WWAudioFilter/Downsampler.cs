@@ -11,8 +11,8 @@ namespace WWAudioFilter {
 
         public Downsampler(int factor, int pickSampleIndex)
                 : base(FilterType.Downsampler) {
-            if (factor <= 1 || !IsPowerOfTwo(factor)) {
-                throw new ArgumentException("factor must be power of two integer and larger than 1");
+            if (factor <= 1) {
+                throw new ArgumentException("factor must be larger than 1");
             }
             Factor = factor;
 
@@ -40,7 +40,7 @@ namespace WWAudioFilter {
             }
 
             int factor;
-            if (!Int32.TryParse(tokens[1], out factor) || factor <= 1 || !IsPowerOfTwo(factor)) {
+            if (!Int32.TryParse(tokens[1], out factor) || factor <= 1) {
                 return null;
             }
 
@@ -53,7 +53,7 @@ namespace WWAudioFilter {
         }
 
         public override long NumOfSamplesNeeded() {
-            return Factor;
+            return 8192 * Factor;
         }
 
         public override void FilterStart() {
@@ -73,9 +73,17 @@ namespace WWAudioFilter {
 
         public override PcmDataLib.LargeArray<double> FilterDo(PcmDataLib.LargeArray<double> inPcmLA) {
             var inPcm = inPcmLA.ToArray();
+            System.Diagnostics.Debug.Assert(inPcm.Length == NumOfSamplesNeeded());
 
-            System.Diagnostics.Debug.Assert(inPcm.LongLength == NumOfSamplesNeeded());
-            return new PcmDataLib.LargeArray<double>(new double[] { inPcm[PickSampleIndex] });
+            var outPcm = new double[inPcm.Length / Factor];
+
+            long writePos = 0;
+            for (long i = PickSampleIndex; i < inPcm.Length; i+=Factor) {
+                outPcm[writePos] = inPcm[i];
+                ++writePos;
+            }
+
+            return new PcmDataLib.LargeArray<double>(outPcm);
         }
     }
 }

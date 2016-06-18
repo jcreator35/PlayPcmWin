@@ -83,7 +83,6 @@
                 groupBoxDownsampler.Header = Properties.Resources.GroupDownsampler;
                 labelDownsamplerOption.Content = Properties.Resources.LabelDownsamplerOption;
                 labelDownsamplerType.Content = Properties.Resources.LabelDownsamplerType;
-                cbItemDownsamplerType2x.Content = Properties.Resources.CbItemDownsamplerType2x;
                 cbItemDownsamplerOption0.Content = Properties.Resources.CbItemDownsamplerOption0;
                 cbItemDownsamplerOption1.Content = Properties.Resources.CbItemDownsamplerOption1;
                 buttonUseDownsampler.Content = Properties.Resources.ButtonUseThisFilter;
@@ -157,17 +156,17 @@
                     break;
                 case FilterType.ZohUpsampler:
                     var zoh = filter as ZeroOrderHoldUpsampler;
-                    comboBoxUpsamplingFactor.SelectedIndex = (int)UpsamplingFactorToUpsamplingFactorType(zoh.Factor);
+                    comboBoxUpsamplingFactor.SelectedIndex = (int)ResamplingFactorToResamplingFactorType(zoh.Factor);
                     comboBoxUpsamplerType.SelectedIndex = (int)UpsamplerType.ZOH;
                     break;
                 case FilterType.LineDrawUpsampler:
                     var ldu = filter as LineDrawUpsampler;
-                    comboBoxUpsamplingFactor.SelectedIndex = (int)UpsamplingFactorToUpsamplingFactorType(ldu.Factor);
+                    comboBoxUpsamplingFactor.SelectedIndex = (int)ResamplingFactorToResamplingFactorType(ldu.Factor);
                     comboBoxUpsamplerType.SelectedIndex = (int)UpsamplerType.LineDraw;
                     break;
                 case FilterType.CubicHermiteSplineUpsampler:
                     var chu = filter as CubicHermiteSplineUpsampler;
-                    comboBoxUpsamplingFactor.SelectedIndex = (int)UpsamplingFactorToUpsamplingFactorType(chu.Factor);
+                    comboBoxUpsamplingFactor.SelectedIndex = (int)ResamplingFactorToResamplingFactorType(chu.Factor);
                     comboBoxUpsamplerType.SelectedIndex = (int)UpsamplerType.CubicHermiteSpline;
                     break;
                 case FilterType.LowPassFilter:
@@ -178,14 +177,14 @@
                     break;
                 case FilterType.FftUpsampler:
                     var fftu = filter as FftUpsampler;
-                    comboBoxUpsamplingFactor.SelectedIndex = (int)UpsamplingFactorToUpsamplingFactorType(fftu.Factor);
+                    comboBoxUpsamplingFactor.SelectedIndex = (int)ResamplingFactorToResamplingFactorType(fftu.Factor);
                     comboBoxUpsamplerType.SelectedIndex = (int)UpsamplerType.FFT;
                     comboBoxUpsampleLen.SelectedIndex = (int)UpsampleLenToUpsampleLenType(fftu.FftLength);
                     comboBoxFftOverlap.SelectedIndex = (int)fftu.Overlap;
                     break;
                 case FilterType.WindowedSincUpsampler:
                     var wsu = filter as WindowedSincUpsampler;
-                    comboBoxUpsamplingFactor.SelectedIndex = (int)UpsamplingFactorToUpsamplingFactorType(wsu.Factor);
+                    comboBoxUpsamplingFactor.SelectedIndex = (int)ResamplingFactorToResamplingFactorType(wsu.Factor);
                     comboBoxUpsamplerType.SelectedIndex = (int)UpsamplerType.WindowedSinc;
                     comboBoxUpsampleLen.SelectedIndex = (int)UpsampleLenToUpsampleLenType(wsu.WindowLength+1);
                     comboBoxWindowedSincMethod.SelectedIndex = (int)wsu.Method;
@@ -225,6 +224,7 @@
                     break;
                 case FilterType.Downsampler:
                     var ds = filter as Downsampler;
+                    comboBoxDownsamplingFactor.SelectedIndex = (int)ResamplingFactorToResamplingFactorType(ds.Factor);
                     comboBoxDownsampleOption.SelectedIndex = ds.PickSampleIndex;
                     break;
                 case FilterType.CicFilter:
@@ -234,7 +234,7 @@
 
                 case FilterType.InsertZeroesUpsampler:
                     var izu = filter as InsertZeroesUpsampler;
-                    comboBoxUpsamplingFactor.SelectedIndex = (int)UpsamplingFactorToUpsamplingFactorType(izu.Factor);
+                    comboBoxUpsamplingFactor.SelectedIndex = (int)ResamplingFactorToResamplingFactorType(izu.Factor);
                     comboBoxUpsamplerType.SelectedIndex = (int)UpsamplerType.InsertZeroes;
                     break;
                 case FilterType.HalfbandFilter:
@@ -304,41 +304,79 @@
                 textBoxGainInDB.TextChanged += mTextBoxGainInAmplitudeChangedEH;
             }
 
-            enum UpsamplingFactorType {
+            enum ResamplingFactorType {
                 x2,
+                x3,
                 x4,
+                x5,
+                x7,
                 x8,
                 x16,
+                x80,
+
+                x147,
+                x160,
+                x320
             };
 
-            private static UpsamplingFactorType UpsamplingFactorToUpsamplingFactorType(int factor) {
+            private static ResamplingFactorType ResamplingFactorToResamplingFactorType(int factor) {
                 switch (factor) {
                 case 2:
-                    return UpsamplingFactorType.x2;
+                    return ResamplingFactorType.x2;
+                case 3:
+                    return ResamplingFactorType.x3;
                 case 4:
-                    return UpsamplingFactorType.x4;
+                    return ResamplingFactorType.x4;
+                case 5:
+                    return ResamplingFactorType.x5;
+                case 7:
+                    return ResamplingFactorType.x7;
+
                 case 8:
-                    return UpsamplingFactorType.x8;
+                    return ResamplingFactorType.x8;
                 case 16:
-                    return UpsamplingFactorType.x16;
+                    return ResamplingFactorType.x16;
+                case 80:
+                    return ResamplingFactorType.x80;
+                case 147:
+                    return ResamplingFactorType.x147;
+                case 160:
+                    return ResamplingFactorType.x160;
+
+                case 320:
+                    return ResamplingFactorType.x320;
                 default:
-                    System.Diagnostics.Debug.Assert(false);
-                    return UpsamplingFactorType.x2;
+                    return ResamplingFactorType.x2;
                 }
             }
 
-            private static int UpsamplingFactorTypeToUpsampingfactor(int t) {
+            private static int ResamplingFactorTypeToResampingfactor(ResamplingFactorType t) {
                 switch (t) {
-                case (int)UpsamplingFactorType.x2:
+                case ResamplingFactorType.x2:
                     return 2;
-                case (int)UpsamplingFactorType.x4:
+                case ResamplingFactorType.x3:
+                    return 3;
+                case ResamplingFactorType.x4:
                     return 4;
-                case (int)UpsamplingFactorType.x8:
+                case ResamplingFactorType.x5:
+                    return 5;
+                case ResamplingFactorType.x7:
+                    return 7;
+
+                case ResamplingFactorType.x8:
                     return 8;
-                case (int)UpsamplingFactorType.x16:
+                case ResamplingFactorType.x16:
                     return 16;
+                case ResamplingFactorType.x80:
+                    return 80;
+                case ResamplingFactorType.x147:
+                    return 147;
+                case ResamplingFactorType.x160:
+                    return 160;
+
+                case ResamplingFactorType.x320:
+                    return 320;
                 default:
-                    System.Diagnostics.Debug.Assert(false);
                     return 2;
                 }
             }
@@ -349,6 +387,8 @@
                 L4095,
                 L16383,
                 L65535,
+
+                L1048575,
             };
 
             private static LpfLenType LpfLenToLpfLenType(int lpfLen) {
@@ -358,28 +398,33 @@
                 case 1023:
                     return LpfLenType.L1023;
                 case 4095:
+                default:
                     return LpfLenType.L4095;
                 case 16383:
                     return LpfLenType.L16383;
                 case 65535:
-                default:
                     return LpfLenType.L65535;
+
+                case 1048575:
+                    return LpfLenType.L1048575;
                 }
             }
 
-            private static int LpfLenTypeToLpfLen(int t) {
+            private static int LpfLenTypeToLpfLen(LpfLenType t) {
                 switch (t) {
-                case (int)LpfLenType.L255:
+                case LpfLenType.L255:
                     return 255;
-                case (int)LpfLenType.L1023:
+                case LpfLenType.L1023:
                     return 1023;
-                case (int)LpfLenType.L4095:
-                    return 4095;
-                case (int)LpfLenType.L16383:
-                    return 16383;
-                case (int)LpfLenType.L65535:
+                case LpfLenType.L4095:
                 default:
+                    return 4095;
+                case LpfLenType.L16383:
+                    return 16383;
+                case LpfLenType.L65535:
                     return 65535;
+                case LpfLenType.L1048575:
+                    return 1048575;
                 }
             }
 
@@ -398,6 +443,8 @@
                 L16384,
                 L65536,
                 L262144,
+
+                L1048576,
             };
 
             private static UpsampleLenType UpsampleLenToUpsampleLenType(int len) {
@@ -405,6 +452,7 @@
                 case 1024:
                     return UpsampleLenType.L1024;
                 case 4096:
+                default:
                     return UpsampleLenType.L4096;
                 case 16384:
                     return UpsampleLenType.L16384;
@@ -412,25 +460,28 @@
                     return UpsampleLenType.L65536;
                 case 262144:
                     return UpsampleLenType.L262144;
-                default:
-                    return UpsampleLenType.L262144;
+
+                case 1048576:
+                    return UpsampleLenType.L1048576;
                 }
             }
 
-            private static int UpsampleLenTypeToLpfLen(int t) {
+            private static int UpsampleLenTypeToLpfLen(UpsampleLenType t) {
                 switch (t) {
-                case (int)UpsampleLenType.L1024:
+                case UpsampleLenType.L1024:
                     return 1024;
-                case (int)UpsampleLenType.L4096:
-                    return 4096;
-                case (int)UpsampleLenType.L16384:
-                    return 16384;
-                case (int)UpsampleLenType.L65536:
-                    return 65536;
-                case (int)UpsampleLenType.L262144:
-                    return 262144;
+                case UpsampleLenType.L4096:
                 default:
+                    return 4096;
+                case UpsampleLenType.L16384:
+                    return 16384;
+                case UpsampleLenType.L65536:
+                    return 65536;
+                case UpsampleLenType.L262144:
                     return 262144;
+
+                case UpsampleLenType.L1048576:
+                    return 1048576;
                 }
             }
 
@@ -464,11 +515,31 @@
             }
 
             private void buttonUseUpsampler_Click(object sender, RoutedEventArgs e) {
-                int factor = UpsamplingFactorTypeToUpsampingfactor(comboBoxUpsamplingFactor.SelectedIndex);
-                int len = UpsampleLenTypeToLpfLen(comboBoxUpsampleLen.SelectedIndex);
+                int factor = ResamplingFactorTypeToResampingfactor((ResamplingFactorType)comboBoxUpsamplingFactor.SelectedIndex);
+                int len = UpsampleLenTypeToLpfLen((UpsampleLenType)comboBoxUpsampleLen.SelectedIndex);
+                var factorType = (UpsamplerType)comboBoxUpsamplerType.SelectedIndex;
 
-                FftUpsampler.OverlapType overlap = (FftUpsampler.OverlapType)comboBoxFftOverlap.SelectedIndex;
-                WindowedSincUpsampler.MethodType method = (WindowedSincUpsampler.MethodType)comboBoxWindowedSincMethod.SelectedIndex;
+                var overlap = (FftUpsampler.OverlapType)comboBoxFftOverlap.SelectedIndex;
+                var method = (WindowedSincUpsampler.MethodType)comboBoxWindowedSincMethod.SelectedIndex;
+
+                if (!WWUtil.IsPowerOfTwo(factor)) {
+                    switch (factorType) {
+                    case UpsamplerType.FFT:
+                        // 2の乗数ではない倍数に対応していない。
+                        MessageBox.Show(Properties.Resources.ErrorNotImplementedUpsampler);
+                        return;
+                    case UpsamplerType.CubicHermiteSpline:
+                    case UpsamplerType.InsertZeroes:
+                    case UpsamplerType.LineDraw:
+                    case UpsamplerType.WindowedSinc:
+                    case UpsamplerType.ZOH:
+                        // 2の乗数ではない倍数に対応している。
+                        break;
+                    default:
+                        System.Diagnostics.Debug.Assert(false);
+                        break;
+                    }
+                }
 
                 switch (comboBoxUpsamplerType.SelectedIndex) {
                 case (int)UpsamplerType.ZOH:
@@ -521,7 +592,7 @@
                     return;
                 }
 
-                int filterLength = LpfLenTypeToLpfLen(comboBoxLpfLen.SelectedIndex);
+                int filterLength = LpfLenTypeToLpfLen((LpfLenType)comboBoxLpfLen.SelectedIndex);
 
                 mFilter = new LowpassFilter(v, filterLength, slope);
                 DialogResult = true;
@@ -620,20 +691,9 @@
                 Close();
             }
 
-            enum DownsamplerType {
-                Down2x,
-            };
-
             private void buttonUseDownsampler_Click(object sender, RoutedEventArgs e) {
-                int factor = 0;
-                switch (comboBoxDownsampleType.SelectedIndex) {
-                case (int)DownsamplerType.Down2x:
-                    factor = 2;
-                    break;
-                default:
-                    System.Diagnostics.Debug.Assert(false);
-                    return;
-                }
+                var factorType = (ResamplingFactorType)comboBoxDownsamplingFactor.SelectedIndex;
+                int factor = ResamplingFactorTypeToResampingfactor(factorType);
 
                 int pickSampleIndex = (int)comboBoxDownsampleOption.SelectedIndex;
 

@@ -339,10 +339,10 @@
     <value>タグ項目:</value>
   </data>
   <data name="CbItemDownsamplerOption0" xml:space="preserve">
-    <value>2つあるうちの最初のサンプルを取り出し、2番めのサンプルは捨てる</value>
+    <value>f個あるうちの最初のサンプルを取り出し、残りのサンプルは捨てる</value>
   </data>
   <data name="CbItemDownsamplerOption1" xml:space="preserve">
-    <value>2つあるうちの2番めのサンプルを取り出し、最初のサンプルは捨てる</value>
+    <value>f個あるうちの2番めのサンプルを取り出し、残りのサンプルは捨てる</value>
   </data>
   <data name="CbItemDownsamplerType2x" xml:space="preserve">
     <value>2倍</value>
@@ -429,7 +429,7 @@
     <value>音声ファイル(*.wav,*.flac)|*.wav;*.flac</value>
   </data>
   <data name="ErrorTargetBitDepth" xml:space="preserve">
-    <value>Error: 量子化ビット数bは 1 ≤ b ≤ 23 の範囲の整数値を指定して下さい。</value>
+    <value>エラー: 量子化ビット数bは 1 ≤ b ≤ 23 の範囲の整数値を指定して下さい。</value>
   </data>
   <data name="FilterReduceBitDepthDesc" xml:space="preserve">
     <value>量子化ビット数を減らす: {0}ビット</value>
@@ -505,5 +505,8 @@
   </data>
   <data name="LabelNosdacCompensationTaps" xml:space="preserve">
     <value>FIRフィルタータップ数:</value>
+  </data>
+  <data name="ErrorNotImplementedUpsampler" xml:space="preserve">
+    <value>エラー: 以下の種類のアップサンプラーは2の乗数ではない倍数のアップサンプル対応が未実装です: FFT. 以下の種類のアップサンプラーを使用して下さい: CubicHermiteSpline, LineDraw, InsertZeroes, WindowedSinc or ZOH. </value>
   </data>
 </root>

@@ -336,10 +336,10 @@
     <value>Tag type:</value>
   </data>
   <data name="CbItemDownsamplerOption0" xml:space="preserve">
-    <value>pick 1st sample from incoming two samples</value>
+    <value>pick 1st sample from incoming f samples</value>
   </data>
   <data name="CbItemDownsamplerOption1" xml:space="preserve">
-    <value>pick 2nd sample from incoming two samples</value>
+    <value>pick 2nd sample from incoming f samples</value>
   </data>
   <data name="CbItemDownsamplerType2x" xml:space="preserve">
     <value>2x</value>
@@ -354,7 +354,7 @@
     <value>Option:</value>
   </data>
   <data name="LabelDownsamplerType" xml:space="preserve">
-    <value>Type:</value>
+    <value>Factor (f) :</value>
   </data>
   <data name="FilterCicFilterDesc" xml:space="preserve">
     <value>CIC Filter: {0}, Comb delay={1}</value>
@@ -556,5 +556,8 @@
   </data>
   <data name="LabelNosdacCompensationTaps" xml:space="preserve">
     <value>FIR filter taps:</value>
+  </data>
+  <data name="ErrorNotImplementedUpsampler" xml:space="preserve">
+    <value>Error: Following upsamplers do not support non-power-of-2 upsample: FFT. Please select CubicHermiteSpline, LineDraw, InsertZeroes, WindowedSinc or ZOH. </value>
   </data>
 </root>

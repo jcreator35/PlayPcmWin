@@ -29,8 +29,8 @@ namespace WWAudioFilter {
         public WindowedSincUpsampler(int factor, int windowLength, MethodType method)
                 : base(FilterType.WindowedSincUpsampler) {
 
-            if (factor <= 1 || !IsPowerOfTwo(factor)) {
-                throw new ArgumentException("factor must be power of two integer and larger than 1");
+            if (factor <= 1) {
+                throw new ArgumentException("factor must be larger than 1");
             }
             Factor = factor;
 
