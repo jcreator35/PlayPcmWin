@@ -282,7 +282,7 @@
     <value>2nd order MASH noise shaping: targetBitsPerSample={0}</value>
   </data>
   <data name="FilterWriteAudioFiles" xml:space="preserve">
-    <value>FLAC files|*.flac|DSF files|*.dsf</value>
+    <value>FLAC files|*.flac|DSF files|*.dsf|WAV files|*.wav</value>
   </data>
   <data name="ErrorNoiseShapingBitIsNan" xml:space="preserve">
     <value>Prease input Target Quantization Bit Rate in number</value>
@@ -559,5 +559,8 @@
   </data>
   <data name="ErrorNotImplementedUpsampler" xml:space="preserve">
     <value>Error: Following upsamplers do not support non-power-of-2 upsample: FFT. Please select CubicHermiteSpline, LineDraw, InsertZeroes, WindowedSinc or ZOH. </value>
+  </data>
+  <data name="ErrorSampleRateTooHigh" xml:space="preserve">
+    <value>Error: sample rate is too high({0}Hz). FLAC supports up to 655,350Hz sample rate. WAV supports up to 2,147,483,647Hz</value>
   </data>
 </root>

@@ -25,6 +25,13 @@ namespace WWFlacRWCS {
         public Metadata() {
         }
 
+        /// <summary>
+        /// PCMデータのバイト数。
+        /// </summary>
+        public long PcmBytes {
+            get { return totalSamples * channels * bitsPerSample / 8; }
+        }
+
         private void SafeCopy(string from, ref string to) {
             if (from != null && from != string.Empty) {
                 to = string.Copy(from);

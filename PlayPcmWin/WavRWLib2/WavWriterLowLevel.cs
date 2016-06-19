@@ -43,6 +43,25 @@ namespace WavRWLib2 {
             format[3] = (byte)'E';
             bw.Write(format);
         }
+        
+        public void Rf64ChunkWrite(BinaryWriter bw) {
+            var chunkId = new byte[4];
+            chunkId[0] = (byte)'R';
+            chunkId[1] = (byte)'F';
+            chunkId[2] = (byte)'6';
+            chunkId[3] = (byte)'4';
+            bw.Write(chunkId);
+
+            int chunkSize = -1;
+            bw.Write(chunkSize);
+
+            var format = new byte[4];
+            format[0] = (byte)'W';
+            format[1] = (byte)'A';
+            format[2] = (byte)'V';
+            format[3] = (byte)'E';
+            bw.Write(format);
+        }
 
         private void FmtChunkWriteInternal(BinaryWriter bw,
                 short numChannels, int sampleRate, short bitsPerSample, int subChunk1Size, short audioFormat)
@@ -131,6 +150,17 @@ namespace WavRWLib2 {
             bw.Write(rawData);
 
             AddPadIfNecessary(bw, rawData.Length);
+        }
+
+        public void DataChunkHeaderWrite(BinaryWriter bw, int chunkSize) {
+            var chunkId = new byte[4];
+            chunkId[0] = (byte)'d';
+            chunkId[1] = (byte)'a';
+            chunkId[2] = (byte)'t';
+            chunkId[3] = (byte)'a';
+            bw.Write(chunkId);
+
+            bw.Write(chunkSize);
         }
 
         public void JunkChunkWrite(BinaryWriter bw, int chunkSize) {

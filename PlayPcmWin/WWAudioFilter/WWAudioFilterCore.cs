@@ -103,9 +103,8 @@ namespace WWAudioFilter {
 
             switch (toFileFormat) {
             case FileFormatType.FLAC:
-#if true
+            case FileFormatType.WAVE:
                 to.meta.bitsPerSample = 24;
-#endif
                 break;
             case FileFormatType.DSF:
                 to.meta.bitsPerSample = 1;
@@ -134,6 +133,9 @@ namespace WWAudioFilter {
                     if (655350 < to.meta.sampleRate) {
                         return (int)WWFlacRWCS.FlacErrorCode.InvalidSampleRate;
                     }
+                    data = new PcmDataLib.LargeArray<byte>(to.meta.totalSamples * (to.meta.bitsPerSample / 8));
+                    break;
+                case FileFormatType.WAVE:
                     data = new PcmDataLib.LargeArray<byte>(to.meta.totalSamples * (to.meta.bitsPerSample / 8));
                     break;
                 default:
@@ -305,6 +307,70 @@ namespace WWAudioFilter {
 
             flac.EncodeEnd();
             return 0;
+        }
+
+        private static int WriteWavFile(ref AudioData ad, string path) {
+            int rv = 0;
+
+            using (var bw = new BinaryWriter(File.Open(path, FileMode.Create, FileAccess.Write, FileShare.Write))) {
+                bool bRf64 = (2000 * 1000 * 1000 < ad.meta.PcmBytes);
+                if (bRf64) {
+                    // RF64形式で保存する。
+
+                    int rf64ChunkBytes = 12;
+                    int ds64ChunkBytes = 36;
+                    int fmtChunkBytes = 26;
+                    int dataChunkHeaderBytes = 8;
+                    int padBytes = ((ad.meta.PcmBytes & 1) == 1) ? 1 : 0;
+
+                    long fileBytes = rf64ChunkBytes + ds64ChunkBytes + fmtChunkBytes + dataChunkHeaderBytes + ad.meta.PcmBytes + padBytes;
+
+                    var wav = new WavRWLib2.WavWriterLowLevel();
+                    wav.Rf64ChunkWrite(bw);
+                    wav.Ds64ChunkWrite(bw, fileBytes - 8, ad.meta.PcmBytes, ad.meta.totalSamples);
+                    wav.FmtChunkWrite(bw, (short)ad.meta.channels, ad.meta.sampleRate, (short)ad.meta.bitsPerSample);
+                    wav.DataChunkHeaderWrite(bw, -1);
+
+                    int bytesPerSample = ad.meta.bitsPerSample / 8;
+                    var buff = new byte[bytesPerSample];
+
+                    for (long i = 0; i < ad.meta.totalSamples; ++i) {
+                        for (int ch = 0; ch < ad.meta.channels; ++ch) {
+                            var from = ad.pcm[ch].data;
+                            for (int b = 0; b < bytesPerSample; ++b) {
+                                buff[b] = from.At(i * bytesPerSample + b);
+                            }
+                            bw.Write(buff);
+                        }
+                    }
+
+                    if (1 == padBytes) {
+                        // チャンクの終わりが偶数になるようにパッドを入れる。
+                        byte zero = 0;
+                        bw.Write(zero);
+                    }
+                } else {
+                    var sampleArray = new byte[ad.meta.PcmBytes];
+
+                    int bytesPerSample = ad.meta.bitsPerSample/8;
+                    int toPos = 0;
+                    for (int i=0; i<ad.meta.totalSamples; ++i) {
+                        for (int ch = 0; ch < ad.meta.channels; ++ch) {
+                            var from = ad.pcm[ch].data;
+                            for (int b = 0; b < bytesPerSample; ++b) {
+                                sampleArray[toPos++] = from.At(i * bytesPerSample + b);
+                            }
+                        }
+                    }
+
+                    var wav = new WavRWLib2.WavWriter();
+                    wav.Write(bw, ad.meta.channels, ad.meta.bitsPerSample, ad.meta.bitsPerSample,
+                        ad.meta.sampleRate, PcmDataLib.PcmData.ValueRepresentationType.SInt,
+                        ad.meta.totalSamples, sampleArray);
+                }
+            }
+
+            return rv;
         }
 
         private static int WriteDsfFile(ref AudioData ad, string path) {
@@ -496,6 +562,8 @@ namespace WWAudioFilter {
             var fileFormat = FileFormatType.FLAC;
             if (0 == string.CompareOrdinal(Path.GetExtension(toPath).ToUpperInvariant(), ".DSF")) {
                 fileFormat = FileFormatType.DSF;
+            } else if (0 == string.CompareOrdinal(Path.GetExtension(toPath).ToUpperInvariant(), ".WAV")) {
+                fileFormat = FileFormatType.WAVE;
             }
 
             rv = SetupResultPcm(audioDataFrom, aFilters, out audioDataTo, fileFormat);
@@ -551,6 +619,9 @@ namespace WWAudioFilter {
             switch (audioDataTo.preferredSaveFormat) {
             case FileFormatType.FLAC:
                 rv = WriteFlacFile(ref audioDataTo, toPath);
+                break;
+            case FileFormatType.WAVE:
+                rv = WriteWavFile(ref audioDataTo, toPath);
                 break;
             case FileFormatType.DSF:
                 try {

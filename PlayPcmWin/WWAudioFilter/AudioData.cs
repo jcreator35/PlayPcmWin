@@ -9,6 +9,7 @@ namespace WWAudioFilter {
     /// </summary>
     enum FileFormatType {
         FLAC,
+        WAVE,
         DSF,
     }
 

@@ -493,6 +493,15 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Error: sample rate is too high({0}Hz). FLAC supports up to 655,350Hz sample rate. WAV supports up to 2,147,483,647Hz.
+        /// </summary>
+        internal static string ErrorSampleRateTooHigh {
+            get {
+                return ResourceManager.GetString("ErrorSampleRateTooHigh", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Too large magnitude sample detected! channel={0}, magnitude={1:0.000}
         ///.
         /// </summary>
@@ -818,7 +827,7 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to FLAC files|*.flac|DSF files|*.dsf.
+        ///   Looks up a localized string similar to FLAC files|*.flac|DSF files|*.dsf|WAV files|*.wav.
         /// </summary>
         internal static string FilterWriteAudioFiles {
             get {

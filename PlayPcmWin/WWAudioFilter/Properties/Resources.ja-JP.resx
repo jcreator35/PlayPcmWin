@@ -282,7 +282,7 @@
     <value>2次MASHノイズシェイピング: 出力量子化ビット数={0}</value>
   </data>
   <data name="FilterWriteAudioFiles" xml:space="preserve">
-    <value>FLACファイル|*.flac|DSFファイル|*.dsf</value>
+    <value>FLACファイル|*.flac|DSFファイル|*.dsf|WAVファイル|*.wav</value>
   </data>
   <data name="ErrorNoiseShapingBitIsNan" xml:space="preserve">
     <value>出力量子化ビット数の欄に数字を入れて下さい</value>
@@ -508,5 +508,8 @@
   </data>
   <data name="ErrorNotImplementedUpsampler" xml:space="preserve">
     <value>エラー: 以下の種類のアップサンプラーは2の乗数ではない倍数のアップサンプル対応が未実装です: FFT. 以下の種類のアップサンプラーを使用して下さい: CubicHermiteSpline, LineDraw, InsertZeroes, WindowedSinc or ZOH. </value>
+  </data>
+  <data name="ErrorSampleRateTooHigh" xml:space="preserve">
+    <value>エラー: サンプルレートが高すぎます({0}Hz)。FLACの上限は655,350HzでWAVの上限は2,147,483,647Hzです。</value>
   </data>
 </root>

@@ -386,8 +386,6 @@ namespace WWAudioFilter {
                 return;
             }
 
-            
-
             textBoxLog.Text = string.Empty;
             textBoxLog.Text += string.Format(CultureInfo.CurrentCulture, Properties.Resources.LogFileReadStarted, textBoxInputFile.Text);
             progressBar1.Value = 0;
@@ -398,6 +396,7 @@ namespace WWAudioFilter {
             groupBoxOutputFile.IsEnabled = false;
             buttonStartConversion.IsEnabled = false;
 
+            mStopwatch.Reset();
             mStopwatch.Start();
             mBackgroundWorker.RunWorkerAsync(new RunWorkerArgs(textBoxInputFile.Text, textBoxOutputFile.Text));
         }
