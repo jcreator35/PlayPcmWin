@@ -58,7 +58,7 @@ namespace WWAudioFilter {
             }
 
             int factor;
-            if (!Int32.TryParse(tokens[1], out factor) || factor <= 1 || !IsPowerOfTwo(factor)) {
+            if (!Int32.TryParse(tokens[1], out factor) || factor <= 1) {
                 return null;
             }
 
@@ -166,22 +166,30 @@ namespace WWAudioFilter {
 
             switch (Method) {
             case MethodType.OrderedAdd:
+#if true
+                for (int i=0; i<PROCESS_SLICE; ++i) {
+#else
                 Parallel.For(0, PROCESS_SLICE, i => {
+#endif
                     for (int f = 0; f < Factor; ++f) {
                         double sampleValue = 0;
-                        for (int offs = 0; offs <= WindowLength; offs += Factor) {
+                        for (int offs = 0; offs + Factor - f < mCoeffs.Length; offs += Factor) {
                             sampleValue += mCoeffs[offs + Factor - f] * mInputDelay[offs / Factor + i];
                         }
                         toPcm[i * Factor + f] = sampleValue;
                     } 
+#if true
+            }
+#else
                 });
+#endif
                 break;
             case MethodType.SortedAdd:
                 Parallel.For(0, PROCESS_SLICE, i => {
                     for (int f = 0; f < Factor; ++f) {
                         var positiveValues = new List<double>();
                         var negativeValues = new List<double>();
-                        for (int offs = 0; offs <= WindowLength; offs += Factor) {
+                        for (int offs = 0; offs + Factor - f < mCoeffs.Length; offs += Factor) {
                             double v = mCoeffs[offs + Factor - f] * mInputDelay[offs / Factor + i];
                             if (0 <= v) {
                                 positiveValues.Add(v);
