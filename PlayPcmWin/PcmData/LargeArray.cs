@@ -99,6 +99,11 @@ namespace PcmDataLib {
                 throw new ArgumentOutOfRangeException("pos");
             }
 
+            if (mCount <= ARRAY_FRAGMENT_LENGTH_MAX) {
+                // 高速化。このif文はなくても動作する。
+                return mArrayArray[0][pos];
+            }
+
             int arrayIdx = (int)(pos / ARRAY_FRAGMENT_LENGTH_MAX);
             int arrayOffs = (int)(pos % ARRAY_FRAGMENT_LENGTH_MAX);
 
@@ -110,6 +115,12 @@ namespace PcmDataLib {
         public void Set(long pos, T val) {
             if (pos < 0 || mCount <= pos) {
                 throw new ArgumentOutOfRangeException("pos");
+            }
+
+            if (mCount <= ARRAY_FRAGMENT_LENGTH_MAX) {
+                // 高速化。このif文はなくても動作する。
+                mArrayArray[0][pos] = val;
+                return;
             }
 
             int arrayIdx = (int)(pos / ARRAY_FRAGMENT_LENGTH_MAX);
