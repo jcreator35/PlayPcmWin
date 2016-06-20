@@ -15,18 +15,10 @@ namespace WWAudioFilter {
 
         private bool mFirst;
 
-        public enum MethodType {
-            OrderedAdd,
-            SortedAdd,
-            NUM
-        };
-
-        public MethodType Method { get; set; }
-
         private List<double> mInputDelay = new List<double>();
         private double[] mCoeffs;
 
-        public WindowedSincUpsampler(int factor, int windowLength, MethodType method)
+        public WindowedSincUpsampler(int factor, int windowLength)
                 : base(FilterType.WindowedSincUpsampler) {
 
             if (factor <= 1) {
@@ -36,24 +28,23 @@ namespace WWAudioFilter {
 
             WindowLength = windowLength;
             
-            Method = method;
             mFirst = true;
         }
 
         public override FilterBase CreateCopy() {
-            return new WindowedSincUpsampler(Factor, WindowLength, Method);
+            return new WindowedSincUpsampler(Factor, WindowLength);
         }
 
         public override string ToDescriptionText() {
-            return string.Format(CultureInfo.CurrentCulture, Properties.Resources.FilterWindowedSincUpsampleDesc, Factor, WindowLength, Method);
+            return string.Format(CultureInfo.CurrentCulture, Properties.Resources.FilterWindowedSincUpsampleDesc, Factor, WindowLength);
         }
 
         public override string ToSaveText() {
-            return string.Format(CultureInfo.InvariantCulture, "{0} {1} {2}", Factor, WindowLength, Method);
+            return string.Format(CultureInfo.InvariantCulture, "{0} {1}", Factor, WindowLength);
         }
 
         public static FilterBase Restore(string[] tokens) {
-            if (tokens.Length != 4) {
+            if (tokens.Length != 3 && tokens.Length != 4) {
                 return null;
             }
 
@@ -67,18 +58,7 @@ namespace WWAudioFilter {
                 return null;
             }
 
-            MethodType method = MethodType.NUM;
-            for (int i = 0; i < (int)MethodType.NUM; ++i) {
-                MethodType t = (MethodType)i;
-                if (0 == string.Compare(tokens[3], t.ToString())) {
-                    method = t;
-                }
-            }
-            if (method == MethodType.NUM) {
-                return null;
-            }
-
-            return new WindowedSincUpsampler(factor, windowLength, method);
+            return new WindowedSincUpsampler(factor, windowLength);
         }
 
         public override long NumOfSamplesNeeded() {
@@ -164,60 +144,23 @@ namespace WWAudioFilter {
             var fromPcm = mInputDelay.ToArray();
             var toPcm = new double[PROCESS_SLICE * Factor];
 
-            switch (Method) {
-            case MethodType.OrderedAdd:
 #if false
-                for (int i=0; i<PROCESS_SLICE; ++i) {
+            for (int i=0; i<PROCESS_SLICE; ++i) {
 #else
-                Parallel.For(0, PROCESS_SLICE, i => {
+            Parallel.For(0, PROCESS_SLICE, i => {
 #endif
-                    for (int f = 0; f < Factor; ++f) {
-                        double sampleValue = 0;
-                        for (int offs = 0; offs + Factor - f < mCoeffs.Length; offs += Factor) {
-                            sampleValue += mCoeffs[offs + Factor - f] * mInputDelay[offs / Factor + i];
-                        }
-                        toPcm[i * Factor + f] = sampleValue;
-                    } 
-#if false
-            }
-#else
-                });
-#endif
-                break;
-            case MethodType.SortedAdd:
-                // OrderedAddに対し変換品質の改善が見られないのであんまり意味ない。
-                Parallel.For(0, PROCESS_SLICE, i => {
-                    for (int f = 0; f < Factor; ++f) {
-                        var positiveValues = new List<double>();
-                        var negativeValues = new List<double>();
-                        for (int offs = 0; offs + Factor - f < mCoeffs.Length; offs += Factor) {
-                            double v = mCoeffs[offs + Factor - f] * mInputDelay[offs / Factor + i];
-                            if (0 <= v) {
-                                positiveValues.Add(v);
-                            } else {
-                                negativeValues.Add(v);
-                            }
-                        }
-
-                        // 絶対値が小さい値から大きい値の順に加算する。
-                        positiveValues.Sort();
-                        double positiveAcc = 0.0;
-                        foreach (double n in positiveValues) {
-                            positiveAcc += n;
-                        }
-
-                        negativeValues.Sort();
-                        double negativeAcc = 0.0;
-                        foreach (double n in negativeValues.Reverse<double>()) {
-                            negativeAcc += n;
-                        }
-
-                        double sampleValue = positiveAcc + negativeAcc;
-                        toPcm[i * Factor + f] = sampleValue;
+                for (int f = 0; f < Factor; ++f) {
+                    double sampleValue = 0;
+                    for (int offs = 0; offs + Factor - f < mCoeffs.Length; offs += Factor) {
+                        sampleValue += mCoeffs[offs + Factor - f] * mInputDelay[offs / Factor + i];
                     }
-                });
-                break;
+                    toPcm[i * Factor + f] = sampleValue;
+                } 
+#if false
             }
+#else
+            });
+#endif
 
             mFirst = false;
             return new PcmDataLib.LargeArray<double>(toPcm);

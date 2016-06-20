@@ -76,7 +76,6 @@
                                 <RowDefinition Height="1*" />
                                 <RowDefinition Height="1*" />
                                 <RowDefinition Height="1*" />
-                                <RowDefinition Height="1*" />
                             </Grid.RowDefinitions>
                             <Label Grid.Row="1" Content="Upsampler type:" HorizontalAlignment="Right" Margin="0,0,6,0" Name="labelUpsamplerType" VerticalAlignment="Center" />
                             <ComboBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch" Margin="6,0" Name="comboBoxUpsamplerType" VerticalAlignment="Center" HorizontalContentAlignment="Center" Grid.ColumnSpan="2" SelectionChanged="comboBoxUpsamplerType_SelectionChanged">
@@ -120,13 +119,8 @@
                                 <ComboBoxItem Content="1/2 " IsSelected="True"/>
                                 <ComboBoxItem Content="3/4 " />
                             </ComboBox>
-                            <Label Grid.Column="0" Grid.Row="4" Content="WindowedSinc Method:" Name="labelWindowedSincMethod" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
-                            <ComboBox Grid.Column="1" Grid.Row="4" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" Margin="6,0,6,0" Name="comboBoxWindowedSincMethod" VerticalAlignment="Center" HorizontalContentAlignment="Center" IsEnabled="False">
-                                <ComboBoxItem Content="Ordered Add" IsSelected="True"/>
-                                <ComboBoxItem Content="Sorted Add" />
-                            </ComboBox>
 
-                            <Button Grid.Row="5" Content="Use this Filter" Margin="6,0" Name="buttonUseUpsampler" VerticalAlignment="Center" Grid.ColumnSpan="3" Click="buttonUseUpsampler_Click" />
+                            <Button Grid.Row="4" Content="Use this Filter" Margin="6,0" Name="buttonUseUpsampler" VerticalAlignment="Center" Grid.ColumnSpan="3" Click="buttonUseUpsampler_Click" />
                         </Grid>
                     </GroupBox>
                     <GroupBox  Header="Downsampler" x:Name="groupBoxDownsampler" Width="380">

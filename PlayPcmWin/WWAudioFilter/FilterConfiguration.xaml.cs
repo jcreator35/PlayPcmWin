@@ -66,7 +66,6 @@
                 labelUpsampleLen.Content = Properties.Resources.LabelUpsamplerLength;
                 labelUpsampleLenUnit.Content = Properties.Resources.LabelSamples;
                 buttonUseUpsampler.Content = Properties.Resources.ButtonUseThisFilter;
-                labelWindowedSincMethod.Content = Properties.Resources.labelWindowedSincMethod;
 
                 groupBoxNoiseShaping.Header = Properties.Resources.GroupNoiseShaping;
                 labelNoiseShapingTargetBit.Content = Properties.Resources.LabelNoiseShapingTargetBit;
@@ -189,7 +188,6 @@
                     comboBoxUpsamplingFactor.SelectedIndex = (int)ResamplingFactorToResamplingFactorType(wsu.Factor);
                     comboBoxUpsamplerType.SelectedIndex = (int)UpsamplerType.WindowedSinc;
                     comboBoxUpsampleLen.SelectedIndex = (int)ResampleLenToUpsampleLenType(wsu.WindowLength+1);
-                    comboBoxWindowedSincMethod.SelectedIndex = (int)wsu.Method;
                     break;
                 case FilterType.Mash2:
                     var mash = filter as MashFilter;
@@ -503,7 +501,6 @@
                 var factorType = (UpsamplerType)comboBoxUpsamplerType.SelectedIndex;
 
                 var overlap = (FftUpsampler.OverlapType)comboBoxFftOverlap.SelectedIndex;
-                var method = (WindowedSincUpsampler.MethodType)comboBoxWindowedSincMethod.SelectedIndex;
 
                 if (!WWUtil.IsPowerOfTwo(factor)) {
                     switch (factorType) {
@@ -538,7 +535,7 @@
                     mFilter = new FftUpsampler(factor, len, overlap);
                     break;
                 case (int)UpsamplerType.WindowedSinc:
-                    mFilter = new WindowedSincUpsampler(factor, len - 1, method);
+                    mFilter = new WindowedSincUpsampler(factor, len - 1);
                     break;
                 case (int)UpsamplerType.InsertZeroes:
                     mFilter = new InsertZeroesUpsampler(factor);
@@ -622,17 +619,14 @@
                 case (int)UpsamplerType.FFT:
                     comboBoxUpsampleLen.IsEnabled = true;
                     comboBoxFftOverlap.IsEnabled = true;
-                    comboBoxWindowedSincMethod.IsEnabled = false;
                     break;
                 case (int)UpsamplerType.WindowedSinc:
                     comboBoxUpsampleLen.IsEnabled = true;
                     comboBoxFftOverlap.IsEnabled = false;
-                    comboBoxWindowedSincMethod.IsEnabled = true;
                     break;
                 default:
                     comboBoxUpsampleLen.IsEnabled = false;
                     comboBoxFftOverlap.IsEnabled = false;
-                    comboBoxWindowedSincMethod.IsEnabled = false;
                     break;
                 }
             }
