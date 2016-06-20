@@ -99,7 +99,7 @@ namespace PcmDataLib {
                 throw new ArgumentOutOfRangeException("pos");
             }
 
-            if (mCount <= ARRAY_FRAGMENT_LENGTH_MAX) {
+            if (pos < ARRAY_FRAGMENT_LENGTH_MAX) {
                 // 高速化。このif文はなくても動作する。
                 return mArrayArray[0][pos];
             }
@@ -117,7 +117,7 @@ namespace PcmDataLib {
                 throw new ArgumentOutOfRangeException("pos");
             }
 
-            if (mCount <= ARRAY_FRAGMENT_LENGTH_MAX) {
+            if (pos < ARRAY_FRAGMENT_LENGTH_MAX) {
                 // 高速化。このif文はなくても動作する。
                 mArrayArray[0][pos] = val;
                 return;
