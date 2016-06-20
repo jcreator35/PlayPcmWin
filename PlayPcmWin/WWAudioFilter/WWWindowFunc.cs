@@ -31,6 +31,24 @@ namespace WWAudioFilter {
             return window;
         }
 
+        public static PcmDataLib.LargeArray<double> BlackmanWindow(long length) {
+            // nは奇数
+            System.Diagnostics.Debug.Assert((length & 1) == 1);
+
+            var window = new PcmDataLib.LargeArray<double>(length);
+
+            // 教科書通りに計算すると両端の値が0.0になって
+            // せっかくのデータが0にされて勿体無いので両端(pos==0とpos==length-1)の値はカットし、両端を1ずつ広げる
+            long m = length + 1;
+            for (long i = 0; i < length; ++i) {
+                long pos = i + 1;
+                double v = 0.42 - 0.5 * Math.Cos(2.0 * Math.PI * pos / m) + 0.08 * Math.Cos(4.0 * Math.PI * pos / m);
+                window.Set(i, v);
+            }
+
+            return window;
+        }
+
         /// <summary>
         /// 0以上の整数値vの階乗
         /// </summary>

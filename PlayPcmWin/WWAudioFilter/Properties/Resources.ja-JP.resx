@@ -474,7 +474,7 @@
     <value>Windowed Sincアップサンプル</value>
   </data>
   <data name="FilterWindowedSincUpsampleDesc" xml:space="preserve">
-    <value>Windowed Sincアップサンプル: {0}倍, ウィンドウの長さ={1}, 方法={2}</value>
+    <value>Windowed Sincアップサンプル: {0}倍, ウィンドウの長さ={1}</value>
   </data>
   <data name="labelWindowedSincMethod" xml:space="preserve">
     <value>Windowed Sinc 方法</value>

@@ -827,7 +827,7 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Windowed Sinc upsample: {0}x, window length={1}, Method={2}.
+        ///   Looks up a localized string similar to Windowed Sinc upsample: {0}x, window length={1}.
         /// </summary>
         internal static string FilterWindowedSincUpsampleDesc {
             get {

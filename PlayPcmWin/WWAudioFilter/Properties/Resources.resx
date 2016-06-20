@@ -525,7 +525,7 @@
     <value>Windowed Sinc Upsampler</value>
   </data>
   <data name="FilterWindowedSincUpsampleDesc" xml:space="preserve">
-    <value>Windowed Sinc upsample: {0}x, window length={1}, Method={2}</value>
+    <value>Windowed Sinc upsample: {0}x, window length={1}</value>
   </data>
   <data name="labelWindowedSincMethod" xml:space="preserve">
     <value>Windowed Sinc Method</value>

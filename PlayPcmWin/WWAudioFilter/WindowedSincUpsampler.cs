@@ -13,10 +13,12 @@ namespace WWAudioFilter {
         public int Factor { get; set; }
         public int WindowLength { get; set; }
 
+        public long UpsampledWindowLen { get; set; }
+
         private bool mFirst;
 
         private List<double> mInputDelay = new List<double>();
-        private double[] mCoeffs;
+        private PcmDataLib.LargeArray<double> mCoeffs;
 
         public WindowedSincUpsampler(int factor, int windowLength)
                 : base(FilterType.WindowedSincUpsampler) {
@@ -27,6 +29,8 @@ namespace WWAudioFilter {
             Factor = factor;
 
             WindowLength = windowLength;
+
+            UpsampledWindowLen = (WindowLength+1) * Factor-1;
             
             mFirst = true;
         }
@@ -64,7 +68,7 @@ namespace WWAudioFilter {
         public override long NumOfSamplesNeeded() {
             if (mFirst) {
                 //     最初のサンプル
-                return (WindowLength + 1) / Factor / 2 + PROCESS_SLICE;
+                return (UpsampledWindowLen + 1) / Factor / 2 + PROCESS_SLICE;
             } else {
                 return PROCESS_SLICE;
             }
@@ -100,27 +104,27 @@ namespace WWAudioFilter {
         }
 
         private void SetupCoeffs() {
-            var window = WWWindowFunc.BlackmanWindow(WindowLength);
+            var window = WWWindowFunc.BlackmanWindow(UpsampledWindowLen);
 
             // ループ処理を簡単にするため最初と最後に0を置く。
-            mCoeffs = new double[1 + WindowLength+1];
-            int center = WindowLength / 2;
+            mCoeffs = new PcmDataLib.LargeArray<double>(1 + UpsampledWindowLen + 1);
+            long center = UpsampledWindowLen / 2;
 
-            for (int i = 0; i < WindowLength / 2 + 1; ++i) {
-                int numerator = i;
+            for (long i = 0; i < UpsampledWindowLen / 2 + 1; ++i) {
+                long numerator = i;
                 int denominator = Factor;
-                int numeratorReminder = numerator % (denominator*2);
+                int numeratorReminder = (int)(numerator % (denominator*2));
                 if (numerator == 0) {
-                    mCoeffs[1 + center + i] = 1.0f;
+                    mCoeffs.Set(1 + center + i, 1.0f);
                 } else if (numerator % denominator == 0) {
                     // sinc(180 deg) == 0, sinc(360 deg) == 0, ...
-                    mCoeffs[1 + center + i] = 0.0f;
+                    mCoeffs.Set(1 + center + i, 0.0f);
                 } else {
-                    mCoeffs[1 + center + i] = Math.Sin(Math.PI * numeratorReminder / denominator)
+                    mCoeffs.Set(1 + center + i, Math.Sin(Math.PI * numeratorReminder / denominator)
                         / (Math.PI * numerator / denominator)
-                        * window[center + i];
+                        * window.At(center + i));
                 }
-                mCoeffs[1 + center - i] = mCoeffs[1 + center + i];
+                mCoeffs.Set(1 + center - i, mCoeffs.At(1 + center + i));
             }
         }
 
@@ -128,10 +132,10 @@ namespace WWAudioFilter {
             System.Diagnostics.Debug.Assert(inPcmLA.LongLength == NumOfSamplesNeeded());
             var inPcm = inPcmLA.ToArray();
 
-            int inputSamples = (WindowLength + 1) / Factor + PROCESS_SLICE;
+            int inputSamples = (int)((UpsampledWindowLen + 1) / Factor + PROCESS_SLICE);
 
             if (mFirst) {
-                var silence = new double[(WindowLength+1) /Factor/ 2];
+                var silence = new double[(UpsampledWindowLen + 1) / Factor / 2];
                 mInputDelay.AddRange(silence);
             }
 
@@ -151,8 +155,11 @@ namespace WWAudioFilter {
 #endif
                 for (int f = 0; f < Factor; ++f) {
                     double sampleValue = 0;
-                    for (int offs = 0; offs + Factor - f < mCoeffs.Length; offs += Factor) {
-                        sampleValue += mCoeffs[offs + Factor - f] * mInputDelay[offs / Factor + i];
+                    for (long offs = 0; offs + Factor - f < mCoeffs.LongLength; offs += Factor) {
+                        double input = mInputDelay[(int)(offs / Factor + i)];
+                        if (input != 0.0) {
+                            sampleValue += mCoeffs.At(offs + Factor - f) * input;
+                        }
                     }
                     toPcm[i * Factor + f] = sampleValue;
                 } 
