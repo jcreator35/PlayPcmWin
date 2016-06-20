@@ -350,8 +350,8 @@
   <data name="GroupDownsampler" xml:space="preserve">
     <value>Downsampler</value>
   </data>
-  <data name="LabelDownsamplerOption" xml:space="preserve">
-    <value>Option:</value>
+  <data name="LabelDownsamplerType" xml:space="preserve">
+    <value>Type:</value>
   </data>
   <data name="LabelDownsamplerFactor" xml:space="preserve">
     <value>Factor (f) :</value>
@@ -562,5 +562,8 @@
   </data>
   <data name="ErrorSampleRateTooHigh" xml:space="preserve">
     <value>Error: sample rate is too high({0}Hz). FLAC supports up to 655,350Hz sample rate. WAV supports up to 2,147,483,647Hz</value>
+  </data>
+  <data name="FilterWindowedSincDownsampleDesc" xml:space="preserve">
+    <value>Windowed Sinc downsample: {0}x, window length={1}</value>
   </data>
 </root>

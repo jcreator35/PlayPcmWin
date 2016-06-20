@@ -81,10 +81,12 @@
                 buttonUseTagEdit.Content = Properties.Resources.ButtonUseThisFilter;
 
                 groupBoxDownsampler.Header = Properties.Resources.GroupDownsampler;
-                labelDownsamplerOption.Content = Properties.Resources.LabelDownsamplerOption;
+                labelDownsamplerType.Content = Properties.Resources.LabelDownsamplerType;
                 labelDownsamplerFactor.Content = Properties.Resources.LabelDownsamplerFactor;
                 cbItemDownsamplerOption0.Content = Properties.Resources.CbItemDownsamplerOption0;
                 cbItemDownsamplerOption1.Content = Properties.Resources.CbItemDownsamplerOption1;
+                labelDownsampleLen.Content = Properties.Resources.LabelUpsamplerLength;
+                labelDownsampleLenUnit.Content = Properties.Resources.LabelSamples;
                 buttonUseDownsampler.Content = Properties.Resources.ButtonUseThisFilter;
 
                 groupBoxCic.Header = Properties.Resources.GroupCic;
@@ -179,14 +181,14 @@
                     var fftu = filter as FftUpsampler;
                     comboBoxUpsamplingFactor.SelectedIndex = (int)ResamplingFactorToResamplingFactorType(fftu.Factor);
                     comboBoxUpsamplerType.SelectedIndex = (int)UpsamplerType.FFT;
-                    comboBoxUpsampleLen.SelectedIndex = (int)UpsampleLenToUpsampleLenType(fftu.FftLength);
+                    comboBoxUpsampleLen.SelectedIndex = (int)ResampleLenToUpsampleLenType(fftu.FftLength);
                     comboBoxFftOverlap.SelectedIndex = (int)fftu.Overlap;
                     break;
                 case FilterType.WindowedSincUpsampler:
                     var wsu = filter as WindowedSincUpsampler;
                     comboBoxUpsamplingFactor.SelectedIndex = (int)ResamplingFactorToResamplingFactorType(wsu.Factor);
                     comboBoxUpsamplerType.SelectedIndex = (int)UpsamplerType.WindowedSinc;
-                    comboBoxUpsampleLen.SelectedIndex = (int)UpsampleLenToUpsampleLenType(wsu.WindowLength+1);
+                    comboBoxUpsampleLen.SelectedIndex = (int)ResampleLenToUpsampleLenType(wsu.WindowLength+1);
                     comboBoxWindowedSincMethod.SelectedIndex = (int)wsu.Method;
                     break;
                 case FilterType.Mash2:
@@ -225,7 +227,7 @@
                 case FilterType.Downsampler:
                     var ds = filter as Downsampler;
                     comboBoxDownsamplingFactor.SelectedIndex = (int)ResamplingFactorToResamplingFactorType(ds.Factor);
-                    comboBoxDownsampleOption.SelectedIndex = ds.PickSampleIndex;
+                    comboBoxDownsampleType.SelectedIndex = ds.PickSampleIndex;
                     break;
                 case FilterType.CicFilter:
                     var cic = filter as CicFilter;
@@ -274,8 +276,15 @@
                 case FilterType.ZohNosdacCompensation: {
                         var f = filter as ZohNosdacCompensationFilter;
                         comboBoxNosdacCompensationTaps.SelectedIndex = ZohNosdacTapsToComboBoxIndex(f.Taps);
-                        break;
                     }
+                    break;
+                case FilterType.WindowedSincDownsampler: {
+                        var f = filter as WindowedSincDownsampler;
+                        comboBoxDownsamplingFactor.SelectedIndex = (int)ResamplingFactorToResamplingFactorType(f.Factor);
+                        comboBoxDownsampleType.SelectedIndex = (int)DownsamplerType.WindowedSinc;
+                        comboBoxDownsampleLen.SelectedIndex = (int)ResampleLenToUpsampleLenType(f.WindowLength + 1);
+                    }
+                    break;
                 }
             }
 
@@ -411,7 +420,7 @@
                 WindowedSinc
             };
 
-            enum UpsampleLenType {
+            enum ResampleLenType {
                 L1024,
                 L4096,
                 L16384,
@@ -421,40 +430,40 @@
                 L1048576,
             };
 
-            private static UpsampleLenType UpsampleLenToUpsampleLenType(int len) {
+            private static ResampleLenType ResampleLenToUpsampleLenType(int len) {
                 switch (len) {
                 case 1024:
-                    return UpsampleLenType.L1024;
+                    return ResampleLenType.L1024;
                 case 4096:
                 default:
-                    return UpsampleLenType.L4096;
+                    return ResampleLenType.L4096;
                 case 16384:
-                    return UpsampleLenType.L16384;
+                    return ResampleLenType.L16384;
                 case 65536:
-                    return UpsampleLenType.L65536;
+                    return ResampleLenType.L65536;
                 case 262144:
-                    return UpsampleLenType.L262144;
+                    return ResampleLenType.L262144;
 
                 case 1048576:
-                    return UpsampleLenType.L1048576;
+                    return ResampleLenType.L1048576;
                 }
             }
 
-            private static int UpsampleLenTypeToLpfLen(UpsampleLenType t) {
+            private static int ResampleLenTypeToLpfLen(ResampleLenType t) {
                 switch (t) {
-                case UpsampleLenType.L1024:
+                case ResampleLenType.L1024:
                     return 1024;
-                case UpsampleLenType.L4096:
+                case ResampleLenType.L4096:
                 default:
                     return 4096;
-                case UpsampleLenType.L16384:
+                case ResampleLenType.L16384:
                     return 16384;
-                case UpsampleLenType.L65536:
+                case ResampleLenType.L65536:
                     return 65536;
-                case UpsampleLenType.L262144:
+                case ResampleLenType.L262144:
                     return 262144;
 
-                case UpsampleLenType.L1048576:
+                case ResampleLenType.L1048576:
                     return 1048576;
                 }
             }
@@ -490,7 +499,7 @@
 
             private void buttonUseUpsampler_Click(object sender, RoutedEventArgs e) {
                 int factor = ResamplingFactorTypeToResampingfactor((ResamplingFactorType)comboBoxUpsamplingFactor.SelectedIndex);
-                int len = UpsampleLenTypeToLpfLen((UpsampleLenType)comboBoxUpsampleLen.SelectedIndex);
+                int len = ResampleLenTypeToLpfLen((ResampleLenType)comboBoxUpsampleLen.SelectedIndex);
                 var factorType = (UpsamplerType)comboBoxUpsamplerType.SelectedIndex;
 
                 var overlap = (FftUpsampler.OverlapType)comboBoxFftOverlap.SelectedIndex;
@@ -665,13 +674,29 @@
                 Close();
             }
 
+            enum DownsamplerType {
+                Pick0,
+                Pick1,
+                WindowedSinc,
+            };
+
             private void buttonUseDownsampler_Click(object sender, RoutedEventArgs e) {
                 var factorType = (ResamplingFactorType)comboBoxDownsamplingFactor.SelectedIndex;
                 int factor = ResamplingFactorTypeToResampingfactor(factorType);
+                int len = ResampleLenTypeToLpfLen((ResampleLenType)comboBoxDownsampleLen.SelectedIndex);
 
-                int pickSampleIndex = (int)comboBoxDownsampleOption.SelectedIndex;
+                DownsamplerType type = (DownsamplerType)comboBoxDownsampleType.SelectedIndex;
 
-                mFilter = new Downsampler(factor, pickSampleIndex);
+                switch (type) {
+                case DownsamplerType.Pick0:
+                case DownsamplerType.Pick1:
+                    mFilter = new Downsampler(factor, (int)type);
+                    break;
+                case DownsamplerType.WindowedSinc:
+                    mFilter = new WindowedSincDownsampler(factor, len - 1);
+                    break;
+                }
+
                 DialogResult = true;
                 Close();
             }
@@ -947,6 +972,23 @@
 
                 DialogResult = true;
                 Close();
+            }
+
+            private void comboBoxDownsampleType_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+                if (!mInitialized) {
+                    return;
+                }
+
+                DownsamplerType type = (DownsamplerType)comboBoxDownsampleType.SelectedIndex;
+                switch (type) {
+                case DownsamplerType.Pick0:
+                case DownsamplerType.Pick1:
+                    comboBoxDownsampleLen.IsEnabled = false;
+                    break;
+                case DownsamplerType.WindowedSinc:
+                    comboBoxDownsampleLen.IsEnabled = true;
+                    break;
+                }
             }
         }
     }

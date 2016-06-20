@@ -6,7 +6,7 @@
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{03E90420-3E92-4F6D-82FC-1FCB242CF6E4}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>WWAudioFilter</RootNamespace>
     <AssemblyName>WWAudioFilter</AssemblyName>
@@ -99,6 +99,7 @@
     <Compile Include="MovingAverager.cs" />
     <Compile Include="SubsonicFilter.cs" />
     <Compile Include="TimeReversalFilter.cs" />
+    <Compile Include="WindowedSincDownsampler.cs" />
     <Compile Include="WindowedSincUpsampler.cs" />
     <Compile Include="FirstOrderAllPassIIRFilter.cs" />
     <Compile Include="ReduceBitDepth.cs" />

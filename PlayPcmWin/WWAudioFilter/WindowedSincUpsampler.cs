@@ -166,7 +166,7 @@ namespace WWAudioFilter {
 
             switch (Method) {
             case MethodType.OrderedAdd:
-#if true
+#if false
                 for (int i=0; i<PROCESS_SLICE; ++i) {
 #else
                 Parallel.For(0, PROCESS_SLICE, i => {
@@ -178,13 +178,14 @@ namespace WWAudioFilter {
                         }
                         toPcm[i * Factor + f] = sampleValue;
                     } 
-#if true
+#if false
             }
 #else
                 });
 #endif
                 break;
             case MethodType.SortedAdd:
+                // OrderedAddに対し変換品質の改善が見られないのであんまり意味ない。
                 Parallel.For(0, PROCESS_SLICE, i => {
                     for (int f = 0; f < Factor; ++f) {
                         var positiveValues = new List<double>();

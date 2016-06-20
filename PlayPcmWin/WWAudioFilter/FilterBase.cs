@@ -39,7 +39,8 @@ namespace WWAudioFilter {
         WindowedSincUpsampler,
         SubsonicFilter,
         TimeReversal,
-        ZohNosdacCompensation
+        ZohNosdacCompensation,
+        WindowedSincDownsampler,
     }
 
     public struct TagData {

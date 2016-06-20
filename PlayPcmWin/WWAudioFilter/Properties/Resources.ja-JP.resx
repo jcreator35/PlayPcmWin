@@ -353,8 +353,8 @@
   <data name="GroupDownsampler" xml:space="preserve">
     <value>ダウンサンプラー</value>
   </data>
-  <data name="LabelDownsamplerOption" xml:space="preserve">
-    <value>オプション:</value>
+  <data name="LabelDownsamplerType" xml:space="preserve">
+    <value>種類:</value>
   </data>
   <data name="LabelDownsamplerFactor" xml:space="preserve">
     <value>倍率 (f):</value>
@@ -511,5 +511,8 @@
   </data>
   <data name="ErrorSampleRateTooHigh" xml:space="preserve">
     <value>エラー: サンプルレートが高すぎます({0}Hz)。FLACの上限は655,350HzでWAVの上限は2,147,483,647Hzです。</value>
+  </data>
+  <data name="FilterWindowedSincDownsampleDesc" xml:space="preserve">
+    <value>Windowed Sinc ダウンサンプラー: {0}倍, 窓の長さ={1}</value>
   </data>
 </root>

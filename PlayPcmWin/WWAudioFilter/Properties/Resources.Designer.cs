@@ -818,6 +818,15 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Windowed Sinc downsample: {0}x, window length={1}.
+        /// </summary>
+        internal static string FilterWindowedSincDownsampleDesc {
+            get {
+                return ResourceManager.GetString("FilterWindowedSincDownsampleDesc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Windowed Sinc upsample: {0}x, window length={1}, Method={2}.
         /// </summary>
         internal static string FilterWindowedSincUpsampleDesc {
@@ -1124,11 +1133,11 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Option:.
+        ///   Looks up a localized string similar to Type:.
         /// </summary>
-        internal static string LabelDownsamplerOption {
+        internal static string LabelDownsamplerType {
             get {
-                return ResourceManager.GetString("LabelDownsamplerOption", resourceCulture);
+                return ResourceManager.GetString("LabelDownsamplerType", resourceCulture);
             }
         }
         

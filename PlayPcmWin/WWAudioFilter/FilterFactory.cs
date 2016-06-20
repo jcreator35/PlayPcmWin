@@ -155,6 +155,8 @@ namespace WWAudioFilter {
                 return TimeReversalFilter.Restore(tokens);
             case "ZohNosdacCompensation":
                 return ZohNosdacCompensationFilter.Restore(tokens);
+            case "WindowedSincDownsampler":
+                return WindowedSincDownsampler.Restore(tokens);
             default:
                 return null;
             }
