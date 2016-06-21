@@ -111,6 +111,11 @@ namespace WWAudioFilter {
                         / (Math.PI * numerator / denominator)
                         * window[center + i];
                 }
+
+                // Factor分の１する。
+                mCoeffs[1 + center + i] /= Factor;
+
+                // 左右鏡像なので。
                 mCoeffs[1 + center - i] = mCoeffs[1 + center + i];
             }
         }

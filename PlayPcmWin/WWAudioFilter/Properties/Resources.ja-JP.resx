@@ -246,7 +246,8 @@
 </value>
   </data>
   <data name="LogFileReadCompleted" xml:space="preserve">
-    <value>読み込み完了。信号処理中…
+    <value>読み込み完了。
+信号処理中…
 </value>
   </data>
   <data name="LogFileReadStarted" xml:space="preserve">
@@ -425,8 +426,8 @@
   <data name="FilterCubicHermiteSplineDesc" xml:space="preserve">
     <value>キュービック エルミート スプライン アップサンプル: {0}x</value>
   </data>
-  <data name="FilterPcmFiles" xml:space="preserve">
-    <value>音声ファイル(*.wav,*.flac)|*.wav;*.flac</value>
+  <data name="FilterReadAudioFiles" xml:space="preserve">
+    <value>音声ファイル(*.wav,*.flac,*.dsf)|*.wav;*.flac;*.dsf</value>
   </data>
   <data name="ErrorTargetBitDepth" xml:space="preserve">
     <value>エラー: 量子化ビット数bは 1 ≤ b ≤ 23 の範囲の整数値を指定して下さい。</value>

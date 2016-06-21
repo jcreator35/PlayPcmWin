@@ -7,10 +7,21 @@ namespace WWAudioFilter {
     struct AudioDataPerChannel {
         public PcmDataLib.LargeArray<byte> data;
         public long offsBytes;
+
+        /// <summary>
+        /// これは、サンプル数。1bitデータのとき、data.LongLength / 8 = totalSamples
+        /// </summary>
         public long totalSamples;
         public int bitsPerSample;
         public bool overflow;
         public double maxMagnitude;
+
+        public enum DataFormat {
+            Pcm,
+            Sdm1bit,
+        };
+
+        public DataFormat dataFormat;
 
         public void ResetStatistics() {
             overflow = false;
@@ -23,6 +34,50 @@ namespace WWAudioFilter {
         /// <param name="count">取得する要素数。範囲外の領域は0が入る。</param>
         /// <returns></returns>
         public double[] GetPcmInDouble(int count) {
+            switch (dataFormat) {
+            case DataFormat.Pcm:
+                return GetPcmInDoublePcm(count);
+            case DataFormat.Sdm1bit:
+                return GetPcmInDoubleSdm1bit(count);
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                return null;
+            }
+        }
+
+        public double[] GetPcmInDoubleSdm1bit(int count) {
+            System.Diagnostics.Debug.Assert(count % 8 == 0);
+
+            // サンプル数 / 8 == バイト数。
+            if (totalSamples / 8 <= offsBytes || count <= 0) {
+                return new double[count];
+            }
+
+            var result = new double[count];
+
+            int copySamples = result.Length;
+            if (totalSamples < offsBytes * 8 + copySamples) {
+                copySamples = (int)(totalSamples - offsBytes * 8);
+            }
+
+            for (int i = 0; i < copySamples/8; ++i) {
+                byte b = data.At(offsBytes);
+                result[i * 8 + 0] = ((b >> 0) & 1) == 1 ? 1.0 : -1.0;
+                result[i * 8 + 1] = ((b >> 1) & 1) == 1 ? 1.0 : -1.0;
+                result[i * 8 + 2] = ((b >> 2) & 1) == 1 ? 1.0 : -1.0;
+                result[i * 8 + 3] = ((b >> 3) & 1) == 1 ? 1.0 : -1.0;
+                result[i * 8 + 4] = ((b >> 4) & 1) == 1 ? 1.0 : -1.0;
+                result[i * 8 + 5] = ((b >> 5) & 1) == 1 ? 1.0 : -1.0;
+                result[i * 8 + 6] = ((b >> 6) & 1) == 1 ? 1.0 : -1.0;
+                result[i * 8 + 7] = ((b >> 7) & 1) == 1 ? 1.0 : -1.0;
+
+                ++offsBytes;
+            }
+
+            return result;
+        }
+
+        public double[] GetPcmInDoublePcm(int count) {
             // 確保するサイズはcount個。
             if (totalSamples <= offsBytes / (bitsPerSample / 8) || count <= 0) {
                 return new double[count];
@@ -59,12 +114,56 @@ namespace WWAudioFilter {
             return result;
         }
 
+        public PcmDataLib.LargeArray<double> GetPcmInDouble(long longCount) {
+            switch (dataFormat) {
+            case DataFormat.Pcm:
+                return GetPcmInDoublePcm(longCount);
+            case DataFormat.Sdm1bit:
+                return GetPcmInDoubleSdm1bit(longCount);
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                return null;
+            }
+        }
+
+        public PcmDataLib.LargeArray<double> GetPcmInDoubleSdm1bit(long count) {
+            System.Diagnostics.Debug.Assert(count % 8 == 0);
+
+            // サンプル数 / 8 == バイト数。
+            if (totalSamples / 8 <= offsBytes || count <= 0) {
+                return new PcmDataLib.LargeArray<double>(count);
+            }
+
+            var result = new PcmDataLib.LargeArray<double>(count);
+
+            long copySamples = result.LongLength;
+            if (totalSamples < offsBytes * 8 + copySamples) {
+                copySamples = totalSamples - offsBytes * 8;
+            }
+
+            for (long i = 0; i < copySamples / 8; ++i) {
+                byte b = data.At(offsBytes);
+                result.Set(i * 8 + 0, ((b >> 0) & 1) == 1 ? 1.0 : -1.0);
+                result.Set(i * 8 + 1, ((b >> 1) & 1) == 1 ? 1.0 : -1.0);
+                result.Set(i * 8 + 2, ((b >> 2) & 1) == 1 ? 1.0 : -1.0);
+                result.Set(i * 8 + 3, ((b >> 3) & 1) == 1 ? 1.0 : -1.0);
+                result.Set(i * 8 + 4, ((b >> 4) & 1) == 1 ? 1.0 : -1.0);
+                result.Set(i * 8 + 5, ((b >> 5) & 1) == 1 ? 1.0 : -1.0);
+                result.Set(i * 8 + 6, ((b >> 6) & 1) == 1 ? 1.0 : -1.0);
+                result.Set(i * 8 + 7, ((b >> 7) & 1) == 1 ? 1.0 : -1.0);
+
+                ++offsBytes;
+            }
+
+            return result;
+        }
+
         /// <summary>
         /// double型のLargeArrayを戻すバージョン。
         /// </summary>
         /// <param name="longCount">取得する要素数。範囲外の領域は0が入る。</param>
         /// <returns></returns>
-        public PcmDataLib.LargeArray<double> GetPcmInDouble(long longCount) {
+        public PcmDataLib.LargeArray<double> GetPcmInDoublePcm(long longCount) {
             // 確保するサイズはlongCount個。
             var result = new PcmDataLib.LargeArray<double>(longCount);
 

@@ -246,7 +246,8 @@
 </value>
   </data>
   <data name="LogFileReadCompleted" xml:space="preserve">
-    <value>Read completed. now processing...
+    <value>Read completed. 
+Now processing...
 </value>
   </data>
   <data name="LogFileReadStarted" xml:space="preserve">
@@ -473,8 +474,8 @@
   <data name="FilterCubicHermiteSplineDesc" xml:space="preserve">
     <value>Cubic Hermite Spline upsample: {0}x</value>
   </data>
-  <data name="FilterPcmFiles" xml:space="preserve">
-    <value>Audio files(*.wav, *.flac)|*.wav;*.flac</value>
+  <data name="FilterReadAudioFiles" xml:space="preserve">
+    <value>Audio files(*.wav, *.flac, *.dsf)|*.wav;*.flac;*.dsf</value>
   </data>
   <data name="ErrorTargetBitDepth" xml:space="preserve">
     <value>Error: target bit depth b must number in the range:  1 ≤ b ≤ 23</value>

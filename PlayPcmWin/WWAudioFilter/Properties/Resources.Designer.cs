@@ -764,11 +764,11 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Audio files(*.wav, *.flac)|*.wav;*.flac.
+        ///   Looks up a localized string similar to Audio files(*.wav, *.flac, *.dsf)|*.wav;*.flac;*.dsf.
         /// </summary>
-        internal static string FilterPcmFiles {
+        internal static string FilterReadAudioFiles {
             get {
-                return ResourceManager.GetString("FilterPcmFiles", resourceCulture);
+                return ResourceManager.GetString("FilterReadAudioFiles", resourceCulture);
             }
         }
         
@@ -1350,7 +1350,8 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Read completed. now processing...
+        ///   Looks up a localized string similar to Read completed. 
+        ///Now processing...
         ///.
         /// </summary>
         internal static string LogFileReadCompleted {

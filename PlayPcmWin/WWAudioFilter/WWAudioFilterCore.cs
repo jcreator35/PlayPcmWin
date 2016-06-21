@@ -145,6 +145,7 @@ namespace WWAudioFilter {
                 }
 
                 var adp = new AudioDataPerChannel();
+                adp.dataFormat = AudioDataPerChannel.DataFormat.Pcm;
                 adp.data = data;
                 adp.bitsPerSample = to.meta.bitsPerSample;
                 adp.totalSamples = to.meta.totalSamples;
@@ -213,6 +214,88 @@ namespace WWAudioFilter {
             }
         }
 
+        private static int ReadDsfFile(string path, out AudioData ad) {
+            ad = new AudioData();
+
+            using (var br = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))) {
+                var reader = new WWDsfReader();
+
+                PcmDataLib.PcmData header;
+                var readResult = reader.ReadHeader(br, out header);
+                if (readResult != WWDsfReader.ResultType.Success) {
+                    MessageBox.Show(string.Format("Error: Failed to read DSF file: {0} {1}", path, readResult));
+                    return -1;
+                }
+
+                // DoP DSDデータとしての形式が出てくる。
+                ad.meta = new WWFlacRWCS.Metadata();
+                ad.meta.albumStr = reader.AlbumName;
+                ad.meta.artistStr = reader.ArtistName;
+                ad.meta.titleStr = reader.TitleName;
+                ad.meta.pictureBytes = reader.PictureBytes;
+                ad.picture = reader.PictureData;
+                ad.meta.totalSamples = reader.OutputFrames; // PCMのフレーム数が出る。
+                ad.meta.channels = reader.NumChannels;
+                ad.meta.sampleRate = reader.SampleRate; // DSDレートが出る。
+            }
+
+            using (var br = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))) {
+                var reader = new WWDsfReader();
+
+                PcmDataLib.PcmData pcm;
+                reader.ReadStreamBegin(br, out pcm);
+
+                var mDataArray = new PcmDataLib.LargeArray<byte>[ad.meta.channels];
+
+                for (int ch = 0; ch < ad.meta.channels; ++ch) {
+                    // 24bit == 3bytes per channelのDoPから
+                    // 16bitを抽出するので、１サンプルあたり２バイト。
+                    mDataArray[ch] = new PcmDataLib.LargeArray<byte>(ad.meta.totalSamples *2);
+                }
+
+                const int FRAGMENT_SAMPLES = 4096;
+
+                for (long sample = 0; sample < ad.meta.totalSamples; sample += FRAGMENT_SAMPLES) {
+                    // DoPのフレームが出てくる。リトルエンディアン、３バイトのうち下位２バイトがDSDデータ。
+
+                    int fragmentSamples = FRAGMENT_SAMPLES;
+                    if (ad.meta.totalSamples < sample + FRAGMENT_SAMPLES) {
+                        fragmentSamples = (int)(ad.meta.totalSamples - sample);
+                    }
+
+                    var buff = reader.ReadStreamReadOne(br, fragmentSamples);
+
+                    // ここで全チャンネルがインターリーブされた、１サンプル３バイトのデータが出てくる。
+                    for (int i = 0; i < fragmentSamples; ++i) {
+                        for (int ch = 0; ch < ad.meta.channels; ++ch) {
+                            mDataArray[ch].Set((sample + i) * 2 + 0, buff[(ad.meta.channels * i + ch) * 3 + 0]);
+                            mDataArray[ch].Set((sample + i) * 2 + 1, buff[(ad.meta.channels * i + ch) * 3 + 1]);
+                        }
+                    }
+                }
+
+                // DSDデータとして書き込む。
+                ad.meta.totalSamples *= 16;
+                ad.meta.bitsPerSample = 1;
+                ad.preferredSaveFormat = FileFormatType.DSF;
+                ad.pcm = new List<AudioDataPerChannel>();
+
+                // AudioDataPerChannelには本当のサンプル数、量子化ビット数をセットする。
+                for (int ch = 0; ch < ad.meta.channels; ++ch) {
+                    var adp = new AudioDataPerChannel();
+                    adp.data = mDataArray[ch];
+                    adp.offsBytes = 0;
+                    adp.bitsPerSample = 1;
+                    adp.totalSamples = ad.meta.totalSamples;
+                    adp.dataFormat = AudioDataPerChannel.DataFormat.Sdm1bit;
+                    ad.pcm.Add(adp);
+                }
+
+            }
+
+            return 0;
+        }
+
         private static int ReadFlacFile(string path, out AudioData ad) {
             ad = new AudioData();
 
@@ -261,6 +344,7 @@ namespace WWAudioFilter {
                     ad.meta.totalSamples, PcmDataLib.PcmData.ValueRepresentationType.SInt, pcm);
 
                 var adp = new AudioDataPerChannel();
+                adp.dataFormat = AudioDataPerChannel.DataFormat.Pcm;
                 adp.data = pcm24;
                 adp.offsBytes = 0;
                 adp.bitsPerSample = 24;
@@ -546,8 +630,10 @@ namespace WWAudioFilter {
 
             if (0 == Path.GetExtension(fromPath).CompareTo(".wav")) {
                 rv = ReadWavFile(fromPath, out audioDataFrom);
-            } else {
+            } else if (0 == Path.GetExtension(fromPath).CompareTo(".flac")) {
                 rv = ReadFlacFile(fromPath, out audioDataFrom);
+            } else {
+                rv = ReadDsfFile(fromPath, out audioDataFrom);
             }
             if (rv < 0) {
                 return rv;
