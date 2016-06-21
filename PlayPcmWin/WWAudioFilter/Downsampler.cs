@@ -53,7 +53,7 @@ namespace WWAudioFilter {
         }
 
         public override long NumOfSamplesNeeded() {
-            return 8192 * Factor;
+            return 1024 * Factor;
         }
 
         public override void FilterStart() {

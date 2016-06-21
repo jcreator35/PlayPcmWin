@@ -255,6 +255,7 @@ namespace WWAudioFilter {
 
                 const int FRAGMENT_SAMPLES = 4096;
 
+                // 1チャンネル、1サンプルあたり２バイト入っている。
                 for (long sample = 0; sample < ad.meta.totalSamples; sample += FRAGMENT_SAMPLES) {
                     // DoPのフレームが出てくる。リトルエンディアン、３バイトのうち下位２バイトがDSDデータ。
 

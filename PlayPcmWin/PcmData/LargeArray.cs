@@ -12,7 +12,7 @@ namespace PcmDataLib {
         /// TにWWComplex型を入れた時に配列が2GBを超えないようにする。
         /// あまりギリギリのサイズにしないようにした。
         /// </summary>
-        public const int ARRAY_FRAGMENT_LENGTH_MAX = 1024 * 1024;
+        public const int ARRAY_FRAGMENT_LENGTH_MAX = 1024*512; //1024 * 1024;
 
         /// <summary>
         /// ctor
