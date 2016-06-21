@@ -98,8 +98,9 @@
                                 <ComboBoxItem Content="16x" />
                                 <ComboBoxItem Content="20x" />
                                 <ComboBoxItem Content="40x" />
+                                <ComboBoxItem Content="64x" />
+
                                 <ComboBoxItem Content="80x" />
-                                
                                 <ComboBoxItem Content="147x" />
                                 <ComboBoxItem Content="160x" />
                                 <ComboBoxItem Content="320x" />
@@ -148,8 +149,9 @@
                                 <ComboBoxItem Content="16x" />
                                 <ComboBoxItem Content="20x" />
                                 <ComboBoxItem Content="40x" />
+                                <ComboBoxItem Content="64x" />
+
                                 <ComboBoxItem Content="80x" />
-                                
                                 <ComboBoxItem Content="147x" />
                                 <ComboBoxItem Content="160x" />
                                 <ComboBoxItem Content="320x" />
