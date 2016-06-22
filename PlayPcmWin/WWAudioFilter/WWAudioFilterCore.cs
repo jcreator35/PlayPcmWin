@@ -269,8 +269,9 @@ namespace WWAudioFilter {
                     // ここで全チャンネルがインターリーブされた、１サンプル３バイトのデータが出てくる。
                     for (int i = 0; i < fragmentSamples; ++i) {
                         for (int ch = 0; ch < ad.meta.channels; ++ch) {
+                            // ビッグエンディアンバイトオーダー→リトルエンディアンバイトオーダー。
+                            mDataArray[ch].Set((sample + i) * 2 + 0, buff[(ad.meta.channels * i + ch) * 3 + 1]);
                             mDataArray[ch].Set((sample + i) * 2 + 0, buff[(ad.meta.channels * i + ch) * 3 + 0]);
-                            mDataArray[ch].Set((sample + i) * 2 + 1, buff[(ad.meta.channels * i + ch) * 3 + 1]);
                         }
                     }
                 }
