@@ -55,9 +55,9 @@ namespace WWAudioFilter {
                 copySamples = totalSamples - offsBytes * 8;
             }
 
+            var d8 = new double[8];
             for (long i = 0; i < copySamples / 8; ++i) {
                 byte b = data.At(offsBytes + i);
-                var d8 = new double[8];
                 
                 for (int bit=0; bit<8; ++bit) {
                     d8[bit] = ((b >> bit) & 1) == 1 ? 1.0 : -1.0;

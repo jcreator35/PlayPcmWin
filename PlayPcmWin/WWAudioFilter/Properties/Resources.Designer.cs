@@ -1351,7 +1351,7 @@ namespace WWAudioFilter.Properties {
         
         /// <summary>
         ///   Looks up a localized string similar to Read completed. 
-        ///Now processing...
+        ///Processing...
         ///.
         /// </summary>
         internal static string LogFileReadCompleted {
@@ -1371,7 +1371,7 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Process completed. now writing to {0} ...
+        ///   Looks up a localized string similar to Process completed. Writing to {0} ...
         ///.
         /// </summary>
         internal static string LogfileWriteStarted {

@@ -247,7 +247,7 @@
   </data>
   <data name="LogFileReadCompleted" xml:space="preserve">
     <value>Read completed. 
-Now processing...
+Processing...
 </value>
   </data>
   <data name="LogFileReadStarted" xml:space="preserve">
@@ -255,7 +255,7 @@ Now processing...
 </value>
   </data>
   <data name="LogfileWriteStarted" xml:space="preserve">
-    <value>Process completed. now writing to {0} ...
+    <value>Process completed. Writing to {0} ...
 </value>
   </data>
   <data name="CbItemFftUpsampler" xml:space="preserve">
