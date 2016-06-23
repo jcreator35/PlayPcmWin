@@ -112,13 +112,13 @@ namespace PcmDataLib {
                     switch (bitsPerSample) {
                     case 32: {
                             var b4 = new byte[4];
-                            data.CopyTo(i * 4, b4, 0, 4);
+                            data.CopyTo(i * 4, ref b4, 0, 4);
                             v = BitConverter.ToSingle(b4, 0);
                         }
                         break;
                     case 64: {
                             var b8 = new byte[8];
-                            data.CopyTo(i * 8, b8, 0, 8);
+                            data.CopyTo(i * 8, ref b8, 0, 8);
                             v = BitConverter.ToDouble(b8, 0);
                         }
                         break;

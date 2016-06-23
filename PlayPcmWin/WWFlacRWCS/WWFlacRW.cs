@@ -237,7 +237,7 @@ namespace WWFlacRWCS {
                 }
 
                 var fragment = new byte[fragmentBytes];
-                pcmData.CopyTo(offs, fragment, 0, fragmentBytes);
+                pcmData.CopyTo(offs, ref fragment, 0, fragmentBytes);
 
                 int rv = NativeMethods.WWFlacRW_EncodeSetPcmFragment(mId, channel, offs, fragment, fragmentBytes);
                 if (rv < 0) {

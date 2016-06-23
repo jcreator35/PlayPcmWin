@@ -129,6 +129,64 @@ namespace PcmDataLib {
             mArrayArray[arrayIdx][arrayOffs] = val;
         }
 
+        public void SetRange(long toPos, T[] val, int fromPos, int count) {
+            if (toPos < 0 || mCount <= toPos) {
+                throw new ArgumentOutOfRangeException("toPos");
+            }
+
+            int copyNum = count;
+            if (val.Length - fromPos < copyNum) {
+                copyNum = val.Length - fromPos;
+            }
+
+            if (mCount < toPos + copyNum) {
+                copyNum = (int)(mCount - toPos);
+            }
+
+            for (int remain = copyNum; 0 < remain; ) {
+                int arrayIdx = (int)(toPos / ARRAY_FRAGMENT_LENGTH_MAX);
+                int arrayOffs = (int)(toPos % ARRAY_FRAGMENT_LENGTH_MAX);
+
+                int fragmentCount = ARRAY_FRAGMENT_LENGTH_MAX - arrayOffs;
+                if (remain < fragmentCount) {
+                    fragmentCount = remain;
+                }
+
+                Array.Copy(val, fromPos, mArrayArray[arrayIdx], arrayOffs, fragmentCount);
+
+                fromPos += fragmentCount;
+                toPos += fragmentCount;
+                remain -= fragmentCount;
+            }
+        }
+
+        public void GetRange(long fromPos, ref T[] to, int toPos, int count) {
+            if (fromPos < 0 || mCount <= fromPos) {
+                throw new ArgumentOutOfRangeException("fromPos");
+            }
+
+            int copyNum = count;
+            if (mCount < fromPos + copyNum) {
+                copyNum = (int)(mCount - fromPos);
+            }
+
+            for (int remain = copyNum; 0 < remain; ) {
+                int arrayIdx = (int)(fromPos / ARRAY_FRAGMENT_LENGTH_MAX);
+                int arrayOffs = (int)(fromPos % ARRAY_FRAGMENT_LENGTH_MAX);
+
+                int fragmentCount = ARRAY_FRAGMENT_LENGTH_MAX - arrayOffs;
+                if (remain < fragmentCount) {
+                    fragmentCount = remain;
+                }
+
+                Array.Copy(mArrayArray[arrayIdx], arrayOffs, to, toPos, fragmentCount);
+
+                fromPos += fragmentCount;
+                toPos += fragmentCount;
+                remain -= fragmentCount;
+            }
+        }
+
         /// <summary>
         /// toにコピー。
         /// </summary>
@@ -137,7 +195,7 @@ namespace PcmDataLib {
         /// <param name="toOffsCount">コピー先(to[])先頭要素番号。</param>
         /// <param name="copyCount">コピーする要素数。</param>
         /// <returns>コピーした要素数。</returns>
-        public int CopyTo(long fromOffsCount, T[] to, int toOffsCount, int copyCount) {
+        public int CopyTo(long fromOffsCount, ref T[] to, int toOffsCount, int copyCount) {
             if (mCount < fromOffsCount + copyCount) {
                 copyCount = (int)(mCount - fromOffsCount);
             }
@@ -145,14 +203,17 @@ namespace PcmDataLib {
                 copyCount = 0;
             }
 
+#if true
+            GetRange(fromOffsCount, ref to, toOffsCount, copyCount);
+#else
             for (int i = 0; i < copyCount; ++i) {
                 to[toOffsCount + i] = At(fromOffsCount + i);
             }
-
+#endif
             return copyCount;
         }
 
-        public long CopyTo(long fromOffsCount, LargeArray<T> to, long toOffsCount, long totalCopyCount) {
+        public long CopyTo(long fromOffsCount, ref LargeArray<T> to, long toOffsCount, long totalCopyCount) {
             if (mCount < fromOffsCount + totalCopyCount) {
                 totalCopyCount = mCount - fromOffsCount;
             }
@@ -170,7 +231,7 @@ namespace PcmDataLib {
                 }
 
                 var fragment = new T[fragmentCount];
-                CopyTo(fromPos, fragment, 0, fragmentCount);
+                CopyTo(fromPos, ref fragment, 0, fragmentCount);
                 to.CopyFrom(fragment, 0, toPos, fragmentCount);
 
                 fromPos += fragmentCount;
@@ -195,11 +256,13 @@ namespace PcmDataLib {
             if (copyCount < 0) {
                 copyCount = 0;
             }
-
+#if true
+            SetRange(toOffsCount, from, fromOffsCount, copyCount);
+#else
             for (int i = 0; i < copyCount; ++i) {
                 Set(toOffsCount + i, from[fromOffsCount + i]);
             }
-
+#endif
             return copyCount;
         }
 
@@ -221,7 +284,7 @@ namespace PcmDataLib {
                 }
 
                 var fragment = new T[fragmentCount];
-                from.CopyTo(fromPos, fragment, 0, fragmentCount);
+                from.CopyTo(fromPos, ref fragment, 0, fragmentCount);
                 CopyFrom(fragment, 0, toPos, fragmentCount);
 
                 fromPos += fragmentCount;
@@ -240,11 +303,11 @@ namespace PcmDataLib {
             }
 
             var result = new T[mCount];
-            CopyTo(0, result, 0, (int)mCount);
+            CopyTo(0, ref result, 0, (int)mCount);
             return result;
         }
 
-        private long mCount;
+        private readonly long mCount;
         private T[][] mArrayArray;
     }
 }

@@ -245,15 +245,15 @@ namespace WWAudioFilter {
                 PcmDataLib.PcmData pcm;
                 reader.ReadStreamBegin(br, out pcm);
 
-                var mDataArray = new PcmDataLib.LargeArray<byte>[ad.meta.channels];
+                var sampleData = new PcmDataLib.LargeArray<byte>[ad.meta.channels];
 
                 for (int ch = 0; ch < ad.meta.channels; ++ch) {
                     // 24bit == 3bytes per channelのDoPから
                     // 16bitを抽出するので、１サンプルあたり２バイト。
-                    mDataArray[ch] = new PcmDataLib.LargeArray<byte>(ad.meta.totalSamples *2);
+                    sampleData[ch] = new PcmDataLib.LargeArray<byte>(ad.meta.totalSamples *2);
                 }
 
-                const int FRAGMENT_SAMPLES = 4096;
+                const int FRAGMENT_SAMPLES = 1048576;
 
                 // 1チャンネル、1サンプルあたり２バイト入っている。
                 for (long sample = 0; sample < ad.meta.totalSamples; sample += FRAGMENT_SAMPLES) {
@@ -269,9 +269,8 @@ namespace WWAudioFilter {
                     // ここで全チャンネルがインターリーブされた、１サンプル３バイトのデータが出てくる。
                     for (int i = 0; i < fragmentSamples; ++i) {
                         for (int ch = 0; ch < ad.meta.channels; ++ch) {
-                            // ビッグエンディアンバイトオーダー→リトルエンディアンバイトオーダー。
-                            mDataArray[ch].Set((sample + i) * 2 + 0, buff[(ad.meta.channels * i + ch) * 3 + 1]);
-                            mDataArray[ch].Set((sample + i) * 2 + 0, buff[(ad.meta.channels * i + ch) * 3 + 0]);
+                            sampleData[ch].Set((sample + i) * 2 + 0, buff[(ad.meta.channels * i + ch) * 3 + 0]);
+                            sampleData[ch].Set((sample + i) * 2 + 1, buff[(ad.meta.channels * i + ch) * 3 + 1]);
                         }
                     }
                 }
@@ -285,7 +284,7 @@ namespace WWAudioFilter {
                 // AudioDataPerChannelには本当のサンプル数、量子化ビット数をセットする。
                 for (int ch = 0; ch < ad.meta.channels; ++ch) {
                     var adp = new AudioDataPerChannel();
-                    adp.data = mDataArray[ch];
+                    adp.data = sampleData[ch];
                     adp.offsBytes = 0;
                     adp.bitsPerSample = 1;
                     adp.totalSamples = ad.meta.totalSamples;

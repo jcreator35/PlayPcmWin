@@ -56,19 +56,60 @@ namespace WWAudioFilter {
             }
 
             for (long i = 0; i < copySamples / 8; ++i) {
-                byte b = data.At(offsBytes);
-                result.Set(i * 8 + 0, ((b >> 0) & 1) == 1 ? 1.0 : -1.0);
-                result.Set(i * 8 + 1, ((b >> 1) & 1) == 1 ? 1.0 : -1.0);
-                result.Set(i * 8 + 2, ((b >> 2) & 1) == 1 ? 1.0 : -1.0);
-                result.Set(i * 8 + 3, ((b >> 3) & 1) == 1 ? 1.0 : -1.0);
-                result.Set(i * 8 + 4, ((b >> 4) & 1) == 1 ? 1.0 : -1.0);
-                result.Set(i * 8 + 5, ((b >> 5) & 1) == 1 ? 1.0 : -1.0);
-                result.Set(i * 8 + 6, ((b >> 6) & 1) == 1 ? 1.0 : -1.0);
-                result.Set(i * 8 + 7, ((b >> 7) & 1) == 1 ? 1.0 : -1.0);
+                byte b = data.At(offsBytes + i);
+                var d8 = new double[8];
+                
+                for (int bit=0; bit<8; ++bit) {
+                    d8[bit] = ((b >> bit) & 1) == 1 ? 1.0 : -1.0;
+                }
 
-                ++offsBytes;
+                result.SetRange(i*8, d8, 0, 8);
             }
 
+            offsBytes += copySamples/8;
+
+            return result;
+        }
+        
+        /// <summary>
+        /// double[]を戻すバージョン。
+        /// </summary>
+        /// <param name="count">取得する要素数。範囲外の領域は0が入る。</param>
+        /// <returns></returns>
+        public double[] GetPcmInDoublePcm(int count) {
+            // 確保するサイズはcount個。
+            if (totalSamples <= offsBytes / (bitsPerSample / 8) || count <= 0) {
+                return new double[count];
+            }
+
+            var result = new double[count];
+
+            // コピーするデータの個数はcount個よりも少ないことがある。
+            int copyCount = result.Length;
+            if (totalSamples < offsBytes / (bitsPerSample / 8) + copyCount) {
+                copyCount = (int)(totalSamples - offsBytes / (bitsPerSample / 8));
+            }
+
+            switch (bitsPerSample) {
+            case 16:
+                for (int i = 0; i < copyCount; ++i) {
+                    short v = (short)((data.At(offsBytes)) + (data.At(offsBytes + 1) << 8));
+                    result[i] = v * (1.0 / 32768.0);
+                    offsBytes += 2;
+                }
+                break;
+            case 24:
+                for (int i = 0; i < copyCount; ++i) {
+                    int v = (int)((data.At(offsBytes) << 8) + (data.At(offsBytes + 1) << 16)
+                        + (data.At(offsBytes + 2) << 24));
+                    result[i] = v * (1.0 / 2147483648.0);
+                    offsBytes += 3;
+                }
+                break;
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                break;
+            }
             return result;
         }
 
@@ -101,7 +142,7 @@ namespace WWAudioFilter {
                     fragmentCount = (int)remain;
                 }
 
-                var fragment = GetPcmInDouble(fragmentCount);
+                var fragment = GetPcmInDoublePcm(fragmentCount);
 
                 result.CopyFrom(fragment, 0, toPos, fragmentCount);
 
@@ -224,7 +265,7 @@ namespace WWAudioFilter {
                 }
 
                 var fragment = new double[fragmentCount];
-                pcm.CopyTo(fromPos, fragment, 0, fragmentCount);
+                pcm.CopyTo(fromPos, ref fragment, 0, fragmentCount);
                 SetPcmInDouble(fragment, toPos);
 
                 fromPos += fragmentCount;
