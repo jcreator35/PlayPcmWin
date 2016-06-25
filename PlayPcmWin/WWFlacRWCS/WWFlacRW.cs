@@ -230,8 +230,8 @@ namespace WWFlacRWCS {
         }
 
         public int EncodeAddPcm(int channel, PcmDataLib.LargeArray<byte> pcmData) {
-            for (long offs = 0; offs < pcmData.LongLength; offs += PcmDataLib.LargeArray<byte>.ARRAY_FRAGMENT_LENGTH_MAX) {
-                int fragmentBytes = PcmDataLib.LargeArray<byte>.ARRAY_FRAGMENT_LENGTH_MAX;
+            for (long offs = 0; offs < pcmData.LongLength; offs += PcmDataLib.LargeArray<byte>.ARRAY_FRAGMENT_LENGTH_NUM) {
+                int fragmentBytes = PcmDataLib.LargeArray<byte>.ARRAY_FRAGMENT_LENGTH_NUM;
                 if (pcmData.LongLength < offs + fragmentBytes) {
                     fragmentBytes = (int)(pcmData.LongLength - offs);
                 }

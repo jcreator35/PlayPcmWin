@@ -54,19 +54,6 @@ namespace WWAudioFilter {
             return r;
         }
 
-        /*
-        private static void Butterfly(WWComplex vFrom0, WWComplex vFrom1, WWComplex wn, WWComplex[] vTo, int toPos) {
-            vTo[toPos].CopyFrom(vFrom0);
-            var t = new WWComplex(vFrom1);
-            t.Mul(wn);
-            vTo[toPos].Mul(t);
-
-            vTo[toPos + 1].CopyFrom(vFrom0);
-            t.Mul(-1);
-            vTo[toPos + 1].Mul(t);
-        }
-        */
-
         public PcmDataLib.LargeArray<WWComplex> ForwardFft(PcmDataLib.LargeArray<WWComplex> aFrom) {
             if (aFrom == null || aFrom.LongLength != mNumPoints) {
                 throw new ArgumentOutOfRangeException("aFrom");

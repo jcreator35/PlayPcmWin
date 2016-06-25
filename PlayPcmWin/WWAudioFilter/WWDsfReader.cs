@@ -141,6 +141,9 @@ namespace WWAudioFilter {
                 return ResultType.NotSupportBitsPerSample;
             }
 
+            // bitspersample == 1 : LSB bit first
+            // bitspersample == 8 : MSB bit first
+
             if (mSampleCount <= 0) {
                 return ResultType.NotSupportFileTooLarge;
             }

@@ -5,31 +5,31 @@ using System.Text;
 
 namespace WWAudioFilter {
     struct AudioDataPerChannel {
-        public PcmDataLib.LargeArray<byte> data;
-        public long offsBytes;
+        public PcmDataLib.LargeArray<byte> mData;
+        public long mOffsBytes;
 
         /// <summary>
-        /// これは、サンプル数。1bitデータのとき、data.LongLength / 8 = totalSamples
+        /// これは、サンプル数。1bitデータのとき、mData.LongLength / 8 = mTotalSamples
         /// </summary>
-        public long totalSamples;
-        public int bitsPerSample;
-        public bool overflow;
-        public double maxMagnitude;
+        public long mTotalSamples;
+        public int mBitsPerSample;
+        public bool mOverflow;
+        public double mMaxMagnitude;
 
         public enum DataFormat {
             Pcm,
             Sdm1bit,
         };
 
-        public DataFormat dataFormat;
+        public DataFormat mDataFormat;
 
         public void ResetStatistics() {
-            overflow = false;
-            maxMagnitude = 0.0;
+            mOverflow = false;
+            mMaxMagnitude = 0.0;
         }
 
         public PcmDataLib.LargeArray<double> GetPcmInDouble(long longCount) {
-            switch (dataFormat) {
+            switch (mDataFormat) {
             case DataFormat.Pcm:
                 return GetPcmInDoublePcm(longCount);
             case DataFormat.Sdm1bit:
@@ -40,35 +40,93 @@ namespace WWAudioFilter {
             }
         }
 
-        public PcmDataLib.LargeArray<double> GetPcmInDoubleSdm1bit(long count) {
-            System.Diagnostics.Debug.Assert(count % 8 == 0);
-
+        public double[] GetPcmInDoubleSdm1bit(int count) {
             // サンプル数 / 8 == バイト数。
-            if (totalSamples / 8 <= offsBytes || count <= 0) {
-                return new PcmDataLib.LargeArray<double>(count);
-            }
 
-            var result = new PcmDataLib.LargeArray<double>(count);
+            System.Diagnostics.Debug.Assert(count % 8 == 0);
+            System.Diagnostics.Debug.Assert(count <= PcmDataLib.LargeArray<byte>.ARRAY_FRAGMENT_LENGTH_NUM);
 
-            long copySamples = result.LongLength;
-            if (totalSamples < offsBytes * 8 + copySamples) {
-                copySamples = totalSamples - offsBytes * 8;
-            }
+            var result = new double[count];
 
-            var d8 = new double[8];
-            for (long i = 0; i < copySamples / 8; ++i) {
-                byte b = data.At(offsBytes + i);
-                
-                for (int bit=0; bit<8; ++bit) {
-                    d8[bit] = ((b >> bit) & 1) == 1 ? 1.0 : -1.0;
+            int writePos = 0;
+
+            if (mTotalSamples / 8 <= mOffsBytes || count == 0) {
+                // 完全に範囲外の時。
+            } else {
+                int copySamples = count;
+                if (mTotalSamples < mOffsBytes * 8 + copySamples) {
+                    copySamples = (int)(mTotalSamples - mOffsBytes * 8);
                 }
 
-                result.SetRange(i*8, d8, 0, 8);
+                var bitBuff = new byte[copySamples / 8];
+                mData.CopyTo(mOffsBytes, ref bitBuff, 0, copySamples / 8);
+
+                for (long i = 0; i < copySamples / 8; ++i) {
+                    byte b = bitBuff[i];
+
+                    // 1バイト内のビットの並びはMSBから古い順にデータが詰まっている。
+                    for (int bit = 7; 0<=bit; --bit) {
+                        result[writePos++] = ((b >> bit) & 1) == 1 ? 1.0 : -1.0;
+                    }
+                }
+
+                mOffsBytes += copySamples / 8;
+
             }
 
-            offsBytes += copySamples/8;
+            while (writePos < count) {
+                byte b = 0x69; // DSD silence
+
+                // 1バイト内のビットの並びはMSBから古い順にデータが詰まっている。
+                for (int bit = 7; 0 <= bit; --bit) {
+                    result[writePos++] = ((b >> bit) & 1) == 1 ? 1.0 : -1.0;
+                }
+            }
 
             return result;
+
+        }
+
+        public PcmDataLib.LargeArray<double> GetPcmInDoubleSdm1bit(long longCount) {
+            // サンプル数 / 8 == バイト数。
+            var result = new PcmDataLib.LargeArray<double>(longCount);
+
+            if (mTotalSamples / 8 <= mOffsBytes || longCount == 0) {
+                // 完全に範囲外の時。
+                int writePos = 0;
+                for (long i = 0; i < longCount; ++i) {
+                    byte b = 0x69; // DSD silence
+
+                    // 1バイト内のビットの並びはMSBから古い順にデータが詰まっている。
+                    for (int bit = 7; 0<=bit; --bit) {
+                        result.Set(writePos++, ((b >> bit) & 1) == 1 ? 1.0 : -1.0);
+                    }
+                }
+
+                return result;
+            } else {
+                long copySamples = longCount;
+                if (mTotalSamples < mOffsBytes * 8 + copySamples) {
+                    copySamples = mTotalSamples - mOffsBytes * 8;
+                }
+
+                long toPos = 0;
+                for (long remain = copySamples; 0 < remain;) {
+                    int fragmentCount = PcmDataLib.LargeArray<byte>.ARRAY_FRAGMENT_LENGTH_NUM;
+                    if (remain < fragmentCount) {
+                        fragmentCount = (int)remain;
+                    }
+
+                    var fragment = GetPcmInDoubleSdm1bit(fragmentCount);
+                    result.CopyFrom(fragment, 0, toPos, fragmentCount);
+                    fragment = null;
+
+                    toPos  += fragmentCount;
+                    remain -= fragmentCount;
+                }
+
+                return result;
+            }
         }
         
         /// <summary>
@@ -78,7 +136,8 @@ namespace WWAudioFilter {
         /// <returns></returns>
         public double[] GetPcmInDoublePcm(int count) {
             // 確保するサイズはcount個。
-            if (totalSamples <= offsBytes / (bitsPerSample / 8) || count <= 0) {
+            if (mTotalSamples <= mOffsBytes / (mBitsPerSample / 8) || count == 0) {
+                // 完全に範囲外。
                 return new double[count];
             }
 
@@ -86,24 +145,24 @@ namespace WWAudioFilter {
 
             // コピーするデータの個数はcount個よりも少ないことがある。
             int copyCount = result.Length;
-            if (totalSamples < offsBytes / (bitsPerSample / 8) + copyCount) {
-                copyCount = (int)(totalSamples - offsBytes / (bitsPerSample / 8));
+            if (mTotalSamples < mOffsBytes / (mBitsPerSample / 8) + copyCount) {
+                copyCount = (int)(mTotalSamples - mOffsBytes / (mBitsPerSample / 8));
             }
 
-            switch (bitsPerSample) {
+            switch (mBitsPerSample) {
             case 16:
                 for (int i = 0; i < copyCount; ++i) {
-                    short v = (short)((data.At(offsBytes)) + (data.At(offsBytes + 1) << 8));
+                    short v = (short)((mData.At(mOffsBytes)) + (mData.At(mOffsBytes + 1) << 8));
                     result[i] = v * (1.0 / 32768.0);
-                    offsBytes += 2;
+                    mOffsBytes += 2;
                 }
                 break;
             case 24:
                 for (int i = 0; i < copyCount; ++i) {
-                    int v = (int)((data.At(offsBytes) << 8) + (data.At(offsBytes + 1) << 16)
-                        + (data.At(offsBytes + 2) << 24));
+                    int v = (int)((mData.At(mOffsBytes) << 8) + (mData.At(mOffsBytes + 1) << 16)
+                        + (mData.At(mOffsBytes + 2) << 24));
                     result[i] = v * (1.0 / 2147483648.0);
-                    offsBytes += 3;
+                    mOffsBytes += 3;
                 }
                 break;
             default:
@@ -122,57 +181,51 @@ namespace WWAudioFilter {
             // 確保するサイズはlongCount個。
             var result = new PcmDataLib.LargeArray<double>(longCount);
 
-            long fromPos = offsBytes / (bitsPerSample / 8);
+            long fromPos = mOffsBytes / (mBitsPerSample / 8);
             long toPos = 0;
             
             // コピーするデータの個数はcount個よりも少ないことがある。
             long copyCount = result.LongLength;
-            if (totalSamples < fromPos + copyCount) {
-                copyCount = (int)(totalSamples - fromPos);
+            if (mTotalSamples < fromPos + copyCount) {
+                copyCount = (int)(mTotalSamples - fromPos);
             }
 
-            long remain = copyCount;
-
-            for (long i = 0; i < copyCount; i += PcmDataLib.LargeArray<byte>.ARRAY_FRAGMENT_LENGTH_MAX) {
-                int fragmentCount = PcmDataLib.LargeArray<byte>.ARRAY_FRAGMENT_LENGTH_MAX;
-                if (totalSamples < fromPos + fragmentCount) {
-                    fragmentCount = (int)(totalSamples - fromPos);
-                }
+            for (long remain = copyCount; 0 < remain; ) {
+                int fragmentCount = PcmDataLib.LargeArray<byte>.ARRAY_FRAGMENT_LENGTH_NUM;
                 if (remain < fragmentCount) {
                     fragmentCount = (int)remain;
                 }
 
                 var fragment = GetPcmInDoublePcm(fragmentCount);
-
                 result.CopyFrom(fragment, 0, toPos, fragmentCount);
+                fragment = null;
 
-                toPos += fragmentCount;
-                fromPos += fragmentCount;
-                remain -= fragmentCount;
+                toPos   += fragmentCount;
+                remain  -= fragmentCount;
             }
 
             return result;
         }
 
         /// <param name="pcm">コピー元データ。先頭から全要素コピーする。</param>
-        /// <param name="writeOffsCount">コピー先(この配列)先頭要素数。</param>
-        public void SetPcmInDouble(double[] pcm, long writeOffsCount) {
-            if (bitsPerSample == 1 && 0 != (writeOffsCount & 7)) {
+        /// <param name="writePos">コピー先(この配列)先頭要素数。</param>
+        public void SetPcmInDouble(double[] pcm, long writePos) {
+            if (mBitsPerSample == 1 && 0 != (writePos & 7)) {
                 throw new ArgumentException("writeOffs must be multiple of 8");
             }
 
             int copyCount = pcm.Length;
-            if (totalSamples < writeOffsCount + copyCount) {
-                copyCount = (int)(totalSamples - writeOffsCount);
+            if (mTotalSamples < writePos + copyCount) {
+                copyCount = (int)(mTotalSamples - writePos);
             }
 
             long writePosBytes;
-            switch (bitsPerSample) {
+            switch (mBitsPerSample) {
             case 1: {
                     long readPos = 0;
 
                     // set 1bit data (from LSB to MSB) into 8bit buffer
-                    writePosBytes = writeOffsCount / 8;
+                    writePosBytes = writePos / 8;
                     for (long i = 0; i < copyCount / 8; ++i) {
                         byte sampleValue = 0;
                         for (int subPos = 0; subPos < 8; ++subPos) {
@@ -181,66 +234,66 @@ namespace WWAudioFilter {
 
                             ++readPos;
                         }
-                        data.Set(writePosBytes, sampleValue);
+                        mData.Set(writePosBytes, sampleValue);
                         ++writePosBytes;
                     }
                 }
                 break;
             case 16:
-                writePosBytes = writeOffsCount * 2;
+                writePosBytes = writePos * 2;
                 for (long i = 0; i < copyCount; ++i) {
                     short vS = 0;
                     double vD = pcm[i];
                     if (vD < -1.0f) {
                         vS = -32768;
 
-                        overflow = true;
-                        if (maxMagnitude < Math.Abs(vD)) {
-                            maxMagnitude = Math.Abs(vD);
+                        mOverflow = true;
+                        if (mMaxMagnitude < Math.Abs(vD)) {
+                            mMaxMagnitude = Math.Abs(vD);
                         }
                     } else if (1.0f <= vD) {
                         vS = 32767;
 
-                        overflow = true;
-                        if (maxMagnitude < Math.Abs(vD)) {
-                            maxMagnitude = Math.Abs(vD);
+                        mOverflow = true;
+                        if (mMaxMagnitude < Math.Abs(vD)) {
+                            mMaxMagnitude = Math.Abs(vD);
                         }
                     } else {
                         vS = (short)(32768.0 * vD);
                     }
 
-                    data.Set(writePosBytes + 0, (byte)((vS) & 0xff));
-                    data.Set(writePosBytes + 1, (byte)((vS >> 8) & 0xff));
+                    mData.Set(writePosBytes + 0, (byte)((vS) & 0xff));
+                    mData.Set(writePosBytes + 1, (byte)((vS >> 8) & 0xff));
 
                     writePosBytes += 2;
                 }
                 break;
             case 24:
-                writePosBytes = writeOffsCount * 3;
+                writePosBytes = writePos * 3;
                 for (long i = 0; i < copyCount; ++i) {
                     int vI = 0;
                     double vD = pcm[i];
                     if (vD < -1.0f) {
                         vI = Int32.MinValue;
 
-                        overflow = true;
-                        if (maxMagnitude < Math.Abs(vD)) {
-                            maxMagnitude = Math.Abs(vD);
+                        mOverflow = true;
+                        if (mMaxMagnitude < Math.Abs(vD)) {
+                            mMaxMagnitude = Math.Abs(vD);
                         }
                     } else if (1.0f <= vD) {
                         vI = 0x7fffff00;
 
-                        overflow = true;
-                        if (maxMagnitude < Math.Abs(vD)) {
-                            maxMagnitude = Math.Abs(vD);
+                        mOverflow = true;
+                        if (mMaxMagnitude < Math.Abs(vD)) {
+                            mMaxMagnitude = Math.Abs(vD);
                         }
                     } else {
                         vI = (int)(2147483648.0 * vD);
                     }
 
-                    data.Set(writePosBytes + 0, (byte)((vI >> 8) & 0xff));
-                    data.Set(writePosBytes + 1, (byte)((vI >> 16) & 0xff));
-                    data.Set(writePosBytes + 2, (byte)((vI >> 24) & 0xff));
+                    mData.Set(writePosBytes + 0, (byte)((vI >> 8) & 0xff));
+                    mData.Set(writePosBytes + 1, (byte)((vI >> 16) & 0xff));
+                    mData.Set(writePosBytes + 2, (byte)((vI >> 24) & 0xff));
 
                     writePosBytes += 3;
                 }
@@ -254,22 +307,28 @@ namespace WWAudioFilter {
         /// <summary>
         /// double型のLargeArrayを入力するバージョン。
         /// </summary>
-        public void SetPcmInDouble(PcmDataLib.LargeArray<double> pcm, long writeOffsCount) {
+        public void SetPcmInDouble(PcmDataLib.LargeArray<double> pcm, long toPos) {
             long fromPos = 0;
-            long toPos = writeOffsCount;
 
-            for (long i = 0; i < pcm.LongLength; i += PcmDataLib.LargeArray<byte>.ARRAY_FRAGMENT_LENGTH_MAX) {
-                int fragmentCount = PcmDataLib.LargeArray<byte>.ARRAY_FRAGMENT_LENGTH_MAX;
-                if (pcm.LongLength < fromPos + fragmentCount) {
-                    fragmentCount = (int)(pcm.LongLength - fromPos);
+            long copyCount = pcm.LongLength;
+            if (mTotalSamples < toPos + pcm.LongLength) {
+                copyCount = mTotalSamples - toPos;
+            }
+
+            for (long remain = copyCount; 0 < remain; ) {
+                int fragmentCount = PcmDataLib.LargeArray<byte>.ARRAY_FRAGMENT_LENGTH_NUM;
+                if (remain < fragmentCount) {
+                    fragmentCount = (int)(remain);
                 }
 
                 var fragment = new double[fragmentCount];
                 pcm.CopyTo(fromPos, ref fragment, 0, fragmentCount);
                 SetPcmInDouble(fragment, toPos);
+                fragment = null;
 
                 fromPos += fragmentCount;
-                toPos += fragmentCount;
+                toPos   += fragmentCount;
+                remain  -= fragmentCount;
             }
         }
     };
