@@ -149,11 +149,7 @@ namespace WWAudioFilter {
             var fromPcm = mInputDelay.ToArray();
             var toPcm = new double[PROCESS_SLICE];
 
-#if false
-            for (int i=0; i<PROCESS_SLICE; ++i) {
-#else
             Parallel.For(0, PROCESS_SLICE, i => {
-#endif
                 double sampleValue = 0;
                 for (int offs = 0; offs < mCoeffs.Length; ++offs) {
                     double input = mInputDelay[offs + i*Factor];
@@ -162,11 +158,7 @@ namespace WWAudioFilter {
                     }
                 }
                 toPcm[i] = sampleValue;
-#if false
-            }
-#else
             });
-#endif
 
             mFirst = false;
             return new PcmDataLib.LargeArray<double>(toPcm);
