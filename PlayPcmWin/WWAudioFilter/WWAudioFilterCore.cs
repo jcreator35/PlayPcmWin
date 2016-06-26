@@ -559,9 +559,12 @@ namespace WWAudioFilter {
                     inPcmList.Add(FilterNth(filters, nth - 1, channelId, ref from));
                 }
 
+                // inPcmList → inPcmとremainings
                 PcmDataLib.LargeArray<double> inPcm;
                 PcmDataLib.LargeArray<double> remainings;
                 AssembleSample(inPcmList, filters[nth].NumOfSamplesNeeded(), out inPcm, out remainings);
+
+                inPcmList = null;
 
                 if (filters[nth].WaitUntilAllChannelDataAvailable()) {
                     mInPcmArray[channelId] = inPcm;
