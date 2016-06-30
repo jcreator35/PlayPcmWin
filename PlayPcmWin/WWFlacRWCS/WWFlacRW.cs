@@ -91,7 +91,8 @@ namespace WWFlacRWCS {
         BadParams = -22,
         IdNotFound = -23,
         EncoderProcessFailed = -24,
-        OutputFileTooLarge = -25
+        OutputFileTooLarge = -25,
+        MD5SignatureDoesNotMatch = -26,
     };
 
     public class FlacRW {
@@ -147,6 +148,8 @@ namespace WWFlacRWCS {
                 return Properties.Resources.FlacErrorEncoderProcessFailed;
             case (int)WWFlacRWCS.FlacErrorCode.OutputFileTooLarge:
                 return Properties.Resources.FlacErrorOutputFileTooLarge;
+            case (int)WWFlacRWCS.FlacErrorCode.MD5SignatureDoesNotMatch:
+                return Properties.Resources.FlacErrorMD5SignatureDoesNotMatch;
             default:
                 return Properties.Resources.FlacErrorOther;
             }
@@ -259,6 +262,10 @@ namespace WWFlacRWCS {
             NativeMethods.WWFlacRW_EncodeEnd(mId);
             mId = (int)FlacErrorCode.IdNotFound;
         }
+
+        public int CheckIntegrity(string path) {
+            return NativeMethods.WWFlacRW_CheckIntegrity(path);
+        }
     }
 
     internal static class NativeMethods {
@@ -340,5 +347,9 @@ namespace WWFlacRWCS {
         [DllImport("WWFlacRW.dll", CharSet = CharSet.Unicode)]
         internal extern static
         int WWFlacRW_EncodeEnd(int id);
+
+        [DllImport("WWFlacRW.dll", CharSet = CharSet.Unicode)]
+        internal extern static
+        int WWFlacRW_CheckIntegrity(string path);
     }
 }

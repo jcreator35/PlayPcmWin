@@ -12,7 +12,8 @@ namespace FlacIntegrityCheck {
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window {
-        
+        private const int LOG_UPDATE_INTERVAL_MS = 3000;
+
         private static string AssemblyVersion {
             get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); }
         }
@@ -42,7 +43,7 @@ namespace FlacIntegrityCheck {
         private void AddLog(string s) {
             mSbLog.Append(s);
 
-            if (1000 < mSwLog.ElapsedMilliseconds) {
+            if (LOG_UPDATE_INTERVAL_MS < mSwLog.ElapsedMilliseconds) {
                 textBoxLog.Text = mSbLog.ToString();
                 textBoxLog.ScrollToEnd();
                 mSwLog.Restart();
@@ -89,15 +90,15 @@ namespace FlacIntegrityCheck {
             mBw.ReportProgress(0, string.Format(Properties.Resources.LogCountingFiles,
                 args.path));
 
-            var flacList = CollectFlacFilesOnFolder(args.path);
+            var flacList = DirectoryUtil.CollectFlacFilesOnFolder(args.path, ".FLAC");
             mBw.ReportProgress(0, string.Format(Properties.Resources.LogCount + "\n{1}\n",
-                flacList.Count,
+                flacList.Length,
                 Properties.Resources.LogIntegrityChecking));
 
             int finished = 0;
 
             if (args.parallelScan) {
-                Parallel.For(0, flacList.Count, i => {
+                Parallel.For(0, flacList.Length, i => {
                     System.Threading.Thread.CurrentThread.Priority = System.Threading.ThreadPriority.Lowest;
 
                     string path = flacList[i];
@@ -113,9 +114,9 @@ namespace FlacIntegrityCheck {
                         ++finished;
 
                         string text = string.Format("({0}/{1}) {2} : {3}\n",
-                            finished, flacList.Count,
+                            finished, flacList.Length,
                             WWFlacRWCS.FlacRW.ErrorCodeToStr(ercd), path);
-                        mBw.ReportProgress((int)(1000000L * finished / flacList.Count), text);
+                        mBw.ReportProgress((int)(1000000L * finished / flacList.Length), text);
                     }
                 });
             } else {
@@ -131,9 +132,9 @@ namespace FlacIntegrityCheck {
                     ++finished;
                     
                     string text = string.Format("({0}/{1}) {2} : {3}\n",
-                        finished, flacList.Count,
+                        finished, flacList.Length,
                         WWFlacRWCS.FlacRW.ErrorCodeToStr(ercd), path);
-                    mBw.ReportProgress((int)(1000000L * finished / flacList.Count), text);
+                    mBw.ReportProgress((int)(1000000L * finished / flacList.Length), text);
                 }
             }
         }
@@ -170,62 +171,6 @@ namespace FlacIntegrityCheck {
             args.path = textBoxFolder.Text;
             args.parallelScan = radioButtonSsd.IsChecked == true;
             mBw.RunWorkerAsync(args);
-        }
-
-        // this code is from https://msdn.microsoft.com/en-us/library/bb513869.aspx
-        private List<string> CollectFlacFilesOnFolder(string root) {
-            var result = new List<string>();
-
-            var dirs = new Stack<string>(20);
-
-            if (!System.IO.Directory.Exists(root)) {
-                throw new ArgumentException("root");
-            }
-            dirs.Push(root);
-
-            while (dirs.Count > 0) {
-                var currentDir = dirs.Pop();
-                string[] subDirs;
-                try {
-                    subDirs = System.IO.Directory.GetDirectories(currentDir);
-                } catch (UnauthorizedAccessException e) {
-                    Console.WriteLine(e.Message);
-                    continue;
-                } catch (System.IO.DirectoryNotFoundException e) {
-                    Console.WriteLine(e.Message);
-                    continue;
-                }
-
-                string[] files = null;
-                try {
-                    files = System.IO.Directory.GetFiles(currentDir);
-                } catch (UnauthorizedAccessException e) {
-                    Console.WriteLine(e.Message);
-                    continue;
-                } catch (System.IO.DirectoryNotFoundException e) {
-                    Console.WriteLine(e.Message);
-                    continue;
-                }
-
-                foreach (string file in files) {
-                    try {
-                        System.IO.FileInfo fi = new System.IO.FileInfo(file);
-                        if (String.Equals(".FLAC", fi.Extension.ToUpper(), StringComparison.Ordinal)) {
-                            result.Add(fi.FullName);
-                            //Console.WriteLine("{0}: {1}, {2}", fi.Name, fi.Length, fi.CreationTime);
-                        }
-                    } catch (System.IO.FileNotFoundException e) {
-                        Console.WriteLine(e.Message);
-                        continue;
-                    }
-                }
-
-                foreach (string str in subDirs) {
-                    dirs.Push(str);
-                }
-            }
-
-            return result;
         }
 
         private void buttonBrowse_Click(object sender, RoutedEventArgs e) {

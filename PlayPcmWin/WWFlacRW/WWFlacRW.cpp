@@ -449,7 +449,7 @@ extern "C" __declspec(dllexport)
 int __stdcall
 WWFlacRW_DecodeAll(const wchar_t *path)
 {
-    FLAC__bool                    ok = true;
+    FLAC__bool ok = true;
     FILE *fp = nullptr;
     errno_t ercd;
     FLAC__StreamDecoderInitStatus initStatus = FLAC__STREAM_DECODER_INIT_STATUS_ERROR_OPENING_FILE;
@@ -488,15 +488,15 @@ WWFlacRW_DecodeAll(const wchar_t *path)
     initStatus = FLAC__stream_decoder_init_FILE(
             fdi->decoder, fp, WriteCallback, MetadataCallback, ErrorCallback, fdi);
 
-    // FLAC__stream_decoder_finish()がfcloseしてくれるので、忘れる。
-    fp = nullptr;
-
     if(initStatus != FLAC__STREAM_DECODER_INIT_STATUS_OK) {
         fdi->errorCode = FRT_FlacStreamDecoderInitFailed;
         dprintf("%s Flac decode error %d. set complete event.\n",
                 __FUNCTION__, fdi->errorCode);
         goto end;
     }
+
+    // FLAC__stream_decoder_finish()がfcloseしてくれるので、忘れる。
+    fp = nullptr;
 
     fdi->errorCode = FRT_Success;
     ok = FLAC__stream_decoder_process_until_end_of_metadata(fdi->decoder);
@@ -1215,3 +1215,128 @@ WWFlacRW_EncodeEnd(int id)
 
     return FRT_Success;
 }
+
+static FLAC__StreamDecoderWriteStatus
+IntegrityCheck_WriteCallback(const FLAC__StreamDecoder *decoder,
+        const FLAC__Frame *frame, const FLAC__int32 * const buffer[],
+        void *clientData)
+{
+    return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;
+}
+
+static void
+IntegrityCheck_MetadataCallback(const FLAC__StreamDecoder *decoder,
+        const FLAC__StreamMetadata *metadata, void *clientData)
+{
+}
+
+static void
+IntegrityCheck_ErrorCallback(const FLAC__StreamDecoder *decoder,
+        FLAC__StreamDecoderErrorStatus status, void *clientData)
+{
+    int *errorCode = (int*)clientData;
+
+    (void)decoder;
+
+    dprintf("%s status=%d\n", __FUNCTION__, status);
+
+    switch (status) {
+    case FLAC__STREAM_DECODER_ERROR_STATUS_LOST_SYNC:
+        *errorCode = FRT_LostSync;
+        break;
+    case FLAC__STREAM_DECODER_ERROR_STATUS_BAD_HEADER:
+        *errorCode = FRT_BadHeader;
+        break;
+    case FLAC__STREAM_DECODER_ERROR_STATUS_FRAME_CRC_MISMATCH:
+        *errorCode = FRT_FrameCrcMismatch;
+        break;
+    case FLAC__STREAM_DECODER_ERROR_STATUS_UNPARSEABLE_STREAM:
+        *errorCode = FRT_Unparseable;
+        break;
+    default:
+        *errorCode = FRT_OtherError;
+        break;
+    }
+};
+
+
+extern "C" __declspec(dllexport)
+int __stdcall
+WWFlacRW_CheckIntegrity(const wchar_t *path)
+{
+    FLAC__bool ok = true;
+    FILE *fp = nullptr;
+    errno_t ercd;
+    int result = FRT_Success;
+    FLAC__StreamDecoderInitStatus initStatus = FLAC__STREAM_DECODER_INIT_STATUS_ERROR_OPENING_FILE;
+
+    FLAC__StreamDecoder * decoder = FLAC__stream_decoder_new();
+    if(decoder == nullptr) {
+        result = FRT_FlacStreamDecoderNewFailed;
+        dprintf("%s FLAC__stream_decoder_new failed %d.\n",
+                __FUNCTION__, result);
+        goto end;
+    }
+
+    FLAC__stream_decoder_set_md5_checking(decoder, true);
+
+    // Windowsでは、この方法でファイルを開かなければならぬ。
+    ercd = _wfopen_s(&fp, path, L"rb");
+    if (ercd != 0 || nullptr == fp) {
+        result = FRT_FileOpenError;
+        goto end;
+    }
+
+    initStatus = FLAC__stream_decoder_init_FILE(
+            decoder, fp,
+            IntegrityCheck_WriteCallback,
+            IntegrityCheck_MetadataCallback,
+            IntegrityCheck_ErrorCallback, &result);
+
+    if(initStatus != FLAC__STREAM_DECODER_INIT_STATUS_OK) {
+        result = FRT_FlacStreamDecoderInitFailed;
+        dprintf("%s Flac checkIntegrity error %d.\n",
+                __FUNCTION__, result);
+        goto end;
+    }
+    
+    // FLAC__stream_decoder_finish()がfcloseしてくれるので、忘れる。
+    fp = nullptr;
+
+    ok = FLAC__stream_decoder_process_until_end_of_metadata(decoder);
+    if (!ok) {
+        if (result == FRT_Success) {
+            result = FRT_DecorderProcessFailed;
+        }
+        dprintf("%s Flac metadata process error %d\n",
+                __FUNCTION__, result);
+        goto end;
+    }
+
+    ok = FLAC__stream_decoder_process_until_end_of_stream(decoder);
+    if (!ok) {
+        if (result == FRT_Success) {
+            result = FRT_DecorderProcessFailed;
+        }
+        dprintf("%s Flac decode error fdi->errorCode=%d\n",
+                __FUNCTION__, result);
+        goto end;
+    }
+
+    // 全て成功。
+end:
+    if (nullptr != decoder) {
+        if (initStatus == FLAC__STREAM_DECODER_INIT_STATUS_OK) {
+            ok = FLAC__stream_decoder_finish(decoder);
+            if (!ok) {
+                // MD5 check failed!!
+                result = FRT_MD5SignatureDoesNotMatch;
+            }
+        }
+        FLAC__stream_decoder_delete(decoder);
+        decoder = nullptr;
+    }
+
+    return result;
+}
+

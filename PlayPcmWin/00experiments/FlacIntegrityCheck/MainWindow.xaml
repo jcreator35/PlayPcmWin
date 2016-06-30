@@ -31,7 +31,7 @@
                             <RowDefinition Height="1*" />
                         </Grid.RowDefinitions>
                         <RadioButton Content="SS_D or RAID (Check files in parallel)" Grid.Row="0" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonSsd" VerticalAlignment="Center" IsChecked="True"/>
-                        <RadioButton Content="_HDD (Check files one by one)" Grid.Row="1" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonHdd" VerticalAlignment="Center" />
+                        <RadioButton Content="_HDD (Check files one by one)" Grid.Row="1" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonHdd" VerticalAlignment="Center" ForceCursor="True" />
                     </Grid>
                 </GroupBox>
             </Grid>

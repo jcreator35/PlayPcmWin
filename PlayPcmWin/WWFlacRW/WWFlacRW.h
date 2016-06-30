@@ -42,6 +42,8 @@ enum FlacRWResultType {
     FRT_BadParams                  = -22,
     FRT_IdNotFound                 = -23,
     FRT_EncoderProcessFailed       = -24,
+    FRT_OutputFileTooLarge         = -25,
+    FRT_MD5SignatureDoesNotMatch   = -26,
 };
 
 #define WWFLAC_TEXT_STRSZ   (256)
@@ -132,4 +134,14 @@ WWFlacRW_EncodeRun(int id, const wchar_t *path);
 extern "C" WWFLACRW_API
 int __stdcall
 WWFlacRW_EncodeEnd(int id);
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// flac check integrity
+
+/// FLACファイルのintegrity checkを行う。
+/// @param path パス名(UTF-16)
+/// @return 0以上: 成功。負: エラー。FlacRWResultType参照。
+extern "C" WWFLACRW_API
+int __stdcall
+WWFlacRW_CheckIntegrity(const wchar_t *path);
 

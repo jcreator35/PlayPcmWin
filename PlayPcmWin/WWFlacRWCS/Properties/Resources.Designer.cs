@@ -61,7 +61,7 @@ namespace WWFlacRWCS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to FLAC header corrupted.
+        ///   Looks up a localized string similar to Error: FLAC header corrupted.
         /// </summary>
         internal static string FlacErrorBadHeader {
             get {
@@ -70,7 +70,7 @@ namespace WWFlacRWCS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to FLAC bad parameter error.
+        ///   Looks up a localized string similar to Error: FLAC bad parameter error.
         /// </summary>
         internal static string FlacErrorBadParams {
             get {
@@ -79,7 +79,7 @@ namespace WWFlacRWCS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to FLAC buffer size mismatch.
+        ///   Looks up a localized string similar to Error: FLAC buffer size mismatch.
         /// </summary>
         internal static string FlacErrorBufferSizeMismatch {
             get {
@@ -88,7 +88,7 @@ namespace WWFlacRWCS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Data not ready.
+        ///   Looks up a localized string similar to Error: Data not ready.
         /// </summary>
         internal static string FlacErrorDataNotReady {
             get {
@@ -97,7 +97,7 @@ namespace WWFlacRWCS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to FLAC decoder process failed.
+        ///   Looks up a localized string similar to Error: FLAC decoder process failed.
         /// </summary>
         internal static string FlacErrorDecoderProcessFailed {
             get {
@@ -106,7 +106,7 @@ namespace WWFlacRWCS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to FLAC encoder error.
+        ///   Looks up a localized string similar to Error: FLAC encoder error.
         /// </summary>
         internal static string FlacErrorEncoder {
             get {
@@ -115,7 +115,7 @@ namespace WWFlacRWCS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to FLAC encoder process failed.
+        ///   Looks up a localized string similar to Error: FLAC encoder process failed.
         /// </summary>
         internal static string FlacErrorEncoderProcessFailed {
             get {
@@ -124,7 +124,7 @@ namespace WWFlacRWCS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to FLAC file read open error.
+        ///   Looks up a localized string similar to Error: FLAC file read open error.
         /// </summary>
         internal static string FlacErrorFileReadOpen {
             get {
@@ -133,7 +133,7 @@ namespace WWFlacRWCS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to FLAC frame CRC mismatch.
+        ///   Looks up a localized string similar to Error: FLAC frame CRC mismatch.
         /// </summary>
         internal static string FlacErrorFrameCrcMismatch {
             get {
@@ -142,7 +142,7 @@ namespace WWFlacRWCS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Internal error (id not found).
+        ///   Looks up a localized string similar to Error: Internal error (id not found).
         /// </summary>
         internal static string FlacErrorIdNotFound {
             get {
@@ -151,7 +151,7 @@ namespace WWFlacRWCS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to FLAC bits per sample error.
+        ///   Looks up a localized string similar to Error: FLAC bits per sample error.
         /// </summary>
         internal static string FlacErrorInvalidBitsPerSample {
             get {
@@ -160,7 +160,7 @@ namespace WWFlacRWCS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to FLAC metadata error.
+        ///   Looks up a localized string similar to Error: FLAC metadata error.
         /// </summary>
         internal static string FlacErrorInvalidMetadata {
             get {
@@ -169,7 +169,7 @@ namespace WWFlacRWCS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to FLAC number of channels is invalid (must be smaller than or equal to 8).
+        ///   Looks up a localized string similar to Error: FLAC number of channels is invalid (must be smaller than or equal to 8).
         /// </summary>
         internal static string FlacErrorInvalidNumberOfChannels {
             get {
@@ -178,7 +178,7 @@ namespace WWFlacRWCS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to FLAC sample rate is out of range (must be smaller than or equal to 655,350Hz).
+        ///   Looks up a localized string similar to Error: FLAC sample rate is out of range (must be smaller than or equal to 655,350Hz).
         /// </summary>
         internal static string FlacErrorInvalidSampleRate {
             get {
@@ -187,7 +187,7 @@ namespace WWFlacRWCS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to FLAC lost sync error.
+        ///   Looks up a localized string similar to Error: FLAC lost sync error.
         /// </summary>
         internal static string FlacErrorLostSync {
             get {
@@ -196,7 +196,16 @@ namespace WWFlacRWCS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to FLAC memory exhausted.
+        ///   Looks up a localized string similar to Error: FLAC MD5 Signature does not match. File corrupted.
+        /// </summary>
+        internal static string FlacErrorMD5SignatureDoesNotMatch {
+            get {
+                return ResourceManager.GetString("FlacErrorMD5SignatureDoesNotMatch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error: FLAC memory exhausted.
         /// </summary>
         internal static string FlacErrorMemoryExhausted {
             get {
@@ -205,7 +214,7 @@ namespace WWFlacRWCS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to FLAC number of frames is not aligned.
+        ///   Looks up a localized string similar to Error: FLAC number of frames is not aligned.
         /// </summary>
         internal static string FlacErrorNumFrameIsNotAligned {
             get {
@@ -214,7 +223,7 @@ namespace WWFlacRWCS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to FLAC other error.
+        ///   Looks up a localized string similar to Error: FLAC other error.
         /// </summary>
         internal static string FlacErrorOther {
             get {
@@ -223,7 +232,7 @@ namespace WWFlacRWCS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Output data size exceeds 2GB per channel! Process aborted..
+        ///   Looks up a localized string similar to Error: Output data size exceeds 2GB per channel! Process aborted..
         /// </summary>
         internal static string FlacErrorOutputFileTooLarge {
             get {
@@ -232,7 +241,7 @@ namespace WWFlacRWCS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to FLAC receive buffer size is insufficient.
+        ///   Looks up a localized string similar to Error: FLAC receive buffer size is insufficient.
         /// </summary>
         internal static string FlacErrorRecvBufferSizeInsufficient {
             get {
@@ -241,7 +250,7 @@ namespace WWFlacRWCS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to FLAC stream decoder init failed.
+        ///   Looks up a localized string similar to Error: FLAC stream decoder init failed.
         /// </summary>
         internal static string FlacErrorStreamDecoderInitFailed {
             get {
@@ -250,7 +259,7 @@ namespace WWFlacRWCS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to FLAC stream decoder new failed.
+        ///   Looks up a localized string similar to Error: FLAC stream decoder new failed.
         /// </summary>
         internal static string FlacErrorStreamDecoderNewFailed {
             get {
@@ -259,7 +268,7 @@ namespace WWFlacRWCS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to FLAC unparseable error.
+        ///   Looks up a localized string similar to Error: FLAC unparseable error.
         /// </summary>
         internal static string FlacErrorUnparseable {
             get {
@@ -268,7 +277,7 @@ namespace WWFlacRWCS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Write open failed.
+        ///   Looks up a localized string similar to Error: Write open failed.
         /// </summary>
         internal static string FlacerrorWriteOpenFailed {
             get {
