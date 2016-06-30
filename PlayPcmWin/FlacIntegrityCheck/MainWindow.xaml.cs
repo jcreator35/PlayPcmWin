@@ -22,7 +22,7 @@ namespace FlacIntegrityCheck {
             InitializeComponent();
             mSwLog.Start();
 
-            string programName = string.Format(CultureInfo.CurrentCulture, "FlacIntegrityCheck version {0}", AssemblyVersion);
+            string programName = string.Format(CultureInfo.CurrentCulture, "WWFlacIntegrityCheck version {0}", AssemblyVersion);
             Title = programName;
             AddLogLine(programName);
             FlushLog();
