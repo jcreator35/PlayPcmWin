@@ -134,11 +134,11 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\PcmData\PcmDataLib.csproj">
+    <ProjectReference Include="..\PcmData\PcmDataLib.csproj">
       <Project>{7AF36E7B-839D-4C2F-AAFD-6D8319714D66}</Project>
       <Name>PcmDataLib</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\WWFlacRWCS\WWFlacRWCS.csproj">
+    <ProjectReference Include="..\WWFlacRWCS\WWFlacRWCS.csproj">
       <Project>{DA071B6A-B2E2-4567-84D1-5A9122DAB75C}</Project>
       <Name>WWFlacRWCS</Name>
     </ProjectReference>
