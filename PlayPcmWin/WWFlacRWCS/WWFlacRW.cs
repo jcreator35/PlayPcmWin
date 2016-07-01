@@ -93,6 +93,7 @@ namespace WWFlacRWCS {
         EncoderProcessFailed = -24,
         OutputFileTooLarge = -25,
         MD5SignatureDoesNotMatch = -26,
+        SuccessButMd5WasNotCalculated = -27,
     };
 
     public class FlacRW {
@@ -150,6 +151,8 @@ namespace WWFlacRWCS {
                 return Properties.Resources.FlacErrorOutputFileTooLarge;
             case (int)WWFlacRWCS.FlacErrorCode.MD5SignatureDoesNotMatch:
                 return Properties.Resources.FlacErrorMD5SignatureDoesNotMatch;
+            case (int)WWFlacRWCS.FlacErrorCode.SuccessButMd5WasNotCalculated:
+                return Properties.Resources.FlacErrorSuccessButMd5WasNotCalculated;
             default:
                 return Properties.Resources.FlacErrorOther;
             }

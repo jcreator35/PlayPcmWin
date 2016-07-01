@@ -268,6 +268,15 @@ namespace WWFlacRWCS.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Success, CRC check is passed while MD5 was not calculated because MD5 is not available in FLAC header.
+        /// </summary>
+        internal static string FlacErrorSuccessButMd5WasNotCalculated {
+            get {
+                return ResourceManager.GetString("FlacErrorSuccessButMd5WasNotCalculated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Error: FLAC unparseable error.
         /// </summary>
         internal static string FlacErrorUnparseable {

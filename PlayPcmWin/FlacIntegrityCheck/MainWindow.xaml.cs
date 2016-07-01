@@ -65,19 +65,43 @@ namespace FlacIntegrityCheck {
             labelFolder.Content = Properties.Resources.LabelFolder;
             radioButtonHdd.Content = Properties.Resources.RadioHdd;
             radioButtonSsd.Content = Properties.Resources.RadioSsd;
+            groupBoxLogOutput.Header = Properties.Resources.GroupBoxLogOutput;
+            radioButtonOutputConcise.Content = Properties.Resources.RadioLogConcise;
+            radioButtonOutputVerbose.Content = Properties.Resources.RadioLogVerbose;
         }
 
         private BackgroundWorker mBw;
 
+        enum LogOutputMode {
+            Concise,
+            Verbose,
+        };
+
         struct BackgroundParams {
             public string path;
             public bool parallelScan;
+            public LogOutputMode logOutputMode;
         };
 
         struct BackgroundResult {
             public int corrupted;
             public int ok;
         }
+
+        class ReportProgressArgs {
+            public string text;
+            public LogOutputMode mode;
+            public int ercd;
+            public bool flushLog;
+            public ReportProgressArgs(string atext, LogOutputMode amode, int aErcd, bool aflushLog) {
+                text = atext;
+                mode = amode;
+                ercd = aErcd;
+                flushLog = aflushLog;
+            }
+        };
+
+        private Stopwatch mStopwatch = new Stopwatch();
 
         private BackgroundResult mBackgroundResult;
 
@@ -87,13 +111,13 @@ namespace FlacIntegrityCheck {
             mBackgroundResult.corrupted = 0;
             mBackgroundResult.ok = 0;
 
-            mBw.ReportProgress(0, string.Format(Properties.Resources.LogCountingFiles,
-                args.path));
+            mBw.ReportProgress(0, new ReportProgressArgs(string.Format(Properties.Resources.LogCountingFiles,
+                args.path), LogOutputMode.Concise, 0, true));
 
             var flacList = DirectoryUtil.CollectFlacFilesOnFolder(args.path, ".FLAC");
-            mBw.ReportProgress(0, string.Format(Properties.Resources.LogCount + "\n{1}\n",
+            mBw.ReportProgress(0, new ReportProgressArgs(string.Format(Properties.Resources.LogCount + "\n{1}\n",
                 flacList.Length,
-                Properties.Resources.LogIntegrityChecking));
+                Properties.Resources.LogIntegrityChecking), LogOutputMode.Concise, 0, true));
 
             int finished = 0;
 
@@ -116,7 +140,9 @@ namespace FlacIntegrityCheck {
                         string text = string.Format("({0}/{1}) {2} : {3}\n",
                             finished, flacList.Length,
                             WWFlacRWCS.FlacRW.ErrorCodeToStr(ercd), path);
-                        mBw.ReportProgress((int)(1000000L * finished / flacList.Length), text);
+
+                        mBw.ReportProgress((int)(1000000L * finished / flacList.Length),
+                            new ReportProgressArgs(text, LogOutputMode.Verbose, ercd, false));
                     }
                 });
             } else {
@@ -134,22 +160,42 @@ namespace FlacIntegrityCheck {
                     string text = string.Format("({0}/{1}) {2} : {3}\n",
                         finished, flacList.Length,
                         WWFlacRWCS.FlacRW.ErrorCodeToStr(ercd), path);
-                    mBw.ReportProgress((int)(1000000L * finished / flacList.Length), text);
+                    mBw.ReportProgress((int)(1000000L * finished / flacList.Length),
+                        new ReportProgressArgs(text, LogOutputMode.Verbose, ercd, false));
                 }
             }
         }
 
         private void Background_ProgressChanged(object sender, ProgressChangedEventArgs e) {
-            string text = (string)e.UserState;
-            AddLog(text);
+            var rpa = (ReportProgressArgs)e.UserState;
+
+            if (radioButtonOutputConcise.IsChecked == true) {
+                // 簡潔表示モード。
+                if (rpa.mode == LogOutputMode.Concise || rpa.ercd < 0) {
+                    // 簡潔表示時に表示するメッセージ、またはエラーメッセージを表示。
+                    AddLog(rpa.text);
+                }
+            } else {
+                // 冗長表示モード
+                AddLog(rpa.text);
+            }
+
+            if (rpa.flushLog) {
+                FlushLog();
+            }
+
             progressBar.Value = e.ProgressPercentage;
         }
 
         private void Background_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
             buttonStart.IsEnabled = true;
             groupBoxSettings.IsEnabled = true;
-            progressBar.Value = 1000000;
-            AddLogLine(string.Format(Properties.Resources.LogFinished, mBackgroundResult.corrupted));
+            progressBar.Value = 0;
+
+            mStopwatch.Stop();
+
+            AddLogLine(string.Format(Properties.Resources.LogFinished, mBackgroundResult.corrupted, mStopwatch.Elapsed));
+
             FlushLog();
         }
 
@@ -170,7 +216,11 @@ namespace FlacIntegrityCheck {
             var args = new BackgroundParams();
             args.path = textBoxFolder.Text;
             args.parallelScan = radioButtonSsd.IsChecked == true;
+            args.logOutputMode = radioButtonOutputConcise.IsChecked == true ? LogOutputMode.Concise : LogOutputMode.Verbose;
             mBw.RunWorkerAsync(args);
+
+            mStopwatch.Reset();
+            mStopwatch.Start();
         }
 
         private void buttonBrowse_Click(object sender, RoutedEventArgs e) {

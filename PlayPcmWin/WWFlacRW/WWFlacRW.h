@@ -44,6 +44,10 @@ enum FlacRWResultType {
     FRT_EncoderProcessFailed       = -24,
     FRT_OutputFileTooLarge         = -25,
     FRT_MD5SignatureDoesNotMatch   = -26,
+
+    /// CRC異常などは無くチェックは正常終了したがMD5の値が入っておらず照合できなかった。
+    /// WWFlacRW_CheckIntegrity()が戻すことがある。
+    FRT_SuccessButMd5WasNotCalculated = -27,
 };
 
 #define WWFLAC_TEXT_STRSZ   (256)

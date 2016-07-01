@@ -30,6 +30,17 @@
 
 #define FLACENCODE_READFRAMES (4096)
 
+static bool StatusIsSuccess(int errorCode)
+{
+    switch (errorCode) {
+    case FRT_Success:
+    case FRT_SuccessButMd5WasNotCalculated:
+        return true;
+    default:
+        return false;
+    }
+}
+
 struct FlacCuesheetIndexInfo {
     int64_t offsetSamples;
     int number;
@@ -1216,6 +1227,9 @@ WWFlacRW_EncodeEnd(int id)
     return FRT_Success;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+// FLAC Integrity check
+
 static FLAC__StreamDecoderWriteStatus
 IntegrityCheck_WriteCallback(const FLAC__StreamDecoder *decoder,
         const FLAC__Frame *frame, const FLAC__int32 * const buffer[],
@@ -1228,6 +1242,21 @@ static void
 IntegrityCheck_MetadataCallback(const FLAC__StreamDecoder *decoder,
         const FLAC__StreamMetadata *metadata, void *clientData)
 {
+    int *errorCode = (int*)clientData;
+
+    if(metadata->type == FLAC__METADATA_TYPE_STREAMINFO) {
+        // 値が全部0ならばMD5情報は入っていないというFLACの仕様。
+        bool allZero = true;
+        for (int i=0; i<16; ++i) {
+            if (metadata->data.stream_info.md5sum[i] != 0) {
+                allZero = false;
+            }
+        }
+
+        if (allZero && StatusIsSuccess(*errorCode)) {
+            *errorCode = FRT_SuccessButMd5WasNotCalculated;
+        }
+    }
 }
 
 static void
@@ -1239,6 +1268,11 @@ IntegrityCheck_ErrorCallback(const FLAC__StreamDecoder *decoder,
     (void)decoder;
 
     dprintf("%s status=%d\n", __FUNCTION__, status);
+
+    if (!StatusIsSuccess(*errorCode)) {
+        // すでにエラーが起きているので別のエラーで上書きしない。
+        return;
+    }
 
     switch (status) {
     case FLAC__STREAM_DECODER_ERROR_STATUS_LOST_SYNC:
@@ -1279,6 +1313,7 @@ WWFlacRW_CheckIntegrity(const wchar_t *path)
     }
 
     FLAC__stream_decoder_set_md5_checking(decoder, true);
+    FLAC__stream_decoder_set_metadata_respond(decoder, FLAC__METADATA_TYPE_STREAMINFO);
 
     // Windowsでは、この方法でファイルを開かなければならぬ。
     ercd = _wfopen_s(&fp, path, L"rb");
@@ -1305,7 +1340,7 @@ WWFlacRW_CheckIntegrity(const wchar_t *path)
 
     ok = FLAC__stream_decoder_process_until_end_of_metadata(decoder);
     if (!ok) {
-        if (result == FRT_Success) {
+        if (StatusIsSuccess(result)) {
             result = FRT_DecorderProcessFailed;
         }
         dprintf("%s Flac metadata process error %d\n",
@@ -1315,7 +1350,7 @@ WWFlacRW_CheckIntegrity(const wchar_t *path)
 
     ok = FLAC__stream_decoder_process_until_end_of_stream(decoder);
     if (!ok) {
-        if (result == FRT_Success) {
+        if (StatusIsSuccess(result)) {
             result = FRT_DecorderProcessFailed;
         }
         dprintf("%s Flac decode error fdi->errorCode=%d\n",
@@ -1330,7 +1365,9 @@ end:
             ok = FLAC__stream_decoder_finish(decoder);
             if (!ok) {
                 // MD5 check failed!!
-                result = FRT_MD5SignatureDoesNotMatch;
+                if (StatusIsSuccess(result)) {
+                    result = FRT_MD5SignatureDoesNotMatch;
+                }
             }
         }
         FLAC__stream_decoder_delete(decoder);

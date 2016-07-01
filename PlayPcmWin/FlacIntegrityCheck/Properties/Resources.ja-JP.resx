@@ -129,6 +129,9 @@
   <data name="GroupBoxLog" xml:space="preserve">
     <value>ログ</value>
   </data>
+  <data name="GroupBoxLogOutput" xml:space="preserve">
+    <value>ログ出力モード</value>
+  </data>
   <data name="GroupBoxSettings" xml:space="preserve">
     <value>設定</value>
   </data>
@@ -142,13 +145,19 @@
     <value>"{0}" の中のFLACファイルを数えています...</value>
   </data>
   <data name="LogFinished" xml:space="preserve">
-    <value>完了。壊れているFLACファイルは{0}個。</value>
+    <value>完了。壊れているFLACファイルは{0}個。所要時間＝ {1}</value>
   </data>
   <data name="LogIntegrityChecking" xml:space="preserve">
     <value>FLACファイルの一貫性を調べています...</value>
   </data>
   <data name="RadioHdd" xml:space="preserve">
-    <value>HDD (1個ずつ調べる)</value>
+    <value>_HDD (1個ずつ調べる)</value>
+  </data>
+  <data name="RadioLogConcise" xml:space="preserve">
+    <value>簡潔(_C)</value>
+  </data>
+  <data name="RadioLogVerbose" xml:space="preserve">
+    <value>大量(_V)</value>
   </data>
   <data name="RadioSsd" xml:space="preserve">
     <value>SS_D や RAID (複数個同時に調べる)</value>

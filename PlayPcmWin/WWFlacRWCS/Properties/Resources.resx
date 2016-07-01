@@ -186,6 +186,9 @@
   <data name="FlacErrorStreamDecoderNewFailed" xml:space="preserve">
     <value>Error: FLAC stream decoder new failed</value>
   </data>
+  <data name="FlacErrorSuccessButMd5WasNotCalculated" xml:space="preserve">
+    <value>Success, CRC check is passed while MD5 was not calculated because MD5 is not available in FLAC header</value>
+  </data>
   <data name="FlacErrorUnparseable" xml:space="preserve">
     <value>Error: FLAC unparseable error</value>
   </data>

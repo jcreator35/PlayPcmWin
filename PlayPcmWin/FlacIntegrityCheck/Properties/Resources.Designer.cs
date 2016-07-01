@@ -97,6 +97,15 @@ namespace FlacIntegrityCheck.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Log output mode.
+        /// </summary>
+        internal static string GroupBoxLogOutput {
+            get {
+                return ResourceManager.GetString("GroupBoxLogOutput", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Settings.
         /// </summary>
         internal static string GroupBoxSettings {
@@ -133,7 +142,7 @@ namespace FlacIntegrityCheck.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Finished. Corrupted FLAC files = {0}.
+        ///   Looks up a localized string similar to Finished. Corrupted FLAC files = {0}, Elapsed time = {1}.
         /// </summary>
         internal static string LogFinished {
             get {
@@ -156,6 +165,24 @@ namespace FlacIntegrityCheck.Properties {
         internal static string RadioHdd {
             get {
                 return ResourceManager.GetString("RadioHdd", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Concise.
+        /// </summary>
+        internal static string RadioLogConcise {
+            get {
+                return ResourceManager.GetString("RadioLogConcise", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Verbose.
+        /// </summary>
+        internal static string RadioLogVerbose {
+            get {
+                return ResourceManager.GetString("RadioLogVerbose", resourceCulture);
             }
         }
         

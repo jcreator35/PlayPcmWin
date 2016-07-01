@@ -129,6 +129,9 @@
   <data name="GroupBoxLog" xml:space="preserve">
     <value>Log</value>
   </data>
+  <data name="GroupBoxLogOutput" xml:space="preserve">
+    <value>Log output mode</value>
+  </data>
   <data name="GroupBoxSettings" xml:space="preserve">
     <value>Settings</value>
   </data>
@@ -142,13 +145,19 @@
     <value>Counting files in "{0}"...</value>
   </data>
   <data name="LogFinished" xml:space="preserve">
-    <value>Finished. Corrupted FLAC files = {0}</value>
+    <value>Finished. Corrupted FLAC files = {0}, Elapsed time = {1}</value>
   </data>
   <data name="LogIntegrityChecking" xml:space="preserve">
     <value>Integrity Checking...</value>
   </data>
   <data name="RadioHdd" xml:space="preserve">
     <value>_HDD (Check files one by one)</value>
+  </data>
+  <data name="RadioLogConcise" xml:space="preserve">
+    <value>_Concise</value>
+  </data>
+  <data name="RadioLogVerbose" xml:space="preserve">
+    <value>_Verbose</value>
   </data>
   <data name="RadioSsd" xml:space="preserve">
     <value>SS_D or RAID (Check files in parallel)</value>

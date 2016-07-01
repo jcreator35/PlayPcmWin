@@ -1,11 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlacIntegrityCheck", "FlacIntegrityCheck.csproj", "{F9A7AE9E-26E9-4465-B455-792B00B87142}"
-	ProjectSection(ProjectDependencies) = postProject
-		{DA071B6A-B2E2-4567-84D1-5A9122DAB75C} = {DA071B6A-B2E2-4567-84D1-5A9122DAB75C}
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PcmDataLib", "..\PcmData\PcmDataLib.csproj", "{7AF36E7B-839D-4C2F-AAFD-6D8319714D66}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WWFlacRWvs2010", "..\WWFlacRW\WWFlacRWvs2010.vcxproj", "{C2210BF3-3EAF-42BF-992D-BE6D84A3CC8A}"
@@ -14,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WWFlacRWCS", "..\WWFlacRWCS
 	ProjectSection(ProjectDependencies) = postProject
 		{C2210BF3-3EAF-42BF-992D-BE6D84A3CC8A} = {C2210BF3-3EAF-42BF-992D-BE6D84A3CC8A}
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WWFlacIntegrityCheck", "WWFlacIntegrityCheck.csproj", "{F9A7AE9E-26E9-4465-B455-792B00B87142}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,22 +26,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F9A7AE9E-26E9-4465-B455-792B00B87142}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{F9A7AE9E-26E9-4465-B455-792B00B87142}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{F9A7AE9E-26E9-4465-B455-792B00B87142}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{F9A7AE9E-26E9-4465-B455-792B00B87142}.Debug|Win32.ActiveCfg = Debug|x86
-		{F9A7AE9E-26E9-4465-B455-792B00B87142}.Debug|x64.ActiveCfg = Debug|x64
-		{F9A7AE9E-26E9-4465-B455-792B00B87142}.Debug|x64.Build.0 = Debug|x64
-		{F9A7AE9E-26E9-4465-B455-792B00B87142}.Debug|x86.ActiveCfg = Debug|x86
-		{F9A7AE9E-26E9-4465-B455-792B00B87142}.Debug|x86.Build.0 = Debug|x86
-		{F9A7AE9E-26E9-4465-B455-792B00B87142}.Release|Any CPU.ActiveCfg = Release|x86
-		{F9A7AE9E-26E9-4465-B455-792B00B87142}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{F9A7AE9E-26E9-4465-B455-792B00B87142}.Release|Mixed Platforms.Build.0 = Release|x86
-		{F9A7AE9E-26E9-4465-B455-792B00B87142}.Release|Win32.ActiveCfg = Release|x86
-		{F9A7AE9E-26E9-4465-B455-792B00B87142}.Release|x64.ActiveCfg = Release|x64
-		{F9A7AE9E-26E9-4465-B455-792B00B87142}.Release|x64.Build.0 = Release|x64
-		{F9A7AE9E-26E9-4465-B455-792B00B87142}.Release|x86.ActiveCfg = Release|x86
-		{F9A7AE9E-26E9-4465-B455-792B00B87142}.Release|x86.Build.0 = Release|x86
 		{7AF36E7B-839D-4C2F-AAFD-6D8319714D66}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{7AF36E7B-839D-4C2F-AAFD-6D8319714D66}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
 		{7AF36E7B-839D-4C2F-AAFD-6D8319714D66}.Debug|Mixed Platforms.Build.0 = Debug|x86
@@ -95,6 +76,22 @@ Global
 		{DA071B6A-B2E2-4567-84D1-5A9122DAB75C}.Release|x64.Build.0 = Release|x64
 		{DA071B6A-B2E2-4567-84D1-5A9122DAB75C}.Release|x86.ActiveCfg = Release|x86
 		{DA071B6A-B2E2-4567-84D1-5A9122DAB75C}.Release|x86.Build.0 = Release|x86
+		{F9A7AE9E-26E9-4465-B455-792B00B87142}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{F9A7AE9E-26E9-4465-B455-792B00B87142}.Debug|Mixed Platforms.ActiveCfg = Debug|x64
+		{F9A7AE9E-26E9-4465-B455-792B00B87142}.Debug|Mixed Platforms.Build.0 = Debug|x64
+		{F9A7AE9E-26E9-4465-B455-792B00B87142}.Debug|Win32.ActiveCfg = Debug|x64
+		{F9A7AE9E-26E9-4465-B455-792B00B87142}.Debug|x64.ActiveCfg = Debug|x64
+		{F9A7AE9E-26E9-4465-B455-792B00B87142}.Debug|x64.Build.0 = Debug|x64
+		{F9A7AE9E-26E9-4465-B455-792B00B87142}.Debug|x86.ActiveCfg = Debug|x86
+		{F9A7AE9E-26E9-4465-B455-792B00B87142}.Debug|x86.Build.0 = Debug|x86
+		{F9A7AE9E-26E9-4465-B455-792B00B87142}.Release|Any CPU.ActiveCfg = Release|x64
+		{F9A7AE9E-26E9-4465-B455-792B00B87142}.Release|Mixed Platforms.ActiveCfg = Release|x64
+		{F9A7AE9E-26E9-4465-B455-792B00B87142}.Release|Mixed Platforms.Build.0 = Release|x64
+		{F9A7AE9E-26E9-4465-B455-792B00B87142}.Release|Win32.ActiveCfg = Release|x64
+		{F9A7AE9E-26E9-4465-B455-792B00B87142}.Release|x64.ActiveCfg = Release|x64
+		{F9A7AE9E-26E9-4465-B455-792B00B87142}.Release|x64.Build.0 = Release|x64
+		{F9A7AE9E-26E9-4465-B455-792B00B87142}.Release|x86.ActiveCfg = Release|x86
+		{F9A7AE9E-26E9-4465-B455-792B00B87142}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

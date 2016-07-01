@@ -34,6 +34,16 @@
                         <RadioButton Content="_HDD (Check files one by one)" Grid.Row="1" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonHdd" VerticalAlignment="Center" ForceCursor="True" />
                     </Grid>
                 </GroupBox>
+                <GroupBox Grid.Column="1" Grid.Row="1" Header="Log output mode" HorizontalAlignment="Left" Margin="102,0,0,6" Name="groupBoxLogOutput" Width="200" >
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                        </Grid.RowDefinitions>
+                        <RadioButton Content="Concise" HorizontalAlignment="Left" Margin="6" Name="radioButtonOutputConcise" VerticalAlignment="Center" IsChecked="True" />
+                        <RadioButton Grid.Row="1"  Content="_Verbose" HorizontalAlignment="Left" Margin="6" Name="radioButtonOutputVerbose" VerticalAlignment="Center" />
+                    </Grid>
+                </GroupBox>
             </Grid>
         </GroupBox>
         <GroupBox Name="groupBoxLog" Header="Log" Grid.Row="2" >
