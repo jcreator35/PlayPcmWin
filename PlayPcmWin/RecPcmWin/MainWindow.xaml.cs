@@ -87,6 +87,9 @@ namespace RecPcmWin {
             
             ResetLevelMeter();
 
+            mLevelMeter = new LevelMeter(mPref.SampleFormat, mPref.NumOfChannels, mPref.PeakHoldSeconds,
+                mPref.WasapiBufferSizeMS * 0.001, mPref.ReleaseTimeDbPerSec);
+
             mInitialized = true;
         }
 
@@ -286,6 +289,9 @@ namespace RecPcmWin {
 
         // 桁数を右揃えにして表示する。
         private static string DbToString(double db) {
+            if (db < -200) {
+                return "Low";
+            }
             var s = string.Format(CultureInfo.CurrentCulture, "{0:+0.0;-0.0;+0.0}", db);
             return string.Format(CultureInfo.InvariantCulture, "{0,6}", s);
         }
@@ -561,7 +567,8 @@ namespace RecPcmWin {
                 return;
             }
 
-            mLevelMeter = new LevelMeter(mPref.SampleFormat, mPref.NumOfChannels, mPref.PeakHoldSeconds, mPref.WasapiBufferSizeMS * 0.001);
+            mLevelMeter = new LevelMeter(mPref.SampleFormat, mPref.NumOfChannels, mPref.PeakHoldSeconds,
+                mPref.WasapiBufferSizeMS * 0.001, mPref.ReleaseTimeDbPerSec);
             mWasapiCtrl.SetCaptureCallback(ControlCaptureCallback);
             mWasapiCtrl.StorePcm(false);
             mWasapiCtrl.StartRecording();
@@ -850,7 +857,8 @@ namespace RecPcmWin {
             }
 
             mPref.PeakHoldSeconds = 1;
-            mLevelMeter = new LevelMeter(mPref.SampleFormat, mPref.NumOfChannels, mPref.PeakHoldSeconds, mPref.WasapiBufferSizeMS * 0.001);
+            mLevelMeter = new LevelMeter(mPref.SampleFormat, mPref.NumOfChannels,
+                mPref.PeakHoldSeconds, mPref.WasapiBufferSizeMS * 0.001, mPref.ReleaseTimeDbPerSec);
         }
 
         private void radioButtonPeakHold3sec_Checked(object sender, RoutedEventArgs e) {
@@ -858,7 +866,8 @@ namespace RecPcmWin {
                 return;
             }
             mPref.PeakHoldSeconds = 3;
-            mLevelMeter = new LevelMeter(mPref.SampleFormat, mPref.NumOfChannels, mPref.PeakHoldSeconds, mPref.WasapiBufferSizeMS * 0.001);
+            mLevelMeter = new LevelMeter(mPref.SampleFormat, mPref.NumOfChannels,
+                mPref.PeakHoldSeconds, mPref.WasapiBufferSizeMS * 0.001, mPref.ReleaseTimeDbPerSec);
         }
 
         private void radioButtonPeakHoldInfinity_Checked(object sender, RoutedEventArgs e) {
@@ -866,7 +875,8 @@ namespace RecPcmWin {
                 return;
             }
             mPref.PeakHoldSeconds = -1;
-            mLevelMeter = new LevelMeter(mPref.SampleFormat, mPref.NumOfChannels, mPref.PeakHoldSeconds, mPref.WasapiBufferSizeMS * 0.001);
+            mLevelMeter = new LevelMeter(mPref.SampleFormat, mPref.NumOfChannels,
+                mPref.PeakHoldSeconds, mPref.WasapiBufferSizeMS * 0.001, mPref.ReleaseTimeDbPerSec);
         }
 
         private void radioButtonNominalPeakM6_Checked(object sender, RoutedEventArgs e) {
@@ -935,8 +945,10 @@ namespace RecPcmWin {
             }
 
             int v;
-            if (Int32.TryParse(textBoxLevelMeterReleaseTime.Text, out v)) {
+            if (Int32.TryParse(textBoxLevelMeterReleaseTime.Text, out v) && 0 <= v) {
                 mPref.ReleaseTimeDbPerSec = v;
+                mLevelMeter = new LevelMeter(mPref.SampleFormat, mPref.NumOfChannels, mPref.PeakHoldSeconds,
+                    mPref.WasapiBufferSizeMS * 0.001, mPref.ReleaseTimeDbPerSec);
             } else {
                 MessageBox.Show(Properties.Resources.ErrorReleaseTimeMustBePositiveInteger);
             }

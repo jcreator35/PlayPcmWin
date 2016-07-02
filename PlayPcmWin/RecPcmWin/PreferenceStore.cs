@@ -60,7 +60,7 @@ namespace RecPcmWin {
             UpdateLevelMeterWhileRecording = false;
             PeakHoldSeconds = 1;
             SetDwChannelMask = false;
-            ReleaseTimeDbPerSec = 30;
+            ReleaseTimeDbPerSec = 100;
         }
     }
 

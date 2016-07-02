@@ -77,5 +77,10 @@ namespace RecPcmWin {
                 }
             }
         }
+
+        public void UpdatePeakDbTo(double v) {
+            PeakDb = v;
+            PeakHoldDb = v;
+        }
     };
 }

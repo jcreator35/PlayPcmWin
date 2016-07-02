@@ -4,24 +4,38 @@ using System.Linq;
 using System.Text;
 using Wasapi;
 using WWAudioFilter;
+using System.Diagnostics;
 
 namespace RecPcmWin {
     class LevelMeter {
         private PeakCalculator [] mPeakCalcArray;
         private WasapiCS.SampleFormatType mSampleFormat;
         private int mCh;
+        private double[] mLastPeakLevelDb;
+
+        private Stopwatch mSw = new Stopwatch();
 
         /// <param name="peakHoldSec">-1のとき∞</param>
         /// <param name="updateIntervalSec">録音バッファー秒数を入れる。</param>
-        public LevelMeter(WasapiCS.SampleFormatType sampleFormat, int ch, int peakHoldSec, double updateIntervalSec) {
+        public LevelMeter(WasapiCS.SampleFormatType sampleFormat, int ch, int peakHoldSec,
+                double updateIntervalSec, int releaseTimeDbPerSec) {
             mSampleFormat = sampleFormat;
             mCh = ch;
 
+            mLastPeakLevelDb = new double[ch];
             mPeakCalcArray = new PeakCalculator[ch];
             for (int i=0; i<ch; ++i) {
+                mLastPeakLevelDb[i] = -144;
                 mPeakCalcArray[i] = new PeakCalculator((peakHoldSec < 0) ? -1 : (int)(peakHoldSec / updateIntervalSec));
             }
+
+            ReleaseTimeDbPerSec = releaseTimeDbPerSec;
+
+            mSw.Reset();
+            mSw.Start();
         }
+
+        public int ReleaseTimeDbPerSec { get; set; }
 
         private double GetSampleValue(byte[] pcm, int pos) {
             double v = 0.0;
@@ -71,7 +85,15 @@ namespace RecPcmWin {
 
             for (int ch=0; ch<mCh; ++ch) {
                 mPeakCalcArray[ch].UpdateEnd();
+                // 最後のピーク値 x 時間減衰。
+                double lastPeakDb = mLastPeakLevelDb[ch] - ReleaseTimeDbPerSec * mSw.ElapsedMilliseconds / 1000.0;
+                if (mPeakCalcArray[ch].PeakDb < lastPeakDb) {
+                    mPeakCalcArray[ch].UpdatePeakDbTo(lastPeakDb);
+                }
+                mLastPeakLevelDb[ch] = mPeakCalcArray[ch].PeakDb;
             }
+
+            mSw.Restart();
         }
 
         public double GetPeakDb(int ch) {

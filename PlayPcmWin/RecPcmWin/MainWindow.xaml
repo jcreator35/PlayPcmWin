@@ -69,7 +69,7 @@
                         </Grid.RowDefinitions>
                         <CheckBox Content="Update while recording" HorizontalAlignment="Left" Margin="4,6,0,0" Name="checkBoxLevelMeterUpdateWhileRecording" VerticalAlignment="Top" Checked="checkBoxLevelMeterUpdateWhileRecording_Checked" Unchecked="checkBoxLevelMeterUpdateWhileRecording_Unchecked" Grid.ColumnSpan="3" />
                         <Label Content="Release time" Grid.Row="1" HorizontalAlignment="Right" Name="labelLevelMeterReleaseTime" VerticalAlignment="Center" />
-                        <TextBox Grid.Column="1" Grid.Row="1" Margin="0" Name="textBoxLevelMeterReleaseTime" HorizontalContentAlignment="Right" VerticalAlignment="Center" Text="30" TextChanged="textBoxLevelMeterReleaseTime_TextChanged" />
+                        <TextBox Grid.Column="1" Grid.Row="1" Margin="0" Name="textBoxLevelMeterReleaseTime" HorizontalContentAlignment="Right" VerticalAlignment="Center" Text="100" TextChanged="textBoxLevelMeterReleaseTime_TextChanged" />
                         <Label Content="dB/s" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Left" Name="labelLevelMeterReleaseTimeMs" VerticalAlignment="Center" />
                     </Grid>
                 </GroupBox>
