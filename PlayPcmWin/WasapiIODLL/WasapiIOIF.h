@@ -221,7 +221,8 @@ struct WasapiIoWorkerThreadSetupResult {
 
 __declspec(dllexport)
 void __stdcall
-WasapiIO_GetWorkerThreadSetupResult(int instanceId, WasapiIoWorkerThreadSetupResult &result_return);
+WasapiIO_GetWorkerThreadSetupResult(int instanceId,
+    WasapiIoWorkerThreadSetupResult &result_return);
 
 /// @param audioFilterType WWAudioFilterType
 __declspec(dllexport)
@@ -231,5 +232,27 @@ WasapiIO_AppendAudioFilter(int instanceId, int audioFilterType, PCWSTR args);
 __declspec(dllexport)
 void __stdcall
 WasapiIO_ClearAudioFilter(int instanceId);
+
+#pragma pack(push, 4)
+struct WasapiIoVolumeParams {
+    float levelMinDB;
+    float levelMaxDB;
+    float volumeIncrementDB;
+    float defaultLevel;
+    /// ENDPOINT_HARDWARE_SUPPORT_VOLUME ==1
+    /// ENDPOINT_HARDWARE_SUPPORT_MUTE   ==2
+    /// ENDPOINT_HARDWARE_SUPPORT_METER  ==4
+    int hardwareSupport;
+};
+#pragma pack(pop)
+
+__declspec(dllexport)
+int __stdcall
+WasapiIO_GetVolumeParams(int instanceId, WasapiIoVolumeParams &result_return);
+
+__declspec(dllexport)
+int __stdcall
+WasapiIO_SetMasterVolumeInDb(int instanceId, float db);
+
 
 }; // extern "C"

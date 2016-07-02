@@ -12,6 +12,7 @@
 #include "WWThreadCharacteristics.h"
 #include "WWTypes.h"
 #include "WWAudioFilterSequencer.h"
+#include <endpointvolume.h>
 
 /// @param data captured data
 /// @param dataBytes captured data size in bytes
@@ -34,6 +35,17 @@ enum WWBitFormatType {
     WWBitFormatSint,
     WWBitFormatSfloat,
     WWBitFormatNUM
+};
+
+struct WWVolumeParams {
+    float levelMinDB;
+    float levelMaxDB;
+    float volumeIncrementDB;
+    float defaultLevel;
+    /// ENDPOINT_HARDWARE_SUPPORT_VOLUME ==1
+    /// ENDPOINT_HARDWARE_SUPPORT_MUTE   ==2
+    /// ENDPOINT_HARDWARE_SUPPORT_METER  ==4
+    int hardwareSupport;
 };
 
 class WasapiUser {
@@ -109,6 +121,9 @@ public:
     WWThreadCharacteristics &ThreadCharacteristics(void) { return m_threadCharacteristics; }
     WWAudioFilterSequencer &AudioFilterSequencer(void) { return m_audioFilterSequencer; }
 
+    int GetVolumeParams(WWVolumeParams *volumeParams_return);
+    int SetMasterVolumeLevelInDb(float db);
+
 private:
     HANDLE       m_shutdownEvent;
     HANDLE       m_audioSamplesReadyEvent;
@@ -145,6 +160,7 @@ private:
     WWTimerResolution m_timerResolution;
     WWThreadCharacteristics m_threadCharacteristics;
     WWAudioFilterSequencer m_audioFilterSequencer;
+    IAudioEndpointVolume *m_endpointVolume;
 
     static DWORD WINAPI RenderEntry(LPVOID lpThreadParameter);
     static DWORD WINAPI CaptureEntry(LPVOID lpThreadParameter);
@@ -164,5 +180,6 @@ private:
     void UpdatePlayPcmDataWhenPlaying(WWPcmData &playPcmData);
 
     void PrepareBuffers(void);
+
 };
 

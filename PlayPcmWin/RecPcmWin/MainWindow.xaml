@@ -6,14 +6,16 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="63" />
             <RowDefinition Height="47" />
-            <RowDefinition Height="258" />
+            <RowDefinition Height="63" />
+            <RowDefinition Height="199" />
+            <RowDefinition Height="59" />
             <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="488*" />
             <ColumnDefinition Width="489*" />
         </Grid.ColumnDefinitions>
-        <GroupBox Header="Recording Devices" Margin="6" Name="groupBoxDeviceSelect" Grid.Row="3">
+        <GroupBox Header="Recording Devices" Margin="6" Name="groupBoxDeviceSelect" Grid.Row="4" Grid.RowSpan="2">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="1*" />
@@ -25,7 +27,7 @@
                 <Button Click="buttonInspectDevice_Click" Content="Print Supported Format List(_I)" HorizontalAlignment="Left" Margin="257,0,0,0" Name="buttonInspectDevice" VerticalAlignment="Center" Width="200" Grid.Row="1" />
             </Grid>
         </GroupBox>
-        <GroupBox Header="Level Meter" Margin="6,6,6,0" Name="groupBoxLevelMeter" Grid.Column="1" Grid.Row="2" Height="252" VerticalAlignment="Top">
+        <GroupBox Header="Level Meter" Margin="6,6,6,0" Name="groupBoxLevelMeter" Grid.Column="1" Grid.Row="3" Height="252" VerticalAlignment="Top" Grid.RowSpan="2">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="1*" />
@@ -105,7 +107,7 @@
                 </Canvas>
             </Grid>
         </GroupBox>
-        <GroupBox Header="Log" Margin="6" Name="groupBoxLog" Grid.Column="1" Grid.Row="3">
+        <GroupBox Header="Log" Margin="6" Name="groupBoxLog" Grid.Column="1" Grid.Row="5">
             <Grid>
                 <TextBox AcceptsReturn="True" AcceptsTab="True" IsReadOnly="True" Margin="0,0,0,0" Name="textBoxLog" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" />
             </Grid>
@@ -124,7 +126,7 @@
                 <Label Content="Language:" HorizontalAlignment="Right" Name="labelLanguage" VerticalAlignment="Center" />
             </Grid>
         </GroupBox>
-        <GroupBox Header="WASAPI settings" Margin="6,6,6,0" Name="groupBoxWasapiSettings" VerticalAlignment="Top" Grid.Row="1" Grid.RowSpan="2" Height="299">
+        <GroupBox Header="WASAPI settings" Margin="6,6,6,0" Name="groupBoxWasapiSettings" VerticalAlignment="Top" Grid.Row="1" Grid.RowSpan="3" Height="299">
             <Grid>
                 <GroupBox Header="Operation mode" Height="79" HorizontalAlignment="Left" Margin="211,72,0,0" Name="groupBoxOperationMode" VerticalAlignment="Top" Width="232">
                     <Grid>
@@ -219,6 +221,16 @@
                 <Button Content="Stop(_S)" HorizontalAlignment="Left" IsEnabled="False" Margin="112,0,0,0" Name="buttonStop" VerticalAlignment="Center" Width="100" Click="buttonStop_Click" />
                 <Slider Margin="6,0,6,0" Name="slider1" VerticalAlignment="Center" Grid.Row="1" />
                 <Label Content="00:00 / 00:00" HorizontalContentAlignment="Right" Margin="218,0,6,0" VerticalContentAlignment="Center" Name="labelDuration" FontSize="16" FontWeight="Bold" FontFamily="Courier New" />
+            </Grid>
+        </GroupBox>
+        <GroupBox Grid.Column="1" Header="Recording Endpoint Master Volume Control" Margin="6,6,6,0" Name="groupBoxMasterVolumeControl" Grid.Row="2" >
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="60" />
+                    <ColumnDefinition Width="1*" />
+                </Grid.ColumnDefinitions>
+                <Slider Margin="6,0" Name="sliderMasterVolume" VerticalAlignment="Center" Grid.Column="1" IsEnabled="False" ValueChanged="sliderMasterVolume_ValueChanged" />
+                <Label Content="-300 dB" Name="labelRecordingVolume" VerticalAlignment="Center" HorizontalAlignment="Right" />
             </Grid>
         </GroupBox>
     </Grid>

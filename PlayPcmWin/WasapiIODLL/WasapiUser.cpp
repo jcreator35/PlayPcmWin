@@ -103,6 +103,7 @@ WasapiUser::WasapiUser(void)
     m_glitchCount     = 0;
     m_footerCount     = 0;
     m_captureCallback = nullptr;
+    m_endpointVolume = nullptr;
 }
 
 WasapiUser::~WasapiUser(void)
@@ -187,6 +188,50 @@ end:
         waveFormat = nullptr;
     }
 
+    return hr;
+}
+
+int
+WasapiUser::GetVolumeParams(WWVolumeParams *volumeParams_return)
+{
+    HRESULT hr = S_OK;
+
+    if (nullptr == m_endpointVolume) {
+        return E_FAIL;
+    }
+
+    HRG(m_endpointVolume->GetVolumeRange(
+            &volumeParams_return->levelMinDB,
+            &volumeParams_return->levelMaxDB,
+            &volumeParams_return->volumeIncrementDB));
+
+    DWORD dwHardwareSupport;
+    HRG(m_endpointVolume->QueryHardwareSupport(&dwHardwareSupport));
+    volumeParams_return->hardwareSupport = dwHardwareSupport;
+
+    HRG(m_endpointVolume->GetMasterVolumeLevel(&volumeParams_return->defaultLevel));
+
+    dprintf("WasapiUser::GetVolumeParams() levelMinDb=%f levelMaxDb=%f volumeIncrementDb=%f defaultLevel=%f hardwareSupport=0x%x\n",
+        volumeParams_return->levelMinDB, volumeParams_return->levelMaxDB,
+        volumeParams_return->volumeIncrementDB,
+        volumeParams_return->defaultLevel, volumeParams_return->hardwareSupport);
+
+end:
+    return hr;
+}
+
+int
+WasapiUser::SetMasterVolumeLevelInDb(float db)
+{
+    HRESULT hr = S_OK;
+
+    if (nullptr == m_endpointVolume) {
+        return E_FAIL;
+    }
+
+    HRG(m_endpointVolume->SetMasterVolumeLevel(db, nullptr));
+
+end:
     return hr;
 }
 
@@ -383,6 +428,8 @@ WasapiUser::Setup(IMMDevice *device, WWDeviceType deviceType, const WWPcmFormat 
         break;
     case eCapture:
         HRG(m_audioClient->GetService(IID_PPV_ARGS(&m_captureClient)));
+        HRG(m_deviceToUse->Activate(__uuidof(IAudioEndpointVolume), CLSCTX_INPROC_SERVER, nullptr, (void**)&m_endpointVolume));
+        assert(m_endpointVolume);
         break;
     default:
         assert(0);
@@ -433,6 +480,7 @@ WasapiUser::Unsetup(void)
 
     m_pcmStream.ReleaseBuffers();
 
+    SafeRelease(&m_endpointVolume);
     SafeRelease(&m_deviceToUse);
     SafeRelease(&m_captureClient);
     SafeRelease(&m_renderClient);

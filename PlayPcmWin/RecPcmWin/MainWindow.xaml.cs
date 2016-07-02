@@ -571,7 +571,12 @@ namespace RecPcmWin {
                 mPref.WasapiBufferSizeMS * 0.001, mPref.ReleaseTimeDbPerSec);
             mWasapiCtrl.SetCaptureCallback(ControlCaptureCallback);
             mWasapiCtrl.StorePcm(false);
-            mWasapiCtrl.StartRecording();
+
+            int hr = mWasapiCtrl.StartRecording();
+            if (hr < 0) {
+                MessageBox.Show(string.Format("Select device failed! 0x{0:X8}", hr));
+                return;
+            }
 
             buttonSelectDevice.IsEnabled = false;
             buttonDeselectDevice.IsEnabled = true;
@@ -579,6 +584,26 @@ namespace RecPcmWin {
             buttonStop.IsEnabled = false;
             buttonInspectDevice.IsEnabled = false;
             groupBoxWasapiSettings.IsEnabled = false;
+
+            var volumeParams = mWasapiCtrl.GetVolumeParams();
+            sliderMasterVolume.Minimum = volumeParams.levelMinDB;
+            sliderMasterVolume.Maximum = volumeParams.levelMaxDB;
+            var tickMarks = new DoubleCollection();
+            for (int i = 0; i < (volumeParams.levelMaxDB - volumeParams.levelMinDB) / volumeParams.volumeIncrementDB; ++i) {
+                tickMarks.Add(volumeParams.levelMinDB + (double)i * volumeParams.volumeIncrementDB);
+            }
+            sliderMasterVolume.Ticks = tickMarks;
+            sliderMasterVolume.IsSnapToTickEnabled = true;
+            sliderMasterVolume.Value = volumeParams.defaultLevel;
+            sliderMasterVolume.IsEnabled = true;
+            labelRecordingVolume.Content = string.Format("{0} dB", sliderMasterVolume.Value);
+            mWasapiCtrl.SetEndpointMasterVolume((float)sliderMasterVolume.Value);
+
+            if ((volumeParams.hardwareSupport & 1) == 1) {
+                AddLog("This device supports hardware volume control.\r\n");
+            } else {
+                AddLog("This device does not support hardware volume control.\r\n");
+            }
 
             mBW = new BackgroundWorker();
             mBW.WorkerReportsProgress = true;
@@ -593,6 +618,7 @@ namespace RecPcmWin {
 
             mWasapiCtrl.Stop();
             buttonDeselectDevice.IsEnabled = false;
+            sliderMasterVolume.IsEnabled = false;
             AddLog(string.Format("wasapi.Stop()\r\n"));
         }
 
@@ -616,6 +642,7 @@ namespace RecPcmWin {
         private void buttonStop_Click(object sender, RoutedEventArgs e) {
             mWasapiCtrl.Stop();
             buttonStop.IsEnabled = false;
+            sliderMasterVolume.IsEnabled = false;
             AddLog(string.Format("wasapi.Stop()\r\n"));
         }
 
@@ -952,6 +979,15 @@ namespace RecPcmWin {
             } else {
                 MessageBox.Show(Properties.Resources.ErrorReleaseTimeMustBePositiveInteger);
             }
+        }
+
+        private void sliderMasterVolume_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) {
+            if (!mInitialized) {
+                return;
+            }
+
+            labelRecordingVolume.Content = string.Format("{0} dB", sliderMasterVolume.Value);
+            mWasapiCtrl.SetEndpointMasterVolume((float)sliderMasterVolume.Value);
         }
     }
 }

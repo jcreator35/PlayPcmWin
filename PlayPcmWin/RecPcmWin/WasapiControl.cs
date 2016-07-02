@@ -195,8 +195,16 @@ namespace RecPcmWin {
             return sb.ToString();
         }
 
+        WasapiCS.VolumeParams mVolumeParams = new WasapiCS.VolumeParams(-48, 0, 1, 0, 0);
+
         public int StartRecording() {
             int hr = mWasapi.StartRecording();
+            if (0 <= hr) {
+                hr = mWasapi.GetVolumeParams(out mVolumeParams);
+                if (mVolumeParams.volumeIncrementDB == 0) {
+                    mVolumeParams.volumeIncrementDB = 1.5f;
+                }
+            }
             return hr;
         }
 
@@ -206,6 +214,14 @@ namespace RecPcmWin {
 
         public long GetCaptureGlitchCount() {
             return mWasapi.GetCaptureGlitchCount();
+        }
+
+        public WasapiCS.VolumeParams GetVolumeParams() {
+            return mVolumeParams;
+        }
+
+        public int SetEndpointMasterVolume(float db) {
+            return mWasapi.SetMasterVolumeInDb(db);
         }
     }
 }

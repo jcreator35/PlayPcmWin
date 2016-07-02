@@ -229,6 +229,26 @@ namespace Wasapi {
         private extern static void
         WasapiIO_ClearAudioFilter(int instanceId);
 
+        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        internal struct WasapiIoVolumeParams {
+            public float levelMinDB;
+            public float levelMaxDB;
+            public float volumeIncrementDB;
+            public float defaultLevel;
+            /// ENDPOINT_HARDWARE_SUPPORT_VOLUME ==1
+            /// ENDPOINT_HARDWARE_SUPPORT_MUTE   ==2
+            /// ENDPOINT_HARDWARE_SUPPORT_METER  ==4
+            public int hardwareSupport;
+        };
+
+        [DllImport("WasapiIODLL.dll")]
+        private extern static int
+        WasapiIO_GetVolumeParams(int instanceId, out WasapiIoVolumeParams args);
+
+        [DllImport("WasapiIODLL.dll")]
+        private extern static int
+        WasapiIO_SetMasterVolumeInDb(int instanceId, float db);
+
         public enum MMCSSCallType {
             Disable,
             Enable,
@@ -720,8 +740,36 @@ namespace Wasapi {
         }
 
         public void AppendAudioFilter(WWAudioFilterType aft, string args) {
-
             WasapiIO_AppendAudioFilter(mId, (int)aft, args);
+        }
+
+        public int SetMasterVolumeInDb(float db) {
+            return WasapiIO_SetMasterVolumeInDb(mId, db);
+        }
+
+        public class VolumeParams {
+            public float levelMinDB;
+            public float levelMaxDB;
+            public float volumeIncrementDB;
+            public float defaultLevel;
+            /// ENDPOINT_HARDWARE_SUPPORT_VOLUME ==1
+            /// ENDPOINT_HARDWARE_SUPPORT_MUTE   ==2
+            /// ENDPOINT_HARDWARE_SUPPORT_METER  ==4
+            public int hardwareSupport;
+            public VolumeParams(float min, float max, float increment, float aDefault, int hs) {
+                levelMinDB = min;
+                levelMaxDB = max;
+                volumeIncrementDB = increment;
+                defaultLevel = aDefault;
+                hardwareSupport = hs;
+            }
+        };
+
+        public int GetVolumeParams(out VolumeParams volumeParams) {
+            WasapiIoVolumeParams vp = new WasapiIoVolumeParams();
+            int hr = WasapiIO_GetVolumeParams(mId, out vp);
+            volumeParams = new VolumeParams(vp.levelMinDB, vp.levelMaxDB, vp.volumeIncrementDB, vp.defaultLevel, vp.hardwareSupport);
+            return hr;
         }
     }
 }

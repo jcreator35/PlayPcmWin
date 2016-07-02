@@ -732,4 +732,34 @@ WasapiIO_GetMixFormat(int instanceId, int deviceId, WasapiIoMixFormat &mixFormat
     return hr;
 }
 
+__declspec(dllexport)
+int __stdcall
+WasapiIO_GetVolumeParams(int instanceId, WasapiIoVolumeParams &result_return)
+{
+    WasapiIO *self = Instance(instanceId);
+    assert(self);
+
+    WWVolumeParams params;
+    int rv = self->wasapi.GetVolumeParams(&params);
+    if (0 <= rv) {
+        // イマイチな感じだが、コピーする。
+        result_return.levelMinDB = params.levelMinDB;
+        result_return.levelMaxDB = params.levelMaxDB;
+        result_return.volumeIncrementDB = params.volumeIncrementDB;
+        result_return.defaultLevel = params.defaultLevel;
+        result_return.hardwareSupport = params.hardwareSupport;
+    }
+    return rv;
+}
+
+__declspec(dllexport)
+int __stdcall
+WasapiIO_SetMasterVolumeInDb(int instanceId, float db)
+{
+    WasapiIO *self = Instance(instanceId);
+    assert(self);
+
+    return self->wasapi.SetMasterVolumeLevelInDb(db);
+}
+
 }; // extern "C"
