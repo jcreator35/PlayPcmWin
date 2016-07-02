@@ -88,6 +88,15 @@ namespace RecPcmWin.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Error: Release time must be integer equal to or larger than zero.
+        /// </summary>
+        internal static string ErrorReleaseTimeMustBePositiveInteger {
+            get {
+                return ResourceManager.GetString("ErrorReleaseTimeMustBePositiveInteger", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Error: Wasapi buffer size must be integer number greater than 0.
         /// </summary>
         internal static string ErrorWasapiBufferSize {
@@ -115,6 +124,15 @@ namespace RecPcmWin.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Set dwChannelMask.
+        /// </summary>
+        internal static string MainCheckboxSetDwChannelMask {
+            get {
+                return ResourceManager.GetString("MainCheckboxSetDwChannelMask", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Deselect (_D).
         /// </summary>
         internal static string MainDeselect {
@@ -129,6 +147,15 @@ namespace RecPcmWin.Properties {
         internal static string MainDisplaySettings {
             get {
                 return ResourceManager.GetString("MainDisplaySettings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to DwChannelMask settings.
+        /// </summary>
+        internal static string MainGroupBoxDwChannelMask {
+            get {
+                return ResourceManager.GetString("MainGroupBoxDwChannelMask", resourceCulture);
             }
         }
         
@@ -156,6 +183,15 @@ namespace RecPcmWin.Properties {
         internal static string MainLevelMeterOther {
             get {
                 return ResourceManager.GetString("MainLevelMeterOther", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Release time.
+        /// </summary>
+        internal static string MainLevelMeterReleaseTime {
+            get {
+                return ResourceManager.GetString("MainLevelMeterReleaseTime", resourceCulture);
             }
         }
         

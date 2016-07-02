@@ -4,15 +4,16 @@ using System.Reflection.Emit;
 namespace PcmDataLib {
 
     /// <summary>
-    /// 基本データ型の大きいサイズの配列。
+    /// 大きいサイズの配列。
     /// </summary>
     /// <typeparam name="T">byte, [u]short, [u]int, float, doubleが適する</typeparam>
     public class LargeArray<T> {
         /// <summary>
         /// TにWWComplex型を入れた時に配列が2GBを超えないようにする。
         /// あまりギリギリのサイズにしないようにした。
+        /// WWComplexのLargeArrayが範囲を超えなければ良しとする。
         /// </summary>
-        public const int ARRAY_FRAGMENT_LENGTH_NUM = 1024*512; //1024 * 1024;
+        public const int ARRAY_FRAGMENT_LENGTH_NUM = 64 * 1024 * 1024;
 
         /// <summary>
         /// ctor

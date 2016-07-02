@@ -51,6 +51,7 @@ namespace Wasapi {
             public int sampleRate;
             public int sampleFormat;    ///< WWPcmDataSampleFormatType
             public int numChannels;
+            public int dwChannelMask;
         };
 
         [DllImport("WasapiIODLL.dll")]
@@ -65,13 +66,14 @@ namespace Wasapi {
             public int sampleFormat;
             public int numChannels;
 
+            public int dwChannelMask;
             public int shareMode;
             public int mmcssCall; ///< 0: disable, 1: enable, 2: do not call DwmEnableMMCSS()
             public int mmThreadPriority; ///< 0: None, 1: Low, 2: Normal, 3: High, 4: Critical
             public int schedulerTask;
+
             public int dataFeedMode;
             public int latencyMillisec;
-
             public int timePeriodHandledNanosec;
             public int zeroFlushMillisec;
         };
@@ -500,17 +502,19 @@ namespace Wasapi {
             return new MixFormat(args.sampleRate, (SampleFormatType)args.sampleFormat, args.numChannels, args.dwChannelMask);
         }
 
-        public int InspectDevice(int deviceId, DeviceType dt, int sampleRate, SampleFormatType format, int numChannels) {
+        public int InspectDevice(int deviceId, DeviceType dt, int sampleRate, SampleFormatType format, int numChannels, int dwChannelMask) {
             var args = new InspectArgs();
             args.deviceType = (int)dt;
             args.sampleRate = sampleRate;
             args.numChannels = numChannels;
             args.sampleFormat = (int)format;
+            args.dwChannelMask = dwChannelMask;
             return WasapiIO_InspectDevice(mId, deviceId, ref args);
         }
 
         public int Setup(int deviceId, DeviceType t, StreamType streamType,
                 int sampleRate, SampleFormatType format, int numChannels,
+                int dwChannelMask,
                 MMCSSCallType mmcssCall, MMThreadPriorityType threadPriority,
                 SchedulerTaskType schedulerTask, ShareMode shareMode, DataFeedMode dataFeedMode,
                 int latencyMillisec, int zeroFlushMillisec, int timePeriodHandredNanosec) {
@@ -520,6 +524,7 @@ namespace Wasapi {
             args.sampleRate = sampleRate;
             args.sampleFormat = (int)format;
             args.numChannels = numChannels;
+            args.dwChannelMask = dwChannelMask;
             args.mmcssCall = (int)mmcssCall;
             args.mmThreadPriority = (int)threadPriority;
             args.schedulerTask = (int)schedulerTask;

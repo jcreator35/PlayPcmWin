@@ -312,38 +312,6 @@ WasapiIO_GetDeviceAttributes(int instanceId, int deviceId, WasapiIoDeviceAttribu
     return true;
 }
 
-/// numChannels to channelMask
-/// please refer this article https://msdn.microsoft.com/en-us/library/windows/hardware/dn653308%28v=vs.85%29.aspx
-static DWORD
-GetChannelMask(int numChannels)
-{
-    DWORD result = 0;
-
-    switch (numChannels) {
-    case 1:
-        result = 0; // mono (unspecified)
-        break;
-    case 2:
-        result = 3; // 2ch stereo (FL FR)
-        break;
-    case 4:
-        result = 0x33; // 4ch matrix (FL FR BL BR)
-        break;
-    case 6:
-        result = 0x3f; // 5.1 surround (FL FR FC LFE BL BR)
-        break;
-    case 8:
-        result = 0x63f; // 7.1 surround (FL FR FC LFE BL BR SL SR)
-        break;
-    default:
-        // 0 means we does not specify particular speaker locations.
-        result = 0;
-        break;
-    }
-
-    return result;
-}
-
 __declspec(dllexport)
 int __stdcall
 WasapiIO_InspectDevice(int instanceId, int deviceId, const WasapiIoInspectArgs &args)
@@ -351,13 +319,8 @@ WasapiIO_InspectDevice(int instanceId, int deviceId, const WasapiIoInspectArgs &
     WasapiIO *self = Instance(instanceId);
     assert(self);
 
-    DWORD dwChannelMask = 0;
-    if (args.deviceType == WWDTPlay) {
-        dwChannelMask = GetChannelMask(args.numChannels);
-    }
-
     WWPcmFormat pcmFormat;
-    pcmFormat.Set(args.sampleRate, (WWPcmDataSampleFormatType)args.sampleFormat, args.numChannels, dwChannelMask, WWStreamPcm);
+    pcmFormat.Set(args.sampleRate, (WWPcmDataSampleFormatType)args.sampleFormat, args.numChannels, args.dwChannelMask, WWStreamPcm);
 
     IMMDevice *device = self->deviceEnumerator.GetDevice(deviceId);
     return self->wasapi.InspectDevice(device, pcmFormat);
@@ -374,13 +337,8 @@ WasapiIO_Setup(int instanceId, int deviceId, const WasapiIoSetupArgs &args)
     IMMDevice *device = self->deviceEnumerator.GetDevice(deviceId);
     assert(device);
 
-    DWORD dwChannelMask = 0;
-    if (args.deviceType == WWDTPlay) {
-        dwChannelMask = GetChannelMask(args.numChannels);
-    }
-
     WWPcmFormat pcmFormat;
-    pcmFormat.Set(args.sampleRate, (WWPcmDataSampleFormatType)args.sampleFormat, args.numChannels, dwChannelMask, (WWStreamType)args.streamType);
+    pcmFormat.Set(args.sampleRate, (WWPcmDataSampleFormatType)args.sampleFormat, args.numChannels, args.dwChannelMask, (WWStreamType)args.streamType);
 
     self->wasapi.ThreadCharacteristics().Set((WWMMCSSCallType)args.mmcssCall,
         (WWMMThreadPriorityType) args.mmThreadPriority, (WWSchedulerTaskType)args.schedulerTask);

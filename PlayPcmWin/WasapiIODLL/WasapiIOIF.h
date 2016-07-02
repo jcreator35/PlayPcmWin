@@ -61,6 +61,7 @@ struct WasapiIoInspectArgs {
     int sampleRate;
     int sampleFormat;    ///< WWPcmDataSampleFormatType
     int numChannels;
+    int dwChannelMask;
 };
 #pragma pack(pop)
 
@@ -76,13 +77,14 @@ struct WasapiIoSetupArgs {
     int sampleFormat;    ///< WWPcmDataSampleFormatType
     int numChannels;
 
+    int dwChannelMask;
     int shareMode;
     int mmcssCall; ///< 0: disable, 1: enable, 2: do not call DwmEnableMMCSS()
     int mmThreadPriority; ///< 0: None, 1: Low, 2: Normal, 3: High, 4: Critical
     int schedulerTask;
+
     int dataFeedMode;
     int latencyMillisec;
-
     int timePeriodHandledNanosec;
     int zeroFlushMillisec;
 };

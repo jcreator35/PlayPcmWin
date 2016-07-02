@@ -140,9 +140,12 @@ namespace RecPcmWin {
             return hr;
         }
 
-        public int Setup(int deviceIdx, WasapiCS.DataFeedMode dfm, int wasapiBufferSize, int sampleRate, WasapiCS.SampleFormatType sampleFormatType, int numChannels) {
+        public int Setup(int deviceIdx, WasapiCS.DataFeedMode dfm, int wasapiBufferSize,
+                int sampleRate, WasapiCS.SampleFormatType sampleFormatType,
+                int numChannels, int dwChannelMask) {
             int hr = mWasapi.Setup(deviceIdx, WasapiCS.DeviceType.Rec,
-                WasapiCS.StreamType.PCM, sampleRate, sampleFormatType, numChannels, WasapiCS.MMCSSCallType.Enable, WasapiCS.MMThreadPriorityType.None,
+                WasapiCS.StreamType.PCM, sampleRate, sampleFormatType, numChannels, dwChannelMask,
+                WasapiCS.MMCSSCallType.Enable, WasapiCS.MMThreadPriorityType.None,
                 WasapiCS.SchedulerTaskType.ProAudio, WasapiCS.ShareMode.Exclusive, dfm, wasapiBufferSize, 0, 10000);
             mSampleFormat = sampleFormatType;
             mSampleRate = sampleRate;
@@ -163,7 +166,7 @@ namespace RecPcmWin {
             return mWasapi.Run(millisec);
         }
 
-        public string InspectDevice(int deviceIdx) {
+        public string InspectDevice(int deviceIdx, int dwChannelMask) {
             if (deviceIdx < 0 || mDeviceAttributeList.Count <= deviceIdx) {
                 return "";
             }
@@ -179,7 +182,7 @@ namespace RecPcmWin {
             foreach (int ch in mChannelCountList) {
                 foreach (int sr in mSampleRateList) {
                     foreach (var fmt in mSampleFormatList) {
-                        int hr = mWasapi.InspectDevice(deviceIdx, WasapiCS.DeviceType.Rec, sr, fmt, ch);
+                        int hr = mWasapi.InspectDevice(deviceIdx, WasapiCS.DeviceType.Rec, sr, fmt, ch, dwChannelMask);
                         if (0 <= hr) {
                             sb.AppendFormat("\r\n    {0}Hz {2}ch {1,-16}", sr, fmt, ch);
                         }

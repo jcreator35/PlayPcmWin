@@ -126,6 +126,9 @@
   <data name="ErrorRecordingBufferSize" xml:space="preserve">
     <value>エラー: 録音バッファーサイズは1以上2047以下の整数を入れて下さい。</value>
   </data>
+  <data name="ErrorReleaseTimeMustBePositiveInteger" xml:space="preserve">
+    <value>エラー: リリース時間には0以上の整数値を入れて下さい</value>
+  </data>
   <data name="ErrorWasapiBufferSize" xml:space="preserve">
     <value>エラー: WASAPIバッファーサイズは1以上の整数を入れて下さい。</value>
   </data>
@@ -135,11 +138,17 @@
   <data name="MainAvailableFormats" xml:space="preserve">
     <value>利用可能なフォーマットを一覧 (_A)</value>
   </data>
+  <data name="MainCheckboxSetDwChannelMask" xml:space="preserve">
+    <value>dwChannelMaskをセットする</value>
+  </data>
   <data name="MainDeselect" xml:space="preserve">
     <value>選択解除 (_D)</value>
   </data>
   <data name="MainDisplaySettings" xml:space="preserve">
     <value>表示設定</value>
+  </data>
+  <data name="MainGroupBoxDwChannelMask" xml:space="preserve">
+    <value>DwChannelMaskの設定</value>
   </data>
   <data name="MainLanguage" xml:space="preserve">
     <value>言語:</value>
@@ -149,6 +158,9 @@
   </data>
   <data name="MainLevelMeterOther" xml:space="preserve">
     <value>他の設定</value>
+  </data>
+  <data name="MainLevelMeterReleaseTime" xml:space="preserve">
+    <value>リリース時間</value>
   </data>
   <data name="MainLevelMeterUpdateWhileRecording" xml:space="preserve">
     <value>録音中も更新</value>

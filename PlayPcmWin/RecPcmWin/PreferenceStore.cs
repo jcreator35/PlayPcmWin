@@ -29,10 +29,14 @@ namespace RecPcmWin {
         public int YellowLevelDb { get; set; }
         public bool UpdateLevelMeterWhileRecording { get; set; }
 
+        public bool SetDwChannelMask { get; set; }
+
         /// <summary>
         ///  -1: PeakHold = ∞
         /// </summary>
         public int PeakHoldSeconds { get; set; }
+
+        public int ReleaseTimeDbPerSec { get; set; }
 
         public Preference() {
             Reset();
@@ -55,6 +59,8 @@ namespace RecPcmWin {
             YellowLevelDb = -12;
             UpdateLevelMeterWhileRecording = false;
             PeakHoldSeconds = 1;
+            SetDwChannelMask = false;
+            ReleaseTimeDbPerSec = 30;
         }
     }
 

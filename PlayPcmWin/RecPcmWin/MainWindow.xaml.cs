@@ -115,8 +115,9 @@ namespace RecPcmWin {
             groupBoxNominalPeakLevel.Header = Properties.Resources.MainNominalPeakLevel;
             groupBoxLevelMeterOther.Header = Properties.Resources.MainLevelMeterOther;
             checkBoxLevelMeterUpdateWhileRecording.Content = Properties.Resources.MainLevelMeterUpdateWhileRecording;
-            //radioButtonPeakHold1sec.Content = "1 " + Properties.Resources.Seconds;
-            //radioButtonPeakHold3sec.Content = "3 " + Properties.Resources.Seconds;
+            labelLevelMeterReleaseTime.Content = Properties.Resources.MainLevelMeterReleaseTime;
+            checkBoxSetDwChannelMask.Content = Properties.Resources.MainCheckboxSetDwChannelMask;
+            groupBoxDwChannelMask.Header = Properties.Resources.MainGroupBoxDwChannelMask;
         }
 
         private void PreferenceToUI() {
@@ -216,6 +217,12 @@ namespace RecPcmWin {
             }
 
             checkBoxLevelMeterUpdateWhileRecording.IsChecked = mPref.UpdateLevelMeterWhileRecording;
+
+            checkBoxSetDwChannelMask.IsChecked = mPref.SetDwChannelMask;
+
+            textBoxLevelMeterReleaseTime.Text = string.Format(
+                CultureInfo.InvariantCulture, "{0}",
+                mPref.ReleaseTimeDbPerSec);
 
             UpdateLevelMeterScale();
         }
@@ -439,6 +446,11 @@ namespace RecPcmWin {
                 mPref.RecordingBufferSizeMB = megaBytes;
             }
 
+            int dwChannelMask = 0;
+            if (mPref.SetDwChannelMask) {
+                dwChannelMask = GetChannelMask(mPref.NumOfChannels);
+            }
+
             if (!mWasapiCtrl.AllocateCaptureMemory(
                     1024 * 1024 * mPref.RecordingBufferSizeMB)) {
                 string s = Properties.Resources.ErrorCouldNotAllocateMemory;
@@ -450,13 +462,13 @@ namespace RecPcmWin {
 
             hr = mWasapiCtrl.Setup(listBoxDevices.SelectedIndex,
                 mPref.WasapiDataFeedMode, mPref.WasapiBufferSizeMS,
-                mPref.SampleRate, mPref.SampleFormat, mPref.NumOfChannels);
+                mPref.SampleRate, mPref.SampleFormat, mPref.NumOfChannels, dwChannelMask);
             {
                 if (hr < 0) {
-                    string s = string.Format("Error: wasapi.Setup({0}Hz, {1}, {2}ms, {3}, {4}ch)\r\nError code = {5:X8}\r\n",
+                    string s = string.Format("Error: wasapi.Setup({0}Hz, {1}, {2}ms, {3}, {4}ch, dwChannelMask={5})\r\nError code = {6:X8}\r\n",
                             mPref.SampleRate, mPref.SampleFormat,
                             mPref.WasapiBufferSizeMS, mPref.WasapiDataFeedMode,
-                            mPref.NumOfChannels, hr);
+                            mPref.NumOfChannels, dwChannelMask, hr);
                     MessageBox.Show(s);
                     AddLog(s);
 
@@ -478,6 +490,37 @@ namespace RecPcmWin {
             return 0;
         }
 
+        /// numChannels to channelMask
+        /// please refer this article https://msdn.microsoft.com/en-us/library/windows/hardware/dn653308%28v=vs.85%29.aspx
+        private static int
+        GetChannelMask(int numChannels) {
+            int result = 0;
+
+            switch (numChannels) {
+            case 1:
+                result = 0; // mono (unspecified)
+                break;
+            case 2:
+                result = 3; // 2ch stereo (FL FR)
+                break;
+            case 4:
+                result = 0x33; // 4ch matrix (FL FR BL BR)
+                break;
+            case 6:
+                result = 0x3f; // 5.1 surround (FL FR FC LFE BL BR)
+                break;
+            case 8:
+                result = 0x63f; // 7.1 surround (FL FR FC LFE BL BR SL SR)
+                break;
+            default:
+                // 0 means we does not specify particular speaker locations.
+                result = 0;
+                break;
+            }
+
+            return result;
+        }
+
         private void buttonInspectDevice_Click(object sender, RoutedEventArgs e) {
             bool bRv;
 
@@ -494,8 +537,13 @@ namespace RecPcmWin {
                 mPref.NumOfChannels = numOfChannels;
             }
 
+            int dwChannelMask = 0;
+            if (checkBoxSetDwChannelMask.IsChecked == true) {
+                dwChannelMask = GetChannelMask(mPref.NumOfChannels);
+            }
+
             {
-                string s = mWasapiCtrl.InspectDevice(listBoxDevices.SelectedIndex);
+                string s = mWasapiCtrl.InspectDevice(listBoxDevices.SelectedIndex, dwChannelMask);
                 AddLog(s);
             }
         }
@@ -873,5 +921,25 @@ namespace RecPcmWin {
             mLevelMeter.PeakHoldReset();
         }
 
+        private void checkBoxSetDwChannelMask_Checked(object sender, RoutedEventArgs e) {
+            mPref.SetDwChannelMask = true;
+        }
+
+        private void checkBoxSetDwChannelMask_Unchecked(object sender, RoutedEventArgs e) {
+            mPref.SetDwChannelMask = false;
+        }
+
+        private void textBoxLevelMeterReleaseTime_TextChanged(object sender, TextChangedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            }
+
+            int v;
+            if (Int32.TryParse(textBoxLevelMeterReleaseTime.Text, out v)) {
+                mPref.ReleaseTimeDbPerSec = v;
+            } else {
+                MessageBox.Show(Properties.Resources.ErrorReleaseTimeMustBePositiveInteger);
+            }
+        }
     }
 }
