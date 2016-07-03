@@ -160,6 +160,15 @@ namespace RecPcmWin.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Recording Endpoint Master Volume Control.
+        /// </summary>
+        internal static string MainGroupBoxMasterVolumeControl {
+            get {
+                return ResourceManager.GetString("MainGroupBoxMasterVolumeControl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Language:.
         /// </summary>
         internal static string MainLanguage {

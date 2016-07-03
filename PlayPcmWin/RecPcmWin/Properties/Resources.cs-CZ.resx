@@ -135,11 +135,20 @@
   <data name="MainAvailableFormats" xml:space="preserve">
     <value>Dostupné formáty (_A)</value>
   </data>
+  <data name="MainCheckboxSetDwChannelMask" xml:space="preserve">
+    <value>Zapnout dwChannelMask</value>
+  </data>
   <data name="MainDeselect" xml:space="preserve">
     <value>Odpojit (_D)</value>
   </data>
   <data name="MainDisplaySettings" xml:space="preserve">
     <value>Nastavení obrazovky</value>
+  </data>
+  <data name="MainGroupBoxDwChannelMask" xml:space="preserve">
+    <value>Nastavení funkce DwChannelMask</value>
+  </data>
+  <data name="MainGroupBoxMasterVolumeControl" xml:space="preserve">
+    <value>Hlavní ovládání hlasitosti záznamu</value>
   </data>
   <data name="MainLanguage" xml:space="preserve">
     <value>Jazyk:</value>
@@ -149,6 +158,9 @@
   </data>
   <data name="MainLevelMeterOther" xml:space="preserve">
     <value>Další nastavení</value>
+  </data>
+  <data name="MainLevelMeterReleaseTime" xml:space="preserve">
+    <value>Čas uvolnění (balistika)</value>
   </data>
   <data name="MainLevelMeterUpdateWhileRecording" xml:space="preserve">
     <value>Zobrazit během nahrávání</value>

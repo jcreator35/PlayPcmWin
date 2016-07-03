@@ -150,6 +150,9 @@
   <data name="MainGroupBoxDwChannelMask" xml:space="preserve">
     <value>DwChannelMaskの設定</value>
   </data>
+  <data name="MainGroupBoxMasterVolumeControl" xml:space="preserve">
+    <value>録音エンドポイントマスターボリューム</value>
+  </data>
   <data name="MainLanguage" xml:space="preserve">
     <value>言語:</value>
   </data>

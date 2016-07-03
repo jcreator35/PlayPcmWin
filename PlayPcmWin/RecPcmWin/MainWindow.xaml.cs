@@ -118,9 +118,10 @@ namespace RecPcmWin {
             groupBoxNominalPeakLevel.Header = Properties.Resources.MainNominalPeakLevel;
             groupBoxLevelMeterOther.Header = Properties.Resources.MainLevelMeterOther;
             checkBoxLevelMeterUpdateWhileRecording.Content = Properties.Resources.MainLevelMeterUpdateWhileRecording;
-            labelLevelMeterReleaseTime.Content = Properties.Resources.MainLevelMeterReleaseTime;
+            textBlockLevelMeterReleaseTime.Text = Properties.Resources.MainLevelMeterReleaseTime;
             checkBoxSetDwChannelMask.Content = Properties.Resources.MainCheckboxSetDwChannelMask;
             groupBoxDwChannelMask.Header = Properties.Resources.MainGroupBoxDwChannelMask;
+            groupBoxMasterVolumeControl.Header = Properties.Resources.MainGroupBoxMasterVolumeControl;
         }
 
         private void PreferenceToUI() {

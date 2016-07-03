@@ -150,6 +150,9 @@
   <data name="MainGroupBoxDwChannelMask" xml:space="preserve">
     <value>DwChannelMask settings</value>
   </data>
+  <data name="MainGroupBoxMasterVolumeControl" xml:space="preserve">
+    <value>Recording Endpoint Master Volume Control</value>
+  </data>
   <data name="MainLanguage" xml:space="preserve">
     <value>Language:</value>
   </data>
