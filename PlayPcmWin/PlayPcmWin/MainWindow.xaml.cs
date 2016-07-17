@@ -1279,17 +1279,23 @@ namespace PlayPcmWin
                         startPcmData.SampleDataType == PcmData.DataType.DoP ? WasapiCS.StreamType.DoP : WasapiCS.StreamType.PCM,
                         m_preference.MMThreadPriority);
 
+                int channelMask = WasapiCS.GetTypicalChannelMask(m_deviceSetupParams.NumChannels);
+
                 int hr = wasapi.Setup(
                         useDeviceId, WasapiCS.DeviceType.Play,
                         m_deviceSetupParams.StreamType, m_deviceSetupParams.SampleRate, m_deviceSetupParams.SampleFormat,
-                        m_deviceSetupParams.NumChannels, GetMMCSSCallType(), m_preference.MMThreadPriority,
+                        m_deviceSetupParams.NumChannels, channelMask,
+                        GetMMCSSCallType(), m_preference.MMThreadPriority,
                         PreferenceSchedulerTaskTypeToWasapiCSSchedulerTaskType(m_deviceSetupParams.ThreadTaskType),
                         PreferenceShareModeToWasapiCSShareMode(m_deviceSetupParams.SharedOrExclusive), PreferenceDataFeedModeToWasapiCS(m_deviceSetupParams.DataFeedMode),
                         m_deviceSetupParams.LatencyMillisec, m_deviceSetupParams.ZeroFlushMillisec, m_preference.TimePeriodHundredNanosec);
-                AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.Setup({0} {1}kHz {2} {3}ch {4} {5} {6} latency={7}ms zeroFlush={8}ms timePeriod={9}ms mmThreadPriority={10}) {11:X8}{12}",
+                AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.Setup({0} {1}kHz {2} {3}ch {4} {5} {6} latency={7}ms zeroFlush={8}ms timePeriod={9}ms mmThreadPriority={10}) channelMask=0x{11:X8} {12:X8}{13}",
                         m_deviceSetupParams.StreamType, m_deviceSetupParams.SampleRate * 0.001, m_deviceSetupParams.SampleFormat,
-                        m_deviceSetupParams.NumChannels, m_deviceSetupParams.ThreadTaskType, m_deviceSetupParams.SharedOrExclusive, m_deviceSetupParams.DataFeedMode,
-                        m_deviceSetupParams.LatencyMillisec, m_deviceSetupParams.ZeroFlushMillisec, m_preference.TimePeriodHundredNanosec * 0.0001, m_preference.MMThreadPriority, hr, Environment.NewLine));
+                        m_deviceSetupParams.NumChannels, m_deviceSetupParams.ThreadTaskType, 
+                        m_deviceSetupParams.SharedOrExclusive, m_deviceSetupParams.DataFeedMode,
+                        m_deviceSetupParams.LatencyMillisec, m_deviceSetupParams.ZeroFlushMillisec, 
+                        m_preference.TimePeriodHundredNanosec * 0.0001, m_preference.MMThreadPriority,
+                        channelMask, hr, Environment.NewLine));
                 if (0 <= hr) {
                     // 成功
                     break;
@@ -2902,6 +2908,13 @@ namespace PlayPcmWin
         const int TEST_SAMPLE_RATE_NUM = 8;
         const int TEST_BIT_REPRESENTATION_NUM = 5;
 
+        static readonly int[] gInspectNumChannels = new int[] {
+                2,
+                4,
+                6,
+                8,
+        };
+
         static readonly InspectFormat [] gInspectFormats = new InspectFormat [] {
                 new InspectFormat(44100,  16, 16, WasapiCS.BitFormatType.SInt),
                 new InspectFormat(48000,  16, 16, WasapiCS.BitFormatType.SInt),
@@ -2952,34 +2965,44 @@ namespace PlayPcmWin
         private void buttonInspectDevice_Click(object sender, RoutedEventArgs e) {
             var attr = wasapi.GetDeviceAttributes(listBoxDevices.SelectedIndex);
 
-            AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.InspectDevice()\r\nDeviceFriendlyName={0}\r\nDeviceIdString={1}{2}", attr.Name, attr.DeviceIdString, Environment.NewLine));
-            AddLogText(string.Format(CultureInfo.InvariantCulture, "++-------------++-------------++-------------++-------------++-------------++-------------++-------------++-------------++{0}", Environment.NewLine));
-            for (int fmt = 0; fmt < TEST_BIT_REPRESENTATION_NUM; ++fmt) {
-                var sb = new StringBuilder();
-                for (int sr =0; sr < TEST_SAMPLE_RATE_NUM; ++sr) {
-                    int idx = sr + fmt * TEST_SAMPLE_RATE_NUM;
-                    System.Diagnostics.Debug.Assert(idx < gInspectFormats.Length);
-                    var ifmt = gInspectFormats[idx];
-                    sb.Append(string.Format(CultureInfo.InvariantCulture, "||{0,3}kHz {1}{2}V{3}",
-                            ifmt.sampleRate / 1000, ifmt.bitFormat == 0 ? "i" : "f",
-                            ifmt.bitsPerSample, ifmt.validBitsPerSample));
-                }
-                sb.Append(string.Format(CultureInfo.InvariantCulture, "||{0}", Environment.NewLine));
-                AddLogText(sb.ToString());
+            AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.InspectDevice()\r\nDeviceFriendlyName={0}\r\nDeviceIdString={1}{2}",
+                attr.Name, attr.DeviceIdString, Environment.NewLine));
 
-                sb.Clear();
-                for (int sr =0; sr < TEST_SAMPLE_RATE_NUM; ++sr) {
-                    int idx = sr + fmt * TEST_SAMPLE_RATE_NUM;
-                    System.Diagnostics.Debug.Assert(idx < gInspectFormats.Length);
-                    var ifmt = gInspectFormats[idx];
-                    int hr = wasapi.InspectDevice(listBoxDevices.SelectedIndex,
-                            WasapiCS.DeviceType.Play, ifmt.sampleRate,
-                            WasapiCS.BitAndFormatToSampleFormatType(ifmt.bitsPerSample, ifmt.validBitsPerSample, ifmt.bitFormat), 2);
-                    sb.Append(string.Format(CultureInfo.InvariantCulture, "|| {0} {1:X8} ", hr==0 ? "OK" : "NA", hr));
-                }
-                sb.Append(string.Format(CultureInfo.InvariantCulture, "||{0}", Environment.NewLine));
-                AddLogText(sb.ToString());
+
+            foreach (int numChannels in gInspectNumChannels) {
+                int channelMask = WasapiCS.GetTypicalChannelMask(numChannels);
+                AddLogText(string.Format(CultureInfo.InvariantCulture,
+                        "Num of channels={0}, dwChannelMask=0x{1:X}:\n", numChannels, channelMask));
+
                 AddLogText(string.Format(CultureInfo.InvariantCulture, "++-------------++-------------++-------------++-------------++-------------++-------------++-------------++-------------++{0}", Environment.NewLine));
+                for (int fmt = 0; fmt < TEST_BIT_REPRESENTATION_NUM; ++fmt) {
+                    var sb = new StringBuilder();
+                    for (int sr =0; sr < TEST_SAMPLE_RATE_NUM; ++sr) {
+                        int idx = sr + fmt * TEST_SAMPLE_RATE_NUM;
+                        System.Diagnostics.Debug.Assert(idx < gInspectFormats.Length);
+                        var ifmt = gInspectFormats[idx];
+                        sb.Append(string.Format(CultureInfo.InvariantCulture, "||{0,3}kHz {1}{2}V{3}",
+                                ifmt.sampleRate / 1000, ifmt.bitFormat == 0 ? "i" : "f",
+                                ifmt.bitsPerSample, ifmt.validBitsPerSample));
+                    }
+                    sb.Append(string.Format(CultureInfo.InvariantCulture, "||{0}", Environment.NewLine));
+                    AddLogText(sb.ToString());
+
+                    sb.Clear();
+                    for (int sr =0; sr < TEST_SAMPLE_RATE_NUM; ++sr) {
+                        int idx = sr + fmt * TEST_SAMPLE_RATE_NUM;
+                        System.Diagnostics.Debug.Assert(idx < gInspectFormats.Length);
+                        var ifmt = gInspectFormats[idx];
+                        int hr = wasapi.InspectDevice(listBoxDevices.SelectedIndex,
+                                WasapiCS.DeviceType.Play, ifmt.sampleRate,
+                                WasapiCS.BitAndFormatToSampleFormatType(ifmt.bitsPerSample, ifmt.validBitsPerSample, ifmt.bitFormat), numChannels, channelMask);
+                        sb.Append(string.Format(CultureInfo.InvariantCulture, "|| {0} {1:X8} ", hr==0 ? "OK" : "NA", hr));
+                    }
+                    sb.Append(string.Format(CultureInfo.InvariantCulture, "||{0}", Environment.NewLine));
+                    AddLogText(sb.ToString());
+                    AddLogText(string.Format(CultureInfo.InvariantCulture, "++-------------++-------------++-------------++-------------++-------------++-------------++-------------++-------------++{0}", Environment.NewLine));
+                }
+                AddLogText("\n");
             }
 
             var mixFormat = wasapi.GetMixFormat(listBoxDevices.SelectedIndex);
