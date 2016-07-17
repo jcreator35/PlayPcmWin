@@ -424,6 +424,37 @@ namespace Wasapi {
             }
         }
 
+        /// numChannels to channelMask
+        /// please refer this article https://msdn.microsoft.com/en-us/library/windows/hardware/dn653308%28v=vs.85%29.aspx
+        public static int
+        GetTypicalChannelMask(int numChannels) {
+            int result = 0;
+
+            switch (numChannels) {
+            case 1:
+                result = 0; // mono (unspecified)
+                break;
+            case 2:
+                result = 3; // 2ch stereo (FL FR)
+                break;
+            case 4:
+                result = 0x33; // 4ch matrix (FL FR BL BR)
+                break;
+            case 6:
+                result = 0x3f; // 5.1 surround (FL FR FC LFE BL BR)
+                break;
+            case 8:
+                result = 0x63f; // 7.1 surround (FL FR FC LFE BL BR SL SR)
+                break;
+            default:
+                // 0 means we does not specify particular speaker locations.
+                result = 0;
+                break;
+            }
+
+            return result;
+        }
+
         private int mId =  -1;
 
         private NativeCaptureCallback mNativeCaptureCallback;
