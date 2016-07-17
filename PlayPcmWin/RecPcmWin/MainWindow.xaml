@@ -148,26 +148,29 @@
                         <Label Content="ms" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="1" />
                     </Grid>
                 </GroupBox>
-                <GroupBox Header="Sample rate (Hz)" Height="104" HorizontalAlignment="Left" Margin="6,3,0,0" Name="groupBoxSampleRate" VerticalAlignment="Top" Width="199" DataContext="{Binding}">
+                <GroupBox Header="Sample rate (Hz)" Height="66" HorizontalAlignment="Left" Margin="6,3,0,0" Name="groupBoxSampleRate" VerticalAlignment="Top" Width="199" DataContext="{Binding}">
                     <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1*" />
-                            <ColumnDefinition Width="1*" />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="1*" />
-                            <RowDefinition Height="1*" />
-                            <RowDefinition Height="1*" />
-                        </Grid.RowDefinitions>
-                        <RadioButton Content="44100" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButton44100" VerticalAlignment="Center" IsChecked="True" Checked="radioButton44100_Checked" />
-                        <RadioButton Content="48000" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButton48000" VerticalAlignment="Center" Checked="radioButton48000_Checked" Grid.Row="0" Grid.Column="1"/>
-                        <RadioButton Content="88200" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButton88200" VerticalAlignment="Center" Checked="radioButton88200_Checked" Grid.Row="1" Grid.Column="0"/>
-                        <RadioButton Content="96000" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButton96000" VerticalAlignment="Center" Checked="radioButton96000_Checked" Grid.Row="1" Grid.Column="1" />
-                        <RadioButton Content="176400" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButton176400" VerticalAlignment="Center" Checked="radioButton176400_Checked" Grid.Row="2" Grid.Column="0" />
-                        <RadioButton Content="192000" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButton192000" VerticalAlignment="Center" Checked="radioButton192000_Checked" Grid.Row="2" Grid.Column="1" />
+                        <ComboBox Margin="6" Name="comboBoxSampleRate" HorizontalContentAlignment="Center" VerticalAlignment="Center" SelectionChanged="comboBoxSampleRate_SelectionChanged">
+                        <ComboBoxItem Content="44.1 kHz" IsSelected="True" />
+                        <ComboBoxItem Content="48 kHz" />
+                        <ComboBoxItem Content="64 kHz" />
+                        <ComboBoxItem Content="88.2 kHz" />
+                        <ComboBoxItem Content="96 kHz" />
+                        <ComboBoxItem Content="128 kHz" />
+                        <ComboBoxItem Content="176.4 kHz" />
+                        <ComboBoxItem Content="192 kHz" />
+                        <ComboBoxItem Content="352.8 kHz" />
+                        <ComboBoxItem Content="384 kHz" />
+                        <ComboBoxItem Content="705.6 kHz" />
+                        <ComboBoxItem Content="768 kHz" />
+                        <ComboBoxItem Content="1.4112 MHz" />
+                        <ComboBoxItem Content="1.536 MHz" />
+                        <ComboBoxItem Content="2.8224 MHz" />
+                        <ComboBoxItem Content="3.072 MHz" />
+                        </ComboBox>
                     </Grid>
                 </GroupBox>
-                <GroupBox Header="Quantization bit rate" Height="106" HorizontalAlignment="Left" Margin="6,105,0,0" Name="groupBoxQuantizationBitRate" VerticalAlignment="Top" Width="199">
+                <GroupBox Header="Quantization bit rate" Height="108" HorizontalAlignment="Left" Margin="6,72,0,0" Name="groupBoxQuantizationBitRate" VerticalAlignment="Top" Width="199">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="1*" />
@@ -194,7 +197,7 @@
                         <Label Content="MB" VerticalAlignment="Center" HorizontalAlignment="Left" Grid.Column="1" />
                     </Grid>
                 </GroupBox>
-                <GroupBox Header="Num of Channels" Height="62" HorizontalAlignment="Left" Margin="6,210,0,0" Name="groupBoxNumOfChannels" VerticalAlignment="Top" Width="199">
+                <GroupBox Header="Num of Channels" Height="61" HorizontalAlignment="Left" Margin="6,182,0,0" Name="groupBoxNumOfChannels" VerticalAlignment="Top" Width="199">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="2*" />

@@ -405,20 +405,8 @@ namespace WWAudioFilter {
                 bool bRf64 = (2000 * 1000 * 1000 < ad.meta.PcmBytes);
                 if (bRf64) {
                     // RF64形式で保存する。
-
-                    int rf64ChunkBytes = 12;
-                    int ds64ChunkBytes = 36;
-                    int fmtChunkBytes = 26;
-                    int dataChunkHeaderBytes = 8;
+                    WavRWLib2.WavWriter.WriteRF64Header(bw, ad.meta.channels, ad.meta.bitsPerSample, ad.meta.sampleRate, ad.meta.totalSamples);
                     int padBytes = ((ad.meta.PcmBytes & 1) == 1) ? 1 : 0;
-
-                    long fileBytes = rf64ChunkBytes + ds64ChunkBytes + fmtChunkBytes + dataChunkHeaderBytes + ad.meta.PcmBytes + padBytes;
-
-                    var wav = new WavRWLib2.WavWriterLowLevel();
-                    wav.Rf64ChunkWrite(bw);
-                    wav.Ds64ChunkWrite(bw, fileBytes - 8, ad.meta.PcmBytes, ad.meta.totalSamples);
-                    wav.FmtChunkWrite(bw, (short)ad.meta.channels, ad.meta.sampleRate, (short)ad.meta.bitsPerSample);
-                    wav.DataChunkHeaderWrite(bw, -1);
 
                     int bytesPerSample = ad.meta.bitsPerSample / 8;
                     var buff = new byte[bytesPerSample];
@@ -452,8 +440,7 @@ namespace WWAudioFilter {
                         }
                     }
 
-                    var wav = new WavRWLib2.WavWriter();
-                    wav.Write(bw, ad.meta.channels, ad.meta.bitsPerSample, ad.meta.bitsPerSample,
+                    WavRWLib2.WavWriter.Write(bw, ad.meta.channels, ad.meta.bitsPerSample, ad.meta.bitsPerSample,
                         ad.meta.sampleRate, PcmDataLib.PcmData.ValueRepresentationType.SInt,
                         ad.meta.totalSamples, sampleArray);
                 }

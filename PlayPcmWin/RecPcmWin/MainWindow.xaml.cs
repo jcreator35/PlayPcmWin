@@ -125,26 +125,10 @@ namespace RecPcmWin {
         }
 
         private void PreferenceToUI() {
-            switch (mPref.SampleRate) {
-            case 44100:
-            default:
-                radioButton44100.IsChecked = true;
-                break;
-            case 48000:
-                radioButton48000.IsChecked = true;
-                break;
-            case 88200:
-                radioButton88200.IsChecked = true;
-                break;
-            case 96000:
-                radioButton96000.IsChecked = true;
-                break;
-            case 176400:
-                radioButton176400.IsChecked = true;
-                break;
-            case 192000:
-                radioButton192000.IsChecked = true;
-                break;
+            for (int i = 0; i < gComboBoxItemSampleRate.Length; ++i) {
+                if (mPref.SampleRate == gComboBoxItemSampleRate[i]) {
+                    comboBoxSampleRate.SelectedIndex = i;
+                }
             }
 
             switch (mPref.SampleFormat) {
@@ -455,7 +439,7 @@ namespace RecPcmWin {
 
             int dwChannelMask = 0;
             if (mPref.SetDwChannelMask) {
-                dwChannelMask = GetChannelMask(mPref.NumOfChannels);
+                dwChannelMask = WasapiCS.GetTypicalChannelMask(mPref.NumOfChannels);
             }
 
             if (!mWasapiCtrl.AllocateCaptureMemory(
@@ -706,11 +690,8 @@ namespace RecPcmWin {
 
             var ww = new WavRWLib2.WavWriter();
             try {
-                using (BinaryWriter bw = new BinaryWriter(File.Open(dlg.FileName, FileMode.Create))) {
-                    ww.Write(bw, mPref.NumOfChannels,
-                        WasapiCS.SampleFormatTypeToUseBitsPerSample(mPref.SampleFormat),
-                        WasapiCS.SampleFormatTypeToValidBitsPerSample(mPref.SampleFormat),
-                        mPref.SampleRate, SampleFormatToVRT(mPref.SampleFormat), nFrames, pcm);
+                using (BinaryWriter bw = new BinaryWriter(File.Open(dlg.FileName, FileMode.Create, FileAccess.Write, FileShare.Write))) {
+                    WriteWav(bw, pcm, nFrames);
 
                     textBoxLog.Text += string.Format("{0} : {1}\r\n", Properties.Resources.SaveFileSucceeded, dlg.FileName);
                 }
@@ -723,49 +704,32 @@ namespace RecPcmWin {
             slider1.Value = 0;
         }
 
+        private void WriteWav(BinaryWriter bw, byte[] pcm, long numFrames) {
+            int useBitsPerSample = WasapiCS.SampleFormatTypeToUseBitsPerSample(mPref.SampleFormat);
+            long pcmBytes = numFrames * mPref.NumOfChannels * useBitsPerSample/8;
+
+            bool bRf64 = (2000 * 1000 * 1000 < pcmBytes);
+            if (bRf64) {
+                // RF64形式で保存する。
+                WavRWLib2.WavWriter.WriteRF64Header(bw, mPref.NumOfChannels, useBitsPerSample, mPref.SampleRate, numFrames);
+                int padBytes = ((pcmBytes & 1) == 1) ? 1 : 0;
+
+                bw.Write(pcm);
+
+                if (1 == padBytes) {
+                    // チャンクの終わりが偶数になるようにパッドを入れる。
+                    byte zero = 0;
+                    bw.Write(zero);
+                }
+            } else {
+                WavRWLib2.WavWriter.Write(bw, mPref.NumOfChannels,
+                    WasapiCS.SampleFormatTypeToUseBitsPerSample(mPref.SampleFormat),
+                    WasapiCS.SampleFormatTypeToValidBitsPerSample(mPref.SampleFormat),
+                    mPref.SampleRate, SampleFormatToVRT(mPref.SampleFormat), numFrames, pcm);
+            }
+        }
+
         // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
-
-        private void radioButton44100_Checked(object sender, RoutedEventArgs e) {
-            if (!mInitialized) {
-                return;
-            }
-            mPref.SampleRate = 44100;
-        }
-
-        private void radioButton48000_Checked(object sender, RoutedEventArgs e) {
-            if (!mInitialized) {
-                return;
-            }
-            mPref.SampleRate = 48000;
-        }
-
-        private void radioButton88200_Checked(object sender, RoutedEventArgs e) {
-            if (!mInitialized) {
-                return;
-            }
-            mPref.SampleRate = 88200;
-        }
-
-        private void radioButton96000_Checked(object sender, RoutedEventArgs e) {
-            if (!mInitialized) {
-                return;
-            }
-            mPref.SampleRate = 96000;
-        }
-
-        private void radioButton176400_Checked(object sender, RoutedEventArgs e) {
-            if (!mInitialized) {
-                return;
-            }
-            mPref.SampleRate = 176400;
-        }
-
-        private void radioButton192000_Checked(object sender, RoutedEventArgs e) {
-            if (!mInitialized) {
-                return;
-            }
-            mPref.SampleRate = 192000;
-        }
 
         private void radioButton16_Checked(object sender, RoutedEventArgs e) {
             if (!mInitialized) {
@@ -958,6 +922,34 @@ namespace RecPcmWin {
 
             labelRecordingVolume.Content = string.Format("{0} dB", sliderMasterVolume.Value);
             mWasapiCtrl.SetEndpointMasterVolume((float)sliderMasterVolume.Value);
+        }
+
+        private readonly int [] gComboBoxItemSampleRate = new int [] {
+            44100,
+            48000,
+            64000,
+            88200,
+            96000,
+
+            128000,
+            176400,
+            192000,
+            352800,
+            384000,
+
+            705600,
+            768000,
+            1411200,
+            1536000,
+            2822400,
+            3072000,
+        };
+
+        private void comboBoxSampleRate_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            }
+            mPref.SampleRate = gComboBoxItemSampleRate[comboBoxSampleRate.SelectedIndex];
         }
     }
 }
