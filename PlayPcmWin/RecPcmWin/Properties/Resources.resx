@@ -124,7 +124,7 @@
     <value>Error: Num of channels must be integer number larger than 1</value>
   </data>
   <data name="ErrorRecordingBufferSize" xml:space="preserve">
-    <value>Error: Recording buffer size must be larger than 0 and smaller than 2048</value>
+    <value>Error: Recording buffer size must be larger than 0 and smaller than 2097151</value>
   </data>
   <data name="ErrorReleaseTimeMustBePositiveInteger" xml:space="preserve">
     <value>Error: Release time must be integer equal to or larger than zero</value>

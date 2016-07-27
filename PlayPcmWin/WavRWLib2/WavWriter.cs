@@ -13,27 +13,78 @@ namespace WavRWLib2
         public static bool Write(BinaryWriter bw,
                 int numChannels,
                 int bitsPerSample,
-                int validBitsPerSample,
                 int sampleRate,
-                PcmDataLib.PcmData.ValueRepresentationType sampleValueRepresentation,
                 long numFrames,
                 byte[] sampleArray) {
-            
-            if (0xffffffffL < sampleArray.LongLength + 36) {
+            if (IsRf64Size(sampleArray.Length)) {
+                WriteRF64Header(bw, numChannels, bitsPerSample, sampleRate, numFrames);
+            } else {
+                WriteRiffHeader(bw, numChannels, bitsPerSample, sampleRate, sampleArray.Length);
+            }
+
+            bw.Write(sampleArray);
+
+            if ((sampleArray.Length & 1) == 1) {
+                byte pad = 0;
+                bw.Write(pad);
+            }
+            return true;
+        }
+
+        public static bool Write(BinaryWriter bw,
+                int numChannels,
+                int bitsPerSample,
+                int sampleRate,
+                long numFrames,
+                WWUtil.LargeArray<byte> sampleArray) {
+            if (IsRf64Size(sampleArray.LongLength)) {
+                WriteRF64Header(bw, numChannels, bitsPerSample, sampleRate, numFrames);
+            } else {
+                WriteRiffHeader(bw, numChannels, bitsPerSample, sampleRate, sampleArray.LongLength);
+            }
+
+            for (int i = 0; i < sampleArray.ArrayNum(); ++i) {
+                var pcmFragment = sampleArray.ArrayNth(i);
+                bw.Write(pcmFragment);
+            }
+
+            if ((sampleArray.LongLength & 1) == 1) {
+                byte pad = 0;
+                bw.Write(pad);
+            }
+            return true;
+        }
+
+        private static bool IsRf64Size(long sampleBytes) {
+            int riffChunkBytes = 12;
+            int fmtChunkBytes = 26;
+            int dataChunkHeaderBytes = 8;
+            int padBytes = ((sampleBytes & 1) == 1) ? 1 : 0;
+            long fileBytes = riffChunkBytes + fmtChunkBytes + dataChunkHeaderBytes + sampleBytes + padBytes;
+
+            return 0xffffffffL < fileBytes;
+        }
+
+        public static bool WriteRiffHeader(BinaryWriter bw,
+                int numChannels,
+                int bitsPerSample,
+                int sampleRate,
+                long sampleBytes) {
+            int riffChunkBytes = 12;
+            int fmtChunkBytes = 26;
+            int dataChunkHeaderBytes = 8;
+            int padBytes = ((sampleBytes & 1) == 1) ? 1 : 0;
+            long fileBytes = riffChunkBytes + fmtChunkBytes + dataChunkHeaderBytes + sampleBytes + padBytes;
+
+            if (0xffffffffL < fileBytes) {
                 System.Diagnostics.Debug.Assert(false);
                 return false;
             }
 
-            int dwChannelMask = 0;
-            if (numChannels == 2) {
-                dwChannelMask = 3;
-            }
-
             var wav = new WavWriterLowLevel();
-            wav.RiffChunkWrite(bw, (int)(36 + sampleArray.LongLength));
-            wav.FmtChunkWriteExtensible(bw, (short)numChannels, (int)sampleRate,
-                    (short)bitsPerSample, (short)validBitsPerSample, sampleValueRepresentation, dwChannelMask);
-            wav.DataChunkWrite(bw, false, sampleArray);
+            wav.RiffChunkWrite(bw, (int)(fileBytes - 8));
+            wav.FmtChunkWrite(bw, (short)numChannels, sampleRate, (short)bitsPerSample);
+            wav.DataChunkHeaderWrite(bw, (int)sampleBytes);
             return true;
         }
 

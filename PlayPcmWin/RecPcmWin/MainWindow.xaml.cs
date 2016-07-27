@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Windows.Controls;
 using System.Windows.Media;
+using WWUtil;
 
 namespace RecPcmWin {
     public partial class MainWindow : Window {
@@ -427,7 +428,7 @@ namespace RecPcmWin {
             {   // read recording buffer size
                 int megaBytes = 0;
                 bRv = Int32.TryParse(textBoxRecordingBufferSizeMB.Text, out megaBytes);
-                if (megaBytes <= 0 || 2047 < megaBytes) {
+                if (megaBytes <= 0 || 2097151 < megaBytes) {
                     string s = Properties.Resources.ErrorRecordingBufferSize;
                     MessageBox.Show(s);
                     AddLog(s);
@@ -443,7 +444,7 @@ namespace RecPcmWin {
             }
 
             if (!mWasapiCtrl.AllocateCaptureMemory(
-                    1024 * 1024 * mPref.RecordingBufferSizeMB)) {
+                    1024L * 1024 * mPref.RecordingBufferSizeMB)) {
                 string s = Properties.Resources.ErrorCouldNotAllocateMemory;
                 MessageBox.Show(s);
                 AddLog(s);
@@ -669,7 +670,7 @@ namespace RecPcmWin {
 
         private void SaveRecordedData() {
             var pcm = mWasapiCtrl.GetCapturedData();
-            var nFrames = pcm.Length / WasapiCS.SampleFormatTypeToUseBitsPerSample(mPref.SampleFormat) / mPref.NumOfChannels * 8;
+            long nFrames = pcm.LongLength / WasapiCS.SampleFormatTypeToUseBitsPerSample(mPref.SampleFormat) / mPref.NumOfChannels * 8;
             if (pcm == null || nFrames == 0) {
                 return;
             }
@@ -704,29 +705,11 @@ namespace RecPcmWin {
             slider1.Value = 0;
         }
 
-        private void WriteWav(BinaryWriter bw, byte[] pcm, long numFrames) {
+        private void WriteWav(BinaryWriter bw, LargeArray<byte> pcm, long numFrames) {
             int useBitsPerSample = WasapiCS.SampleFormatTypeToUseBitsPerSample(mPref.SampleFormat);
             long pcmBytes = numFrames * mPref.NumOfChannels * useBitsPerSample/8;
 
-            bool bRf64 = (2000 * 1000 * 1000 < pcmBytes);
-            if (bRf64) {
-                // RF64形式で保存する。
-                WavRWLib2.WavWriter.WriteRF64Header(bw, mPref.NumOfChannels, useBitsPerSample, mPref.SampleRate, numFrames);
-                int padBytes = ((pcmBytes & 1) == 1) ? 1 : 0;
-
-                bw.Write(pcm);
-
-                if (1 == padBytes) {
-                    // チャンクの終わりが偶数になるようにパッドを入れる。
-                    byte zero = 0;
-                    bw.Write(zero);
-                }
-            } else {
-                WavRWLib2.WavWriter.Write(bw, mPref.NumOfChannels,
-                    WasapiCS.SampleFormatTypeToUseBitsPerSample(mPref.SampleFormat),
-                    WasapiCS.SampleFormatTypeToValidBitsPerSample(mPref.SampleFormat),
-                    mPref.SampleRate, SampleFormatToVRT(mPref.SampleFormat), numFrames, pcm);
-            }
+            WavRWLib2.WavWriter.Write(bw, mPref.NumOfChannels, useBitsPerSample, mPref.SampleRate, numFrames, pcm);
         }
 
         // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■

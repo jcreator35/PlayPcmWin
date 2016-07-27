@@ -124,7 +124,7 @@
     <value>エラー: チャンネル数は2以上の整数を入れて下さい。</value>
   </data>
   <data name="ErrorRecordingBufferSize" xml:space="preserve">
-    <value>エラー: 録音バッファーサイズは1以上2047以下の整数を入れて下さい。</value>
+    <value>エラー: 録音バッファーサイズは1以上2097151以下の整数を入れて下さい。</value>
   </data>
   <data name="ErrorReleaseTimeMustBePositiveInteger" xml:space="preserve">
     <value>エラー: リリース時間には0以上の整数値を入れて下さい</value>

@@ -747,5 +747,9 @@ namespace WasapiBitmatchChecker {
             }
         }
 
+        private void buttonBrowse_Click(object sender, RoutedEventArgs e) {
+
+        }
+
     }
 }

@@ -124,7 +124,7 @@
     <value>Chyba: Počet kanálů musí být celé číslo větší než 1</value>
   </data>
   <data name="ErrorRecordingBufferSize" xml:space="preserve">
-    <value>Chyba: Velikost nahrávací vyrovnávací paměti musí být větší než 0 a menší než 2048</value>
+    <value>Chyba: Velikost nahrávací vyrovnávací paměti musí být větší než 0 a menší než 2097151</value>
   </data>
   <data name="ErrorWasapiBufferSize" xml:space="preserve">
     <value>Chyba: Velikost vyrovnávací paměti Wasapi musí být celé číslo větší než 0</value>

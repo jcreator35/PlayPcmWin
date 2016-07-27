@@ -79,7 +79,7 @@ namespace RecPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Error: Recording buffer size must be larger than 0 and smaller than 2048.
+        ///   Looks up a localized string similar to Error: Recording buffer size must be larger than 0 and smaller than 2097151.
         /// </summary>
         internal static string ErrorRecordingBufferSize {
             get {

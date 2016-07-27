@@ -25,6 +25,11 @@ namespace WavRWLib2 {
             return true;
         }
 
+        /// <summary>
+        /// RIFFチャンク。12バイト。
+        /// </summary>
+        /// <param name="bw"></param>
+        /// <param name="chunkSize">ファイルサイズ-8</param>
         public void RiffChunkWrite(BinaryWriter bw, int chunkSize)
         {
             var chunkId = new byte[4];

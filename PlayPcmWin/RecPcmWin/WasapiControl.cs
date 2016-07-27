@@ -4,13 +4,14 @@ using System.Linq;
 using System.Text;
 using Wasapi;
 using System.Globalization;
+using WWUtil;
 
 namespace RecPcmWin {
     class WasapiControl {
         private WasapiCS mWasapi = new WasapiCS();
         List<WasapiCS.DeviceAttributes> mDeviceAttributeList = new List<WasapiCS.DeviceAttributes>();
-        private byte[] mCapturedPcmData;
-        private int mNextWritePos = 0;
+        private LargeArray<byte> mCapturedPcmData;
+        private long mNextWritePos = 0;
         private Wasapi.WasapiCS.CaptureCallback mCsCaptureCallback;
         private WasapiCS.SampleFormatType mSampleFormat;
         private int mSampleRate;
@@ -46,10 +47,10 @@ namespace RecPcmWin {
             mControlCaptureCallback = cb;
         }
 
-        public bool AllocateCaptureMemory(int bytes) {
+        public bool AllocateCaptureMemory(long bytes) {
             try {
                 mCapturedPcmData = null;
-                mCapturedPcmData = new byte[bytes];
+                mCapturedPcmData = new LargeArray<byte>(bytes);
             } catch (Exception ex) {
                 Console.WriteLine(ex);
                 return false;
@@ -65,8 +66,8 @@ namespace RecPcmWin {
         }
 
         /// mCapturedPcmData is resized: you must call ReleaseCaptureMemory() and AllocateCaptureMemory() after this call
-        public byte[] GetCapturedData() {
-            Array.Resize(ref mCapturedPcmData, mNextWritePos);
+        public LargeArray<byte> GetCapturedData() {
+            mCapturedPcmData.Resize(mNextWritePos);
             return mCapturedPcmData;
         }
 
@@ -76,11 +77,11 @@ namespace RecPcmWin {
             }
 
             if (mRecord) {
-                if (mCapturedPcmData.Length <= mNextWritePos + pcmData.Length) {
+                if (mCapturedPcmData.LongLength <= mNextWritePos + pcmData.Length) {
                     return;
                 }
 
-                Array.Copy(pcmData, 0, mCapturedPcmData, mNextWritePos, pcmData.Length);
+                mCapturedPcmData.CopyFrom(pcmData, 0, mNextWritePos, pcmData.Length);
                 mNextWritePos += pcmData.Length;
             }
 
@@ -89,12 +90,12 @@ namespace RecPcmWin {
             }
         }
 
-        public int GetPosFrame() {
+        public long GetPosFrame() {
             return mNextWritePos / WasapiCS.SampleFormatTypeToUseBitsPerSample(mSampleFormat) / mNumChannels * 8;
         }
 
-        public int GetNumFrames() {
-            return mCapturedPcmData.Length / WasapiCS.SampleFormatTypeToUseBitsPerSample(mSampleFormat) / mNumChannels * 8;
+        public long GetNumFrames() {
+            return mCapturedPcmData.LongLength / WasapiCS.SampleFormatTypeToUseBitsPerSample(mSampleFormat) / mNumChannels * 8;
         }
 
         public bool IsRunning() {

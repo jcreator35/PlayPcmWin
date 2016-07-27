@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Reflection.Emit;
+using System.Diagnostics.Contracts;
 
-namespace PcmDataLib {
+namespace WWUtil {
 
     /// <summary>
     /// 大きいサイズの配列。
@@ -91,10 +92,44 @@ namespace PcmDataLib {
         }
 
         /// <summary>
+        /// 中身が出てくる。
+        /// </summary>
+        /// <param name="nth"></param>
+        /// <returns></returns>
+        public T[] ArrayNth(int nth) {
+            return mArrayArray[nth];
+        }
+
+        /// <summary>
+        /// 中に持っている配列の数。
+        /// </summary>
+        public int ArrayNum() {
+            return mArrayArray.Length;
+        }
+
+        /// <summary>
+        /// インスタンスを複製するが、新しいインスタンスの要素数はnewCount個にする。
+        /// つまり内容を最大newCount個コピーする。自分自身は変わらない。
+        /// </summary>
+        /// <param name="newCount">returnで戻る新しいインスタンスの要素数</param>
+        /// <returns>要素数がnewCount個になったインスタンス。</returns>
+        [Pure]
+        public LargeArray<T> Resize(long newCount) {
+            var result = new LargeArray<T>(newCount);
+            long copyCount = newCount;
+            if (mCount < copyCount) {
+                copyCount = mCount;
+            }
+            CopyTo(0, ref result, 0, copyCount);
+            return result;
+        }
+
+        /// <summary>
         /// 要素数を戻す。バイト数ではありません。
         /// </summary>
         public long LongLength { get { return mCount; } }
 
+        [Pure]
         public T At(long pos) {
             if (pos < 0 || mCount <= pos) {
                 throw new ArgumentOutOfRangeException("pos");
@@ -171,6 +206,7 @@ namespace PcmDataLib {
         /// <param name="toPos">コピー先(to[])先頭要素番号。</param>
         /// <param name="count">コピーする要素数。</param>
         /// <returns>コピーした要素数。</returns>
+        [Pure]
         public int CopyTo(long fromPos, ref T[] to, int toPos, int count) {
             if (to == null) {
                 throw new ArgumentNullException("to");
@@ -236,6 +272,7 @@ namespace PcmDataLib {
             return count;
         }
 
+        [Pure]
         public long CopyTo(long fromPos, ref LargeArray<T> to, long toPos, long count) {
             if (to == null) {
                 throw new ArgumentNullException("to");
@@ -271,6 +308,7 @@ namespace PcmDataLib {
         /// <summary>
         /// ただの配列に変換する。mCountが小さいとき可能。
         /// </summary>
+        [Pure]
         public T[] ToArray() {
             if (Int32.MaxValue < mCount) {
                 throw new ArgumentOutOfRangeException();
