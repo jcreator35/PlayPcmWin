@@ -235,10 +235,10 @@ namespace WWFlacRWCS {
             return NativeMethods.WWFlacRW_EncodeSetPicture(mId, pictureData, pictureData.Length);
         }
 
-        public int EncodeAddPcm(int channel, PcmDataLib.LargeArray<byte> pcmData) {
+        public int EncodeAddPcm(int channel, WWUtil.LargeArray<byte> pcmData) {
             long pos = 0;
             for (long remain = pcmData.LongLength; 0 < remain;) {
-                int fragmentBytes = PcmDataLib.LargeArray<byte>.ARRAY_FRAGMENT_LENGTH_NUM;
+                int fragmentBytes = WWUtil.LargeArray<byte>.ARRAY_FRAGMENT_LENGTH_NUM;
                 if (remain < fragmentBytes) {
                     fragmentBytes = (int)remain;
                 }

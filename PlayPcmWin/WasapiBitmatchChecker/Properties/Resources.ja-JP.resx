@@ -165,12 +165,12 @@
   </data>
   <data name="msgCompareDifferent" xml:space="preserve">
     <value>失敗! 録音したPCMデータと再生したPCMデータのサンプル値が異なっています.
-  PCMデータサイズ = {0} MiB ({1} Mビット). PCMデータの長さ = {2} 秒
+  PCMデータサイズ = {0:F3} MiB ({1:F3} Mビット). PCMデータの長さ = {2:F1} 秒
 </value>
   </data>
   <data name="msgCompareIdentical" xml:space="preserve">
     <value>成功! 録音したPCMデータと再生したPCMデータのサンプル値が全て一致.
-  PCMデータサイズ = {0} MiB ({1} Mビット). PCMデータの長さ = {2} 秒
+  PCMデータサイズ = {0:F3} MiB ({1:F3} Mビット). PCMデータの長さ = {2:F1} 秒
 </value>
   </data>
   <data name="msgCompareStarted" xml:space="preserve">
@@ -232,7 +232,7 @@
 </value>
   </data>
   <data name="msgTestStarted" xml:space="preserve">
-    <value>テスト開始. サンプリング周波数={0}Hz, 再生するPCMデータの長さ={1} 秒.
+    <value>テスト開始. サンプリング周波数={0}Hz, 再生するPCMデータの長さ={1:F1} 秒.
 </value>
   </data>
   <data name="radioButtonEventDriven" xml:space="preserve">

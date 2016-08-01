@@ -707,8 +707,6 @@ namespace RecPcmWin {
 
         private void WriteWav(BinaryWriter bw, LargeArray<byte> pcm, long numFrames) {
             int useBitsPerSample = WasapiCS.SampleFormatTypeToUseBitsPerSample(mPref.SampleFormat);
-            long pcmBytes = numFrames * mPref.NumOfChannels * useBitsPerSample/8;
-
             WavRWLib2.WavWriter.Write(bw, mPref.NumOfChannels, useBitsPerSample, mPref.SampleRate, numFrames, pcm);
         }
 
