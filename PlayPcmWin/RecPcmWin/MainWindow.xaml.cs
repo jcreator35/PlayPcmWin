@@ -25,6 +25,7 @@ namespace RecPcmWin {
         private const double METER_WIDTH = 400.0;
         private const double METER_0DB_W = 395.0;
         private const double METER_SMALLEST_DB = -48.0;
+        private const int MAX_RECORDING_BUFFER_MB = 2097151;
 
         private WasapiControl mWasapiCtrl = new WasapiControl();
         private Preference mPref = null;
@@ -509,12 +510,12 @@ namespace RecPcmWin {
             }
         }
 
-        private int TotalFrames() {
+        private long TotalFrames() {
             if (mPref.RecordingBufferSizeMB < 0) {
                 return 0;
             }
 
-            return mPref.RecordingBufferSizeMB * 1024 * 1024 / WasapiCS.SampleFormatTypeToUseBitsPerSample(mPref.SampleFormat) / mPref.NumOfChannels * 8;
+            return (long)mPref.RecordingBufferSizeMB * 1024 * 1024 / WasapiCS.SampleFormatTypeToUseBitsPerSample(mPref.SampleFormat) / mPref.NumOfChannels * 8;
         }
 
         private void buttonSelectDevice_Click(object sender, RoutedEventArgs e) {
@@ -609,9 +610,10 @@ namespace RecPcmWin {
             slider1.Value = mWasapiCtrl.GetPosFrame();
 
             double currentSec = (double)mWasapiCtrl.GetPosFrame() / mPref.SampleRate;
-            double maxSec = (double)mWasapiCtrl.GetNumFrames() / mPref.SampleRate;
+            
+            long nFrames = mWasapiCtrl.GetNumFrames();
+            double maxSec = (double)nFrames / mPref.SampleRate;
             UpdateDurationLabel((int)currentSec, (int)maxSec);
-
         }
         
         private static string SecondsToMSString(int seconds) {
@@ -689,11 +691,11 @@ namespace RecPcmWin {
                 return;
             }
 
-            var ww = new WavRWLib2.WavWriter();
             try {
                 using (BinaryWriter bw = new BinaryWriter(File.Open(dlg.FileName, FileMode.Create, FileAccess.Write, FileShare.Write))) {
-                    WriteWav(bw, pcm, nFrames);
-
+                    WavRWLib2.WavWriter.Write(bw, mPref.NumOfChannels,
+                            WasapiCS.SampleFormatTypeToUseBitsPerSample(mPref.SampleFormat),
+                            mPref.SampleRate, nFrames, pcm);
                     textBoxLog.Text += string.Format("{0} : {1}\r\n", Properties.Resources.SaveFileSucceeded, dlg.FileName);
                 }
             } catch (Exception ex) {
@@ -703,11 +705,6 @@ namespace RecPcmWin {
             }
 
             slider1.Value = 0;
-        }
-
-        private void WriteWav(BinaryWriter bw, LargeArray<byte> pcm, long numFrames) {
-            int useBitsPerSample = WasapiCS.SampleFormatTypeToUseBitsPerSample(mPref.SampleFormat);
-            WavRWLib2.WavWriter.Write(bw, mPref.NumOfChannels, useBitsPerSample, mPref.SampleRate, numFrames, pcm);
         }
 
         // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
@@ -787,7 +784,7 @@ namespace RecPcmWin {
             int maxSec = (int)((long)sizeMB * 1024 * 1024 / GetBytesPerSec(mPref));
             UpdateDurationLabel(currentSec, maxSec);
 
-            if (sizeMB <= 0 || 2048 < sizeMB) {
+            if (sizeMB <= 0 || MAX_RECORDING_BUFFER_MB < sizeMB) {
                 MessageBox.Show(Properties.Resources.ErrorRecordingBufferSize,
                     Properties.Resources.ErrorRecordingBufferSize, MessageBoxButton.OK, MessageBoxImage.Error);
             }

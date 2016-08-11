@@ -67,6 +67,10 @@ namespace RecPcmWin {
 
         /// mCapturedPcmData is resized: you must call ReleaseCaptureMemory() and AllocateCaptureMemory() after this call
         public LargeArray<byte> GetCapturedData() {
+            if (!mRecord) {
+                return new LargeArray<byte>(0);
+            }
+
             mCapturedPcmData.Resize(mNextWritePos);
             return mCapturedPcmData;
         }
@@ -95,7 +99,7 @@ namespace RecPcmWin {
         }
 
         public long GetNumFrames() {
-            return mCapturedPcmData.LongLength / WasapiCS.SampleFormatTypeToUseBitsPerSample(mSampleFormat) / mNumChannels * 8;
+            return mCapturedPcmData.LongLength / WasapiCS.SampleFormatTypeToUseBitsPerSample(mSampleFormat) / mNumChannels * 8L;
         }
 
         public bool IsRunning() {
