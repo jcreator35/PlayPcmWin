@@ -82,7 +82,8 @@ namespace PcmDataLib {
         /// <summary>
         /// サンプル値配列。
         /// </summary>
-        private byte[] mSampleArray;
+
+        private WWUtil.LargeArray<byte> mSampleLargeArray;
 
         // ファイル管理情報 /////////////////////////////////////////////////
 
@@ -190,7 +191,7 @@ namespace PcmDataLib {
             ValidBitsPerSample = rhs.ValidBitsPerSample;
             SampleValueRepresentationType = rhs.SampleValueRepresentationType;
             mNumFrames = rhs.mNumFrames;
-            mSampleArray = null;
+            mSampleLargeArray = null;
             Id          = rhs.Id;
             Ordinal     = rhs.Ordinal;
             GroupId     = rhs.GroupId;
@@ -216,7 +217,7 @@ namespace PcmDataLib {
             ValidBitsPerSample = 0;
             SampleValueRepresentationType = ValueRepresentationType.SInt;
             mNumFrames = 0;
-            mSampleArray = null;
+            mSampleLargeArray = null;
             Id = -1;
             Ordinal = -1;
             GroupId = -1;
@@ -242,9 +243,9 @@ namespace PcmDataLib {
         public void CopyFrom(PcmData rhs) {
             CopyHeaderInfoFrom(rhs);
 
-            mSampleArray = null;
-            if (rhs.mSampleArray != null) {
-                mSampleArray = (byte[])rhs.mSampleArray.Clone();
+            mSampleLargeArray = null;
+            if (rhs.mSampleLargeArray != null) {
+                mSampleLargeArray = rhs.mSampleLargeArray.Clone();
             }
         }
 
@@ -267,8 +268,8 @@ namespace PcmDataLib {
         /// <summary>
         /// サンプル値配列
         /// </summary>
-        public byte[] GetSampleArray() {
-            return mSampleArray;
+        public WWUtil.LargeArray<byte> GetSampleLargeArray() {
+            return mSampleLargeArray;
         }
 
         /// <summary>
@@ -282,15 +283,15 @@ namespace PcmDataLib {
         /// サンプル配列を入れる。総フレーム数は別途セットする必要あり。
         /// </summary>
         /// <param name="sampleArray">サンプル配列</param>
-        public void SetSampleArray(byte[] sampleArray) {
-            mSampleArray = null;
-            mSampleArray = sampleArray;
+        public void SetSampleLargeArray(WWUtil.LargeArray<byte> sampleArray) {
+            mSampleLargeArray = null;
+            mSampleLargeArray = sampleArray;
         }
 
-        public void SetSampleArray(long numFrames, byte[] sampleArray) {
+        public void SetSampleLargeArray(long numFrames, WWUtil.LargeArray<byte> sampleArray) {
             mNumFrames = numFrames;
-            mSampleArray = null;
-            mSampleArray = sampleArray;
+            mSampleLargeArray = null;
+            mSampleLargeArray = sampleArray;
         }
 
         /// <summary>
@@ -299,7 +300,7 @@ namespace PcmDataLib {
         /// サンプル数など、フォーマット情報は忘れない。
         /// </summary>
         public void ForgetDataPart() {
-            mSampleArray = null;
+            mSampleLargeArray = null;
         }
 
         public void SetPicture(int bytes, byte[] data) {
@@ -324,7 +325,7 @@ namespace PcmDataLib {
             SampleValueRepresentationType = sampleValueRepresentation;
             mNumFrames = numFrames;
 
-            mSampleArray = null;
+            mSampleLargeArray = null;
         }
 
         /// <summary>
@@ -386,21 +387,21 @@ namespace PcmDataLib {
             Debug.Assert(0 <= startBytes);
             Debug.Assert(0 <= endBytes);
             Debug.Assert(startBytes <= endBytes);
-            Debug.Assert(null != mSampleArray);
-            Debug.Assert(startBytes <= mSampleArray.Length);
-            Debug.Assert(endBytes <= mSampleArray.Length);
+            Debug.Assert(null != mSampleLargeArray);
+            Debug.Assert(startBytes <= mSampleLargeArray.LongLength);
+            Debug.Assert(endBytes <= mSampleLargeArray.LongLength);
 
             long newNumSamples = endFrame - startFrame;
             mNumFrames = newNumSamples;
             if (newNumSamples == 0 ||
-                mSampleArray.Length <= startBytes) {
-                mSampleArray = null;
+                mSampleLargeArray.LongLength <= startBytes) {
+                mSampleLargeArray = null;
                 mNumFrames = 0;
             } else {
-                byte[] newArray = new byte[endBytes - startBytes];
-                Array.Copy(mSampleArray, startBytes, newArray, 0, endBytes - startBytes);
-                mSampleArray = null;
-                mSampleArray = newArray;
+                var newArray = new WWUtil.LargeArray<byte>(endBytes - startBytes);
+                newArray.CopyFrom(mSampleLargeArray, startBytes, 0, endBytes - startBytes);
+                mSampleLargeArray = null;
+                mSampleLargeArray = newArray;
             }
         }
 
@@ -418,10 +419,9 @@ namespace PcmDataLib {
             }
 
             long offset = pos * BitsPerFrame/8 + ch * BitsPerSample/8;
-            Debug.Assert(offset <= 0x7fffffffL);
 
-            byte [] data = new byte[BitsPerSample / 8];
-            Array.Copy(mSampleArray, offset, data, 0, BitsPerSample / 8);
+            var data = new byte[BitsPerSample / 8];
+            mSampleLargeArray.CopyTo(offset, ref data, 0, BitsPerSample / 8);
 
             switch (BitsPerSample) {
             case 16:
@@ -453,6 +453,10 @@ namespace PcmDataLib {
             return BitConverter.ToDouble(data, 0);
         }
 
+        /// <summary>
+        /// Int16の値が1個入っているbyte[]からサンプル値を取り出してdouble型に変換し
+        /// double型の入っているbyte[]を戻す。
+        /// </summary>
         private byte[] ConvI16toF64(byte[] from) {
             int nSample = from.Length / 2;
             byte[] to = new byte[nSample * 8];
@@ -473,6 +477,10 @@ namespace PcmDataLib {
             return to;
         }
 
+        /// <summary>
+        /// Int24の値が1個入っているbyte[]からサンプル値を取り出してdouble型に変換し
+        /// double型の入っているbyte[]を戻す。
+        /// </summary>
         private byte[] ConvI24toF64(byte[] from) {
             int nSample = from.Length / 3;
             byte[] to = new byte[nSample * 8];
@@ -494,6 +502,10 @@ namespace PcmDataLib {
             return to;
         }
 
+        /// <summary>
+        /// Int32の値が1個入っているbyte[]からサンプル値を取り出してdouble型に変換し
+        /// double型の入っているbyte[]を戻す。
+        /// </summary>
         private byte[] ConvI32toF64(byte[] from) {
             int nSample = from.Length / 4;
             byte[] to = new byte[nSample * 8];
@@ -515,6 +527,10 @@ namespace PcmDataLib {
             return to;
         }
 
+        /// <summary>
+        /// floatの値が1個入っているbyte[]からサンプル値を取り出してdouble型に変換し
+        /// double型の入っているbyte[]を戻す。
+        /// </summary>
         private byte[] ConvF32toF64(byte[] from) {
             int nSample = from.Length / 4;
             byte[] to = new byte[nSample * 8];
@@ -546,10 +562,27 @@ namespace PcmDataLib {
             }
 
             long offset = pos * BitsPerFrame / 8 + ch * BitsPerSample / 8;
-            Debug.Assert(offset <= 0x7fffffffL);
 
             var byteArray = BitConverter.GetBytes(val);
-            Buffer.BlockCopy(byteArray, 0, mSampleArray, (int)offset, 8);
+            mSampleLargeArray.CopyFrom(byteArray, 0, offset, 8);
+        }
+
+        /// <summary>
+        /// サンプル値セット。フォーマットが32bit SFloatの場合のみ使用可能。
+        /// </summary>
+        public void SetSampleValueInFloat(int ch, long pos, float val) {
+            Debug.Assert(SampleValueRepresentationType == ValueRepresentationType.SFloat);
+            Debug.Assert(ValidBitsPerSample == 32);
+            Debug.Assert(0 <= ch && ch < NumChannels);
+
+            if (pos < 0 || NumFrames <= pos) {
+                return;
+            }
+
+            long offset = pos * BitsPerFrame / 8 + ch * BitsPerSample / 8;
+
+            var byteArray = BitConverter.GetBytes(val);
+            mSampleLargeArray.CopyFrom(byteArray, 0, offset, 4);
         }
 
         /// <summary>
@@ -568,28 +601,10 @@ namespace PcmDataLib {
             }
 
             long offset = pos * BitsPerFrame / 8 + ch * BitsPerSample / 8;
-            Debug.Assert(offset <= 0x7fffffffL);
 
-            return BitConverter.ToSingle(mSampleArray, (int)offset);
-        }
-
-        /// <summary>
-        /// サンプル値セット。フォーマットが32bit SFloatの場合のみ使用可能。
-        /// </summary>
-        public void SetSampleValueInFloat(int ch, long pos, float val) {
-            Debug.Assert(SampleValueRepresentationType == ValueRepresentationType.SFloat);
-            Debug.Assert(ValidBitsPerSample == 32);
-            Debug.Assert(0 <= ch && ch < NumChannels);
-
-            if (pos < 0 || NumFrames <= pos) {
-                return;
-            }
-
-            long offset = pos * BitsPerFrame / 8 + ch * BitsPerSample / 8;
-            Debug.Assert(offset <= 0x7fffffffL);
-
-            var byteArray = BitConverter.GetBytes(val);
-            Buffer.BlockCopy(byteArray, 0, mSampleArray, (int)offset, 4);
+            var data = new byte[4];
+            mSampleLargeArray.CopyTo(offset, ref data, 0, 4);
+            return BitConverter.ToSingle(data, 0);
         }
 
         public int GetSampleValueInInt32(int ch, long pos) {
@@ -600,19 +615,26 @@ namespace PcmDataLib {
             }
 
             long offset = pos * BitsPerFrame / 8 + ch * BitsPerSample / 8;
-            Debug.Assert(offset <= 0x7fffffffL);
 
             switch (BitsPerSample) {
             case 16:
-                return (mSampleArray[offset] << 16) + (mSampleArray[offset+1] << 24);
+                return (mSampleLargeArray.At(offset) << 16)
+                    + (mSampleLargeArray.At(offset+1) << 24);
             case 24:
-                return (mSampleArray[offset] << 8) + (mSampleArray[offset + 1] << 16) + (mSampleArray[offset + 2] << 24);
+                return (mSampleLargeArray.At(offset) << 8)
+                    + (mSampleLargeArray.At(offset + 1) << 16)
+                    + (mSampleLargeArray.At(offset + 2) << 24);
             case 32:
                 switch (ValidBitsPerSample) {
                 case 24:
-                    return (mSampleArray[offset + 1] << 8) + (mSampleArray[offset + 2] << 16) + (mSampleArray[offset + 3] << 24);
+                    return (mSampleLargeArray.At(offset + 1) << 8)
+                        + (mSampleLargeArray.At(offset + 2) << 16)
+                        + (mSampleLargeArray.At(offset + 3) << 24);
                 case 32:
-                    return (mSampleArray[offset]) + (mSampleArray[offset + 1] << 8) + (mSampleArray[offset + 2] << 16) + (mSampleArray[offset + 3] << 24);
+                    return (mSampleLargeArray.At(offset))
+                        + (mSampleLargeArray.At(offset + 1) << 8)
+                        + (mSampleLargeArray.At(offset + 2) << 16)
+                        + (mSampleLargeArray.At(offset + 3) << 24);
                 default:
                     System.Diagnostics.Debug.Assert(false);
                     return 0;
@@ -625,6 +647,7 @@ namespace PcmDataLib {
 
         /// <summary>
         /// サンプル値セット。フォーマットがSintの場合のみ使用可能。
+        /// サンプル値は符号付32bit int値で、0x8000000 ～ 0x7fffffffの値。
         /// </summary>
         public void SetSampleValueInInt32(int ch, long pos, int val) {
             Debug.Assert(SampleValueRepresentationType == ValueRepresentationType.SInt);
@@ -634,31 +657,30 @@ namespace PcmDataLib {
             }
 
             long offset = pos * BitsPerFrame / 8 + ch * BitsPerSample / 8;
-            Debug.Assert(offset <= 0x7fffffffL);
 
             switch (BitsPerSample) {
             case 16:
-                mSampleArray[offset + 0] = (byte)(0xff & (val >> 16));
-                mSampleArray[offset + 1] = (byte)(0xff & (val >> 24));
+                mSampleLargeArray.Set(offset + 0, (byte)(0xff & (val >> 16)));
+                mSampleLargeArray.Set(offset + 1, (byte)(0xff & (val >> 24)));
                 return;
             case 24:
-                mSampleArray[offset + 0] = (byte)(0xff & (val >> 8));
-                mSampleArray[offset + 1] = (byte)(0xff & (val >> 16));
-                mSampleArray[offset + 2] = (byte)(0xff & (val >> 24));
+                mSampleLargeArray.Set(offset + 0, (byte)(0xff & (val >> 8)));
+                mSampleLargeArray.Set(offset + 1, (byte)(0xff & (val >> 16)));
+                mSampleLargeArray.Set(offset + 2, (byte)(0xff & (val >> 24)));
                 return;
             case 32:
                 switch (ValidBitsPerSample) {
                 case 24:
-                    mSampleArray[offset + 0] = 0;
-                    mSampleArray[offset + 1] = (byte)(0xff & (val >> 8));
-                    mSampleArray[offset + 2] = (byte)(0xff & (val >> 16));
-                    mSampleArray[offset + 3] = (byte)(0xff & (val >> 24));
+                    mSampleLargeArray.Set(offset + 0, 0);
+                    mSampleLargeArray.Set(offset + 1, (byte)(0xff & (val >> 8)));
+                    mSampleLargeArray.Set(offset + 2, (byte)(0xff & (val >> 16)));
+                    mSampleLargeArray.Set(offset + 3, (byte)(0xff & (val >> 24)));
                     return;
                 case 32:
-                    mSampleArray[offset + 0] = (byte)(0xff & (val));
-                    mSampleArray[offset + 1] = (byte)(0xff & (val >> 8));
-                    mSampleArray[offset + 2] = (byte)(0xff & (val >> 16));
-                    mSampleArray[offset + 3] = (byte)(0xff & (val >> 24));
+                    mSampleLargeArray.Set(offset + 0, (byte)(0xff & (val)));
+                    mSampleLargeArray.Set(offset + 1, (byte)(0xff & (val >> 8)));
+                    mSampleLargeArray.Set(offset + 2, (byte)(0xff & (val >> 16)));
+                    mSampleLargeArray.Set(offset + 3, (byte)(0xff & (val >> 24)));
                     return;
                 default:
                     System.Diagnostics.Debug.Assert(false);
@@ -671,16 +693,19 @@ namespace PcmDataLib {
         }
 
         /// <summary>
-        /// doubleのバッファをスケーリングする。ダブルバッファとは関係ない
+        /// doubleのバッファをスケーリングする。ダブルバッファリングとは関係ない。
         /// </summary>
         public void ScaleDoubleBuffer(double scale) {
             Debug.Assert(SampleValueRepresentationType == ValueRepresentationType.SFloat);
             Debug.Assert(ValidBitsPerSample == 64);
-            for (int i = 0; i < NumFrames * NumChannels; ++i) {
-                double v = BitConverter.ToDouble(mSampleArray, i * 8);
+
+            var data = new byte[8];
+            for (long i = 0; i < NumFrames * NumChannels; ++i) {
+                mSampleLargeArray.CopyTo(i * 8, ref data, 0, 8);
+                double v = BitConverter.ToDouble(data, 0);
                 v *= scale;
                 var byteArray = BitConverter.GetBytes(v);
-                Buffer.BlockCopy(byteArray, 0, mSampleArray, i * 8, 8);
+                mSampleLargeArray.CopyFrom(data, 0, i * 8, 8);
             }
         }
 
@@ -690,16 +715,19 @@ namespace PcmDataLib {
         public void ScaleFloatBuffer(float scale) {
             Debug.Assert(SampleValueRepresentationType == ValueRepresentationType.SFloat);
             Debug.Assert(ValidBitsPerSample == 32);
-            for (int i = 0; i < NumFrames * NumChannels; ++i) {
-                float v = BitConverter.ToSingle(mSampleArray, i * 4);
+
+            var data = new byte[4];
+            for (long i = 0; i < NumFrames * NumChannels; ++i) {
+                mSampleLargeArray.CopyTo(i * 4, ref data, 0, 4);
+                float v = BitConverter.ToSingle(data, 0);
                 v *= scale;
                 var byteArray = BitConverter.GetBytes(v);
-                Buffer.BlockCopy(byteArray, 0, mSampleArray, i * 4, 4);
+                mSampleLargeArray.CopyFrom(data, 0, i * 4, 4);
             }
         }
 
         /// <summary>
-        /// doubleのバッファで最大値、最小値を取得
+        /// doubleのバッファで最大値、最小値を取得。
         /// </summary>
         public void FindMaxMinValueOnDoubleBuffer(out double maxV, out double minV) {
             Debug.Assert(SampleValueRepresentationType == ValueRepresentationType.SFloat);
@@ -707,8 +735,10 @@ namespace PcmDataLib {
             maxV = 0.0;
             minV = 0.0;
 
-            for (int i = 0; i < NumFrames * NumChannels; ++i) {
-                double v = BitConverter.ToDouble(mSampleArray, i * 8);
+            var data = new byte[8];
+            for (long i = 0; i < NumFrames * NumChannels; ++i) {
+                mSampleLargeArray.CopyTo(i * 8, ref data, 0, 8);
+                double v = BitConverter.ToDouble(data, 0);
                 if (v < minV) {
                     minV = v;
                 }
@@ -724,7 +754,7 @@ namespace PcmDataLib {
         private static readonly float  SAMPLE_VALUE_MIN_FLOAT  = -1.0f;
 
         /// <summary>
-        /// floatのバッファで最大値、最小値を取得
+        /// floatのバッファで最大値、最小値を取得。
         /// </summary>
         public void FindMaxMinValueOnFloatBuffer(out float maxV, out float minV) {
             Debug.Assert(SampleValueRepresentationType == ValueRepresentationType.SFloat);
@@ -732,8 +762,10 @@ namespace PcmDataLib {
             maxV = 0.0f;
             minV = 0.0f;
 
-            for (int i = 0; i < NumFrames * NumChannels; ++i) {
-                float v = BitConverter.ToSingle(mSampleArray, i * 4);
+            var data = new byte[4];
+            for (long i = 0; i < NumFrames * NumChannels; ++i) {
+                mSampleLargeArray.CopyTo(i * 4, ref data, 0, 4);
+                float v = BitConverter.ToSingle(data, 0);
                 if (v < minV) {
                     minV = v;
                 }
@@ -804,8 +836,8 @@ namespace PcmDataLib {
             // NumFramesは総フレーム数。sampleArrayのフレーム数はこれよりも少ないことがある。
             // 実際に存在するサンプル数sampleFramesだけ処理する。
             int bytesPerSample = BitsPerSample / 8;
-            long sampleFrames = mSampleArray.LongLength / (BitsPerFrame / 8);
-            var newSampleArray = new byte[newCh * bytesPerSample * sampleFrames];
+            long sampleFrames = mSampleLargeArray.LongLength / (BitsPerFrame / 8);
+            var newSampleArray = new WWUtil.LargeArray<byte>((long)newCh * bytesPerSample * sampleFrames);
 
             for (long frame = 0; frame < sampleFrames; ++frame) {
                 int copyBytes = NumChannels * bytesPerSample;
@@ -814,25 +846,25 @@ namespace PcmDataLib {
                     copyBytes = newCh * bytesPerSample;
                 }
 
-                Array.Copy(mSampleArray, NumChannels * bytesPerSample * frame,
-                    newSampleArray, newCh * bytesPerSample * frame,
-                    copyBytes);
+                newSampleArray.CopyFrom(mSampleLargeArray, (long)NumChannels * bytesPerSample * frame,
+                    (long)newCh * bytesPerSample * frame, copyBytes);
+
                 if (SampleDataType == DataType.DoP
                         && NumChannels < newCh) {
                     // 追加したチャンネルにDSD無音をセットする。
                     switch (bytesPerSample) {
                     case 3:
                         for (int ch = NumChannels; ch < newCh; ++ch) {
-                            newSampleArray[(frame * newCh + ch) * bytesPerSample + 0] = 0x69;
-                            newSampleArray[(frame * newCh + ch) * bytesPerSample + 1] = 0x69;
-                            newSampleArray[(frame * newCh + ch) * bytesPerSample + 2] = (byte)((frame & 1) == 1 ? 0xfa : 0x05);
+                            newSampleArray.Set((frame * newCh + ch) * bytesPerSample + 0, 0x69);
+                            newSampleArray.Set((frame * newCh + ch) * bytesPerSample + 1, 0x69);
+                            newSampleArray.Set((frame * newCh + ch) * bytesPerSample + 2, (byte)((frame & 1) == 1 ? 0xfa : 0x05));
                         }
                         break;
                     case 4:
                         for (int ch = NumChannels; ch < newCh; ++ch) {
-                            newSampleArray[(frame * newCh + ch) * bytesPerSample + 1] = 0x69;
-                            newSampleArray[(frame * newCh + ch) * bytesPerSample + 2] = 0x69;
-                            newSampleArray[(frame * newCh + ch) * bytesPerSample + 3] = (byte)((frame & 1) == 1 ? 0xfa : 0x05);
+                            newSampleArray.Set((frame * newCh + ch) * bytesPerSample + 1, 0x69);
+                            newSampleArray.Set((frame * newCh + ch) * bytesPerSample + 2, 0x69);
+                            newSampleArray.Set((frame * newCh + ch) * bytesPerSample + 3, (byte)((frame & 1) == 1 ? 0xfa : 0x05));
                         }
                         break;
                     }
@@ -842,7 +874,7 @@ namespace PcmDataLib {
             PcmData newPcmData = new PcmData();
             newPcmData.CopyHeaderInfoFrom(this);
             newPcmData.SetFormat(newCh, BitsPerSample, ValidBitsPerSample, SampleRate, SampleValueRepresentationType, NumFrames);
-            newPcmData.SetSampleArray(newSampleArray);
+            newPcmData.SetSampleLargeArray(newSampleArray);
 
             return newPcmData;
         }
@@ -862,19 +894,20 @@ namespace PcmDataLib {
             // サンプルあたりビット数が8の倍数でないとこのアルゴリズムは使えない
             System.Diagnostics.Debug.Assert((BitsPerSample & 7) == 0);
 
-            byte [] newSampleArray = new byte[mSampleArray.LongLength * 2];
+            var newSampleArray = new WWUtil.LargeArray<byte>(mSampleLargeArray.LongLength * 2);
 
             {
                 int bytesPerSample = BitsPerSample / 8;
 
                 // sampleArrayのフレーム数はこれよりも少ないことがある。
                 // 実際に存在するサンプル数sampleFramesだけ処理する。
-                long sampleFrames = mSampleArray.LongLength / bytesPerSample; // NumChannels==1なので。
+                long sampleFrames = mSampleLargeArray.LongLength / bytesPerSample; // NumChannels==1なので。
                 long fromPosBytes = 0;
                 for (long frame = 0; frame < sampleFrames; ++frame) {
                     for (int offs = 0; offs < bytesPerSample; ++offs) {
-                        newSampleArray[fromPosBytes * 2 + offs] = mSampleArray[fromPosBytes + offs];
-                        newSampleArray[fromPosBytes * 2 + bytesPerSample + offs] = mSampleArray[fromPosBytes + offs];
+                        byte b = mSampleLargeArray.At(fromPosBytes + offs);
+                        newSampleArray.Set(fromPosBytes * 2 + offs, b);
+                        newSampleArray.Set(fromPosBytes * 2 + bytesPerSample + offs, b);
                     }
                     fromPosBytes += bytesPerSample;
                 }
@@ -882,7 +915,7 @@ namespace PcmDataLib {
             PcmData newPcmData = new PcmData();
             newPcmData.CopyHeaderInfoFrom(this);
             newPcmData.SetFormat(2, BitsPerSample, ValidBitsPerSample, SampleRate, SampleValueRepresentationType, NumFrames);
-            newPcmData.SetSampleArray(newSampleArray);
+            newPcmData.SetSampleLargeArray(newSampleArray);
 
             return newPcmData;
         }

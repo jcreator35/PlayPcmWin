@@ -37,7 +37,7 @@ namespace WasapiBitmatchChecker {
         private Wasapi.WasapiCS.CaptureCallback mCaptureDataArrivedDelegate;
 
         private static int NUM_PROLOGUE_FRAMES = 262144;
-        private int mNumTestFrames = 1024 * 1024;
+        private long mNumTestFrames = 1024L * 1024L;
         private static int NUM_CHANNELS = 2;
         private int mSampleRate;
         private WasapiCS.SampleFormatType mPlaySampleFormat;
@@ -47,6 +47,8 @@ namespace WasapiBitmatchChecker {
         private int mPlayBufferMillisec;
         private int mRecBufferMillisec;
         private int mRecDwChannelMask;
+        private int ZERO_FLUSH_MILLISEC = 1000;
+        private int TIME_PERIOD = 10000;
 
         private DispatcherTimer mSyncTimeout;
 
@@ -59,7 +61,7 @@ namespace WasapiBitmatchChecker {
 
         Random mRand = new Random();
 
-        private byte[] mCapturedPcmData;
+        private LargeArray<byte> mCapturedPcmData;
         private int mCapturedBytes;
 
         private Object mLock = new Object();
@@ -254,15 +256,12 @@ namespace WasapiBitmatchChecker {
 
         private bool UpdateTestParamsFromUI() {
 
-            if (!Int32.TryParse(textBoxTestFrames.Text, out mNumTestFrames) || mNumTestFrames <= 0) {
+            int testFramesMbytes = -1;
+            if (!Int32.TryParse(textBoxTestFrames.Text, out testFramesMbytes) || testFramesMbytes <= 0) {
                 MessageBox.Show(Properties.Resources.msgPcmSizeError);
                 return false;
             }
-            if (0x7fffffff / 8 / 1024 / 1024 < mNumTestFrames) {
-                MessageBox.Show(string.Format(Properties.Resources.msgPcmSizeTooLarge, 0x70000000 / 8 / 1024 / 1024));
-                return false;
-            }
-            mNumTestFrames *= 1024 * 1024;
+            mNumTestFrames = 1024L * 1024L * (long)testFramesMbytes;
 
             if (radioButton44100.IsChecked == true) {
                 mSampleRate = 44100;
@@ -342,36 +341,47 @@ namespace WasapiBitmatchChecker {
         }
 
         private void PreparePcmData() {
-            mPcmSync  = new PcmDataLib.PcmData();
-            mPcmReady = new PcmDataLib.PcmData();
-            mPcmTest  = new PcmDataLib.PcmData();
+            {
+                mPcmSync = new PcmDataLib.PcmData();
+                mPcmSync.SetFormat(NUM_CHANNELS,
+                        WasapiCS.SampleFormatTypeToUseBitsPerSample(mPlaySampleFormat),
+                        WasapiCS.SampleFormatTypeToValidBitsPerSample(mPlaySampleFormat),
+                        mSampleRate,
+                        PcmDataLib.PcmData.ValueRepresentationType.SInt, mSampleRate);
+                var syncData = new LargeArray<byte>((WasapiCS.SampleFormatTypeToUseBitsPerSample(mPlaySampleFormat) / 8) * NUM_CHANNELS * mPcmSync.NumFrames);
+                mPcmSync.SetSampleLargeArray(syncData);
+            }
 
-            mPcmSync.SetFormat(NUM_CHANNELS,
-                    WasapiCS.SampleFormatTypeToUseBitsPerSample(mPlaySampleFormat),
-                    WasapiCS.SampleFormatTypeToValidBitsPerSample(mPlaySampleFormat),
-                    mSampleRate,
-                    PcmDataLib.PcmData.ValueRepresentationType.SInt, mSampleRate);
-            var data = new byte[(WasapiCS.SampleFormatTypeToUseBitsPerSample(mPlaySampleFormat) / 8) * NUM_CHANNELS * mPcmSync.NumFrames];
-            mPcmSync.SetSampleArray(data);
+            {
+                mPcmReady = new PcmDataLib.PcmData();
+                mPcmReady.CopyFrom(mPcmSync);
+                var readyData = new LargeArray<byte>((WasapiCS.SampleFormatTypeToUseBitsPerSample(mPlaySampleFormat) / 8) * NUM_CHANNELS * mPcmSync.NumFrames);
+                mPcmReady.SetSampleLargeArray(readyData);
+            }
 
-            mPcmReady.CopyFrom(mPcmSync);
-            data = new byte[(WasapiCS.SampleFormatTypeToUseBitsPerSample(mPlaySampleFormat) / 8) * NUM_CHANNELS * mPcmSync.NumFrames];
-            mPcmReady.SetSampleArray(data);
-
-            mPcmTest.CopyFrom(mPcmSync);
             if (radioButtonFile.IsChecked == true) {
                 var conv = new WasapiPcmUtil.PcmFormatConverter(NUM_CHANNELS);
                 mPcmTest = conv.Convert(mPlayPcmData, mPlaySampleFormat,
                     new WasapiPcmUtil.PcmFormatConverter.BitsPerSampleConvArgs(WasapiPcmUtil.NoiseShapingType.None));
-                mNumTestFrames = (int)mPcmTest.NumFrames;
+                mNumTestFrames = mPcmTest.NumFrames;
             } else {
-                data = new byte[(WasapiCS.SampleFormatTypeToUseBitsPerSample(mPlaySampleFormat) / 8) * NUM_CHANNELS * mNumTestFrames];
-                mRand.NextBytes(data);
-                mPcmTest.SetSampleArray(mNumTestFrames, data);
+                mPcmTest = new PcmDataLib.PcmData();
+                mPcmTest.CopyFrom(mPcmSync);
+                var randData = new LargeArray<byte>((long)(WasapiCS.SampleFormatTypeToUseBitsPerSample(mPlaySampleFormat) / 8) * NUM_CHANNELS * mNumTestFrames);
+                var fragment = new byte[1024 * 1024];
+                for (long i = 0; i < mNumTestFrames; i += fragment.Length) {
+                    long count = fragment.Length;
+                    if (mNumTestFrames < i + count) {
+                        count = mNumTestFrames - i;
+                    }
+
+                    mRand.NextBytes(fragment);
+                    randData.CopyFrom(fragment, 0, i, (int)count);
+                }
+                mPcmTest.SetSampleLargeArray(mNumTestFrames, randData);
             }
 
-            mCapturedPcmData = new byte[(WasapiCS.SampleFormatTypeToUseBitsPerSample(mRecSampleFormat) / 8) * NUM_CHANNELS * (mNumTestFrames + NUM_PROLOGUE_FRAMES)];
-            Array.Clear(mCapturedPcmData, 0, mCapturedPcmData.Length);
+            mCapturedPcmData = new LargeArray<byte>((long)(WasapiCS.SampleFormatTypeToUseBitsPerSample(mRecSampleFormat) / 8) * NUM_CHANNELS * (mNumTestFrames + NUM_PROLOGUE_FRAMES));
 
             switch (mPlaySampleFormat) {
             case WasapiCS.SampleFormatType.Sint16:
@@ -484,17 +494,18 @@ namespace WasapiBitmatchChecker {
 
             PreparePcmData();
 
-            int dwChannelMask = WasapiCS.GetTypicalChannelMask(NUM_CHANNELS);
+            System.GC.Collect();
 
             lock (mLock) {
                 int hr = 0;
 
+                int playDwChannelMask = WasapiCS.GetTypicalChannelMask(NUM_CHANNELS);
                 hr = mWasapiPlay.Setup(listBoxPlayDevices.SelectedIndex,
                         WasapiCS.DeviceType.Play, WasapiCS.StreamType.PCM,
-                        mSampleRate, mPlaySampleFormat, NUM_CHANNELS, dwChannelMask,
+                        mSampleRate, mPlaySampleFormat, NUM_CHANNELS, playDwChannelMask,
                         WasapiCS.MMCSSCallType.Enable, WasapiCS.MMThreadPriorityType.None,
                         WasapiCS.SchedulerTaskType.ProAudio, WasapiCS.ShareMode.Exclusive,
-                        mPlayDataFeedMode, mPlayBufferMillisec, 1000, 10000);
+                        mPlayDataFeedMode, mPlayBufferMillisec, ZERO_FLUSH_MILLISEC, TIME_PERIOD);
                 if (hr < 0) {
                     MessageBox.Show(string.Format(Properties.Resources.msgPlaySetupError,
                             mSampleRate, mPlaySampleFormat, NUM_CHANNELS, mPlayDataFeedMode, mPlayBufferMillisec));
@@ -505,22 +516,22 @@ namespace WasapiBitmatchChecker {
                 var ss = mWasapiPlay.GetSessionStatus();
 
                 {
-                    var data = mPcmSync.GetSampleArray();
-                    var trimmed = new byte[ss.EndpointBufferFrameNum * mPcmSync.BitsPerFrame/8];
-                    Array.Copy(data, trimmed,trimmed.Length);
-                    mPcmSync.SetSampleArray(ss.EndpointBufferFrameNum, trimmed);
+                    var data = mPcmSync.GetSampleLargeArray();
+                    var trimmed = new LargeArray<byte>(ss.EndpointBufferFrameNum * mPcmSync.BitsPerFrame/8);
+                    trimmed.CopyFrom(data, 0, 0, trimmed.LongLength);
+                    mPcmSync.SetSampleLargeArray(ss.EndpointBufferFrameNum, trimmed);
                 }
                 {
-                    var data = mPcmReady.GetSampleArray();
-                    var trimmed = new byte[ss.EndpointBufferFrameNum * mPcmReady.BitsPerFrame/8];
-                    Array.Copy(data, trimmed,trimmed.Length);
-                    mPcmReady.SetSampleArray(ss.EndpointBufferFrameNum, trimmed);
+                    var data = mPcmReady.GetSampleLargeArray();
+                    var trimmed = new LargeArray<byte>(ss.EndpointBufferFrameNum * mPcmReady.BitsPerFrame/8);
+                    trimmed.CopyFrom(data, 0, 0, trimmed.LongLength);
+                    mPcmReady.SetSampleLargeArray(ss.EndpointBufferFrameNum, trimmed);
                 }
                 mWasapiPlay.ClearPlayList();
                 mWasapiPlay.AddPlayPcmDataStart();
-                mWasapiPlay.AddPlayPcmData(0, mPcmSync.GetSampleArray());
-                mWasapiPlay.AddPlayPcmData(1, mPcmReady.GetSampleArray());
-                mWasapiPlay.AddPlayPcmData(2, mPcmTest.GetSampleArray());
+                mWasapiPlay.AddPlayPcmData(0, mPcmSync.GetSampleLargeArray());
+                mWasapiPlay.AddPlayPcmData(1, mPcmReady.GetSampleLargeArray());
+                mWasapiPlay.AddPlayPcmData(2, mPcmTest.GetSampleLargeArray());
                 mWasapiPlay.AddPlayPcmDataEnd();
 
                 mWasapiPlay.SetPlayRepeat(false);
@@ -537,7 +548,7 @@ namespace WasapiBitmatchChecker {
                         mSampleRate, mRecSampleFormat, NUM_CHANNELS, mRecDwChannelMask,
                         WasapiCS.MMCSSCallType.Enable, WasapiCS.MMThreadPriorityType.None,
                         WasapiCS.SchedulerTaskType.ProAudio, WasapiCS.ShareMode.Exclusive,
-                        mRecDataFeedMode, mRecBufferMillisec, 1000, 10000);
+                        mRecDataFeedMode, mRecBufferMillisec, ZERO_FLUSH_MILLISEC, TIME_PERIOD);
                 if (hr < 0) {
                     MessageBox.Show(string.Format(Properties.Resources.msgRecSetupError,
                             mSampleRate, mRecSampleFormat, NUM_CHANNELS, mRecDataFeedMode, mRecBufferMillisec));
@@ -561,6 +572,8 @@ namespace WasapiBitmatchChecker {
 
                 buttonStart.IsEnabled = false;
                 buttonStop.IsEnabled = true;
+
+                System.GC.Collect();
 
                 // SYNC失敗タイマーのセット
                 mSyncTimeout.Start();
@@ -653,7 +666,7 @@ namespace WasapiBitmatchChecker {
 
                 //Console.WriteLine("Sync Frame arrived. offset={0}", mRecSyncPosInBytes);
 
-                Array.Copy(data, mRecSyncPosInBytes, mCapturedPcmData, 0, data.Length - mRecSyncPosInBytes);
+                mCapturedPcmData.CopyFrom(data, mRecSyncPosInBytes, 0, data.Length - mRecSyncPosInBytes);
                 mCapturedBytes = data.Length - mRecSyncPosInBytes;
 
                 mWasapiPlay.ConnectPcmDataNext(0, 1);
@@ -662,8 +675,8 @@ namespace WasapiBitmatchChecker {
         }
 
         private void CaptureRunning(byte[] data) {
-            if (mCapturedBytes + data.Length <= mCapturedPcmData.Length) {
-                Array.Copy(data, 0, mCapturedPcmData, mCapturedBytes, data.Length);
+            if (mCapturedBytes + data.Length <= mCapturedPcmData.LongLength) {
+                mCapturedPcmData.CopyFrom(data, 0, mCapturedBytes, data.Length);
                 mCapturedBytes += data.Length;
 
                 int capturedFrames = mCapturedBytes / NUM_CHANNELS / (WasapiCS.SampleFormatTypeToUseBitsPerSample(mRecSampleFormat) / 8);
@@ -688,8 +701,8 @@ namespace WasapiBitmatchChecker {
                     WasapiCS.SampleFormatTypeToUseBitsPerSample(mRecSampleFormat),
                     WasapiCS.SampleFormatTypeToValidBitsPerSample(mRecSampleFormat),
                     mSampleRate, PcmDataLib.PcmData.ValueRepresentationType.SInt,
-                    mCapturedPcmData.Length / NUM_CHANNELS / (WasapiCS.SampleFormatTypeToUseBitsPerSample(mRecSampleFormat) / 8));
-            mPcmRecorded.SetSampleArray(mCapturedPcmData);
+                    mCapturedPcmData.LongLength / NUM_CHANNELS / (WasapiCS.SampleFormatTypeToUseBitsPerSample(mRecSampleFormat) / 8));
+            mPcmRecorded.SetSampleLargeArray(mCapturedPcmData);
 
             // 開始合図位置compareStartFrameをサーチ
             int compareStartFrame = -1;
@@ -730,10 +743,10 @@ namespace WasapiBitmatchChecker {
             }
 
             // 送信データmPcmTestと受信データmPcmRecordedを比較
-            int numTestBytes = mNumTestFrames * NUM_CHANNELS
+            long numTestBytes = mNumTestFrames * NUM_CHANNELS
                 * (WasapiCS.SampleFormatTypeToValidBitsPerSample(mRecSampleFormat) / 8);
 
-            for (int pos=0; pos < mNumTestFrames; ++pos) {
+            for (long pos=0; pos < mNumTestFrames; ++pos) {
                 for (int ch=0; ch<NUM_CHANNELS; ++ch) {
                     if (mPcmTest.GetSampleValueInInt32(ch, pos)
                             != mPcmRecorded.GetSampleValueInInt32(ch, pos + compareStartFrame)) {
@@ -787,8 +800,18 @@ namespace WasapiBitmatchChecker {
 
         private PcmDataLib.PcmData mPlayPcmData;
 
+        class LoadPcmResult {
+            public string path;
+            public bool result;
+            public PcmDataLib.PcmData pcmData;
+        };
+
         private void LoadPcm_DoWork(object sender, DoWorkEventArgs e) {
             string path = (string)e.Argument;
+            var r = new LoadPcmResult();
+            r.path = path;
+            r.result = false;
+            r.pcmData = null;
 
             mPlayPcmData = null;
             try {
@@ -797,39 +820,41 @@ namespace WasapiBitmatchChecker {
                     if (reader.ReadHeaderAndSamples(br, 0, -1)
                         && reader.NumChannels == NUM_CHANNELS) {
                         var b = reader.GetSampleArray();
-                        mPlayPcmData = new PcmDataLib.PcmData();
-                        mPlayPcmData.SetFormat(NUM_CHANNELS, reader.BitsPerSample, reader.ValidBitsPerSample,
+                        r.pcmData = new PcmDataLib.PcmData();
+                        r.pcmData.SetFormat(NUM_CHANNELS, reader.BitsPerSample, reader.ValidBitsPerSample,
                             reader.SampleRate, reader.SampleValueRepresentationType, reader.NumFrames);
-                        mPlayPcmData.SetSampleArray(b);
+                        r.pcmData.SetSampleLargeArray(new LargeArray<byte>(b));
                     }
                 }
             } catch (Exception ex) {
                 Console.WriteLine(ex);
+                r.pcmData = null;
             }
 
-            if (mPlayPcmData != null) {
-                e.Result = path;
+            if (r.pcmData != null) {
+                r.result = true;
             } else {
-                mPlayPcmData = null;
-                e.Result = String.Empty;
+                r.result = false;
             }
+
+            e.Result = r;
         }
 
         private void LoadPcm_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
-            string path = (string)e.Result;
+            var r = e.Result as LoadPcmResult;
 
             groupBoxPcmDataSettings.IsEnabled = true;
 
-            if (String.Empty == path) {
-                MessageBox.Show("Error: Read failed. Only 2ch stereo WAV is supported.");
+            if (!r.result) {
+                MessageBox.Show(string.Format("Error: Read failed. Only 2ch stereo WAV is supported: {0}",
+                    r.path));
                 radioButtonPcmRandom.IsChecked = true;
                 return;
             }
 
+            mPlayPcmData = r.pcmData;
             radioButtonFile.IsChecked = true;
-            textBoxFile.Text = path;
+            textBoxFile.Text = r.path;
         }
-
-
     }
 }

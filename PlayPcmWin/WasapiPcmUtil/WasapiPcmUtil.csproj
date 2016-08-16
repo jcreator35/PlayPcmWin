@@ -85,6 +85,10 @@
       <Project>{0D9C1283-4DA5-4C3F-8A4E-AD8194381DE4}</Project>
       <Name>WasapiCS</Name>
     </ProjectReference>
+    <ProjectReference Include="..\WWUtil\WWUtil.csproj">
+      <Project>{FC57308E-CF56-4B3E-B920-4093660D0A4A}</Project>
+      <Name>WWUtil</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="WasapiPcmUtil.snk" />

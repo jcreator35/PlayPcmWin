@@ -78,6 +78,12 @@
   <ItemGroup>
     <None Include="WasapiCS.snk" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WWUtil\WWUtil.csproj">
+      <Project>{FC57308E-CF56-4B3E-B920-4093660D0A4A}</Project>
+      <Name>WWUtil</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>call "$(DevEnvDir)..\tools\vsvars32.bat"

@@ -599,6 +599,21 @@ namespace Wasapi {
             return WasapiIO_AddPlayPcmData(mId, pcmId, data, data.LongLength);
         }
 
+        public bool AddPlayPcmData(int pcmId, WWUtil.LargeArray<byte> data) {
+            if (!AddPlayPcmDataAllocateMemory(pcmId, data.LongLength)) {
+                return false;
+            }
+
+            for (int i = 0; i < data.ArrayNum(); ++i) {
+                var fragment = data.ArrayNth(i);
+                if (!AddPlayPcmDataSetPcmFragment(pcmId, (long)i * WWUtil.LargeArray<byte>.ARRAY_FRAGMENT_LENGTH_NUM, fragment)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         public bool AddPlayPcmDataAllocateMemory(int pcmId, long bytes) {
             return WasapiIO_AddPlayPcmData(mId, pcmId, null, bytes);
         }

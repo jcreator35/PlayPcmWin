@@ -2,6 +2,7 @@
 using PcmDataLib;
 using Wasapi;
 using System.Threading;
+using WWUtil;
 
 namespace WasapiPcmUtil {
     public enum NoiseShapingType {
@@ -137,7 +138,28 @@ namespace WasapiPcmUtil {
                 return null;
             }
 
-            var newSampleArray = mConvert[(int)fromFormat][(int)toFormat](pcmFrom, toFormat, args);
+            long toBytes = pcmFrom.NumFrames * pcmFrom.NumChannels * WasapiCS.SampleFormatTypeToUseBitsPerSample(toFormat) / 8;
+            var newSampleArray = new LargeArray<byte>(toBytes);
+
+            {
+                var dataFragment = new byte[0x1000000];
+
+                var pcmTemp = new PcmData();
+                pcmTemp.CopyFrom(pcmFrom);
+
+                long writePos = 0;
+                for (long readPos = 0; readPos < pcmFrom.GetSampleLargeArray().LongLength; readPos += dataFragment.Length) {
+                    long count = dataFragment.Length;
+                    if (pcmFrom.GetSampleLargeArray().LongLength < readPos + count) {
+                        count = pcmFrom.GetSampleLargeArray().LongLength - readPos;
+                    }
+                    pcmTemp.SetSampleLargeArray(count, new LargeArray<byte>(dataFragment));
+
+                    var toFragment = mConvert[(int)fromFormat][(int)toFormat](pcmTemp, toFormat, args);
+                    newSampleArray.CopyFrom(toFragment, 0, writePos, (int)count);
+                    writePos += toFragment.Length;
+                }
+            }
 
             PcmData newPcmData = new PcmData();
             newPcmData.CopyHeaderInfoFrom(pcmFrom);
@@ -145,7 +167,7 @@ namespace WasapiPcmUtil {
                     WasapiCS.SampleFormatTypeToUseBitsPerSample(toFormat),
                     WasapiCS.SampleFormatTypeToValidBitsPerSample(toFormat), pcmFrom.SampleRate,
                     SampleFormatInfo.BftToVrt(WasapiCS.SampleFormatTypeToBitFormatType(toFormat)), pcmFrom.NumFrames);
-            newPcmData.SetSampleArray(newSampleArray);
+            newPcmData.SetSampleLargeArray(newSampleArray);
 
             return newPcmData;
         }
@@ -184,13 +206,13 @@ namespace WasapiPcmUtil {
         }
 
         private byte[] ConvClone(PcmData from, WasapiCS.SampleFormatType toFormat, BitsPerSampleConvArgs args) {
-            return (byte[])from.GetSampleArray().Clone();
+            return from.GetSampleLargeArray().ToArray();
         }
 
         private delegate void ConversionLoop(byte[] from, byte[] to, long nSample, NoiseShapingType noiseShaping);
 
         private byte[] ConvCommon(PcmData pcmFrom, WasapiCS.SampleFormatType toFormat, BitsPerSampleConvArgs args, ConversionLoop convLoop) {
-            var from = pcmFrom.GetSampleArray();
+            var from = pcmFrom.GetSampleLargeArray().ToArray();
             long nSample = from.LongLength * 8 / pcmFrom.BitsPerSample;
             var to = new byte[nSample * WasapiCS.SampleFormatTypeToUseBitsPerSample(toFormat) / 8];
             convLoop(from, to, nSample, args.noiseShaping);

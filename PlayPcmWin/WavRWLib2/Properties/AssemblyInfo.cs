@@ -14,7 +14,7 @@ using System;
 
 [assembly: ComVisible(false)]
 
-[assembly: CLSCompliant(true)]
+[assembly: CLSCompliant(false)]
 
 [assembly: Guid("89fef4a1-c300-4efd-a35d-517b2002a522")]
 

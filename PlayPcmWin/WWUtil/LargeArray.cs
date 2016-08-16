@@ -16,6 +16,15 @@ namespace WWUtil {
         /// </summary>
         public const int ARRAY_FRAGMENT_LENGTH_NUM = 64 * 1024 * 1024;
 
+        private readonly long mCount;
+        private T[][] mArrayArray;
+
+        public LargeArray<T> Clone() {
+            var cloned = new LargeArray<T>(mCount);
+            cloned.CopyFrom(this, 0, 0, mCount);
+            return cloned;
+        }
+
         /// <summary>
         /// ctor
         /// </summary>
@@ -318,8 +327,5 @@ namespace WWUtil {
             CopyTo(0, ref result, 0, (int)mCount);
             return result;
         }
-
-        private readonly long mCount;
-        private T[][] mArrayArray;
     }
 }
