@@ -398,7 +398,7 @@ namespace WasapiBitmatchChecker.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Random sequence.
+        ///   Looks up a localized string similar to Random sequence:.
         /// </summary>
         internal static string radioButtonPcmRandom {
             get {

@@ -239,7 +239,7 @@ Exiting program...</value>
     <value>Event driven</value>
   </data>
   <data name="radioButtonPcmRandom" xml:space="preserve">
-    <value>Random sequence</value>
+    <value>Random sequence:</value>
   </data>
   <data name="radioButtonSint16" xml:space="preserve">
     <value>Integer 16-bit</value>

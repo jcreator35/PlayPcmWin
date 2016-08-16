@@ -239,7 +239,7 @@
     <value>イベント駆動</value>
   </data>
   <data name="radioButtonPcmRandom" xml:space="preserve">
-    <value>ランダムな値</value>
+    <value>ランダムな値:</value>
   </data>
   <data name="radioButtonSint16" xml:space="preserve">
     <value>16-bit整数型</value>
