@@ -369,10 +369,10 @@ namespace WasapiBitmatchChecker {
                 mPcmTest.CopyFrom(mPcmSync);
                 var randData = new LargeArray<byte>((long)(WasapiCS.SampleFormatTypeToUseBitsPerSample(mPlaySampleFormat) / 8) * NUM_CHANNELS * mNumTestFrames);
                 var fragment = new byte[1024 * 1024];
-                for (long i = 0; i < mNumTestFrames; i += fragment.Length) {
+                for (long i = 0; i < randData.LongLength; i += fragment.Length) {
                     long count = fragment.Length;
-                    if (mNumTestFrames < i + count) {
-                        count = mNumTestFrames - i;
+                    if (randData.LongLength < i + count) {
+                        count = randData.LongLength - i;
                     }
 
                     mRand.NextBytes(fragment);
@@ -705,10 +705,10 @@ namespace WasapiBitmatchChecker {
             mPcmRecorded.SetSampleLargeArray(mCapturedPcmData);
 
             // 開始合図位置compareStartFrameをサーチ
-            int compareStartFrame = -1;
+            long compareStartFrame = -1;
             switch (mRecSampleFormat) {
             case WasapiCS.SampleFormatType.Sint16:
-                for (int pos=0; pos < mPcmRecorded.NumFrames; ++pos) {
+                for (long pos=0; pos < mPcmRecorded.NumFrames; ++pos) {
                     if (0x00030000 == mPcmRecorded.GetSampleValueInInt32(0, pos)) {
                         compareStartFrame = pos;
                         break;
@@ -717,7 +717,7 @@ namespace WasapiBitmatchChecker {
                 break;
             case WasapiCS.SampleFormatType.Sint24:
             case WasapiCS.SampleFormatType.Sint32V24:
-                for (int pos=0; pos < mPcmRecorded.NumFrames; ++pos) {
+                for (long pos=0; pos < mPcmRecorded.NumFrames; ++pos) {
                     if (0x00000300 == mPcmRecorded.GetSampleValueInInt32(0, pos)) {
                         compareStartFrame = pos;
                         break;
@@ -734,7 +734,7 @@ namespace WasapiBitmatchChecker {
                 return;
             }
 
-            compareStartFrame += (int)mPcmReady.NumFrames;
+            compareStartFrame += mPcmReady.NumFrames;
 
             if (mPcmRecorded.NumFrames - compareStartFrame < mNumTestFrames) {
                 textBoxLog.Text += Properties.Resources.msgCompareCaptureTooSmall;
@@ -783,7 +783,7 @@ namespace WasapiBitmatchChecker {
 
         private void buttonBrowse_Click(object sender, RoutedEventArgs e) {
             var dlg = new Microsoft.Win32.OpenFileDialog();
-            dlg.Filter = "Supported files|*.wav";
+            dlg.Filter = "Supported files|*.WAV;*.FLAC";
 
             Nullable<bool> result = dlg.ShowDialog();
 
@@ -791,11 +791,18 @@ namespace WasapiBitmatchChecker {
                 return;
             }
 
+            groupBoxPcmDataSettings.IsEnabled = false;
+            groupBoxPlayback.IsEnabled = false;
+            groupBoxRecording.IsEnabled = false;
+            buttonStart.IsEnabled = false;
+
+            textBoxLog.Text += string.Format("Reading {0} ... ", dlg.FileName);
+            textBoxLog.ScrollToEnd();
+
             mBwLoadPcm = new BackgroundWorker();
             mBwLoadPcm.DoWork += new DoWorkEventHandler(LoadPcm_DoWork);
             mBwLoadPcm.RunWorkerCompleted += new RunWorkerCompletedEventHandler(LoadPcm_RunWorkerCompleted);
             mBwLoadPcm.RunWorkerAsync(dlg.FileName);
-            groupBoxPcmDataSettings.IsEnabled = false;
         }
 
         private PcmDataLib.PcmData mPlayPcmData;
@@ -831,6 +838,37 @@ namespace WasapiBitmatchChecker {
                 r.pcmData = null;
             }
 
+            if (r.pcmData == null) {
+                try {
+                    var flacRW = new WWFlacRWCS.FlacRW();
+                    int rv = flacRW.DecodeAll(r.path);
+                    if (0 <= rv) {
+                        WWFlacRWCS.Metadata metaData;
+                        flacRW.GetDecodedMetadata(out metaData);
+                        if (metaData.channels == NUM_CHANNELS) {
+                            var pcmBytes = new LargeArray<byte>(metaData.PcmBytes);
+
+                            int bytesPerSample = metaData.bitsPerSample/8;
+                            var fragment = new byte[bytesPerSample];
+                            for (long pos = 0; pos<metaData.totalSamples;++pos) {
+                                for (int ch = 0; ch < NUM_CHANNELS; ++ch) {
+                                    flacRW.GetDecodedPcmBytes(ch, pos * bytesPerSample, out fragment, bytesPerSample);
+                                    pcmBytes.CopyFrom(fragment, 0, (long)bytesPerSample * (NUM_CHANNELS * pos + ch), bytesPerSample);
+                                }
+                            }
+
+                            r.pcmData = new PcmDataLib.PcmData();
+                            r.pcmData.SetFormat(NUM_CHANNELS, metaData.bitsPerSample, metaData.bitsPerSample,
+                                metaData.sampleRate, PcmDataLib.PcmData.ValueRepresentationType.SInt, metaData.totalSamples);
+                            r.pcmData.SetSampleLargeArray(pcmBytes);
+                        }
+                    }
+                } catch (Exception ex) {
+                    Console.WriteLine(ex);
+                    r.pcmData = null;
+                }
+            }
+
             if (r.pcmData != null) {
                 r.result = true;
             } else {
@@ -844,13 +882,22 @@ namespace WasapiBitmatchChecker {
             var r = e.Result as LoadPcmResult;
 
             groupBoxPcmDataSettings.IsEnabled = true;
+            groupBoxPlayback.IsEnabled = true;
+            groupBoxRecording.IsEnabled = true;
+            buttonStart.IsEnabled = true;
 
             if (!r.result) {
+                textBoxLog.Text += "Failed.\n";
+                textBoxLog.ScrollToEnd();
+
                 MessageBox.Show(string.Format("Error: Read failed. Only 2ch stereo WAV is supported: {0}",
                     r.path));
                 radioButtonPcmRandom.IsChecked = true;
                 return;
             }
+
+            textBoxLog.Text += "Succeeded.\n";
+            textBoxLog.ScrollToEnd();
 
             mPlayPcmData = r.pcmData;
             radioButtonFile.IsChecked = true;

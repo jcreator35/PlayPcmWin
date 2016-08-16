@@ -604,11 +604,13 @@ namespace Wasapi {
                 return false;
             }
 
+            long posBytes = 0;
             for (int i = 0; i < data.ArrayNum(); ++i) {
                 var fragment = data.ArrayNth(i);
-                if (!AddPlayPcmDataSetPcmFragment(pcmId, (long)i * WWUtil.LargeArray<byte>.ARRAY_FRAGMENT_LENGTH_NUM, fragment)) {
+                if (!AddPlayPcmDataSetPcmFragment(pcmId, posBytes, fragment)) {
                     return false;
                 }
+                posBytes += fragment.LongLength;
             }
 
             return true;
