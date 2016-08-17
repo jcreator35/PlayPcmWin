@@ -37,7 +37,7 @@ namespace WasapiBitmatchChecker {
         private Wasapi.WasapiCS.CaptureCallback mCaptureDataArrivedDelegate;
 
         private static int NUM_PROLOGUE_FRAMES = 262144;
-        private long mNumTestFrames = 1024L * 1024L;
+        private long mNumTestFrames = 1000 * 1000;
         private static int NUM_CHANNELS = 2;
         private int mSampleRate;
         private WasapiCS.SampleFormatType mPlaySampleFormat;
@@ -65,7 +65,7 @@ namespace WasapiBitmatchChecker {
         Random mRand = new Random();
 
         private LargeArray<byte> mCapturedPcmData;
-        private int mCapturedBytes;
+        private long mCapturedBytes;
 
         private Object mLock = new Object();
 
@@ -268,7 +268,7 @@ namespace WasapiBitmatchChecker {
                 MessageBox.Show(Properties.Resources.msgPcmSizeError);
                 return false;
             }
-            mNumTestFrames = 1024L * 1024L * (long)testFramesMbytes;
+            mNumTestFrames = 1000L * 1000L * (long)testFramesMbytes;
 
             if (radioButton44100.IsChecked == true) {
                 mSampleRate = 44100;
@@ -597,7 +597,7 @@ namespace WasapiBitmatchChecker {
                 var recAttr = mWasapiRec.GetDeviceAttributes(mRecDeviceIdx);
 
                 r.result = true;
-                r.text = string.Format(Properties.Resources.msgTestStarted, mSampleRate, mNumTestFrames / mSampleRate);
+                r.text = string.Format(Properties.Resources.msgTestStarted, mSampleRate, mNumTestFrames / mSampleRate, mNumTestFrames/1000/1000);
                 r.text += string.Format(Properties.Resources.msgPlaySettings,
                         mPlaySampleFormat, mPlayBufferMillisec, mPlayDataFeedMode, playAttr.Name);
                 r.text += string.Format(Properties.Resources.msgRecSettings,
@@ -738,7 +738,7 @@ namespace WasapiBitmatchChecker {
                 mCapturedPcmData.CopyFrom(data, 0, mCapturedBytes, data.Length);
                 mCapturedBytes += data.Length;
 
-                int capturedFrames = mCapturedBytes / NUM_CHANNELS / (WasapiCS.SampleFormatTypeToUseBitsPerSample(mRecSampleFormat) / 8);
+                long capturedFrames = mCapturedBytes / NUM_CHANNELS / (WasapiCS.SampleFormatTypeToUseBitsPerSample(mRecSampleFormat) / 8);
 
                 //Console.WriteLine("Captured {0} frames", capturedFrames);
             } else {

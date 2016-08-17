@@ -232,7 +232,7 @@
 </value>
   </data>
   <data name="msgTestStarted" xml:space="preserve">
-    <value>テスト開始. サンプリング周波数={0}Hz, 再生するPCMデータの長さ={1:F1} 秒.
+    <value>テスト開始. サンプリング周波数={0}Hz, 再生するPCMデータの長さ={1:F1} 秒, {2:F3} Mフレーム.
 </value>
   </data>
   <data name="radioButtonEventDriven" xml:space="preserve">

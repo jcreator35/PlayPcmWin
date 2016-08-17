@@ -379,7 +379,7 @@ namespace WasapiBitmatchChecker.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Test started. SampleRate={0}Hz, PCM data duration={1:F1} seconds.
+        ///   Looks up a localized string similar to Test started. SampleRate={0}Hz, PCM data duration={1:F1} seconds, , {2:F3} M frames.
         ///.
         /// </summary>
         internal static string msgTestStarted {
