@@ -28,6 +28,8 @@ namespace WasapiBitmatchChecker {
             RecCompleted,
         };
 
+        private bool mInitialized = false;
+
         private WasapiCS mWasapiPlay;
         private WasapiCS mWasapiRec;
 
@@ -135,6 +137,8 @@ namespace WasapiBitmatchChecker {
 
             mStateChanged = new Wasapi.WasapiCS.StateChangedCallback(StateChangedCallback);
             mWasapiPlay.RegisterStateChangedCallback(mStateChanged);
+
+            mInitialized = true;
         }
 
         public void StateChangedCallback(StringBuilder idStr) {
@@ -261,7 +265,7 @@ namespace WasapiBitmatchChecker {
 
             mPlayDeviceIdx = listBoxPlayDevices.SelectedIndex;
             mRecDeviceIdx = listBoxRecDevices.SelectedIndex;
-            mUseFile = radioButtonFile.IsChecked == true;
+            mUseFile = radioButtonPcmFile.IsChecked == true;
 
             int testFramesMbytes = -1;
             if (!Int32.TryParse(textBoxTestFrames.Text, out testFramesMbytes) || testFramesMbytes <= 0) {
@@ -840,14 +844,14 @@ namespace WasapiBitmatchChecker {
 
         private BackgroundWorker mBwLoadPcm;
 
-        private void buttonBrowse_Click(object sender, RoutedEventArgs e) {
+        private bool ReadPcmFile() {
             var dlg = new Microsoft.Win32.OpenFileDialog();
             dlg.Filter = "Supported files|*.WAV;*.FLAC";
 
             Nullable<bool> result = dlg.ShowDialog();
 
             if (result != true) {
-                return;
+                return false;
             }
 
             groupBoxPcmDataSettings.IsEnabled = false;
@@ -862,7 +866,30 @@ namespace WasapiBitmatchChecker {
             mBwLoadPcm.DoWork += new DoWorkEventHandler(LoadPcm_DoWork);
             mBwLoadPcm.RunWorkerCompleted += new RunWorkerCompletedEventHandler(LoadPcm_RunWorkerCompleted);
             mBwLoadPcm.RunWorkerAsync(dlg.FileName);
+
+            return true;
         }
+
+        private void buttonBrowse_Click(object sender, RoutedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            }
+
+            if (!ReadPcmFile()) {
+                radioButtonPcmRandom.IsChecked = true;
+            }
+        }
+
+        private void radioButtonFile_Checked(object sender, RoutedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            }
+
+            if (!ReadPcmFile()) {
+                radioButtonPcmRandom.IsChecked = true;
+            }
+        }
+
 
         private PcmDataLib.PcmData mPlayPcmData;
 
@@ -959,7 +986,7 @@ namespace WasapiBitmatchChecker {
             textBoxLog.ScrollToEnd();
 
             mPlayPcmData = r.pcmData;
-            radioButtonFile.IsChecked = true;
+            radioButtonPcmFile.IsChecked = true;
             textBoxFile.Text = r.path;
         }
     }

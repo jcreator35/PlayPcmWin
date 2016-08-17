@@ -164,7 +164,7 @@
                         <TextBox Grid.Column="2" Margin="0" Name="textBoxTestFrames" VerticalAlignment="Center" Text="1" HorizontalContentAlignment="Right" />
                         <Label Content="M frames" Grid.Column="3" HorizontalAlignment="Left" VerticalAlignment="Center" />
                         <Label Content="PCM size:" Grid.Column="1" HorizontalAlignment="Right" Margin="0" VerticalAlignment="Center" Name="labelPcmSize" />
-                        <RadioButton Content="File : " Grid.Row="1" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonFile" VerticalAlignment="Center" />
+                        <RadioButton Content="File : " Grid.Row="1" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonPcmFile" VerticalAlignment="Center" Checked="radioButtonFile_Checked" />
                         <TextBox Grid.ColumnSpan="3" Grid.Row="1" Margin="64,0,6,0" Name="textBoxFile" VerticalAlignment="Center" Text="Press Browse to read" IsReadOnly="True" />
                         <Button Content="_Browse..." Grid.Column="3" Grid.Row="1" HorizontalAlignment="Left" Margin="4,0,0,0" Name="buttonBrowse" VerticalAlignment="Center" Width="69" Click="buttonBrowse_Click" />
                     </Grid>
