@@ -182,6 +182,10 @@ namespace WasapiBitmatchChecker {
                         listBoxPlayDevices.SelectedIndex = i;
                     }
                 }
+
+                if (listBoxPlayDevices.SelectedIndex < 0 && 0 < listBoxPlayDevices.Items.Count) {
+                    listBoxPlayDevices.SelectedIndex = 0;
+                }
             }
 
             {
@@ -199,14 +203,13 @@ namespace WasapiBitmatchChecker {
                         listBoxRecDevices.SelectedIndex = i;
                     }
                 }
+
+                if (listBoxRecDevices.SelectedIndex < 0 && 0 < listBoxRecDevices.Items.Count) {
+                    listBoxRecDevices.SelectedIndex = 0;
+                }
             }
 
-            if (0 < listBoxPlayDevices.Items.Count &&
-                    0 < listBoxRecDevices.Items.Count) {
-                buttonStart.IsEnabled = true;
-            } else {
-                buttonStart.IsEnabled = false;
-            }
+            UpdateButtonStartStop(ButtonStartStopState.StartEnable);
         }
 
         private void Exit() {
@@ -478,13 +481,7 @@ namespace WasapiBitmatchChecker {
                 CompareRecordedData();
 
                 // 完了。UIの状態を戻す。
-                if (0 < listBoxPlayDevices.Items.Count &&
-                        0 < listBoxRecDevices.Items.Count) {
-                    buttonStart.IsEnabled = true;
-                } else {
-                    buttonStart.IsEnabled = false;
-                }
-                buttonStop.IsEnabled = false;
+                UpdateButtonStartStop(ButtonStartStopState.StartEnable);
 
                 groupBoxPcmDataSettings.IsEnabled = true;
                 groupBoxPlayback.IsEnabled = true;
@@ -509,8 +506,7 @@ namespace WasapiBitmatchChecker {
             groupBoxPlayback.IsEnabled = false;
             groupBoxRecording.IsEnabled = false;
 
-            buttonStart.IsEnabled = false;
-            buttonStop.IsEnabled = false;
+            UpdateButtonStartStop(ButtonStartStopState.Disable);
 
             textBoxLog.Text += "Preparing data.\n";
             textBoxLog.ScrollToEnd();
@@ -601,7 +597,7 @@ namespace WasapiBitmatchChecker {
                 var recAttr = mWasapiRec.GetDeviceAttributes(mRecDeviceIdx);
 
                 r.result = true;
-                r.text = string.Format(Properties.Resources.msgTestStarted, mSampleRate, mNumTestFrames / mSampleRate, mNumTestFrames/1000/1000);
+                r.text = string.Format(Properties.Resources.msgTestStarted, mSampleRate, mNumTestFrames / mSampleRate, mNumTestFrames * 0.001 * 0.001);
                 r.text += string.Format(Properties.Resources.msgPlaySettings,
                         mPlaySampleFormat, mPlayBufferMillisec, mPlayDataFeedMode, playAttr.Name);
                 r.text += string.Format(Properties.Resources.msgRecSettings,
@@ -622,13 +618,12 @@ namespace WasapiBitmatchChecker {
                 groupBoxPlayback.IsEnabled = true;
                 groupBoxRecording.IsEnabled = true;
 
-                buttonStart.IsEnabled = true;
-                buttonStop.IsEnabled = false;
+                UpdateButtonStartStop(ButtonStartStopState.StartEnable);
                 return;
             }
 
             // 成功。
-            buttonStop.IsEnabled = true;
+            UpdateButtonStartStop(ButtonStartStopState.StopEnable);
 
             System.GC.Collect();
             System.Threading.Thread.Sleep(500);
@@ -661,16 +656,38 @@ namespace WasapiBitmatchChecker {
             mWasapiRec.Unsetup();
         }
 
+        enum ButtonStartStopState {
+            Disable,
+            StartEnable,
+            StopEnable,
+        };
+
+        private void UpdateButtonStartStop(ButtonStartStopState s) {
+            switch (s) {
+            case ButtonStartStopState.StartEnable:
+                if (0 <= listBoxPlayDevices.SelectedIndex &&
+                        0 <= listBoxRecDevices.SelectedIndex) {
+                    buttonStart.IsEnabled = true;
+                } else {
+                    buttonStart.IsEnabled = false;
+                }
+                buttonStop.IsEnabled = false;
+                break;
+            case ButtonStartStopState.StopEnable:
+                buttonStart.IsEnabled = false;
+                buttonStop.IsEnabled = true;
+                break;
+            case ButtonStartStopState.Disable:
+                buttonStart.IsEnabled = false;
+                buttonStop.IsEnabled = false;
+                break;
+            }
+        }
+
         private void AbortTest() {
             StopUnsetup();
 
-            if (0 <= listBoxPlayDevices.SelectedIndex &&
-                    0 <= listBoxRecDevices.SelectedIndex) {
-                buttonStart.IsEnabled = true;
-            } else {
-                buttonStart.IsEnabled = false;
-            }
-            buttonStop.IsEnabled = false;
+            UpdateButtonStartStop(ButtonStartStopState.StartEnable);
 
             groupBoxPcmDataSettings.IsEnabled = true;
             groupBoxPlayback.IsEnabled = true;
@@ -814,7 +831,7 @@ namespace WasapiBitmatchChecker {
                     if (mPcmTest.GetSampleValueInInt32(ch, pos)
                             != mPcmRecorded.GetSampleValueInInt32(ch, pos + compareStartFrame)) {
                         textBoxLog.Text += string.Format(Properties.Resources.msgCompareDifferent,
-                                (double)numTestBytes / 1024 / 1024, (double)numTestBytes * 8L / 1000 / 1000, (double)mNumTestFrames / mSampleRate);
+                                (double)numTestBytes * 0.001 * 0.001, (double)numTestBytes * 8L * 0.001 * 0.001, (double)mNumTestFrames / mSampleRate);
                         textBoxLog.ScrollToEnd();
                         return;
                     }
@@ -822,7 +839,7 @@ namespace WasapiBitmatchChecker {
             }
 
             textBoxLog.Text += string.Format(Properties.Resources.msgCompareIdentical,
-                    (double)numTestBytes / 1024 / 1024, (double)numTestBytes * 8L / 1000 / 1000, (double)mNumTestFrames / mSampleRate);
+                    (double)numTestBytes * 0.001 * 0.001, (double)numTestBytes * 8L * 0.001 * 0.001, (double)mNumTestFrames / mSampleRate);
             textBoxLog.ScrollToEnd();
         }
 
@@ -857,7 +874,8 @@ namespace WasapiBitmatchChecker {
             groupBoxPcmDataSettings.IsEnabled = false;
             groupBoxPlayback.IsEnabled = false;
             groupBoxRecording.IsEnabled = false;
-            buttonStart.IsEnabled = false;
+
+            UpdateButtonStartStop(ButtonStartStopState.Disable);
 
             textBoxLog.Text += string.Format("Reading {0} ... ", dlg.FileName);
             textBoxLog.ScrollToEnd();
@@ -970,7 +988,8 @@ namespace WasapiBitmatchChecker {
             groupBoxPcmDataSettings.IsEnabled = true;
             groupBoxPlayback.IsEnabled = true;
             groupBoxRecording.IsEnabled = true;
-            buttonStart.IsEnabled = true;
+
+            UpdateButtonStartStop(ButtonStartStopState.StartEnable);
 
             if (!r.result) {
                 textBoxLog.Text += "Failed.\n";
