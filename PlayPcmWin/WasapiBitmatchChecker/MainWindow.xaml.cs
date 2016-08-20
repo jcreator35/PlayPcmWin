@@ -831,7 +831,7 @@ namespace WasapiBitmatchChecker {
                     if (mPcmTest.GetSampleValueInInt32(ch, pos)
                             != mPcmRecorded.GetSampleValueInInt32(ch, pos + compareStartFrame)) {
                         textBoxLog.Text += string.Format(Properties.Resources.msgCompareDifferent,
-                                (double)numTestBytes * 0.001 * 0.001, (double)numTestBytes * 8L * 0.001 * 0.001, (double)mNumTestFrames / mSampleRate);
+                                (double)numTestBytes /1024.0/1024.0, (double)numTestBytes * 8L * 0.001 * 0.001, (double)mNumTestFrames / mSampleRate);
                         textBoxLog.ScrollToEnd();
                         return;
                     }
@@ -839,7 +839,7 @@ namespace WasapiBitmatchChecker {
             }
 
             textBoxLog.Text += string.Format(Properties.Resources.msgCompareIdentical,
-                    (double)numTestBytes * 0.001 * 0.001, (double)numTestBytes * 8L * 0.001 * 0.001, (double)mNumTestFrames / mSampleRate);
+                    (double)numTestBytes /1024.0/1024.0, (double)numTestBytes * 8L * 0.001 * 0.001, (double)mNumTestFrames / mSampleRate);
             textBoxLog.ScrollToEnd();
         }
 
