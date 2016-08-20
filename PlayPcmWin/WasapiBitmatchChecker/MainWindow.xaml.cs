@@ -903,6 +903,10 @@ namespace WasapiBitmatchChecker {
                 return;
             }
 
+            if (mPlayPcmData != null) {
+                return;
+            }
+
             if (!ReadPcmFile()) {
                 radioButtonPcmRandom.IsChecked = true;
             }
@@ -1005,8 +1009,8 @@ namespace WasapiBitmatchChecker {
             textBoxLog.ScrollToEnd();
 
             mPlayPcmData = r.pcmData;
-            radioButtonPcmFile.IsChecked = true;
             textBoxFile.Text = r.path;
+            radioButtonPcmFile.IsChecked = true;
         }
     }
 }
