@@ -91,12 +91,15 @@ namespace PlayPcmWinAlbum {
                     return;
                 }
 
-                var bi = new BitmapImage();
-                bi.BeginInit();
-                bi.CacheOption = BitmapCacheOption.OnLoad;
-                bi.StreamSource = new MemoryStream(mContent.ImageBytes);
-                bi.EndInit();
-                bi.Freeze();
+                BitmapImage bi = null;
+                if (0 < mContent.ImageBytes.Length) {
+                    bi = new BitmapImage();
+                    bi.BeginInit();
+                    bi.CacheOption = BitmapCacheOption.OnLoad;
+                    bi.StreamSource = new MemoryStream(mContent.ImageBytes);
+                    bi.EndInit();
+                    bi.Freeze();
+                }
 
                 if (token.IsCancellationRequested) {
                     Console.WriteLine("Cancelled 2 {0}", mContent.DisplayName);
@@ -105,7 +108,7 @@ namespace PlayPcmWinAlbum {
 
                 uiThreadDispatcher.Invoke(new Action(() => {
                     lock (mLock) {
-                        if (mImage != null) {
+                        if (mImage != null && bi != null) {
                             mImage.Source = bi;
                         }
                     }
