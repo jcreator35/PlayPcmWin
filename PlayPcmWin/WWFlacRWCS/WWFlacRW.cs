@@ -161,7 +161,12 @@ namespace WWFlacRWCS {
         private int mId = (int)FlacErrorCode.IdNotFound;
 
         public int DecodeAll(string path) {
-            mId = NativeMethods.WWFlacRW_DecodeAll(path);
+            mId = NativeMethods.WWFlacRW_Decode(NativeMethods.WWFLAC_FRDT_ALL, path);
+            return mId;
+        }
+
+        public int DecodeHeader(string path) {
+            mId = NativeMethods.WWFlacRW_Decode(NativeMethods.WWFLAC_FRDT_HEADER, path);
             return mId;
         }
 
@@ -275,6 +280,9 @@ namespace WWFlacRWCS {
         public const int WWFLAC_TEXT_STRSZ = 256;
         public const int WWFLAC_MD5SUM_BYTES = 16;
 
+        public const int WWFLAC_FRDT_ALL = 0;
+        public const int WWFLAC_FRDT_HEADER = 1;
+
         [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Unicode)]
         internal struct Metadata {
             public int sampleRate;
@@ -313,7 +321,7 @@ namespace WWFlacRWCS {
 
         [DllImport("WWFlacRW.dll", CharSet = CharSet.Unicode)]
         internal extern static
-        int WWFlacRW_DecodeAll(string path);
+        int WWFlacRW_Decode(int frdt, string path);
 
         [DllImport("WWFlacRW.dll", CharSet = CharSet.Unicode)]
         internal extern static

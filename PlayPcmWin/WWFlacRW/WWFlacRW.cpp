@@ -458,7 +458,7 @@ ErrorCallback(const FLAC__StreamDecoder *decoder,
 
 extern "C" __declspec(dllexport)
 int __stdcall
-WWFlacRW_DecodeAll(const wchar_t *path)
+WWFlacRW_Decode(int frdt, const wchar_t *path)
 {
     FLAC__bool ok = true;
     FILE *fp = nullptr;
@@ -519,6 +519,15 @@ WWFlacRW_DecodeAll(const wchar_t *path)
                 __FUNCTION__, fdi->errorCode);
         goto end;
     }
+
+    if (frdt == FRDT_Header) {
+        // ヘッダーのみデコードするモードの時、ここで終了。
+        fdi->errorCode = FRT_Completed;
+        goto end;
+    }
+
+    // FRDT_Allの場合ここに来る。
+    // ストリームを取り出す。
 
     ok = FLAC__stream_decoder_process_until_end_of_stream(fdi->decoder);
     if (!ok) {

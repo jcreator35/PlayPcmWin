@@ -8,6 +8,11 @@
 #define WWFLACRW_API __declspec(dllimport)
 #endif
 
+enum FlacRWDecodeType {
+    FRDT_All,
+    FRDT_Header,
+};
+
 enum FlacRWResultType {
     /// ヘッダの取得やデータの取得に成功。
     FRT_Success = 0,
@@ -81,14 +86,14 @@ struct WWFlacMetadata {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // flac decode
 
-/// FLACヘッダーを読み込んで、フォーマット情報を取得、すべてのサンプルデータを取得。
+/// FLACヘッダーを読み込んで、フォーマット情報を取得、FRDT_Allの場合さらにすべてのサンプルデータを取得。
 /// 中のグローバル変数に貯める。
-/// @param skipSamples スキップするサンプル数。0以外の値を指定するとMD5のチェックを行わなくなるので注意。
-/// @param fromFlacPath パス名(UTF-16)
+/// @param frdt FlacFWDecodeType (FRDT_All または FRDT_Header)
+/// @param path パス名(UTF-16)
 /// @return 0以上: デコーダーId。負: エラー。FlacRWResultType参照。
 extern "C" WWFLACRW_API
 int __stdcall
-WWFlacRW_DecodeAll(const wchar_t *path);
+WWFlacRW_Decode(int frdt, const wchar_t *path);
 
 /// @return 0以上: 成功。負: エラー。FlacRWResultType参照。
 extern "C" WWFLACRW_API
