@@ -15,6 +15,7 @@ namespace PlayPcmWinAlbum {
         private DataGridPlayListHandler mDataGridPlayListHandler;
         private PlaybackController mPlaybackController = new PlaybackController();
         private bool mInitialized = false;
+        BackgroundWorker mBackgroundLoad;
 
         private enum State {
             Init,
@@ -48,6 +49,7 @@ namespace PlayPcmWinAlbum {
                 }
             }
             mPlaybackController.Init();
+            mPlaybackController.SetStateChangedCallback(PlaybackStateChanged);
         }
 
         private void ChangeDisplayState(State t) {
@@ -86,17 +88,24 @@ namespace PlayPcmWinAlbum {
             mState = t;
         }
 
-        private void UpdatePlaybackControlState() {
-            var state = mPlaybackController.GetState();
+        private void UpdatePlaybackControlState(PlaybackController.State state) {
             switch (state) {
             case PlaybackController.State.Stopped:
                 mButtonPlay.IsEnabled = true;
                 mButtonStop.IsEnabled = false;
+                mProgressBar.Visibility = System.Windows.Visibility.Collapsed;
                 break;
             case PlaybackController.State.Playing:
                 mButtonPlay.IsEnabled = false;
                 mButtonStop.IsEnabled = true;
+                mProgressBar.Visibility = System.Windows.Visibility.Collapsed;
                 break;
+            case PlaybackController.State.Loading:
+                mButtonPlay.IsEnabled = false;
+                mButtonStop.IsEnabled = false;
+                mProgressBar.Visibility = System.Windows.Visibility.Visible;
+                break;
+
             default:
                 System.Diagnostics.Debug.Assert(false);
                 break;
@@ -254,7 +263,7 @@ namespace PlayPcmWinAlbum {
             mLabelAlbumName.Content = album.Name;
             mDataGridPlayListHandler.ShowAlbum(album);
             ChangeDisplayState(State.AlbumTrackBrowsing);
-            UpdatePlaybackControlState();
+            UpdatePlaybackControlState(PlaybackController.State.Stopped);
         }
 
         private void mMenuItemBack_Click(object sender, RoutedEventArgs e) {
@@ -278,16 +287,100 @@ namespace PlayPcmWinAlbum {
 
         }
 
-        private void buttonPlay_Click(object sender, RoutedEventArgs e) {
-            mPlaybackController.Play(mListBoxPlaybackDevice.SelectedIndex, mContentList.GetSelectedAlbum());
+        class BackgroundLoadArgs {
+            public ContentList.Album Album { get; set;}
+            public int First { get; set; }
+            public int DeviceIdx { get; set; }
+            public BackgroundLoadArgs(ContentList.Album album, int first, int deviceIdx) {
+                Album = album;
+                First = first;
+                DeviceIdx = deviceIdx;
+            }
+        };
 
-            UpdatePlaybackControlState();
+        class BackgroundLoadResult {
+            public BackgroundLoadArgs Args { get; set; }
+            public bool Result { get; set; }
+            public BackgroundLoadResult(BackgroundLoadArgs args, bool result) {
+                Args = args;
+                Result = result;
+            }
+        };
+
+        private void buttonPlay_Click(object sender, RoutedEventArgs e) {
+            var args = new BackgroundLoadArgs(
+                    mContentList.GetSelectedAlbum(), mDataGridPlayList.SelectedIndex, mListBoxPlaybackDevice.SelectedIndex);
+            mPlaybackController.SetStateChangedCallback(null);
+
+            var playList = CreatePlayList(args.Album, args.First);
+            bool result = mPlaybackController.PlaylistCreateStart(args.DeviceIdx, args.Album.AudioFileNth(args.First));
+            if (!result) {
+                MessageBox.Show("Error: Playback start failed!");
+                return;
+            }
+
+            UpdatePlaybackControlState(PlaybackController.State.Loading);
+            mBackgroundLoad = new BackgroundWorker();
+            mBackgroundLoad.WorkerReportsProgress = true;
+            mBackgroundLoad.DoWork += new DoWorkEventHandler(mBackgroundLoad_DoWork);
+            mBackgroundLoad.ProgressChanged += new ProgressChangedEventHandler(mBackgroundLoad_ProgressChanged);
+            mBackgroundLoad.RunWorkerCompleted += new RunWorkerCompletedEventHandler(mBackgroundLoad_RunWorkerCompleted);
+            mBackgroundLoad.RunWorkerAsync(args);
+        }
+
+        private static bool IsSameFormat(ContentList.AudioFile lhs, ContentList.AudioFile rhs) {
+            return lhs.Pcm.IsSameFormat(rhs.Pcm);
+        }
+
+        private static List<ContentList.AudioFile> CreatePlayList(ContentList.Album album, int first) {
+            var afList = new List<ContentList.AudioFile>();
+            var firstAf = album.AudioFileNth(first);
+            afList.Add(firstAf);
+
+            for (int i = first + 1; i < album.AudioFileCount; ++i) {
+                var af = album.AudioFileNth(i);
+                if (!IsSameFormat(firstAf, af)) {
+                    break;
+                }
+                afList.Add(af);
+            }
+            return afList;
+        }
+
+        void mBackgroundLoad_DoWork(object sender, DoWorkEventArgs e) {
+            var args = e.Argument as BackgroundLoadArgs;
+
+            var playList = CreatePlayList(args.Album, args.First);
+
+            int added = 0;
+            for (int i = 0; i < playList.Count; ++i) {
+                var af = playList[i];
+                if (mPlaybackController.Add(i, af)) {
+                    ++added;
+                }
+                mBackgroundLoad.ReportProgress((i + 1) * 100 / playList.Count);
+            }
+            mPlaybackController.PlaylistCreateEnd();
+
+            e.Result = new BackgroundLoadResult(args, 0 < added);
+        }
+
+        void mBackgroundLoad_ProgressChanged(object sender, ProgressChangedEventArgs e) {
+            mProgressBar.Value = e.ProgressPercentage;
+        }
+
+        void mBackgroundLoad_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
+            var result = e.Result as BackgroundLoadResult;
+            if (result.Result) {
+                mPlaybackController.Play();
+            } else {
+                MessageBox.Show("Error: File load failed!");
+            }
+            UpdatePlaybackControlState(mPlaybackController.GetState());
         }
 
         private void buttonStop_Click(object sender, RoutedEventArgs e) {
             mPlaybackController.Stop();
-
-            UpdatePlaybackControlState();
         }
 
         private void buttonPause_Click(object sender, RoutedEventArgs e) {
@@ -313,5 +406,20 @@ namespace PlayPcmWinAlbum {
 
             mPreferredDeviceIdString = mPlaybackController.GetDeviceAttribute(mListBoxPlaybackDevice.SelectedIndex).DeviceIdString;
         }
+
+        private void PlaybackStateChanged(PlaybackController.State newState) {
+            Console.WriteLine("D: PlaybackStateChanged({0})", newState);
+
+            /*
+            // UIスレッドで再生状態変更処理する。
+            System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(
+                System.Windows.Threading.DispatcherPriority.Background,
+                new System.Threading.ThreadStart(delegate {
+                        UpdatePlaybackControlState();
+                    }));
+            */
+        }
+
+
     }
 }

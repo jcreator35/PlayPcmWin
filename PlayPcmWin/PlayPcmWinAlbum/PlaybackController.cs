@@ -11,19 +11,33 @@ namespace PlayPcmWinAlbum {
         private int mLatencyMillisec = 170;
         private int mZeroFlushMillisec = 1000;
         private WasapiCS.DataFeedMode mDataFeedMode = WasapiCS.DataFeedMode.EventDriven;
+        public delegate void StateChangedCallback(State newState);
+        private StateChangedCallback mStateChangedCallback = null;
+
+        public void SetStateChangedCallback(StateChangedCallback cb) {
+            mStateChangedCallback = cb;
+        }
 
         public enum State {
-            Playing,
             Stopped,
+            Loading,
+            Playing,
         };
 
         private State mState = State.Stopped;
+
+        public void ChangeState(State s) {
+            mState = s;
+
+            if (mStateChangedCallback != null) {
+                mStateChangedCallback(s);
+            }
+        }
 
         public State GetState() {
             return mState;
         }
 
-        public delegate void StateChangedCallback(State newState);
 
         public PlaybackController() {
         }
@@ -59,25 +73,6 @@ namespace PlayPcmWinAlbum {
         public void Term() {
             mWasapi.Term();
             mWasapi = null;
-        }
-
-        private bool IsSameFormat(ContentList.AudioFile lhs, ContentList.AudioFile rhs) {
-             return lhs.Pcm.IsSameFormat(rhs.Pcm);
-        }
-
-        private List<ContentList.AudioFile> CreatePlayList(int first) {
-            var afList = new List<ContentList.AudioFile>();
-            var firstAf = mAlbum.AudioFileNth(first);
-            afList.Add(firstAf);
-
-            for (int i = first+1; i < mAlbum.AudioFileCount; ++i) {
-                var af = mAlbum.AudioFileNth(i);
-                if (!IsSameFormat(firstAf, af)) {
-                    break;
-                }
-                afList.Add(af);
-            }
-            return afList;
         }
 
         private static readonly WasapiCS.SampleFormatType[] mSampleFormatCandidate16 = new WasapiCS.SampleFormatType[] {
@@ -207,49 +202,55 @@ namespace PlayPcmWinAlbum {
                 mWasapi.AddPlayPcmDataSetPcmFragment(idx, toOffs, toBytes);
                 toOffs += toBytes.Length;
             }
-
         }
 
-        public bool Play(int deviceId, ContentList.Album album) {
-            Stop();
-
+        public bool PlaylistCreateStart(int deviceId, ContentList.AudioFile af) {
+            mWasapi.Stop();
             mWasapi.Unsetup();
+
+            ChangeState(State.Loading);
+
             mWasapi.ClearPlayList();
 
-            mAlbum = album;
-
-            // 最初に再生する曲リスト afList。
-            var afList = CreatePlayList(0);
-
-            if (!Setup(deviceId, afList[0].Pcm)) {
+            // 最初に再生する曲 af
+            if (!Setup(deviceId, af.Pcm)) {
                 Console.WriteLine("E: PlaybackController::Play({0}) failed", deviceId);
+                ChangeState(State.Stopped);
                 return false;
             }
 
-            // 曲リストを読み込んでセットする。
             mWasapi.AddPlayPcmDataStart();
-            for (int i = 0; i < afList.Count; ++i) {
-                var af = afList[i];
-                WWFlacRWCS.FlacRW flac = new WWFlacRWCS.FlacRW();
-                int ercd = flac.DecodeAll(af.Path);
-                if (ercd < 0) {
-                    Console.WriteLine("E: flac.DecodeAll({0}) failed", af.Path);
-                } else {
-                    SetSampleDataToWasapi(i, flac);
-                }
-                flac.DecodeEnd();
-            }
-            mWasapi.AddPlayPcmDataEnd();
 
+            return true;
+        }
+
+        public bool Add(int nth, ContentList.AudioFile af) {
+            WWFlacRWCS.FlacRW flac = new WWFlacRWCS.FlacRW();
+            int ercd = flac.DecodeAll(af.Path);
+            if (ercd < 0) {
+                Console.WriteLine("E: flac.DecodeAll({0}) failed", af.Path);
+            } else {
+                SetSampleDataToWasapi(nth, flac);
+            }
+            flac.DecodeEnd();
+
+            return 0 <= ercd;
+        }
+
+        public void PlaylistCreateEnd() {
+            mWasapi.AddPlayPcmDataEnd();
+        }
+
+        public bool Play() {
             mWasapi.StartPlayback(0);
-            mState = State.Playing;
+            ChangeState(State.Playing);
 
             return true;
         }
 
         public void Stop() {
             mWasapi.Stop();
-            mState = State.Stopped;
+            ChangeState(State.Stopped);
         }
 
     }

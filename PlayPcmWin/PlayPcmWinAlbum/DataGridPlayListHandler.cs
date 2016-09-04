@@ -24,6 +24,9 @@ namespace PlayPcmWinAlbum {
             }
 
             mDg.ItemsSource = mPlayListItems;
+
+            mDg.SelectedIndex = 0;
+
             for (int i = 0; i < mDg.Columns.Count; ++i) {
                 var c = mDg.Columns[i];
                 c.Width = 0;

@@ -87,7 +87,7 @@
         </DataGrid>
 
         <TextBlock Name="mTextBlockMessage" Text="textBlockMessage" Panel.ZIndex="1" FontSize="32" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Grid.RowSpan="3" />
-        <ProgressBar Height="24" Name="mProgressBar" VerticalAlignment="Bottom" Maximum="1000000" Grid.Row="2" Grid.ColumnSpan="2" />
+        <ProgressBar Height="24" Name="mProgressBar" VerticalAlignment="Bottom" Maximum="100" Grid.Row="2" Grid.ColumnSpan="2" />
         <Label Content="AlbumName" Grid.Column="1" HorizontalAlignment="Left" Name="mLabelAlbumName" VerticalAlignment="Center" FontSize="20" />
     </Grid>
     
