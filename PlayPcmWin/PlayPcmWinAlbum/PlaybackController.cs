@@ -115,7 +115,7 @@ namespace PlayPcmWinAlbum {
             }
 
             public int BytesPerFrame() {
-                return NumChannels * WasapiCS.SampleFormatTypeToUseBitsPerSample(SampleFormat);
+                return NumChannels * WasapiCS.SampleFormatTypeToUseBitsPerSample(SampleFormat)/8;
             }
         };
 
@@ -224,13 +224,13 @@ namespace PlayPcmWinAlbum {
             return true;
         }
 
-        public bool Add(int nth, ContentList.AudioFile af) {
+        public bool Add(ContentList.AudioFile af) {
             WWFlacRWCS.FlacRW flac = new WWFlacRWCS.FlacRW();
             int ercd = flac.DecodeAll(af.Path);
             if (ercd < 0) {
                 Console.WriteLine("E: flac.DecodeAll({0}) failed", af.Path);
             } else {
-                SetSampleDataToWasapi(nth, flac);
+                SetSampleDataToWasapi(af.Idx, flac);
             }
             flac.DecodeEnd();
 
@@ -255,5 +255,29 @@ namespace PlayPcmWinAlbum {
             ChangeState(State.Stopped);
         }
 
+        public bool Run(int millisec) {
+            bool result = mWasapi.Run(millisec);
+            if (result) {
+                ChangeState(State.Stopped);
+            }
+
+            return result;
+        }
+
+        public int GetPcmDataId(WasapiCS.PcmDataUsageType t) {
+            return mWasapi.GetPcmDataId(t);
+        }
+
+        public WasapiCS.CursorLocation GetCursorLocation(WasapiCS.PcmDataUsageType t) {
+            return mWasapi.GetPlayCursorPosition(t);
+        }
+
+        public WasapiCS.SessionStatus GetSessionStatus() {
+            return mWasapi.GetSessionStatus();
+        }
+
+        public void SetPosFrame(long pos) {
+            mWasapi.SetPosFrame(pos);
+        }
     }
 }

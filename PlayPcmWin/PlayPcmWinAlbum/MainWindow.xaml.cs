@@ -5,6 +5,9 @@ using System.Windows;
 using System.ComponentModel;
 using System.IO;
 using System.Windows.Media.Imaging;
+using System.Windows.Input;
+using System.Globalization;
+using Wasapi;
 
 namespace PlayPcmWinAlbum {
     public partial class MainWindow : Window {
@@ -15,7 +18,14 @@ namespace PlayPcmWinAlbum {
         private DataGridPlayListHandler mDataGridPlayListHandler;
         private PlaybackController mPlaybackController = new PlaybackController();
         private bool mInitialized = false;
-        BackgroundWorker mBackgroundLoad;
+        private BackgroundWorker mBackgroundLoad;
+        private BackgroundWorker mBackgroundPlay;
+        private string mPreferredDeviceIdString = "";
+        private const int PROGRESS_REPORT_INTERVAL_MS = 100;
+        private const int SLIDER_UPDATE_TICKS = 500;
+
+        private const string PLAYING_TIME_UNKNOWN = "--:-- / --:--";
+        private const string PLAYING_TIME_ALLZERO = "00:00 / 00:00";
 
         private enum State {
             Init,
@@ -49,7 +59,6 @@ namespace PlayPcmWinAlbum {
                 }
             }
             mPlaybackController.Init();
-            mPlaybackController.SetStateChangedCallback(PlaybackStateChanged);
         }
 
         private void ChangeDisplayState(State t) {
@@ -94,6 +103,7 @@ namespace PlayPcmWinAlbum {
                 mButtonPlay.IsEnabled = true;
                 mButtonStop.IsEnabled = false;
                 mProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                mLabelPlayingTime.Content = PLAYING_TIME_ALLZERO;
                 break;
             case PlaybackController.State.Playing:
                 mButtonPlay.IsEnabled = false;
@@ -126,8 +136,8 @@ namespace PlayPcmWinAlbum {
             }
 
             mBwContentListBuilder = new BackgroundContentListBuilder(mContentList);
-            mBwContentListBuilder.AddProgressChanged(BackgroundContentListBuilder_ProgressChanged);
-            mBwContentListBuilder.AddRunWorkerCompleted(BackgroundContentListBuilder_RunWorkerCompleted);
+            mBwContentListBuilder.AddProgressChanged(OnBackgroundContentListBuilder_ProgressChanged);
+            mBwContentListBuilder.AddRunWorkerCompleted(OnBackgroundContentListBuilder_RunWorkerCompleted);
 
 #if false
             // バグっているときの調査用。
@@ -140,14 +150,14 @@ namespace PlayPcmWinAlbum {
             return true;
         }
 
-        private void BackgroundContentListBuilder_ProgressChanged(object sender, ProgressChangedEventArgs e) {
+        private void OnBackgroundContentListBuilder_ProgressChanged(object sender, ProgressChangedEventArgs e) {
             var rpa = (BackgroundContentListBuilder.ReportProgressArgs)e.UserState;
 
             mTextBlockMessage.Text = rpa.text;
             mProgressBar.Value = e.ProgressPercentage;
         }
 
-        private void BackgroundContentListBuilder_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
+        private void OnBackgroundContentListBuilder_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
             var result = (BackgroundContentListBuilder.RunWorkerCompletedResult)e.Result;
 
             ChangeDisplayState(State.AlbumBrowsing);
@@ -228,8 +238,6 @@ namespace PlayPcmWinAlbum {
             }
         }
 
-        private string mPreferredDeviceIdString = "";
-
         private void UpdateDeviceList() {
             mListBoxPlaybackDevice.Items.Clear();
             mPlaybackController.EnumerateDevices();
@@ -253,6 +261,7 @@ namespace PlayPcmWinAlbum {
         }
 
         private void ShowAlbum(ContentList.Album album) {
+            album.UpdateIds();
             mContentList.AlbumSelected(album);
 
             UpdateDeviceList();
@@ -266,29 +275,28 @@ namespace PlayPcmWinAlbum {
             UpdatePlaybackControlState(PlaybackController.State.Stopped);
         }
 
-        private void mMenuItemBack_Click(object sender, RoutedEventArgs e) {
+        private void OnMenuItemBack_Click(object sender, RoutedEventArgs e) {
             mPlaybackController.Stop();
             mLabelAlbumName.Content = "";
             ChangeDisplayState(State.AlbumBrowsing);
         }
 
-        private void mMenuItemRefresh_Click(object sender, RoutedEventArgs e) {
+        private void OnMenuItemRefresh_Click(object sender, RoutedEventArgs e) {
             if (!CreateContentList()) {
                 Close();
                 return;
             }
         }
 
-        private void dataGridPlayList_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e) {
+        private void OnDataGridPlayList_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e) {
             Console.WriteLine("DataGridPlayList_SelectionChanged()");
             if (PlaybackController.State.Playing == mPlaybackController.GetState()) {
                 // 再生中に曲選択。
                 mPlaybackController.Play(mDataGridPlayList.SelectedIndex);
             }
-
         }
 
-        private void mMenuItemSettings_Click(object sender, RoutedEventArgs e) {
+        private void OnMenuItemSettings_Click(object sender, RoutedEventArgs e) {
 
         }
 
@@ -312,10 +320,9 @@ namespace PlayPcmWinAlbum {
             }
         };
 
-        private void buttonPlay_Click(object sender, RoutedEventArgs e) {
+        private void OnButtonPlay_Click(object sender, RoutedEventArgs e) {
             var args = new BackgroundLoadArgs(
                     mContentList.GetSelectedAlbum(), mDataGridPlayList.SelectedIndex, mListBoxPlaybackDevice.SelectedIndex);
-            mPlaybackController.SetStateChangedCallback(null);
 
             var playList = CreatePlayList(args.Album, args.First);
             bool result = mPlaybackController.PlaylistCreateStart(args.DeviceIdx, args.Album.AudioFileNth(args.First));
@@ -327,32 +334,32 @@ namespace PlayPcmWinAlbum {
             UpdatePlaybackControlState(PlaybackController.State.Loading);
             mBackgroundLoad = new BackgroundWorker();
             mBackgroundLoad.WorkerReportsProgress = true;
-            mBackgroundLoad.DoWork += new DoWorkEventHandler(mBackgroundLoad_DoWork);
-            mBackgroundLoad.ProgressChanged += new ProgressChangedEventHandler(mBackgroundLoad_ProgressChanged);
-            mBackgroundLoad.RunWorkerCompleted += new RunWorkerCompletedEventHandler(mBackgroundLoad_RunWorkerCompleted);
+            mBackgroundLoad.DoWork += new DoWorkEventHandler(OnBackgroundLoad_DoWork);
+            mBackgroundLoad.ProgressChanged += new ProgressChangedEventHandler(OnBackgroundLoad_ProgressChanged);
+            mBackgroundLoad.RunWorkerCompleted += new RunWorkerCompletedEventHandler(OnBackgroundLoad_RunWorkerCompleted);
             mBackgroundLoad.RunWorkerAsync(args);
         }
 
-        private static bool IsSameFormat(ContentList.AudioFile lhs, ContentList.AudioFile rhs) {
-            return lhs.Pcm.IsSameFormat(rhs.Pcm);
-        }
-
+        /// <summary>
+        /// album[first]と同一グループのファイル一覧作成。
+        /// </summary>
         private static List<ContentList.AudioFile> CreatePlayList(ContentList.Album album, int first) {
             var afList = new List<ContentList.AudioFile>();
             var firstAf = album.AudioFileNth(first);
-            afList.Add(firstAf);
 
-            for (int i = first + 1; i < album.AudioFileCount; ++i) {
+            int groupId = firstAf.GroupId;
+
+            for (int i = 0; i < album.AudioFileCount; ++i) {
                 var af = album.AudioFileNth(i);
-                if (!IsSameFormat(firstAf, af)) {
-                    break;
+
+                if (groupId == af.GroupId) {
+                    afList.Add(af);
                 }
-                afList.Add(af);
             }
             return afList;
         }
 
-        void mBackgroundLoad_DoWork(object sender, DoWorkEventArgs e) {
+        void OnBackgroundLoad_DoWork(object sender, DoWorkEventArgs e) {
             var args = e.Argument as BackgroundLoadArgs;
 
             var playList = CreatePlayList(args.Album, args.First);
@@ -360,7 +367,7 @@ namespace PlayPcmWinAlbum {
             int added = 0;
             for (int i = 0; i < playList.Count; ++i) {
                 var af = playList[i];
-                if (mPlaybackController.Add(i, af)) {
+                if (mPlaybackController.Add(af)) {
                     ++added;
                 }
                 mBackgroundLoad.ReportProgress((i + 1) * 100 / playList.Count);
@@ -370,62 +377,152 @@ namespace PlayPcmWinAlbum {
             e.Result = new BackgroundLoadResult(args, 0 < added);
         }
 
-        void mBackgroundLoad_ProgressChanged(object sender, ProgressChangedEventArgs e) {
+        void OnBackgroundLoad_ProgressChanged(object sender, ProgressChangedEventArgs e) {
             mProgressBar.Value = e.ProgressPercentage;
         }
 
-        void mBackgroundLoad_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
+        void OnBackgroundLoad_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
             var result = e.Result as BackgroundLoadResult;
             if (result.Result) {
-                mPlaybackController.Play(0);
+                mPlaybackController.Play(result.Args.First);
             } else {
                 MessageBox.Show("Error: File load failed!");
             }
+
+            UpdatePlaybackControlState(mPlaybackController.GetState());
+            mBackgroundPlay = new BackgroundWorker();
+            mBackgroundPlay.WorkerReportsProgress = true;
+            mBackgroundPlay.ProgressChanged += new ProgressChangedEventHandler(OnBackgroundPlay_ProgressChanged);
+            mBackgroundPlay.DoWork += new DoWorkEventHandler(OnBackgroundPlay_DoWork);
+            mBackgroundPlay.RunWorkerCompleted += new RunWorkerCompletedEventHandler(OnBackgroundPlay_RunWorkerCompleted);
+            mBackgroundPlay.RunWorkerAsync();
+        }
+
+        void OnBackgroundPlay_DoWork(object sender, DoWorkEventArgs e) {
+            bool bEnd = true;
+            do {
+                mBackgroundPlay.ReportProgress(0);
+                bEnd = mPlaybackController.Run(PROGRESS_REPORT_INTERVAL_MS);
+            } while (!bEnd);
+        }
+
+        long mLastSliderPositionUpdateTime = 0;
+
+        void OnBackgroundPlay_ProgressChanged(object sender, ProgressChangedEventArgs e) {
+            // 再生中PCMデータ(または一時停止再開時再生予定PCMデータ等)の再生位置情報を画面に表示する。
+            WasapiCS.PcmDataUsageType usageType = WasapiCS.PcmDataUsageType.NowPlaying;
+            int pcmDataId = mPlaybackController.GetPcmDataId(WasapiCS.PcmDataUsageType.NowPlaying);
+            if (pcmDataId < 0) {
+                pcmDataId = mPlaybackController.GetPcmDataId(WasapiCS.PcmDataUsageType.PauseResumeToPlay);
+                usageType = WasapiCS.PcmDataUsageType.PauseResumeToPlay;
+            }
+            if (pcmDataId < 0) {
+                pcmDataId = mPlaybackController.GetPcmDataId(WasapiCS.PcmDataUsageType.SpliceNext);
+                usageType = WasapiCS.PcmDataUsageType.SpliceNext;
+            } 
+            
+            string playingTimeString = string.Empty;
+            if (pcmDataId < 0) {
+                playingTimeString = PLAYING_TIME_UNKNOWN;
+            } else {
+                /*
+                if (mDataGridPlayList.SelectedIndex != GetPlayListIndexOfPcmDataId(pcmDataId)) {
+                    mDataGridPlayList.SelectedIndex = GetPlayListIndexOfPcmDataId(pcmDataId);
+                    mDataGridPlayList.ScrollIntoView(dataGridPlayList.SelectedItem);
+                }
+                */
+
+                var playPos = mPlaybackController.GetCursorLocation(usageType);
+                var stat = mPlaybackController.GetSessionStatus();
+
+                long now = DateTime.Now.Ticks;
+                if (now - mLastSliderPositionUpdateTime > SLIDER_UPDATE_TICKS) {
+                    // スライダー位置の更新。0.5秒に1回
+                    mSlider1.Maximum = playPos.TotalFrameNum;
+                    if (!mSliderSliding || playPos.TotalFrameNum <= mSlider1.Value) {
+                        mSlider1.Value = playPos.PosFrame;
+                    }
+                    mLastSliderPositionUpdateTime = now;
+                }
+
+                playingTimeString = string.Format(CultureInfo.InvariantCulture, "{0} / {1}",
+                        Util.SecondsToMSString((int)(playPos.PosFrame / stat.DeviceSampleRate)),
+                        Util.SecondsToMSString((int)(playPos.TotalFrameNum / stat.DeviceSampleRate)));
+            }
+
+            // 再生時間表示の再描画をできるだけ抑制する。負荷が減る効果がある
+            if (playingTimeString != string.Empty && 0 != string.Compare((string)mLabelPlayingTime.Content, playingTimeString)) {
+                mLabelPlayingTime.Content = playingTimeString;
+            } else {
+                //System.Console.WriteLine("time disp update skipped");
+            }
+        }
+
+        void OnBackgroundPlay_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
             UpdatePlaybackControlState(mPlaybackController.GetState());
         }
 
-        private void buttonStop_Click(object sender, RoutedEventArgs e) {
+        private void OnButtonStop_Click(object sender, RoutedEventArgs e) {
             mPlaybackController.Stop();
             UpdatePlaybackControlState(PlaybackController.State.Stopped);
         }
 
-        private void buttonPause_Click(object sender, RoutedEventArgs e) {
+        private void OnButtonPause_Click(object sender, RoutedEventArgs e) {
 
         }
 
-        private void buttonPrev_Click(object sender, RoutedEventArgs e) {
+        private void OnButtonPrev_Click(object sender, RoutedEventArgs e) {
 
         }
 
-        private void buttonNext_Click(object sender, RoutedEventArgs e) {
+        private void OnButtonNext_Click(object sender, RoutedEventArgs e) {
 
         }
 
-        private void slider1_MouseMove(object sender, System.Windows.Input.MouseEventArgs e) {
+        private bool mSliderSliding = false;
+        private long mLastSliderValue = 0;
 
+        private void OnSlider1_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
+            if (e.Source != mSlider1) {
+                return;
+            }
+
+            mLastSliderValue = (long)mSlider1.Value;
+            mSliderSliding = true;
         }
 
-        private void mListBoxPlaybackDevice_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e) {
+        private void OnSlider1_MouseMove(object sender, MouseEventArgs e) {
+            if (e.Source != mSlider1) {
+                return;
+            }
+
+            if (e.LeftButton == MouseButtonState.Pressed) {
+                mLastSliderValue = (long)mSlider1.Value;
+                if (!mButtonPlay.IsEnabled) {
+                    mPlaybackController.SetPosFrame((long)mSlider1.Value);
+                }
+            }
+        }
+        private void OnSlider1_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) {
+            if (e.Source != mSlider1) {
+                return;
+            }
+
+            if (!mButtonPlay.IsEnabled &&
+                    mLastSliderValue != (long)mSlider1.Value) {
+                mPlaybackController.SetPosFrame((long)mSlider1.Value);
+            }
+
+            mLastSliderValue = 0;
+            mSliderSliding = false;
+        }
+
+        private void OnListBoxPlaybackDevice_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e) {
             if (!mInitialized) {
                 return;
             }
 
             mPreferredDeviceIdString = mPlaybackController.GetDeviceAttribute(mListBoxPlaybackDevice.SelectedIndex).DeviceIdString;
         }
-
-        private void PlaybackStateChanged(PlaybackController.State newState) {
-            Console.WriteLine("D: PlaybackStateChanged({0})", newState);
-
-            /*
-            // UIスレッドで再生状態変更処理する。
-            System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(
-                System.Windows.Threading.DispatcherPriority.Background,
-                new System.Threading.ThreadStart(delegate {
-                        UpdatePlaybackControlState();
-                    }));
-            */
-        }
-
-
     }
 }

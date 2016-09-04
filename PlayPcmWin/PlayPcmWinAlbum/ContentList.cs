@@ -23,6 +23,17 @@ namespace PlayPcmWinAlbum {
             public byte[] AlbumCoverArt { get; set; }
             public PcmDataLib.PcmData Pcm { get; set; }
 
+            /// <summary>
+            /// 読み込み単位(ギャップレス再生のために複数ファイルをまとめて読み込む)。アルバムが選択されたときに割り振られる。
+            /// 一時的なものであり永続化する必要はない。
+            /// </summary>
+            public int GroupId { get; set; }
+
+            /// <summary>
+            /// アルバム内の連番。0から割り振られる。
+            /// </summary>
+            public int Idx { get; set; }
+
             public AudioFile(string path, string title, int numOfTracks, string albumName, string artistName,
                     byte[] albumCoverArt, int nChannels, int bitsPerSample,
                     int sampleRate, long numFrames) {
@@ -58,6 +69,21 @@ namespace PlayPcmWinAlbum {
 
             public Album(string name) {
                 Name = name;
+            }
+
+            public void UpdateIds() {
+                int groupId = 0;
+                AudioFile prevAf = null;
+                for (int i = 0; i < AudioFileCount; ++i) {
+                    var af = AudioFileNth(i);
+                    af.Idx = i;
+                    if (0 < i && !prevAf.Pcm.IsSameFormat(af.Pcm)) {
+                        ++groupId;
+                    }
+
+                    af.GroupId = groupId;
+                    prevAf = af;
+                }
             }
         }
 

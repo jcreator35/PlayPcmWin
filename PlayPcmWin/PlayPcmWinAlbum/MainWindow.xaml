@@ -14,9 +14,9 @@
             <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
         <Menu Height="40" Name="mMenu" HorizontalAlignment="Left">
-            <MenuItem Header="🔙" FontSize="28" Name="mMenuItemBack" Click="mMenuItemBack_Click" />
-            <MenuItem Header="🔃" Name="mMenuItemRefresh" Click="mMenuItemRefresh_Click" FontSize="28" />
-            <MenuItem Header="⚙" Name="mMenuItemSettings" FontSize="28" Click="mMenuItemSettings_Click" IsEnabled="False" />
+            <MenuItem Header="🔙" FontSize="28" Name="mMenuItemBack" Click="OnMenuItemBack_Click" />
+            <MenuItem Header="🔃" Name="mMenuItemRefresh" Click="OnMenuItemRefresh_Click" FontSize="28" />
+            <MenuItem Header="⚙" Name="mMenuItemSettings" FontSize="28" Click="OnMenuItemSettings_Click" IsEnabled="False" />
         </Menu>
         <ScrollViewer CanContentScroll="True" PanningMode="VerticalOnly" Grid.Row="1" Name="mAlbumScrollViewer" Grid.ColumnSpan="2" Grid.RowSpan="2">
             <local:VerticalScrollTilePanel x:Name="mTilePanel">
@@ -28,18 +28,18 @@
             <Grid DockPanel.Dock="Right" Width="Auto" >
                 <GroupBox Header="Playback control" Margin="6,0,6,0" Name="mGroupBoxPlaybackControl" Height="86" VerticalAlignment="Top" HorizontalAlignment="Left">
                     <Grid Width="380">
-                        <Button Content="_Play" HorizontalAlignment="Left" Margin="6,6,0,0" Name="mButtonPlay" VerticalAlignment="Top" Width="67" IsEnabled="False" Click="buttonPlay_Click" />
-                        <Button Content="_Stop" HorizontalAlignment="Left" Margin="78,6,0,0" Name="mButtonStop" VerticalAlignment="Top" Width="66" IsEnabled="False" Click="buttonStop_Click" />
-                        <Button Content="Pa_use" HorizontalAlignment="Left" IsEnabled="False" Margin="149,6,0,0" Name="mButtonPause" VerticalAlignment="Top" Width="89" Click="buttonPause_Click" />
-                        <Button Content="Prev" HorizontalAlignment="Left" IsEnabled="False" Margin="256,6,0,0" Name="mButtonPrev" VerticalAlignment="Top" Width="50" Click="buttonPrev_Click" />
-                        <Button Content="Next" HorizontalAlignment="Left" IsEnabled="False" Margin="311,6,0,0" Name="mButtonNext" VerticalAlignment="Top" Width="50" Click="buttonNext_Click" />
+                        <Button Content="_Play" HorizontalAlignment="Left" Margin="6,6,0,0" Name="mButtonPlay" VerticalAlignment="Top" Width="67" IsEnabled="False" Click="OnButtonPlay_Click" />
+                        <Button Content="_Stop" HorizontalAlignment="Left" Margin="78,6,0,0" Name="mButtonStop" VerticalAlignment="Top" Width="66" IsEnabled="False" Click="OnButtonStop_Click" />
+                        <Button Content="Pa_use" HorizontalAlignment="Left" IsEnabled="False" Margin="149,6,0,0" Name="mButtonPause" VerticalAlignment="Top" Width="89" Click="OnButtonPause_Click" />
+                        <Button Content="Prev" HorizontalAlignment="Left" IsEnabled="False" Margin="256,6,0,0" Name="mButtonPrev" VerticalAlignment="Top" Width="50" Click="OnButtonPrev_Click" />
+                        <Button Content="Next" HorizontalAlignment="Left" IsEnabled="False" Margin="311,6,0,0" Name="mButtonNext" VerticalAlignment="Top" Width="50" Click="OnButtonNext_Click" />
                         <Label Content="0:00:00/0:00:00" Margin="148,30,6,0" Name="mLabelPlayingTime" Height="29" VerticalAlignment="Top" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" FontWeight="Bold" FontSize="16" FontFamily="Courier New" />
                         <ComboBox HorizontalAlignment="Left" Margin="6,33,0,0" Name="mComboBoxPlayMode" VerticalAlignment="Top" />
                     </Grid>
                 </GroupBox>
-                <Slider Margin="6,0,6,0" Name="mSlider1" MouseMove="slider1_MouseMove" Height="23" VerticalAlignment="Bottom" IsMoveToPointEnabled="True" />
+                <Slider Margin="6,0,6,0" Name="mSlider1" MouseMove="OnSlider1_MouseMove" Height="23" VerticalAlignment="Bottom" IsMoveToPointEnabled="True" MouseLeftButtonDown="OnSlider1_MouseLeftButtonDown" MouseLeftButtonUp="OnSlider1_MouseLeftButtonUp" />
                 <GroupBox Header="Playback Device" Height="86" HorizontalAlignment="Left" Margin="400,0,0,0" Name="mGroupBoxPlaybackDevice" VerticalAlignment="Top" Width="400">
-                    <ListBox Name="mListBoxPlaybackDevice" SelectionChanged="mListBoxPlaybackDevice_SelectionChanged" />
+                    <ListBox Name="mListBoxPlaybackDevice" SelectionChanged="OnListBoxPlaybackDevice_SelectionChanged" />
                 </GroupBox>
             </Grid>
         </DockPanel>
@@ -53,7 +53,7 @@
                 CanUserResizeColumns="True"
                 CanUserAddRows="False"
                 CanUserResizeRows="False"
-                SelectionUnit="FullRow" SelectionChanged="dataGridPlayList_SelectionChanged"
+                SelectionUnit="FullRow" SelectionChanged="OnDataGridPlayList_SelectionChanged"
                 IsReadOnly="True" Background="{x:Null}" IsEnabled="True" Grid.ColumnSpan="2" Grid.RowSpan="2">
             <DataGrid.RowHeaderStyle>
                 <Style TargetType="{x:Type DataGridRowHeader}">

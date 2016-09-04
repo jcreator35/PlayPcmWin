@@ -696,6 +696,11 @@ namespace Wasapi {
             return WasapiIO_StartRecording(mId);
         }
 
+        /// <summary>
+        /// 再生スレッドが終了したかどうか調べる。
+        /// </summary>
+        /// <param name="millisec">中でブロックする待ち時間。</param>
+        /// <returns>true: 終了した。false: 再生スレッドが続行した。</returns>
         public bool Run(int millisec) {
             return WasapiIO_Run(mId, millisec);
         }
