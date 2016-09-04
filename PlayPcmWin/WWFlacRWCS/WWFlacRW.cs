@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using System;
 
 namespace WWFlacRWCS {
     public class Metadata {
@@ -25,11 +26,19 @@ namespace WWFlacRWCS {
         public Metadata() {
         }
 
+        public int BytesPerFrame {
+            get { return channels * bitsPerSample / 8; }
+        }
+
+        public int BytesPerSample {
+            get { return bitsPerSample / 8; }
+        }
+
         /// <summary>
         /// PCMデータのバイト数。
         /// </summary>
         public long PcmBytes {
-            get { return totalSamples * channels * bitsPerSample / 8; }
+            get { return totalSamples * BytesPerFrame; }
         }
 
         private void SafeCopy(string from, ref string to) {
@@ -203,6 +212,16 @@ namespace WWFlacRWCS {
         public int GetDecodedPcmBytes(int channel, long startBytes, out byte[] pcmReturn, int pcmBytes) {
             pcmReturn = new byte[pcmBytes];
             return NativeMethods.WWFlacRW_GetDecodedPcmBytes(mId, channel, startBytes, pcmReturn, pcmReturn.Length);
+        }
+
+        public int GetDecodedPcmBytes(int channel, long startBytes, ref byte[] pcmTo, int pcmToOffs, int pcmBytes) {
+            var tmp = new byte[pcmBytes];
+            int ercd = NativeMethods.WWFlacRW_GetDecodedPcmBytes(mId, channel, startBytes, tmp, tmp.Length);
+            if (0 <= ercd) {
+                Array.Copy(tmp, 0, pcmTo, pcmToOffs, pcmBytes);
+            }
+
+            return ercd;
         }
 
         public void DecodeEnd() {

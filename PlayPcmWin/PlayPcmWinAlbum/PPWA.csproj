@@ -78,6 +78,7 @@
     <Compile Include="DataGridPlayListHandler.cs" />
     <Compile Include="DirectoryUtil.cs" />
     <Compile Include="ContentList.cs" />
+    <Compile Include="PlaybackController.cs" />
     <Compile Include="PlayListItemInfo.cs" />
     <Compile Include="TiledItemContent.cs" />
     <Compile Include="Util.cs" />
@@ -128,6 +129,14 @@
     <ProjectReference Include="..\PcmData\PcmDataLib.csproj">
       <Project>{7AF36E7B-839D-4C2F-AAFD-6D8319714D66}</Project>
       <Name>PcmDataLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WasapiCS\WasapiCS.csproj">
+      <Project>{0D9C1283-4DA5-4C3F-8A4E-AD8194381DE4}</Project>
+      <Name>WasapiCS</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WasapiPcmUtil\WasapiPcmUtil.csproj">
+      <Project>{C51CEE2E-D264-4A27-8E9E-C2F127A37AEE}</Project>
+      <Name>WasapiPcmUtil</Name>
     </ProjectReference>
     <ProjectReference Include="..\WWFlacRWCS\WWFlacRWCS.csproj">
       <Project>{DA071B6A-B2E2-4567-84D1-5A9122DAB75C}</Project>

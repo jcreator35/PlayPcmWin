@@ -77,8 +77,7 @@ namespace PlayPcmWinAlbum {
 
             var uiThreadDispatcher = Dispatcher.CurrentDispatcher;
 
-            Console.WriteLine("StartNew {0}",
-                mContent.DisplayName);
+            //Console.WriteLine("StartNew {0}", mContent.DisplayName);
 
             Task.Factory.StartNew(new Action(() => {
                 var token = mCts.Token;

@@ -28,16 +28,19 @@
             <Grid DockPanel.Dock="Right" Width="Auto" >
                 <GroupBox Header="Playback control" Margin="6,0,6,0" Name="mGroupBoxPlaybackControl" Height="86" VerticalAlignment="Top" HorizontalAlignment="Left">
                     <Grid Width="380">
-                        <Button Content="_Play" HorizontalAlignment="Left" Margin="6,6,0,0" Name="buttonPlay" VerticalAlignment="Top" Width="67" IsEnabled="False" Click="buttonPlay_Click" />
-                        <Button Content="_Stop" HorizontalAlignment="Left" Margin="78,6,0,0" Name="buttonStop" VerticalAlignment="Top" Width="66" IsEnabled="False" Click="buttonStop_Click" />
-                        <Button Content="Pa_use" HorizontalAlignment="Left" IsEnabled="False" Margin="149,6,0,0" Name="buttonPause" VerticalAlignment="Top" Width="89" Click="buttonPause_Click" />
-                        <Button Content="Prev" HorizontalAlignment="Left" IsEnabled="False" Margin="256,6,0,0" Name="buttonPrev" VerticalAlignment="Top" Width="50" Click="buttonPrev_Click" />
-                        <Button Content="Next" HorizontalAlignment="Left" IsEnabled="False" Margin="311,6,0,0" Name="buttonNext" VerticalAlignment="Top" Width="50" Click="buttonNext_Click" />
-                        <Label Content="0:00:00/0:00:00" Margin="148,30,6,0" Name="labelPlayingTime" Height="29" VerticalAlignment="Top" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" FontWeight="Bold" FontSize="16" FontFamily="Courier New" />
-                        <ComboBox HorizontalAlignment="Left" Margin="6,33,0,0" Name="comboBoxPlayMode" VerticalAlignment="Top" />
+                        <Button Content="_Play" HorizontalAlignment="Left" Margin="6,6,0,0" Name="mButtonPlay" VerticalAlignment="Top" Width="67" IsEnabled="False" Click="buttonPlay_Click" />
+                        <Button Content="_Stop" HorizontalAlignment="Left" Margin="78,6,0,0" Name="mButtonStop" VerticalAlignment="Top" Width="66" IsEnabled="False" Click="buttonStop_Click" />
+                        <Button Content="Pa_use" HorizontalAlignment="Left" IsEnabled="False" Margin="149,6,0,0" Name="mButtonPause" VerticalAlignment="Top" Width="89" Click="buttonPause_Click" />
+                        <Button Content="Prev" HorizontalAlignment="Left" IsEnabled="False" Margin="256,6,0,0" Name="mButtonPrev" VerticalAlignment="Top" Width="50" Click="buttonPrev_Click" />
+                        <Button Content="Next" HorizontalAlignment="Left" IsEnabled="False" Margin="311,6,0,0" Name="mButtonNext" VerticalAlignment="Top" Width="50" Click="buttonNext_Click" />
+                        <Label Content="0:00:00/0:00:00" Margin="148,30,6,0" Name="mLabelPlayingTime" Height="29" VerticalAlignment="Top" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" FontWeight="Bold" FontSize="16" FontFamily="Courier New" />
+                        <ComboBox HorizontalAlignment="Left" Margin="6,33,0,0" Name="mComboBoxPlayMode" VerticalAlignment="Top" />
                     </Grid>
                 </GroupBox>
-                <Slider Margin="6,0,6,0" Name="slider1" MouseMove="slider1_MouseMove" Height="23" VerticalAlignment="Bottom" IsMoveToPointEnabled="True" />
+                <Slider Margin="6,0,6,0" Name="mSlider1" MouseMove="slider1_MouseMove" Height="23" VerticalAlignment="Bottom" IsMoveToPointEnabled="True" />
+                <GroupBox Header="Playback Device" Height="86" HorizontalAlignment="Left" Margin="400,0,0,0" Name="mGroupBoxPlaybackDevice" VerticalAlignment="Top" Width="400">
+                    <ListBox Name="mListBoxPlaybackDevice" SelectionChanged="mListBoxPlaybackDevice_SelectionChanged" />
+                </GroupBox>
             </Grid>
         </DockPanel>
         <DataGrid

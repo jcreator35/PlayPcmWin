@@ -13,12 +13,8 @@ namespace PlayPcmWinAlbum {
         private CancellationTokenSource mAppExitToken = new CancellationTokenSource();
         private ContentList mContentList = new ContentList();
         private DataGridPlayListHandler mDataGridPlayListHandler;
-
-        public MainWindow() {
-            InitializeComponent();
-            mDataGridPlayListHandler = new DataGridPlayListHandler(mDataGridPlayList);
-            mLabelAlbumName.Content = "";
-        }
+        private PlaybackController mPlaybackController = new PlaybackController();
+        private bool mInitialized = false;
 
         private enum State {
             Init,
@@ -29,8 +25,17 @@ namespace PlayPcmWinAlbum {
         };
 
         private State mState = State.Init;
+        private BackgroundContentListBuilder mBwContentListBuilder;
+
+        public MainWindow() {
+            InitializeComponent();
+            mDataGridPlayListHandler = new DataGridPlayListHandler(mDataGridPlayList);
+            mLabelAlbumName.Content = "";
+        }
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
+            mInitialized = true;
+
             // アルバム一覧を読み出す。
             if (ReadContentList()) {
                 UpdateContentList();
@@ -42,6 +47,7 @@ namespace PlayPcmWinAlbum {
                     return;
                 }
             }
+            mPlaybackController.Init();
         }
 
         private void ChangeDisplayState(State t) {
@@ -80,11 +86,26 @@ namespace PlayPcmWinAlbum {
             mState = t;
         }
 
+        private void UpdatePlaybackControlState() {
+            var state = mPlaybackController.GetState();
+            switch (state) {
+            case PlaybackController.State.Stopped:
+                mButtonPlay.IsEnabled = true;
+                mButtonStop.IsEnabled = false;
+                break;
+            case PlaybackController.State.Playing:
+                mButtonPlay.IsEnabled = false;
+                mButtonStop.IsEnabled = true;
+                break;
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                break;
+            }
+        }
+
         private bool ReadContentList() {
             return mContentList.Load();
         }
-
-        private BackgroundContentListBuilder mBwContentListBuilder;
 
         private bool CreateContentList() {
             mTilePanel.Clear();
@@ -160,6 +181,9 @@ namespace PlayPcmWinAlbum {
 
         private void Window_Closed(object sender, EventArgs e) {
             CancelAll();
+
+            mPlaybackController.Stop();
+            mPlaybackController.Term();
         }
 
         private void OnAlbumTileClicked(AlbumTile sender, TiledItemContent content) {
@@ -195,16 +219,46 @@ namespace PlayPcmWinAlbum {
             }
         }
 
+        private string mPreferredDeviceIdString = "";
+
+        private void UpdateDeviceList() {
+            mListBoxPlaybackDevice.Items.Clear();
+            mPlaybackController.EnumerateDevices();
+            if (mPlaybackController.GetDeviceCount() == 0) {
+                MessageBox.Show("Error: playback device not found");
+                Close();
+            }
+
+            for (int i = 0; i < mPlaybackController.GetDeviceCount(); ++i) {
+                var attr = mPlaybackController.GetDeviceAttribute(i);
+                mListBoxPlaybackDevice.Items.Add(attr.Name);
+                if (0 == string.Compare(mPreferredDeviceIdString, attr.DeviceIdString)) {
+                    mListBoxPlaybackDevice.SelectedIndex = i;
+                }
+            }
+
+            if (mListBoxPlaybackDevice.SelectedIndex < 0) {
+                mListBoxPlaybackDevice.SelectedIndex = 0;
+                mPreferredDeviceIdString = mPlaybackController.GetDeviceAttribute(0).DeviceIdString;
+            }
+        }
+
         private void ShowAlbum(ContentList.Album album) {
+            mContentList.AlbumSelected(album);
+
+            UpdateDeviceList();
+
             var albumCoverArt = album.AudioFileNth(0).AlbumCoverArt;
             DispCoverArt(albumCoverArt);
 
             mLabelAlbumName.Content = album.Name;
             mDataGridPlayListHandler.ShowAlbum(album);
             ChangeDisplayState(State.AlbumTrackBrowsing);
+            UpdatePlaybackControlState();
         }
 
         private void mMenuItemBack_Click(object sender, RoutedEventArgs e) {
+            mPlaybackController.Stop();
             mLabelAlbumName.Content = "";
             ChangeDisplayState(State.AlbumBrowsing);
         }
@@ -225,11 +279,15 @@ namespace PlayPcmWinAlbum {
         }
 
         private void buttonPlay_Click(object sender, RoutedEventArgs e) {
+            mPlaybackController.Play(mListBoxPlaybackDevice.SelectedIndex, mContentList.GetSelectedAlbum());
 
+            UpdatePlaybackControlState();
         }
 
         private void buttonStop_Click(object sender, RoutedEventArgs e) {
+            mPlaybackController.Stop();
 
+            UpdatePlaybackControlState();
         }
 
         private void buttonPause_Click(object sender, RoutedEventArgs e) {
@@ -246,6 +304,14 @@ namespace PlayPcmWinAlbum {
 
         private void slider1_MouseMove(object sender, System.Windows.Input.MouseEventArgs e) {
 
+        }
+
+        private void mListBoxPlaybackDevice_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            }
+
+            mPreferredDeviceIdString = mPlaybackController.GetDeviceAttribute(mListBoxPlaybackDevice.SelectedIndex).DeviceIdString;
         }
     }
 }

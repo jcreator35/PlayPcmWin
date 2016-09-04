@@ -14,6 +14,63 @@ namespace WasapiPcmUtil {
     };
 
     public class PcmFormatConverter {
+        private static readonly byte[][] mDopSilence = new byte[][] {
+            new byte[] { 0x69, 0x69, 0x05 },
+            new byte[] { 0x69, 0x69, 0xfa },
+        };
+
+        public static byte[] ChangeChannelCount(WasapiCS.SampleFormatType sampleFormat,
+                WasapiCS.StreamType streamType, int fromChannels, byte[] fromBytes, int toChannels) {
+            if (fromChannels == toChannels) {
+                return fromBytes;
+            }
+
+            // DoPのときは、サンプルフォーマットが24ビットである必要がある。
+            System.Diagnostics.Debug.Assert(streamType != WasapiCS.StreamType.DoP
+                || (sampleFormat == WasapiCS.SampleFormatType.Sint24
+                    || sampleFormat != WasapiCS.SampleFormatType.Sint32V24));
+
+            int fromBytesPerFrame = fromChannels * WasapiCS.SampleFormatTypeToUseBitsPerSample(sampleFormat);
+            int toBytesPerFrame = toChannels * WasapiCS.SampleFormatTypeToUseBitsPerSample(sampleFormat);
+            int numFrames = fromBytes.Length / fromBytesPerFrame;
+
+            var toBytes = new byte[numFrames * toBytesPerFrame];
+
+            int copyBytes = toBytesPerFrame;
+            if (fromBytesPerFrame < copyBytes) {
+                copyBytes = fromBytesPerFrame;
+            }
+            int fromPos = 0;
+            int toPos = 0;
+
+            switch (streamType) {
+            case WasapiCS.StreamType.DoP:
+                for (int i = 0; i < numFrames; ++i) {
+                    Array.Copy(fromBytes, fromPos, toBytes, toPos, copyBytes);
+                    fromPos += fromBytesPerFrame;
+                    toPos += copyBytes;
+
+                    if (fromChannels < toChannels) {
+                        // コピー先のほうがチャンネル数が多いとき、DoP無音を追加する。
+                        int offs = sampleFormat == WasapiCS.SampleFormatType.Sint24 ? 0: 1;
+                        for (int ch=0; ch < (toChannels - fromChannels); ++ch) {
+                            Array.Copy(mDopSilence[i&1], 0, toBytes, toPos + offs, 3);
+                            toPos += toBytesPerFrame;
+                        }
+                    }
+                }
+                break;
+            case WasapiCS.StreamType.PCM:
+                for (int i = 0; i < numFrames; ++i) {
+                    Array.Copy(fromBytes, fromPos, toBytes, toPos, copyBytes);
+                    fromPos += fromBytesPerFrame;
+                    toPos += toBytesPerFrame;
+                }
+                break;
+            }
+
+            return toBytes;
+        }
 
         public class BitsPerSampleConvArgs {
             /// <summary>
@@ -145,7 +202,7 @@ namespace WasapiPcmUtil {
             var toSampleArray = new LargeArray<byte>(toBytes);
 
             {
-                var fromFragment = new byte[1024 * 1024 * pcmFrom.BitsPerFrame / 8];
+                var fromFragment = new byte[4096 * pcmFrom.BitsPerFrame / 8];
 
                 var pcmTemp = new PcmData();
 

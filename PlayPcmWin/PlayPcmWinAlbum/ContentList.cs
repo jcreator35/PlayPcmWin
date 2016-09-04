@@ -51,7 +51,7 @@ namespace PlayPcmWinAlbum {
         /// </summary>
         public class Album {
             public string Name { get; set; }
-            private Dictionary<string, AudioFile> mAudioFileList = new Dictionary<string, AudioFile>();
+            private SortedDictionary<string, AudioFile> mAudioFileList = new SortedDictionary<string, AudioFile>();
             public int AudioFileCount { get { return mAudioFileList.Count; } }
             public AudioFile AudioFileNth(int nth) { return mAudioFileList.ElementAt(nth).Value; }
             public void Add(AudioFile af) { mAudioFileList.Add(af.Path, af); }
@@ -64,6 +64,16 @@ namespace PlayPcmWinAlbum {
         private List<Album> mAlbumList = new List<Album>();
         private List<AudioFile> mAudioFileList = new List<AudioFile>();
         private Dictionary<string, Album> mAlbumNameToAlbum = new Dictionary<string, Album>();
+
+        private Album mSelectedAlbum = null;
+
+        public void AlbumSelected(Album album) {
+            mSelectedAlbum = album;
+        }
+
+        public Album GetSelectedAlbum() {
+            return mSelectedAlbum;
+        }
 
         public int AlbumCount { get { return mAlbumList.Count; } }
         public Album AlbumNth(int nth) { return mAlbumList[nth]; }
