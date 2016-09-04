@@ -281,6 +281,11 @@ namespace PlayPcmWinAlbum {
 
         private void dataGridPlayList_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e) {
             Console.WriteLine("DataGridPlayList_SelectionChanged()");
+            if (PlaybackController.State.Playing == mPlaybackController.GetState()) {
+                // 再生中に曲選択。
+                mPlaybackController.Play(mDataGridPlayList.SelectedIndex);
+            }
+
         }
 
         private void mMenuItemSettings_Click(object sender, RoutedEventArgs e) {
@@ -372,7 +377,7 @@ namespace PlayPcmWinAlbum {
         void mBackgroundLoad_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
             var result = e.Result as BackgroundLoadResult;
             if (result.Result) {
-                mPlaybackController.Play();
+                mPlaybackController.Play(0);
             } else {
                 MessageBox.Show("Error: File load failed!");
             }
@@ -381,6 +386,7 @@ namespace PlayPcmWinAlbum {
 
         private void buttonStop_Click(object sender, RoutedEventArgs e) {
             mPlaybackController.Stop();
+            UpdatePlaybackControlState(PlaybackController.State.Stopped);
         }
 
         private void buttonPause_Click(object sender, RoutedEventArgs e) {

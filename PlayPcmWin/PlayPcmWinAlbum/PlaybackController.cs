@@ -241,11 +241,13 @@ namespace PlayPcmWinAlbum {
             mWasapi.AddPlayPcmDataEnd();
         }
 
-        public bool Play() {
-            mWasapi.StartPlayback(0);
-            ChangeState(State.Playing);
+        public bool Play(int nth) {
+            int ercd = mWasapi.StartPlayback(nth);
+            if (0 <= ercd) {
+                ChangeState(State.Playing);
+            }
 
-            return true;
+            return 0 <= ercd;
         }
 
         public void Stop() {
