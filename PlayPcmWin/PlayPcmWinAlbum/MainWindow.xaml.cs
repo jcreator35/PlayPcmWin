@@ -199,6 +199,14 @@ namespace PlayPcmWinAlbum {
         }
 
         private void Window_Closed(object sender, EventArgs e) {
+            mBackgroundPlay.CancelAsync();
+            while (mBackgroundPlay.IsBusy) {
+                System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(
+                        System.Windows.Threading.DispatcherPriority.Background,
+                        new System.Threading.ThreadStart(delegate { }));
+                System.Threading.Thread.Sleep(100);
+            }
+
             CancelAll();
 
             mPlaybackController.Stop();
@@ -391,6 +399,7 @@ namespace PlayPcmWinAlbum {
 
             UpdatePlaybackControlState(mPlaybackController.GetState());
             mBackgroundPlay = new BackgroundWorker();
+            mBackgroundPlay.WorkerSupportsCancellation = true;
             mBackgroundPlay.WorkerReportsProgress = true;
             mBackgroundPlay.ProgressChanged += new ProgressChangedEventHandler(OnBackgroundPlay_ProgressChanged);
             mBackgroundPlay.DoWork += new DoWorkEventHandler(OnBackgroundPlay_DoWork);
@@ -401,6 +410,10 @@ namespace PlayPcmWinAlbum {
         void OnBackgroundPlay_DoWork(object sender, DoWorkEventArgs e) {
             bool bEnd = true;
             do {
+                if (mBackgroundPlay.CancellationPending) {
+                    return;
+                }
+
                 mBackgroundPlay.ReportProgress(0);
                 bEnd = mPlaybackController.Run(PROGRESS_REPORT_INTERVAL_MS);
             } while (!bEnd);
@@ -409,6 +422,11 @@ namespace PlayPcmWinAlbum {
         long mLastSliderPositionUpdateTime = 0;
 
         void OnBackgroundPlay_ProgressChanged(object sender, ProgressChangedEventArgs e) {
+            if (mBackgroundPlay.CancellationPending) {
+                // アプリ終了。
+                return;
+            }
+
             // 再生中PCMデータ(または一時停止再開時再生予定PCMデータ等)の再生位置情報を画面に表示する。
             WasapiCS.PcmDataUsageType usageType = WasapiCS.PcmDataUsageType.NowPlaying;
             int pcmDataId = mPlaybackController.GetPcmDataId(WasapiCS.PcmDataUsageType.NowPlaying);
