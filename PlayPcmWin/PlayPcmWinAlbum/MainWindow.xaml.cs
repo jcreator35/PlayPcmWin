@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Windows;
 using System.ComponentModel;
+using System.IO;
+using System.Windows.Media.Imaging;
 
 namespace PlayPcmWinAlbum {
     public partial class MainWindow : Window {
@@ -163,6 +165,39 @@ namespace PlayPcmWinAlbum {
         private void OnAlbumTileClicked(AlbumTile sender, TiledItemContent content) {
             Console.WriteLine("clicked {0}", content.DisplayName);
             var album = content.Tag as ContentList.Album;
+            ShowAlbum(album);
+        }
+
+        private void DispCoverArt(byte[] albumCoverArt) {
+            if (albumCoverArt.Length == 0) {
+                mImageCoverArt.Source = null;
+                mImageCoverArt.Visibility = System.Windows.Visibility.Collapsed;
+            } else {
+                try {
+                    using (var stream = new MemoryStream(albumCoverArt)) {
+                        BitmapImage bi = new BitmapImage();
+                        bi.BeginInit();
+                        bi.CacheOption = BitmapCacheOption.OnLoad;
+                        bi.UriSource = null;
+                        bi.StreamSource = stream;
+                        bi.EndInit();
+
+                        mImageCoverArt.Source = bi;
+                        mImageCoverArt.Visibility = System.Windows.Visibility.Visible;
+                    }
+                } catch (IOException ex) {
+                    Console.WriteLine("D: DispCoverart {0}", ex);
+                    mImageCoverArt.Source = null;
+                } catch (System.IO.FileFormatException ex) {
+                    Console.WriteLine("D: DispCoverart {0}", ex);
+                    mImageCoverArt.Source = null;
+                }
+            }
+        }
+
+        private void ShowAlbum(ContentList.Album album) {
+            var albumCoverArt = album.AudioFileNth(0).AlbumCoverArt;
+            DispCoverArt(albumCoverArt);
 
             mLabelAlbumName.Content = album.Name;
             mDataGridPlayListHandler.ShowAlbum(album);

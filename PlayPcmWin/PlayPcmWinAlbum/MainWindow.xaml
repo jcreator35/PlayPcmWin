@@ -79,9 +79,6 @@
                 <DataGridTextColumn x:Uid="dataGridColumnQuantizationBitRate" x:Name="dataGridColumnQuantizationBitRate" Width="Auto" Binding="{Binding Path=QuantizationBitRate}" Header="Quantization bit rate"/>
                 <DataGridTextColumn x:Uid="dataGridColumnNumChannels" x:Name="dataGridColumnNumChannels" Width="SizeToCells"  Binding="{Binding Path=NumChannels}" Header="Num of channels"/>
                 <DataGridTextColumn x:Uid="dataGridColumnBitRate" x:Name="dataGridColumnBitRate" Width="Auto" Binding="{Binding Path=BitRate}" Header="Bitrate"/>
-                <DataGridTextColumn x:Name="dataGridColumnTrackNr" Width="SizeToCells" Binding="{Binding Path=TrackNr}" Header="Track"/>
-                <DataGridTextColumn x:Uid="dataGridColumnIndexNr" x:Name="dataGridColumnIndexNr" Width="SizeToCells" Binding="{Binding Path=IndexNr}" Header="Index"/>
-                <DataGridCheckBoxColumn x:Uid="dataGridColumnReadSeparaterAfter" x:Name="dataGridColumnReadSeparaterAfter" Width="SizeToCells" Binding="{Binding Path=ReadSeparaterAfter}" Header="Batch read endpoint"/>
             </DataGrid.Columns>
 
         </DataGrid>

@@ -10,7 +10,6 @@ namespace PlayPcmWinAlbum {
         private DataGrid mDg;
         private ObservableCollection<PlayListItemInfo> mPlayListItems = new ObservableCollection<PlayListItemInfo>();
 
-
         public DataGridPlayListHandler(DataGrid dg) {
             mDg = dg;
         }
@@ -25,6 +24,11 @@ namespace PlayPcmWinAlbum {
             }
 
             mDg.ItemsSource = mPlayListItems;
+            for (int i = 0; i < mDg.Columns.Count; ++i) {
+                var c = mDg.Columns[i];
+                c.Width = 0;
+                c.Width = DataGridLength.Auto;
+            }
         }
     }
 }
