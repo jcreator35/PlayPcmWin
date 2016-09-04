@@ -70,6 +70,15 @@ namespace PlayPcmWinAlbum.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Float.
+        /// </summary>
+        internal static string FloatingPointNumbers {
+            get {
+                return ResourceManager.GetString("FloatingPointNumbers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Counting Files in {0} ....
         /// </summary>
         internal static string LogCountingFiles {

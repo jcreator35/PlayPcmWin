@@ -37,6 +37,17 @@ namespace PlayPcmWinAlbum {
             mVirtualChildList.Add(child);
         }
 
+        public void Clear() {
+            mContent.Children.Clear();
+            mVirtualChildList.Clear();
+            mOffset.Y = 0;
+            mTrans.Y = 0;
+
+            if (mOwner != null) {
+                mOwner.InvalidateScrollInfo();
+            }
+        }
+
         private bool UpdateViewportAndExtent(Size newViewportSize, out Size totalChildrenSize, out int countW) {
             bool updated = false;
 

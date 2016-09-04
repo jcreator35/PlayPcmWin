@@ -3,12 +3,67 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="PlayPcmWinAlbum" Height="600" Width="1024"
         xmlns:local="clr-namespace:PlayPcmWinAlbum" Loaded="Window_Loaded" Closed="Window_Closed">
-    <Grid VerticalAlignment="Bottom" HorizontalAlignment="Center">
-        <ScrollViewer CanContentScroll="True" PanningMode="VerticalOnly" >
-            <local:VerticalScrollTilePanel x:Name="tilePanel">
+    <Grid VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Visible">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40" />
+            <RowDefinition Height="1*" />
+        </Grid.RowDefinitions>
+        <Menu Height="40" Name="mMenu">
+            <MenuItem Header="🔙" FontSize="28" Name="mMenuItemBack" Click="mMenuItemBack_Click" />
+            <MenuItem Header="🔃" Name="mMenuItemRefresh" Click="mMenuItemRefresh_Click" FontSize="28" />
+        </Menu>
+        <ScrollViewer CanContentScroll="True" PanningMode="VerticalOnly" Grid.Row="1" Name="mAlbumScrollViewer">
+            <local:VerticalScrollTilePanel x:Name="mTilePanel">
             </local:VerticalScrollTilePanel>
         </ScrollViewer>
-        <TextBlock Name="textBlockMessage" Text="textBlockMessage" Panel.ZIndex="1" FontSize="32" HorizontalAlignment="Center" VerticalAlignment="Center" />
-        <ProgressBar Height="24" Name="progressBar" VerticalAlignment="Bottom" Maximum="1000000" />
+        <DataGrid
+                Grid.Row="1"
+                Name="mDataGridPlayList"
+                GridLinesVisibility="None"
+                AutoGenerateColumns="False"
+                CanUserSortColumns="False"
+                CanUserReorderColumns="True"
+                CanUserResizeColumns="True"
+                CanUserAddRows="False"
+                CanUserResizeRows="False"
+                SelectionUnit="FullRow" SelectionChanged="dataGridPlayList_SelectionChanged"
+                IsReadOnly="True" Background="{x:Null}" IsEnabled="True">
+            <DataGrid.RowHeaderStyle>
+                <Style TargetType="{x:Type DataGridRowHeader}">
+                    <Setter Property="Content" Value="{Binding RowId}"/>
+                </Style>
+            </DataGrid.RowHeaderStyle>
+
+            <!--
+                    <DataGrid.ItemContainerStyle>
+                          DRAG AND DROP
+                          Enables rows as drop targets.
+                        <Style TargetType="{x:Type DataGridRow}">
+                            <Setter Property="AllowDrop" Value="True" />
+                        </Style>
+                    </DataGrid.ItemContainerStyle>
+                        -->
+
+            <DataGrid.Columns>
+                <!-- <DataGridTextColumn x:Name="IdColumn" Width="Auto" Binding="{Binding Path=Id}" Header="Id" />
+                        -->
+                <DataGridTextColumn x:Uid="dataGridColumnTitle" x:Name="dataGridColumnTitle" Width="Auto" Binding="{Binding Path=Title}" Header="Title" />
+                <DataGridTextColumn x:Uid="dataGridColumnDuration" x:Name="dataGridColumnDuration" Width="Auto" Binding="{Binding Path=Duration}" Header="Duration"/>
+                <DataGridTextColumn x:Uid="dataGridColumnArtist" x:Name="dataGridColumnArtist" Width="Auto" Binding="{Binding Path=ArtistName}" Header="Artists"/>
+                <DataGridTextColumn x:Uid="dataGridColumnAlbumTitle" x:Name="dataGridColumnAlbumTitle" Width="Auto" Binding="{Binding Path=AlbumTitle}" Header="Album name"/>
+                <DataGridTextColumn x:Uid="dataGridColumnSampleRate" x:Name="dataGridColumnSampleRate" Width="Auto" Binding="{Binding Path=SampleRate}" Header="Sample rate"/>
+                <DataGridTextColumn x:Uid="dataGridColumnQuantizationBitRate" x:Name="dataGridColumnQuantizationBitRate" Width="Auto" Binding="{Binding Path=QuantizationBitRate}" Header="Quantization bit rate"/>
+                <DataGridTextColumn x:Uid="dataGridColumnNumChannels" x:Name="dataGridColumnNumChannels" Width="SizeToCells"  Binding="{Binding Path=NumChannels}" Header="Num of channels"/>
+                <DataGridTextColumn x:Uid="dataGridColumnBitRate" x:Name="dataGridColumnBitRate" Width="Auto" Binding="{Binding Path=BitRate}" Header="Bitrate"/>
+                <DataGridTextColumn x:Name="dataGridColumnTrackNr" Width="SizeToCells" Binding="{Binding Path=TrackNr}" Header="Track"/>
+                <DataGridTextColumn x:Uid="dataGridColumnIndexNr" x:Name="dataGridColumnIndexNr" Width="SizeToCells" Binding="{Binding Path=IndexNr}" Header="Index"/>
+                <DataGridCheckBoxColumn x:Uid="dataGridColumnReadSeparaterAfter" x:Name="dataGridColumnReadSeparaterAfter" Width="SizeToCells" Binding="{Binding Path=ReadSeparaterAfter}" Header="Batch read endpoint"/>
+            </DataGrid.Columns>
+
+        </DataGrid>
+
+        <TextBlock Name="mTextBlockMessage" Text="textBlockMessage" Panel.ZIndex="1" FontSize="32" VerticalAlignment="Center" Margin="0" Grid.Row="1"  HorizontalAlignment="Center" />
+        <ProgressBar Height="24" Name="mProgressBar" VerticalAlignment="Bottom" Maximum="1000000" Grid.Row="1" />
     </Grid>
+    
 </Window>

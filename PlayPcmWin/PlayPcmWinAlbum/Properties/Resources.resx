@@ -120,6 +120,9 @@
   <data name="ErrorMusicFileNotFound" xml:space="preserve">
     <value>Music file is not found on {0}.</value>
   </data>
+  <data name="FloatingPointNumbers" xml:space="preserve">
+    <value>Float</value>
+  </data>
   <data name="LogCountingFiles" xml:space="preserve">
     <value>Counting Files in {0} ...</value>
   </data>

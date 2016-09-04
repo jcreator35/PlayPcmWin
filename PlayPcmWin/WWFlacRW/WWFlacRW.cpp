@@ -284,7 +284,7 @@ MetadataCallback(const FLAC__StreamDecoder *decoder,
 
     FlacDecodeInfo *fdi = (FlacDecodeInfo*)clientData;
 
-    dprintf("%s type=%d\n", __FUNCTION__, metadata->type);
+    // dprintf("%s type=%d\n", __FUNCTION__, metadata->type);
 
     if(metadata->type == FLAC__METADATA_TYPE_STREAMINFO) {
         fdi->totalSamples  = metadata->data.stream_info.total_samples;
@@ -323,18 +323,13 @@ MetadataCallback(const FLAC__StreamDecoder *decoder,
     }
 
     if (metadata->type == FLAC__METADATA_TYPE_VORBIS_COMMENT) {
-        dprintf("vendorstr=\"%s\" %d num=%u\n\n",
-            (const char *)VC.vendor_string.entry,
-            VC.vendor_string.length,
-            VC.num_comments);
+        // dprintf("vendorstr=\"%s\" %d num=%u\n\n", (const char *)VC.vendor_string.entry, VC.vendor_string.length, VC.num_comments);
 
         // 曲情報は1024個もないだろう。無限ループ防止。
         int num_comments = (FLACDECODE_COMMENT_MAX < VC.num_comments) ? FLACDECODE_COMMENT_MAX : VC.num_comments;
 
         for (int i=0; i<num_comments; ++i) {
-            dprintf("entry=\"%s\" length=%d\n\n",
-                (const char *)(VC.comments[i].entry),
-                VC.comments[i].length);
+            // dprintf("entry=\"%s\" length=%d\n\n", (const char *)(VC.comments[i].entry), VC.comments[i].length);
             STRCPY_COMMENT("TITLE=", titleStr);
             STRCPY_COMMENT("ALBUM=", albumStr);
             STRCPY_COMMENT("ARTIST=", artistStr);
@@ -348,7 +343,7 @@ MetadataCallback(const FLAC__StreamDecoder *decoder,
     }
 
     if (metadata->type == FLAC__METADATA_TYPE_PICTURE) {
-        dprintf("picture bytes=%d\n", PIC.data_length);
+        // dprintf("picture bytes=%d\n", PIC.data_length);
 
         strncpy_s(fdi->pictureMimeTypeStr, PIC.mime_type, sizeof fdi->pictureMimeTypeStr -1);
         strncpy_s(fdi->pictureDescriptionStr, (const char*)PIC.description, sizeof fdi->pictureDescriptionStr -1);
@@ -373,7 +368,7 @@ MetadataCallback(const FLAC__StreamDecoder *decoder,
     }
 
     if (metadata->type == FLAC__METADATA_TYPE_CUESHEET && CUE.tracks != nullptr) {
-        dprintf("cuesheet num tracks=%d\n", CUE.num_tracks);
+        // dprintf("cuesheet num tracks=%d\n", CUE.num_tracks);
 
         fdi->cueSheetTracks.clear();
 
@@ -394,11 +389,13 @@ MetadataCallback(const FLAC__StreamDecoder *decoder,
             memset(track.isrc, 0, sizeof track.isrc);
             memcpy(track.isrc, from->isrc, sizeof track.isrc-1);
 
+            /*
             dprintf("  trackNr=%d offsSamples=%lld isAudio=%d preEmph=%d numIdx=%d isrc=%02x%02x%02x%02x %02x%02x%02x%02x %02x%02x%02x%02x\n",
                     track.trackNumber, track.offsetSamples,  (int)track.isAudio, (int)track.preEmphasis, (int)from->num_indices,
                     (unsigned int)track.isrc[0], (unsigned int)track.isrc[1], (unsigned int)track.isrc[2], (unsigned int)track.isrc[3],
                     (unsigned int)track.isrc[4], (unsigned int)track.isrc[5], (unsigned int)track.isrc[6], (unsigned int)track.isrc[7],
                     (unsigned int)track.isrc[8], (unsigned int)track.isrc[9], (unsigned int)track.isrc[10], (unsigned int)track.isrc[11]);
+            */
 
             if (from->indices != nullptr) {
                 uint32_t numOfIndices = from->num_indices;
@@ -413,7 +410,7 @@ MetadataCallback(const FLAC__StreamDecoder *decoder,
                     idxInfo.offsetSamples = idxFrom->offset;
                     track.indices.push_back(idxInfo);
 
-                    dprintf("    idxNr=%d offsSamples=%lld\n", idxInfo.number, idxInfo.offsetSamples);
+                    // dprintf("    idxNr=%d offsSamples=%lld\n", idxInfo.number, idxInfo.offsetSamples);
                 }
             }
             fdi->cueSheetTracks.push_back(track);
@@ -674,6 +671,12 @@ WWFlacRW_DecodeEnd(int id)
     FlacDecodeInfo *fdi = FlacTInfoFindById<FlacDecodeInfo>(g_flacDecodeInfoMap, id);
     if (nullptr == fdi) {
         return FRT_OtherError;
+    }
+
+    if (nullptr != fdi->decoder) {
+        FLAC__stream_decoder_finish(fdi->decoder);
+        FLAC__stream_decoder_delete(fdi->decoder);
+        fdi->decoder = nullptr;
     }
 
     int ercd = fdi->errorCode;

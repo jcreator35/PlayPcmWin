@@ -21,14 +21,28 @@ namespace PlayPcmWinAlbum {
             public string AlbumName { get; set; }
             public string ArtistName { get; set; }
             public byte[] AlbumCoverArt { get; set; }
+            public PcmDataLib.PcmData Pcm { get; set; }
 
-            public AudioFile(string path, string title, int numOfTracks, string albumName, string artistName, byte[] albumCoverArt) {
+            public AudioFile(string path, string title, int numOfTracks, string albumName, string artistName,
+                    byte[] albumCoverArt, int nChannels, int bitsPerSample,
+                    int sampleRate, long numFrames) {
                 Path = path;
                 Title = title;
                 NumOfTracks = numOfTracks;
                 AlbumName = albumName;
                 ArtistName = artistName;
                 AlbumCoverArt = albumCoverArt;
+
+                var pcmData = new PcmDataLib.PcmData();
+                pcmData.SetFormat(nChannels, bitsPerSample, bitsPerSample,
+                        sampleRate, PcmDataLib.PcmData.ValueRepresentationType.SInt, numFrames);
+                pcmData.DisplayName = title;
+                pcmData.AlbumTitle = albumName;
+                pcmData.ArtistName = artistName; 
+                if (0 < albumCoverArt.Length) {
+                    pcmData.SetPicture(albumCoverArt.Length, albumCoverArt);
+                }
+                Pcm = pcmData;
             }
         }
 
@@ -37,10 +51,13 @@ namespace PlayPcmWinAlbum {
         /// </summary>
         public class Album {
             public string Name { get; set; }
-            public AudioFile RepresentativeAudioFile { get; set; }
-            public Album(string name, AudioFile representativeAudioFile) {
+            private Dictionary<string, AudioFile> mAudioFileList = new Dictionary<string, AudioFile>();
+            public int AudioFileCount { get { return mAudioFileList.Count; } }
+            public AudioFile AudioFileNth(int nth) { return mAudioFileList.ElementAt(nth).Value; }
+            public void Add(AudioFile af) { mAudioFileList.Add(af.Path, af); }
+
+            public Album(string name) {
                 Name = name;
-                RepresentativeAudioFile = representativeAudioFile;
             }
         }
 
@@ -51,32 +68,40 @@ namespace PlayPcmWinAlbum {
         public int AlbumCount { get { return mAlbumList.Count; } }
         public Album AlbumNth(int nth) { return mAlbumList[nth]; }
 
-        private void Clear() {
+        public void Clear() {
             mAlbumList = new List<Album>();
             mAudioFileList = new List<AudioFile>();
             mAlbumNameToAlbum = new Dictionary<string, Album>();
         }
         
         // 音声ファイルを追加する。
-        public void Add(string path, string title, int numOfTracks, string albumName, string artistName, byte[] albumCoverArt) {
+        public void Add(string path, string title, int numOfTracks, string albumName, string artistName, byte[] albumCoverArt,
+                int nChannels, int bitsPerSample, int sampleRate, long numFrames) {
             System.Diagnostics.Debug.Assert(albumCoverArt != null);
-            var af = new AudioFile(path, title, numOfTracks, albumName, artistName, albumCoverArt);
+
+            var af = new AudioFile(path, title, numOfTracks, albumName, artistName, albumCoverArt, nChannels, bitsPerSample, sampleRate, numFrames);
             mAudioFileList.Add(af);
 
-            // アルバム名が一覧にないときアルバムを追加する。
+            Album album = null;
             if (!mAlbumNameToAlbum.ContainsKey(albumName)) {
-                var album = new Album(albumName, af);
+                // アルバム名が一覧にないときアルバムを作る。
+                album = new Album(albumName);
+
                 mAlbumList.Add(album);
                 mAlbumNameToAlbum.Add(albumName, album);
+            } else {
+                album = mAlbumNameToAlbum[albumName];
             }
+
+            album.Add(af);
         }
 
         public string SaveFolder { get; set; }
 
         private ReaderWriterLock mLock = new ReaderWriterLock();
 
-        //                                           version=1 "PPWA"
-        private static readonly long FILE_VERSION = 0x0000000141575050L;
+        //                                           version=2 "PPWA"
+        private static readonly long FILE_VERSION = 0x0000000241575050L;
         private static readonly string MUSIC_LIST_FILE_NAME = Path.DirectorySeparatorChar + "PPWA_MusicList.bin";
         private string mMusicListPath;
         private Dictionary<string, long> mIndex = new Dictionary<string, long>();
@@ -108,6 +133,15 @@ namespace PlayPcmWinAlbum {
                         foreach (var item in mAudioFileList) {
                             // string path
                             SaveString(bw, item.Path);
+
+                            {
+                                var pcm = item.Pcm;
+                                bw.Write(pcm.NumChannels);
+                                bw.Write(pcm.BitsPerSample);
+                                bw.Write(pcm.SampleRate);
+                                bw.Write(pcm.NumFrames);
+                            }
+
                             // string title
                             SaveString(bw, item.Title);
                             // int numOfTracks
@@ -125,8 +159,10 @@ namespace PlayPcmWinAlbum {
                         }
                     }
                 }
-            } catch (IOException) {
-            } catch (System.ArgumentException) {
+            } catch (IOException ex) {
+                Console.WriteLine(ex);
+            } catch (System.ArgumentException ex) {
+                Console.WriteLine(ex);
             }
 
             mLock.ReleaseWriterLock();
@@ -153,6 +189,12 @@ namespace PlayPcmWinAlbum {
                         for (int i = 0; i < count; ++i) {
                             // string path
                             string path = LoadString(br);
+
+                            int numChannels = br.ReadInt32();
+                            int bitsPerSample = br.ReadInt32();
+                            int sampleRate = br.ReadInt32();
+                            long numFrames = br.ReadInt64();
+
                             // string title
                             string title = LoadString(br);
                             // int numOfTracks
@@ -167,13 +209,16 @@ namespace PlayPcmWinAlbum {
                             if (0 < albumCoverArtLength) {
                                 albumCoverArt = br.ReadBytes(albumCoverArtLength);
                             }
-                            Add(path, title, numOfTracks, albumName, artistName, albumCoverArt);
+                            Add(path, title, numOfTracks, albumName, artistName, albumCoverArt,
+                                    numChannels,bitsPerSample,sampleRate,numFrames);
                         }
                     }
                 }
-            } catch (IOException) {
+            } catch (IOException ex) {
+                Console.WriteLine(ex);
                 result = false;
-            } catch (System.ArgumentException) {
+            } catch (System.ArgumentException ex) {
+                Console.WriteLine(ex);
                 result = false;
             }
             mLock.ReleaseWriterLock();

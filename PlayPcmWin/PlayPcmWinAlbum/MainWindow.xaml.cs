@@ -9,11 +9,12 @@ namespace PlayPcmWinAlbum {
         private List<AlbumTile> mTileItems = new List<AlbumTile>();
         private Size mTileSize = new Size(256, 256);
         private CancellationTokenSource mAppExitToken = new CancellationTokenSource();
-
         private ContentList mContentList = new ContentList();
+        private DataGridPlayListHandler mDataGridPlayListHandler;
 
         public MainWindow() {
             InitializeComponent();
+            mDataGridPlayListHandler = new DataGridPlayListHandler(mDataGridPlayList);
         }
 
         private enum State {
@@ -21,6 +22,7 @@ namespace PlayPcmWinAlbum {
             ReadContentList,
             CreateContentList,
             AlbumBrowsing,
+            AlbumTrackBrowsing,
         };
 
         private State mState = State.Init;
@@ -45,12 +47,27 @@ namespace PlayPcmWinAlbum {
             case State.Init:
             case State.CreateContentList:
             case State.ReadContentList:
-                progressBar.Visibility = Visibility.Visible;
-                textBlockMessage.Visibility = Visibility.Visible;
+                mAlbumScrollViewer.Visibility = System.Windows.Visibility.Visible;
+                mDataGridPlayList.Visibility = System.Windows.Visibility.Hidden;
+                mProgressBar.Visibility = Visibility.Collapsed;
+                mTextBlockMessage.Visibility = Visibility.Visible;
+                mMenuItemBack.IsEnabled = false;
+                mMenuItemRefresh.IsEnabled = true;
                 break;
             case State.AlbumBrowsing:
-                progressBar.Visibility = Visibility.Collapsed;
-                textBlockMessage.Visibility = Visibility.Collapsed;
+                mAlbumScrollViewer.Visibility = System.Windows.Visibility.Visible;
+                mDataGridPlayList.Visibility = System.Windows.Visibility.Hidden;
+                mProgressBar.Visibility = Visibility.Collapsed;
+                mTextBlockMessage.Visibility = Visibility.Collapsed;
+                mMenuItemBack.IsEnabled = false;
+                mMenuItemRefresh.IsEnabled = true;
+                break;
+            case State.AlbumTrackBrowsing:
+                mAlbumScrollViewer.Visibility = System.Windows.Visibility.Hidden;
+                mDataGridPlayList.Visibility = System.Windows.Visibility.Visible;
+                mProgressBar.Visibility = Visibility.Collapsed;
+                mMenuItemBack.IsEnabled = true;
+                mMenuItemRefresh.IsEnabled = false;
                 break;
             }
 
@@ -64,6 +81,8 @@ namespace PlayPcmWinAlbum {
         private BackgroundContentListBuilder mBwContentListBuilder;
 
         private bool CreateContentList() {
+            mTilePanel.Clear();
+
             var dialog = new System.Windows.Forms.FolderBrowserDialog();
             dialog.SelectedPath = "C:\\audio";
             if (System.Windows.Forms.DialogResult.OK != dialog.ShowDialog()) {
@@ -75,9 +94,10 @@ namespace PlayPcmWinAlbum {
             mBwContentListBuilder.AddRunWorkerCompleted(BackgroundContentListBuilder_RunWorkerCompleted);
 
 #if false
-            var result = new BackgroundContentListBuilder.RunWorkerCompletedResult();
-            mBwContentListBuilder.BackgroundDoWorkImpl(dialog.SelectedPath, result);
+            // バグっているときの調査用。
+            var result = mBwContentListBuilder.BackgroundDoWorkImpl(dialog.SelectedPath, false);
 #else
+            // バックグラウンド実行。
             mBwContentListBuilder.RunWorkerAsync(dialog.SelectedPath);
             ChangeDisplayState(State.CreateContentList);
 #endif
@@ -87,8 +107,8 @@ namespace PlayPcmWinAlbum {
         private void BackgroundContentListBuilder_ProgressChanged(object sender, ProgressChangedEventArgs e) {
             var rpa = (BackgroundContentListBuilder.ReportProgressArgs)e.UserState;
 
-            textBlockMessage.Text = rpa.text;
-            progressBar.Value = e.ProgressPercentage;
+            mTextBlockMessage.Text = rpa.text;
+            mProgressBar.Value = e.ProgressPercentage;
         }
 
         private void BackgroundContentListBuilder_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
@@ -111,16 +131,18 @@ namespace PlayPcmWinAlbum {
         private void UpdateContentList() {
             AlbumTile.UpdateTileSize(mTileSize);
 
-            tilePanel.UpdateTileSize(mTileSize);
+            mTilePanel.Clear();
+
+            mTilePanel.UpdateTileSize(mTileSize);
             for (int i=0; i < mContentList.AlbumCount; ++i) {
                 var album = mContentList.AlbumNth(i);
-                var tic = new TiledItemContent(album.Name, album.RepresentativeAudioFile.AlbumCoverArt);
+                var tic = new TiledItemContent(album.Name, album.AudioFileNth(0).AlbumCoverArt, album);
                 var tileItem = new AlbumTile(tic, OnAlbumTileClicked, mAppExitToken.Token);
 
-                tilePanel.AddVirtualChild(tileItem);
+                mTilePanel.AddVirtualChild(tileItem);
                 mTileItems.Add(tileItem);
             }
-            tilePanel.UpdateChildPosition();
+            mTilePanel.UpdateChildPosition();
         }
 
         private void CancelAll() {
@@ -130,12 +152,31 @@ namespace PlayPcmWinAlbum {
             }
         }
 
-        private void OnAlbumTileClicked(AlbumTile sender, TiledItemContent content) {
-            Console.WriteLine("clicked {0}", content.DisplayName);
-        }
-
         private void Window_Closed(object sender, EventArgs e) {
             CancelAll();
+        }
+
+        private void OnAlbumTileClicked(AlbumTile sender, TiledItemContent content) {
+            Console.WriteLine("clicked {0}", content.DisplayName);
+            var album = content.Tag as ContentList.Album;
+
+            mDataGridPlayListHandler.ShowAlbum(album);
+            ChangeDisplayState(State.AlbumTrackBrowsing);
+        }
+
+        private void mMenuItemBack_Click(object sender, RoutedEventArgs e) {
+            ChangeDisplayState(State.AlbumBrowsing);
+        }
+
+        private void mMenuItemRefresh_Click(object sender, RoutedEventArgs e) {
+            if (!CreateContentList()) {
+                Close();
+                return;
+            }
+        }
+
+        private void dataGridPlayList_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e) {
+            Console.WriteLine("DataGridPlayList_SelectionChanged()");
         }
     }
 }

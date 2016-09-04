@@ -100,7 +100,7 @@ namespace WWXmlRW {
                     }
                 }
             } catch (System.Exception ex) {
-                Console.WriteLine(ex.ToString());
+                Console.WriteLine(ex);
             }
 
             return result;

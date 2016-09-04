@@ -75,9 +75,12 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="BackgroundContentListBuilder.cs" />
+    <Compile Include="DataGridPlayListHandler.cs" />
     <Compile Include="DirectoryUtil.cs" />
     <Compile Include="ContentList.cs" />
+    <Compile Include="PlayListItemInfo.cs" />
     <Compile Include="TiledItemContent.cs" />
+    <Compile Include="Util.cs" />
     <Compile Include="VerticalScrollTilePanel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

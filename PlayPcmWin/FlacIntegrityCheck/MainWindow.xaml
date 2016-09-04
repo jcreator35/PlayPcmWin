@@ -41,7 +41,7 @@
                             <RowDefinition Height="1*" />
                         </Grid.RowDefinitions>
                         <RadioButton Content="Concise" HorizontalAlignment="Left" Margin="6" Name="radioButtonOutputConcise" VerticalAlignment="Center" IsChecked="True" />
-                        <RadioButton Grid.Row="1"  Content="_Verbose" HorizontalAlignment="Left" Margin="6" Name="radioButtonOutputVerbose" VerticalAlignment="Center" />
+                        <RadioButton Grid.Row="1"  Content="_Verbose" HorizontalAlignment="Left" Margin="6" Name="radioButtonOutputVerbose" VerticalAlignment="Center" IsEnabled="False" />
                     </Grid>
                 </GroupBox>
             </Grid>
