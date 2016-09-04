@@ -4,20 +4,44 @@
         Title="PlayPcmWinAlbum" Height="600" Width="1024"
         xmlns:local="clr-namespace:PlayPcmWinAlbum" Loaded="Window_Loaded" Closed="Window_Closed">
     <Grid VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Visible">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="160" />
+            <ColumnDefinition Width="1*" />
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="40" />
+            <RowDefinition Height="109" />
             <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
-        <Menu Height="40" Name="mMenu">
+        <Menu Height="40" Name="mMenu" HorizontalAlignment="Left">
             <MenuItem Header="🔙" FontSize="28" Name="mMenuItemBack" Click="mMenuItemBack_Click" />
             <MenuItem Header="🔃" Name="mMenuItemRefresh" Click="mMenuItemRefresh_Click" FontSize="28" />
+            <MenuItem Header="⚙" Name="mMenuItemSettings" FontSize="28" Click="mMenuItemSettings_Click" />
         </Menu>
-        <ScrollViewer CanContentScroll="True" PanningMode="VerticalOnly" Grid.Row="1" Name="mAlbumScrollViewer">
+        <ScrollViewer CanContentScroll="True" PanningMode="VerticalOnly" Grid.Row="1" Name="mAlbumScrollViewer" Grid.ColumnSpan="2" Grid.RowSpan="2">
             <local:VerticalScrollTilePanel x:Name="mTilePanel">
             </local:VerticalScrollTilePanel>
         </ScrollViewer>
+
+        <DockPanel Height="109" HorizontalAlignment="Stretch" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Name="mDockPanelPlayback">
+            <Image DockPanel.Dock="Left" RenderOptions.BitmapScalingMode="Fant" Name="mImageCoverArt" Stretch="Uniform" Height="109" Width="109" Margin="6,0,0,0" />
+            <Grid DockPanel.Dock="Right" Width="Auto" >
+                <GroupBox Header="Playback control" Margin="6,0,6,0" Name="mGroupBoxPlaybackControl" Height="86" VerticalAlignment="Top" HorizontalAlignment="Left">
+                    <Grid Width="380">
+                        <Button Content="_Play" HorizontalAlignment="Left" Margin="6,6,0,0" Name="buttonPlay" VerticalAlignment="Top" Width="67" IsEnabled="False" Click="buttonPlay_Click" />
+                        <Button Content="_Stop" HorizontalAlignment="Left" Margin="78,6,0,0" Name="buttonStop" VerticalAlignment="Top" Width="66" IsEnabled="False" Click="buttonStop_Click" />
+                        <Button Content="Pa_use" HorizontalAlignment="Left" IsEnabled="False" Margin="149,6,0,0" Name="buttonPause" VerticalAlignment="Top" Width="89" Click="buttonPause_Click" />
+                        <Button Content="Prev" HorizontalAlignment="Left" IsEnabled="False" Margin="256,6,0,0" Name="buttonPrev" VerticalAlignment="Top" Width="50" Click="buttonPrev_Click" />
+                        <Button Content="Next" HorizontalAlignment="Left" IsEnabled="False" Margin="311,6,0,0" Name="buttonNext" VerticalAlignment="Top" Width="50" Click="buttonNext_Click" />
+                        <Label Content="0:00:00/0:00:00" Margin="148,30,6,0" Name="labelPlayingTime" Height="29" VerticalAlignment="Top" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" FontWeight="Bold" FontSize="16" FontFamily="Courier New" />
+                        <ComboBox HorizontalAlignment="Left" Margin="6,33,0,0" Name="comboBoxPlayMode" VerticalAlignment="Top" />
+                    </Grid>
+                </GroupBox>
+                <Slider Margin="6,0,6,0" Name="slider1" MouseMove="slider1_MouseMove" Height="23" VerticalAlignment="Bottom" IsMoveToPointEnabled="True" />
+            </Grid>
+        </DockPanel>
         <DataGrid
-                Grid.Row="1"
+                Grid.Row="2"
                 Name="mDataGridPlayList"
                 GridLinesVisibility="None"
                 AutoGenerateColumns="False"
@@ -27,7 +51,7 @@
                 CanUserAddRows="False"
                 CanUserResizeRows="False"
                 SelectionUnit="FullRow" SelectionChanged="dataGridPlayList_SelectionChanged"
-                IsReadOnly="True" Background="{x:Null}" IsEnabled="True">
+                IsReadOnly="True" Background="{x:Null}" IsEnabled="True" Grid.ColumnSpan="2" Grid.RowSpan="2">
             <DataGrid.RowHeaderStyle>
                 <Style TargetType="{x:Type DataGridRowHeader}">
                     <Setter Property="Content" Value="{Binding RowId}"/>
@@ -62,8 +86,9 @@
 
         </DataGrid>
 
-        <TextBlock Name="mTextBlockMessage" Text="textBlockMessage" Panel.ZIndex="1" FontSize="32" VerticalAlignment="Center" Margin="0" Grid.Row="1"  HorizontalAlignment="Center" />
-        <ProgressBar Height="24" Name="mProgressBar" VerticalAlignment="Bottom" Maximum="1000000" Grid.Row="1" />
+        <TextBlock Name="mTextBlockMessage" Text="textBlockMessage" Panel.ZIndex="1" FontSize="32" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Grid.RowSpan="3" />
+        <ProgressBar Height="24" Name="mProgressBar" VerticalAlignment="Bottom" Maximum="1000000" Grid.Row="2" Grid.ColumnSpan="2" />
+        <Label Content="AlbumName" Grid.Column="1" HorizontalAlignment="Left" Name="mLabelAlbumName" VerticalAlignment="Center" FontSize="20" />
     </Grid>
     
 </Window>

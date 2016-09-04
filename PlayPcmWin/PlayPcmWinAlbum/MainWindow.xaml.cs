@@ -15,6 +15,7 @@ namespace PlayPcmWinAlbum {
         public MainWindow() {
             InitializeComponent();
             mDataGridPlayListHandler = new DataGridPlayListHandler(mDataGridPlayList);
+            mLabelAlbumName.Content = "";
         }
 
         private enum State {
@@ -49,6 +50,7 @@ namespace PlayPcmWinAlbum {
             case State.ReadContentList:
                 mAlbumScrollViewer.Visibility = System.Windows.Visibility.Visible;
                 mDataGridPlayList.Visibility = System.Windows.Visibility.Hidden;
+                mDockPanelPlayback.Visibility = System.Windows.Visibility.Hidden;
                 mProgressBar.Visibility = Visibility.Collapsed;
                 mTextBlockMessage.Visibility = Visibility.Visible;
                 mMenuItemBack.IsEnabled = false;
@@ -57,6 +59,7 @@ namespace PlayPcmWinAlbum {
             case State.AlbumBrowsing:
                 mAlbumScrollViewer.Visibility = System.Windows.Visibility.Visible;
                 mDataGridPlayList.Visibility = System.Windows.Visibility.Hidden;
+                mDockPanelPlayback.Visibility = System.Windows.Visibility.Hidden;
                 mProgressBar.Visibility = Visibility.Collapsed;
                 mTextBlockMessage.Visibility = Visibility.Collapsed;
                 mMenuItemBack.IsEnabled = false;
@@ -65,6 +68,7 @@ namespace PlayPcmWinAlbum {
             case State.AlbumTrackBrowsing:
                 mAlbumScrollViewer.Visibility = System.Windows.Visibility.Hidden;
                 mDataGridPlayList.Visibility = System.Windows.Visibility.Visible;
+                mDockPanelPlayback.Visibility = System.Windows.Visibility.Visible;
                 mProgressBar.Visibility = Visibility.Collapsed;
                 mMenuItemBack.IsEnabled = true;
                 mMenuItemRefresh.IsEnabled = false;
@@ -160,11 +164,13 @@ namespace PlayPcmWinAlbum {
             Console.WriteLine("clicked {0}", content.DisplayName);
             var album = content.Tag as ContentList.Album;
 
+            mLabelAlbumName.Content = album.Name;
             mDataGridPlayListHandler.ShowAlbum(album);
             ChangeDisplayState(State.AlbumTrackBrowsing);
         }
 
         private void mMenuItemBack_Click(object sender, RoutedEventArgs e) {
+            mLabelAlbumName.Content = "";
             ChangeDisplayState(State.AlbumBrowsing);
         }
 
@@ -177,6 +183,34 @@ namespace PlayPcmWinAlbum {
 
         private void dataGridPlayList_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e) {
             Console.WriteLine("DataGridPlayList_SelectionChanged()");
+        }
+
+        private void mMenuItemSettings_Click(object sender, RoutedEventArgs e) {
+
+        }
+
+        private void buttonPlay_Click(object sender, RoutedEventArgs e) {
+
+        }
+
+        private void buttonStop_Click(object sender, RoutedEventArgs e) {
+
+        }
+
+        private void buttonPause_Click(object sender, RoutedEventArgs e) {
+
+        }
+
+        private void buttonPrev_Click(object sender, RoutedEventArgs e) {
+
+        }
+
+        private void buttonNext_Click(object sender, RoutedEventArgs e) {
+
+        }
+
+        private void slider1_MouseMove(object sender, System.Windows.Input.MouseEventArgs e) {
+
         }
     }
 }
