@@ -124,7 +124,7 @@ namespace PlayPcmWinAlbum.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Playing. {0}Hz {1} {2}ch PCM.
+        ///   Looks up a localized string similar to Playing. PCM {0}Hz {1} {2}ch .
         /// </summary>
         internal static string MainStatusPlaying {
             get {

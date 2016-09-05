@@ -139,7 +139,7 @@
     <value>Paused.</value>
   </data>
   <data name="MainStatusPlaying" xml:space="preserve">
-    <value>Playing. {0}Hz {1} {2}ch PCM</value>
+    <value>Playing. PCM {0}Hz {1} {2}ch </value>
   </data>
   <data name="MainStatusReadCompleted" xml:space="preserve">
     <value>Read completed. ready to play.</value>
