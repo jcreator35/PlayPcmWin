@@ -14,9 +14,9 @@
             <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
         <Menu Height="40" Name="mMenu" HorizontalAlignment="Left">
-            <MenuItem Header="🔙" FontSize="28" Name="mMenuItemBack" Click="OnMenuItemBack_Click" />
-            <MenuItem Header="🔃" Name="mMenuItemRefresh" Click="OnMenuItemRefresh_Click" FontSize="28" />
-            <MenuItem Header="⚙" Name="mMenuItemSettings" FontSize="28" Click="OnMenuItemSettings_Click" IsEnabled="False" />
+            <MenuItem Header="🔙" FontSize="28" Name="mMenuItemBack" Click="OnMenuItemBack_Click" FontFamily="Arial" />
+            <MenuItem Header="🔃" Name="mMenuItemRefresh" Click="OnMenuItemRefresh_Click" FontSize="28" FontFamily="Arial" />
+            <MenuItem Header="⚙" Name="mMenuItemSettings" FontSize="28" Click="OnMenuItemSettings_Click" IsEnabled="False" FontFamily="Arial" />
         </Menu>
         <ScrollViewer CanContentScroll="True" PanningMode="VerticalOnly" Grid.Row="1" Name="mAlbumScrollViewer" Grid.ColumnSpan="2" Grid.RowSpan="2">
             <local:VerticalScrollTilePanel x:Name="mTilePanel">
@@ -27,19 +27,49 @@
             <Image DockPanel.Dock="Left" RenderOptions.BitmapScalingMode="Fant" Name="mImageCoverArt" Stretch="Uniform" Height="109" Width="109" Margin="6,0,0,0" />
             <Grid DockPanel.Dock="Right" Width="Auto" >
                 <GroupBox Header="Playback control" Margin="6,0,6,0" Name="mGroupBoxPlaybackControl" Height="86" VerticalAlignment="Top" HorizontalAlignment="Left">
-                    <Grid Width="380">
-                        <Button Content="_Play" HorizontalAlignment="Left" Margin="6,6,0,0" Name="mButtonPlay" VerticalAlignment="Top" Width="67" IsEnabled="False" Click="OnButtonPlay_Click" />
-                        <Button Content="_Stop" HorizontalAlignment="Left" Margin="78,6,0,0" Name="mButtonStop" VerticalAlignment="Top" Width="66" IsEnabled="False" Click="OnButtonStop_Click" />
-                        <Button Content="Pa_use" HorizontalAlignment="Left" IsEnabled="False" Margin="149,6,0,0" Name="mButtonPause" VerticalAlignment="Top" Width="89" Click="OnButtonPause_Click" />
-                        <Button Content="Prev" HorizontalAlignment="Left" IsEnabled="False" Margin="256,6,0,0" Name="mButtonPrev" VerticalAlignment="Top" Width="50" Click="OnButtonPrev_Click" />
-                        <Button Content="Next" HorizontalAlignment="Left" IsEnabled="False" Margin="311,6,0,0" Name="mButtonNext" VerticalAlignment="Top" Width="50" Click="OnButtonNext_Click" />
+                    <Grid Width="355">
+                        <Button Content="▶" HorizontalAlignment="Left" Margin="6,6,0,0" Name="mButtonPlay" VerticalAlignment="Top" Height="26" Width="55" IsEnabled="False" Click="OnButtonPlay_Click" FontSize="16" FontFamily="Arial" />
+                        <Button Content="▮" HorizontalAlignment="Left" Margin="66,6,0,0" Name="mButtonStop" VerticalAlignment="Top" Width="55" Height="26" IsEnabled="False" Click="OnButtonStop_Click" FontSize="16" FontFamily="Arial" />
+                        <Button Content="&#9613; &#9613;" HorizontalAlignment="Left" IsEnabled="False" Margin="127,6,0,0" Name="mButtonPause" VerticalAlignment="Top" Width="55" Height="26" Click="OnButtonPause_Click" FontSize="16" FontFamily="Arial" />
+                        <Button Content="&#9614;◀◀" HorizontalAlignment="Left" IsEnabled="False" Margin="203,6,0,0" Name="mButtonPrev" VerticalAlignment="Top" Width="70" Height="26" Click="OnButtonPrev_Click" FontSize="16" FontFamily="Arial" />
+                        <Button Content="▶▶&#9614;" HorizontalAlignment="Left" IsEnabled="False" Margin="279,6,0,0" Name="mButtonNext" VerticalAlignment="Top" Width="70" Height="26" Click="OnButtonNext_Click" FontSize="16" FontFamily="Arial" />
                         <Label Content="0:00:00/0:00:00" Margin="148,30,6,0" Name="mLabelPlayingTime" Height="29" VerticalAlignment="Top" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" FontWeight="Bold" FontSize="16" FontFamily="Courier New" />
-                        <ComboBox HorizontalAlignment="Left" Margin="6,33,0,0" Name="mComboBoxPlayMode" VerticalAlignment="Top" />
+                        <ComboBox HorizontalAlignment="Left" Margin="6,37,0,0" Name="mComboBoxPlayMode" VerticalAlignment="Top" />
                     </Grid>
                 </GroupBox>
                 <Slider Margin="6,0,6,0" Name="mSlider1" MouseMove="OnSlider1_MouseMove" Height="23" VerticalAlignment="Bottom" IsMoveToPointEnabled="True" MouseLeftButtonDown="OnSlider1_MouseLeftButtonDown" MouseLeftButtonUp="OnSlider1_MouseLeftButtonUp" />
-                <GroupBox Header="Playback Device" Height="86" HorizontalAlignment="Left" Margin="400,0,0,0" Name="mGroupBoxPlaybackDevice" VerticalAlignment="Top" Width="400">
-                    <ListBox Name="mListBoxPlaybackDevice" SelectionChanged="OnListBoxPlaybackDevice_SelectionChanged" />
+                <GroupBox Header="Playback Device" Height="86" HorizontalAlignment="Left" Margin="379,0,0,0" Name="mGroupBoxPlaybackDevice" VerticalAlignment="Top" Width="226">
+                    <Grid>
+                        <ListBox Name="mListBoxPlaybackDevice" SelectionChanged="OnListBoxPlaybackDevice_SelectionChanged"  />
+                    </Grid>
+                </GroupBox>
+                <GroupBox Header="Wasapi Settings" Height="86" HorizontalAlignment="Left" Margin="610,0,0,0" Name="mGroupBoxWasapiSettings" VerticalAlignment="Top" Width="232">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+                        <GroupBox Header="Data feed mode" >
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="1*" />
+                                    <RowDefinition Height="1*" />
+                                </Grid.RowDefinitions>
+                                <RadioButton Content="Event" Margin="6,0,0,0" HorizontalAlignment="Left" Name="mRadioButtonEvent" VerticalAlignment="Center" IsChecked="True" />
+                                <RadioButton Content="Timer" Margin="6,0,0,0" Grid.Row="1" HorizontalAlignment="Left" Name="mRadioButtonTimer" VerticalAlignment="Center" />
+                            </Grid>
+                        </GroupBox>
+                        <GroupBox Header="Buffer size" Grid.Column="1">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*" />
+                                    <ColumnDefinition Width="1*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox Text="170" HorizontalContentAlignment="Right" VerticalAlignment="Center" Margin="6,0,0,0" Name="mTextBoxBufferSizeMs" />
+                                <Label Content="ms" VerticalAlignment="Center" Grid.Column="1"/>
+                            </Grid>
+                        </GroupBox>
+                    </Grid>
                 </GroupBox>
             </Grid>
         </DockPanel>
@@ -87,8 +117,24 @@
         </DataGrid>
 
         <TextBlock Name="mTextBlockMessage" Text="textBlockMessage" Panel.ZIndex="1" FontSize="32" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Grid.RowSpan="3" />
-        <ProgressBar Height="24" Name="mProgressBar" VerticalAlignment="Bottom" Maximum="100" Grid.Row="2" Grid.ColumnSpan="2" />
         <Label Content="AlbumName" Grid.Column="1" HorizontalAlignment="Left" Name="mLabelAlbumName" VerticalAlignment="Center" FontSize="20" />
+        <StatusBar Name="mStatusBar" Grid.Row="2" VerticalAlignment="Bottom" Grid.ColumnSpan="2">
+            <StatusBar.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                    </Grid>
+                </ItemsPanelTemplate>
+            </StatusBar.ItemsPanel>
+            <StatusBarItem Content="Status bar text" VerticalAlignment="Center" Name="mStatusBarText" />
+            <StatusBarItem Grid.Column="1">
+                <ProgressBar Name="mProgressBar" VerticalAlignment="Center" Height="20" Visibility="Visible" Width="200" />
+            </StatusBarItem>
+        </StatusBar>
     </Grid>
     
 </Window>

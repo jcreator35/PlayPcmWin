@@ -7,12 +7,28 @@ using Wasapi;
 namespace PlayPcmWinAlbum {
     class PlaybackController {
         WasapiCS mWasapi = null;
-        ContentList.Album mAlbum = null;
-        private int mLatencyMillisec = 170;
+        private int mBufferSizeMillisec = 170;
         private int mZeroFlushMillisec = 1000;
         private WasapiCS.DataFeedMode mDataFeedMode = WasapiCS.DataFeedMode.EventDriven;
         public delegate void StateChangedCallback(State newState);
         private StateChangedCallback mStateChangedCallback = null;
+
+        public class DeviceFormat {
+            public int NumChannels { get; set; }
+            public int SampleRate { get; set; }
+            public WasapiCS.SampleFormatType SampleFormat { get; set; }
+            public void Set(int numChannels, int sampleRate, WasapiCS.SampleFormatType sampleFormat) {
+                NumChannels = numChannels;
+                SampleRate = sampleRate;
+                SampleFormat = sampleFormat;
+            }
+
+            public int BytesPerFrame() {
+                return NumChannels * WasapiCS.SampleFormatTypeToUseBitsPerSample(SampleFormat) / 8;
+            }
+        };
+
+        private DeviceFormat mDeviceFormat = new DeviceFormat();
 
         public void SetStateChangedCallback(StateChangedCallback cb) {
             mStateChangedCallback = cb;
@@ -22,6 +38,7 @@ namespace PlayPcmWinAlbum {
             Stopped,
             Loading,
             Playing,
+            Paused,
         };
 
         private State mState = State.Stopped;
@@ -98,28 +115,23 @@ namespace PlayPcmWinAlbum {
             }
         }
 
-        private void SetWasapiParams(int latencyMillisec, int zeroFlushMillisec, WasapiCS.DataFeedMode dfm) {
-            mLatencyMillisec = latencyMillisec;
+        public void SetWasapiParams(int bufferSizeMillisec, int zeroFlushMillisec, WasapiCS.DataFeedMode dfm) {
+            mBufferSizeMillisec = bufferSizeMillisec;
             mZeroFlushMillisec = zeroFlushMillisec;
             mDataFeedMode = dfm;
         }
 
-        class DeviceFormat {
-            public int NumChannels { get; set; }
-            public int SampleRate { get; set; }
-            public WasapiCS.SampleFormatType SampleFormat { get; set; }
-            public void Set(int numChannels, int sampleRate, WasapiCS.SampleFormatType sampleFormat) {
-                NumChannels = numChannels;
-                SampleRate = sampleRate;
-                SampleFormat = sampleFormat;
-            }
+        public int GetWasapiBufferSizeMilisec() {
+            return mBufferSizeMillisec;
+        }
 
-            public int BytesPerFrame() {
-                return NumChannels * WasapiCS.SampleFormatTypeToUseBitsPerSample(SampleFormat)/8;
-            }
-        };
+        public WasapiCS.DataFeedMode GetDataFeedMode() {
+            return mDataFeedMode;
+        }
 
-        private DeviceFormat mDeviceFormat = new DeviceFormat();
+        public DeviceFormat GetDeviceFormat() {
+            return mDeviceFormat;
+        }
 
         private bool Setup(int deviceId, PcmDataLib.PcmData format) {
             bool bResult = false;
@@ -132,7 +144,7 @@ namespace PlayPcmWinAlbum {
                     format.SampleRate, sampleFormatCandidates[i], mixFormat.numChannels,
                     mixFormat.dwChannelMask, WasapiCS.MMCSSCallType.Enable,
                     WasapiCS.MMThreadPriorityType.High, WasapiCS.SchedulerTaskType.ProAudio,
-                    WasapiCS.ShareMode.Exclusive, mDataFeedMode, mLatencyMillisec, mZeroFlushMillisec, 10000);
+                    WasapiCS.ShareMode.Exclusive, mDataFeedMode, mBufferSizeMillisec, mZeroFlushMillisec, 10000);
                 if (ercd < 0) {
                     Console.WriteLine("Wasapi.Setup({0} {1}) failed", format.SampleRate, sampleFormatCandidates[i]);
                 } else {
@@ -229,7 +241,7 @@ namespace PlayPcmWinAlbum {
             return mLoadedGroupId;
         }
 
-        public bool Add(ContentList.AudioFile af) {
+        public bool LoadAdd(ContentList.AudioFile af) {
             WWFlacRWCS.FlacRW flac = new WWFlacRWCS.FlacRW();
             int ercd = flac.DecodeAll(af.Path);
             if (ercd < 0) {
@@ -253,13 +265,26 @@ namespace PlayPcmWinAlbum {
         /// ロードしていない曲Idを指定して呼び出すと無視する。
         /// </summary>
         public bool Play(int idx) {
-            if (mState == State.Playing) {
+            int ercd;
+
+            switch (mState) {
+            case State.Paused:
+                // ポーズ中の場合。
+                mWasapi.UpdatePlayPcmDataById(idx);
+                ercd = mWasapi.Unpause();
+                if (0 <= ercd) {
+                    ChangeState(State.Playing);
+                }
+                return true;
+            case State.Playing:
                 // 既に再生中の場合。
                 mWasapi.UpdatePlayPcmDataById(idx);
                 return true;
+            default:
+                break;
             }
 
-            int ercd = mWasapi.StartPlayback(idx);
+            ercd = mWasapi.StartPlayback(idx);
             if (0 <= ercd) {
                 ChangeState(State.Playing);
             }
@@ -271,6 +296,14 @@ namespace PlayPcmWinAlbum {
             mLoadedGroupId = -1;
             mWasapi.Stop();
             ChangeState(State.Stopped);
+        }
+
+        public bool Pause() {
+            int ercd = mWasapi.Pause();
+            if (0 <= ercd) {
+                ChangeState(State.Paused);
+            }
+            return 0 <= ercd;
         }
 
         public bool Run(int millisec) {

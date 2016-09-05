@@ -19,11 +19,13 @@ namespace PlayPcmWinAlbum {
         private DataGridPlayListHandler mDataGridPlayListHandler;
         private PlaybackController mPlaybackController = new PlaybackController();
         private bool mInitialized = false;
-        private BackgroundWorker mBackgroundLoad;
-        private BackgroundWorker mBackgroundPlay;
+        private BackgroundWorker mBackgroundLoad = new BackgroundWorker();
+        private BackgroundWorker mBackgroundPlay = new BackgroundWorker();
         private string mPreferredDeviceIdString = "";
         private const int PROGRESS_REPORT_INTERVAL_MS = 100;
         private const int SLIDER_UPDATE_TICKS = 500;
+
+        private const int DEFAULT_ZERO_FLUSH_MILLISEC = 1000;
 
         private const string PLAYING_TIME_UNKNOWN = "--:-- / --:--";
         private const string PLAYING_TIME_ALLZERO = "00:00 / 00:00";
@@ -43,6 +45,8 @@ namespace PlayPcmWinAlbum {
             InitializeComponent();
             mDataGridPlayListHandler = new DataGridPlayListHandler(mDataGridPlayList);
             mLabelAlbumName.Content = "";
+            mBackgroundLoad.WorkerSupportsCancellation = true;
+            mBackgroundPlay.WorkerSupportsCancellation = true;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
@@ -71,6 +75,7 @@ namespace PlayPcmWinAlbum {
                 mAlbumScrollViewer.Visibility = System.Windows.Visibility.Visible;
                 mDataGridPlayList.Visibility = System.Windows.Visibility.Hidden;
                 mDockPanelPlayback.Visibility = System.Windows.Visibility.Hidden;
+                mStatusBar.Visibility = System.Windows.Visibility.Collapsed;
                 mProgressBar.Visibility = Visibility.Collapsed;
                 mTextBlockMessage.Visibility = Visibility.Visible;
                 mMenuItemBack.IsEnabled = false;
@@ -80,6 +85,7 @@ namespace PlayPcmWinAlbum {
                 mAlbumScrollViewer.Visibility = System.Windows.Visibility.Visible;
                 mDataGridPlayList.Visibility = System.Windows.Visibility.Hidden;
                 mDockPanelPlayback.Visibility = System.Windows.Visibility.Hidden;
+                mStatusBar.Visibility = System.Windows.Visibility.Collapsed;
                 mProgressBar.Visibility = Visibility.Collapsed;
                 mTextBlockMessage.Visibility = Visibility.Collapsed;
                 mMenuItemBack.IsEnabled = false;
@@ -89,6 +95,7 @@ namespace PlayPcmWinAlbum {
                 mAlbumScrollViewer.Visibility = System.Windows.Visibility.Hidden;
                 mDataGridPlayList.Visibility = System.Windows.Visibility.Visible;
                 mDockPanelPlayback.Visibility = System.Windows.Visibility.Visible;
+                mStatusBar.Visibility = System.Windows.Visibility.Visible;
                 mProgressBar.Visibility = Visibility.Collapsed;
                 mMenuItemBack.IsEnabled = true;
                 mMenuItemRefresh.IsEnabled = false;
@@ -103,18 +110,44 @@ namespace PlayPcmWinAlbum {
             case PlaybackController.State.Stopped:
                 mButtonPlay.IsEnabled = true;
                 mButtonStop.IsEnabled = false;
+                mButtonPause.IsEnabled = false;
                 mProgressBar.Visibility = System.Windows.Visibility.Collapsed;
                 mLabelPlayingTime.Content = PLAYING_TIME_ALLZERO;
+                mStatusBarText.Content = Properties.Resources.MainStatusStopped;
+                mGroupBoxPlaybackDevice.IsEnabled = true;
+                mGroupBoxWasapiSettings.IsEnabled = true;
                 break;
             case PlaybackController.State.Playing:
-                mButtonPlay.IsEnabled = false;
-                mButtonStop.IsEnabled = true;
-                mProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                {
+                    mButtonPlay.IsEnabled = false;
+                    mButtonStop.IsEnabled = true;
+                    mButtonPause.IsEnabled = true;
+                    mProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                    mGroupBoxPlaybackDevice.IsEnabled = false;
+                    mGroupBoxWasapiSettings.IsEnabled = false;
+
+                    var df = mPlaybackController.GetDeviceFormat();
+                    mStatusBarText.Content = string.Format(Properties.Resources.MainStatusPlaying,
+                            df.SampleRate, df.SampleFormat, df.NumChannels);
+                }
                 break;
             case PlaybackController.State.Loading:
                 mButtonPlay.IsEnabled = false;
                 mButtonStop.IsEnabled = false;
+                mButtonPause.IsEnabled = false;
                 mProgressBar.Visibility = System.Windows.Visibility.Visible;
+                mStatusBarText.Content = Properties.Resources.MainStatusReadingFiles;
+                mGroupBoxPlaybackDevice.IsEnabled = false;
+                mGroupBoxWasapiSettings.IsEnabled = false;
+                break;
+            case PlaybackController.State.Paused:
+                mButtonPlay.IsEnabled = true;
+                mButtonStop.IsEnabled = true;
+                mButtonPause.IsEnabled = false;
+                mProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                mStatusBarText.Content = Properties.Resources.MainStatusPaused;
+                mGroupBoxPlaybackDevice.IsEnabled = false;
+                mGroupBoxWasapiSettings.IsEnabled = false;
                 break;
 
             default:
@@ -202,6 +235,13 @@ namespace PlayPcmWinAlbum {
         private void Window_Closed(object sender, EventArgs e) {
             mBackgroundPlay.CancelAsync();
             while (mBackgroundPlay.IsBusy) {
+                System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(
+                        System.Windows.Threading.DispatcherPriority.Background,
+                        new System.Threading.ThreadStart(delegate { }));
+                System.Threading.Thread.Sleep(100);
+            }
+            mBackgroundLoad.CancelAsync();
+            while (mBackgroundLoad.IsBusy) {
                 System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(
                         System.Windows.Threading.DispatcherPriority.Background,
                         new System.Threading.ThreadStart(delegate { }));
@@ -370,22 +410,44 @@ namespace PlayPcmWinAlbum {
             }
         };
 
+        private bool SetWasapiParams() {
+            int bufferSizeMs = 170;
+            if (!Int32.TryParse(mTextBoxBufferSizeMs.Text, out bufferSizeMs) || bufferSizeMs <= 0) {
+                MessageBox.Show("Error: WASAPI buffer size should be integer value larger than zero");
+                return false;
+            }
+            WasapiCS.DataFeedMode dfm = mRadioButtonEvent.IsChecked == true ? WasapiCS.DataFeedMode.EventDriven : WasapiCS.DataFeedMode.TimerDriven;
+
+            mPlaybackController.SetWasapiParams(bufferSizeMs, DEFAULT_ZERO_FLUSH_MILLISEC, dfm);
+            return true;
+        }
+
         private void PlayAudioFile(int idx) {
             var album = mContentList.GetSelectedAlbum();
             var af = album.AudioFileNth(idx);
 
-            if (mPlaybackController.GetState() == PlaybackController.State.Playing) {
-                // 再生中。
+            switch (mPlaybackController.GetState()) {
+            case PlaybackController.State.Playing:
+            case PlaybackController.State.Paused:
+                // 再生中。またはポーズ中。
                 if (mPlaybackController.LoadedGroupId() == af.GroupId) {
                     // 再生中のグループと同じグループである。
                     // 再生曲を切り替える。
                     mPlaybackController.Play(idx);
+                    UpdatePlaybackControlState(mPlaybackController.GetState());
                     return;
                 } else {
                     // 異なるグループの曲なので再ロードが必要。
                     // 再生停止してロードする。
                     mPlaybackController.Stop();
                 }
+                break;
+            default:
+                break;
+            }
+
+            if (!SetWasapiParams()) {
+                return;
             }
 
             // 選択曲が含まれるグループをロードする。
@@ -402,6 +464,7 @@ namespace PlayPcmWinAlbum {
             UpdatePlaybackControlState(PlaybackController.State.Loading);
             mBackgroundLoad = new BackgroundWorker();
             mBackgroundLoad.WorkerReportsProgress = true;
+            mBackgroundLoad.WorkerSupportsCancellation = true;
             mBackgroundLoad.DoWork += new DoWorkEventHandler(OnBackgroundLoad_DoWork);
             mBackgroundLoad.ProgressChanged += new ProgressChangedEventHandler(OnBackgroundLoad_ProgressChanged);
             mBackgroundLoad.RunWorkerCompleted += new RunWorkerCompletedEventHandler(OnBackgroundLoad_RunWorkerCompleted);
@@ -432,6 +495,8 @@ namespace PlayPcmWinAlbum {
         }
 
         void OnBackgroundLoad_DoWork(object sender, DoWorkEventArgs e) {
+            mBackgroundLoad.ReportProgress(0);
+
             var args = e.Argument as BackgroundLoadArgs;
 
             var playList = CreatePlayList(args.Album, args.First);
@@ -439,8 +504,13 @@ namespace PlayPcmWinAlbum {
             int added = 0;
             for (int i = 0; i < playList.Count; ++i) {
                 var af = playList[i];
-                if (mPlaybackController.Add(af)) {
+                if (mPlaybackController.LoadAdd(af)) {
                     ++added;
+                }
+
+                if (mBackgroundLoad.CancellationPending) {
+                    e.Cancel = true;
+                    return;
                 }
                 mBackgroundLoad.ReportProgress((i + 1) * 100 / playList.Count);
             }
@@ -450,10 +520,19 @@ namespace PlayPcmWinAlbum {
         }
 
         void OnBackgroundLoad_ProgressChanged(object sender, ProgressChangedEventArgs e) {
+            if (mBackgroundLoad.CancellationPending) {
+                // アプリ終了。
+                return;
+            }
+
             mProgressBar.Value = e.ProgressPercentage;
         }
 
         void OnBackgroundLoad_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
+            if (e.Cancelled) {
+                return;
+            }
+
             var result = e.Result as BackgroundLoadResult;
             if (result.Result) {
                 mPlaybackController.Play(result.Args.First);
@@ -475,6 +554,7 @@ namespace PlayPcmWinAlbum {
             bool bEnd = true;
             do {
                 if (mBackgroundPlay.CancellationPending) {
+                    e.Cancel = true;
                     return;
                 }
 
@@ -539,6 +619,11 @@ namespace PlayPcmWinAlbum {
         }
 
         void OnBackgroundPlay_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
+            if (e.Cancelled) {
+                // アプリ終了。
+                return;
+            }
+
             UpdatePlaybackControlState(mPlaybackController.GetState());
         }
 
@@ -548,7 +633,9 @@ namespace PlayPcmWinAlbum {
         }
 
         private void OnButtonPause_Click(object sender, RoutedEventArgs e) {
-
+            if (mPlaybackController.Pause()) {
+                UpdatePlaybackControlState(PlaybackController.State.Paused);
+            }
         }
 
         private void OnButtonPrev_Click(object sender, RoutedEventArgs e) {

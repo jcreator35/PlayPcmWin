@@ -132,4 +132,31 @@
   <data name="LogReportCount" xml:space="preserve">
     <value>Found {0} files.</value>
   </data>
+  <data name="MainStatusChangingPlayGroup" xml:space="preserve">
+    <value>Reading files...</value>
+  </data>
+  <data name="MainStatusPaused" xml:space="preserve">
+    <value>Paused.</value>
+  </data>
+  <data name="MainStatusPlaying" xml:space="preserve">
+    <value>Playing. {0}Hz {1} {2}ch PCM</value>
+  </data>
+  <data name="MainStatusReadCompleted" xml:space="preserve">
+    <value>Read completed. ready to play.</value>
+  </data>
+  <data name="MainStatusReadingFiles" xml:space="preserve">
+    <value>Reading PCM from file and arranging decoded PCM to main memory...</value>
+  </data>
+  <data name="MainStatusReadingFilesDoP" xml:space="preserve">
+    <value>Reading DSD from file and building DoP data onto main memory...</value>
+  </data>
+  <data name="MainStatusReadingPlaylist" xml:space="preserve">
+    <value>Reading playlist...</value>
+  </data>
+  <data name="MainStatusStopped" xml:space="preserve">
+    <value>Play stopped.</value>
+  </data>
+  <data name="MainStatusStopping" xml:space="preserve">
+    <value>Stopping...</value>
+  </data>
 </root>

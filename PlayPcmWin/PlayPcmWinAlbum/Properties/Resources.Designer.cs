@@ -104,5 +104,86 @@ namespace PlayPcmWinAlbum.Properties {
                 return ResourceManager.GetString("LogReportCount", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reading files....
+        /// </summary>
+        internal static string MainStatusChangingPlayGroup {
+            get {
+                return ResourceManager.GetString("MainStatusChangingPlayGroup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Paused..
+        /// </summary>
+        internal static string MainStatusPaused {
+            get {
+                return ResourceManager.GetString("MainStatusPaused", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Playing. {0}Hz {1} {2}ch PCM.
+        /// </summary>
+        internal static string MainStatusPlaying {
+            get {
+                return ResourceManager.GetString("MainStatusPlaying", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Read completed. ready to play..
+        /// </summary>
+        internal static string MainStatusReadCompleted {
+            get {
+                return ResourceManager.GetString("MainStatusReadCompleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reading PCM from file and arranging decoded PCM to main memory....
+        /// </summary>
+        internal static string MainStatusReadingFiles {
+            get {
+                return ResourceManager.GetString("MainStatusReadingFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reading DSD from file and building DoP data onto main memory....
+        /// </summary>
+        internal static string MainStatusReadingFilesDoP {
+            get {
+                return ResourceManager.GetString("MainStatusReadingFilesDoP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reading playlist....
+        /// </summary>
+        internal static string MainStatusReadingPlaylist {
+            get {
+                return ResourceManager.GetString("MainStatusReadingPlaylist", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Play stopped..
+        /// </summary>
+        internal static string MainStatusStopped {
+            get {
+                return ResourceManager.GetString("MainStatusStopped", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Stopping....
+        /// </summary>
+        internal static string MainStatusStopping {
+            get {
+                return ResourceManager.GetString("MainStatusStopping", resourceCulture);
+            }
+        }
     }
 }
