@@ -8,6 +8,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Input;
 using System.Globalization;
 using Wasapi;
+using System.Windows.Controls;
 
 namespace PlayPcmWinAlbum {
     public partial class MainWindow : Window {
@@ -296,11 +297,52 @@ namespace PlayPcmWinAlbum {
             }
         }
 
+        private void OnDataGrid1_LoadingRow(object sender, DataGridRowEventArgs e) {
+            e.Row.MouseDoubleClick += new MouseButtonEventHandler(OnDataGridPlayList_RowMouseDoubleClick);
+        }
+
+        private void OnDataGridPlayList_RowMouseDoubleClick(object sender, MouseButtonEventArgs e) {
+            if (mPlaybackController.GetState() == PlaybackController.State.Stopped
+                    && e.ChangedButton == MouseButton.Left && mDataGridPlayList.IsReadOnly) {
+                // 再生されていない状態で、再生リスト再生モードで項目左ボタンダブルクリックされたら再生開始する
+                OnButtonPlay_Click(sender, e);
+            }
+        }
+
+        private bool mPlayListMouseDown = false;
+
+        private void OnDataGridPlayList_PreviewMouseDown(object sender, MouseButtonEventArgs e) {
+            mPlayListMouseDown = true;
+
+        }
+
+        private void OnDataGridPlayList_PreviewMouseUp(object sender, MouseButtonEventArgs e) {
+            mPlayListMouseDown = false;
+        }
+
         private void OnDataGridPlayList_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e) {
             Console.WriteLine("DataGridPlayList_SelectionChanged()");
-            if (PlaybackController.State.Playing == mPlaybackController.GetState()) {
-                // 再生中に曲選択。
-                mPlaybackController.Play(mDataGridPlayList.SelectedIndex);
+            if (!mPlayListMouseDown) {
+                return;
+            }
+
+            if (mPlaybackController.GetState() != PlaybackController.State.Playing) {
+                // 選択された曲を再生開始する。
+                PlayAudioFile(mDataGridPlayList.SelectedIndex);
+                return;
+            }
+ 
+            // 再生中の場合。
+
+            var playingId = mPlaybackController.GetPcmDataId(WasapiCS.PcmDataUsageType.NowPlaying);
+            if (playingId < 0) {
+                return;
+            }
+
+            // 再生中で、しかも、マウス押下中にこのイベントが来た場合で、
+            // しかも、この曲を再生していない場合、この曲を再生する。
+            if (mDataGridPlayList.SelectedIndex != playingId) {
+                PlayAudioFile(mDataGridPlayList.SelectedIndex);
             }
         }
 
@@ -328,9 +370,27 @@ namespace PlayPcmWinAlbum {
             }
         };
 
-        private void OnButtonPlay_Click(object sender, RoutedEventArgs e) {
+        private void PlayAudioFile(int idx) {
+            var album = mContentList.GetSelectedAlbum();
+            var af = album.AudioFileNth(idx);
+
+            if (mPlaybackController.GetState() == PlaybackController.State.Playing) {
+                // 再生中。
+                if (mPlaybackController.LoadedGroupId() == af.GroupId) {
+                    // 再生中のグループと同じグループである。
+                    // 再生曲を切り替える。
+                    mPlaybackController.Play(idx);
+                    return;
+                } else {
+                    // 異なるグループの曲なので再ロードが必要。
+                    // 再生停止してロードする。
+                    mPlaybackController.Stop();
+                }
+            }
+
+            // 選択曲が含まれるグループをロードする。
             var args = new BackgroundLoadArgs(
-                    mContentList.GetSelectedAlbum(), mDataGridPlayList.SelectedIndex, mListBoxPlaybackDevice.SelectedIndex);
+                    mContentList.GetSelectedAlbum(), idx, mListBoxPlaybackDevice.SelectedIndex);
 
             var playList = CreatePlayList(args.Album, args.First);
             bool result = mPlaybackController.PlaylistCreateStart(args.DeviceIdx, args.Album.AudioFileNth(args.First));
@@ -346,6 +406,10 @@ namespace PlayPcmWinAlbum {
             mBackgroundLoad.ProgressChanged += new ProgressChangedEventHandler(OnBackgroundLoad_ProgressChanged);
             mBackgroundLoad.RunWorkerCompleted += new RunWorkerCompletedEventHandler(OnBackgroundLoad_RunWorkerCompleted);
             mBackgroundLoad.RunWorkerAsync(args);
+        }
+
+        private void OnButtonPlay_Click(object sender, RoutedEventArgs e) {
+            PlayAudioFile(mDataGridPlayList.SelectedIndex);
         }
 
         /// <summary>
@@ -443,12 +507,10 @@ namespace PlayPcmWinAlbum {
             if (pcmDataId < 0) {
                 playingTimeString = PLAYING_TIME_UNKNOWN;
             } else {
-                /*
-                if (mDataGridPlayList.SelectedIndex != GetPlayListIndexOfPcmDataId(pcmDataId)) {
-                    mDataGridPlayList.SelectedIndex = GetPlayListIndexOfPcmDataId(pcmDataId);
-                    mDataGridPlayList.ScrollIntoView(dataGridPlayList.SelectedItem);
+                if (mDataGridPlayList.SelectedIndex != pcmDataId) {
+                    mDataGridPlayList.SelectedIndex = pcmDataId;
+                    mDataGridPlayList.ScrollIntoView(pcmDataId);
                 }
-                */
 
                 var playPos = mPlaybackController.GetCursorLocation(usageType);
                 var stat = mPlaybackController.GetSessionStatus();

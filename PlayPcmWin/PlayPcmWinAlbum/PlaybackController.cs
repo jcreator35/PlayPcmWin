@@ -224,6 +224,11 @@ namespace PlayPcmWinAlbum {
             return true;
         }
 
+        private int mLoadedGroupId = -1;
+        public int LoadedGroupId() {
+            return mLoadedGroupId;
+        }
+
         public bool Add(ContentList.AudioFile af) {
             WWFlacRWCS.FlacRW flac = new WWFlacRWCS.FlacRW();
             int ercd = flac.DecodeAll(af.Path);
@@ -231,6 +236,7 @@ namespace PlayPcmWinAlbum {
                 Console.WriteLine("E: flac.DecodeAll({0}) failed", af.Path);
             } else {
                 SetSampleDataToWasapi(af.Idx, flac);
+                mLoadedGroupId = af.GroupId;
             }
             flac.DecodeEnd();
 
@@ -241,8 +247,19 @@ namespace PlayPcmWinAlbum {
             mWasapi.AddPlayPcmDataEnd();
         }
 
-        public bool Play(int nth) {
-            int ercd = mWasapi.StartPlayback(nth);
+        /// <summary>
+        /// ロードが完了している状態で、曲Idxを指定して再生開始する。
+        /// 別の曲を再生しているときに呼び出すと、再生曲を切り替える。
+        /// ロードしていない曲Idを指定して呼び出すと無視する。
+        /// </summary>
+        public bool Play(int idx) {
+            if (mState == State.Playing) {
+                // 既に再生中の場合。
+                mWasapi.UpdatePlayPcmDataById(idx);
+                return true;
+            }
+
+            int ercd = mWasapi.StartPlayback(idx);
             if (0 <= ercd) {
                 ChangeState(State.Playing);
             }
@@ -251,6 +268,7 @@ namespace PlayPcmWinAlbum {
         }
 
         public void Stop() {
+            mLoadedGroupId = -1;
             mWasapi.Stop();
             ChangeState(State.Stopped);
         }

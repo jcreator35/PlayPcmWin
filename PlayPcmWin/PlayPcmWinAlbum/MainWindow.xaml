@@ -54,7 +54,7 @@
                 CanUserAddRows="False"
                 CanUserResizeRows="False"
                 SelectionUnit="FullRow" SelectionChanged="OnDataGridPlayList_SelectionChanged"
-                IsReadOnly="True" Background="{x:Null}" IsEnabled="True" Grid.ColumnSpan="2" Grid.RowSpan="2">
+                IsReadOnly="True" Background="{x:Null}" IsEnabled="True" Grid.ColumnSpan="2" Grid.RowSpan="2" PreviewMouseDown="OnDataGridPlayList_PreviewMouseDown" PreviewMouseUp="OnDataGridPlayList_PreviewMouseUp" LoadingRow="OnDataGrid1_LoadingRow">
             <DataGrid.RowHeaderStyle>
                 <Style TargetType="{x:Type DataGridRowHeader}">
                     <Setter Property="Content" Value="{Binding RowId}"/>
