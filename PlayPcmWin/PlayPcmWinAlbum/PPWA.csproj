@@ -84,6 +84,7 @@
     <Compile Include="DataGridPlayListHandler.cs" />
     <Compile Include="DirectoryUtil.cs" />
     <Compile Include="ContentList.cs" />
+    <Compile Include="InterceptMediaKeys.cs" />
     <Compile Include="PlaybackController.cs" />
     <Compile Include="PlaybackTime.cs" />
     <Compile Include="PlayListItemInfo.cs" />

@@ -25,6 +25,14 @@ namespace PlayPcmWinAlbum {
         private const int PROGRESS_REPORT_INTERVAL_MS = 100;
         private const int SLIDER_UPDATE_TICKS = 500;
         private const int DEFAULT_ZERO_FLUSH_MILLISEC = 1000;
+        private bool mSliderSliding = false;
+        private long mLastSliderValue = 0;
+        private InterceptMediaKeys mKListener = null;
+        private bool mPlayListMouseDown = false;
+
+        private static string AssemblyVersion {
+            get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); }
+        }
 
         private enum State {
             Init,
@@ -43,6 +51,9 @@ namespace PlayPcmWinAlbum {
             mLabelAlbumName.Content = "";
             mBackgroundLoad.WorkerSupportsCancellation = true;
             mBackgroundPlay.WorkerSupportsCancellation = true;
+
+            Title = string.Format(CultureInfo.InvariantCulture, "PlayPcmWinAlbum {0} {1}",
+                    AssemblyVersion, IntPtr.Size == 8 ? "64bit" : "32bit");
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
@@ -60,6 +71,8 @@ namespace PlayPcmWinAlbum {
                 }
             }
             mPlaybackController.Init();
+
+            AddKeyListener();
         }
 
         private void ChangeDisplayState(State t) {
@@ -107,6 +120,8 @@ namespace PlayPcmWinAlbum {
                 mButtonPlay.IsEnabled = true;
                 mButtonStop.IsEnabled = false;
                 mButtonPause.IsEnabled = false;
+                mButtonNext.IsEnabled = true;
+                mButtonPrev.IsEnabled = true;
                 mProgressBar.Visibility = System.Windows.Visibility.Collapsed;
                 mLabelPlayingTime.Content = PlaybackTime.PLAYING_TIME_ALLZERO;
                 mStatusBarText.Content = Properties.Resources.MainStatusStopped;
@@ -118,6 +133,8 @@ namespace PlayPcmWinAlbum {
                     mButtonPlay.IsEnabled = false;
                     mButtonStop.IsEnabled = true;
                     mButtonPause.IsEnabled = true;
+                    mButtonNext.IsEnabled = true;
+                    mButtonPrev.IsEnabled = true;
                     mProgressBar.Visibility = System.Windows.Visibility.Collapsed;
                     mGroupBoxPlaybackDevice.IsEnabled = false;
                     mGroupBoxWasapiSettings.IsEnabled = false;
@@ -131,6 +148,8 @@ namespace PlayPcmWinAlbum {
                 mButtonPlay.IsEnabled = false;
                 mButtonStop.IsEnabled = false;
                 mButtonPause.IsEnabled = false;
+                mButtonNext.IsEnabled = false;
+                mButtonPrev.IsEnabled = false;
                 mProgressBar.Visibility = System.Windows.Visibility.Visible;
                 mStatusBarText.Content = Properties.Resources.MainStatusReadingFiles;
                 mGroupBoxPlaybackDevice.IsEnabled = false;
@@ -140,6 +159,8 @@ namespace PlayPcmWinAlbum {
                 mButtonPlay.IsEnabled = true;
                 mButtonStop.IsEnabled = true;
                 mButtonPause.IsEnabled = false;
+                mButtonNext.IsEnabled = false;
+                mButtonPrev.IsEnabled = false;
                 mProgressBar.Visibility = System.Windows.Visibility.Collapsed;
                 mStatusBarText.Content = Properties.Resources.MainStatusPaused;
                 mGroupBoxPlaybackDevice.IsEnabled = false;
@@ -234,6 +255,8 @@ namespace PlayPcmWinAlbum {
         }
 
         private void Window_Closed(object sender, EventArgs e) {
+            DeleteKeyListener();
+
             mBackgroundPlay.CancelAsync();
             while (mBackgroundPlay.IsBusy) {
                 System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(
@@ -346,8 +369,6 @@ namespace PlayPcmWinAlbum {
                 OnButtonPlay_Click(sender, e);
             }
         }
-
-        private bool mPlayListMouseDown = false;
 
         private void OnDataGridPlayList_PreviewMouseDown(object sender, MouseButtonEventArgs e) {
             mPlayListMouseDown = true;
@@ -465,7 +486,7 @@ namespace PlayPcmWinAlbum {
             mBackgroundLoad.RunWorkerAsync(args);
         }
 
-        private void OnButtonPlay_Click(object sender, RoutedEventArgs e) {
+        private void ButtonPlayClicked() {
             PlayAudioFile(mDataGridPlayList.SelectedIndex);
         }
 
@@ -621,12 +642,12 @@ namespace PlayPcmWinAlbum {
             UpdatePlaybackControlState(mPlaybackController.GetState());
         }
 
-        private void OnButtonStop_Click(object sender, RoutedEventArgs e) {
+        private void ButtonStopClicked() {
             mPlaybackController.Stop();
             UpdatePlaybackControlState(PlaybackController.State.Stopped);
         }
 
-        private void OnButtonPause_Click(object sender, RoutedEventArgs e) {
+        private void ButtonPauseClicked() {
             if (mPlaybackController.Pause()) {
                 UpdatePlaybackControlState(PlaybackController.State.Paused);
             }
@@ -693,6 +714,18 @@ namespace PlayPcmWinAlbum {
             }
         }
 
+        private void OnButtonPlay_Click(object sender, RoutedEventArgs e) {
+            ButtonPlayClicked();
+        }
+
+        private void OnButtonStop_Click(object sender, RoutedEventArgs e) {
+            ButtonStopClicked();
+        }
+
+        private void OnButtonPause_Click(object sender, RoutedEventArgs e) {
+            ButtonPauseClicked();
+        }
+
         private void OnButtonPrev_Click(object sender, RoutedEventArgs e) {
             ButtonNextOrPrevClicked((x) => { return --x; });
         }
@@ -700,9 +733,6 @@ namespace PlayPcmWinAlbum {
         private void OnButtonNext_Click(object sender, RoutedEventArgs e) {
             ButtonNextOrPrevClicked((x) => { return ++x; });
         }
-
-        private bool mSliderSliding = false;
-        private long mLastSliderValue = 0;
 
         private void OnSlider1_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
             if (e.Source != mSlider1) {
@@ -745,6 +775,75 @@ namespace PlayPcmWinAlbum {
             }
 
             mPreferredDeviceIdString = mPlaybackController.GetDeviceAttribute(mListBoxPlaybackDevice.SelectedIndex).DeviceIdString;
+        }
+
+        private void AddKeyListener() {
+            System.Diagnostics.Debug.Assert(mKListener == null);
+
+            mKListener = new InterceptMediaKeys();
+            mKListener.KeyUp += new InterceptMediaKeys.MediaKeyEventHandler(MediaKeyListener_KeyUp);
+        }
+
+        private void DeleteKeyListener() {
+            if (mKListener != null) {
+                mKListener.Dispose();
+                mKListener = null;
+            }
+        }
+
+        private void MediaKeyUpWhenAlbumBrowsing(System.Windows.Input.Key key) {
+            Dispatcher.BeginInvoke(new Action(delegate() {
+                // fixme: アルバムフォーカスを移動し、再生ボタンでアルバム選択。
+            }));
+        }
+
+        private void MediaKeyUpWhenAlbumTrackBrowsing(System.Windows.Input.Key key) {
+            Dispatcher.BeginInvoke(new Action(delegate() {
+                switch (key) {
+                case Key.MediaPlayPause:
+                    if (mButtonPlay.IsEnabled) {
+                        ButtonPlayClicked();
+                    } else if (mButtonPause.IsEnabled) {
+                        ButtonPauseClicked();
+                    }
+                    break;
+                case Key.MediaStop:
+                    if (mButtonStop.IsEnabled) {
+                        ButtonStopClicked();
+                    }
+                    break;
+                case Key.MediaNextTrack:
+                    if (mButtonNext.IsEnabled) {
+                        ButtonNextOrPrevClicked((x) => { return ++x; });
+                    }
+                    break;
+                case Key.MediaPreviousTrack:
+                    if (mButtonPrev.IsEnabled) {
+                        ButtonNextOrPrevClicked((x) => { return --x; });
+                    }
+                    break;
+                }
+            }));
+        }
+
+        private void MediaKeyListener_KeyUp(object sender, InterceptMediaKeys.MediaKeyEventArgs args) {
+            if (args == null) {
+                return;
+            }
+
+            switch (mState) {
+            case State.Init:
+            case State.ReadContentList:
+            case State.CreateContentList:
+                return;
+            case State.AlbumTrackBrowsing:
+                MediaKeyUpWhenAlbumTrackBrowsing(args.Key);
+                return;
+            case State.AlbumBrowsing:
+                MediaKeyUpWhenAlbumBrowsing(args.Key);
+                return;
+            }
+
         }
     }
 }
