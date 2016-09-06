@@ -8,21 +8,6 @@ namespace PlayPcmWinAlbum {
         private Util() {
         }
 
-        /*
-        public static string SecondsToHMSString(int seconds) {
-            int h = seconds / 3600;
-            int m = seconds / 60 - h * 60;
-            int s = seconds - h * 3600 - m * 60;
-            return string.Format(CultureInfo.CurrentCulture, "{0:D1}:{1:D2}:{2:D2}", h, m, s);
-        }
-        */
-
-        public static string SecondsToMSString(int seconds) {
-            int m = seconds / 60;
-            int s = seconds - m * 60;
-            return string.Format(CultureInfo.CurrentCulture, "{0:D2}:{1:D2}", m, s);
-        }
-
         public static Color ColorFromArgb(long argb) {
             return Color.FromArgb(
                 (byte)((argb & 0xff000000U) >> 24),

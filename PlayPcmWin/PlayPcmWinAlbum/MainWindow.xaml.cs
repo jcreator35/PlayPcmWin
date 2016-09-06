@@ -24,11 +24,7 @@ namespace PlayPcmWinAlbum {
         private string mPreferredDeviceIdString = "";
         private const int PROGRESS_REPORT_INTERVAL_MS = 100;
         private const int SLIDER_UPDATE_TICKS = 500;
-
         private const int DEFAULT_ZERO_FLUSH_MILLISEC = 1000;
-
-        private const string PLAYING_TIME_UNKNOWN = "--:-- / --:--";
-        private const string PLAYING_TIME_ALLZERO = "00:00 / 00:00";
 
         private enum State {
             Init,
@@ -112,7 +108,7 @@ namespace PlayPcmWinAlbum {
                 mButtonStop.IsEnabled = false;
                 mButtonPause.IsEnabled = false;
                 mProgressBar.Visibility = System.Windows.Visibility.Collapsed;
-                mLabelPlayingTime.Content = PLAYING_TIME_ALLZERO;
+                mLabelPlayingTime.Content = PlaybackTime.PLAYING_TIME_ALLZERO;
                 mStatusBarText.Content = Properties.Resources.MainStatusStopped;
                 mGroupBoxPlaybackDevice.IsEnabled = true;
                 mGroupBoxWasapiSettings.IsEnabled = true;
@@ -200,8 +196,13 @@ namespace PlayPcmWinAlbum {
                 Console.WriteLine("Error");
 
             } else if (result.fileCount == 0) {
-                MessageBox.Show(string.Format(Properties.Resources.ErrorMusicFileNotFound, result.path));
-                Close();
+                var dr = MessageBox.Show(string.Format(Properties.Resources.ErrorMusicFileNotFound, result.path), "FLAC file is not found!", MessageBoxButton.YesNo);
+                if (dr == MessageBoxResult.Yes) {
+                    // 別のフォルダを指定してもう一度探す。
+                    OnMenuItemRefresh_Click(sender, null);
+                } else {
+                    Close();
+                }
             } else {
                 mContentList.Save();
                 UpdateContentList();
@@ -331,10 +332,7 @@ namespace PlayPcmWinAlbum {
         }
 
         private void OnMenuItemRefresh_Click(object sender, RoutedEventArgs e) {
-            if (!CreateContentList()) {
-                Close();
-                return;
-            }
+            CreateContentList();
         }
 
         private void OnDataGrid1_LoadingRow(object sender, DataGridRowEventArgs e) {
@@ -384,10 +382,6 @@ namespace PlayPcmWinAlbum {
             if (mDataGridPlayList.SelectedIndex != playingId) {
                 PlayAudioFile(mDataGridPlayList.SelectedIndex);
             }
-        }
-
-        private void OnMenuItemSettings_Click(object sender, RoutedEventArgs e) {
-
         }
 
         class BackgroundLoadArgs {
@@ -585,7 +579,7 @@ namespace PlayPcmWinAlbum {
             
             string playingTimeString = string.Empty;
             if (pcmDataId < 0) {
-                playingTimeString = PLAYING_TIME_UNKNOWN;
+                playingTimeString = PlaybackTime.PLAYING_TIME_UNKNOWN;
             } else {
                 if (mDataGridPlayList.SelectedIndex != pcmDataId) {
                     mDataGridPlayList.SelectedIndex = pcmDataId;
@@ -605,9 +599,9 @@ namespace PlayPcmWinAlbum {
                     mLastSliderPositionUpdateTime = now;
                 }
 
-                playingTimeString = string.Format(CultureInfo.InvariantCulture, "{0} / {1}",
-                        Util.SecondsToMSString((int)(playPos.PosFrame / stat.DeviceSampleRate)),
-                        Util.SecondsToMSString((int)(playPos.TotalFrameNum / stat.DeviceSampleRate)));
+                playingTimeString = PlaybackTime.CreateDisplayString(
+                    (int)(playPos.PosFrame / stat.DeviceSampleRate),
+                    (int)(playPos.TotalFrameNum / stat.DeviceSampleRate));
             }
 
             // 再生時間表示の再描画をできるだけ抑制する。負荷が減る効果がある
@@ -638,12 +632,73 @@ namespace PlayPcmWinAlbum {
             }
         }
 
-        private void OnButtonPrev_Click(object sender, RoutedEventArgs e) {
+        private void ButtonNextOrPrevClickedWhenPlaying(UpdateOrdinal updateOrdinal) {
+            int albumAudioFileCount = mContentList.GetSelectedAlbum().AudioFileCount;
 
+            int idx = mPlaybackController.GetPcmDataId(WasapiCS.PcmDataUsageType.NowPlaying);
+            if (idx < 0) {
+                // fixme:
+                // 曲を再生中ではなく、再生準備中の場合など。
+                // wavDataId = wasapi.GetPcmDataId(WasapiCS.PcmDataUsageType.PauseResumeToPlay);
+                //nextTask = NextTaskType.PlayPauseSpecifiedGroup;
+                return;
+            } else {
+                // 再生リストに登録されている曲数が1曲で、しかも
+                // その曲を再生中に、次の曲または前の曲ボタンが押された場合、曲を頭出しする。
+                if (1 == albumAudioFileCount) {
+                    mPlaybackController.SetPosFrame(0);
+                    return;
+                }
+            }
+
+            int nextIdx = updateOrdinal(idx);
+            if (nextIdx < 0) {
+                nextIdx = 0;
+            }
+            if (albumAudioFileCount <= nextIdx) {
+                nextIdx = 0;
+            }
+
+            if (nextIdx == idx) {
+                // 1曲目再生中に前の曲を押した場合頭出しする。
+                mPlaybackController.SetPosFrame(0);
+                return;
+            }
+
+            PlayAudioFile(nextIdx);
+        }
+
+        private void ButtonNextOrPrevClickedWhenStop(UpdateOrdinal updateOrdinal) {
+            var idx = mDataGridPlayList.SelectedIndex;
+            idx = updateOrdinal(idx);
+            if (idx < 0) {
+                idx = 0;
+            } else if (mDataGridPlayList.Items.Count <= idx) {
+                idx = 0;
+            }
+            mDataGridPlayList.SelectedIndex = idx;
+            mDataGridPlayList.ScrollIntoView(mDataGridPlayList.SelectedItem);
+        }
+
+        private delegate int UpdateOrdinal(int v);
+        private void ButtonNextOrPrevClicked(UpdateOrdinal updateOrdinal) {
+            switch (mPlaybackController.GetState()) {
+            case PlaybackController.State.Paused:
+            case PlaybackController.State.Playing:
+                ButtonNextOrPrevClickedWhenPlaying(updateOrdinal);
+                break;
+            case PlaybackController.State.Stopped:
+                ButtonNextOrPrevClickedWhenStop(updateOrdinal);
+                break;
+            }
+        }
+
+        private void OnButtonPrev_Click(object sender, RoutedEventArgs e) {
+            ButtonNextOrPrevClicked((x) => { return --x; });
         }
 
         private void OnButtonNext_Click(object sender, RoutedEventArgs e) {
-
+            ButtonNextOrPrevClicked((x) => { return ++x; });
         }
 
         private bool mSliderSliding = false;

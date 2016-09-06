@@ -53,6 +53,12 @@
     <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>PlayPcmWinAlbum.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -79,6 +85,7 @@
     <Compile Include="DirectoryUtil.cs" />
     <Compile Include="ContentList.cs" />
     <Compile Include="PlaybackController.cs" />
+    <Compile Include="PlaybackTime.cs" />
     <Compile Include="PlayListItemInfo.cs" />
     <Compile Include="TiledItemContent.cs" />
     <Compile Include="Util.cs" />
@@ -119,6 +126,7 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="app.config" />
+    <None Include="PlayPcmWinAlbum.snk" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

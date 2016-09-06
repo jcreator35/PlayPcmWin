@@ -48,7 +48,7 @@ namespace PlayPcmWinAlbum {
         /// 長さ表示用文字列
         /// </summary>
         public string Duration {
-            get { return Util.SecondsToMSString(mPcmData.DurationSeconds); }
+            get { return PlaybackTime.SecondsToMSString(mPcmData.DurationSeconds); }
         }
 
         public int NumChannels {

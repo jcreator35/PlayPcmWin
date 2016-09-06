@@ -61,7 +61,9 @@ namespace PlayPcmWinAlbum.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Music file is not found on {0}..
+        ///   Looks up a localized string similar to FLAC file is not found on {0}.
+        ///Press Yes to pecify another folder.
+        ///Press No to exit this app..
         /// </summary>
         internal static string ErrorMusicFileNotFound {
             get {
@@ -169,7 +171,7 @@ namespace PlayPcmWinAlbum.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Play stopped..
+        ///   Looks up a localized string similar to Playback stopped..
         /// </summary>
         internal static string MainStatusStopped {
             get {

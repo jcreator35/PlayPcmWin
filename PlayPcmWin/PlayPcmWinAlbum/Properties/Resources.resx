@@ -118,7 +118,9 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ErrorMusicFileNotFound" xml:space="preserve">
-    <value>Music file is not found on {0}.</value>
+    <value>FLAC file is not found on {0}.
+Press Yes to pecify another folder.
+Press No to exit this app.</value>
   </data>
   <data name="FloatingPointNumbers" xml:space="preserve">
     <value>Float</value>
@@ -154,7 +156,7 @@
     <value>Reading playlist...</value>
   </data>
   <data name="MainStatusStopped" xml:space="preserve">
-    <value>Play stopped.</value>
+    <value>Playback stopped.</value>
   </data>
   <data name="MainStatusStopping" xml:space="preserve">
     <value>Stopping...</value>
