@@ -90,7 +90,7 @@ namespace PlayPcmWinAlbum.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Counting Files in {0} ....
+        ///   Looks up a localized string similar to Counting Files {0} ....
         /// </summary>
         internal static string LogCountingFiles {
             get {
@@ -99,7 +99,7 @@ namespace PlayPcmWinAlbum.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Creating Music List.
+        ///   Looks up a localized string similar to Creating Music Album List ({0}%) ....
         /// </summary>
         internal static string LogCreatingMusicList {
             get {
@@ -117,11 +117,29 @@ namespace PlayPcmWinAlbum.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Reading files....
+        ///   Looks up a localized string similar to Playback Control.
         /// </summary>
-        internal static string MainStatusChangingPlayGroup {
+        internal static string MainGroupBoxPlaybackControl {
             get {
-                return ResourceManager.GetString("MainStatusChangingPlayGroup", resourceCulture);
+                return ResourceManager.GetString("MainGroupBoxPlaybackControl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Playback Device.
+        /// </summary>
+        internal static string MainGroupBoxPlaybackDevice {
+            get {
+                return ResourceManager.GetString("MainGroupBoxPlaybackDevice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to WASAPI Settings.
+        /// </summary>
+        internal static string MainGroupBoxWasapiSettings {
+            get {
+                return ResourceManager.GetString("MainGroupBoxWasapiSettings", resourceCulture);
             }
         }
         
@@ -144,15 +162,6 @@ namespace PlayPcmWinAlbum.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Read completed. ready to play..
-        /// </summary>
-        internal static string MainStatusReadCompleted {
-            get {
-                return ResourceManager.GetString("MainStatusReadCompleted", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Reading PCM from file and arranging decoded PCM to main memory....
         /// </summary>
         internal static string MainStatusReadingFiles {
@@ -162,38 +171,11 @@ namespace PlayPcmWinAlbum.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Reading DSD from file and building DoP data onto main memory....
-        /// </summary>
-        internal static string MainStatusReadingFilesDoP {
-            get {
-                return ResourceManager.GetString("MainStatusReadingFilesDoP", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Reading playlist....
-        /// </summary>
-        internal static string MainStatusReadingPlaylist {
-            get {
-                return ResourceManager.GetString("MainStatusReadingPlaylist", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Playback stopped..
         /// </summary>
         internal static string MainStatusStopped {
             get {
                 return ResourceManager.GetString("MainStatusStopped", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Stopping....
-        /// </summary>
-        internal static string MainStatusStopping {
-            get {
-                return ResourceManager.GetString("MainStatusStopping", resourceCulture);
             }
         }
     }

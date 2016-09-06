@@ -20,7 +20,7 @@
         </Menu>
         <Label Content="AlbumName" Grid.Column="1" HorizontalAlignment="Left" Name="mLabelAlbumName" VerticalAlignment="Center" FontSize="20" />
         
-        <ScrollViewer CanContentScroll="True" PanningMode="VerticalOnly" Grid.Row="1" Name="mAlbumScrollViewer" Grid.ColumnSpan="3" Grid.RowSpan="3" Margin="0,0,-841,0">
+        <ScrollViewer CanContentScroll="True" PanningMode="VerticalOnly" Grid.Row="1" Name="mAlbumScrollViewer" Grid.ColumnSpan="2" Grid.RowSpan="3" >
             <local:VerticalScrollTilePanel x:Name="mTilePanel">
             </local:VerticalScrollTilePanel>
         </ScrollViewer>
@@ -36,7 +36,7 @@
                 CanUserAddRows="False"
                 CanUserResizeRows="False"
                 SelectionUnit="FullRow" SelectionChanged="OnDataGridPlayList_SelectionChanged"
-                IsReadOnly="True" Background="{x:Null}" IsEnabled="True" Grid.ColumnSpan="3" Grid.RowSpan="3" PreviewMouseDown="OnDataGridPlayList_PreviewMouseDown" PreviewMouseUp="OnDataGridPlayList_PreviewMouseUp" LoadingRow="OnDataGrid1_LoadingRow" Margin="0,0,-841,0">
+                IsReadOnly="True" Background="{x:Null}" IsEnabled="True" Grid.ColumnSpan="2" Grid.RowSpan="3" PreviewMouseDown="OnDataGridPlayList_PreviewMouseDown" PreviewMouseUp="OnDataGridPlayList_PreviewMouseUp" LoadingRow="OnDataGrid1_LoadingRow" >
             <DataGrid.RowHeaderStyle>
                 <Style TargetType="{x:Type DataGridRowHeader}">
                     <Setter Property="Content" Value="{Binding RowId}"/>
@@ -67,7 +67,7 @@
             </DataGrid.Columns>
         </DataGrid>
 
-        <DockPanel Height="109" HorizontalAlignment="Stretch" Grid.Row="2" Grid.ColumnSpan="3" Name="mDockPanelPlayback" Margin="0,0,-841,0">
+        <DockPanel Height="109" HorizontalAlignment="Stretch" Grid.Row="2" Grid.ColumnSpan="3" Name="mDockPanelPlayback" Margin="0,0,0,0">
             <Image DockPanel.Dock="Left" RenderOptions.BitmapScalingMode="Fant" Name="mImageCoverArt" Stretch="Uniform" Height="109" Width="109" Margin="6,0,0,0" />
             <Grid DockPanel.Dock="Right" Width="Auto" >
                 <GroupBox Header="Playback control" Margin="6,0,6,0" Name="mGroupBoxPlaybackControl" Height="86" VerticalAlignment="Top" HorizontalAlignment="Left">
@@ -116,7 +116,7 @@
                 </GroupBox>
             </Grid>
         </DockPanel>
-        <TextBlock Name="mTextBlockMessage" Text="textBlockMessage" Panel.ZIndex="1" FontSize="32" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="1" Grid.Row="1" />
+        <TextBlock Name="mTextBlockMessage" Text="textBlockMessage" Panel.ZIndex="1" FontSize="32" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" />
         <StatusBar Name="mStatusBar" Grid.Row="3" VerticalAlignment="Bottom" Grid.ColumnSpan="3" Margin="0,0,-841,0">
             <StatusBar.ItemsPanel>
                 <ItemsPanelTemplate>

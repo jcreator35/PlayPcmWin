@@ -118,44 +118,44 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ErrorMusicFileNotFound" xml:space="preserve">
-    <value>FLAC file is not found on {0}.
-Press Yes to pecify another folder.
-Press No to exit this app.</value>
+    <value>Error FLACファイルがありません: {0}
+Yes: 押すと別のフォルダーを指定します。
+No: アプリを終了します。</value>
   </data>
   <data name="ErrorPlaybackStartFailed" xml:space="preserve">
-    <value>Error: Playback start failed! Error code = 0x{0:X8}</value>
+    <value>Error: 再生開始に失敗! エラーコード = 0x{0:X8}</value>
   </data>
   <data name="FloatingPointNumbers" xml:space="preserve">
-    <value>Float</value>
+    <value>浮動小数点数</value>
   </data>
   <data name="LogCountingFiles" xml:space="preserve">
-    <value>Counting Files {0} ...</value>
+    <value>ファイル一覧作成中 {0} ...</value>
   </data>
   <data name="LogCreatingMusicList" xml:space="preserve">
-    <value>Creating Music Album List ({0}%) ...</value>
+    <value>アルバム一覧作成中 ({0}%)…</value>
   </data>
   <data name="LogReportCount" xml:space="preserve">
-    <value>Found {0} files.</value>
+    <value>{0}個のファイルが見つかりました。</value>
   </data>
   <data name="MainGroupBoxPlaybackControl" xml:space="preserve">
-    <value>Playback Control</value>
+    <value>再生制御</value>
   </data>
   <data name="MainGroupBoxPlaybackDevice" xml:space="preserve">
-    <value>Playback Device</value>
+    <value>再生デバイス</value>
   </data>
   <data name="MainGroupBoxWasapiSettings" xml:space="preserve">
-    <value>WASAPI Settings</value>
+    <value>WASAPI設定</value>
   </data>
   <data name="MainStatusPaused" xml:space="preserve">
-    <value>Paused.</value>
+    <value>再生一時停止中。</value>
   </data>
   <data name="MainStatusPlaying" xml:space="preserve">
-    <value>Playing. PCM {0}Hz {1} {2}ch </value>
+    <value>再生中。 PCM {0}Hz {1} {2}ch </value>
   </data>
   <data name="MainStatusReadingFiles" xml:space="preserve">
-    <value>Reading PCM from file and arranging decoded PCM to main memory...</value>
+    <value>ファイルから非圧縮PCMデータ抽出しメモリに配置...</value>
   </data>
   <data name="MainStatusStopped" xml:space="preserve">
-    <value>Playback stopped.</value>
+    <value>再生停止。</value>
   </data>
 </root>

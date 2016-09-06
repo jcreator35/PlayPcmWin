@@ -69,6 +69,14 @@ namespace PlayPcmWinAlbum {
 
             Title = string.Format(CultureInfo.InvariantCulture, "PlayPcmWinAlbum {0} {1}",
                     AssemblyVersion, IntPtr.Size == 8 ? "64bit" : "32bit");
+
+            LocalizeTexts();
+        }
+
+        private void LocalizeTexts() {
+            mGroupBoxPlaybackControl.Header = Properties.Resources.MainGroupBoxPlaybackControl;
+            mGroupBoxPlaybackDevice.Header = Properties.Resources.MainGroupBoxPlaybackDevice;
+            mGroupBoxWasapiSettings.Header = Properties.Resources.MainGroupBoxWasapiSettings;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {

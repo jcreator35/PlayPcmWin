@@ -102,7 +102,7 @@ namespace PlayPcmWinAlbum {
 
                         if (1000 < mStopWatch.ElapsedMilliseconds) {
                             if (background) {
-                                var text = string.Format("{0} ({1}%) ...", Properties.Resources.LogCreatingMusicList,
+                                var text = string.Format(Properties.Resources.LogCreatingMusicList,
                                     100 * finished / flacList.Length);
                                 mBw.ReportProgress((int)(1000000L * finished / flacList.Length),
                                     new ReportProgressArgs(text));
