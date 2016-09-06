@@ -21,7 +21,6 @@ namespace PlayPcmWinAlbum {
         private bool mInitialized = false;
         private BackgroundWorker mBackgroundLoad = new BackgroundWorker();
         private BackgroundWorker mBackgroundPlay = new BackgroundWorker();
-        private string mPreferredDeviceIdString = "";
         private const int PROGRESS_REPORT_INTERVAL_MS = 100;
         private const int SLIDER_UPDATE_TICKS = 500;
         private const int DEFAULT_ZERO_FLUSH_MILLISEC = 1000;
@@ -29,6 +28,7 @@ namespace PlayPcmWinAlbum {
         private long mLastSliderValue = 0;
         private InterceptMediaKeys mKListener = null;
         private bool mPlayListMouseDown = false;
+        private Preference mPreference = new Preference();
 
         private static string AssemblyVersion {
             get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); }
@@ -47,10 +47,25 @@ namespace PlayPcmWinAlbum {
 
         public MainWindow() {
             InitializeComponent();
+            
+            // InitializeComponent()によって、チェックボックスのチェックイベントが発生し
+            // mPreferenceの内容が変わるので、InitializeComponent()の後にロードする。
+
+            mPreference = PreferenceStore.Load();
+
             mDataGridPlayListHandler = new DataGridPlayListHandler(mDataGridPlayList);
             mLabelAlbumName.Content = "";
             mBackgroundLoad.WorkerSupportsCancellation = true;
             mBackgroundPlay.WorkerSupportsCancellation = true;
+            mTextBoxBufferSizeMs.Text = string.Format(CultureInfo.InvariantCulture, "{0}", mPreference.BufferSizeMillisec);
+            switch (mPreference.WasapiDataFeedMode) {
+            case WasapiPcmUtil.WasapiDataFeedModeType.EventDriven:
+                mRadioButtonEvent.IsChecked = true;
+                break;
+            case WasapiPcmUtil.WasapiDataFeedModeType.TimerDriven:
+                mRadioButtonTimer.IsChecked = true;
+                break;
+            }
 
             Title = string.Format(CultureInfo.InvariantCulture, "PlayPcmWinAlbum {0} {1}",
                     AssemblyVersion, IntPtr.Size == 8 ? "64bit" : "32bit");
@@ -58,6 +73,8 @@ namespace PlayPcmWinAlbum {
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
             mInitialized = true;
+
+            mPlaybackController.Init();
 
             // アルバム一覧を読み出す。
             if (ReadContentList()) {
@@ -70,7 +87,6 @@ namespace PlayPcmWinAlbum {
                     return;
                 }
             }
-            mPlaybackController.Init();
 
             AddKeyListener();
         }
@@ -255,7 +271,17 @@ namespace PlayPcmWinAlbum {
         }
 
         private void Window_Closed(object sender, EventArgs e) {
+            Console.WriteLine("D: MainWindow.Window_Closed()");
+            Term();
+        }
+
+        private void Term() {
+            Console.WriteLine("D: MainWindow.Term()");
+
             DeleteKeyListener();
+
+            // 設定ファイルを書き出す。
+            PreferenceStore.Save(mPreference);
 
             mBackgroundPlay.CancelAsync();
             while (mBackgroundPlay.IsBusy) {
@@ -322,14 +348,15 @@ namespace PlayPcmWinAlbum {
             for (int i = 0; i < mPlaybackController.GetDeviceCount(); ++i) {
                 var attr = mPlaybackController.GetDeviceAttribute(i);
                 mListBoxPlaybackDevice.Items.Add(attr.Name);
-                if (0 == string.Compare(mPreferredDeviceIdString, attr.DeviceIdString)) {
+                if (0 == string.Compare(mPreference.PreferredDeviceIdString, attr.DeviceIdString)) {
                     mListBoxPlaybackDevice.SelectedIndex = i;
+                    mListBoxPlaybackDevice.ScrollIntoView(mListBoxPlaybackDevice.Items[i]);
                 }
             }
 
             if (mListBoxPlaybackDevice.SelectedIndex < 0) {
                 mListBoxPlaybackDevice.SelectedIndex = 0;
-                mPreferredDeviceIdString = mPlaybackController.GetDeviceAttribute(0).DeviceIdString;
+                mPreference.PreferredDeviceIdString = mPlaybackController.GetDeviceAttribute(0).DeviceIdString;
             }
         }
 
@@ -426,12 +453,21 @@ namespace PlayPcmWinAlbum {
         };
 
         private bool SetWasapiParams() {
-            int bufferSizeMs = 170;
+            int bufferSizeMs;
             if (!Int32.TryParse(mTextBoxBufferSizeMs.Text, out bufferSizeMs) || bufferSizeMs <= 0) {
                 MessageBox.Show("Error: WASAPI buffer size should be integer value larger than zero");
                 return false;
             }
-            WasapiCS.DataFeedMode dfm = mRadioButtonEvent.IsChecked == true ? WasapiCS.DataFeedMode.EventDriven : WasapiCS.DataFeedMode.TimerDriven;
+            mPreference.BufferSizeMillisec = bufferSizeMs;
+
+            WasapiCS.DataFeedMode dfm;
+            if (mRadioButtonEvent.IsChecked == true) {
+                dfm = WasapiCS.DataFeedMode.EventDriven;
+                mPreference.WasapiDataFeedMode = WasapiPcmUtil.WasapiDataFeedModeType.EventDriven;
+            } else {
+                dfm = WasapiCS.DataFeedMode.TimerDriven;
+                mPreference.WasapiDataFeedMode = WasapiPcmUtil.WasapiDataFeedModeType.TimerDriven;
+            }
 
             mPlaybackController.SetWasapiParams(bufferSizeMs, DEFAULT_ZERO_FLUSH_MILLISEC, dfm);
             return true;
@@ -767,14 +803,6 @@ namespace PlayPcmWinAlbum {
 
             mLastSliderValue = 0;
             mSliderSliding = false;
-        }
-
-        private void OnListBoxPlaybackDevice_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e) {
-            if (!mInitialized) {
-                return;
-            }
-
-            mPreferredDeviceIdString = mPlaybackController.GetDeviceAttribute(mListBoxPlaybackDevice.SelectedIndex).DeviceIdString;
         }
 
         private void AddKeyListener() {

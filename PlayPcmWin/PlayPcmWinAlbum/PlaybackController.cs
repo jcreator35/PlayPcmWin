@@ -88,6 +88,7 @@ namespace PlayPcmWinAlbum {
         }
 
         public void Term() {
+            Console.WriteLine("D: PlaybackController.Term()");
             mWasapi.Term();
             mWasapi = null;
         }
