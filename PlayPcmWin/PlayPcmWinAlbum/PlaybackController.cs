@@ -133,14 +133,15 @@ namespace PlayPcmWinAlbum {
             return mDeviceFormat;
         }
 
-        private bool Setup(int deviceId, PcmDataLib.PcmData format) {
-            bool bResult = false;
+        /// <returns>WASAPIエラーコード。</returns>
+        private int Setup(int deviceId, PcmDataLib.PcmData format) {
+            int ercd = 0;
 
             var mixFormat = mWasapi.GetMixFormat(deviceId);
             var sampleFormatCandidates = SampleFormatCandidates(format.ValidBitsPerSample);
 
             for (int i=0; i<sampleFormatCandidates.Length; ++i) {
-                int ercd = mWasapi.Setup(deviceId, WasapiCS.DeviceType.Play, WasapiCS.StreamType.PCM,
+                ercd = mWasapi.Setup(deviceId, WasapiCS.DeviceType.Play, WasapiCS.StreamType.PCM,
                     format.SampleRate, sampleFormatCandidates[i], mixFormat.numChannels,
                     mixFormat.dwChannelMask, WasapiCS.MMCSSCallType.Enable,
                     WasapiCS.MMThreadPriorityType.High, WasapiCS.SchedulerTaskType.ProAudio,
@@ -148,13 +149,12 @@ namespace PlayPcmWinAlbum {
                 if (ercd < 0) {
                     Console.WriteLine("Wasapi.Setup({0} {1}) failed", format.SampleRate, sampleFormatCandidates[i]);
                 } else {
-                    bResult = true;
                     mDeviceFormat.Set(mixFormat.numChannels, format.SampleRate, sampleFormatCandidates[i]);
                     break;
                 }
             }
 
-            return bResult;
+            return ercd;
         }
 
         private byte[] PcmFormatConvert(byte[] from, DeviceFormat fromFormat, DeviceFormat toFormat) {
@@ -216,7 +216,10 @@ namespace PlayPcmWinAlbum {
             }
         }
 
-        public bool PlaylistCreateStart(int deviceId, ContentList.AudioFile af) {
+        /// <returns>負の場合WASAPIエラーコード。成功の場合0。</returns>
+        public int PlaylistCreateStart(int deviceId, ContentList.AudioFile af) {
+            int ercd = 0;
+
             mWasapi.Stop();
             mWasapi.Unsetup();
 
@@ -225,15 +228,16 @@ namespace PlayPcmWinAlbum {
             mWasapi.ClearPlayList();
 
             // 最初に再生する曲 af
-            if (!Setup(deviceId, af.Pcm)) {
-                Console.WriteLine("E: PlaybackController::Play({0}) failed", deviceId);
+            ercd = Setup(deviceId, af.Pcm);
+            if (ercd < 0) {
+                Console.WriteLine("E: PlaybackController::Play({0}) failed {1:X8}", deviceId, ercd);
                 ChangeState(State.Stopped);
-                return false;
+                return ercd;
             }
 
             mWasapi.AddPlayPcmDataStart();
 
-            return true;
+            return 0;
         }
 
         private int mLoadedGroupId = -1;

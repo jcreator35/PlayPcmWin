@@ -54,7 +54,7 @@ namespace PlayPcmWinAlbum {
                 ChangeDisplayState(State.AlbumBrowsing);
             } else {
                 // アルバム一覧作成。
-                if (!CreateContentList()) {
+                if (!RefreshContentList()) {
                     Close();
                     return;
                 }
@@ -156,14 +156,14 @@ namespace PlayPcmWinAlbum {
             return mContentList.Load();
         }
 
-        private bool CreateContentList() {
-            mTilePanel.Clear();
-
+        private bool RefreshContentList() {
             var dialog = new System.Windows.Forms.FolderBrowserDialog();
-            dialog.SelectedPath = "C:\\audio";
+            dialog.SelectedPath = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
             if (System.Windows.Forms.DialogResult.OK != dialog.ShowDialog()) {
                 return false;
             }
+
+            mTilePanel.Clear();
 
             mBwContentListBuilder = new BackgroundContentListBuilder(mContentList);
             mBwContentListBuilder.AddProgressChanged(OnBackgroundContentListBuilder_ProgressChanged);
@@ -332,7 +332,7 @@ namespace PlayPcmWinAlbum {
         }
 
         private void OnMenuItemRefresh_Click(object sender, RoutedEventArgs e) {
-            CreateContentList();
+            RefreshContentList();
         }
 
         private void OnDataGrid1_LoadingRow(object sender, DataGridRowEventArgs e) {
@@ -449,9 +449,9 @@ namespace PlayPcmWinAlbum {
                     mContentList.GetSelectedAlbum(), idx, mListBoxPlaybackDevice.SelectedIndex);
 
             var playList = CreatePlayList(args.Album, args.First);
-            bool result = mPlaybackController.PlaylistCreateStart(args.DeviceIdx, args.Album.AudioFileNth(args.First));
-            if (!result) {
-                MessageBox.Show("Error: Playback start failed!");
+            int ercd = mPlaybackController.PlaylistCreateStart(args.DeviceIdx, args.Album.AudioFileNth(args.First));
+            if (ercd < 0) {
+                MessageBox.Show(string.Format(Properties.Resources.ErrorPlaybackStartFailed, ercd));
                 return;
             }
 

@@ -72,6 +72,15 @@ namespace PlayPcmWinAlbum.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Error: Playback start failed! Error code = 0x{0:X8}.
+        /// </summary>
+        internal static string ErrorPlaybackStartFailed {
+            get {
+                return ResourceManager.GetString("ErrorPlaybackStartFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Float.
         /// </summary>
         internal static string FloatingPointNumbers {

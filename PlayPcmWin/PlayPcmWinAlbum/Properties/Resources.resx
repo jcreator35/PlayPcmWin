@@ -122,6 +122,9 @@
 Press Yes to pecify another folder.
 Press No to exit this app.</value>
   </data>
+  <data name="ErrorPlaybackStartFailed" xml:space="preserve">
+    <value>Error: Playback start failed! Error code = 0x{0:X8}</value>
+  </data>
   <data name="FloatingPointNumbers" xml:space="preserve">
     <value>Float</value>
   </data>
