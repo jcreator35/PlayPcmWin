@@ -22,6 +22,7 @@ using System.Windows.Controls.Primitives;
 using System.Globalization;
 using System.Windows.Interop;
 using System.Runtime.InteropServices;
+using WWUtil;
 
 namespace PlayPcmWin
 {
@@ -2155,7 +2156,7 @@ namespace PlayPcmWin
                 // 実際に読み出されたフレーム数readFrames。
                 int readFrames = part.Length / (pd.BitsPerFrame / 8);
 
-                pd.SetSampleArray(part);
+                pd.SetSampleLargeArray(new LargeArray<byte>(part));
                 part = null;
 
                 // 必要に応じてpartの量子化ビット数の変更処理を行い、pdAfterに新しく確保したPCMデータ配列をセット。
@@ -2169,8 +2170,8 @@ namespace PlayPcmWin
                     pdAfter = pd;
                 }
 
-                if (pdAfter.GetSampleArray() == null ||
-                        0 == pdAfter.GetSampleArray().Length) {
+                if (pdAfter.GetSampleLargeArray() == null ||
+                        0 == pdAfter.GetSampleLargeArray().LongLength) {
                     // サンプルが存在しないのでWasapiにAddしない。
                     break;
                 }
@@ -2190,7 +2191,7 @@ namespace PlayPcmWin
 
                 bool result = false;
                 lock (pd) {
-                    result = wasapi.AddPlayPcmDataSetPcmFragment(pd.Id, posBytes, pdAfter.GetSampleArray());
+                    result = wasapi.AddPlayPcmDataSetPcmFragment(pd.Id, posBytes, pdAfter.GetSampleLargeArray().ToArray());
                 }
                 System.Diagnostics.Debug.Assert(result);
 
