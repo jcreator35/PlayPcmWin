@@ -153,7 +153,7 @@ No: アプリを終了します。</value>
     <value>再生中。 PCM {0}Hz {1} {2}ch </value>
   </data>
   <data name="MainStatusReadingFiles" xml:space="preserve">
-    <value>ファイルから非圧縮PCMデータ抽出しメモリに配置...</value>
+    <value>ファイルから非圧縮PCMデータを抽出しメモリに配置...</value>
   </data>
   <data name="MainStatusStopped" xml:space="preserve">
     <value>再生停止。</value>

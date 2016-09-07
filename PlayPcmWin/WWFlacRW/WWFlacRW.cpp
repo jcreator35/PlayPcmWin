@@ -83,8 +83,13 @@ struct FlacDecodeInfo {
     /// 1個のブロックに何サンプル(frame)データが入っているか。
     int          numFramesPerBlock;
 
+    // DecodeAllで使用。チャンネルごとにバッファが分かれている。
     uint8_t           **buffPerChannel;
     int               retrievedFrames;
+
+    // DecodeOneで使用。チャンネルインターリーブされたPCMデータ。
+    uint8_t           *rawPcmData;
+    int               rawPcmDataBytes;
 
     char titleStr[WWFLAC_TEXT_STRSZ];
     char artistStr[WWFLAC_TEXT_STRSZ];
@@ -132,6 +137,9 @@ struct FlacDecodeInfo {
 
         buffPerChannel = nullptr;
         retrievedFrames = 0;
+
+        rawPcmData = nullptr;
+        rawPcmDataBytes = 0;
 
         memset(titleStr,       0, sizeof titleStr);
         memset(artistStr,      0, sizeof artistStr);
@@ -219,8 +227,59 @@ FlacTInfoFindById(std::map<int, T*> &storage, int id)
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
+/// 少しずつ受け取るDecodeOne用のコールバック。
+FLAC__StreamDecoderWriteStatus
+WriteOneCallback(const FLAC__StreamDecoder *decoder,
+        const FLAC__Frame *frame, const FLAC__int32 * const buffer[],
+        void *clientData)
+{
+    FlacDecodeInfo *fdi = (FlacDecodeInfo*)clientData;
+    if (fdi->errorCode != FRT_Success) {
+        // デコードエラーが起きた。
+        dprintf("%s decode error %d. set commandCompleteEvent\n", __FUNCTION__, fdi->errorCode);
+        return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
+    }
+
+    if(fdi->totalSamples == 0) {
+        dprintf("%s decode 0 == totalSamples\n", __FUNCTION__);
+        return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
+    }
+
+    // データが来た。ブロック数は frame->header.blocksize
+    if (fdi->numFramesPerBlock != (int)frame->header.blocksize) {
+        // dprintf(fdi->logFP, "%s fdi->numFramesPerBlock changed %d to %d\n", __FUNCTION__, fdi->numFramesPerBlock, frame->header.blocksize);
+        fdi->numFramesPerBlock = frame->header.blocksize;
+    }
+
+    //dprintf("%s numFrames=%d retrieved=%d/%d channels=%d bitsPerSample=%d\n",
+    //    __FUNCTION__, fdi->numFramesPerBlock, fdi->retrievedFrames, 
+    //    fdi->totalBytesPerChannel, fdi->channels, fdi->bitsPerSample);
+
+    {
+        const int bytesPerSample = fdi->bitsPerSample / 8;
+        const int bytesPerFrame  = bytesPerSample * fdi->channels;
+
+        fdi->retrievedFrames += fdi->numFramesPerBlock;
+        fdi->rawPcmDataBytes = fdi->numFramesPerBlock * bytesPerFrame;
+
+        assert(fdi->rawPcmData == nullptr);
+        fdi->rawPcmData = new uint8_t[fdi->rawPcmDataBytes];
+
+        for (int nFrame=0; nFrame<fdi->numFramesPerBlock; ++nFrame) {
+            int64_t writePos = nFrame * bytesPerFrame;
+            for (int ch = 0; ch < fdi->channels; ++ch) {
+                memcpy(&fdi->rawPcmData[writePos], &buffer[ch][nFrame], bytesPerSample);
+                writePos += bytesPerSample;
+            }
+        }
+    }
+
+    return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;
+}
+
+// 全部いっぺんに受け取るDecodeAll用のコールバック。
 static FLAC__StreamDecoderWriteStatus
-WriteCallback(const FLAC__StreamDecoder *decoder,
+WriteAllCallback(const FLAC__StreamDecoder *decoder,
         const FLAC__Frame *frame, const FLAC__int32 * const buffer[],
         void *clientData)
 {
@@ -493,8 +552,13 @@ WWFlacRW_Decode(int frdt, const wchar_t *path)
         goto end;
     }
 
-    initStatus = FLAC__stream_decoder_init_FILE(
-            fdi->decoder, fp, WriteCallback, MetadataCallback, ErrorCallback, fdi);
+    if (frdt == FRDT_One) {
+        initStatus = FLAC__stream_decoder_init_FILE(
+                fdi->decoder, fp, WriteOneCallback, MetadataCallback, ErrorCallback, fdi);
+    } else {
+        initStatus = FLAC__stream_decoder_init_FILE(
+                fdi->decoder, fp, WriteAllCallback, MetadataCallback, ErrorCallback, fdi);
+    }
 
     if(initStatus != FLAC__STREAM_DECODER_INIT_STATUS_OK) {
         fdi->errorCode = FRT_FlacStreamDecoderInitFailed;
@@ -520,6 +584,12 @@ WWFlacRW_Decode(int frdt, const wchar_t *path)
     if (frdt == FRDT_Header) {
         // ヘッダーのみデコードするモードの時、ここで終了。
         fdi->errorCode = FRT_Completed;
+        goto end;
+    }
+
+    if (frdt == FRDT_One) {
+        // この後WWFlacRW_DecodeStreamOneでストリームを1フレームずつ読み出す。
+        fdi->errorCode = FRT_Success;
         goto end;
     }
 
@@ -557,6 +627,71 @@ end:
 
     return fdi->id;
 }
+
+/// 成功するとコピーしたバイト数を戻す。
+/// 失敗すると負のエラーコードを戻す。
+extern "C" WWFLACRW_API
+int __stdcall
+WWFlacRW_DecodeStreamOne(int id, uint8_t *pcmReturn, int pcmBytes)
+{
+    FLAC__bool ok = true;
+
+    FlacDecodeInfo *fdi = FlacTInfoFindById<FlacDecodeInfo>(g_flacDecodeInfoMap, id);
+    if (nullptr == fdi) {
+        return FRT_IdNotFound;
+    }
+
+    if (fdi->totalSamples == fdi->retrievedFrames) {
+        // ストリームの最後に達した。
+        fdi->errorCode = FRT_Completed;
+        return 0;
+    }
+
+    ok = FLAC__stream_decoder_process_single(fdi->decoder);
+    if (!ok) {
+        if (fdi->errorCode == FRT_Success) {
+                fdi->errorCode = FRT_DecorderProcessFailed;
+        }
+        dprintf("%s Flac decode error fdi->errorCode=%d\n",
+                __FUNCTION__, fdi->errorCode);
+        goto end;
+    }
+
+    //dprintf("%s decodeStreamOne returned %d bytes, pcmReturn=%p pcmBytes=%d\n",
+    //    __FUNCTION__, fdi->rawPcmDataBytes, pcmReturn, pcmBytes);
+
+    if (pcmBytes < fdi->rawPcmDataBytes) {
+        dprintf("%s Flac decode error. buffer size insuficient %d needed but size is %d\n",
+                __FUNCTION__, fdi->rawPcmDataBytes, pcmBytes);
+        fdi->errorCode = FRT_RecvBufferSizeInsufficient;
+        goto end;
+    }
+
+    assert(fdi->rawPcmData);
+    memcpy(pcmReturn, fdi->rawPcmData, fdi->rawPcmDataBytes);
+    delete[] fdi->rawPcmData;
+    fdi->rawPcmData = nullptr;
+
+    fdi->errorCode = FRT_Success;
+
+end:
+    if (fdi->errorCode < 0) {
+        if (nullptr != fdi->decoder) {
+            FLAC__stream_decoder_finish(fdi->decoder);
+            FLAC__stream_decoder_delete(fdi->decoder);
+            fdi->decoder = nullptr;
+        }
+
+        int result = fdi->errorCode;
+        FlacTInfoDelete<FlacDecodeInfo>(g_flacDecodeInfoMap, fdi);
+        fdi = nullptr;
+
+        return result;
+    }
+
+    return fdi->rawPcmDataBytes;
+}
+
 
 #define UTF8TOMB(X) MultiByteToWideChar(CP_UTF8, 0, fdi->X, -1, metaReturn.X, sizeof metaReturn.X-1)
 

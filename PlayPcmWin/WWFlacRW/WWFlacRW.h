@@ -9,8 +9,9 @@
 #endif
 
 enum FlacRWDecodeType {
-    FRDT_All,
-    FRDT_Header,
+    FRDT_All,    ///< メタデータの抽出とPCMデータの抽出をブロッキングですべて行うモード。
+    FRDT_Header, ///< メタデータの抽出だけを行う。
+    FRDT_One, ///< WWFlacRW_DecodeStreamOne()を使用してフレームを1個ずつ受け取るモード。
 };
 
 enum FlacRWResultType {
@@ -94,6 +95,10 @@ struct WWFlacMetadata {
 extern "C" WWFLACRW_API
 int __stdcall
 WWFlacRW_Decode(int frdt, const wchar_t *path);
+
+extern "C" WWFLACRW_API
+int __stdcall
+WWFlacRW_DecodeStreamOne(int id, uint8_t *pcmReturn, int pcmBytes);
 
 /// @return 0以上: 成功。負: エラー。FlacRWResultType参照。
 extern "C" WWFLACRW_API

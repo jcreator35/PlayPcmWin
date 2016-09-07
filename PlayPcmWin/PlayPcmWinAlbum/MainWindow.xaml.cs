@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Globalization;
+using System.IO;
 using System.Threading;
 using System.Windows;
-using System.ComponentModel;
-using System.IO;
-using System.Windows.Media.Imaging;
-using System.Windows.Input;
-using System.Globalization;
-using Wasapi;
 using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media.Imaging;
+using Wasapi;
 
 namespace PlayPcmWinAlbum {
     public partial class MainWindow : Window {
@@ -18,7 +18,6 @@ namespace PlayPcmWinAlbum {
         private ContentList mContentList = new ContentList();
         private DataGridPlayListHandler mDataGridPlayListHandler;
         private PlaybackController mPlaybackController = new PlaybackController();
-        private bool mInitialized = false;
         private BackgroundWorker mBackgroundLoad = new BackgroundWorker();
         private BackgroundWorker mBackgroundPlay = new BackgroundWorker();
         private const int PROGRESS_REPORT_INTERVAL_MS = 100;
@@ -80,8 +79,6 @@ namespace PlayPcmWinAlbum {
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
-            mInitialized = true;
-
             mPlaybackController.Init();
 
             // アルバム一覧を読み出す。
@@ -563,9 +560,33 @@ namespace PlayPcmWinAlbum {
             int added = 0;
             for (int i = 0; i < playList.Count; ++i) {
                 var af = playList[i];
+#if true
+                int ercd = 0;
+                ercd = mPlaybackController.LoadAddStart(af);
+                if (ercd < 0) {
+                    // fixme:
+                } else {
+                    do {
+                        if (mBackgroundLoad.CancellationPending) {
+                            e.Cancel = true;
+                            return;
+                        }
+                        ercd = mPlaybackController.LoadAddDo(af);
+                        if (ercd < 0) {
+                            // fixme:
+                        }
+                    } while (0 < ercd);
+                }
+                mPlaybackController.LoadAddEnd(af);
+
+                if (0 == ercd) {
+                    ++added;
+                }
+#else
                 if (mPlaybackController.LoadAdd(af)) {
                     ++added;
                 }
+#endif
 
                 if (mBackgroundLoad.CancellationPending) {
                     e.Cancel = true;

@@ -62,13 +62,16 @@ namespace WWUtil {
         /// <summary>
         /// 配列から作成する。fromを参照することがある。
         /// </summary>
-        public LargeArray(T[] from) {
+        public LargeArray(T[] from) : this(from, 0, from.Length) {
+        }
+
+        public LargeArray(T[] from, int offs, int count) {
             if (from == null) {
                 throw new ArgumentNullException("from");
             }
 
             // mCountはINT_MAXよりも少ないはずである。
-            mCount = from.Length;
+            mCount = count;
 
             if (mCount == 0) {
                 mArrayArray=new T[1][];
@@ -85,8 +88,8 @@ namespace WWUtil {
             }
 
             int idx = 0;
-            int fromPos = 0;
-            for (int remain = from.Length; 0 < remain; ) {
+            int fromPos = offs;
+            for (int remain = count; 0 < remain; ) {
                 int fragmentCount = ARRAY_FRAGMENT_LENGTH_NUM;
                 if (remain < fragmentCount) {
                     fragmentCount = remain;

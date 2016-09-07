@@ -169,14 +169,24 @@ namespace WWFlacRWCS {
 
         private int mId = (int)FlacErrorCode.IdNotFound;
 
+        public int DecodeHeader(string path) {
+            mId = NativeMethods.WWFlacRW_Decode(NativeMethods.WWFLAC_FRDT_HEADER, path);
+            return mId;
+        }
+
         public int DecodeAll(string path) {
             mId = NativeMethods.WWFlacRW_Decode(NativeMethods.WWFLAC_FRDT_ALL, path);
             return mId;
         }
 
-        public int DecodeHeader(string path) {
-            mId = NativeMethods.WWFlacRW_Decode(NativeMethods.WWFLAC_FRDT_HEADER, path);
+        public int DecodeStreamStart(string path) {
+            mId = NativeMethods.WWFlacRW_Decode(NativeMethods.WWFLAC_FRDT_ONE, path);
             return mId;
+        }
+
+        public int DecodeStreamOne(out byte [] pcmReturn) {
+            pcmReturn = new byte[65536];
+            return NativeMethods.WWFlacRW_DecodeStreamOne(mId, pcmReturn, pcmReturn.Length);
         }
 
         public int GetDecodedMetadata(out Metadata meta) {
@@ -301,6 +311,7 @@ namespace WWFlacRWCS {
 
         public const int WWFLAC_FRDT_ALL = 0;
         public const int WWFLAC_FRDT_HEADER = 1;
+        public const int WWFLAC_FRDT_ONE = 2;
 
         [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Unicode)]
         internal struct Metadata {
@@ -341,6 +352,10 @@ namespace WWFlacRWCS {
         [DllImport("WWFlacRW.dll", CharSet = CharSet.Unicode)]
         internal extern static
         int WWFlacRW_Decode(int frdt, string path);
+
+        [DllImport("WWFlacRW.dll", CharSet = CharSet.Unicode)]
+        internal extern static
+        int WWFlacRW_DecodeStreamOne(int id, byte[] pcmReturn, int pcmBytes);
 
         [DllImport("WWFlacRW.dll", CharSet = CharSet.Unicode)]
         internal extern static
