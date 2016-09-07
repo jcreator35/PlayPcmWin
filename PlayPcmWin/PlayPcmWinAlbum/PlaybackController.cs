@@ -12,6 +12,10 @@ namespace PlayPcmWinAlbum {
         private WasapiCS.DataFeedMode mDataFeedMode = WasapiCS.DataFeedMode.EventDriven;
         public delegate void StateChangedCallback(State newState);
         private StateChangedCallback mStateChangedCallback = null;
+        private DeviceFormat mFromFormat;
+        private long mDecodedPcmOffs = 0;
+        private int mLoadedGroupId = -1;
+        private WWFlacRWCS.FlacRW mFlac;
 
         public class DeviceFormat {
             public int NumChannels { get; set; }
@@ -158,12 +162,6 @@ namespace PlayPcmWinAlbum {
             return ercd;
         }
 
-        /*
-        private byte[] PcmFormatConvert(byte[] from, DeviceFormat fromFormat, DeviceFormat toFormat) {
-            return PcmFormatConvert(from, 0, from.Length, fromFormat, toFormat);
-        }
-        */
-
         private byte[] PcmFormatConvert(byte[] from, int fromOffs, int fromBytes,
             DeviceFormat fromFormat, DeviceFormat toFormat) {
             System.Diagnostics.Debug.Assert(fromFormat.SampleRate == toFormat.SampleRate);
@@ -187,47 +185,6 @@ namespace PlayPcmWinAlbum {
 
             return toBytes;
         }
-
-        /*
-        private const int PROCESS_FRAMES = 4096;
-
-        private void SetSampleDataAllToWasapi(int idx, WWFlacRWCS.FlacRW flac) {
-            WWFlacRWCS.Metadata meta;
-            flac.GetDecodedMetadata(out meta);
-
-            var fromFormat = new DeviceFormat();
-            fromFormat.Set(meta.channels, meta.sampleRate,
-                    WasapiCS.BitAndFormatToSampleFormatType(meta.bitsPerSample, meta.bitsPerSample, WasapiCS.BitFormatType.SInt));
-            long totalBytes = meta.totalSamples * mDeviceFormat.BytesPerFrame();
-
-            mWasapi.AddPlayPcmDataAllocateMemory(idx, totalBytes);
-
-            long toOffs = 0;
-            for (long framePos=0; framePos < meta.totalSamples; framePos += PROCESS_FRAMES) {
-                int frameCount = PROCESS_FRAMES;
-                if (meta.totalSamples < framePos + PROCESS_FRAMES) {
-                    frameCount = (int)(meta.totalSamples - framePos);
-                }
-
-                int fromBytes = frameCount * meta.BytesPerFrame;
-                var pcmBytes = new byte[fromBytes];
-                for (int i = 0; i < frameCount; ++i) {
-                    for (int ch = 0; ch < meta.channels; ++ch) {
-                        flac.GetDecodedPcmBytes(ch, (framePos+i) * meta.BytesPerSample,
-                            ref pcmBytes, i * meta.BytesPerFrame + ch * meta.BytesPerSample, meta.BytesPerSample);
-                    }
-                }
-
-                var toBytes = PcmFormatConvert(pcmBytes, fromFormat, mDeviceFormat);
-
-                mWasapi.AddPlayPcmDataSetPcmFragment(idx, toOffs, toBytes);
-                toOffs += toBytes.Length;
-            }
-        }
-        */
-
-        private DeviceFormat mFromFormat;
-        private long mDecodedPcmOffs = 0;
 
         private void SetSampleDataToWasapiStart(int idx, WWFlacRWCS.FlacRW flac) {
             WWFlacRWCS.Metadata meta;
@@ -280,28 +237,9 @@ namespace PlayPcmWinAlbum {
             return 0;
         }
 
-        private int mLoadedGroupId = -1;
         public int LoadedGroupId() {
             return mLoadedGroupId;
         }
-
-        /*
-        public bool LoadAdd(ContentList.AudioFile af) {
-            WWFlacRWCS.FlacRW flac = new WWFlacRWCS.FlacRW();
-            int ercd = flac.DecodeAll(af.Path);
-            if (ercd < 0) {
-                Console.WriteLine("E: flac.DecodeAll({0}) failed", af.Path);
-            } else {
-                SetSampleDataAllToWasapi(af.Idx, flac);
-                mLoadedGroupId = af.GroupId;
-            }
-            flac.DecodeEnd();
-
-            return 0 <= ercd;
-        }
-        */
-
-        WWFlacRWCS.FlacRW mFlac;
 
         /// <returns>負の値: FLACのエラー FlacErrorCode</returns>
         public int LoadAddStart(ContentList.AudioFile af) {

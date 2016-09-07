@@ -560,7 +560,6 @@ namespace PlayPcmWinAlbum {
             int added = 0;
             for (int i = 0; i < playList.Count; ++i) {
                 var af = playList[i];
-#if true
                 int ercd = 0;
                 ercd = mPlaybackController.LoadAddStart(af);
                 if (ercd < 0) {
@@ -582,11 +581,6 @@ namespace PlayPcmWinAlbum {
                 if (0 == ercd) {
                     ++added;
                 }
-#else
-                if (mPlaybackController.LoadAdd(af)) {
-                    ++added;
-                }
-#endif
 
                 if (mBackgroundLoad.CancellationPending) {
                     e.Cancel = true;
