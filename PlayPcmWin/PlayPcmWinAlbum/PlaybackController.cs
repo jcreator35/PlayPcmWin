@@ -153,7 +153,9 @@ namespace PlayPcmWinAlbum {
                     WasapiCS.ShareMode.Exclusive, mDataFeedMode, mBufferSizeMillisec, mZeroFlushMillisec, 10000);
                 if (ercd < 0) {
                     Console.WriteLine("Wasapi.Setup({0} {1}) failed", format.SampleRate, sampleFormatCandidates[i]);
+                    mWasapi.Unsetup();
                 } else {
+                    Console.WriteLine("Wasapi.Setup({0} {1}) success", format.SampleRate, sampleFormatCandidates[i]);
                     mDeviceFormat.Set(mixFormat.numChannels, format.SampleRate, sampleFormatCandidates[i]);
                     break;
                 }
@@ -253,15 +255,16 @@ namespace PlayPcmWinAlbum {
             return ercd;
         }
 
+        private byte[] mPcmBuffer = new byte[1048576];
+
         /// <returns>負: FLACのエラー FlacErrorCode。0: デコード終了。1以上: デコードされて出てきたデータのバイト数。</returns>
         public int LoadAddDo(ContentList.AudioFile af) {
             int ercd = 0;
 
-            byte[] buff;
-            ercd = mFlac.DecodeStreamOne(out buff);
+            ercd = mFlac.DecodeStreamOne(ref mPcmBuffer);
             if (0 < ercd) {
                 int buffBytes = ercd;
-                SetSampleDataToWasapiOne(af.Idx, buff, buffBytes);
+                SetSampleDataToWasapiOne(af.Idx, mPcmBuffer, buffBytes);
             }
 
             return ercd;

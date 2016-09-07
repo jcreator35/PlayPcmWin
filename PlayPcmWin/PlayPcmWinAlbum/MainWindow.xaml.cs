@@ -564,6 +564,7 @@ namespace PlayPcmWinAlbum {
                 ercd = mPlaybackController.LoadAddStart(af);
                 if (ercd < 0) {
                     // fixme:
+                    Console.WriteLine("OnBackgroundLoad_DoWork LoadAddStart failed {0}", ercd);
                 } else {
                     do {
                         if (mBackgroundLoad.CancellationPending) {
@@ -573,6 +574,7 @@ namespace PlayPcmWinAlbum {
                         ercd = mPlaybackController.LoadAddDo(af);
                         if (ercd < 0) {
                             // fixme:
+                            Console.WriteLine("OnBackgroundLoad_DoWork LoadAddDo failed {0}", ercd);
                         }
                     } while (0 < ercd);
                 }

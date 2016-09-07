@@ -184,8 +184,7 @@ namespace WWFlacRWCS {
             return mId;
         }
 
-        public int DecodeStreamOne(out byte [] pcmReturn) {
-            pcmReturn = new byte[65536];
+        public int DecodeStreamOne(ref byte [] pcmReturn) {
             return NativeMethods.WWFlacRW_DecodeStreamOne(mId, pcmReturn, pcmReturn.Length);
         }
 
