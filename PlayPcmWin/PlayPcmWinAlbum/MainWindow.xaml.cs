@@ -240,6 +240,10 @@ namespace PlayPcmWinAlbum {
         }
 
         private void OnBackgroundContentListBuilder_ProgressChanged(object sender, ProgressChangedEventArgs e) {
+            if (mBwContentListBuilder.IsCanceled()) {
+                return;
+            }
+
             var rpa = (BackgroundContentListBuilder.ReportProgressArgs)e.UserState;
 
             mTextBlockMessage.Text = rpa.text;
@@ -247,6 +251,10 @@ namespace PlayPcmWinAlbum {
         }
 
         private void OnBackgroundContentListBuilder_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
+            if (mBwContentListBuilder.IsCanceled()) {
+                return;
+            }
+
             var result = (BackgroundContentListBuilder.RunWorkerCompletedResult)e.Result;
 
             ChangeDisplayState(State.AlbumBrowsing);
@@ -304,6 +312,14 @@ namespace PlayPcmWinAlbum {
 
             // 設定ファイルを書き出す。
             PreferenceStore.Save(mPreference);
+
+            mBwContentListBuilder.CancelAsync();
+            while (mBwContentListBuilder.IsBusy()) {
+                System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(
+                        System.Windows.Threading.DispatcherPriority.Background,
+                        new System.Threading.ThreadStart(delegate { }));
+                System.Threading.Thread.Sleep(100);
+            }
 
             mBackgroundPlay.CancelAsync();
             while (mBackgroundPlay.IsBusy) {

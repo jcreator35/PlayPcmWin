@@ -6,7 +6,7 @@ using Wasapi;
 
 namespace PlayPcmWinAlbum {
     class PlaybackController {
-        WasapiCS mWasapi = null;
+        private WasapiCS mWasapi = null;
         private int mBufferSizeMillisec = 170;
         private int mZeroFlushMillisec = 1000;
         private WasapiCS.DataFeedMode mDataFeedMode = WasapiCS.DataFeedMode.EventDriven;

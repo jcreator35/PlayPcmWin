@@ -8,11 +8,28 @@ using System.Threading.Tasks;
 
 namespace PlayPcmWinAlbum {
     class BackgroundContentListBuilder {
-
+        private BackgroundWorker mBw = new BackgroundWorker();
         private ContentList mContentList;
+        private bool mCanceled = false;
 
         public BackgroundContentListBuilder(ContentList cl) {
             mContentList = cl;
+            mBw.WorkerSupportsCancellation = true;
+        }
+
+        public void CancelAsync() {
+            Console.WriteLine("D: BackgroundContentListBuilder::CancelAsync()");
+
+            mCanceled = true;
+            mBw.CancelAsync();
+        }
+
+        public bool IsCanceled() {
+            return mCanceled;
+        }
+
+        public bool IsBusy() {
+            return mBw.IsBusy;
         }
 
         public void AddProgressChanged(ProgressChangedEventHandler eh) {
@@ -25,11 +42,10 @@ namespace PlayPcmWinAlbum {
         }
 
         public void RunWorkerAsync(string path) {
+            mCanceled = false;
             mBw.DoWork += Background_DoWork;
             mBw.RunWorkerAsync(path);
         }
-
-        private BackgroundWorker mBw = new BackgroundWorker();
 
         public class RunWorkerCompletedResult {
             public volatile int fileCount;
@@ -45,12 +61,12 @@ namespace PlayPcmWinAlbum {
 
         private void Background_DoWork(object sender, DoWorkEventArgs e) {
             string rootPath = e.Argument as string;
-            e.Result = BackgroundDoWorkImpl(rootPath, true);
+            e.Result = BackgroundDoWorkImpl(e, rootPath, true);
         }
 
         private Stopwatch mStopWatch = new Stopwatch();
 
-        public RunWorkerCompletedResult BackgroundDoWorkImpl(string rootPath, bool background) {
+        public RunWorkerCompletedResult BackgroundDoWorkImpl(DoWorkEventArgs e, string rootPath, bool background) {
             mContentList.Clear();
 
             var result = new RunWorkerCompletedResult();
@@ -66,6 +82,12 @@ namespace PlayPcmWinAlbum {
                 mBw.ReportProgress(0, new ReportProgressArgs(string.Format(Properties.Resources.LogReportCount, flacList.Length)));
             }
 
+            if (mBw.CancellationPending) {
+                Console.WriteLine("D: BackgroundContentListBuilder::BackgroundDoWorkImpl() canceled 1");
+                e.Cancel = true;
+                return result;
+            }
+
             int finished = 0;
 
             mStopWatch.Start();
@@ -77,6 +99,11 @@ namespace PlayPcmWinAlbum {
 
             try {
                 for (int i = 0; i < flacList.Length; ++i) {
+                    if (mBw.CancellationPending) {
+                        Console.WriteLine("D: BackgroundContentListBuilder::BackgroundDoWorkImpl() canceled 2");
+                        e.Cancel = true;
+                        return result;
+                    }
 
                     string path = flacList[i];
                     var flacrw = new WWFlacRWCS.FlacRW();
