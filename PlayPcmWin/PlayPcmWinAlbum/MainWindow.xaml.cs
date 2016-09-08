@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using Wasapi;
+using System.Text;
 
 namespace PlayPcmWinAlbum {
     public partial class MainWindow : Window {
@@ -28,6 +29,8 @@ namespace PlayPcmWinAlbum {
         private InterceptMediaKeys mKListener = null;
         private bool mPlayListMouseDown = false;
         private Preference mPreference = new Preference();
+        private Wasapi.WasapiCS.StateChangedCallback mWasapiStateChangedDelegate;
+        private bool mDeviceListUpdatePending = false;
 
         private static string AssemblyVersion {
             get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); }
@@ -80,6 +83,8 @@ namespace PlayPcmWinAlbum {
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
             mPlaybackController.Init();
+            mWasapiStateChangedDelegate = new Wasapi.WasapiCS.StateChangedCallback(OnWasapiStatusChanged);
+            mPlaybackController.RegisterWasapiStateChangedCallback(mWasapiStateChangedDelegate);
 
             // アルバム一覧を読み出す。
             if (ReadContentList()) {
@@ -135,8 +140,8 @@ namespace PlayPcmWinAlbum {
             mState = t;
         }
 
-        private void UpdatePlaybackControlState(PlaybackController.State state) {
-            switch (state) {
+        private void UpdatePlaybackControlState() {
+            switch (mPlaybackController.GetState()) {
             case PlaybackController.State.Stopped:
                 mButtonPlay.IsEnabled = true;
                 mButtonStop.IsEnabled = false;
@@ -377,7 +382,7 @@ namespace PlayPcmWinAlbum {
             mLabelAlbumName.Content = album.Name;
             mDataGridPlayListHandler.ShowAlbum(album);
             ChangeDisplayState(State.AlbumTrackBrowsing);
-            UpdatePlaybackControlState(PlaybackController.State.Stopped);
+            UpdatePlaybackControlState();
         }
 
         private void OnMenuItemBack_Click(object sender, RoutedEventArgs e) {
@@ -490,7 +495,7 @@ namespace PlayPcmWinAlbum {
                     // 再生中のグループと同じグループである。
                     // 再生曲を切り替える。
                     mPlaybackController.Play(idx);
-                    UpdatePlaybackControlState(mPlaybackController.GetState());
+                    UpdatePlaybackControlState();
                     return;
                 } else {
                     // 異なるグループの曲なので再ロードが必要。
@@ -511,13 +516,16 @@ namespace PlayPcmWinAlbum {
                     mContentList.GetSelectedAlbum(), idx, mListBoxPlaybackDevice.SelectedIndex);
 
             var playList = CreatePlayList(args.Album, args.First);
+
             int ercd = mPlaybackController.PlaylistCreateStart(args.DeviceIdx, args.Album.AudioFileNth(args.First));
             if (ercd < 0) {
                 MessageBox.Show(string.Format(Properties.Resources.ErrorPlaybackStartFailed, ercd));
                 return;
             }
 
-            UpdatePlaybackControlState(PlaybackController.State.Loading);
+            // PlaybackController stateがLoadingになった。
+            UpdatePlaybackControlState();
+
             mBackgroundLoad = new BackgroundWorker();
             mBackgroundLoad.WorkerReportsProgress = true;
             mBackgroundLoad.WorkerSupportsCancellation = true;
@@ -616,7 +624,8 @@ namespace PlayPcmWinAlbum {
                 MessageBox.Show("Error: File load failed!");
             }
 
-            UpdatePlaybackControlState(mPlaybackController.GetState());
+            UpdatePlaybackControlState();
+
             mBackgroundPlay = new BackgroundWorker();
             mBackgroundPlay.WorkerSupportsCancellation = true;
             mBackgroundPlay.WorkerReportsProgress = true;
@@ -700,17 +709,27 @@ namespace PlayPcmWinAlbum {
                 return;
             }
 
-            UpdatePlaybackControlState(mPlaybackController.GetState());
+            UpdatePlaybackControlState();
+
+            if (mDeviceListUpdatePending) {
+                UpdateDeviceList();
+                mDeviceListUpdatePending = false;
+            }
         }
 
         private void ButtonStopClicked() {
+            // fixme: 非同期版にする。
+            StopBlocking();
+        }
+
+        private void StopBlocking() {
             mPlaybackController.Stop();
-            UpdatePlaybackControlState(PlaybackController.State.Stopped);
+            UpdatePlaybackControlState();
         }
 
         private void ButtonPauseClicked() {
             if (mPlaybackController.Pause()) {
-                UpdatePlaybackControlState(PlaybackController.State.Paused);
+                UpdatePlaybackControlState();
             }
         }
 
@@ -896,7 +915,39 @@ namespace PlayPcmWinAlbum {
                 MediaKeyUpWhenAlbumBrowsing(args.Key);
                 return;
             }
+        }
 
+        /// <summary>
+        /// デバイスが突然消えたとか、突然増えたとかのイベント。
+        /// </summary>
+        private void OnWasapiStatusChanged(StringBuilder idStr) {
+            Console.WriteLine("OnWasapiStatusChanged {0}", idStr);
+            Dispatcher.BeginInvoke(new Action(delegate() {
+                // AddLogText(string.Format(CultureInfo.InvariantCulture, Properties.Resources.DeviceStateChanged + Environment.NewLine, idStr));
+                switch (mPlaybackController.GetState()) {
+                case PlaybackController.State.Stopped:
+                    // 再生中ではない場合、デバイス一覧を更新する。
+                    // DeviceDeselect();
+                    UpdateDeviceList();
+                    break;
+                case PlaybackController.State.Loading:
+                case PlaybackController.State.Playing:
+                case PlaybackController.State.Paused: {
+                        var usedDeviceAttr = mPlaybackController.GetDeviceAttribute(mListBoxPlaybackDevice.SelectedIndex);
+
+                        if (0 == string.Compare(usedDeviceAttr.DeviceIdString, idStr.ToString(), StringComparison.Ordinal)) {
+                            // 再生に使用しているデバイスの状態が変化した場合、再生停止してデバイス一覧を更新する。
+                            StopBlocking();
+                            UpdatePlaybackControlState();
+                            UpdateDeviceList();
+                        } else {
+                            // 次の再生停止時にデバイス一覧を更新する。
+                            mDeviceListUpdatePending = true;
+                        }
+                    }
+                    break;
+                }
+            }));
         }
     }
 }

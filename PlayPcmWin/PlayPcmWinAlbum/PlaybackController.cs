@@ -352,5 +352,9 @@ namespace PlayPcmWinAlbum {
         public void SetPosFrame(long pos) {
             mWasapi.SetPosFrame(pos);
         }
+
+        public void RegisterWasapiStateChangedCallback(WasapiCS.StateChangedCallback callback) {
+            mWasapi.RegisterStateChangedCallback(callback);
+        }
     }
 }
