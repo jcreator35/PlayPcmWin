@@ -43,6 +43,7 @@ namespace PlayPcmWinAlbum {
             Loading,
             Playing,
             Paused,
+            Stopping,
         };
 
         private State mState = State.Stopped;
@@ -302,6 +303,9 @@ namespace PlayPcmWinAlbum {
                 // 既に再生中の場合。
                 mWasapi.UpdatePlayPcmDataById(idx);
                 return true;
+            case State.Stopping:
+                Console.WriteLine("E: PlaybackController.Play() called on Stopping state.");
+                return false;
             default:
                 break;
             }
@@ -355,6 +359,19 @@ namespace PlayPcmWinAlbum {
 
         public void RegisterWasapiStateChangedCallback(WasapiCS.StateChangedCallback callback) {
             mWasapi.RegisterStateChangedCallback(callback);
+        }
+
+        public bool StopGently() {
+            switch (mState) {
+            case State.Playing:
+            case State.Paused:
+                mWasapi.UpdatePlayPcmDataById(-1);
+                mWasapi.Unpause();
+                ChangeState(State.Stopping);
+                return true;
+            default:
+                return false;
+            }
         }
     }
 }

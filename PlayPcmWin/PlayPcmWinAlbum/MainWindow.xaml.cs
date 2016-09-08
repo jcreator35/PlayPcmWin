@@ -192,6 +192,18 @@ namespace PlayPcmWinAlbum {
                 mGroupBoxPlaybackDevice.IsEnabled = false;
                 mGroupBoxWasapiSettings.IsEnabled = false;
                 break;
+            case PlaybackController.State.Stopping:
+                mButtonPlay.IsEnabled = false;
+                mButtonStop.IsEnabled = false;
+                mButtonPause.IsEnabled = false;
+                mButtonNext.IsEnabled = false;
+                mButtonPrev.IsEnabled = false;
+                mProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                mLabelPlayingTime.Content = PlaybackTime.PLAYING_TIME_ALLZERO;
+                mStatusBarText.Content = Properties.Resources.MainStatusStopping;
+                mGroupBoxPlaybackDevice.IsEnabled = false;
+                mGroupBoxWasapiSettings.IsEnabled = false;
+                break;
 
             default:
                 System.Diagnostics.Debug.Assert(false);
@@ -718,8 +730,8 @@ namespace PlayPcmWinAlbum {
         }
 
         private void ButtonStopClicked() {
-            // fixme: 非同期版にする。
-            StopBlocking();
+            mPlaybackController.StopGently();
+            UpdatePlaybackControlState();
         }
 
         private void StopBlocking() {
@@ -790,6 +802,9 @@ namespace PlayPcmWinAlbum {
                 break;
             case PlaybackController.State.Stopped:
                 ButtonNextOrPrevClickedWhenStop(updateOrdinal);
+                break;
+            case PlaybackController.State.Stopping:
+                // fixme:
                 break;
             }
         }
@@ -931,6 +946,7 @@ namespace PlayPcmWinAlbum {
                     UpdateDeviceList();
                     break;
                 case PlaybackController.State.Loading:
+                case PlaybackController.State.Stopping:
                 case PlaybackController.State.Playing:
                 case PlaybackController.State.Paused: {
                         var usedDeviceAttr = mPlaybackController.GetDeviceAttribute(mListBoxPlaybackDevice.SelectedIndex);

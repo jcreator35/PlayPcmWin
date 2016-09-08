@@ -178,5 +178,14 @@ namespace PlayPcmWinAlbum.Properties {
                 return ResourceManager.GetString("MainStatusStopped", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Stopping....
+        /// </summary>
+        internal static string MainStatusStopping {
+            get {
+                return ResourceManager.GetString("MainStatusStopping", resourceCulture);
+            }
+        }
     }
 }

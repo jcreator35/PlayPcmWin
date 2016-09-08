@@ -158,4 +158,7 @@ Press No to exit this app.</value>
   <data name="MainStatusStopped" xml:space="preserve">
     <value>Playback stopped.</value>
   </data>
+  <data name="MainStatusStopping" xml:space="preserve">
+    <value>Stopping...</value>
+  </data>
 </root>

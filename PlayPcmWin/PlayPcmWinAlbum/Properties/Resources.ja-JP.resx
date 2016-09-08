@@ -158,4 +158,7 @@ No: アプリを終了します。</value>
   <data name="MainStatusStopped" xml:space="preserve">
     <value>再生停止。</value>
   </data>
+  <data name="MainStatusStopping" xml:space="preserve">
+    <value>再生停止処理中……</value>
+  </data>
 </root>
