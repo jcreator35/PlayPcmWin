@@ -37,6 +37,8 @@ namespace PlayPcmWin {
     };
 
     public class Preference : WWXmlRW.SaveLoadContents {
+        public const int TIME_PERIOD_ONE_MILLISEC = 10000;
+
         // SaveLoadContents IF
         public int GetCurrentVersionNumber() { return CurrentVersion; }
         public int GetVersionNumber() { return Version; }
@@ -171,7 +173,7 @@ namespace PlayPcmWin {
             DispCoverart = true;
             RefrainRedraw = false;
             ZeroFlushMillisec = 500;
-            TimePeriodHundredNanosec = 10000;
+            TimePeriodHundredNanosec = TIME_PERIOD_ONE_MILLISEC;
             LastPlayItemIndex = 0;
             EnableNoiseShaping = true;
             DwmEnableMmcss = true;
@@ -268,6 +270,11 @@ namespace PlayPcmWin {
 
             // DwmEnableMMCSSは、いつの頃からかエラーが出るようになったので呼び出さないようにする。
             p.DwmEnableMmcssCall = false;
+
+            if (p.TimePeriodHundredNanosec < Preference.TIME_PERIOD_ONE_MILLISEC) {
+                // 0.5msモードは動作不安定なので廃止。
+                p.TimePeriodHundredNanosec = Preference.TIME_PERIOD_ONE_MILLISEC;
+            }
 
             return p;
         }

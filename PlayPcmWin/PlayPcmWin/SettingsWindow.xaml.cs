@@ -88,7 +88,6 @@ namespace PlayPcmWin {
             checkBoxStorePlaylistContent.Content = Properties.Resources.SettingsCheckBoxStorePlaylistContent;
             cbItemTimerResolutionDefault.Content = Properties.Resources.SettingsTimerResolutionDefault;
             cbItemTimerResolution1Millisec.Content = Properties.Resources.SettingsTimerResolution1Millisec;
-            cbItemTimerResolution500Microsec.Content = Properties.Resources.SettingsTimerResolution500Microsec;
 
             labelConversionQuality.Content = Properties.Resources.SettingsLabelConversionQuality;
             labelCueEncoding.Content = Properties.Resources.SettingsCueEncoding;
@@ -171,9 +170,7 @@ namespace PlayPcmWin {
             checkBoxParallelRead.IsChecked =
                 preference.ParallelRead;
 
-            if (5000 == preference.TimePeriodHundredNanosec) {
-                comboBoxTimePeriod.SelectedItem = cbItemTimerResolution500Microsec;
-            } else if (10000 == preference.TimePeriodHundredNanosec) {
+            if (10000 == preference.TimePeriodHundredNanosec) {
                 comboBoxTimePeriod.SelectedItem = cbItemTimerResolution1Millisec;
             } else {
                 comboBoxTimePeriod.SelectedItem = cbItemTimerResolutionDefault;
@@ -371,9 +368,7 @@ namespace PlayPcmWin {
             m_preference.ParallelRead
                 = checkBoxParallelRead.IsChecked == true;
 
-            if (comboBoxTimePeriod.SelectedItem == cbItemTimerResolution500Microsec) {
-                m_preference.TimePeriodHundredNanosec = 5000;
-            } else if (comboBoxTimePeriod.SelectedItem == cbItemTimerResolution1Millisec) {
+            if (comboBoxTimePeriod.SelectedItem == cbItemTimerResolution1Millisec) {
                 m_preference.TimePeriodHundredNanosec = 10000;
             } else {
                 m_preference.TimePeriodHundredNanosec = 0;

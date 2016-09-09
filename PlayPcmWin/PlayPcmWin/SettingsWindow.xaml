@@ -34,7 +34,6 @@
                                 <ComboBox x:Uid="comboBoxTimePeriod" HorizontalAlignment="Left" Name="comboBoxTimePeriod" VerticalAlignment="Top" Width="213" SelectedIndex="0">
                                     <ComboBoxItem x:Uid="cbItemTimerResolutionDefault" Content="Default timer resolution" Name="cbItemTimerResolutionDefault" />
                                     <ComboBoxItem x:Uid="cbItemTimerResolution1Millisec" Content="Timer resolution = 1 ms" Name="cbItemTimerResolution1Millisec"  />
-                                    <ComboBoxItem x:Uid="cbItemTimerResolution500Microsec" Content="Timer resolution = 0.5 ms" Name="cbItemTimerResolution500Microsec"  />
                                 </ComboBox>
                             </GroupBox>
                             <GroupBox x:Uid="groupBoxRenderThreadProperty" Header="Render thread properties" Margin="4,0,4,0" Name="groupBoxRenderThreadTaskType">

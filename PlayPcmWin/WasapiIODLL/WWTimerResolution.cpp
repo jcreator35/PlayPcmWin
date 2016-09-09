@@ -7,21 +7,6 @@
 // 100 nanosec * ONE_MILLISEC == one millisec
 #define ONE_MILLISEC (10000)
 
-// ntdll.lib
-extern "C" {
-NTSYSAPI NTSTATUS NTAPI
-NtSetTimerResolution(
-        IN  ULONG   desiredResolution,
-        IN  BOOLEAN setResolution,
-        OUT PULONG  currentResolution);
-
-NTSYSAPI NTSTATUS NTAPI
-NtQueryTimerResolution(
-        OUT PULONG minimumResolution,
-        OUT PULONG maximumResolution,
-        OUT PULONG currentResolution);
-}; /* extern "C" */
-
 void
 WWTimerResolution::SetTimePeriodHundredNanosec(int hnanosec)
 {
@@ -35,25 +20,22 @@ WWTimerResolution::Setup(void)
     HRESULT hr = 0;
 
     if (0 < m_desiredHns && m_desiredHns < ONE_MILLISEC) {
-        ULONG minResolution = 0;
-        ULONG maxResolution = 0;
-        ULONG desiredResolution = m_desiredHns;
-        m_setHns = 0;
-
-        HRG(NtQueryTimerResolution(&minResolution, &maxResolution, &m_beforeHns));
-        if (desiredResolution < maxResolution) {
-            desiredResolution = maxResolution;
+        dprintf("E: WWTimerResolution::Setup() does not support hns=%d\n", m_desiredHns);
+        assert(0);
+    } else if (ONE_MILLISEC <= m_desiredHns) {
+        MMRESULT mr = timeBeginPeriod(m_desiredHns/ONE_MILLISEC);
+        if (mr == TIMERR_NOERROR) {
+            hr = 0;
+        } else {
+            dprintf("E: WWTimerResolution::Setup() timeBeginPeriod(%d) failed %x\n", m_desiredHns, mr);
+            hr = E_FAIL;
         }
 
-        HRG(NtSetTimerResolution(desiredResolution, TRUE, &m_setHns));
-    } else if (ONE_MILLISEC <= m_desiredHns) {
-        timeBeginPeriod(m_desiredHns/ONE_MILLISEC);
         m_setHns = (m_desiredHns/ONE_MILLISEC)*ONE_MILLISEC;
     } else {
         // タイマー解像度を設定しない。
     }
 
-end:
     return hr;
 }
 
@@ -61,7 +43,8 @@ void
 WWTimerResolution::Unsetup(void)
 {
     if (0 < m_desiredHns && m_desiredHns < ONE_MILLISEC) {
-        NtSetTimerResolution(m_beforeHns, TRUE, &m_setHns);
+        dprintf("E: WWTimerResolution::Setup() does not support hns=%d\n", m_desiredHns);
+        assert(0);
     } else if (ONE_MILLISEC <= m_desiredHns) {
         timeEndPeriod(m_desiredHns/ONE_MILLISEC);
     } else {
