@@ -287,7 +287,7 @@ namespace PlayPcmWinAlbum {
         /// 別の曲を再生しているときに呼び出すと、再生曲を切り替える。
         /// ロードしていない曲Idを指定して呼び出すと無視する。
         /// </summary>
-        public bool Play(int idx) {
+        public int Play(int idx) {
             int ercd;
 
             switch (mState) {
@@ -298,14 +298,14 @@ namespace PlayPcmWinAlbum {
                 if (0 <= ercd) {
                     ChangeState(State.Playing);
                 }
-                return true;
+                return 0;
             case State.Playing:
                 // 既に再生中の場合。
                 mWasapi.UpdatePlayPcmDataById(idx);
-                return true;
+                return 0;
             case State.Stopping:
                 Console.WriteLine("E: PlaybackController.Play() called on Stopping state.");
-                return false;
+                return 0;
             default:
                 break;
             }
@@ -313,9 +313,11 @@ namespace PlayPcmWinAlbum {
             ercd = mWasapi.StartPlayback(idx);
             if (0 <= ercd) {
                 ChangeState(State.Playing);
+            } else {
+                ChangeState(State.Stopped);
             }
 
-            return 0 <= ercd;
+            return ercd;
         }
 
         public void Stop() {

@@ -252,6 +252,7 @@ namespace PlayPcmWinAlbum {
 
         private void OnBackgroundContentListBuilder_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
             if (mBwContentListBuilder.IsCanceled()) {
+                mBwContentListBuilder = null;
                 return;
             }
 
@@ -274,6 +275,8 @@ namespace PlayPcmWinAlbum {
                 mContentList.Save();
                 UpdateContentList();
             }
+
+            mBwContentListBuilder = null;
         }
 
         private void UpdateContentList() {
@@ -313,12 +316,14 @@ namespace PlayPcmWinAlbum {
             // 設定ファイルを書き出す。
             PreferenceStore.Save(mPreference);
 
-            mBwContentListBuilder.CancelAsync();
-            while (mBwContentListBuilder.IsBusy()) {
-                System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(
-                        System.Windows.Threading.DispatcherPriority.Background,
-                        new System.Threading.ThreadStart(delegate { }));
-                System.Threading.Thread.Sleep(100);
+            if (mBwContentListBuilder != null) {
+                mBwContentListBuilder.CancelAsync();
+                while (mBwContentListBuilder.IsBusy()) {
+                    System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(
+                            System.Windows.Threading.DispatcherPriority.Background,
+                            new System.Threading.ThreadStart(delegate { }));
+                    System.Threading.Thread.Sleep(100);
+                }
             }
 
             mBackgroundPlay.CancelAsync();
@@ -646,14 +651,20 @@ namespace PlayPcmWinAlbum {
             }
 
             var result = e.Result as BackgroundLoadResult;
-            if (result.Result) {
-                mPlaybackController.Play(result.Args.First);
-            } else {
+            if (!result.Result) {
                 MessageBox.Show("Error: File load failed!");
+                UpdatePlaybackControlState();
+                return;
+            }
+
+            int playErcd = mPlaybackController.Play(result.Args.First);
+            if (playErcd < 0) {
+                MessageBox.Show(string.Format("Error: Wasapi play failed {0:X8}", playErcd));
+                UpdatePlaybackControlState();
+                return;
             }
 
             UpdatePlaybackControlState();
-
             mBackgroundPlay = new BackgroundWorker();
             mBackgroundPlay.WorkerSupportsCancellation = true;
             mBackgroundPlay.WorkerReportsProgress = true;
