@@ -80,13 +80,13 @@
                         <Label Content="0:00:00/0:00:00" Margin="148,0,6,0" Name="mLabelPlayingTime" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" FontWeight="Bold" FontSize="16" FontFamily="Courier New" Height="29" VerticalAlignment="Bottom" />
                     </Grid>
                 </GroupBox>
-                <Slider Margin="6,0,6,0" Name="mSlider1" MouseMove="OnSlider1_MouseMove" Height="23" VerticalAlignment="Bottom" IsMoveToPointEnabled="True" MouseLeftButtonDown="OnSlider1_MouseLeftButtonDown" MouseLeftButtonUp="OnSlider1_MouseLeftButtonUp" />
-                <GroupBox Header="Playback Device" Height="86" HorizontalAlignment="Left" Margin="379,0,0,0" Name="mGroupBoxPlaybackDevice" VerticalAlignment="Top" Width="226">
+                <Slider Margin="6,0,514,0" Name="mSlider1" MouseMove="OnSlider1_MouseMove" Height="23" VerticalAlignment="Bottom" IsMoveToPointEnabled="True" MouseLeftButtonDown="OnSlider1_MouseLeftButtonDown" MouseLeftButtonUp="OnSlider1_MouseLeftButtonUp" />
+                <GroupBox Header="Playback Device" Height="103" HorizontalAlignment="Left" Margin="379,0,0,0" Name="mGroupBoxPlaybackDevice" VerticalAlignment="Top" Width="226">
                     <Grid>
                         <ListBox Name="mListBoxPlaybackDevice" />
                     </Grid>
                 </GroupBox>
-                <GroupBox Header="Wasapi Settings" Height="86" HorizontalAlignment="Left" Margin="610,0,0,0" Name="mGroupBoxWasapiSettings" VerticalAlignment="Top" Width="232">
+                <GroupBox Header="Wasapi Settings" Height="103" HorizontalAlignment="Left" Margin="610,0,0,0" Name="mGroupBoxWasapiSettings" VerticalAlignment="Top" Width="232">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="1*" />
@@ -102,7 +102,7 @@
                                 <RadioButton Content="Timer" Margin="6,0,0,0" Grid.Row="1" HorizontalAlignment="Left" Name="mRadioButtonTimer" VerticalAlignment="Center" />
                             </Grid>
                         </GroupBox>
-                        <GroupBox Header="Buffer size" Grid.Column="1" Margin="0,0,0,12">
+                        <GroupBox Header="Buffer size" Grid.Column="1" Height="52" VerticalAlignment="Top">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="2*" />

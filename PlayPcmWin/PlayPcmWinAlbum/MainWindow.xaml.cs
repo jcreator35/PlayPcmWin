@@ -556,6 +556,9 @@ namespace PlayPcmWinAlbum {
                 return;
             }
 
+            // お気に入りデバイスの更新。
+            mPreference.PreferredDeviceIdString = mPlaybackController.GetDeviceAttribute(args.DeviceIdx).DeviceIdString;
+
             // PlaybackController stateがLoadingになった。
             UpdatePlaybackControlState();
 

@@ -2079,6 +2079,7 @@ namespace PlayPcmWin
             {
                 // このトラックのWasapi PCMデータ領域を確保する。
                 long allocBytes = wantFramesTotal * m_deviceSetupParams.UseBytesPerFrame;
+                Console.WriteLine("wasapi.AddPlayPcmDataAllocateMemory({0}, {1})", pd.Id, allocBytes);
                 if (!wasapi.AddPlayPcmDataAllocateMemory(pd.Id, allocBytes)) {
                     //ClearPlayList(PlayListClearMode.ClearWithoutUpdateUI); //< メモリを空ける：効果があるか怪しい
                     r.message = string.Format(CultureInfo.InvariantCulture, Properties.Resources.MemoryExhausted);
@@ -2156,8 +2157,12 @@ namespace PlayPcmWin
                 // 実際に読み出されたフレーム数readFrames。
                 int readFrames = part.Length / (pd.BitsPerFrame / 8);
 
+                Console.WriteLine("part size = {0}", part.Length);
+
                 pd.SetSampleLargeArray(new LargeArray<byte>(part));
                 part = null;
+
+                Console.WriteLine("pd.SetSampleLargeArray {0}", pd.GetSampleLargeArray().LongLength);
 
                 // 必要に応じてpartの量子化ビット数の変更処理を行い、pdAfterに新しく確保したPCMデータ配列をセット。
 
@@ -2176,6 +2181,8 @@ namespace PlayPcmWin
                     break;
                 }
 
+                Console.WriteLine("pdAfter.SampleLargeArray {0}", pdAfter.GetSampleLargeArray().LongLength);
+
                 if (pdAfter.NumChannels == 1) {
                     // モノラル1ch→ステレオ2ch変換。
                     pdAfter = pdAfter.MonoToStereo();
@@ -2187,10 +2194,14 @@ namespace PlayPcmWin
 
                 pdAfter = pdAfter.ConvertChannelCount(m_deviceSetupParams.NumChannels);
 
+                Console.WriteLine("pdAfter.ConvertCHannelCount({0}) SampleLargeArray {1}", m_deviceSetupParams.NumChannels, pdAfter.GetSampleLargeArray().LongLength);
+
                 long posBytes = (writeOffsFrame + frameCount) * pdAfter.BitsPerFrame / 8;
 
                 bool result = false;
                 lock (pd) {
+                    Console.WriteLine("wasapi.AddPlayPcmDataSetPcmFragment({0}, {1} {2})", pd.Id, posBytes, pdAfter.GetSampleLargeArray().ToArray().Length);
+
                     result = wasapi.AddPlayPcmDataSetPcmFragment(pd.Id, posBytes, pdAfter.GetSampleLargeArray().ToArray());
                 }
                 System.Diagnostics.Debug.Assert(result);

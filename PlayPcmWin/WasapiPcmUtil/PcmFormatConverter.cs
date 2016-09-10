@@ -197,8 +197,9 @@ namespace WasapiPcmUtil {
             }
 
             var fromSampleArray = pcmFrom.GetSampleLargeArray();
+            var fromSampleArrayFrameCount = fromSampleArray.LongLength / (pcmFrom.BitsPerFrame / 8);
             int toBytesPerFrame = pcmFrom.NumChannels * WasapiCS.SampleFormatTypeToUseBitsPerSample(toFormat) / 8;
-            long toBytes = pcmFrom.NumFrames * toBytesPerFrame;
+            long toBytes = fromSampleArrayFrameCount * toBytesPerFrame;
             var toSampleArray = new LargeArray<byte>(toBytes);
 
             {
