@@ -693,7 +693,7 @@ end:
 }
 
 
-#define UTF8TOMB(X) MultiByteToWideChar(CP_UTF8, 0, fdi->X, -1, metaReturn.X, sizeof metaReturn.X-1)
+#define UTF8TOMB(X) MultiByteToWideChar(CP_UTF8, 0, fdi->X, -1, metaReturn.X, sizeof metaReturn.X/2-1)
 
 extern "C" __declspec(dllexport)
 int __stdcall
