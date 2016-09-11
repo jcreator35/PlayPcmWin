@@ -1,0 +1,198 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="FlacErrorBadHeader" xml:space="preserve">
+    <value>Error: FLACファイルのヘッダー部分が壊れています</value>
+  </data>
+  <data name="FlacErrorBadParams" xml:space="preserve">
+    <value>Error: FLACパラメーター不一致エラー</value>
+  </data>
+  <data name="FlacErrorBufferSizeMismatch" xml:space="preserve">
+    <value>Error: FLACバッファーサイズが違います</value>
+  </data>
+  <data name="FlacErrorDataNotReady" xml:space="preserve">
+    <value>Error: FLACデータの準備がまだです</value>
+  </data>
+  <data name="FlacErrorDecoderProcessFailed" xml:space="preserve">
+    <value>Error: FLACデコーダー処理が失敗しました</value>
+  </data>
+  <data name="FlacErrorEncoder" xml:space="preserve">
+    <value>Error: FLACエンコーダーの失敗</value>
+  </data>
+  <data name="FlacErrorEncoderProcessFailed" xml:space="preserve">
+    <value>Error: FLACエンコーダー処理失敗</value>
+  </data>
+  <data name="FlacErrorFileReadOpen" xml:space="preserve">
+    <value>Error: FLACファイルの読み出し失敗</value>
+  </data>
+  <data name="FlacErrorFrameCrcMismatch" xml:space="preserve">
+    <value>Error: FLACファイルのフレームCRCが不一致。ファイルが壊れています。</value>
+  </data>
+  <data name="FlacErrorIdNotFound" xml:space="preserve">
+    <value>Error: WWFlacRW.cpp 内部エラー</value>
+  </data>
+  <data name="FlacErrorInvalidBitsPerSample" xml:space="preserve">
+    <value>Error: FLAC量子化ビット数が範囲外</value>
+  </data>
+  <data name="FlacErrorInvalidMetadata" xml:space="preserve">
+    <value>Error: FLACメタデータに異常あり</value>
+  </data>
+  <data name="FlacErrorInvalidNumberOfChannels" xml:space="preserve">
+    <value>Error: FLACチャンネル数が多すぎます(8以下である必要がある)</value>
+  </data>
+  <data name="FlacErrorInvalidSampleRate" xml:space="preserve">
+    <value>Error: FLACサンプルレートが範囲外(655,350Hz以下である必要あり)</value>
+  </data>
+  <data name="FlacErrorLostSync" xml:space="preserve">
+    <value>Error: FLAC SYNCを見失いました。ファイルが壊れています。</value>
+  </data>
+  <data name="FlacErrorMD5SignatureDoesNotMatch" xml:space="preserve">
+    <value>Error: FLACから抽出したPCMについて算出したMD5値がヘッダに入っている値と異なります。ファイルが壊れています</value>
+  </data>
+  <data name="FlacErrorMemoryExhausted" xml:space="preserve">
+    <value>Error: FLAC処理中にメモリー不足発生</value>
+  </data>
+  <data name="FlacErrorNumFrameIsNotAligned" xml:space="preserve">
+    <value>Error: FLACフレーム数がアラインされていない</value>
+  </data>
+  <data name="FlacErrorOther" xml:space="preserve">
+    <value>Error: FLAC処理中のその他のエラー</value>
+  </data>
+  <data name="FlacErrorOutputFileTooLarge" xml:space="preserve">
+    <value>Error: 出力ファイルが大きくなりすぎました。(FLACの限界ではなくWWFlacRWの都合で処理を中断)</value>
+  </data>
+  <data name="FlacErrorRecvBufferSizeInsufficient" xml:space="preserve">
+    <value>Error: FLAC受信バッファーサイズが小さすぎました</value>
+  </data>
+  <data name="FlacErrorStreamDecoderInitFailed" xml:space="preserve">
+    <value>Error: FLACストリームデコーダー初期化失敗</value>
+  </data>
+  <data name="FlacErrorStreamDecoderNewFailed" xml:space="preserve">
+    <value>Error: FLACストリームデコーダーnew失敗</value>
+  </data>
+  <data name="FlacErrorSuccessButMd5WasNotCalculated" xml:space="preserve">
+    <value>読み出しには成功し、CRCの照合は成功。MD5情報がヘッダ部分に入っていないのでPCMデータについてのMD5の照合は行いませんでした。</value>
+  </data>
+  <data name="FlacErrorUnparseable" xml:space="preserve">
+    <value>Error: FLACファイルのパースに失敗。ファイルが壊れています</value>
+  </data>
+  <data name="FlacerrorWriteOpenFailed" xml:space="preserve">
+    <value>Error: FLACファイル書き込みオープンに失敗</value>
+  </data>
+</root>
