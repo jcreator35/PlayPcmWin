@@ -54,7 +54,7 @@ WWPlayPcmGroup::AddPlayPcmData(int id, BYTE *data, int64_t bytes)
     }
 
     if (nullptr != data) {
-        CopyMemory(pcmData.stream, data, (bytes/m_pcmFormat.BytesPerFrame()) * m_pcmFormat.BytesPerFrame());
+        CopyMemory(pcmData.Stream(), data, (bytes/m_pcmFormat.BytesPerFrame()) * m_pcmFormat.BytesPerFrame());
     }
     m_playPcmDataList.push_back(pcmData);
     return true;
@@ -110,16 +110,14 @@ WWPlayPcmGroup::SetPlayRepeat(bool repeat)
         if (i == m_playPcmDataList.size()-1) {
             // 最後→最初に接続。
             if (repeat) {
-                m_playPcmDataList[i].next = 
-                    &m_playPcmDataList[0];
+                m_playPcmDataList[i].SetNext(&m_playPcmDataList[0]);
             } else {
                 // 最後→nullptr
-                m_playPcmDataList[i].next = nullptr;
+                m_playPcmDataList[i].SetNext(nullptr);
             }
         } else {
             // 最後のあたりの項目以外は、連続にnextをつなげる。
-            m_playPcmDataList[i].next = 
-                &m_playPcmDataList[i+1];
+            m_playPcmDataList[i].SetNext(&m_playPcmDataList[i+1]);
         }
     }
 }
@@ -128,7 +126,7 @@ WWPcmData *
 WWPlayPcmGroup::FindPcmDataById(int id)
 {
     for (size_t i=0; i<m_playPcmDataList.size(); ++i) {
-        if (m_playPcmDataList[i].id == id) {
+        if (m_playPcmDataList[i].Id() == id) {
             return &m_playPcmDataList[i];
         }
     }
@@ -175,8 +173,8 @@ WWPlayPcmGroup::PlayPcmDataListDebug(void)
         WWPcmData *p = &m_playPcmDataList[i];
 
         dprintf("  %p next=%p i=%d id=%d nFrames=%lld posFrame=%lld contentType=%s stream=%p\n",
-            p, p->next, i, p->id, p->nFrames, p->posFrame,
-            WWPcmDataContentTypeToStr(p->contentType), p->stream);
+            p, p->Next(), i, p->Id(), p->Frames(), p->PosFrame(),
+            WWPcmDataContentTypeToStr(p->ContentType()), p->Stream());
     }
 #endif
 }
@@ -220,10 +218,11 @@ WWPlayPcmGroup::DoResample(WWPcmFormat &targetFmt, int conversionQuality)
         WWPcmData *pFrom = &m_playPcmDataList[i];
         WWPcmData pcmDataTo;
 
-        if (!pcmDataTo.Init(pFrom->id, targetFmt.sampleFormat, targetFmt.numChannels,
-                (int64_t)(((double)targetFmt.sampleRate / m_pcmFormat.sampleRate) * pFrom->nFrames),
-                targetFmt.numChannels * WWPcmDataSampleFormatTypeToBitsPerSample(targetFmt.sampleFormat)/8, WWPcmDataContentMusicData, m_pcmFormat.streamType)) {
-            dprintf("E: %s malloc failed. pcm id=%d\n", __FUNCTION__, pFrom->id);
+        if (!pcmDataTo.Init(pFrom->Id(), targetFmt.sampleFormat, targetFmt.numChannels,
+                (int64_t)(((double)targetFmt.sampleRate / m_pcmFormat.sampleRate) * pFrom->Frames()),
+                targetFmt.numChannels * WWPcmDataSampleFormatTypeToBitsPerSample(targetFmt.sampleFormat)/8,
+                WWPcmDataContentMusicData, m_pcmFormat.streamType)) {
+            dprintf("E: %s malloc failed. pcm id=%d\n", __FUNCTION__, pFrom->Id());
             hr = E_OUTOFMEMORY;
             goto end;
         }
@@ -232,7 +231,7 @@ WWPlayPcmGroup::DoResample(WWPcmFormat &targetFmt, int conversionQuality)
 
         toPcmDataIdxList.push_back(n+i);
 
-        dprintf("D: pFrom stream=%p nFrames=%lld\n", pFrom->stream, pFrom->nFrames);
+        dprintf("D: pFrom stream=%p nFrames=%lld\n", pFrom->Stream(), pFrom->Frames());
 
         for (size_t posFrames=0; ; posFrames += PROCESS_FRAMES) {
             WWMFSampleData mfSampleData;
@@ -255,7 +254,7 @@ WWPlayPcmGroup::DoResample(WWPcmFormat &targetFmt, int conversionQuality)
                 assert(pTo);
                 int rv = pTo->FillBufferAddData(&mfSampleData.data[consumedBytes], mfSampleData.bytes - consumedBytes);
                 dprintf("D: consumedBytes=%d/%d FillBufferAddData() pTo->stream=%p pTo->nFrames=%lld rv=%d\n",
-                        consumedBytes, mfSampleData.bytes, pTo->stream, pTo->nFrames, rv);
+                        consumedBytes, mfSampleData.bytes, pTo->Stream(), pTo->Frames(), rv);
                 consumedBytes += rv;
                 if (0 == rv) {
                     pTo->FillBufferEnd();
@@ -295,7 +294,7 @@ WWPlayPcmGroup::DoResample(WWPcmFormat &targetFmt, int conversionQuality)
         assert(pTo);
 
         pTo->FillBufferEnd();
-        if (0 == pTo->nFrames) {
+        if (0 == pTo->Frames()) {
             hr = E_FAIL;
             goto end;
         }

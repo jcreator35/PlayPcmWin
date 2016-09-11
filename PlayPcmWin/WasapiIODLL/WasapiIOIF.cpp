@@ -103,7 +103,7 @@ WasapiIO::ConnectPcmDataNext(int fromIdx, int toIdx)
     }
 
     wasapi.MutexWait();
-    from->next = to;
+    from->SetNext(to);
     wasapi.MutexRelease();
 
     return true;
@@ -395,9 +395,9 @@ WasapiIO_AddPlayPcmDataSetPcmFragment(int instanceId, int pcmId, int64_t posByte
         return false;
     }
 
-    assert(posBytes + bytes <= p->nFrames * p->bytesPerFrame);
+    assert(posBytes + bytes <= p->Frames() * p->BytesPerFrame());
 
-    memcpy(&p->stream[posBytes], data, bytes);
+    memcpy(&(p->Stream()[posBytes]), data, bytes);
     return true;
 }
 

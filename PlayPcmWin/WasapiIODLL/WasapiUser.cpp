@@ -539,7 +539,7 @@ WasapiUser::Start(void)
             m_footerCount = 0;
 
             m_audioFilterSequencer.UpdateSampleFormat(m_pcmFormat.sampleRate,
-                    pcm->sampleFormat, pcm->streamType, pcm->nChannels);
+                    pcm->SampleFormat(), pcm->StreamType(), pcm->Channels());
         }
         break;
 
@@ -617,17 +617,17 @@ WasapiUser::Pause(void)
     WaitForSingleObject(m_mutex, INFINITE);
     {
         WWPcmData *nowPlaying = m_pcmStream.GetPcm(WWPDUNowPlaying);
-        if (nowPlaying && nowPlaying->contentType == WWPcmDataContentMusicData) {
+        if (nowPlaying && nowPlaying->ContentType() == WWPcmDataContentMusicData) {
             // 通常データを再生中の場合ポーズが可能。
             // m_nowPlayingPcmDataをpauseBuffer(フェードアウトするPCMデータ)に差し替え、
             // 再生が終わるまでブロッキングで待つ。
             pauseDataSetSucceeded = true;
             m_pcmStream.Paused(nowPlaying);
         }
-        if (nowPlaying && nowPlaying->contentType == WWPcmDataContentSilenceForTrailing) {
+        if (nowPlaying && nowPlaying->ContentType() == WWPcmDataContentSilenceForTrailing) {
             // 再生開始前無音を再生中。ポーズが可能。
             pauseDataSetSucceeded = true;
-            m_pcmStream.Paused(nowPlaying->next);
+            m_pcmStream.Paused(nowPlaying->Next());
         }
     }
     ReleaseMutex(m_mutex);
@@ -700,7 +700,7 @@ WasapiUser::UpdatePlayPcmData(WWPcmData &pcmData)
 void
 WasapiUser::UpdatePlayPcmDataWhenPlaying(WWPcmData &pcmData)
 {
-    dprintf("D: %s(%d)\n", __FUNCTION__, pcmData.id);
+    dprintf("D: %s(%d)\n", __FUNCTION__, pcmData.Id());
 
     assert(m_mutex);
     WaitForSingleObject(m_mutex, INFINITE);
@@ -710,26 +710,26 @@ WasapiUser::UpdatePlayPcmDataWhenPlaying(WWPcmData &pcmData)
             WWPcmData *splice = m_pcmStream.GetPcm(WWPDUSplice);
             // m_nowPlayingPcmDataをpcmDataに移動する。
             // Issue3: いきなり移動するとブチッと言うのでsplice bufferを経由してなめらかにつなげる。
-            int advance = splice->CreateCrossfadeData(*nowPlaying, nowPlaying->posFrame, pcmData, pcmData.posFrame);
+            int advance = splice->CreateCrossfadeData(*nowPlaying, nowPlaying->PosFrame(), pcmData, pcmData.PosFrame());
 
             if (nowPlaying != &pcmData) {
                 // 別の再生曲に移動した場合、それまで再生していた曲は頭出ししておく。
-                nowPlaying->posFrame = 0;
+                nowPlaying->SetPosFrame(0);
             }
 
-            splice->next = WWPcmData::AdvanceFrames(&pcmData, advance);
+            splice->SetNext(WWPcmData::AdvanceFrames(&pcmData, advance));
             m_pcmStream.UpdateNowPlaying(splice);
         } else {
             // 一時停止中。
             WWPcmData *pauseResumePcm = m_pcmStream.GetPcm(WWPDUPauseResumeToPlay);
             if (pauseResumePcm != &pcmData) {
                 // 別の再生曲に移動した場合、それまで再生していた曲は頭出ししておく。
-                pauseResumePcm->posFrame = 0;
+                pauseResumePcm->SetPosFrame(0);
                 m_pcmStream.UpdatePauseResume(&pcmData);
 
                 // 再生シークをしたあと再生一時停止し再生曲を変更し再生再開すると
                 // 一瞬再生曲表示が再生シークした曲になる問題の修正ｗ
-                m_pcmStream.GetPcm(WWPDUSplice)->next = nullptr;
+                m_pcmStream.GetPcm(WWPDUSplice)->SetNext(nullptr);
             }
         }
     }
@@ -760,17 +760,17 @@ WasapiUser::SetPosFrame(int64_t v)
     {
         WWPcmData *nowPlaying = m_pcmStream.GetPcm(WWPDUNowPlaying);
         if (nowPlaying &&
-                nowPlaying->contentType == WWPcmDataContentMusicData && v < nowPlaying->nFrames) {
+                nowPlaying->ContentType() == WWPcmDataContentMusicData && v < nowPlaying->Frames()) {
             WWPcmData *splice = m_pcmStream.GetPcm(WWPDUSplice);
             // 再生中。
             // nowPlaying->posFrameをvに移動する。
             // Issue3: いきなり移動するとブチッと言うのでsplice bufferを経由してなめらかにつなげる。
-            int advance = splice->CreateCrossfadeData(*nowPlaying, nowPlaying->posFrame, *nowPlaying, v);
+            int advance = splice->CreateCrossfadeData(*nowPlaying, nowPlaying->PosFrame(), *nowPlaying, v);
 
             // 移動先は、nowPlaying上の位置v + クロスフェードのためにadvanceフレーム進んだ位置となる。
-            nowPlaying->posFrame = v;
+            nowPlaying->SetPosFrame(v);
             WWPcmData *toPcm = WWPcmData::AdvanceFrames(nowPlaying, advance);
-            splice->next = toPcm;
+            splice->SetNext(toPcm);
 
             m_pcmStream.UpdateNowPlaying(splice);
 
@@ -781,9 +781,9 @@ WasapiUser::SetPosFrame(int64_t v)
             result = true;
         } else {
             WWPcmData *pauseResumePcm = m_pcmStream.GetPcm(WWPDUPauseResumeToPlay);
-            if (pauseResumePcm && v < pauseResumePcm->nFrames) {
+            if (pauseResumePcm && v < pauseResumePcm->Frames()) {
                 // pause中。Pause再開後に再生されるPCMの再生位置を更新する。
-                pauseResumePcm->posFrame = v;
+                pauseResumePcm->SetPosFrame(v);
                 result = true;
             }
         }
@@ -826,24 +826,27 @@ WasapiUser::CreateWritableFrames(BYTE *pData_return, int wantFrames)
 
     while (nullptr != pcmData && 0 < wantFrames) {
         int copyFrames = wantFrames;
-        if (pcmData->nFrames <= pcmData->posFrame + wantFrames) {
+        if (pcmData->Frames() <= pcmData->PosFrame() + wantFrames) {
             // pcmDataが持っているフレーム数よりも要求フレーム数が多い。
-            copyFrames = (int)(pcmData->nFrames - pcmData->posFrame);
+            copyFrames = (int)(pcmData->Frames() - pcmData->PosFrame());
         }
 
-        dprintf("pcmData=%p next=%p posFrame/nframes=%lld/%lld copyFrames=%d\n", pcmData, pcmData->next, pcmData->posFrame, pcmData->nFrames, copyFrames);
+        dprintf("pcmData=%p next=%p posFrame/nframes=%lld/%lld copyFrames=%d\n",
+                pcmData, pcmData->Next(), pcmData->PosFrame(), pcmData->Frames(), copyFrames);
 
-        CopyMemory(&pData_return[pos*m_deviceFormat.BytesPerFrame()], &pcmData->stream[pcmData->posFrame * m_deviceFormat.BytesPerFrame()], copyFrames * m_deviceFormat.BytesPerFrame());
+        CopyMemory(&pData_return[pos*m_deviceFormat.BytesPerFrame()],
+            &(pcmData->Stream()[pcmData->PosFrame() * m_deviceFormat.BytesPerFrame()]),
+            copyFrames * m_deviceFormat.BytesPerFrame());
 
-        pos               += copyFrames;
-        pcmData->posFrame += copyFrames;
-        wantFrames        -= copyFrames;
+        pos        += copyFrames;
+        wantFrames -= copyFrames;
+        pcmData->SetPosFrame(pcmData->PosFrame() + copyFrames);
 
-        if (pcmData->nFrames <= pcmData->posFrame) {
+        if (pcmData->Frames() <= pcmData->PosFrame()) {
             // pcmDataの最後まで来た。
             // このpcmDataの再生位置は巻き戻して、次のpcmDataの先頭をポイントする。
-            pcmData->posFrame = 0;
-            pcmData           = pcmData->next;
+            pcmData->SetPosFrame(0);
+            pcmData = pcmData->Next();
         }
     }
 

@@ -49,7 +49,7 @@ WWPcmStream::PrepareSilenceBuffers(DWORD latencyMillisec, WWPcmDataSampleFormatT
     m_endSilenceBuffer.Init(-1, deviceSampleFormat, deviceNumChannels,
             (4 * (int)((int64_t)deviceSampleRate * latencyMillisec / 1000) + 1) & (~1),
             deviceBytesPerFrame, WWPcmDataContentSilenceForEnding, WWStreamPcm);
-    m_endSilenceBuffer.next = nullptr;
+    m_endSilenceBuffer.SetNext(nullptr);
 
     // spliceバッファー。サイズは100分の1秒=10ms 適当に選んだ。
     m_spliceBuffer.Init(-1, deviceSampleFormat, deviceNumChannels,
@@ -96,15 +96,15 @@ WWPcmStream::Paused(WWPcmData *pauseResume)
 {
     m_pauseResumePcmData = pauseResume;
 
-    m_pauseBuffer.posFrame = 0;
-    m_pauseBuffer.next = &m_endSilenceBuffer;
+    m_pauseBuffer.SetPosFrame(0);
+    m_pauseBuffer.SetNext(&m_endSilenceBuffer);
 
-    m_endSilenceBuffer.posFrame = 0;
-    m_endSilenceBuffer.next = nullptr;
+    m_endSilenceBuffer.SetPosFrame(0);
+    m_endSilenceBuffer.SetNext(nullptr);
 
     m_pauseBuffer.UpdateSpliceDataWithStraightLine(
-        *m_nowPlayingPcmData, m_nowPlayingPcmData->posFrame,
-        m_endSilenceBuffer,   m_endSilenceBuffer.posFrame);
+        *m_nowPlayingPcmData, m_nowPlayingPcmData->PosFrame(),
+        m_endSilenceBuffer,   m_endSilenceBuffer.PosFrame());
 
     m_nowPlayingPcmData = &m_pauseBuffer;
 }
@@ -126,17 +126,17 @@ WWPcmStream::UnpausePrepare(void)
     // 再生開始する。
     assert(m_pauseResumePcmData);
 
-    dprintf("%s resume=%p posFrame=%d\n", __FUNCTION__, m_pauseResumePcmData, m_pauseResumePcmData->posFrame);
+    dprintf("%s resume=%p posFrame=%d\n", __FUNCTION__, m_pauseResumePcmData, m_pauseResumePcmData->PosFrame());
 
-    m_unpauseSilenceBuffer.posFrame = 0;
-    m_unpauseSilenceBuffer.next = &m_pauseBuffer;
+    m_unpauseSilenceBuffer.SetPosFrame(0);
+    m_unpauseSilenceBuffer.SetNext(&m_pauseBuffer);
 
-    m_pauseBuffer.posFrame = 0;
-    m_pauseBuffer.next = m_pauseResumePcmData;
+    m_pauseBuffer.SetPosFrame(0);
+    m_pauseBuffer.SetNext(m_pauseResumePcmData);
 
     m_pauseBuffer.UpdateSpliceDataWithStraightLine(
-            m_unpauseSilenceBuffer, m_unpauseSilenceBuffer.posFrame,
-            *m_pauseResumePcmData, m_pauseResumePcmData->posFrame);
+            m_unpauseSilenceBuffer, m_unpauseSilenceBuffer.PosFrame(),
+            *m_pauseResumePcmData, m_pauseResumePcmData->PosFrame());
 
     return &m_unpauseSilenceBuffer;
 }
@@ -151,7 +151,7 @@ void
 WWPcmStream::UpdateStartPcm(WWPcmData *startPcm)
 {
     m_nowPlayingPcmData = &m_startSilenceBuffer;
-    m_nowPlayingPcmData->next = startPcm;
+    m_nowPlayingPcmData->SetNext(startPcm);
 }
 
 void
@@ -162,10 +162,10 @@ WWPcmStream::UpdatePlayRepeat(bool repeat, WWPcmData *startPcmData, WWPcmData *e
 
     if (!repeat) {
         // リピートなし。endPcmData→endSilence→nullptr
-        endPcmData->next = &m_endSilenceBuffer;
+        endPcmData->SetNext(&m_endSilenceBuffer);
     } else {
         // リピートあり。endPcmData→startPcmData
-        endPcmData->next = startPcmData;
+        endPcmData->SetNext(startPcmData);
     }
 }
 
@@ -185,7 +185,7 @@ WWPcmStream::GetPcm(WWPcmDataUsageType t)
         pcm = &m_spliceBuffer;
         break;
     case WWPDUSpliceNext:
-        pcm = m_spliceBuffer.next;
+        pcm = m_spliceBuffer.Next();
         break;
     case WWPDUCapture:
         assert(0);
@@ -229,7 +229,7 @@ WWPcmStream::GetPcmDataId(WWPcmDataUsageType t)
     if (!pcm) {
         return -1;
     }
-    return pcm->id;
+    return pcm->Id();
 }
 
 int64_t
@@ -240,7 +240,7 @@ WWPcmStream::TotalFrameNum(WWPcmDataUsageType t)
     WWPcmData *pcm = GetPcm(t);
 
     if (pcm) {
-        result = pcm->nFrames;
+        result = pcm->Frames();
     }
 
     return result;
@@ -256,7 +256,7 @@ WWPcmStream::PosFrame(WWPcmDataUsageType t)
     // assert(m_mutex);
     // WaitForSingleObject(m_mutex, INFINITE);
     if (pcm) {
-        result = pcm->posFrame;
+        result = pcm->PosFrame();
     }
     //ReleaseMutex(m_mutex);
 

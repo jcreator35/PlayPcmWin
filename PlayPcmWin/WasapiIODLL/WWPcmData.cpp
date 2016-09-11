@@ -141,10 +141,10 @@ WWPcmDataSampleFormatTypeIsInt(WWPcmDataSampleFormatType t)
 void
 WWPcmData::Term(void)
 {
-    dprintf("D: %s() stream=%p\n", __FUNCTION__, stream);
+    dprintf("D: %s() mStream=%p\n", __FUNCTION__, mStream);
 
-    free(stream);
-    stream = nullptr;
+    free(mStream);
+    mStream = nullptr;
 }
 
 void
@@ -152,13 +152,13 @@ WWPcmData::CopyFrom(WWPcmData *rhs)
 {
     *this = *rhs;
 
-    next = nullptr;
+    mNext = nullptr;
 
-    int64_t bytes = nFrames * bytesPerFrame;
+    int64_t bytes = mFrames * mBytesPerFrame;
     assert(0 < bytes);
 
-    stream = (BYTE*)malloc(bytes);
-    CopyMemory(stream, rhs->stream, bytes);
+    mStream = (BYTE*)malloc(bytes);
+    CopyMemory(mStream, rhs->mStream, bytes);
 }
 
 bool
@@ -167,19 +167,19 @@ WWPcmData::Init(
         int64_t anFrames, int aframeBytes,
         WWPcmDataContentType acontentType, WWStreamType aStreamType)
 {
-    assert(stream == nullptr);
+    assert(mStream == nullptr);
 
-    id           = aId;
-    sampleFormat = asampleFormat;
-    contentType  = acontentType;
-    next         = nullptr;
-    posFrame     = 0;
-    nChannels    = anChannels;
+    mId           = aId;
+    mSampleFormat = asampleFormat;
+    mContentType  = acontentType;
+    mNext         = nullptr;
+    mPosFrame     = 0;
+    mChannels    = anChannels;
     // メモリ確保に成功してからフレーム数をセットする。
-    nFrames       = 0;
-    bytesPerFrame = aframeBytes;
-    stream        = nullptr;
-    streamType    = aStreamType;
+    mFrames       = 0;
+    mBytesPerFrame = aframeBytes;
+    mStream        = nullptr;
+    mStreamType    = aStreamType;
 
     int64_t bytes = anFrames * aframeBytes;
     if (bytes < 0) {
@@ -199,8 +199,8 @@ WWPcmData::Init(
     }
 
     ZeroMemory(p, bytes);
-    nFrames = anFrames;
-    stream = p;
+    mFrames = anFrames;
+    mStream = p;
 
     return true;
 }
@@ -208,19 +208,19 @@ WWPcmData::Init(
 int
 WWPcmData::GetSampleValueInt(int ch, int64_t posFrame) const
 {
-    assert(sampleFormat != WWPcmDataSampleFormatSfloat);
-    assert(0 <= ch && ch < nChannels);
+    assert(mSampleFormat != WWPcmDataSampleFormatSfloat);
+    assert(0 <= ch && ch < mChannels);
 
     if (posFrame < 0 ||
-        nFrames <= posFrame) {
+        mFrames <= posFrame) {
         return 0;
     }
 
     int result = 0;
-    switch (sampleFormat) {
+    switch (mSampleFormat) {
     case WWPcmDataSampleFormatSint16:
         {
-            short *p = (short*)(&stream[2 * (nChannels * posFrame + ch)]);
+            short *p = (short*)(&mStream[2 * (mChannels * posFrame + ch)]);
             result = *p;
         }
         break;
@@ -228,7 +228,7 @@ WWPcmData::GetSampleValueInt(int ch, int64_t posFrame) const
         {
             // bus error回避。x86にはbus error無いけど一応。
             unsigned char *p =
-                (unsigned char*)(&stream[3 * (nChannels * posFrame + ch)]);
+                (unsigned char*)(&mStream[3 * (mChannels * posFrame + ch)]);
 
             result =
                 (((unsigned int)p[0])<<8) +
@@ -239,14 +239,14 @@ WWPcmData::GetSampleValueInt(int ch, int64_t posFrame) const
         break;
     case WWPcmDataSampleFormatSint32V24:
         {
-            int *p = (int*)(&stream[4 * (nChannels * posFrame + ch)]);
+            int *p = (int*)(&mStream[4 * (mChannels * posFrame + ch)]);
             result = ((*p)/256);
         }
         break;
     case WWPcmDataSampleFormatSint32:
         {
             // bus errorは起きない。
-            int *p = (int*)(&stream[4 * (nChannels * posFrame + ch)]);
+            int *p = (int*)(&mStream[4 * (mChannels * posFrame + ch)]);
             result = *p;
         }
         break;
@@ -261,15 +261,15 @@ WWPcmData::GetSampleValueInt(int ch, int64_t posFrame) const
 float
 WWPcmData::GetSampleValueFloat(int ch, int64_t posFrame) const
 {
-    assert(sampleFormat == WWPcmDataSampleFormatSfloat);
-    assert(0 <= ch && ch < nChannels);
+    assert(mSampleFormat == WWPcmDataSampleFormatSfloat);
+    assert(0 <= ch && ch < mChannels);
 
     if (posFrame < 0 ||
-        nFrames <= posFrame) {
+        mFrames <= posFrame) {
         return 0;
     }
 
-    float *p = (float *)(&stream[4 * (nChannels * posFrame + ch)]);
+    float *p = (float *)(&mStream[4 * (mChannels * posFrame + ch)]);
     return *p;
 }
 
@@ -278,7 +278,7 @@ WWPcmData::GetSampleValueAsFloat(int ch, int64_t posFrame) const
 {
     float result = 0.0f;
 
-    switch (sampleFormat) {
+    switch (mSampleFormat) {
     case WWPcmDataSampleFormatSint16:
         result = GetSampleValueInt(ch, posFrame) * (1.0f / 32768.0f);
         break;
@@ -302,19 +302,19 @@ WWPcmData::GetSampleValueAsFloat(int ch, int64_t posFrame) const
 bool
 WWPcmData::SetSampleValueInt(int ch, int64_t posFrame, int value)
 {
-    assert(sampleFormat != WWPcmDataSampleFormatSfloat);
-    assert(0 <= ch && ch < nChannels);
+    assert(mSampleFormat != WWPcmDataSampleFormatSfloat);
+    assert(0 <= ch && ch < mChannels);
 
     if (posFrame < 0 ||
-        nFrames <= posFrame) {
+        mFrames <= posFrame) {
         return false;
     }
 
-    switch (sampleFormat) {
+    switch (mSampleFormat) {
     case WWPcmDataSampleFormatSint16:
         {
             short *p =
-                (short*)(&stream[2 * (nChannels * posFrame + ch)]);
+                (short*)(&mStream[2 * (mChannels * posFrame + ch)]);
             *p = (short)value;
         }
         break;
@@ -322,7 +322,7 @@ WWPcmData::SetSampleValueInt(int ch, int64_t posFrame, int value)
         {
             // bus error回避。x86にはbus error無いけど一応。
             unsigned char *p =
-                (unsigned char*)(&stream[3 * (nChannels * posFrame + ch)]);
+                (unsigned char*)(&mStream[3 * (mChannels * posFrame + ch)]);
             p[0] = (unsigned char)(value & 0xff);
             p[1] = (unsigned char)((value>>8) & 0xff);
             p[2] = (unsigned char)((value>>16) & 0xff);
@@ -331,7 +331,7 @@ WWPcmData::SetSampleValueInt(int ch, int64_t posFrame, int value)
     case WWPcmDataSampleFormatSint32V24:
         {
             unsigned char *p =
-                (unsigned char*)(&stream[4 * (nChannels * posFrame + ch)]);
+                (unsigned char*)(&mStream[4 * (mChannels * posFrame + ch)]);
             p[0] = 0;
             p[1] = (unsigned char)(value & 0xff);
             p[2] = (unsigned char)((value>>8) & 0xff);
@@ -341,7 +341,7 @@ WWPcmData::SetSampleValueInt(int ch, int64_t posFrame, int value)
     case WWPcmDataSampleFormatSint32:
         {
             // bus errorは起きない。
-            int *p = (int*)(&stream[4 * (nChannels * posFrame + ch)]);
+            int *p = (int*)(&mStream[4 * (mChannels * posFrame + ch)]);
             *p = value;
         }
         break;
@@ -356,15 +356,15 @@ WWPcmData::SetSampleValueInt(int ch, int64_t posFrame, int value)
 bool
 WWPcmData::SetSampleValueFloat(int ch, int64_t posFrame, float value)
 {
-    assert(sampleFormat == WWPcmDataSampleFormatSfloat);
-    assert(0 <= ch && ch < nChannels);
+    assert(mSampleFormat == WWPcmDataSampleFormatSfloat);
+    assert(0 <= ch && ch < mChannels);
 
     if (posFrame < 0 ||
-        nFrames <= posFrame) {
+        mFrames <= posFrame) {
         return false;
     }
 
-    float *p = (float *)(&stream[4 * (nChannels * posFrame + ch)]);
+    float *p = (float *)(&mStream[4 * (mChannels * posFrame + ch)]);
     *p = value;
     return true;
 }
@@ -374,7 +374,7 @@ WWPcmData::SetSampleValueAsFloat(int ch, int64_t posFrame, float value)
 {
     bool result = false;
 
-    switch (sampleFormat) {
+    switch (mSampleFormat) {
     case WWPcmDataSampleFormatSint16:
         result = SetSampleValueInt(ch, posFrame, (int)(value * 32768.0f));
         break;
@@ -414,25 +414,25 @@ WWPcmData::UpdateSpliceDataWithStraightLinePcm(
         const WWPcmData &fromPcm, int64_t fromPosFrame,
         const WWPcmData &toPcm,   int64_t toPosFrame)
 {
-    assert(0 < nFrames && nFrames <= 0x7fffffff);
+    assert(0 < mFrames && mFrames <= 0x7fffffff);
 
-    switch (fromPcm.sampleFormat) {
+    switch (fromPcm.mSampleFormat) {
     case WWPcmDataSampleFormatSfloat:
         {
             // floatは、簡単。
             PcmSpliceInfoFloat *p =
-                (PcmSpliceInfoFloat*)_malloca(nChannels * sizeof(PcmSpliceInfoFloat));
+                (PcmSpliceInfoFloat*)_malloca(mChannels * sizeof(PcmSpliceInfoFloat));
             assert(p);
 
-            for (int ch=0; ch<nChannels; ++ch) {
+            for (int ch=0; ch<mChannels; ++ch) {
                 float y0 = fromPcm.GetSampleValueFloat(ch, fromPosFrame);
                 float y1 = toPcm.GetSampleValueFloat(ch, toPosFrame);
-                p[ch].dydx = (y1 - y0)/(nFrames);
+                p[ch].dydx = (y1 - y0)/(mFrames);
                 p[ch].y = y0;
             }
 
-            for (int x=0; x<nFrames; ++x) {
-                for (int ch=0; ch<nChannels; ++ch) {
+            for (int x=0; x<mFrames; ++x) {
+                for (int ch=0; ch<mChannels; ++ch) {
                     SetSampleValueFloat(ch, x, p[ch].y);
                     p[ch].y += p[ch].dydx;
                 }
@@ -446,13 +446,13 @@ WWPcmData::UpdateSpliceDataWithStraightLinePcm(
         {
             // Bresenham's line algorithm的な物
             PcmSpliceInfoInt *p =
-                (PcmSpliceInfoInt*)_malloca(nChannels * sizeof(PcmSpliceInfoInt));
+                (PcmSpliceInfoInt*)_malloca(mChannels * sizeof(PcmSpliceInfoInt));
             assert(p);
 
-            for (int ch=0; ch<nChannels; ++ch) {
+            for (int ch=0; ch<mChannels; ++ch) {
                 int y0 = fromPcm.GetSampleValueInt(ch, fromPosFrame);
                 int y1 = toPcm.GetSampleValueInt(ch, toPosFrame);
-                p[ch].deltaX = (int)nFrames;
+                p[ch].deltaX = (int)mFrames;
                 p[ch].error  = p[ch].deltaX/2;
                 p[ch].ystep  = ((int64_t)y1 - y0)/p[ch].deltaX;
                 p[ch].deltaError = abs(y1 - y0) - abs(p[ch].ystep * p[ch].deltaX);
@@ -460,8 +460,8 @@ WWPcmData::UpdateSpliceDataWithStraightLinePcm(
                 p[ch].y = y0;
             }
 
-            for (int x=0; x<(int)nFrames; ++x) {
-                for (int ch=0; ch<nChannels; ++ch) {
+            for (int x=0; x<(int)mFrames; ++x) {
+                for (int ch=0; ch<mChannels; ++ch) {
                     SetSampleValueInt(ch, x, p[ch].y);
                     // printf("(%d %d)", x, y);
                     p[ch].y += p[ch].ystep;
@@ -480,7 +480,7 @@ WWPcmData::UpdateSpliceDataWithStraightLinePcm(
         break;
     }
 
-    posFrame = 0;
+    mPosFrame = 0;
 
     return 0;
 }
@@ -490,17 +490,17 @@ WWPcmData::CreateCrossfadeDataPcm(
         const WWPcmData &fromPcm, int64_t fromPosFrame,
         const WWPcmData &toPcm,   int64_t toPosFrame)
 {
-    assert(0 < nFrames && nFrames <= 0x7fffffff);
+    assert(0 < mFrames && mFrames <= 0x7fffffff);
 
-    for (int ch=0; ch<nChannels; ++ch) {
+    for (int ch=0; ch<mChannels; ++ch) {
         const WWPcmData *pcm0 = &fromPcm;
         int64_t pcm0Pos = fromPosFrame;
 
         const WWPcmData *pcm1 = &toPcm;
         int64_t pcm1Pos = toPosFrame;
 
-        for (int x=0; x<nFrames; ++x) {
-            float ratio = (float)x / nFrames;
+        for (int x=0; x<mFrames; ++x) {
+            float ratio = (float)x / mFrames;
 
             float y0 = pcm0->GetSampleValueAsFloat(ch, pcm0Pos);
             float y1 = pcm1->GetSampleValueAsFloat(ch, pcm1Pos);
@@ -508,23 +508,23 @@ WWPcmData::CreateCrossfadeDataPcm(
             SetSampleValueAsFloat(ch, x, y0 * (1.0f - ratio) + y1 * ratio);
 
             ++pcm0Pos;
-            if (pcm0->nFrames <= pcm0Pos && nullptr != pcm0->next) {
-                pcm0 = pcm0->next;
+            if (pcm0->mFrames <= pcm0Pos && nullptr != pcm0->mNext) {
+                pcm0 = pcm0->mNext;
                 pcm0Pos = 0;
             }
 
             ++pcm1Pos;
-            if (pcm1->nFrames <= pcm1Pos && nullptr != pcm1->next) {
-                pcm1 = pcm1->next;
+            if (pcm1->mFrames <= pcm1Pos && nullptr != pcm1->mNext) {
+                pcm1 = pcm1->mNext;
                 pcm1Pos = 0;
             }
         }
     }
 
-    posFrame = 0;
+    mPosFrame = 0;
 
     // クロスフェードのPCMデータは2GBもない(assertでチェックしている)。intにキャストする。
-    return (int)nFrames; 
+    return (int)mFrames; 
 }
 
 int
@@ -533,13 +533,13 @@ WWPcmData::GetBufferData(int64_t fromBytes, int wantBytes, BYTE *data_return)
     assert(data_return);
     assert(0 <= fromBytes);
 
-    if (wantBytes <= 0 || nFrames <= fromBytes/bytesPerFrame) {
+    if (wantBytes <= 0 || mFrames <= fromBytes/mBytesPerFrame) {
         return 0;
     }
 
-    int copyFrames = wantBytes/bytesPerFrame;
-    if (nFrames < (fromBytes/bytesPerFrame + copyFrames)) {
-        copyFrames = (int)(nFrames - fromBytes/bytesPerFrame);
+    int copyFrames = wantBytes/mBytesPerFrame;
+    if (mFrames < (fromBytes/mBytesPerFrame + copyFrames)) {
+        copyFrames = (int)(mFrames - fromBytes/mBytesPerFrame);
     }
 
     if (copyFrames <= 0) {
@@ -548,14 +548,14 @@ WWPcmData::GetBufferData(int64_t fromBytes, int wantBytes, BYTE *data_return)
         return 0;
     }
 
-    memcpy(data_return, &stream[fromBytes], copyFrames * bytesPerFrame);
-    return copyFrames * bytesPerFrame;
+    memcpy(data_return, &mStream[fromBytes], copyFrames * mBytesPerFrame);
+    return copyFrames * mBytesPerFrame;
 }
 
 void
 WWPcmData::FillBufferStart(void)
 {
-    filledFrames = 0;
+    mFilledFrames = 0;
 }
 
 int
@@ -564,42 +564,42 @@ WWPcmData::FillBufferAddData(const BYTE *buff, int bytes)
     assert(buff);
     assert(0 <= bytes);
 
-    int copyFrames = bytes / bytesPerFrame;
-    if (nFrames - filledFrames < copyFrames) {
-        copyFrames = (int)(nFrames - filledFrames);
+    int copyFrames = bytes / mBytesPerFrame;
+    if (mFrames - mFilledFrames < copyFrames) {
+        copyFrames = (int)(mFrames - mFilledFrames);
     }
 
     if (copyFrames <= 0) {
         return 0;
     }
 
-    memcpy(&stream[filledFrames*bytesPerFrame], buff, copyFrames * bytesPerFrame);
-    filledFrames += copyFrames;
-    return copyFrames * bytesPerFrame;
+    memcpy(&mStream[mFilledFrames*mBytesPerFrame], buff, copyFrames * mBytesPerFrame);
+    mFilledFrames += copyFrames;
+    return copyFrames * mBytesPerFrame;
 }
 
 void
 WWPcmData::FillBufferEnd(void)
 {
-    nFrames = filledFrames;
+    mFrames = mFilledFrames;
 }
 
 void
 WWPcmData::FindSampleValueMinMax(float *minValue_return, float *maxValue_return)
 {
-    assert(sampleFormat == WWPcmDataSampleFormatSfloat);
+    assert(mSampleFormat == WWPcmDataSampleFormatSfloat);
 
     *minValue_return = 0.0f;
     *maxValue_return = 0.0f;
-    if (0 == nFrames) {
+    if (0 == mFrames) {
         return;
     }
 
     float minValue = FLT_MAX;
     float maxValue = FLT_MIN;
 
-    float *p = (float *)stream;
-    for (int i=0; i<nFrames * nChannels; ++i) {
+    float *p = (float *)mStream;
+    for (int i=0; i<mFrames * mChannels; ++i) {
         float v = p[i];
         if (v < minValue) {
             minValue = v;
@@ -616,10 +616,10 @@ WWPcmData::FindSampleValueMinMax(float *minValue_return, float *maxValue_return)
 void
 WWPcmData::ScaleSampleValue(float scale)
 {
-    assert(sampleFormat == WWPcmDataSampleFormatSfloat);
+    assert(mSampleFormat == WWPcmDataSampleFormatSfloat);
 
-    float *p = (float *)stream;
-    for (int i=0; i<nFrames * nChannels; ++i) {
+    float *p = (float *)mStream;
+    for (int i=0; i<mFrames * mChannels; ++i) {
         p[i] = p[i] * scale;
     }
 }
@@ -629,29 +629,29 @@ WWPcmData::FillDopSilentData(void)
 {
     int64_t writePos = 0;
 
-    switch (sampleFormat) {
+    switch (mSampleFormat) {
     case WWPcmDataSampleFormatSint32V24:
-        for (int64_t i=0; i<nFrames; ++i) {
-            for (int ch=0; ch<nChannels; ++ch) {
-                stream[writePos+0] = 0;
-                stream[writePos+1] = 0x69;
-                stream[writePos+2] = 0x69;
-                stream[writePos+3] = (i&1) ? 0xfa : 0x05;
+        for (int64_t i=0; i<mFrames; ++i) {
+            for (int ch=0; ch<mChannels; ++ch) {
+                mStream[writePos+0] = 0;
+                mStream[writePos+1] = 0x69;
+                mStream[writePos+2] = 0x69;
+                mStream[writePos+3] = (i&1) ? 0xfa : 0x05;
                 writePos += 4;
             }
         }
-        streamType = WWStreamDop;
+        mStreamType = WWStreamDop;
         break;
     case WWPcmDataSampleFormatSint24:
-        for (int64_t i=0; i<nFrames; ++i) {
-            for (int ch=0; ch<nChannels; ++ch) {
-                stream[writePos+0] = 0x69;
-                stream[writePos+1] = 0x69;
-                stream[writePos+2] = (i&1) ? 0xfa : 0x05;
+        for (int64_t i=0; i<mFrames; ++i) {
+            for (int ch=0; ch<mChannels; ++ch) {
+                mStream[writePos+0] = 0x69;
+                mStream[writePos+1] = 0x69;
+                mStream[writePos+2] = (i&1) ? 0xfa : 0x05;
                 writePos += 3;
             }
         }
-        streamType = WWStreamDop;
+        mStreamType = WWStreamDop;
         break;
     default:
         // DoPに対応していないデバイスでDoP再生しようとするとここに来ることがある。何もしない。
@@ -724,21 +724,21 @@ struct SmallDsdStreamInfo {
 void
 WWPcmData::DopToPcm(void)
 {
-    SmallDsdStreamInfo *dsdStreams = new SmallDsdStreamInfo[nChannels];
+    SmallDsdStreamInfo *dsdStreams = new SmallDsdStreamInfo[mChannels];
     if (nullptr == dsdStreams) {
         assert(0);
         return;
     }
 
     int64_t pos = 0;
-    switch (sampleFormat) {
+    switch (mSampleFormat) {
     case WWPcmDataSampleFormatSint32V24:
-        for (int64_t i=0; i<nFrames; ++i) {
-            for (int ch=0; ch<nChannels; ++ch) {
+        for (int64_t i=0; i<mFrames; ++i) {
+            for (int ch=0; ch<mChannels; ++ch) {
                 SmallDsdStreamInfo *p = &dsdStreams[ch];
 
                 p->dsdStream <<= 16;
-                p->dsdStream += (stream[pos+2] << 8) + stream[pos+1];
+                p->dsdStream += (mStream[pos+2] << 8) + mStream[pos+1];
                 p->availableBits += 16;
                 if (64 < p->availableBits) {
                     p->availableBits = 64;
@@ -746,22 +746,22 @@ WWPcmData::DopToPcm(void)
 
                 int8_t pcmValue = DsdStreamToAmplitudeInt8(p->dsdStream, p->availableBits);
 
-                stream[pos+0] = 0;
-                stream[pos+1] = 0;
-                stream[pos+2] = 0;
-                stream[pos+3] = (BYTE)pcmValue;
+                mStream[pos+0] = 0;
+                mStream[pos+1] = 0;
+                mStream[pos+2] = 0;
+                mStream[pos+3] = (BYTE)pcmValue;
                 pos += 4;
             }
         }
-        streamType = WWStreamPcm;
+        mStreamType = WWStreamPcm;
         break;
     case WWPcmDataSampleFormatSint24:
-        for (int64_t i=0; i<nFrames; ++i) {
-            for (int ch=0; ch<nChannels; ++ch) {
+        for (int64_t i=0; i<mFrames; ++i) {
+            for (int ch=0; ch<mChannels; ++ch) {
                 SmallDsdStreamInfo *p = &dsdStreams[ch];
 
                 p->dsdStream <<= 16;
-                p->dsdStream += (stream[pos+1] << 8) + stream[pos];
+                p->dsdStream += (mStream[pos+1] << 8) + mStream[pos];
                 p->availableBits += 16;
                 if (64 < p->availableBits) {
                     p->availableBits = 64;
@@ -769,13 +769,13 @@ WWPcmData::DopToPcm(void)
 
                 int8_t pcmValue = DsdStreamToAmplitudeInt8(p->dsdStream, p->availableBits);
 
-                stream[pos+0] = 0;
-                stream[pos+1] = 0;
-                stream[pos+2] = (BYTE)pcmValue;
+                mStream[pos+0] = 0;
+                mStream[pos+1] = 0;
+                mStream[pos+2] = (BYTE)pcmValue;
                 pos += 3;
             }
         }
-        streamType = WWStreamPcm;
+        mStreamType = WWStreamPcm;
         break;
     default:
         // DoPに対応していないデバイスでDoP再生しようとするとここに来ることがある。何もしない。
@@ -789,21 +789,21 @@ WWPcmData::DopToPcm(void)
 void
 WWPcmData::CheckDopMarker(void)
 {
-    assert((nFrames&1)==0);
+    assert((mFrames&1)==0);
     int64_t pos = 0;
-    switch (sampleFormat) {
+    switch (mSampleFormat) {
     case WWPcmDataSampleFormatSint32V24:
-        for (int64_t i=0; i<nFrames; ++i) {
-            for (int ch=0; ch<nChannels; ++ch) {
-                assert(stream[pos+3] == ((i&1)?0xfa:0x05));
+        for (int64_t i=0; i<mFrames; ++i) {
+            for (int ch=0; ch<mChannels; ++ch) {
+                assert(mStream[pos+3] == ((i&1)?0xfa:0x05));
                 pos += 4;
             }
         }
         break;
     case WWPcmDataSampleFormatSint24:
-        for (int64_t i=0; i<nFrames; ++i) {
-            for (int ch=0; ch<nChannels; ++ch) {
-                assert(stream[pos+2] == ((i&1)?0xfa:0x05));
+        for (int64_t i=0; i<mFrames; ++i) {
+            for (int ch=0; ch<mChannels; ++ch) {
+                assert(mStream[pos+2] == ((i&1)?0xfa:0x05));
                 pos += 3;
             }
         }
@@ -818,19 +818,19 @@ void
 WWPcmData::PcmToDop(void)
 {
     int64_t pos = 0;
-    SmallDsdStreamInfo *dsdStreams = new SmallDsdStreamInfo[nChannels];
+    SmallDsdStreamInfo *dsdStreams = new SmallDsdStreamInfo[mChannels];
     if (nullptr == dsdStreams) {
         assert(0);
         return;
     }
 
-    switch (sampleFormat) {
+    switch (mSampleFormat) {
     case WWPcmDataSampleFormatSint32V24:
-        for (int64_t i=0; i<nFrames; ++i) {
-            for (int ch=0; ch<nChannels; ++ch) {
+        for (int64_t i=0; i<mFrames; ++i) {
+            for (int ch=0; ch<mChannels; ++ch) {
                 SmallDsdStreamInfo *p = &dsdStreams[ch];
 
-                short sv = (stream[pos+3]<<8) + stream[pos+2];
+                short sv = (mStream[pos+3]<<8) + mStream[pos+2];
 
                 float targetV = sv / 32768.0f;
                 for (int c=0; c<16; ++c) {
@@ -852,21 +852,21 @@ WWPcmData::PcmToDop(void)
                 }
                 unsigned short dsdValue16 = (unsigned short)p->dsdStream;
 
-                stream[pos+0] = 0;
-                stream[pos+1] = (BYTE)(0xff & dsdValue16);
-                stream[pos+2] = (BYTE)(0xff & (dsdValue16>>8));
-                stream[pos+3] = (i&1) ? 0xfa : 0x05;
+                mStream[pos+0] = 0;
+                mStream[pos+1] = (BYTE)(0xff & dsdValue16);
+                mStream[pos+2] = (BYTE)(0xff & (dsdValue16>>8));
+                mStream[pos+3] = (i&1) ? 0xfa : 0x05;
                 pos += 4;
             }
         }
-        streamType = WWStreamDop;
+        mStreamType = WWStreamDop;
         break;
     case WWPcmDataSampleFormatSint24:
-        for (int64_t i=0; i<nFrames; ++i) {
-            for (int ch=0; ch<nChannels; ++ch) {
+        for (int64_t i=0; i<mFrames; ++i) {
+            for (int ch=0; ch<mChannels; ++ch) {
                 SmallDsdStreamInfo *p = &dsdStreams[ch];
 
-                short sv = (stream[pos+2]<<8) + stream[pos+1];
+                short sv = (mStream[pos+2]<<8) + mStream[pos+1];
 
                 float targetV = sv / 32768.0f;
                 for (int c=0; c<16; ++c) {
@@ -888,13 +888,13 @@ WWPcmData::PcmToDop(void)
                 }
                 unsigned short dsdValue16 = (unsigned short)p->dsdStream;
 
-                stream[pos+0] = (BYTE)(0xff & dsdValue16);
-                stream[pos+1] = (BYTE)(0xff & (dsdValue16>>8));
-                stream[pos+2] = (i&1) ? 0xfa : 0x05;
+                mStream[pos+0] = (BYTE)(0xff & dsdValue16);
+                mStream[pos+1] = (BYTE)(0xff & (dsdValue16>>8));
+                mStream[pos+2] = (i&1) ? 0xfa : 0x05;
                 pos += 3;
             }
         }
-        streamType = WWStreamDop;
+        mStreamType = WWStreamDop;
         break;
     default:
         // DoPに対応していないデバイスでDoP再生しようとするとここに来ることがある。何もしない。
@@ -908,22 +908,22 @@ WWPcmData::PcmToDop(void)
 static void
 CopyStream(const WWPcmData &from, int64_t fromPosFrame, int64_t numFrames, WWPcmData &to)
 {
-    assert(from.bytesPerFrame == to.bytesPerFrame);
+    assert(from.BytesPerFrame() == to.BytesPerFrame());
 
     int64_t copyFrames = numFrames;
-    if (from.nFrames - fromPosFrame < copyFrames) {
-        copyFrames = from.nFrames - fromPosFrame;
+    if (from.Frames() - fromPosFrame < copyFrames) {
+        copyFrames = from.Frames() - fromPosFrame;
         if (copyFrames < 0) {
             copyFrames = 0;
         }
     }
-    if (to.nFrames < copyFrames) {
-        copyFrames = to.nFrames;
+    if (to.Frames() < copyFrames) {
+        copyFrames = to.Frames();
     }
 
     if (0 < copyFrames) {
-        memcpy(to.stream, &from.stream[from.bytesPerFrame * fromPosFrame],
-            from.bytesPerFrame * copyFrames);
+        memcpy(to.Stream(), &(from.Stream()[from.BytesPerFrame() * fromPosFrame]),
+            from.BytesPerFrame() * copyFrames);
     }
 }
 
@@ -937,12 +937,12 @@ WWPcmData::UpdateSpliceDataWithStraightLineDop(
     WWPcmData fromPcm;
     WWPcmData toPcm;
 
-    fromPcm.Init(-1, sampleFormat, nChannels, SPLICE_READ_FRAME_NUM, bytesPerFrame, contentType, WWStreamPcm);
+    fromPcm.Init(-1, mSampleFormat, mChannels, SPLICE_READ_FRAME_NUM, mBytesPerFrame, mContentType, WWStreamPcm);
     fromPcm.FillDopSilentData();
     CopyStream(fromDop, fromPosFrame, SPLICE_READ_FRAME_NUM, fromPcm);
     fromPcm.DopToPcm();
 
-    toPcm.Init(  -1, sampleFormat, nChannels, SPLICE_READ_FRAME_NUM, bytesPerFrame, contentType, WWStreamPcm);
+    toPcm.Init(  -1, mSampleFormat, mChannels, SPLICE_READ_FRAME_NUM, mBytesPerFrame, mContentType, WWStreamPcm);
     toPcm.FillDopSilentData();
     CopyStream(toDop,   toPosFrame,   SPLICE_READ_FRAME_NUM, toPcm);
     toPcm.DopToPcm();
@@ -956,7 +956,7 @@ WWPcmData::UpdateSpliceDataWithStraightLineDop(
     toPcm.Term();
     fromPcm.Term();
 
-    posFrame = 0;
+    mPosFrame = 0;
 
     return sampleCount;
 }
@@ -966,7 +966,7 @@ WWPcmData::UpdateSpliceDataWithStraightLine(
         const WWPcmData &fromPcm, int64_t fromPosFrame,
         const WWPcmData &toPcm,   int64_t toPosFrame)
 {
-    switch (streamType) {
+    switch (mStreamType) {
     case WWStreamPcm:
         return UpdateSpliceDataWithStraightLinePcm(fromPcm, fromPosFrame, toPcm, toPosFrame);
     case WWStreamDop:
@@ -985,7 +985,7 @@ WWPcmData::CreateCrossfadeData(
         const WWPcmData &fromPcm, int64_t fromPosFrame,
         const WWPcmData &toPcm,   int64_t toPosFrame)
 {
-    switch (streamType) {
+    switch (mStreamType) {
     case WWStreamPcm:
         return CreateCrossfadeDataPcm(fromPcm, fromPosFrame, toPcm, toPosFrame);
     case WWStreamDop:
@@ -1005,13 +1005,13 @@ WWPcmData::AdvanceFrames(WWPcmData *pcmData, int64_t skipFrames)
             advance = pcmData->AvailableFrames();
 
             // 頭出ししておく。
-            pcmData->posFrame = 0;
+            pcmData->SetPosFrame(0);
 
-            pcmData = pcmData->next;
+            pcmData = pcmData->mNext;
 
-            pcmData->posFrame = 0;
+            pcmData->SetPosFrame(0);
         } else {
-            pcmData->posFrame += advance;
+            pcmData->SetPosFrame(pcmData->PosFrame() + advance);
         }
 
         skipFrames -= advance;
