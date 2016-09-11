@@ -31,30 +31,30 @@ namespace WWXmlRW {
 
         public bool Load(out T t) {
             bool result = false;
-            T p = new T();
+            var p = new T();
 
             try {
                 if (m_useIsolatedStorage) {
-                    using (IsolatedStorageFileStream isfs = new IsolatedStorageFileStream(
+                    using (var isfs = new IsolatedStorageFileStream(
                             m_fileName, System.IO.FileMode.Open,
                             IsolatedStorageFile.GetUserStoreForDomain())) {
-                        byte[] buffer = new byte[isfs.Length];
+                        var buffer = new byte[isfs.Length];
                         isfs.Read(buffer, 0, (int)isfs.Length);
-                        System.IO.MemoryStream stream = new System.IO.MemoryStream(buffer);
-                        XmlSerializer formatter = new XmlSerializer(typeof(T));
-                        p = formatter.Deserialize(stream) as T;
-                        isfs.Close();
+                        using (var stream = new System.IO.MemoryStream(buffer)) {
+                            var formatter = new XmlSerializer(typeof(T));
+                            p = formatter.Deserialize(stream) as T;
+                        }
                         result = true;
                     }
                 } else {
-                    using (Stream fs = new FileStream(
+                    using (var fs = new FileStream(
                             m_fileName, System.IO.FileMode.Open)) {
-                        byte[] buffer = new byte[fs.Length];
+                        var buffer = new byte[fs.Length];
                         fs.Read(buffer, 0, (int)fs.Length);
-                        System.IO.MemoryStream stream = new System.IO.MemoryStream(buffer);
-                        XmlSerializer formatter = new XmlSerializer(typeof(T));
-                        p = formatter.Deserialize(stream) as T;
-                        fs.Close();
+                        using (var stream = new System.IO.MemoryStream(buffer)) {
+                            var formatter = new XmlSerializer(typeof(T));
+                            p = formatter.Deserialize(stream) as T;
+                        }
                         result = true;
                     }
                 }
@@ -84,17 +84,17 @@ namespace WWXmlRW {
 
             try {
                 if (m_useIsolatedStorage) {
-                    using (IsolatedStorageFileStream isfs = new IsolatedStorageFileStream(
+                    using (var isfs = new IsolatedStorageFileStream(
                             m_fileName, System.IO.FileMode.Create,
                             IsolatedStorageFile.GetUserStoreForDomain())) {
-                        XmlSerializer s = new XmlSerializer(typeof(T));
+                        var s = new XmlSerializer(typeof(T));
                         s.Serialize(isfs, p);
                         result = true;
                     }
                 } else {
-                    using (FileStream fs = new FileStream(
+                    using (var fs = new FileStream(
                             m_fileName, System.IO.FileMode.Create)) {
-                        XmlSerializer s = new XmlSerializer(typeof(T));
+                        var s = new XmlSerializer(typeof(T));
                         s.Serialize(fs, p);
                         result = true;
                     }
