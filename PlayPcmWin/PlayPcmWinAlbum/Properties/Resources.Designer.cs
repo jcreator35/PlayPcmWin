@@ -144,6 +144,15 @@ namespace PlayPcmWinAlbum.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Loading....
+        /// </summary>
+        internal static string MainLoading {
+            get {
+                return ResourceManager.GetString("MainLoading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Paused..
         /// </summary>
         internal static string MainStatusPaused {

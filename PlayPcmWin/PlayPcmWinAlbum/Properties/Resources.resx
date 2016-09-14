@@ -146,6 +146,9 @@ Press No to exit this app.</value>
   <data name="MainGroupBoxWasapiSettings" xml:space="preserve">
     <value>WASAPI Settings</value>
   </data>
+  <data name="MainLoading" xml:space="preserve">
+    <value>Loading...</value>
+  </data>
   <data name="MainStatusPaused" xml:space="preserve">
     <value>Paused.</value>
   </data>

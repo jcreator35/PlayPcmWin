@@ -146,6 +146,9 @@ No: アプリを終了します。</value>
   <data name="MainGroupBoxWasapiSettings" xml:space="preserve">
     <value>WASAPI設定</value>
   </data>
+  <data name="MainLoading" xml:space="preserve">
+    <value>起動中...</value>
+  </data>
   <data name="MainStatusPaused" xml:space="preserve">
     <value>再生一時停止中。</value>
   </data>

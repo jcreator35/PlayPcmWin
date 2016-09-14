@@ -31,6 +31,7 @@ namespace PlayPcmWinAlbum {
         private Preference mPreference = new Preference();
         private Wasapi.WasapiCS.StateChangedCallback mWasapiStateChangedDelegate;
         private bool mDeviceListUpdatePending = false;
+        private BackgroundWorker mBwReadContentList = new BackgroundWorker();
 
         private static string AssemblyVersion {
             get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); }
@@ -87,18 +88,7 @@ namespace PlayPcmWinAlbum {
             mPlaybackController.RegisterWasapiStateChangedCallback(mWasapiStateChangedDelegate);
 
             // アルバム一覧を読み出す。
-            if (ReadContentList()) {
-                UpdateContentList();
-                ChangeDisplayState(State.AlbumBrowsing);
-            } else {
-                // アルバム一覧作成。
-                if (!RefreshContentList()) {
-                    Close();
-                    return;
-                }
-            }
-
-            AddKeyListener();
+            ReadContentListStart();
         }
 
         private void ChangeDisplayState(State t) {
@@ -114,7 +104,7 @@ namespace PlayPcmWinAlbum {
                 mProgressBar.Visibility = Visibility.Collapsed;
                 mTextBlockMessage.Visibility = Visibility.Visible;
                 mMenuItemBack.IsEnabled = false;
-                mMenuItemRefresh.IsEnabled = true;
+                mMenuItemRefresh.IsEnabled = false;
                 break;
             case State.AlbumBrowsing:
                 mAlbumScrollViewer.Visibility = System.Windows.Visibility.Visible;
@@ -211,8 +201,34 @@ namespace PlayPcmWinAlbum {
             }
         }
 
-        private bool ReadContentList() {
-            return mContentList.Load();
+        private void ReadContentListStart() {
+            ChangeDisplayState(State.ReadContentList);
+            mTextBlockMessage.Text = "Loading...";
+
+            mBwReadContentList.DoWork += new DoWorkEventHandler(mBwReadContentList_DoWork);
+            mBwReadContentList.RunWorkerCompleted += new RunWorkerCompletedEventHandler(mBwReadContentList_RunWorkerCompleted);
+            mBwReadContentList.RunWorkerAsync();
+        }
+
+        void mBwReadContentList_DoWork(object sender, DoWorkEventArgs e) {
+            e.Result = mContentList.Load();
+        }
+
+        void mBwReadContentList_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
+            bool result = (bool)e.Result;
+
+            if (result) {
+                UpdateContentList();
+                ChangeDisplayState(State.AlbumBrowsing);
+            } else {
+                // アルバム一覧作成。
+                if (!RefreshContentList()) {
+                    Close();
+                    return;
+                }
+            }
+
+            AddKeyListener();
         }
 
         private bool RefreshContentList() {
