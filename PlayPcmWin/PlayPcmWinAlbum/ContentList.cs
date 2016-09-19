@@ -204,6 +204,10 @@ namespace PlayPcmWinAlbum {
             mLock.ReleaseWriterLock();
         }
 
+        public void SortAlbum() {
+            mAlbumList = mAlbumList.OrderBy(o => o.Name).ToList();
+        }
+
         public bool Load() {
             bool result = true;
 
@@ -215,7 +219,7 @@ namespace PlayPcmWinAlbum {
 
             try {
 
-                using (FileStream indexFs = new FileStream(mMusicListPath, FileMode.Open, FileAccess.Read)) {
+                using (var indexFs = new FileStream(mMusicListPath, FileMode.Open, FileAccess.Read)) {
                     using (var br = new BinaryReader(indexFs)) {
                         if (br.ReadInt64() != FILE_VERSION) {
                             throw new IOException();
@@ -257,6 +261,8 @@ namespace PlayPcmWinAlbum {
                 Console.WriteLine(ex);
                 result = false;
             }
+
+            SortAlbum();
             mLock.ReleaseWriterLock();
             return result;
         }

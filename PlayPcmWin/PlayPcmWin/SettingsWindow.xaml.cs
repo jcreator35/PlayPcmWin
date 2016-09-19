@@ -80,11 +80,9 @@ namespace PlayPcmWin {
 
             checkBoxCoverart.Content = Properties.Resources.SettingsCheckBoxCoverart;
             checkBoxManuallySetMainWindowDimension.Content = Properties.Resources.SettingsCheckBoxManuallySetMainWindowDimension;
-            checkBoxParallelRead.Content = Properties.Resources.SettingsCheckBoxParallelRead;
             checkBoxPlaceKokomadeAfterIndex00.Content = Properties.Resources.SettingsCheckBoxPlaceKokomadeAterIndex00;
 
             checkBoxPlayingTimeBold.Content = Properties.Resources.SettingsCheckBoxPlayingTimeBold;
-            checkBoxRefrainRedraw.Content = Properties.Resources.SettingsCheckBoxRefrainRedraw;
             checkBoxStorePlaylistContent.Content = Properties.Resources.SettingsCheckBoxStorePlaylistContent;
             cbItemTimerResolutionDefault.Content = Properties.Resources.SettingsTimerResolutionDefault;
             cbItemTimerResolution1Millisec.Content = Properties.Resources.SettingsTimerResolution1Millisec;
@@ -163,12 +161,6 @@ namespace PlayPcmWin {
 
             checkBoxCoverart.IsChecked =
                 preference.DispCoverart;
-
-            checkBoxRefrainRedraw.IsChecked =
-                preference.RefrainRedraw;
-
-            checkBoxParallelRead.IsChecked =
-                preference.ParallelRead;
 
             if (10000 == preference.TimePeriodHundredNanosec) {
                 comboBoxTimePeriod.SelectedItem = cbItemTimerResolution1Millisec;
@@ -361,12 +353,6 @@ namespace PlayPcmWin {
 
             m_preference.DispCoverart
                 = checkBoxCoverart.IsChecked == true;
-
-            m_preference.RefrainRedraw
-                = checkBoxRefrainRedraw.IsChecked == true;
-
-            m_preference.ParallelRead
-                = checkBoxParallelRead.IsChecked == true;
 
             if (comboBoxTimePeriod.SelectedItem == cbItemTimerResolution1Millisec) {
                 m_preference.TimePeriodHundredNanosec = 10000;

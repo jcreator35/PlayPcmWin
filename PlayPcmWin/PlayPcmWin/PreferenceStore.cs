@@ -258,6 +258,12 @@ namespace PlayPcmWin {
                 break;
             }
 
+            // 並列読み込みは廃止。
+            p.ParallelRead = false;
+
+            // 再描画抑止は再生時間表示がなくなるのが紛らわしいので廃止。
+            p.RefrainRedraw = false;
+
             // 並列読み込みが有効のときはFLACのMD5計算を行わない。
             if (p.ParallelRead) {
                 p.VerifyFlacMD5Sum = false;
