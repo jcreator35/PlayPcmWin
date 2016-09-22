@@ -1,111 +1,13 @@
 ﻿using System.Runtime.InteropServices;
 using System;
+using System.Collections.Generic;
 
 namespace WWFlacRWCS {
-    public class Metadata {
-        public int sampleRate;
-        public int channels;
-        public int bitsPerSample;
-        public int pictureBytes;
-        public long totalSamples;
-
-        public string titleStr = string.Empty;
-        public string artistStr = string.Empty;
-        public string albumStr = string.Empty;
-        public string albumArtistStr = string.Empty;
-        public string genreStr = string.Empty;
-
-        public string dateStr = string.Empty;
-        public string trackNumberStr = string.Empty;
-        public string discNumberStr = string.Empty;
-        public string pictureMimeTypeStr = string.Empty;
-        public string pictureDescriptionStr = string.Empty;
-
-        public byte[] md5sum = new byte[NativeMethods.WWFLAC_MD5SUM_BYTES];
-
-        public Metadata() {
-        }
-
-        public int BytesPerFrame {
-            get { return channels * bitsPerSample / 8; }
-        }
-
-        public int BytesPerSample {
-            get { return bitsPerSample / 8; }
-        }
-
-        /// <summary>
-        /// PCMデータのバイト数。
-        /// </summary>
-        public long PcmBytes {
-            get { return totalSamples * BytesPerFrame; }
-        }
-
-        private void SafeCopy(string from, ref string to) {
-            if (from != null && from != string.Empty) {
-                to = string.Copy(from);
-            }
-        }
-
-        public Metadata(Metadata rhs) {
-            sampleRate = rhs.sampleRate;
-            channels = rhs.channels;
-            bitsPerSample = rhs.bitsPerSample;
-            pictureBytes = rhs.pictureBytes;
-            totalSamples = rhs.totalSamples;
-
-            SafeCopy(rhs.titleStr, ref titleStr);
-            SafeCopy(rhs.artistStr, ref artistStr);
-            SafeCopy(rhs.albumStr, ref albumStr);
-            SafeCopy(rhs.albumArtistStr, ref albumArtistStr);
-            SafeCopy(rhs.genreStr, ref genreStr);
-
-            SafeCopy(rhs.dateStr, ref dateStr);
-            SafeCopy(rhs.trackNumberStr, ref trackNumberStr);
-            SafeCopy(rhs.discNumberStr, ref discNumberStr);
-            SafeCopy(rhs.pictureMimeTypeStr, ref pictureMimeTypeStr);
-            SafeCopy(rhs.pictureDescriptionStr, ref pictureDescriptionStr);
-
-            if (rhs.md5sum != null && rhs.md5sum.Length != 0) {
-                md5sum = new byte[rhs.md5sum.Length];
-                System.Array.Copy(rhs.md5sum, md5sum, md5sum.Length);
-            } else {
-                md5sum = new byte[NativeMethods.WWFLAC_MD5SUM_BYTES];
-            }
-        }
-    };
-
-    public enum FlacErrorCode {
-        OK = 0,
-        DataNotReady = -2,
-        WriteOpenFailed = -3,
-        StreamDecoderNewFailed = -4,
-        StreamDecoderInitFailed = -5,
-        DecoderProcessFailed = -6,
-        LostSync = -7,
-        BadHeader = -8,
-        FrameCrcMismatch = -9,
-        Unparseable = -10,
-        NumFrameIsNotAligned = -11,
-        RecvBufferSizeInsufficient = -12,
-        Other = -13,
-        FileReadOpen = -14,
-        BufferSizeMismatch = -15,
-        MemoryExhausted = -16,
-        Encoder = -17,
-        InvalidNumberOfChannels = -18,
-        InvalidBitsPerSample = -19,
-        InvalidSampleRate = -20,
-        InvalidMetadata = -21,
-        BadParams = -22,
-        IdNotFound = -23,
-        EncoderProcessFailed = -24,
-        OutputFileTooLarge = -25,
-        MD5SignatureDoesNotMatch = -26,
-        SuccessButMd5WasNotCalculated = -27,
-    };
-
     public class FlacRW {
+        public const int PCM_BUFFER_BYTES = 1048576;
+        private byte[] mPcmBuffer = new byte[PCM_BUFFER_BYTES];
+        private int mId = (int)FlacErrorCode.IdNotFound;
+
         public static string ErrorCodeToStr(int ercd) {
             switch (ercd) {
             case (int)WWFlacRWCS.FlacErrorCode.OK:
@@ -167,8 +69,6 @@ namespace WWFlacRWCS {
             }
         }
 
-        private int mId = (int)FlacErrorCode.IdNotFound;
-
         public int DecodeHeader(string path) {
             mId = NativeMethods.WWFlacRW_Decode(NativeMethods.WWFLAC_FRDT_HEADER, path);
             return mId;
@@ -184,8 +84,21 @@ namespace WWFlacRWCS {
             return mId;
         }
 
-        public int DecodeStreamOne(ref byte [] pcmReturn) {
-            return NativeMethods.WWFlacRW_DecodeStreamOne(mId, pcmReturn, pcmReturn.Length);
+        public int DecodeStreamOne(out byte [] pcmReturn) {
+            int ercd = NativeMethods.WWFlacRW_DecodeStreamOne(mId, mPcmBuffer, mPcmBuffer.Length);
+            if (0 < ercd) {
+                pcmReturn = new byte[ercd];
+                Array.Copy(mPcmBuffer, 0, pcmReturn, 0, ercd);
+            } else {
+                pcmReturn = new byte[0];
+            }
+
+            return ercd;
+        }
+
+        public int DecodeStreamSkip(long skipFrames) {
+            int ercd = NativeMethods.WWFlacRW_DecodeStreamSkip(mId, skipFrames);
+            return ercd;
         }
 
         public int GetDecodedMetadata(out Metadata meta) {
@@ -211,6 +124,37 @@ namespace WWFlacRWCS {
                 meta.md5sum = nMeta.md5sum;
             }
             return result;
+        }
+
+        public int GetDecodedCuesheet(out List<FlacCuesheetTrack> cuesheet) {
+            cuesheet = new List<FlacCuesheetTrack>();
+
+            int count = NativeMethods.WWFlacRW_GetDecodedCuesheetNum(mId);
+            if (count <= 0) {
+                return count;
+            }
+
+            for (int i = 0; i < count; ++i) {
+                NativeMethods.WWFlacCuesheetTrack wfc;
+                int ercd = NativeMethods.WWFlacRW_GetDecodedCuesheetByTrackIdx(mId, i, out wfc);
+                if (ercd < 0) {
+                    return ercd;
+                }
+
+                var fct = new FlacCuesheetTrack();
+                fct.trackNr = wfc.trackNumber;
+                fct.offsetSamples = wfc.offsetSamples;
+
+                for (int j = 0; j < wfc.trackIdxCount; ++j) {
+                    var fcti = new FlacCuesheetTrackIndex();
+                    fcti.indexNr = wfc.trackIdx[j].number;
+                    fcti.offsetSamples = wfc.trackIdx[j].offsetSamples;
+                    fct.indices.Add(fcti);
+                }
+                cuesheet.Add(fct);
+            }
+
+            return count;
         }
 
         public int GetDecodedPicture(out byte[] pictureReturn, int pictureBytes) {
@@ -305,6 +249,7 @@ namespace WWFlacRWCS {
     }
 
     internal static class NativeMethods {
+        public const int WWFLAC_TRACK_IDX_NUM = 99;
         public const int WWFLAC_TEXT_STRSZ = 256;
         public const int WWFLAC_MD5SUM_BYTES = 16;
 
@@ -348,6 +293,28 @@ namespace WWFlacRWCS {
             public byte[] md5sum;
         };
 
+        [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Unicode)]
+        internal struct WWFlacCuesheetTrackIdx {
+            public long offsetSamples;
+            public int     number;
+            public int     pad; // 8バイトアラインする。
+        };
+
+        [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Unicode)]
+        internal struct WWFlacCuesheetTrack {
+            public long offsetSamples;
+            public int trackNumber;
+            public int numIdx;
+            public int isAudio;
+            public int preEmphasis;
+
+            public int trackIdxCount;
+            public int pad; // 8バイトアラインする。
+
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst=WWFLAC_TRACK_IDX_NUM)]
+            public WWFlacCuesheetTrackIdx [] trackIdx;
+        };
+
         [DllImport("WWFlacRW.dll", CharSet = CharSet.Unicode)]
         internal extern static
         int WWFlacRW_Decode(int frdt, string path);
@@ -355,6 +322,10 @@ namespace WWFlacRWCS {
         [DllImport("WWFlacRW.dll", CharSet = CharSet.Unicode)]
         internal extern static
         int WWFlacRW_DecodeStreamOne(int id, byte[] pcmReturn, int pcmBytes);
+
+        [DllImport("WWFlacRW.dll", CharSet = CharSet.Unicode)]
+        internal extern static
+        int WWFlacRW_DecodeStreamSkip(int id, long skipFrames);
 
         [DllImport("WWFlacRW.dll", CharSet = CharSet.Unicode)]
         internal extern static
@@ -395,5 +366,13 @@ namespace WWFlacRWCS {
         [DllImport("WWFlacRW.dll", CharSet = CharSet.Unicode)]
         internal extern static
         int WWFlacRW_CheckIntegrity(string path);
+
+        [DllImport("WWFlacRW.dll", CharSet = CharSet.Unicode)]
+        internal extern static
+        int WWFlacRW_GetDecodedCuesheetNum(int id);
+
+        [DllImport("WWFlacRW.dll", CharSet = CharSet.Unicode)]
+        internal extern static
+        int WWFlacRW_GetDecodedCuesheetByTrackIdx(int id, int trackIdx, out WWFlacCuesheetTrack trackReturn);
     }
 }

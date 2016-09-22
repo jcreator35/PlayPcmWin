@@ -31,7 +31,6 @@ namespace PlayPcmWin {
 
         protected virtual void Dispose(bool disposing) {
             if (disposing) {
-                mFlacR.Dispose();
                 mBr.Dispose();
             }
         }
@@ -91,7 +90,7 @@ namespace PlayPcmWin {
                 switch (fmt) {
                 case Format.FLAC:
                     m_format = Format.FLAC;
-                    return StreamBeginFlac(path, startFrame, wantFrames, typicalReadFrames);
+                    return StreamBeginFlac(path, startFrame);
                 case Format.AIFF:
                     m_format = Format.AIFF;
                     return StreamBeginAiff(path, startFrame);
@@ -238,12 +237,12 @@ namespace PlayPcmWin {
 
         public static bool CalcMD5SumIfAvailable { get; set; }
 
-        private int StreamBeginFlac(string path, long startFrame, long wantFrames, int typicalReadFrames)
+        private int StreamBeginFlac(string path, long startFrame)
         {
             // m_pcmData = new PcmDataLib.PcmData();
             mFlacR = new FlacDecodeIF();
             mFlacR.CalcMD5 = CalcMD5SumIfAvailable;
-            int ercd = mFlacR.ReadStreamBegin(path, startFrame, wantFrames, typicalReadFrames, out mPcmData);
+            int ercd = mFlacR.ReadStreamBegin(path, startFrame, out mPcmData);
             if (ercd < 0) {
                 return ercd;
             }

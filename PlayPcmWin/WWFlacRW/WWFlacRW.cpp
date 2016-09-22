@@ -22,9 +22,6 @@
 /// 最大トラック数
 #define FLACDECODE_TRACK_MAX (256)
 
-/// 最大トラックインデックス数
-#define FLACDECODE_TRACK_IDX_MAX (99)
-
 /// コメント個数制限 1024個
 #define FLACDECODE_COMMENT_MAX (1024)
 
@@ -263,13 +260,16 @@ WriteOneCallback(const FLAC__StreamDecoder *decoder,
         fdi->rawPcmDataBytes = fdi->numFramesPerBlock * bytesPerFrame;
 
         assert(fdi->rawPcmData == nullptr);
-        fdi->rawPcmData = new uint8_t[fdi->rawPcmDataBytes];
+        
+        if (0 < fdi->rawPcmDataBytes) {
+            fdi->rawPcmData = new uint8_t[fdi->rawPcmDataBytes];
 
-        for (int nFrame=0; nFrame<fdi->numFramesPerBlock; ++nFrame) {
-            int64_t writePos = nFrame * bytesPerFrame;
-            for (int ch = 0; ch < fdi->channels; ++ch) {
-                memcpy(&fdi->rawPcmData[writePos], &buffer[ch][nFrame], bytesPerSample);
-                writePos += bytesPerSample;
+            for (int nFrame=0; nFrame<fdi->numFramesPerBlock; ++nFrame) {
+                int64_t writePos = nFrame * bytesPerFrame;
+                for (int ch = 0; ch < fdi->channels; ++ch) {
+                    memcpy(&fdi->rawPcmData[writePos], &buffer[ch][nFrame], bytesPerSample);
+                    writePos += bytesPerSample;
+                }
             }
         }
     }
@@ -458,8 +458,8 @@ MetadataCallback(const FLAC__StreamDecoder *decoder,
 
             if (from->indices != nullptr) {
                 uint32_t numOfIndices = from->num_indices;
-                if (FLACDECODE_TRACK_IDX_MAX < numOfIndices) {
-                    numOfIndices = FLACDECODE_TRACK_IDX_MAX;
+                if (WWFLAC_TRACK_IDX_NUM < numOfIndices) {
+                    numOfIndices = WWFLAC_TRACK_IDX_NUM;
                 }
 
                 for (int indexId=0; indexId<(int)numOfIndices; ++indexId) {
@@ -647,14 +647,25 @@ WWFlacRW_DecodeStreamOne(int id, uint8_t *pcmReturn, int pcmBytes)
         return 0;
     }
 
-    ok = FLAC__stream_decoder_process_single(fdi->decoder);
-    if (!ok) {
-        if (fdi->errorCode == FRT_Success) {
-                fdi->errorCode = FRT_DecorderProcessFailed;
+    if (fdi->rawPcmData != nullptr) {
+        // WWFlacRW_DecodeStreamSkipを呼び出した後のこの関数が呼ばれるとここに来る。
+
+        ok = 1;
+        assert(0 < fdi->rawPcmDataBytes);
+    } else {
+        fdi->rawPcmDataBytes = 0;
+
+        //dprintf("%s FLAC__stream_decoder_process_single\n", __FUNCTION__);
+
+        ok = FLAC__stream_decoder_process_single(fdi->decoder);
+        if (!ok) {
+            if (fdi->errorCode == FRT_Success) {
+                    fdi->errorCode = FRT_DecorderProcessFailed;
+            }
+            dprintf("%s Flac decode error fdi->errorCode=%d\n",
+                    __FUNCTION__, fdi->errorCode);
+            goto end;
         }
-        dprintf("%s Flac decode error fdi->errorCode=%d\n",
-                __FUNCTION__, fdi->errorCode);
-        goto end;
     }
 
     //dprintf("%s decodeStreamOne returned %d bytes, pcmReturn=%p pcmBytes=%d\n",
@@ -667,10 +678,10 @@ WWFlacRW_DecodeStreamOne(int id, uint8_t *pcmReturn, int pcmBytes)
         goto end;
     }
 
-    assert(fdi->rawPcmData);
-    memcpy(pcmReturn, fdi->rawPcmData, fdi->rawPcmDataBytes);
-    delete[] fdi->rawPcmData;
-    fdi->rawPcmData = nullptr;
+    if (0 < fdi->rawPcmDataBytes) {
+        assert(fdi->rawPcmData);
+        memcpy(pcmReturn, fdi->rawPcmData, fdi->rawPcmDataBytes);
+    }
 
     fdi->errorCode = FRT_Success;
 
@@ -689,7 +700,43 @@ end:
         return result;
     }
 
+    delete[] fdi->rawPcmData;
+    fdi->rawPcmData = nullptr;
+
     return fdi->rawPcmDataBytes;
+}
+
+extern "C" __declspec(dllexport)
+int __stdcall
+WWFlacRW_DecodeStreamSkip(int id, int64_t skipFrames)
+{
+    FlacDecodeInfo *fdi = FlacTInfoFindById<FlacDecodeInfo>(g_flacDecodeInfoMap, id);
+    if (nullptr == fdi) {
+        return FRT_IdNotFound;
+    }
+
+    assert(fdi->rawPcmData == nullptr);
+    fdi->rawPcmDataBytes = 0;
+
+    dprintf("WWFlacRW_DecodeStreamSkip FLAC__stream_decoder_seek_absolute %lld\n", skipFrames);
+
+    int ercd = 0;
+    FLAC__bool ok = FLAC__stream_decoder_seek_absolute(fdi->decoder, skipFrames);
+
+    // 成功すると、0 < fdi->rawPcmDataBytesで fdi->rawPcmDataにPCMデータが入ることがある。
+    // 次に呼び出されるWWFlacRW_DecodeStreamOneで回収する。
+
+    if (!ok) {
+        if (fdi->errorCode == FRT_Success) {
+            fdi->errorCode = FRT_DecorderProcessFailed;
+        }
+        dprintf("%s WWFlacRW_DecodeStreamSkip FLAC__stream_decoder_seek_absolute error fdi->errorCode=%d\n",
+                __FUNCTION__, fdi->errorCode);
+
+        return FRT_DecorderProcessFailed;
+    }
+
+    return 0;
 }
 
 
@@ -799,6 +846,48 @@ WWFlacRW_GetDecodedPictureBytes(int id, uint8_t * pictureReturn, int pictureByte
     return pictureBytes;
 }
 
+/// キューシートのトラック数を戻す。
+/// @return 0以上: 成功。負: エラー。FlacRWResultType参照。
+extern "C" WWFLACRW_API
+int __stdcall
+WWFlacRW_GetDecodedCuesheetNum(int id)
+{
+    FlacDecodeInfo *fdi = FlacTInfoFindById<FlacDecodeInfo>(g_flacDecodeInfoMap, id);
+    if (nullptr == fdi) {
+        return FRT_IdNotFound;
+    }
+
+    return (int)fdi->cueSheetTracks.size();
+}
+
+extern "C" WWFLACRW_API
+int __stdcall
+WWFlacRW_GetDecodedCuesheetByTrackIdx(int id, int trackIdx, WWFlacCuesheetTrack &tReturn)
+{
+    FlacDecodeInfo *fdi = FlacTInfoFindById<FlacDecodeInfo>(g_flacDecodeInfoMap, id);
+    if (nullptr == fdi) {
+        return FRT_IdNotFound;
+    }
+
+    if (trackIdx < 0 || fdi->cueSheetTracks.size() <= trackIdx) {
+        return FRT_BadParams;
+    }
+
+    auto p = &fdi->cueSheetTracks[trackIdx];
+
+    tReturn.offsetSamples = p->offsetSamples;
+    tReturn.isAudio = p->isAudio;
+    tReturn.preEmphasis = p->preEmphasis;
+    tReturn.trackNumber = p->trackNumber;
+    tReturn.trackIdxCount = (int)p->indices.size();
+    for (int i=0; i<p->indices.size(); ++i) {
+        tReturn.trackIdx[i].offsetSamples = p->indices[i].offsetSamples;
+        tReturn.trackIdx[i].number = p->indices[i].number;
+    }
+
+    return 0;
+}
+
 extern "C" __declspec(dllexport)
 int __stdcall
 WWFlacRW_DecodeEnd(int id)
@@ -813,6 +902,10 @@ WWFlacRW_DecodeEnd(int id)
         FLAC__stream_decoder_delete(fdi->decoder);
         fdi->decoder = nullptr;
     }
+
+    delete[] fdi->rawPcmData;
+    fdi->rawPcmData = nullptr;
+    fdi->rawPcmDataBytes = 0;
 
     int ercd = fdi->errorCode;
     FlacTInfoDelete<FlacDecodeInfo>(g_flacDecodeInfoMap, fdi);

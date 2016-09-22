@@ -59,6 +59,9 @@ enum FlacRWResultType {
 #define WWFLAC_TEXT_STRSZ   (256)
 #define WWFLAC_MD5SUM_BYTES (16)
 
+/// 最大トラックインデックス数
+#define WWFLAC_TRACK_IDX_NUM (99)
+
 #pragma pack(push, 4)
 struct WWFlacMetadata {
     int          sampleRate;
@@ -82,6 +85,26 @@ struct WWFlacMetadata {
 
     uint8_t md5sum[WWFLAC_MD5SUM_BYTES];
 };
+
+struct WWFlacCuesheetTrackIdx {
+    int64_t offsetSamples;
+    int     number;
+    int     pad; // 8バイトアラインする。
+};
+
+struct WWFlacCuesheetTrack {
+    int64_t offsetSamples;
+    int trackNumber;
+    int numIdx;
+    int isAudio;
+    int preEmphasis;
+
+    int trackIdxCount;
+    int pad; // 8バイトアラインする。
+
+    WWFlacCuesheetTrackIdx trackIdx[WWFLAC_TRACK_IDX_NUM];
+};
+
 #pragma pack(pop)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -96,9 +119,16 @@ extern "C" WWFLACRW_API
 int __stdcall
 WWFlacRW_Decode(int frdt, const wchar_t *path);
 
+/// @return 0以上: 成功。負: エラー。FlacRWResultType参照。
 extern "C" WWFLACRW_API
 int __stdcall
 WWFlacRW_DecodeStreamOne(int id, uint8_t *pcmReturn, int pcmBytes);
+
+/// @param skipFrames 先頭からのスキップするサンプル数。
+/// @return 0以上: 成功。負: エラー。FlacRWResultType参照。
+extern "C" WWFLACRW_API
+int __stdcall
+WWFlacRW_DecodeStreamSkip(int id, int64_t skipFrames);
 
 /// @return 0以上: 成功。負: エラー。FlacRWResultType参照。
 extern "C" WWFLACRW_API
@@ -114,6 +144,16 @@ WWFlacRW_GetDecodedPicture(int id, uint8_t * pictureReturn, int pictureBytes);
 extern "C" WWFLACRW_API
 int __stdcall
 WWFlacRW_GetDecodedPcmBytes(int id, int channel, int64_t startBytes, uint8_t * pcmReturn, int pcmBytes);
+
+/// キューシートのトラック数を戻す。
+/// @return 0以上: 成功。負: エラー。FlacRWResultType参照。
+extern "C" WWFLACRW_API
+int __stdcall
+WWFlacRW_GetDecodedCuesheetNum(int id);
+
+extern "C" WWFLACRW_API
+int __stdcall
+WWFlacRW_GetDecodedCuesheetByTrackIdx(int id, int trackIdx, WWFlacCuesheetTrack &trackReturn);
 
 /// @return 0以上: 成功。負: エラー。FlacRWResultType参照。
 extern "C" WWFLACRW_API

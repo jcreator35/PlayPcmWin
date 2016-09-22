@@ -7,25 +7,9 @@ using System.Globalization;
 using System.Security.Cryptography;
 
 namespace PlayPcmWin {
-    class FlacDecodeIF : IDisposable {
-        public struct FlacCuesheetTrackIndexInfo {
-            public int indexNr;
-            public long offsetSamples;
-        }
-
-        public class FlacCuesheetTrackInfo {
-            public int trackNr;
-            public long offsetSamples;
-            public List<FlacCuesheetTrackIndexInfo> indices = new List<FlacCuesheetTrackIndexInfo>();
-        };
-
-        private Process mChildProcess;
-        private BinaryReader mBinaryReader;
-        private AnonymousPipeServerStream mPipeServerStream;
+    class FlacDecodeIF {
         private int mBytesPerFrame;
         private long mNumFrames;
-        private int mPictureBytes;
-        private byte[] mPictureData;
 
         private bool md5MetaAvailable;
         private MD5 md5;
@@ -50,208 +34,64 @@ namespace PlayPcmWin {
         }
 
         public static string ErrorCodeToStr(int ercd) {
-            switch (ercd) {
-            case (int)FlacDecodeCS.DecodeResultType.Success:
-                return "Success";
-            case (int)FlacDecodeCS.DecodeResultType.Completed:
-                return "Completed";
-            case (int)FlacDecodeCS.DecodeResultType.DataNotReady:
-                return "Data not ready (internal error)";
-            case (int)FlacDecodeCS.DecodeResultType.WriteOpenFailed:
-                return "Could not open specified file";
-            case (int)FlacDecodeCS.DecodeResultType.FlacStreamDecoderNewFailed:
-                return "FlacStreamDecoder create failed";
-
-            case (int)FlacDecodeCS.DecodeResultType.FlacStreamDecoderInitFailed:
-                return "FlacStreamDecoder init failed";
-            case (int)FlacDecodeCS.DecodeResultType.FlacStreamDecorderProcessFailed:
-                return "FlacStreamDecoder returns fail";
-            case (int)FlacDecodeCS.DecodeResultType.LostSync:
-                return "Lost sync while decoding (file corrupted)";
-            case (int)FlacDecodeCS.DecodeResultType.BadHeader:
-                return "Bad header";
-            case (int)FlacDecodeCS.DecodeResultType.FrameCrcMismatch:
-                return "CRC mismatch. (File corrupted)";
-
-            case (int)FlacDecodeCS.DecodeResultType.Unparseable:
-                return "Unparsable data";
-            case (int)FlacDecodeCS.DecodeResultType.NumFrameIsNotAligned:
-                return "NumFrame is not aligned (internal error)";
-            case (int)FlacDecodeCS.DecodeResultType.RecvBufferSizeInsufficient:
-                return "Recv bufer size is insufficient (internal error)";
-            case (int)FlacDecodeCS.DecodeResultType.FileOpenReadError:
-                return "File open or read error";
-            case (int)FlacDecodeCS.DecodeResultType.OtherError:
-            default:
-                return "Other error";
-            }
+            return WWFlacRWCS.FlacRW.ErrorCodeToStr(ercd);
         }
 
-        protected virtual void Dispose(bool disposing) {
-            if (disposing) {
-                ReadStreamAbort();
-            }
-        }
+        WWFlacRWCS.FlacRW mFlacRW;
 
-        public void Dispose() {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        private void SendString(string s) {
-            mChildProcess.StandardInput.WriteLine(s);
-        }
-
-        private void SendBase64(string s) {
-            byte[] b = new byte[s.Length * 2];
-
-            for (int i = 0; i < s.Length; ++i) {
-                char c = s[i];
-                b[i * 2 + 0] = (byte)((c >> 0) & 0xff);
-                b[i * 2 + 1] = (byte)((c >> 8) & 0xff);
-            }
-            string sSend = Convert.ToBase64String(b);
-            mChildProcess.StandardInput.WriteLine(sSend);
-        }
-
-        private void StartChildProcess() {
-            System.Diagnostics.Debug.Assert(null == mChildProcess);
-
-            mChildProcess = new Process();
-            mChildProcess.StartInfo.FileName = "FlacDecodeCS.exe";
-
-            mPipeServerStream = new AnonymousPipeServerStream(
-                PipeDirection.In, HandleInheritability.Inheritable);
-
-            mChildProcess.StartInfo.Arguments = mPipeServerStream.GetClientHandleAsString();
-            mChildProcess.StartInfo.UseShellExecute = false;
-            mChildProcess.StartInfo.CreateNoWindow = true;
-            mChildProcess.StartInfo.RedirectStandardInput = true;
-            mChildProcess.StartInfo.RedirectStandardOutput = false;
-            mChildProcess.Start();
-
-            mPipeServerStream.DisposeLocalCopyOfClientHandle();
-            mBinaryReader = new BinaryReader(mPipeServerStream);
-        }
-
-        private int StopChildProcess() {
-            int exitCode = (int)FlacDecodeCS.DecodeResultType.FileOpenReadError;
-
-            if (null != mChildProcess) {
-                mChildProcess.WaitForExit();
-                exitCode = mChildProcess.ExitCode;
-                mChildProcess.Close();
-                mChildProcess = null;
-            }
-
-            if (null != mPipeServerStream) {
-                mPipeServerStream.Close();
-                mPipeServerStream = null;
-            }
-
-            if (null != mBinaryReader) {
-                mBinaryReader.Close();
-                mBinaryReader = null;
-            }
-
-            return exitCode;
-        }
-
-        enum ReadMode {
-            Header,
-            HeadereAndData,
-        };
-
-        private int ReadStartCommon(ReadMode mode, string flacFilePath, long skipFrames, long wantFrames,
-            out PcmDataLib.PcmData pcmData_return, out List<FlacCuesheetTrackInfo> cueSheet_return) {
+        private void CreatePcmData(string path, WWFlacRWCS.FlacRW flacRW,
+                out PcmDataLib.PcmData pcmData_return) {
             pcmData_return = new PcmDataLib.PcmData();
-            cueSheet_return = new List<FlacCuesheetTrackInfo>();
-            
-            StartChildProcess();
 
-            switch (mode) {
-            case ReadMode.Header:
-                SendString("H");
-                SendBase64(flacFilePath);
-                break;
-            case ReadMode.HeadereAndData:
-                SendString("A");
-                SendBase64(flacFilePath);
-                SendString(skipFrames.ToString(CultureInfo.InvariantCulture));
-                SendString(wantFrames.ToString(CultureInfo.InvariantCulture));
-                break;
-            default:
-                System.Diagnostics.Debug.Assert(false);
-                break;
-            }
+            WWFlacRWCS.Metadata m;
+            flacRW.GetDecodedMetadata(out m);
 
-            int rv = mBinaryReader.ReadInt32();
-            if (rv != 0) {
-                return rv;
-            }
+            pcmData_return.SetFormat(m.channels, m.bitsPerSample, m.bitsPerSample,
+                    m.sampleRate, PcmDataLib.PcmData.ValueRepresentationType.SInt,
+                    m.totalSamples);
+            pcmData_return.SampleDataType = PcmDataLib.PcmData.DataType.PCM;
 
-            int nChannels     = mBinaryReader.ReadInt32();
-            int bitsPerSample = mBinaryReader.ReadInt32();
-            int sampleRate    = mBinaryReader.ReadInt32();
+            pcmData_return.DisplayName = m.titleStr;
+            pcmData_return.AlbumTitle = m.albumStr;
+            pcmData_return.ArtistName = m.artistStr;
+            pcmData_return.FullPath = path;
 
-            mNumFrames         = mBinaryReader.ReadInt64();
-            int numFramesPerBlock = mBinaryReader.ReadInt32();
+            mMD5SumInMetadata = new byte[MD5_BYTES];
+            Array.Copy(m.md5sum, mMD5SumInMetadata, MD5_BYTES);
 
-            string titleStr = mBinaryReader.ReadString();
-            string albumStr = mBinaryReader.ReadString();
-            string artistStr = mBinaryReader.ReadString();
-
-            byte md5Available = mBinaryReader.ReadByte();
-            md5MetaAvailable = md5Available != 0;
-
-            mMD5SumInMetadata = mBinaryReader.ReadBytes(MD5_BYTES);
-
-            mPictureBytes = mBinaryReader.ReadInt32();
-            mPictureData = new byte[0];
-            if (0 < mPictureBytes) {
-                mPictureData = mBinaryReader.ReadBytes(mPictureBytes);
-            }
-
-            {
-                int numCuesheetTracks = mBinaryReader.ReadInt32();
-                for (int trackId=0; trackId < numCuesheetTracks; ++trackId) {
-                    var cti = new FlacCuesheetTrackInfo();
-                    cti.trackNr = mBinaryReader.ReadInt32();
-                    cti.offsetSamples = mBinaryReader.ReadInt64();
-
-                    int numCuesheetTrackIndices = mBinaryReader.ReadInt32();
-                    for (int indexId=0; indexId < numCuesheetTrackIndices; ++indexId) {
-                        var indexInfo = new FlacCuesheetTrackIndexInfo();
-                        indexInfo.indexNr = mBinaryReader.ReadInt32();
-                        indexInfo.offsetSamples = mBinaryReader.ReadInt64();
-                        cti.indices.Add(indexInfo);
-                    }
-                    cueSheet_return.Add(cti);
+            bool allZero = true;
+            for (int i = 0; i < MD5_BYTES; ++i) {
+                if (m.md5sum[i] != 0) {
+                    allZero = false;
+                    break;
                 }
             }
+            md5MetaAvailable = !allZero;
 
-            pcmData_return.SetFormat(
-                nChannels,
-                bitsPerSample,
-                bitsPerSample,
-                sampleRate,
-                PcmDataLib.PcmData.ValueRepresentationType.SInt,
-                mNumFrames);
-
-            pcmData_return.DisplayName = titleStr;
-            pcmData_return.AlbumTitle = albumStr;
-            pcmData_return.ArtistName = artistStr;
-
-            pcmData_return.SetPicture(mPictureBytes, mPictureData);
-            return 0;
+            if (0 < m.pictureBytes) {
+                byte[] picture;
+                flacRW.GetDecodedPicture(out picture, m.pictureBytes);
+                pcmData_return.SetPicture(picture.Length, picture);
+            }
         }
 
-        public int ReadHeader(string flacFilePath, out PcmDataLib.PcmData pcmData_return, out List<FlacCuesheetTrackInfo> cueSheet_return) {
-            int rv = ReadStartCommon(ReadMode.Header, flacFilePath, 0, 0, out pcmData_return, out cueSheet_return);
-            StopChildProcess();
-            if (rv != 0) {
-                return rv;
+        public int ReadHeader(string flacFilePath, out PcmDataLib.PcmData pcmData_return,
+                out List<WWFlacRWCS.FlacCuesheetTrack> cueSheet_return) {
+            pcmData_return = new PcmDataLib.PcmData();
+            cueSheet_return = new List<WWFlacRWCS.FlacCuesheetTrack>();
+
+            var flacRW = new WWFlacRWCS.FlacRW();
+            int ercd = flacRW.DecodeHeader(flacFilePath);
+            if (ercd < 0) {
+                return ercd;
             }
+
+            flacRW.GetDecodedCuesheet(out cueSheet_return);
+
+            CreatePcmData(flacFilePath, flacRW, out pcmData_return);
+
+            mBytesPerFrame = pcmData_return.BitsPerFrame / 8;
+            mNumFrames = pcmData_return.NumFrames;
 
             return 0;
         }
@@ -261,24 +101,31 @@ namespace PlayPcmWin {
         /// </summary>
         /// <param name="flacFilePath">読み込むファイルパス。</param>
         /// <param name="skipFrames">ファイルの先頭からのスキップするフレーム数。0以外の値を指定するとMD5のチェックが行われなくなる。</param>
-        /// <param name="wantFrames">取得するフレーム数。</param>
         /// <param name="pcmData">出てきたデコード後のPCMデータ。</param>
         /// <returns>0: 成功。負: 失敗。</returns>
-        public int ReadStreamBegin(string flacFilePath, long skipFrames, long wantFrames, int typicalReadFrames, out PcmDataLib.PcmData pcmData_return) {
-            List<FlacCuesheetTrackInfo> cti;
-            int rv = ReadStartCommon(ReadMode.HeadereAndData, flacFilePath, skipFrames, wantFrames, out pcmData_return, out cti);
-            if (rv != 0) {
-                StopChildProcess();
-                mBytesPerFrame = 0;
-                return rv;
+        public int ReadStreamBegin(string flacFilePath, long skipFrames,
+                out PcmDataLib.PcmData pcmData_return) {
+            pcmData_return = new PcmDataLib.PcmData();
+            mFlacRW = new WWFlacRWCS.FlacRW();
+            int ercd = mFlacRW.DecodeHeader(flacFilePath);
+            if (ercd < 0) {
+                return ercd;
             }
 
+            CreatePcmData(flacFilePath, mFlacRW, out pcmData_return);
+
+            mNumFrames = pcmData_return.NumFrames;
             mBytesPerFrame = pcmData_return.BitsPerFrame / 8;
 
-            if (CalcMD5 && skipFrames == 0 && wantFrames == mNumFrames) {
+            mFlacRW.DecodeStreamStart(flacFilePath);
+            if (0 < skipFrames) {
+                mFlacRW.DecodeStreamSkip(skipFrames);
+            }
+
+            if (CalcMD5 && skipFrames == 0) {
                 md5 = new MD5CryptoServiceProvider();
                 mMD5SumOfPcm = new byte[MD5_BYTES];
-                mMD5TmpBuffer = new byte[mBytesPerFrame * typicalReadFrames];
+                mMD5TmpBuffer = new byte[WWFlacRWCS.FlacRW.PCM_BUFFER_BYTES];
             }
 
             return 0;
@@ -292,32 +139,31 @@ namespace PlayPcmWin {
         {
             System.Diagnostics.Debug.Assert(0 < mBytesPerFrame);
 
-            int frameCount = mBinaryReader.ReadInt32();
-            // System.Console.WriteLine("ReadStreamReadOne() frameCount={0}", frameCount);
-
-            if (frameCount == 0) {
+            byte[] buff = null;
+            int ercd = mFlacRW.DecodeStreamOne(out buff);
+            if (ercd < 0) {
                 return new byte[0];
             }
 
-            byte [] sampleArray = mBinaryReader.ReadBytes(frameCount * mBytesPerFrame);
-
             if (md5 != null) {
-                md5.TransformBlock(sampleArray, 0, sampleArray.Length, mMD5TmpBuffer, 0);
+                md5.TransformBlock(buff, 0, buff.Length, mMD5TmpBuffer, 0);
             }
+
+            int frameCount = ercd / mBytesPerFrame;
 
             if (preferredFrames < frameCount) {
                 // 欲しいフレーム数よりも多くのサンプルデータが出てきた。CUEシートの場合などで起こる。
                 // データの後ろをtruncateする。
-                Array.Resize(ref sampleArray, (int)preferredFrames * mBytesPerFrame);
+                Array.Resize(ref buff, (int)preferredFrames * mBytesPerFrame);
                 frameCount = (int)preferredFrames;
             }
 
-            return sampleArray;
+            return buff;
         }
 
         public int ReadStreamEnd()
         {
-            int exitCode = StopChildProcess();
+            mFlacRW.DecodeEnd();
 
             if (md5 != null) {
                 md5.TransformFinalBlock(new byte[0], 0, 0);
@@ -329,19 +175,11 @@ namespace PlayPcmWin {
 
             mBytesPerFrame = 0;
 
-            return exitCode;
+            return 0;
         }
 
         public void ReadStreamAbort() {
-            System.Diagnostics.Debug.Assert(null != mChildProcess);
-            mPipeServerStream.Close();
-            mPipeServerStream = null;
-
-            mChildProcess.Close();
-            mChildProcess = null;
-
-            mBinaryReader.Close();
-            mBinaryReader = null;
+            mFlacRW.DecodeEnd();
 
             if (md5 != null) {
                 md5.Dispose();

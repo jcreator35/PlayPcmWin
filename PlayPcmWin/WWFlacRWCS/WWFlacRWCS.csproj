@@ -85,6 +85,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FlacCueSheets.cs" />
+    <Compile Include="FlacErrorCode.cs" />
+    <Compile Include="Metadata.cs" />
     <Compile Include="Properties\Resources.ja-JP.Designer.cs">
       <DependentUpon>Resources.ja-JP.resx</DependentUpon>
       <AutoGen>True</AutoGen>

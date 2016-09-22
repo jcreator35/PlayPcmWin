@@ -256,17 +256,18 @@ namespace PlayPcmWinAlbum {
             return ercd;
         }
 
-        private byte[] mPcmBuffer = new byte[1048576];
-
         /// <returns>負: FLACのエラー FlacErrorCode。0: デコード終了。1以上: デコードされて出てきたデータのバイト数。</returns>
         public int LoadAddDo(ContentList.AudioFile af) {
             int ercd = 0;
 
-            ercd = mFlac.DecodeStreamOne(ref mPcmBuffer);
+            byte[] pcmBuffer = null;
+            ercd = mFlac.DecodeStreamOne(out pcmBuffer);
             if (0 < ercd) {
                 int buffBytes = ercd;
-                SetSampleDataToWasapiOne(af.Idx, mPcmBuffer, buffBytes);
+                SetSampleDataToWasapiOne(af.Idx, pcmBuffer, buffBytes);
             }
+
+            pcmBuffer = null;
 
             return ercd;
         }

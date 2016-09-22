@@ -296,7 +296,7 @@ namespace PlayPcmWin {
         /// <returns>読めたらtrue、失敗false</returns>
         private bool ReadFlacFileHeader(string path, ReadHeaderMode mode) {
             PcmDataLib.PcmData pcmData;
-            List<FlacDecodeIF.FlacCuesheetTrackInfo> ctiList;
+            List<WWFlacRWCS.FlacCuesheetTrack> ctiList;
 
             var fdif = new FlacDecodeIF();
             int flacErcd = 0;

@@ -147,7 +147,7 @@
                     </GroupBox>
                     <GroupBox x:Uid="groupBoxFileSettings" Header="File read settings" Margin="4" Name="groupBoxFileSettings" >
                         <StackPanel>
-                            <CheckBox x:Uid="checkBoxStorePlaylistContent" Content="Restore the playlist on program startup"  Margin="6,6,6,0" Name="checkBoxStorePlaylistContent" VerticalAlignment="Top" HorizontalAlignment="Left" />
+                            <CheckBox Content="Parallelize file read"  Margin="6,6,6,0" Name="checkBoxParallelRead" VerticalAlignment="Top" IsChecked="False" HorizontalAlignment="Left" Checked="checkBoxParallelRead_Checked" Unchecked="checkBoxParallelRead_Unchecked" IsEnabled="False" />                            <CheckBox Content="Restore the playlist on program startup"  Margin="6,6,6,0" Name="checkBoxStorePlaylistContent" VerticalAlignment="Top" HorizontalAlignment="Left" />
                             <CheckBox Content="Sort dropped folder items" HorizontalAlignment="Left" IsChecked="False" Margin="6,6,6,0" Name="checkBoxSortDropFolder" VerticalAlignment="Top" />
                             <CheckBox Content="Sort dropped files" HorizontalAlignment="Left" IsChecked="False" Margin="6,6,6,0" Name="checkBoxSortDroppedFiles" VerticalAlignment="Top" />
                             <CheckBox Content="Set [Batch read endpoint] on file drop" HorizontalAlignment="Left" IsChecked="False" Margin="6,6,6,0" Name="checkBoxBatchReadEndpointToEveryTrack" VerticalAlignment="Top" />
