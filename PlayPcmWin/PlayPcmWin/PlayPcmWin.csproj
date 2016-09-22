@@ -6,7 +6,7 @@
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{23DC272C-B67B-41C5-9622-A35BFA3B9D1E}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>PlayPcmWin</RootNamespace>
     <AssemblyName>PlayPcmWin</AssemblyName>
@@ -206,6 +206,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.zh-Hant.resx" />
     <EmbeddedResource Include="Properties\Resources.zh-Hans.resx" />
+    <None Include="app.config" />
     <None Include="PlayPcmWin.exe.manifest">
       <SubType>Designer</SubType>
     </None>
