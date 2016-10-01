@@ -67,12 +67,14 @@ namespace PlayPcmWin
             new PlayListColumnInfo("Duration", DataGridLength.Auto),
             new PlayListColumnInfo("Artist", DataGridLength.Auto),
             new PlayListColumnInfo("AlbumTitle", DataGridLength.Auto),
-            new PlayListColumnInfo("SampleRate", DataGridLength.Auto),
+            new PlayListColumnInfo("ComposerName", DataGridLength.Auto),
 
+            new PlayListColumnInfo("SampleRate", DataGridLength.Auto),
             new PlayListColumnInfo("QuantizationBitRate", DataGridLength.Auto),
             new PlayListColumnInfo("NumChannels", DataGridLength.SizeToCells),
             new PlayListColumnInfo("BitRate", DataGridLength.Auto),
             new PlayListColumnInfo("TrackNr", DataGridLength.SizeToCells),
+
             new PlayListColumnInfo("IndexNr", DataGridLength.SizeToCells),
             new PlayListColumnInfo("ReadSeparaterAfter", DataGridLength.SizeToCells)
         };
@@ -172,9 +174,9 @@ namespace PlayPcmWin
         };
 
         private class PlaylistReadWorkerArg {
-            public PlaylistSave2 pl;
+            public PlaylistSave3 pl;
             public ReadPpwPlaylistMode mode;
-            public PlaylistReadWorkerArg(PlaylistSave2 pl, ReadPpwPlaylistMode mode) {
+            public PlaylistReadWorkerArg(PlaylistSave3 pl, ReadPpwPlaylistMode mode) {
                 this.pl   = pl;
                 this.mode = mode;
             }
@@ -192,7 +194,7 @@ namespace PlayPcmWin
 
             m_loadErrorMessages = new StringBuilder();
 
-            PlaylistSave2 pl;
+            PlaylistSave3 pl;
             if (path.Length == 0) {
                 pl = PpwPlaylistRW.Load();
             } else {
@@ -228,6 +230,7 @@ namespace PlayPcmWin
                     pcmData.DisplayName = p.Title;
                     pcmData.AlbumTitle = p.AlbumName;
                     pcmData.ArtistName = p.ArtistName;
+                    pcmData.ComposerName = p.ComposerName;
                     pcmData.StartTick = p.StartTick;
                     pcmData.EndTick = p.EndTick;
                     pcmData.CueSheetIndex = p.CueSheetIndex;
@@ -287,14 +290,14 @@ namespace PlayPcmWin
         }
 
         private bool SavePpwPlaylist(string path) {
-            var s = new PlaylistSave2();
+            var s = new PlaylistSave3();
 
             for (int i=0; i<m_pcmDataListForDisp.Count(); ++i) {
                 var p = m_pcmDataListForDisp.At(i);
                 var playListItem = m_playListItems[i];
 
-                s.Add(new PlaylistItemSave2().Set(
-                        p.DisplayName, p.AlbumTitle, p.ArtistName, p.FullPath,
+                s.Add(new PlaylistItemSave3().Set(
+                        p.DisplayName, p.AlbumTitle, p.ArtistName, p.ComposerName, p.FullPath,
                         p.CueSheetIndex, p.StartTick, p.EndTick, playListItem.ReadSeparaterAfter, p.LastWriteTime, p.TrackId));
             }
 
@@ -512,6 +515,7 @@ namespace PlayPcmWin
 
             dataGridColumnAlbumTitle.Header = Properties.Resources.MainDataGridColumnAlbumTitle;
             dataGridColumnArtist.Header = Properties.Resources.MainDataGridColumnArtist;
+            dataGridColumnComposerName.Header = Properties.Resources.MainDataGridColumnComposer;
             dataGridColumnBitRate.Header = Properties.Resources.MainDataGridColumnBitRate;
             dataGridColumnDuration.Header = Properties.Resources.MainDataGridColumnDuration;
             dataGridColumnIndexNr.Header = Properties.Resources.MainDataGridColumnIndexNr;
@@ -611,7 +615,8 @@ namespace PlayPcmWin
             foreach (var item in m_playlistColumnDefaults) {
                 int idx;
                 if (!nameIdxTable.TryGetValue(item.Name, out idx)) {
-                    Console.WriteLine("E: unknown playlist column name {0}", item);
+                    Console.WriteLine("E: unknown playlist column name {0}", item.Name);
+                    System.Diagnostics.Debug.Assert(false);
                     return false;
                 }
                 columnIdxList.Add(idx);
@@ -619,6 +624,7 @@ namespace PlayPcmWin
 
             if (columnIdxList.Count != dataGridPlayList.Columns.Count) {
                 Console.WriteLine("E: playlist column count mismatch {0}", columnIdxList.Count);
+                System.Diagnostics.Debug.Assert(false);
                 return false;
             }
 

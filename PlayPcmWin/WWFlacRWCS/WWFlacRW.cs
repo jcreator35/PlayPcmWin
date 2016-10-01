@@ -115,6 +115,7 @@ namespace WWFlacRWCS {
                 meta.albumStr = nMeta.albumStr;
                 meta.artistStr = nMeta.artistStr;
                 meta.albumArtistStr = nMeta.albumArtistStr;
+                meta.composerStr = nMeta.composerStr;
                 meta.genreStr = nMeta.genreStr;
                 meta.dateStr = nMeta.dateStr;
                 meta.trackNumberStr = nMeta.trackNumberStr;
@@ -193,6 +194,7 @@ namespace WWFlacRWCS {
             nMeta.albumStr = meta.albumStr;
             nMeta.artistStr = meta.artistStr;
             nMeta.albumArtistStr = meta.albumArtistStr;
+            nMeta.composerStr = meta.composerStr;
             nMeta.genreStr = meta.genreStr;
             nMeta.dateStr = meta.dateStr;
             nMeta.trackNumberStr = meta.trackNumberStr;
@@ -275,8 +277,10 @@ namespace WWFlacRWCS {
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = WWFLAC_TEXT_STRSZ)]
             public string albumArtistStr;
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = WWFLAC_TEXT_STRSZ)]
-            public string genreStr;
+            public string composerStr;
 
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = WWFLAC_TEXT_STRSZ)]
+            public string genreStr;
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = WWFLAC_TEXT_STRSZ)]
             public string dateStr;
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = WWFLAC_TEXT_STRSZ)]

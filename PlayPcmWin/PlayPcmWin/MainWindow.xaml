@@ -89,17 +89,18 @@
                     <DataGrid.Columns>
                         <!-- <DataGridTextColumn x:Name="IdColumn" Width="Auto" Binding="{Binding Path=Id}" Header="Id" />
                         -->
-                        <DataGridTextColumn x:Uid="dataGridColumnTitle" x:Name="dataGridColumnTitle" Width="Auto" Binding="{Binding Path=Title}" Header="Title" />
-                        <DataGridTextColumn x:Uid="dataGridColumnDuration" x:Name="dataGridColumnDuration" Width="Auto" Binding="{Binding Path=Duration}" Header="Duration"/>
-                        <DataGridTextColumn x:Uid="dataGridColumnArtist" x:Name="dataGridColumnArtist" Width="Auto" Binding="{Binding Path=ArtistName}" Header="Artists"/>
-                        <DataGridTextColumn x:Uid="dataGridColumnAlbumTitle" x:Name="dataGridColumnAlbumTitle" Width="Auto" Binding="{Binding Path=AlbumTitle}" Header="Album name"/>
-                        <DataGridTextColumn x:Uid="dataGridColumnSampleRate" x:Name="dataGridColumnSampleRate" Width="Auto" Binding="{Binding Path=SampleRate}" Header="Sample rate"/>
-                        <DataGridTextColumn x:Uid="dataGridColumnQuantizationBitRate" x:Name="dataGridColumnQuantizationBitRate" Width="Auto" Binding="{Binding Path=QuantizationBitRate}" Header="Quantization bit rate"/>
-                        <DataGridTextColumn x:Uid="dataGridColumnNumChannels" x:Name="dataGridColumnNumChannels" Width="SizeToCells"  Binding="{Binding Path=NumChannels}" Header="Num of channels"/>
-                        <DataGridTextColumn x:Uid="dataGridColumnBitRate" x:Name="dataGridColumnBitRate" Width="Auto" Binding="{Binding Path=BitRate}" Header="Bitrate"/>
+                        <DataGridTextColumn x:Name="dataGridColumnTitle" Width="Auto" Binding="{Binding Path=Title}" Header="Title" />
+                        <DataGridTextColumn x:Name="dataGridColumnDuration" Width="Auto" Binding="{Binding Path=Duration}" Header="Duration"/>
+                        <DataGridTextColumn x:Name="dataGridColumnArtist" Width="Auto" Binding="{Binding Path=ArtistName}" Header="Artists"/>
+                        <DataGridTextColumn x:Name="dataGridColumnAlbumTitle" Width="Auto" Binding="{Binding Path=AlbumTitle}" Header="Album name"/>
+                        <DataGridTextColumn x:Name="dataGridColumnComposerName" Width="Auto" Binding="{Binding Path=ComposerName}" Header="Composer"/>
+                        <DataGridTextColumn x:Name="dataGridColumnSampleRate" Width="Auto" Binding="{Binding Path=SampleRate}" Header="Sample rate"/>
+                        <DataGridTextColumn x:Name="dataGridColumnQuantizationBitRate" Width="Auto" Binding="{Binding Path=QuantizationBitRate}" Header="Quantization bit rate"/>
+                        <DataGridTextColumn x:Name="dataGridColumnNumChannels" Width="SizeToCells"  Binding="{Binding Path=NumChannels}" Header="Num of channels"/>
+                        <DataGridTextColumn x:Name="dataGridColumnBitRate" Width="Auto" Binding="{Binding Path=BitRate}" Header="Bitrate"/>
                         <DataGridTextColumn x:Name="dataGridColumnTrackNr" Width="SizeToCells" Binding="{Binding Path=TrackNr}" Header="Track"/>
-                        <DataGridTextColumn x:Uid="dataGridColumnIndexNr" x:Name="dataGridColumnIndexNr" Width="SizeToCells" Binding="{Binding Path=IndexNr}" Header="Index"/>
-                        <DataGridCheckBoxColumn x:Uid="dataGridColumnReadSeparaterAfter" x:Name="dataGridColumnReadSeparaterAfter" Width="SizeToCells" Binding="{Binding Path=ReadSeparaterAfter}" Header="Batch read endpoint"/>
+                        <DataGridTextColumn x:Name="dataGridColumnIndexNr" Width="SizeToCells" Binding="{Binding Path=IndexNr}" Header="Index"/>
+                        <DataGridCheckBoxColumn x:Name="dataGridColumnReadSeparaterAfter" Width="SizeToCells" Binding="{Binding Path=ReadSeparaterAfter}" Header="Batch read endpoint"/>
                     </DataGrid.Columns>
 
                 </DataGrid>

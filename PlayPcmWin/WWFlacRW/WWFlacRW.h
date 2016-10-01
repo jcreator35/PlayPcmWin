@@ -75,12 +75,14 @@ struct WWFlacMetadata {
     wchar_t artistStr[WWFLAC_TEXT_STRSZ];
     wchar_t albumStr[WWFLAC_TEXT_STRSZ];
     wchar_t albumArtistStr[WWFLAC_TEXT_STRSZ];
-    wchar_t genreStr[WWFLAC_TEXT_STRSZ];
+    wchar_t composerStr[WWFLAC_TEXT_STRSZ];
 
+    wchar_t genreStr[WWFLAC_TEXT_STRSZ];
     wchar_t dateStr[WWFLAC_TEXT_STRSZ];
     wchar_t trackNumberStr[WWFLAC_TEXT_STRSZ];
     wchar_t discNumberStr[WWFLAC_TEXT_STRSZ];
     wchar_t pictureMimeTypeStr[WWFLAC_TEXT_STRSZ];
+
     wchar_t pictureDescriptionStr[WWFLAC_TEXT_STRSZ];
 
     uint8_t md5sum[WWFLAC_MD5SUM_BYTES];

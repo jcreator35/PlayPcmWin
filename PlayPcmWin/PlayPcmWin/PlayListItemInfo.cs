@@ -44,6 +44,11 @@ namespace PlayPcmWin {
             set { mPcmData.AlbumTitle = value; }
         }
 
+        public string ComposerName {
+            get { return mPcmData.ComposerName; }
+            set { mPcmData.ComposerName = value; }
+        }
+
         /// <summary>
         /// 長さ表示用文字列
         /// </summary>

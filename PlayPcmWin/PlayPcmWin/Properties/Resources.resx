@@ -709,4 +709,7 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   <data name="AudioFilterDelay" xml:space="preserve">
     <value>Delay</value>
   </data>
+  <data name="MainDataGridColumnComposer" xml:space="preserve">
+    <value>Composer</value>
+  </data>
 </root>

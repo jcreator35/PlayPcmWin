@@ -129,14 +129,15 @@ namespace PlayPcmWin {
             pl.Add("Duration");
             pl.Add("Artist");
             pl.Add("AlbumTitle");
-            pl.Add("SampleRate");
+            pl.Add("ComposerName");
 
+            pl.Add("SampleRate");
             pl.Add("QuantizationBitRate");
             pl.Add("NumChannels");
             pl.Add("BitRate");
             pl.Add("TrackNr");
-            pl.Add("IndexNr");
 
+            pl.Add("IndexNr");
             pl.Add("ReadSeparaterAfter");
         }
 
@@ -231,17 +232,21 @@ namespace PlayPcmWin {
             Preference p = xmlRW.Load();
 
             // postprocess playlist columns order info...
-            // column count must be 11
-            if (p.PlayListColumnsOrder.Count == 11) {
+            // column count must be 12
+            if (p.PlayListColumnsOrder.Count == 12) {
                 // OK: older format. no playlist column info in preference file.
-            } else if (p.PlayListColumnsOrder.Count == 21) {
-                // OK: loaded old format. delete latter 10 items inserted by file load.
-                p.PlayListColumnsOrderRemoveRange(11, 10);
             } else if (p.PlayListColumnsOrder.Count == 22) {
-                // PlayPcmWin 4.0.98 format. delete former 11 items inserted by Reset()
-                p.PlayListColumnsOrderRemoveRange(0, 11);
+                // OK: loaded old format. delete latter 10 items inserted by file load.
+                p.PlayListColumnsOrderRemoveRange(12, 10);
+            } else if (p.PlayListColumnsOrder.Count == 23) {
+                // PlayPcmWin 4.0.98 format. delete latter 11 items inserted by Reset()
+                p.PlayListColumnsOrderRemoveRange(12, 11);
+            } else if (p.PlayListColumnsOrder.Count == 24) {
+                // PlayPcmWin 5.0.16 format. delete former 12 items inserted by Reset()
+                p.PlayListColumnsOrderRemoveRange(0, 12);
             } else {
                 System.Console.WriteLine("E: Preference PlayListColumnOrder item count {0}", p.PlayListColumnsOrder.Count);
+                System.Diagnostics.Debug.Assert(false);
                 p.Reset();
             }
 

@@ -629,4 +629,7 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   <data name="SettingsCbItemChannelCountMixFormat" xml:space="preserve">
     <value>启用Mix Format音源声道数</value>
   </data>
+  <data name="MainDataGridColumnComposer" xml:space="preserve">
+    <value>作曲家</value>
+  </data>
 </root>

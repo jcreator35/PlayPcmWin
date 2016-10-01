@@ -92,12 +92,14 @@ struct FlacDecodeInfo {
     char artistStr[WWFLAC_TEXT_STRSZ];
     char albumStr[WWFLAC_TEXT_STRSZ];
     char albumArtistStr[WWFLAC_TEXT_STRSZ];
-    char genreStr[WWFLAC_TEXT_STRSZ];
+    char composerStr[WWFLAC_TEXT_STRSZ];
 
+    char genreStr[WWFLAC_TEXT_STRSZ];
     char dateStr[WWFLAC_TEXT_STRSZ];
     char trackNumberStr[WWFLAC_TEXT_STRSZ];
     char discNumberStr[WWFLAC_TEXT_STRSZ];
     char pictureMimeTypeStr[WWFLAC_TEXT_STRSZ];
+
     char pictureDescriptionStr[WWFLAC_TEXT_STRSZ];
 
     uint8_t md5sum[WWFLAC_MD5SUM_BYTES];
@@ -142,12 +144,14 @@ struct FlacDecodeInfo {
         memset(artistStr,      0, sizeof artistStr);
         memset(albumStr,       0, sizeof albumStr);
         memset(albumArtistStr, 0, sizeof albumArtistStr);
-        memset(genreStr,       0, sizeof genreStr);
+        memset(composerStr,       0, sizeof composerStr);
 
+        memset(genreStr,       0, sizeof genreStr);
         memset(dateStr,        0, sizeof dateStr);
         memset(trackNumberStr, 0, sizeof trackNumberStr);
         memset(discNumberStr,  0, sizeof discNumberStr);
         memset(pictureMimeTypeStr,    0, sizeof pictureMimeTypeStr);
+
         memset(pictureDescriptionStr,    0, sizeof pictureDescriptionStr);
 
         memset(md5sum,         0, sizeof md5sum);
@@ -388,13 +392,14 @@ MetadataCallback(const FLAC__StreamDecoder *decoder,
         int num_comments = (FLACDECODE_COMMENT_MAX < VC.num_comments) ? FLACDECODE_COMMENT_MAX : VC.num_comments;
 
         for (int i=0; i<num_comments; ++i) {
-            // dprintf("entry=\"%s\" length=%d\n\n", (const char *)(VC.comments[i].entry), VC.comments[i].length);
+            //dprintf("entry=\"%s\" length=%d\n\n", (const char *)(VC.comments[i].entry), VC.comments[i].length);
             STRCPY_COMMENT("TITLE=", titleStr);
             STRCPY_COMMENT("ALBUM=", albumStr);
             STRCPY_COMMENT("ARTIST=", artistStr);
             STRCPY_COMMENT("ALBUMARTIST=", albumArtistStr);
-            STRCPY_COMMENT("GENRE=", genreStr);
+            STRCPY_COMMENT("COMPOSER=", composerStr);
 
+            STRCPY_COMMENT("GENRE=", genreStr);
             STRCPY_COMMENT("DATE=", dateStr);
             STRCPY_COMMENT("TRACKNUMBER=", trackNumberStr);
             STRCPY_COMMENT("DISCNUMBER=", discNumberStr);
@@ -761,12 +766,14 @@ WWFlacRW_GetDecodedMetadata(int id, WWFlacMetadata &metaReturn)
     UTF8TOMB(artistStr);
     UTF8TOMB(albumStr);
     UTF8TOMB(albumArtistStr);
-    UTF8TOMB(genreStr);
+    UTF8TOMB(composerStr);
 
+    UTF8TOMB(genreStr);
     UTF8TOMB(dateStr);
     UTF8TOMB(trackNumberStr);
     UTF8TOMB(discNumberStr);
     UTF8TOMB(pictureMimeTypeStr);
+
     UTF8TOMB(pictureDescriptionStr);
 
     memcpy(metaReturn.md5sum, fdi->md5sum, sizeof metaReturn.md5sum);
@@ -945,12 +952,14 @@ struct FlacEncodeInfo {
     char artistStr[WWFLAC_TEXT_STRSZ];
     char albumStr[WWFLAC_TEXT_STRSZ];
     char albumArtistStr[WWFLAC_TEXT_STRSZ];
-    char genreStr[WWFLAC_TEXT_STRSZ];
+    char composerStr[WWFLAC_TEXT_STRSZ];
 
+    char genreStr[WWFLAC_TEXT_STRSZ];
     char dateStr[WWFLAC_TEXT_STRSZ];
     char trackNumberStr[WWFLAC_TEXT_STRSZ];
     char discNumberStr[WWFLAC_TEXT_STRSZ];
     char pictureMimeTypeStr[WWFLAC_TEXT_STRSZ];
+
     char pictureDescriptionStr[WWFLAC_TEXT_STRSZ];
 
     int               pictureBytes;
@@ -986,12 +995,14 @@ struct FlacEncodeInfo {
         memset(artistStr,      0, sizeof artistStr);
         memset(albumStr,       0, sizeof albumStr);
         memset(albumArtistStr, 0, sizeof albumArtistStr);
-        memset(genreStr,       0, sizeof genreStr);
+        memset(composerStr, 0, sizeof composerStr);
 
+        memset(genreStr,       0, sizeof genreStr);
         memset(dateStr,        0, sizeof dateStr);
         memset(trackNumberStr, 0, sizeof trackNumberStr);
         memset(discNumberStr,  0, sizeof discNumberStr);
         memset(pictureMimeTypeStr,    0, sizeof pictureMimeTypeStr);
+
         memset(pictureDescriptionStr,    0, sizeof pictureDescriptionStr);
 
         pictureBytes = 0;
@@ -1093,12 +1104,14 @@ WWFlacRW_EncodeInit(const WWFlacMetadata &meta)
     WCTOUTF8(artistStr);
     WCTOUTF8(albumStr);
     WCTOUTF8(albumArtistStr);
-    WCTOUTF8(genreStr);
+    WCTOUTF8(composerStr);
 
+    WCTOUTF8(genreStr);
     WCTOUTF8(dateStr);
     WCTOUTF8(trackNumberStr);
     WCTOUTF8(discNumberStr);
     WCTOUTF8(pictureMimeTypeStr);
+
     WCTOUTF8(pictureDescriptionStr);
 
     if((fei->encoder = FLAC__stream_encoder_new()) == nullptr) {
@@ -1137,8 +1150,9 @@ WWFlacRW_EncodeInit(const WWFlacMetadata &meta)
     ADD_TAG(artistStr,      "ARTIST");
     ADD_TAG(albumStr,       "ALBUM");
     ADD_TAG(albumArtistStr, "ALBUMARTIST");
-    ADD_TAG(genreStr,       "GENRE");
+    ADD_TAG(composerStr,    "COMPOSER");
 
+    ADD_TAG(genreStr,       "GENRE");
     ADD_TAG(dateStr,        "DATE");
     ADD_TAG(trackNumberStr, "TRACKNUMBER");
     ADD_TAG(discNumberStr,  "DISCNUMBER");

@@ -30,7 +30,7 @@ namespace PlayPcmWin {
         AddPcmDataDelegate mAddPcmData;
 
         PlaylistTrackInfo mPlaylistTrackMeta;
-        PlaylistItemSave2 mPlis;
+        PlaylistItemSave3 mPlis;
 
         public PcmHeaderReader(Encoding enc, bool sortFolderItem, AddPcmDataDelegate addPcmData) {
             mEncoding = enc;
@@ -164,6 +164,7 @@ namespace PlayPcmWin {
                 pcmData.DisplayName = mPlis.Title;
                 pcmData.AlbumTitle = mPlis.AlbumName;
                 pcmData.ArtistName = mPlis.ArtistName;
+                pcmData.ComposerName = mPlis.ComposerName;
                 pcmData.StartTick = mPlis.StartTick;
                 pcmData.EndTick = mPlis.EndTick;
                 pcmData.TrackId = mPlis.TrackId;
@@ -397,7 +398,7 @@ namespace PlayPcmWin {
         private int ReadPpwPlaylist(string path) {
             int count = 0;
 
-            PlaylistSave2 pl;
+            PlaylistSave3 pl;
             if (path.Length == 0) {
                 pl = PpwPlaylistRW.Load();
             } else {
@@ -417,7 +418,7 @@ namespace PlayPcmWin {
         /// </summary>
         /// <returns>エラーの発生回数を戻す</returns>
         private int ReadFileHeader1(string path, ReadHeaderMode mode,
-                PlaylistTrackInfo plti, PlaylistItemSave2 plis) {
+                PlaylistTrackInfo plti, PlaylistItemSave3 plis) {
             mPlaylistTrackMeta = plti;
             mPlis = plis;
 

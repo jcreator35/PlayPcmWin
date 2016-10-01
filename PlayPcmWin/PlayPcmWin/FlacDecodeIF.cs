@@ -54,6 +54,7 @@ namespace PlayPcmWin {
             pcmData_return.DisplayName = m.titleStr;
             pcmData_return.AlbumTitle = m.albumStr;
             pcmData_return.ArtistName = m.artistStr;
+            pcmData_return.ComposerName = m.composerStr;
             pcmData_return.FullPath = path;
 
             mMD5SumInMetadata = new byte[MD5_BYTES];

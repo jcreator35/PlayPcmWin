@@ -513,6 +513,15 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Composer.
+        /// </summary>
+        internal static string MainDataGridColumnComposer {
+            get {
+                return ResourceManager.GetString("MainDataGridColumnComposer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Duration.
         /// </summary>
         internal static string MainDataGridColumnDuration {

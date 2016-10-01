@@ -15,12 +15,14 @@ namespace WWFlacRWCS {
         public string artistStr = string.Empty;
         public string albumStr = string.Empty;
         public string albumArtistStr = string.Empty;
-        public string genreStr = string.Empty;
+        public string composerStr = string.Empty;
 
+        public string genreStr = string.Empty;
         public string dateStr = string.Empty;
         public string trackNumberStr = string.Empty;
         public string discNumberStr = string.Empty;
         public string pictureMimeTypeStr = string.Empty;
+
         public string pictureDescriptionStr = string.Empty;
 
         public byte[] md5sum = new byte[NativeMethods.WWFLAC_MD5SUM_BYTES];
@@ -60,12 +62,14 @@ namespace WWFlacRWCS {
             SafeCopy(rhs.artistStr, ref artistStr);
             SafeCopy(rhs.albumStr, ref albumStr);
             SafeCopy(rhs.albumArtistStr, ref albumArtistStr);
-            SafeCopy(rhs.genreStr, ref genreStr);
+            SafeCopy(rhs.composerStr, ref composerStr);
 
+            SafeCopy(rhs.genreStr, ref genreStr);
             SafeCopy(rhs.dateStr, ref dateStr);
             SafeCopy(rhs.trackNumberStr, ref trackNumberStr);
             SafeCopy(rhs.discNumberStr, ref discNumberStr);
             SafeCopy(rhs.pictureMimeTypeStr, ref pictureMimeTypeStr);
+
             SafeCopy(rhs.pictureDescriptionStr, ref pictureDescriptionStr);
 
             if (rhs.md5sum != null && rhs.md5sum.Length != 0) {
