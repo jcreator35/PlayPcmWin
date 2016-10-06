@@ -790,5 +790,115 @@ namespace PolynomialVisualize {
         private void comboBoxMagnitudeRange_SelectionChanged(object sender, SelectionChangedEventArgs e) {
             Update();
         }
+
+        private void buttonPlotFromImage_Click(object sender, RoutedEventArgs e) {
+            var dlg = new Microsoft.Win32.OpenFileDialog();
+            dlg.Filter = "image files|*.png";
+            dlg.ValidateNames = true;
+
+            var result = dlg.ShowDialog();
+            if (result != true) {
+                return;
+            }
+
+            var itfr = new ImageToFreqResponse();
+            var freqResponse = itfr.Run(dlg.FileName);
+
+            Update();
+            UpdateFRFrom(freqResponse, 2);
+        }
+
+        private void UpdateFRFrom(WWComplex[] fr, int period) {
+            PhaseGraduation pg = mPhaseGraduationArray[comboBoxPhaseShift.SelectedIndex];
+            double phaseShift = pg.phaseShiftRad;
+
+            foreach (var item in mLineList) {
+                canvasFR.Children.Remove(item);
+            }
+            mLineList.Clear();
+
+            double maxMagnitude = 0.0;
+            for (int i = 0; i < fr.Length; ++i) {
+                if (maxMagnitude < fr[i].Magnitude()) {
+                    maxMagnitude = fr[i].Magnitude();
+                }
+            }
+
+            double magRange = mMagnitudeRange[comboBoxMagnitudeRange.SelectedIndex];
+
+            var lastPosM = new Point();
+            var lastPosP = new Point();
+
+            lastPosP.X = -1;
+
+            int N = fr.Length / 2;
+            double MAGNITUDE_THRESHOLD = 0.3;
+
+            for (int i = 0; i < N; ++i) {
+                Point posM = new Point();
+                Point posP = new Point();
+
+                double phase = fr[i].Phase() + phaseShift;
+                while (phase <= -Math.PI) {
+                    phase += 2.0 * Math.PI;
+                }
+                while (Math.PI < phase) {
+                    phase -= 2.0f * Math.PI;
+                }
+
+                int x = FR_LINE_NUM * i / N;
+
+                posP = new Point(FR_LINE_LEFT + x,
+                    FR_LINE_YCENTER - FR_LINE_HEIGHT * phase / (2.0f * Math.PI));
+
+                switch (comboBoxMagScale.SelectedIndex) {
+                case (int)MagScaleType.Linear:
+                    posM = new Point(FR_LINE_LEFT + x, FR_LINE_BOTTOM - FR_LINE_HEIGHT * fr[i].Magnitude() / maxMagnitude);
+                    break;
+                case (int)MagScaleType.Logarithmic:
+                    posM = new Point(FR_LINE_LEFT + x,
+                        FR_LINE_TOP + FR_LINE_HEIGHT * 20.0 * Math.Log10(fr[i].Magnitude() / maxMagnitude)
+                            / (20.0 * Math.Log10(magRange * magRange * magRange * magRange)));
+                    break;
+                default:
+                    System.Diagnostics.Debug.Assert(false);
+                    break;
+                }
+
+                if (1 <= i) {
+                    bool bDraw = true;
+                    switch (comboBoxMagScale.SelectedIndex) {
+                    case (int)MagScaleType.Logarithmic:
+                        if (FR_LINE_BOTTOM < posM.Y || FR_LINE_BOTTOM < lastPosM.Y) {
+                            bDraw = false;
+                        }
+                        break;
+                    }
+
+
+                    if (bDraw && (checkBoxShowGain.IsChecked == true)) {
+                        var lineM = new Line();
+                        lineM.Stroke = Brushes.Blue;
+                        LineSetX1Y1X2Y2(lineM, lastPosM.X, lastPosM.Y, posM.X, posM.Y);
+                        mLineList.Add(lineM);
+                        canvasFR.Children.Add(lineM);
+                    }
+                }
+
+                if (0 <= lastPosP.X && 2 <= i && (checkBoxShowPhase.IsChecked == true)
+                        && MAGNITUDE_THRESHOLD < fr[i].Magnitude() / maxMagnitude) {
+                    var lineP = new Line();
+                    lineP.Stroke = Brushes.Red;
+                    LineSetX1Y1X2Y2(lineP, lastPosP.X, lastPosP.Y, posP.X, posP.Y);
+                    mLineList.Add(lineP);
+                    canvasFR.Children.Add(lineP);
+                }
+
+                if (MAGNITUDE_THRESHOLD < fr[i].Magnitude() / maxMagnitude) {
+                    lastPosP = posP;
+                }
+                lastPosM = posM;
+            }
+        }
     }
 }

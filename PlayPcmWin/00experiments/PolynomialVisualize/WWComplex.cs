@@ -1,7 +1,7 @@
 ﻿using System;
 
 namespace WWAudioFilter {
-    struct WWComplex {
+    public struct WWComplex {
         public double real;
         public double imaginary;
 
@@ -86,6 +86,10 @@ namespace WWAudioFilter {
             real = real / sq;
             imaginary = -imaginary / sq;
             return this;
+        }
+
+        public override string ToString() {
+            return string.Format("re={0}, im={1}", real, imaginary);
         }
     }
 }

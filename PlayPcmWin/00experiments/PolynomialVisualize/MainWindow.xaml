@@ -143,6 +143,7 @@
                 <Label Content="z^(-6)+" HorizontalAlignment="Left" HorizontalContentAlignment="Center" VerticalAlignment="Center" Grid.Column="14" Grid.Row="2" />
                 <Label Content="z^(-7)+" HorizontalAlignment="Left" HorizontalContentAlignment="Center" VerticalAlignment="Center" Grid.Column="16" Grid.Row="2" />
                 <Label Content="z^(-8)" HorizontalAlignment="Left" HorizontalContentAlignment="Center" VerticalAlignment="Center" Grid.Column="18" Grid.Row="2" />
+                <Button Content="Plot from waveform image" Grid.Column="5" Grid.ColumnSpan="4" Grid.Row="3" HorizontalAlignment="Left" Margin="31,6,0,0" Name="button1" VerticalAlignment="Top" Width="194" Click="buttonPlotFromImage_Click" />
             </Grid>
         </GroupBox>
         <GroupBox Header="Frequency Response" HorizontalAlignment="Left" Margin="3,188,0,0" Name="groupBoxFR" VerticalAlignment="Top" Grid.Column="1" Grid.Row="1">

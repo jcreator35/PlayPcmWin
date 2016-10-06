@@ -1,7 +1,7 @@
 ﻿using System;
 
 namespace WWAudioFilter {
-    struct WWComplexF {
+    public struct WWComplexF {
         public float real;
         public float imaginary;
 
