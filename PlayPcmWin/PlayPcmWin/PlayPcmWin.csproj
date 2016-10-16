@@ -283,10 +283,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy /y $(ProjectDir)..\FlacDecodeDLL\bin\x86\$(ConfigurationName)\* $(TargetDir);
-copy /y $(ProjectDir)..\WasapiIODLL\$(OutDir)* $(TargetDir)
-
-call "$(DevEnvDir)..\tools\vsvars32.bat"
+    <PostBuildEvent>call "$(DevEnvDir)..\tools\vsvars32.bat"
 
 if $(PlatformName) == x64 goto :plat_x64
     echo "Setting LargeAddressAware to " $(TargetPath)

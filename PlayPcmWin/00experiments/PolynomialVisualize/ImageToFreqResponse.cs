@@ -92,7 +92,7 @@ namespace PolynomialVisualize {
                 double v = (center - iv) / magnitude;
 
                 waveForm[x] = new WWComplex(v, 0);
-                //Console.WriteLine("{0} {1}", x, v);
+                Console.WriteLine("{0} {1}", x, v);
             }
 
             WWComplex [] freqResponse;

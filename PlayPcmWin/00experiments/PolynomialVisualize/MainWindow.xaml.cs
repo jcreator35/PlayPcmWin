@@ -832,7 +832,7 @@ namespace PolynomialVisualize {
             lastPosP.X = -1;
 
             int N = fr.Length / 2;
-            double MAGNITUDE_THRESHOLD = 0.3;
+            double MAGNITUDE_THRESHOLD = 0.2;
 
             for (int i = 0; i < N; ++i) {
                 Point posM = new Point();
