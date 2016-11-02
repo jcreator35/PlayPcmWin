@@ -81,6 +81,19 @@ namespace PolynomialVisualize {
             SF22579200,
         };
 
+        private enum StartFrequencyType {
+            SF_1Hz,
+            SF_10Hz,
+        };
+
+        private StartFrequencyType StartFrequency() {
+            var sf = StartFrequencyType.SF_1Hz;
+            if (comboBoxItemStartFreq10Hz.IsSelected) {
+                sf = StartFrequencyType.SF_10Hz;
+            }
+            return sf;
+        }
+
         private readonly int[] SAMPLE_FREQS = new int[] {
             44100,
             48000,
@@ -95,7 +108,7 @@ namespace PolynomialVisualize {
             22579200,
         };
 
-        static private float LogSampleFreq(int freq, int idx) {
+        private float LogSampleFreq(int freq, int idx) {
             switch (freq) {
             case 44100:
             case 48000:
@@ -103,12 +116,36 @@ namespace PolynomialVisualize {
             case 96000:
             case 176400:
             case 192000:
-                return new int[] { 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 22050 }[idx];
+                switch (StartFrequency()) {
+                case StartFrequencyType.SF_1Hz:
+                default:
+                    if (idx == 14) {
+                        return freq / 2;
+                    } else {
+                        return new int[] { 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 22050 }[idx];
+                    }
+                case StartFrequencyType.SF_10Hz:
+                    if (idx == 11) {
+                        return freq / 2;
+                    } else {
+                        return new int[] { 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 22050, 0, 0, 0 }[idx];
+                    }
+                }
+
             case 2822400:
             case 5644800:
             case 11289600:
             case 22579200:
-                return new int[] { 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10 * 1000, 20 * 1000, 50 * 1000, 100 * 1000, 200 * 1000, 220 * 1000 }[idx];
+                switch (StartFrequency()) {
+                case StartFrequencyType.SF_1Hz:
+                case StartFrequencyType.SF_10Hz:
+                default:
+                    if (idx == 14) {
+                        return freq / 2;
+                    } else {
+                        return new int[] { 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10 * 1000, 20 * 1000, 50 * 1000, 100 * 1000, 200 * 1000, 220 * 1000 }[idx];
+                    }
+                }
             default:
                 System.Diagnostics.Debug.Assert(false);
                 return 10;
@@ -184,60 +221,7 @@ namespace PolynomialVisualize {
             };
         }
 
-
         private bool mInitialized = false;
-
-        private WWComplex EvalH(double[] numerators, double[] denominators, WWComplex z) {
-            var zRecip = new WWComplex(z).Reciprocal();
-#if true
-            var zRecip2 = new WWComplex(zRecip).Mul(zRecip);
-            var zRecip3 = new WWComplex(zRecip2).Mul(zRecip);
-            var zRecip4 = new WWComplex(zRecip3).Mul(zRecip);
-            var zRecip5 = new WWComplex(zRecip4).Mul(zRecip);
-            var zRecip6 = new WWComplex(zRecip5).Mul(zRecip);
-            var zRecip7 = new WWComplex(zRecip6).Mul(zRecip);
-            var zRecip8 = new WWComplex(zRecip7).Mul(zRecip);
-
-            var hDenom0 = new WWComplex(denominators[0], 0.0f);
-            var hDenom1 = new WWComplex(denominators[1], 0.0f).Mul(zRecip);
-            var hDenom2 = new WWComplex(denominators[2], 0.0f).Mul(zRecip2);
-            var hDenom3 = new WWComplex(denominators[3], 0.0f).Mul(zRecip3);
-            var hDenom4 = new WWComplex(denominators[4], 0.0f).Mul(zRecip4);
-            var hDenom5 = new WWComplex(denominators[5], 0.0f).Mul(zRecip5);
-            var hDenom6 = new WWComplex(denominators[6], 0.0f).Mul(zRecip6);
-            var hDenom7 = new WWComplex(denominators[7], 0.0f).Mul(zRecip7);
-            var hDenom8 = new WWComplex(denominators[8], 0.0f).Mul(zRecip8);
-            var hDenom = new WWComplex(hDenom0).Add(hDenom1).Add(hDenom2).Add(hDenom3).Add(hDenom4).Add(hDenom5).Add(hDenom6).Add(hDenom7).Add(hDenom8).Reciprocal();
-
-            var hNumer0 = new WWComplex(numerators[0], 0.0f);
-            var hNumer1 = new WWComplex(numerators[1], 0.0f).Mul(zRecip);
-            var hNumer2 = new WWComplex(numerators[2], 0.0f).Mul(zRecip2);
-            var hNumer3 = new WWComplex(numerators[3], 0.0f).Mul(zRecip3);
-            var hNumer4 = new WWComplex(numerators[4], 0.0f).Mul(zRecip4);
-            var hNumer5 = new WWComplex(numerators[5], 0.0f).Mul(zRecip5);
-            var hNumer6 = new WWComplex(numerators[6], 0.0f).Mul(zRecip6);
-            var hNumer7 = new WWComplex(numerators[7], 0.0f).Mul(zRecip7);
-            var hNumer8 = new WWComplex(numerators[8], 0.0f).Mul(zRecip8);
-            var hNumer = new WWComplex(hNumer0).Add(hNumer1).Add(hNumer2).Add(hNumer3).Add(hNumer4).Add(hNumer5).Add(hNumer6).Add(hNumer7).Add(hNumer8);
-            var h = new WWComplex(hNumer).Mul(hDenom);
-#else
-            int D = (int)(2205 / 1.2);
-            var zRecipArray = new WWComplex[D*4+1];
-            zRecipArray[0] = new WWComplex(1, 0);
-            for (int i = 1; i < zRecipArray.Length; ++i) {
-                zRecipArray[i] = new WWComplex(zRecip).Mul(zRecipArray[i - 1]);
-            }
-            var ma = new WWComplex(1,0).Sub(zRecipArray[D]).Div(new WWComplex(1,0).Sub(zRecipArray[1]).Mul(D));
-            var ma2 = ma.Mul(ma);
-            var ma4 = ma2.Mul(ma2);
-            var h = new WWComplex(zRecipArray[2 * D - 2]).Sub(ma4);
-#endif
-            // 孤立特異点や極で起きる異常を適当に除去する
-            if (double.IsNaN(h.Magnitude())) {
-                return new WWComplex(0.0f, 0.0f);
-            }
-            return h;
-        }
 
         private int PhaseToBgra(double phase) {
             return Util.HsvToBgra(-phase * 180.0 / Math.PI + 240.0, 1.0, 1.0);
@@ -277,7 +261,7 @@ namespace PolynomialVisualize {
                     double x = 2.6666666666666 / scale * (xI - bm.PixelWidth / 2) / bm.PixelHeight;
                     var z = new WWComplex(x, y);
 
-                    var h = EvalH(numerators, denominators, z);
+                    var h = TransferFunction.EvalH(numerators, denominators, z);
                     var hM = h.Magnitude();
 
                     if (hM < 0.1) {
@@ -485,6 +469,7 @@ namespace PolynomialVisualize {
         };
 
         private void UpdateFR(double[] numerators, double[] denominators) {
+
             foreach (var item in mLineList) {
                 canvasFR.Children.Remove(item);
             }
@@ -501,7 +486,7 @@ namespace PolynomialVisualize {
             for (int i = 0; i < FR_LINE_NUM; ++i) {
                 double theta = AngleFrequency(i);
                 var z = new WWComplex(Math.Cos(theta), Math.Sin(theta));
-                var h = EvalH(numerators, denominators, z);
+                var h = TransferFunction.EvalH(numerators, denominators, z);
                 frMagnitude[i] = h.Magnitude();
                 if (maxMagnitude < frMagnitude[i]) {
                     maxMagnitude = frMagnitude[i];
@@ -538,18 +523,22 @@ namespace PolynomialVisualize {
                 break;
             case (int)FreqScaleType.Logarithmic:
                 for (int i = 0; i < mXLabelList.Length; ++i) {
-                    mXLineList[i].X1 = mXLineList[i].X2 = FR_LINE_LEFT + FR_LINE_NUM * LogFrequencyX(LogSampleFreq(sampleFrequency, i));
-                    mXLineList[i].Visibility = (1 <= i && i < (int)XLineType.XMax) ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
-
-                    if (i < (int)XLineType.XMax) {
-                        mXLabelList[i].Content = SampleFreqString(LogSampleFreq(sampleFrequency, i));
-                        Canvas.SetLeft(mXLabelList[i], mXLineList[i].X1 - 10);
+                    if (LogSampleFreq(sampleFrequency, i) == 0) {
+                        mXLineList[i].Visibility = System.Windows.Visibility.Collapsed;
+                        mXLabelList[i].Visibility = System.Windows.Visibility.Collapsed;
                     } else {
-                        // 最後の値 = ナイキスト周波数を表示。
-                        mXLabelList[i].Content = SampleFreqString(sampleFrequency / 2);
-                        Canvas.SetLeft(mXLabelList[i], FR_LINE_LEFT + FR_LINE_NUM + 10);
+                        mXLineList[i].X1 = mXLineList[i].X2 = FR_LINE_LEFT + FR_LINE_NUM * LogFrequencyX(LogSampleFreq(sampleFrequency, i));
+                        mXLineList[i].Visibility = (1 <= i && i < (int)XLineType.XMax) ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+
+                        mXLabelList[i].Content = SampleFreqString(LogSampleFreq(sampleFrequency, i));
+                        if (0 < i && (mXLineList[i].X1 - mXLineList[i - 1].X1) < 20) {
+                            // 1個前の数字表示との間隔が狭すぎるので間隔をあける。
+                            Canvas.SetLeft(mXLabelList[i], mXLineList[i-1].X1 + 10);
+                        } else {
+                            Canvas.SetLeft(mXLabelList[i], mXLineList[i].X1 - 10);
+                        }
+                        mXLabelList[i].Visibility = System.Windows.Visibility.Visible;
                     }
-                    mXLabelList[i].Visibility = System.Windows.Visibility.Visible;
                 }
                 
                 break;
@@ -791,6 +780,10 @@ namespace PolynomialVisualize {
             Update();
         }
 
+        private void comboBoxStartFrequency_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+            Update();
+        }
+
         private void buttonPlotFromImage_Click(object sender, RoutedEventArgs e) {
             var dlg = new Microsoft.Win32.OpenFileDialog();
             dlg.Filter = "image files|*.png";
@@ -900,5 +893,6 @@ namespace PolynomialVisualize {
                 lastPosM = posM;
             }
         }
+
     }
 }

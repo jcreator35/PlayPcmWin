@@ -270,6 +270,11 @@
                     <ComboBoxItem Content="-12dB" />
                     <ComboBoxItem Content="-48dB" />
                 </ComboBox>
+                <Label Content="Start Frequency:" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Row="3" Grid.Column="2"/>
+                <ComboBox Grid.Column="3" Grid.Row="3" HorizontalContentAlignment="Center" HorizontalAlignment="Left" Margin="6,0,0,0" Name="comboBoxStartFrequency" VerticalAlignment="Center" Width="120" SelectionChanged="comboBoxStartFrequency_SelectionChanged">
+                    <ComboBoxItem Content="1Hz" IsSelected="True" />
+                    <ComboBoxItem Content="10Hz" Name="comboBoxItemStartFreq10Hz" />
+                </ComboBox>
             </Grid>
         </GroupBox>
     </Grid>
