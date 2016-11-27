@@ -1,0 +1,32 @@
+﻿<UserControl x:Class="WWFilterDesign.UserControlZPoleZeroPlot"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="400" d:DesignWidth="300">
+    <Grid Height="400" Width="300">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="300" />
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="1*" />
+        </Grid.RowDefinitions>
+        <Canvas Height="256" HorizontalAlignment="Center" Name="canvasPoleZero" VerticalAlignment="Center" Width="256" Grid.ColumnSpan="2" Margin="22">
+            <Line X1="0" X2="256" Y1="128" Y2="128" Stroke="LightGray" />
+            <Line X1="128" X2="128" Y1="0" Y2="256" Stroke="LightGray" />
+        </Canvas>
+        <Ellipse Height="200" HorizontalAlignment="Center" Name="unitCircle" Stroke="LightGray" VerticalAlignment="Center" Width="200" Margin="50" />
+        <TextBlock HorizontalAlignment="Right" Name="textBlockRe" Text="Re→" VerticalAlignment="Center" />
+        <TextBlock HorizontalAlignment="Center" Name="textBlockIm" Text="Im↑" VerticalAlignment="Top"  />
+        <TextBlock HorizontalAlignment="Center" Name="textBlockTitle" Text="Pole-zero plot" VerticalAlignment="Bottom" />
+        <Canvas Grid.Row="1" Margin="10,4,10,0" Name="canvasLegend" />
+        <Label Content="0" Grid.Row="2" HorizontalAlignment="Left" Name="label0" VerticalAlignment="Top" />
+        <Label Content="180" Grid.Row="2" HorizontalAlignment="Left" Name="label80" VerticalAlignment="Top" />
+        <Label Content="360" Grid.Row="2" HorizontalAlignment="Left" Name="label360" VerticalAlignment="Top" />
+        <ComboBox Grid.Row="3" HorizontalAlignment="Left" Margin="6,0,0,0" Name="comboBoxGradationType" VerticalAlignment="Center" Width="200">
+            <ComboBoxItem Content="Show Magnitude" Name="comboBoxItemMagnitude" IsSelected="True" />
+            <ComboBoxItem Content="Show Phase" Name="comboBoxItemPhase" />
+        </ComboBox>
+    </Grid>
+</UserControl>
