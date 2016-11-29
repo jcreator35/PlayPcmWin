@@ -88,8 +88,37 @@ namespace WWAudioFilter {
             return this;
         }
 
+        public static WWComplex Add(WWComplex lhs, WWComplex rhs) {
+            return new WWComplex(lhs).Add(rhs);
+        }
+        public static WWComplex Sub(WWComplex lhs, WWComplex rhs) {
+            return new WWComplex(lhs).Sub(rhs);
+        }
+        public static WWComplex Mul(WWComplex lhs, WWComplex rhs) {
+            return new WWComplex(lhs).Mul(rhs);
+        }
+        public static WWComplex Div(WWComplex lhs, WWComplex rhs) {
+            return new WWComplex(lhs).Div(rhs);
+        }
+
+        public static WWComplex Minus(WWComplex uni) {
+            return new WWComplex(-uni.real, -uni.imaginary);
+        }
+
         public override string ToString() {
-            return string.Format("re={0}, im={1}", real, imaginary);
+            if (Math.Abs(imaginary) < 0.0001) {
+                return string.Format("{0:G4}", real);
+            }
+            if (Math.Abs(real) < 0.0001) {
+                return string.Format("{0:G4}j", imaginary);
+            }
+
+            if (imaginary < 0) {
+                // マイナス記号が自動で出る。
+                return string.Format("{0:G4}{1:G4}j", real, imaginary);
+            } else {
+                return string.Format("{0:G4}+{1:G4}j", real, imaginary);
+            }
         }
     }
 }

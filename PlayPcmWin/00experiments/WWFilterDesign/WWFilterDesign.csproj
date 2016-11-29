@@ -55,6 +55,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="FirstOrderRationalPolynomial.cs" />
+    <Compile Include="InverseLaplaceTransform.cs" />
     <Compile Include="UserControlSPoleZeroPlot.xaml.cs">
       <DependentUpon>UserControlSPoleZeroPlot.xaml</DependentUpon>
     </Compile>

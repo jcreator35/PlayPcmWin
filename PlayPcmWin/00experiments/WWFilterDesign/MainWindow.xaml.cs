@@ -80,7 +80,7 @@ namespace WWAudioFilter {
             double hs = Math.Pow(10, gs / 20);
 
             var bwd = new ButterworthDesign(h0, hc, hs, ωc, ωs, betaType);
-            AddLog(string.Format("order={0}\n", bwd.Order()));
+            AddLog(string.Format("order={0}\nCoeffs", bwd.Order()));
 
             double constant = bwd.TransferFunctionConstant();
 
@@ -88,11 +88,30 @@ namespace WWAudioFilter {
             mPoleZeroPlot.SetScale(bwd.PoleNth(0).Magnitude());
             for (int i = 0; i < bwd.Order(); ++i) {
                 var p = bwd.PoleNth(i);
-                AddLog(string.Format("  {0}\n", p));
+                AddLog(string.Format("  {0}\nCoeffs", p));
                 mPoleZeroPlot.AddPole(p);
             }
 
+            // 逆ラプラス変換する。
+            {
+                var nPolynomialCoeffs = new List<WWComplex>();
+                nPolynomialCoeffs.Add(new WWComplex(constant, 0));
 
+                var dRoots = new List<WWComplex>();
+                for (int i = 0; i < bwd.Order(); ++i) {
+                    var p = bwd.PoleNth(i);
+                    dRoots.Add(p);
+                }
+                var polynomialList = InverseLaplaceTransform.PartialFractionDecomposition(nPolynomialCoeffs, dRoots);
+
+                for (int i = 0; i < polynomialList.Count; ++i) {
+                    Console.WriteLine(polynomialList[i].ToString("s"));
+                    if (i != polynomialList.Count - 1) {
+                        Console.WriteLine(" + ");
+                    }
+                }
+                Console.WriteLine("");
+            }
         }
 
 
