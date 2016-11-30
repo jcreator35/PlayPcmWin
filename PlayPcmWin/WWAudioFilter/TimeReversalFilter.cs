@@ -35,8 +35,8 @@ namespace WWAudioFilter {
             return mFormat.NumSamples;
         }
 
-        public override PcmDataLib.LargeArray<double> FilterDo(PcmDataLib.LargeArray<double> inPcm) {
-            PcmDataLib.LargeArray<double> outPcm = new PcmDataLib.LargeArray<double>(inPcm.LongLength);
+        public override WWUtil.LargeArray<double> FilterDo(WWUtil.LargeArray<double> inPcm) {
+            WWUtil.LargeArray<double> outPcm = new WWUtil.LargeArray<double>(inPcm.LongLength);
             for (long i=0; i < outPcm.LongLength; ++i) {
                 outPcm.Set(i, inPcm.At(inPcm.LongLength - i - 1));
             }

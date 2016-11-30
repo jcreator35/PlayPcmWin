@@ -41,14 +41,14 @@ namespace WWAudioFilter {
             return new GaussianNoiseFilter(noiseLevelDb);
         }
 
-        public override PcmDataLib.LargeArray<double> FilterDo(PcmDataLib.LargeArray<double> inPcmLA) {
+        public override WWUtil.LargeArray<double> FilterDo(WWUtil.LargeArray<double> inPcmLA) {
             var inPcm = inPcmLA.ToArray();
 
             var outPcm = new double[inPcm.Length];
             for (int i=0; i < outPcm.Length; ++i) {
                 outPcm[i] = inPcm[i] + mGNG.NextFloat() * NoiseLevelScale();
             }
-            return new PcmDataLib.LargeArray<double>(outPcm);
+            return new WWUtil.LargeArray<double>(outPcm);
         }
     }
 }

@@ -18,7 +18,7 @@ namespace WWAudioFilter {
         private bool mFirst;
 
         private List<double> mInputDelay = new List<double>();
-        private PcmDataLib.LargeArray<double> mCoeffs;
+        private WWUtil.LargeArray<double> mCoeffs;
 
         public WindowedSincUpsampler(int factor, int windowLength)
                 : base(FilterType.WindowedSincUpsampler) {
@@ -107,7 +107,7 @@ namespace WWAudioFilter {
             var window = WWWindowFunc.BlackmanWindow(UpsampledWindowLen);
 
             // ループ処理を簡単にするため最初と最後に0を置く。
-            mCoeffs = new PcmDataLib.LargeArray<double>(1 + UpsampledWindowLen + 1);
+            mCoeffs = new WWUtil.LargeArray<double>(1 + UpsampledWindowLen + 1);
             long center = UpsampledWindowLen / 2;
 
             for (long i = 0; i < UpsampledWindowLen / 2 + 1; ++i) {
@@ -128,7 +128,7 @@ namespace WWAudioFilter {
             }
         }
 
-        public override PcmDataLib.LargeArray<double> FilterDo(PcmDataLib.LargeArray<double> inPcmLA) {
+        public override WWUtil.LargeArray<double> FilterDo(WWUtil.LargeArray<double> inPcmLA) {
             System.Diagnostics.Debug.Assert(inPcmLA.LongLength == NumOfSamplesNeeded());
             var inPcm = inPcmLA.ToArray();
 
@@ -170,7 +170,7 @@ namespace WWAudioFilter {
 #endif
 
             mFirst = false;
-            return new PcmDataLib.LargeArray<double>(toPcm);
+            return new WWUtil.LargeArray<double>(toPcm);
         }
     }
 }

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace WWAudioFilter {
     struct AudioDataPerChannel {
-        public PcmDataLib.LargeArray<byte> mData;
+        public WWUtil.LargeArray<byte> mData;
         public long mOffsBytes;
 
         /// <summary>
@@ -28,7 +28,7 @@ namespace WWAudioFilter {
             mMaxMagnitude = 0.0;
         }
 
-        public PcmDataLib.LargeArray<double> GetPcmInDouble(long longCount) {
+        public WWUtil.LargeArray<double> GetPcmInDouble(long longCount) {
             switch (mDataFormat) {
             case DataFormat.Pcm:
                 return GetPcmInDoublePcm(longCount);
@@ -44,7 +44,7 @@ namespace WWAudioFilter {
             // サンプル数 / 8 == バイト数。
 
             System.Diagnostics.Debug.Assert(count % 8 == 0);
-            System.Diagnostics.Debug.Assert(count <= PcmDataLib.LargeArray<byte>.ARRAY_FRAGMENT_LENGTH_NUM);
+            System.Diagnostics.Debug.Assert(count <= WWUtil.LargeArray<byte>.ARRAY_FRAGMENT_LENGTH_NUM);
 
             var result = new double[count];
 
@@ -87,9 +87,9 @@ namespace WWAudioFilter {
 
         }
 
-        public PcmDataLib.LargeArray<double> GetPcmInDoubleSdm1bit(long longCount) {
+        public WWUtil.LargeArray<double> GetPcmInDoubleSdm1bit(long longCount) {
             // サンプル数 / 8 == バイト数。
-            var result = new PcmDataLib.LargeArray<double>(longCount);
+            var result = new WWUtil.LargeArray<double>(longCount);
 
             if (mTotalSamples / 8 <= mOffsBytes || longCount == 0) {
                 // 完全に範囲外の時。
@@ -112,7 +112,7 @@ namespace WWAudioFilter {
 
                 long toPos = 0;
                 for (long remain = copySamples; 0 < remain;) {
-                    int fragmentCount = PcmDataLib.LargeArray<byte>.ARRAY_FRAGMENT_LENGTH_NUM;
+                    int fragmentCount = WWUtil.LargeArray<byte>.ARRAY_FRAGMENT_LENGTH_NUM;
                     if (remain < fragmentCount) {
                         fragmentCount = (int)remain;
                     }
@@ -177,9 +177,9 @@ namespace WWAudioFilter {
         /// </summary>
         /// <param name="longCount">取得する要素数。範囲外の領域は0が入る。</param>
         /// <returns></returns>
-        public PcmDataLib.LargeArray<double> GetPcmInDoublePcm(long longCount) {
+        public WWUtil.LargeArray<double> GetPcmInDoublePcm(long longCount) {
             // 確保するサイズはlongCount個。
-            var result = new PcmDataLib.LargeArray<double>(longCount);
+            var result = new WWUtil.LargeArray<double>(longCount);
 
             long fromPos = mOffsBytes / (mBitsPerSample / 8);
             long toPos = 0;
@@ -191,7 +191,7 @@ namespace WWAudioFilter {
             }
 
             for (long remain = copyCount; 0 < remain; ) {
-                int fragmentCount = PcmDataLib.LargeArray<byte>.ARRAY_FRAGMENT_LENGTH_NUM;
+                int fragmentCount = WWUtil.LargeArray<byte>.ARRAY_FRAGMENT_LENGTH_NUM;
                 if (remain < fragmentCount) {
                     fragmentCount = (int)remain;
                 }
@@ -307,7 +307,7 @@ namespace WWAudioFilter {
         /// <summary>
         /// double型のLargeArrayを入力するバージョン。
         /// </summary>
-        public void SetPcmInDouble(PcmDataLib.LargeArray<double> pcm, long toPos) {
+        public void SetPcmInDouble(WWUtil.LargeArray<double> pcm, long toPos) {
             long fromPos = 0;
 
             long copyCount = pcm.LongLength;
@@ -316,7 +316,7 @@ namespace WWAudioFilter {
             }
 
             for (long remain = copyCount; 0 < remain; ) {
-                int fragmentCount = PcmDataLib.LargeArray<byte>.ARRAY_FRAGMENT_LENGTH_NUM;
+                int fragmentCount = WWUtil.LargeArray<byte>.ARRAY_FRAGMENT_LENGTH_NUM;
                 if (remain < fragmentCount) {
                     fragmentCount = (int)(remain);
                 }

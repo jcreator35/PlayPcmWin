@@ -4,16 +4,16 @@ namespace WWAudioFilter {
     class WWRadix2FftLargeArray {
         private long mNumPoints;
         private int mNumStage;
-        private PcmDataLib.LargeArray<WWComplex> mWn;
-        private PcmDataLib.LargeArray<ulong> mBitReversalTable;
+        private WWUtil.LargeArray<WWComplex> mWn;
+        private WWUtil.LargeArray<ulong> mBitReversalTable;
 
         public WWRadix2FftLargeArray(long numPoints) {
-            if (!WWUtil.IsPowerOfTwo(numPoints) || numPoints < 2) {
+            if (!WWAFUtil.IsPowerOfTwo(numPoints) || numPoints < 2) {
                 throw new ArgumentException("numPoints must be power of two integer and larger than 2");
             }
             mNumPoints = numPoints;
 
-            mWn = new PcmDataLib.LargeArray<WWComplex>(mNumPoints);
+            mWn = new WWUtil.LargeArray<WWComplex>(mNumPoints);
             for (long i=0; i < mNumPoints; ++i) {
                 double angle = -2.0 * Math.PI * i / mNumPoints;
                 mWn.Set(i, new WWComplex(Math.Cos(angle), Math.Sin(angle)));
@@ -26,7 +26,7 @@ namespace WWAudioFilter {
                 mNumStage = i;
             }
 
-            mBitReversalTable = new PcmDataLib.LargeArray<ulong>(mNumPoints);
+            mBitReversalTable = new WWUtil.LargeArray<ulong>(mNumPoints);
             for (long i=0; i < mNumPoints; ++i) {
                 mBitReversalTable.Set(i, BitReversal(mNumStage, (ulong)i));
             }
@@ -54,22 +54,22 @@ namespace WWAudioFilter {
             return r;
         }
 
-        public PcmDataLib.LargeArray<WWComplex> ForwardFft(PcmDataLib.LargeArray<WWComplex> aFrom) {
+        public WWUtil.LargeArray<WWComplex> ForwardFft(WWUtil.LargeArray<WWComplex> aFrom) {
             if (aFrom == null || aFrom.LongLength != mNumPoints) {
                 throw new ArgumentOutOfRangeException("aFrom");
             }
-            var aTo = new PcmDataLib.LargeArray<WWComplex>(aFrom.LongLength);
+            var aTo = new WWUtil.LargeArray<WWComplex>(aFrom.LongLength);
 
-            var aTmp0 = new PcmDataLib.LargeArray<WWComplex>(mNumPoints);
+            var aTmp0 = new WWUtil.LargeArray<WWComplex>(mNumPoints);
             for (int i=0; i < aTmp0.LongLength; ++i) {
                 aTmp0.Set(i, new WWComplex(aFrom.At((long)mBitReversalTable.At(i))));
             }
-            var aTmp1 = new PcmDataLib.LargeArray<WWComplex>(mNumPoints);
+            var aTmp1 = new WWUtil.LargeArray<WWComplex>(mNumPoints);
             for (int i=0; i < aTmp1.LongLength; ++i) {
                 aTmp1.Set(i, new WWComplex());
             }
 
-            var aTmps = new PcmDataLib.LargeArray<WWComplex>[2];
+            var aTmps = new WWUtil.LargeArray<WWComplex>[2];
             aTmps[0] = aTmp0;
             aTmps[1] = aTmp1;
 
@@ -81,7 +81,7 @@ namespace WWAudioFilter {
             return aTo;
         }
 
-        public PcmDataLib.LargeArray<WWComplex> InverseFft(PcmDataLib.LargeArray<WWComplex> aFrom,
+        public WWUtil.LargeArray<WWComplex> InverseFft(WWUtil.LargeArray<WWComplex> aFrom,
                 double? compensation = null) {
             for (int i=0; i < aFrom.LongLength; ++i) {
                 var t = new WWComplex(aFrom.At(i).real, -aFrom.At(i).imaginary);
@@ -107,7 +107,7 @@ namespace WWAudioFilter {
             return aTo;
         }
 
-        private void FftStageN(int stageNr, PcmDataLib.LargeArray<WWComplex> x, PcmDataLib.LargeArray<WWComplex> y) {
+        private void FftStageN(int stageNr, WWUtil.LargeArray<WWComplex> x, WWUtil.LargeArray<WWComplex> y) {
             /*
              * stage0: 2つの入力データにバタフライ演算 (length=8の時) 4回 (nRepeat=4, nSubRepeat=2)
              * y[0] = x[0] + w_n^(0*4) * x[1]

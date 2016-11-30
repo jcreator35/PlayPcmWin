@@ -32,7 +32,7 @@ namespace WWAudioFilter {
 
         public WWComplex[] ConvolutionFft(WWComplex[] h, WWComplex[] x) {
             var r = new WWComplex[h.Length + x.Length - 1];
-            int fftSize = WWUtil.NextPowerOf2(r.Length);
+            int fftSize = WWAFUtil.NextPowerOf2(r.Length);
             var h2 = new WWComplex[fftSize];
             Array.Copy(h, 0, h2, 0, h.Length);
             var x2 = new WWComplex[fftSize];
@@ -51,7 +51,7 @@ namespace WWAudioFilter {
         }
 
         public WWComplex[] ConvolutionContinuousFft(WWComplex[] h, WWComplex[] x) {
-            int fftSize = WWUtil.NextPowerOf2(h.Length * 4);
+            int fftSize = WWAFUtil.NextPowerOf2(h.Length * 4);
             int fragmentSize = fftSize - h.Length+1;
 
             if (x.Length <= fragmentSize) {

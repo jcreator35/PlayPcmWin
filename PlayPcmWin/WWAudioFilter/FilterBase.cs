@@ -70,15 +70,15 @@ namespace WWAudioFilter {
         /// WaitUntilAllChannelDataAvailable()==trueの時呼び出される。
         /// 全てのチャンネルについてSetChannelPcm()が呼び出されたあとFilterDo()が呼び出される。
         /// </summary>
-        public virtual void SetChannelPcm(int ch, PcmDataLib.LargeArray<double> inPcm) {
+        public virtual void SetChannelPcm(int ch, WWUtil.LargeArray<double> inPcm) {
         }
 
         // 物置
-        private PcmDataLib.LargeArray<double> mPreviousProcessRemains;
-        public PcmDataLib.LargeArray<double> GetPreviousProcessRemains() {
+        private WWUtil.LargeArray<double> mPreviousProcessRemains;
+        public WWUtil.LargeArray<double> GetPreviousProcessRemains() {
             return mPreviousProcessRemains;
         }
-        public void SetPreviousProcessRemains(PcmDataLib.LargeArray<double> remains) {
+        public void SetPreviousProcessRemains(WWUtil.LargeArray<double> remains) {
             mPreviousProcessRemains = remains;
         }
         public FilterBase(FilterType type) {
@@ -125,13 +125,13 @@ namespace WWAudioFilter {
             return 4096;
         }
 
-        public virtual PcmDataLib.LargeArray<double> FilterDo(PcmDataLib.LargeArray<double> inPcm) {
+        public virtual WWUtil.LargeArray<double> FilterDo(WWUtil.LargeArray<double> inPcm) {
             long num = NumOfSamplesNeeded();
             if (inPcm.LongLength != num) {
                 throw new ArgumentOutOfRangeException("inPcm");
             }
 
-            PcmDataLib.LargeArray<double> outPcm = new PcmDataLib.LargeArray<double>(num);
+            WWUtil.LargeArray<double> outPcm = new WWUtil.LargeArray<double>(num);
             outPcm.CopyFrom(inPcm, 0, 0, num);
             return outPcm;
         }

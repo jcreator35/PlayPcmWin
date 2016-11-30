@@ -8,7 +8,7 @@ namespace WWAudioFilter {
         private uint [] mBitReversalTable;
 
         public WWRadix2Fft(int numPoints) {
-            if (!WWUtil.IsPowerOfTwo(numPoints) || numPoints < 2) {
+            if (!WWAFUtil.IsPowerOfTwo(numPoints) || numPoints < 2) {
                 throw new ArgumentException("numPoints must be power of two integer and larger than 2");
             }
             mNumPoints = numPoints;

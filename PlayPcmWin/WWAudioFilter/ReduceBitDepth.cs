@@ -41,7 +41,7 @@ namespace WWAudioFilter {
             return new ReduceBitDepth(tbps);
         }
 
-        public override PcmDataLib.LargeArray<double> FilterDo(PcmDataLib.LargeArray<double> inPcmLA) {
+        public override WWUtil.LargeArray<double> FilterDo(WWUtil.LargeArray<double> inPcmLA) {
             var inPcm = inPcmLA.ToArray();
 
             var outPcm = new double[inPcm.Length];
@@ -76,7 +76,7 @@ namespace WWAudioFilter {
                 outPcm[i] = (double)sampleI24 * (1.0 / 8388608);
             }
 
-            return new PcmDataLib.LargeArray<double>(outPcm);
+            return new WWUtil.LargeArray<double>(outPcm);
         }
 
     }

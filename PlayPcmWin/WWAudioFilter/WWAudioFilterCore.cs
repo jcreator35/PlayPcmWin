@@ -119,12 +119,12 @@ namespace WWAudioFilter {
             // allocate "to" pcm data
             to.pcm = new List<AudioDataPerChannel>();
             for (int ch = 0; ch < to.meta.channels; ++ch) {
-                PcmDataLib.LargeArray<byte> data;
+                WWUtil.LargeArray<byte> data;
 
                 // set silent sample values to output buffer
                 switch (toFileFormat) {
                 case FileFormatType.DSF:
-                    data = new PcmDataLib.LargeArray<byte>((to.meta.totalSamples + 7) / 8);
+                    data = new WWUtil.LargeArray<byte>((to.meta.totalSamples + 7) / 8);
                     for (long i = 0; i < data.LongLength; ++i) {
                         data.Set(i, 0x69);
                     }
@@ -133,10 +133,10 @@ namespace WWAudioFilter {
                     if (655350 < to.meta.sampleRate) {
                         return (int)WWFlacRWCS.FlacErrorCode.InvalidSampleRate;
                     }
-                    data = new PcmDataLib.LargeArray<byte>(to.meta.totalSamples * (to.meta.bitsPerSample / 8));
+                    data = new WWUtil.LargeArray<byte>(to.meta.totalSamples * (to.meta.bitsPerSample / 8));
                     break;
                 case FileFormatType.WAVE:
-                    data = new PcmDataLib.LargeArray<byte>(to.meta.totalSamples * (to.meta.bitsPerSample / 8));
+                    data = new WWUtil.LargeArray<byte>(to.meta.totalSamples * (to.meta.bitsPerSample / 8));
                     break;
                 default:
                     System.Diagnostics.Debug.Assert(false);
@@ -188,7 +188,7 @@ namespace WWAudioFilter {
 
                 ad.pcm = new List<AudioDataPerChannel>();
                 for (int ch = 0; ch < reader.NumChannels; ++ch) {
-                    var pcmOneChannel = new PcmDataLib.LargeArray<byte>(reader.NumFrames * bytesPerSample);
+                    var pcmOneChannel = new WWUtil.LargeArray<byte>(reader.NumFrames * bytesPerSample);
                     for (int i = 0; i < reader.NumFrames; ++i) {
                         for (int b = 0; b < reader.BitsPerSample / 8; ++b) {
                             pcmOneChannel.Set(bytesPerSample * i + b,
@@ -245,12 +245,12 @@ namespace WWAudioFilter {
                 PcmDataLib.PcmData pcm;
                 reader.ReadStreamBegin(br, out pcm);
 
-                var sampleData = new PcmDataLib.LargeArray<byte>[ad.meta.channels];
+                var sampleData = new WWUtil.LargeArray<byte>[ad.meta.channels];
 
                 for (int ch = 0; ch < ad.meta.channels; ++ch) {
                     // 24bit == 3bytes per channelのDoPから
                     // 16bitを抽出するので、１サンプルあたり２バイト。
-                    sampleData[ch] = new PcmDataLib.LargeArray<byte>(ad.meta.totalSamples *2);
+                    sampleData[ch] = new WWUtil.LargeArray<byte>(ad.meta.totalSamples *2);
                 }
 
                 const int FRAGMENT_SAMPLES = 1048576;
@@ -326,7 +326,7 @@ namespace WWAudioFilter {
                 // ■■■ 1チャンネル分のデータを取り出す。■■■
                 long totalBytes = ad.meta.totalSamples * ad.meta.bitsPerSample / 8;
 
-                var pcm = new PcmDataLib.LargeArray<byte>(totalBytes);
+                var pcm = new WWUtil.LargeArray<byte>(totalBytes);
                 int fragmentBytes = 4096 * ad.meta.bitsPerSample / 8;
                 for (long pos = 0; pos < totalBytes; ) {
                     int copyBytes = fragmentBytes;
@@ -440,9 +440,8 @@ namespace WWAudioFilter {
                         }
                     }
 
-                    WavRWLib2.WavWriter.Write(bw, ad.meta.channels, ad.meta.bitsPerSample, ad.meta.bitsPerSample,
-                        ad.meta.sampleRate, PcmDataLib.PcmData.ValueRepresentationType.SInt,
-                        ad.meta.totalSamples, sampleArray);
+                    WavRWLib2.WavWriter.Write(bw, ad.meta.channels, ad.meta.bitsPerSample,
+                        ad.meta.sampleRate, ad.meta.totalSamples, sampleArray);
                 }
             }
 
@@ -482,7 +481,7 @@ namespace WWAudioFilter {
             return 0;
         }
 
-        private static long CountTotalSamples(List<PcmDataLib.LargeArray<double>> data) {
+        private static long CountTotalSamples(List<WWUtil.LargeArray<double>> data) {
             long count = 0;
             foreach (var k in data) {
                 count += k.LongLength;
@@ -490,9 +489,9 @@ namespace WWAudioFilter {
             return count;
         }
 
-        private static void AssembleSample(List<PcmDataLib.LargeArray<double> > dataList, long count,
-                out PcmDataLib.LargeArray<double> gathered, out PcmDataLib.LargeArray<double> remainings) {
-            gathered = new PcmDataLib.LargeArray<double>(count);
+        private static void AssembleSample(List<WWUtil.LargeArray<double> > dataList, long count,
+                out WWUtil.LargeArray<double> gathered, out WWUtil.LargeArray<double> remainings) {
+            gathered = new WWUtil.LargeArray<double>(count);
 
             // この関数が呼び出されるときにはdataListにはcountバイト丁度か、
             // countバイトよりも少し多いバイト数を含んでいて配列の個数は丁度必要な数入っている。
@@ -512,7 +511,7 @@ namespace WWAudioFilter {
                 offs += length;
             }
 
-            remainings = new PcmDataLib.LargeArray<double>(remainLength);
+            remainings = new WWUtil.LargeArray<double>(remainLength);
             if (0 < remainLength) {
                 long lastDataLength = dataList[dataList.Count - 1].LongLength;
                 remainings.CopyFrom(dataList[dataList.Count - 1], lastDataLength - remainLength, 0, remainLength);
@@ -523,17 +522,17 @@ namespace WWAudioFilter {
         private Barrier mBarrierSet;
         private Barrier mBarrierClearInPcm;
 
-        private PcmDataLib.LargeArray<double>[] mInPcmArray;
+        private WWUtil.LargeArray<double>[] mInPcmArray;
 
         // この処理はチャンネルの数だけ並列実行される。
-        private PcmDataLib.LargeArray<double> FilterNth(List<FilterBase> filters, int nth, int channelId,
+        private WWUtil.LargeArray<double> FilterNth(List<FilterBase> filters, int nth, int channelId,
                 ref AudioDataPerChannel from) {
             if (nth == -1) {
                 return from.GetPcmInDouble(filters[0].NumOfSamplesNeeded());
             } else {
                 // サンプル数が貯まるまでn-1番目のフィルターを実行する。
 
-                var inPcmList = new List<PcmDataLib.LargeArray<double>>();
+                var inPcmList = new List<WWUtil.LargeArray<double>>();
                 {
                     // 前回フィルタ処理で余った入力データ
                     var prevRemainings = filters[nth].GetPreviousProcessRemains();
@@ -547,8 +546,8 @@ namespace WWAudioFilter {
                 }
 
                 // inPcmList → inPcmとremainings
-                PcmDataLib.LargeArray<double> inPcm;
-                PcmDataLib.LargeArray<double> remainings;
+                WWUtil.LargeArray<double> inPcm;
+                WWUtil.LargeArray<double> remainings;
                 AssembleSample(inPcmList, filters[nth].NumOfSamplesNeeded(), out inPcm, out remainings);
 
                 inPcmList = null;
@@ -646,7 +645,7 @@ namespace WWAudioFilter {
             mBarrierReady = new Barrier(audioDataFrom.meta.channels);
             mBarrierSet = new Barrier(audioDataFrom.meta.channels);
             mBarrierClearInPcm = new Barrier(audioDataFrom.meta.channels);
-            mInPcmArray = new PcmDataLib.LargeArray<double>[audioDataFrom.meta.channels];
+            mInPcmArray = new WWUtil.LargeArray<double>[audioDataFrom.meta.channels];
 
             Callback(FILE_READ_COMPLETE_PERCENTAGE, new ProgressArgs(Properties.Resources.LogFileReadCompleted, 0));
 

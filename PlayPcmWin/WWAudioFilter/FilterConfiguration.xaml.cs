@@ -504,7 +504,7 @@
 
                 var overlap = (FftUpsampler.OverlapType)comboBoxFftOverlap.SelectedIndex;
 
-                if (!WWUtil.IsPowerOfTwo(factor)) {
+                if (!WWAFUtil.IsPowerOfTwo(factor)) {
                     switch (factorType) {
                     case UpsamplerType.FFT:
                         // 2の乗数ではない倍数に対応していない。

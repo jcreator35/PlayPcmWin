@@ -40,14 +40,14 @@ namespace WWAudioFilter {
             return new GainFilter(amplitude);
         }
 
-        public override PcmDataLib.LargeArray<double> FilterDo(PcmDataLib.LargeArray<double> inPcmLA) {
+        public override WWUtil.LargeArray<double> FilterDo(WWUtil.LargeArray<double> inPcmLA) {
             var inPcm = inPcmLA.ToArray();
 
             var outPcm = new double[inPcm.Length];
             for (int i=0; i < outPcm.Length; ++i) {
                 outPcm[i] = inPcm[i] * Amplitude;
             }
-            return new PcmDataLib.LargeArray<double>(outPcm);
+            return new WWUtil.LargeArray<double>(outPcm);
         }
     }
 }

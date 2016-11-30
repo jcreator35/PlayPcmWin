@@ -76,7 +76,7 @@ namespace WWAudioFilter {
          * 
          * y[n] = r^2 * x[n] - 2rcosθ * x[n-1] + x[n-2] + 2rcosθ * y[n-1] - r^2 * y[n-2]
          */
-        public override PcmDataLib.LargeArray<double> FilterDo(PcmDataLib.LargeArray<double> inPcmLA) {
+        public override WWUtil.LargeArray<double> FilterDo(WWUtil.LargeArray<double> inPcmLA) {
             var inPcm = inPcmLA.ToArray();
             var outPcm = new double[inPcm.Length];
 
@@ -97,7 +97,7 @@ namespace WWAudioFilter {
                 mLastY[0] = y;
             }
 
-            return new PcmDataLib.LargeArray<double>(outPcm);
+            return new WWUtil.LargeArray<double>(outPcm);
         }
     }
 }

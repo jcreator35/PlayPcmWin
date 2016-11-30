@@ -32,7 +32,7 @@ namespace WWAudioFilter {
         }
 
         public override string ToSaveText() {
-            return string.Format(CultureInfo.InvariantCulture, "{0} {1}", TagType, WWUtil.EscapeString(Text));
+            return string.Format(CultureInfo.InvariantCulture, "{0} {1}", TagType, WWAFUtil.EscapeString(Text));
         }
 
         public static FilterBase Restore(string[] tokens) {

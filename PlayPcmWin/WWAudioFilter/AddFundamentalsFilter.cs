@@ -49,7 +49,7 @@ namespace WWAudioFilter {
 
         public override PcmFormat Setup(PcmFormat inputFormat) {
             mPcmFormat = new PcmFormat(inputFormat);
-            mFftLength = WWUtil.NextPowerOf2(mPcmFormat.SampleRate);
+            mFftLength = WWAFUtil.NextPowerOf2(mPcmFormat.SampleRate);
             mOverlappedFft = new OverlappedFft(mFftLength);
 
             return inputFormat;
@@ -65,7 +65,7 @@ namespace WWAudioFilter {
             mOverlappedFft.Clear();
         }
 
-        public override PcmDataLib.LargeArray<double> FilterDo(PcmDataLib.LargeArray<double> inPcmLA) {
+        public override WWUtil.LargeArray<double> FilterDo(WWUtil.LargeArray<double> inPcmLA) {
             var inPcm = inPcmLA.ToArray();
 
             var pcmF = mOverlappedFft.ForwardFft(inPcm);
@@ -89,7 +89,7 @@ namespace WWAudioFilter {
                 }
             }
 
-            return new PcmDataLib.LargeArray<double>(mOverlappedFft.InverseFft(pcmF));
+            return new WWUtil.LargeArray<double>(mOverlappedFft.InverseFft(pcmF));
         }
     }
 }

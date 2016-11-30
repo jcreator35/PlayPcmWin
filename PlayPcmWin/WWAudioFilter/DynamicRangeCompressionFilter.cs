@@ -59,7 +59,7 @@ namespace WWAudioFilter {
         }
 
 
-        public override PcmDataLib.LargeArray<double> FilterDo(PcmDataLib.LargeArray<double> inPcmLA) {
+        public override WWUtil.LargeArray<double> FilterDo(WWUtil.LargeArray<double> inPcmLA) {
             var inPcm = inPcmLA.ToArray();
             var pcmF = mOverlappedFft.ForwardFft(inPcm);
 
@@ -96,7 +96,7 @@ namespace WWAudioFilter {
                 pcmF[i].Mul(scale);
             }
 
-            return new PcmDataLib.LargeArray<double>(mOverlappedFft.InverseFft(pcmF));
+            return new WWUtil.LargeArray<double>(mOverlappedFft.InverseFft(pcmF));
         }
     }
 }

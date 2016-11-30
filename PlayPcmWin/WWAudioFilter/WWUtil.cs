@@ -1,7 +1,7 @@
 ﻿using System.Text;
 
 namespace WWAudioFilter {
-    public class WWUtil {
+    public class WWAFUtil {
         public static string EscapeString(string s) {
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < s.Length; ++i) {

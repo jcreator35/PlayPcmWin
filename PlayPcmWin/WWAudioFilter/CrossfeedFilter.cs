@@ -19,7 +19,7 @@ namespace WWAudioFilter {
         private int mCoeffNumChannels;
         private int mCoeffSampleRate;
 
-        private PcmDataLib.LargeArray<double>[] mPcmAllChannels;
+        private WWUtil.LargeArray<double>[] mPcmAllChannels;
 
         private enum Channels {
             LeftSpeakerToLeftEar,
@@ -41,7 +41,7 @@ namespace WWAudioFilter {
             return true;
         }
 
-        public override void SetChannelPcm(int ch, PcmDataLib.LargeArray<double> inPcm) {
+        public override void SetChannelPcm(int ch, WWUtil.LargeArray<double> inPcm) {
             mPcmAllChannels[ch] = inPcm;
         }
 
@@ -54,7 +54,7 @@ namespace WWAudioFilter {
         }
 
         public override string ToSaveText() {
-            return string.Format(CultureInfo.InvariantCulture, "{0}", WWUtil.EscapeString(FilterFilePath));
+            return string.Format(CultureInfo.InvariantCulture, "{0}", WWAFUtil.EscapeString(FilterFilePath));
         }
 
         public static FilterBase Restore(string[] tokens) {
@@ -78,7 +78,7 @@ namespace WWAudioFilter {
             mNumChannels = inputFormat.NumChannels;
             mChannelId   = inputFormat.ChannelId;
 
-            mPcmAllChannels = new PcmDataLib.LargeArray<double>[mNumChannels];
+            mPcmAllChannels = new WWUtil.LargeArray<double>[mNumChannels];
             return inputFormat;
         }
 
@@ -86,13 +86,13 @@ namespace WWAudioFilter {
             return mNumSamples;
         }
 
-        private static PcmDataLib.LargeArray<WWComplex>
-        Mul(PcmDataLib.LargeArray<WWComplex> a, PcmDataLib.LargeArray<WWComplex> b) {
+        private static WWUtil.LargeArray<WWComplex>
+        Mul(WWUtil.LargeArray<WWComplex> a, WWUtil.LargeArray<WWComplex> b) {
             if (a.LongLength != b.LongLength) {
                 return null;
             }
 
-            var result = new PcmDataLib.LargeArray<WWComplex>(a.LongLength);
+            var result = new WWUtil.LargeArray<WWComplex>(a.LongLength);
             for (long i = 0; i < a.LongLength; ++i) {
                 var t = new WWComplex(a.At(i));
                 result.Set(i, t.Mul(b.At(i)));
@@ -101,13 +101,13 @@ namespace WWAudioFilter {
             return result;
         }
 
-        private static PcmDataLib.LargeArray<double>
-        Add(PcmDataLib.LargeArray<double> a, PcmDataLib.LargeArray<double> b) {
+        private static WWUtil.LargeArray<double>
+        Add(WWUtil.LargeArray<double> a, WWUtil.LargeArray<double> b) {
             if (a.LongLength != b.LongLength) {
                 return null;
             }
 
-            var result = new PcmDataLib.LargeArray<double>(a.LongLength);
+            var result = new WWUtil.LargeArray<double>(a.LongLength);
             for (long i = 0; i < a.LongLength; ++i) {
                 result.Set(i, a.At(i) + b.At(i));
             }
@@ -115,10 +115,10 @@ namespace WWAudioFilter {
             return result;
         }
 
-        private PcmDataLib.LargeArray<double> FFTFir(PcmDataLib.LargeArray<double> inPcm,
+        private WWUtil.LargeArray<double> FFTFir(WWUtil.LargeArray<double> inPcm,
                 double[] coef, long fftLength) {
             var fft = new WWRadix2FftLargeArray(fftLength);
-            var inTime = new PcmDataLib.LargeArray<WWComplex>(fftLength);
+            var inTime = new WWUtil.LargeArray<WWComplex>(fftLength);
 
             for (long i = 0; i < mNumSamples; ++i) {
                 inTime.Set(i, new WWComplex(inPcm.At(i), 0));
@@ -127,7 +127,7 @@ namespace WWAudioFilter {
             var inFreq = fft.ForwardFft(inTime);
             inTime = null;
 
-            var coefTime = new PcmDataLib.LargeArray<WWComplex>(fftLength);
+            var coefTime = new WWUtil.LargeArray<WWComplex>(fftLength);
             for (long i = 0; i < mCoeffs[mChannelId * 2].Length; ++i) {
                 coefTime.Set(i, new WWComplex(coef[i], 0));
             }
@@ -142,7 +142,7 @@ namespace WWAudioFilter {
             var mulTime = fft.InverseFft(mulFreq);
             mulFreq = null;
 
-            var result = new PcmDataLib.LargeArray<double>(inPcm.LongLength);
+            var result = new WWUtil.LargeArray<double>(inPcm.LongLength);
             for (int i = 0; i < inPcm.LongLength; ++i) {
                 result.Set(i, mulTime.At(i).real);
             }
@@ -151,12 +151,12 @@ namespace WWAudioFilter {
             return result;
         }
 
-        public override PcmDataLib.LargeArray<double> FilterDo(PcmDataLib.LargeArray<double> inPcm) {
+        public override WWUtil.LargeArray<double> FilterDo(WWUtil.LargeArray<double> inPcm) {
             // この計算で求めるのは、mChannelId==0のとき左耳, mChannelId==1のとき右耳の音。mChannelIdは耳のチャンネル番号。
             // 入力データとしてmPcmAllChannelsが使用できる。mPcmAllChannels[0]==左スピーカーの音、mPcmAllChannels[1]==右スピーカーの音。
 
             long fftLength = (mNumSamples < mCoeffs[0].Length) ? mCoeffs[0].Length : mNumSamples;
-            fftLength = WWUtil.NextPowerOf2(fftLength);
+            fftLength = WWAFUtil.NextPowerOf2(fftLength);
 
             // 左スピーカーの音=mPcmAllChannels[0]
             // 左スピーカーと耳chの相互作用のCoeff==mCoeffs[ch]

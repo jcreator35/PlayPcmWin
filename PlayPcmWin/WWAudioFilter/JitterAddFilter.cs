@@ -218,7 +218,7 @@ namespace WWAudioFilter {
             return mTotalSamples;
         }
 
-        public override PcmDataLib.LargeArray<double> FilterDo(PcmDataLib.LargeArray<double> inPcmLA) {
+        public override WWUtil.LargeArray<double> FilterDo(WWUtil.LargeArray<double> inPcmLA) {
             var inPcm = inPcmLA.ToArray();
 
             System.Diagnostics.Debug.Assert(inPcm.Length == mResamplePosArray.Length);
@@ -250,7 +250,7 @@ namespace WWAudioFilter {
                 outPcm[toPos] = v;
             });
 
-            return new PcmDataLib.LargeArray<double>(outPcm);
+            return new WWUtil.LargeArray<double>(outPcm);
         }
     }
 }

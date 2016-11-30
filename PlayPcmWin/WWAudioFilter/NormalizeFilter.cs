@@ -86,7 +86,7 @@ namespace WWAudioFilter {
             mSampleList.Clear();
         }
 
-        public override PcmDataLib.LargeArray<double> FilterDo(PcmDataLib.LargeArray<double> inPcmLA) {
+        public override WWUtil.LargeArray<double> FilterDo(WWUtil.LargeArray<double> inPcmLA) {
             var inPcm = inPcmLA.ToArray();
             mSampleList.Add(inPcm);
 
@@ -95,7 +95,7 @@ namespace WWAudioFilter {
 
                 double gain = Amplitude / maxMagnitude;
 
-                var result = new PcmDataLib.LargeArray<double>(mNumSamples);
+                var result = new WWUtil.LargeArray<double>(mNumSamples);
                 long pos = 0;
                 foreach (var s in mSampleList) {
                     for (int i = 0; i < s.Length; ++i) {
@@ -111,7 +111,7 @@ namespace WWAudioFilter {
 
                 return result;
             } else {
-                return new PcmDataLib.LargeArray<double>(0);
+                return new WWUtil.LargeArray<double>(0);
             }
         }
     }

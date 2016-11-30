@@ -31,11 +31,11 @@ namespace WWAudioFilter {
             return window;
         }
 
-        public static PcmDataLib.LargeArray<double> BlackmanWindow(long length) {
+        public static WWUtil.LargeArray<double> BlackmanWindow(long length) {
             // nは奇数
             System.Diagnostics.Debug.Assert((length & 1) == 1);
 
-            var window = new PcmDataLib.LargeArray<double>(length);
+            var window = new WWUtil.LargeArray<double>(length);
 
             // 教科書通りに計算すると両端の値が0.0になって
             // せっかくのデータが0にされて勿体無いので両端(pos==0とpos==length-1)の値はカットし、両端を1ずつ広げる
