@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace WWAudioFilter {
-    class FirstOrderRationalPolynomial {
+namespace WWMath {
+    public class FirstOrderRationalPolynomial {
         private WWComplex[] numer = new WWComplex[2];
         private WWComplex[] denom = new WWComplex[2];
 

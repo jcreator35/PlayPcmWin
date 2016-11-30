@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WWAudioFilter {
+namespace WWMath {
     public struct WWComplex {
         public double real;
         public double imaginary;

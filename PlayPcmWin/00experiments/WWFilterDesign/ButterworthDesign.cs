@@ -1,4 +1,5 @@
 ﻿using System;
+using WWMath;
 
 namespace WWAudioFilter {
     public class ButterworthDesign {

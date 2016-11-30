@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace WWAudioFilter {
-    class InverseLaplaceTransform {
+namespace WWMath {
+    public class WWPolynomial {
 
         /// <summary>
         /// p次オールポールの多項式(分子は多項式係数のリストで分母は根のリスト)を部分分数展開する。分子の多項式の次数はp次未満。
@@ -79,7 +79,7 @@ namespace WWAudioFilter {
             dRoots.Add(new WWComplex(0, 0));
             dRoots.Add(new WWComplex(2, 0));
 
-            var polynomialList = InverseLaplaceTransform.PartialFractionDecomposition(nPolynomialCoeffs, dRoots);
+            var polynomialList = WWPolynomial.PartialFractionDecomposition(nPolynomialCoeffs, dRoots);
 
             for (int i = 0; i < polynomialList.Count; ++i) {
                 Console.WriteLine(polynomialList[i].ToString("s"));
