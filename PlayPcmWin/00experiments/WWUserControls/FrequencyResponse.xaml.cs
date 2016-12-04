@@ -15,15 +15,14 @@ namespace WWUserControls {
             InitializeComponent();
         }
 
+        private bool mInitialized = false;
+
         private void UserControl_Loaded(object sender, RoutedEventArgs e) {
-            FreqScale = FreqScaleType.Logarithmic;
-            FreqRange = FreqRangeType.SF_10HzTo100kHz;
-            MagnitudeScale = MagScaleType.Logarithmic;
-            MagnitudeRange = MagnitudeRangeType.M96dB;
             ShowGain = true;
             ShowPhase = true;
             PhaseShiftDegree = -180;
 
+            mInitialized = true;
             Update();
         }
 
@@ -39,48 +38,49 @@ namespace WWUserControls {
             Logarithmic,
         };
 
-        public FreqScaleType FreqScale { get; set; }
-
         public enum FreqRangeType {
             SF_10HzTo100kHz,
             SF_0_1HzTo10Hz,
         };
-
-        public FreqRangeType FreqRange { get; set; }
 
         public enum MagScaleType {
             Linear,
             Logarithmic,
         };
 
-        public MagScaleType MagnitudeScale { get; set; }
-
         public enum MagnitudeRangeType {
-            M96dB,
             M1dB,
             M3dB,
             M12dB,
-            M48dB
+            M24dB,
+            M48dB,
+            M96dB
         }
-
-        public MagnitudeRangeType MagnitudeRange { get; set; }
 
         public bool ShowGain { get; set; }
         public bool ShowPhase { get; set; }
 
         /// <summary>
-        /// Magnitude Scale(対数軸)の4乗根を戻す。
+        /// Magnitude Scale(対数軸)の8乗根を戻す。目盛が8つあるので。
         /// </summary>
         private double MagnitudeRangeValue() {
             double[] mRange = new double[] {
-                0.06309573444801932494343601366223, // -96dBの4乗根
-                0.97162795157710617416734286616884, // -1dBの4乗根
-                0.91727593538977958470087508027281, // -3dBの4乗根
-                0.70794578438413791080221494218931, // -12dBの4乗根
-                0.25118864315095801110850320677993, // -48dBの4乗根
+                Math.Pow(Math.Pow(10.0, -1.0/20.0), 1.0/8.0), // -1dBの8乗根
+                Math.Pow(1.0/Math.Sqrt(2.0), 1.0/8.0), // -3dBの8乗根
+                Math.Pow(1.0/4.0, 1.0/8.0), // -12dBの8乗根
+                Math.Pow(1.0/16.0, 1.0/8.0), // -24dBの8乗根
+                Math.Pow(1.0/256.0, 1.0/8.0), // -48dBの8乗根
+                Math.Pow(1.0/65536, 1.0/8.0), // -96dBの8乗根
             };
 
-            return mRange[(int)MagnitudeRange];
+            return mRange[(int)(MagnitudeRangeType)comboBoxMagRange.SelectedIndex];
+        }
+
+        /// <summary>
+        /// 最大減衰値。
+        /// </summary>
+        private double MagRangeMax() {
+            return Math.Pow(MagnitudeRangeValue(), 8);
         }
 
 
@@ -90,10 +90,10 @@ namespace WWUserControls {
         private List<Label> mLabelList = new List<Label>();
 
         private Tuple<double, double> FreqStartEnd() {
-            switch (FreqScale) {
+            switch ((FreqScaleType)comboBoxFreqScale.SelectedIndex) {
             case FreqScaleType.Logarithmic:
                 // 対数の時、開始周波数は0.1, 1, 10, 100, …でなければならない
-                switch (FreqRange) {
+                switch ((FreqRangeType)comboBoxFreqRange.SelectedIndex) {
                 case FreqRangeType.SF_10HzTo100kHz:
                     return new Tuple<double, double>(10, 100 * 1000);
                 case FreqRangeType.SF_0_1HzTo10Hz:
@@ -112,10 +112,10 @@ namespace WWUserControls {
         /// <summary>
         /// プロット座標x → 周波数
         /// </summary>
-        /// <param name="idx">0 <= idx < FR_LINE_WIDTH</param>
+        /// <param name="idx">0 &lt;= idx &lt; FR_LINE_WIDTH</param>
         /// <returns>周波数 Hz</returns>
         private double PlotXToFrequency(int idx) {
-            switch (FreqScale) {
+            switch ((FreqScaleType)comboBoxFreqScale.SelectedIndex) {
             case FreqScaleType.Linear:
                 return FreqStartEnd().Item2 * idx / FR_LINE_WIDTH;
             case FreqScaleType.Logarithmic: {
@@ -138,7 +138,7 @@ namespace WWUserControls {
         /// <param name="freq">周波数 Hz</param>
         /// <returns>プロット座標x</returns>
         private double FrequencyToPlotX(double freq) {
-            switch (FreqScale) {
+            switch ((FreqScaleType)comboBoxFreqScale.SelectedIndex) {
             case FreqScaleType.Linear:
                 return (freq / FreqStartEnd().Item2) * FR_LINE_WIDTH;
             case FreqScaleType.Logarithmic: {
@@ -197,7 +197,7 @@ namespace WWUserControls {
         /// </summary>
         /// <returns></returns>
         private List<double> GenerateVerticalGridFreqList() {
-            switch (FreqScale) {
+            switch ((FreqScaleType)comboBoxFreqScale.SelectedIndex) {
             case FreqScaleType.Linear:
                 return GenerateVGridFreqListLinear();
             case FreqScaleType.Logarithmic:
@@ -213,7 +213,7 @@ namespace WWUserControls {
                 return string.Format("{0}", freq);
             }
             if (freq < 1000 * 10) {
-                return string.Format("{0:0.00}k", freq / 1000);
+                return string.Format("{0:0}k", freq / 1000);
             }
             if (freq < 1000 * 100) {
                 if (freq / 100 == (int)(freq / 100)) {
@@ -258,6 +258,17 @@ namespace WWUserControls {
         public TransferFunctionDelegate TransferFunction = (WWComplex s) => { return new WWComplex(1, 0); };
 
         public void Update() {
+            if (!mInitialized) {
+                return;
+            }
+
+            /*
+            for (int i = 0; i < FR_LINE_WIDTH; ++i) {
+                double freq = PlotXToFrequency(i);
+                Console.WriteLine("{0} {1} {2}", i, freq, FrequencyToPlotX(freq));
+            }
+            */
+
             foreach (var item in mLineList) {
                 canvasFR.Children.Remove(item);
             }
@@ -316,34 +327,39 @@ namespace WWUserControls {
                     Canvas.SetTop(t, FR_LINE_BOTTOM);
                     mLabelList.Add(t);
                 }
+                //Console.WriteLine("{0} {1}Hz", x, freq);
             }
 
             double magRange = MagnitudeRangeValue();
 
-            switch (MagnitudeScale) {
+            Label[] labels = new Label[] {
+                labelFRMag0000,
+                labelFRMag0125,
+                labelFRMag0250,
+                labelFRMag0375,
+                labelFRMag0500,
+                labelFRMag0625,
+                labelFRMag0750,
+                labelFRMag0875,
+                labelFRMag1000,
+            };
+
+            switch ((MagScaleType)comboBoxMagScale.SelectedIndex) {
             case MagScaleType.Linear:
                 labelMagnitude.Content = "Magnitude";
-                labelFRMagMax.Content = string.Format("{0:0.00}", maxMagnitude);
-                labelFRMag2.Content = string.Format("{0:0.00}", maxMagnitude * 0.75);
-                labelFRMag1.Content = string.Format("{0:0.00}", maxMagnitude * 0.5);
-                labelFRMag0.Content = string.Format("{0:0.00}", maxMagnitude * 0.25);
-                labelFRMagMin.Content = string.Format("{0:0.00}", 0);
-
-                lineFRMag0.Y1 = lineFRMag0.Y2 = FR_LINE_BOTTOM - FR_LINE_HEIGHT * 1 / 4;
-                lineFRMag1.Y1 = lineFRMag1.Y2 = FR_LINE_BOTTOM - FR_LINE_HEIGHT * 2 / 4;
-                lineFRMag2.Y1 = lineFRMag2.Y2 = FR_LINE_BOTTOM - FR_LINE_HEIGHT * 3 / 4;
+                for (int i = 0; i < labels.Length; ++i) {
+                    labels[i].Content = string.Format("{0:0.000}", i * maxMagnitude * 0.125);
+                }
                 break;
             case MagScaleType.Logarithmic:
                 labelMagnitude.Content = "Magnitude (dB)";
-                labelFRMagMax.Content = string.Format("{0:0.00}", 20.0 * Math.Log10(maxMagnitude));
-                labelFRMag2.Content = string.Format("{0:0.00}", 20.0 * Math.Log10(maxMagnitude * magRange));
-                labelFRMag1.Content = string.Format("{0:0.00}", 20.0 * Math.Log10(maxMagnitude * magRange * magRange));
-                labelFRMag0.Content = string.Format("{0:0.00}", 20.0 * Math.Log10(maxMagnitude * magRange * magRange * magRange));
-                labelFRMagMin.Content = string.Format("{0:0.00}", 20.0 * Math.Log10(maxMagnitude * magRange * magRange * magRange * magRange));
 
-                lineFRMag0.Y1 = lineFRMag0.Y2 = FR_LINE_BOTTOM - FR_LINE_HEIGHT * 1 / 4;
-                lineFRMag1.Y1 = lineFRMag1.Y2 = FR_LINE_BOTTOM - FR_LINE_HEIGHT * 2 / 4;
-                lineFRMag2.Y1 = lineFRMag2.Y2 = FR_LINE_BOTTOM - FR_LINE_HEIGHT * 3 / 4;
+                double magnitude = maxMagnitude;
+                for (int i = 0; i < labels.Length; ++i) {
+                    labels[labels.Length - 1 - i].Content = string.Format("{0:0.00}", 20.0 * Math.Log10(magnitude));
+                    //Console.WriteLine("{0} {1}", magnitude, 20.0 * Math.Log10(magnitude));
+                    magnitude *= magRange;
+                }
                 break;
             default:
                 System.Diagnostics.Debug.Assert(false);
@@ -352,12 +368,10 @@ namespace WWUserControls {
 
             {
                 var visibility = ShowGain ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
-                labelFRMag0.Visibility = visibility;
-                labelFRMag1.Visibility = visibility;
-                labelFRMag2.Visibility = visibility;
-                labelFRMagMax.Visibility = visibility;
-                labelFRMagMin.Visibility = visibility;
                 labelMagnitude.Visibility = visibility;
+                for (int i = 0; i < labels.Length; ++i) {
+                    labels[i].Visibility = visibility;
+                }
             }
 
             {
@@ -372,6 +386,7 @@ namespace WWUserControls {
 
             // 周波数応答の折れ線を作る。
 
+            double magRangeMax = MagRangeMax();
             var lastPosM = new Point();
             var lastPosP = new Point();
 
@@ -389,7 +404,7 @@ namespace WWUserControls {
 
                 posP = new Point(FR_LINE_LEFT + i, FR_LINE_YCENTER - FR_LINE_HEIGHT * phase / (2.0f * Math.PI));
 
-                switch (MagnitudeScale) {
+                switch ((MagScaleType)comboBoxMagScale.SelectedIndex) {
                 case MagScaleType.Linear:
                     posM = new Point(FR_LINE_LEFT + i, FR_LINE_BOTTOM - FR_LINE_HEIGHT * fr[i].Magnitude() / maxMagnitude);
                     break;
@@ -397,7 +412,7 @@ namespace WWUserControls {
                     posM = new Point(FR_LINE_LEFT + i,
                         FR_LINE_TOP 
                         + FR_LINE_HEIGHT * 20.0 * Math.Log10(fr[i].Magnitude() / maxMagnitude)
-                          / (20.0 * Math.Log10(magRange * magRange * magRange * magRange)));
+                          / (20.0 * Math.Log10(magRangeMax)));
                     break;
                 default:
                     System.Diagnostics.Debug.Assert(false);
@@ -406,7 +421,7 @@ namespace WWUserControls {
 
                 if (1 <= i) {
                     bool bDraw = true;
-                    switch (MagnitudeScale) {
+                    switch ((MagScaleType)comboBoxMagScale.SelectedIndex) {
                     case MagScaleType.Logarithmic:
                         if (FR_LINE_BOTTOM < posM.Y || FR_LINE_BOTTOM < lastPosM.Y) {
                             bDraw = false;
@@ -434,6 +449,28 @@ namespace WWUserControls {
                 lastPosP = posP;
                 lastPosM = posM;
             }
+        }
+
+        private void comboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+            Update();
+        }
+
+        private void checkBoxShowGain_Changed(object sender, RoutedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            }
+
+            ShowGain = checkBoxShowGain.IsChecked == true;
+            Update();
+        }
+
+        private void checkBoxShowPhase_Changed(object sender, RoutedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            }
+
+            ShowPhase = checkBoxShowPhase.IsChecked == true;
+            Update();
         }
 
     }

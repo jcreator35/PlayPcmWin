@@ -74,6 +74,8 @@ namespace WWAudioFilter {
             var bwd = new ButterworthDesign(h0, hc, hs, ωc, ωs, betaType);
             AddLog(string.Format("order={0}\n", bwd.Order()));
 
+            AddLog(string.Format("β={0}\n", bwd.Beta()));
+
             double constant = bwd.TransferFunctionConstant();
 
             // 伝達関数をログに出力。

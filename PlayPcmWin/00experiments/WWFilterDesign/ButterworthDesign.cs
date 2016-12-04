@@ -96,6 +96,10 @@ namespace WWAudioFilter {
             return mN;
         }
 
+        public double Beta() {
+            return mβ;
+        }
+
         /// <summary>
         /// カットオフ周波数ωc。sをこの値で割る。(周波数スケーリング)
         /// </summary>

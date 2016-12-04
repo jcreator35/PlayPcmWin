@@ -20,6 +20,13 @@ namespace WWMath {
         ///         s-dRoots[0]     s-dRoots[1]     s-dRoots[2]         s-dRoots[p-1]
         /// </summary>
         public static List<FirstOrderRationalPolynomial> PartialFractionDecomposition(List<WWComplex> nCoeffs, List<WWComplex> dRoots) {
+            var result = new List<FirstOrderRationalPolynomial>();
+
+            if (dRoots.Count == 1 && nCoeffs.Count == 1) {
+                result.Add(new FirstOrderRationalPolynomial(new WWComplex(0,0), nCoeffs[0], new WWComplex(1,0), WWComplex.Minus(dRoots[0])));
+                return result;
+            }
+
             if (dRoots.Count < 2) {
                 throw new ArgumentException("dRoots");
             }
@@ -27,7 +34,6 @@ namespace WWMath {
                 throw new ArgumentException("nCoeffs");
             }
 
-            var result = new List<FirstOrderRationalPolynomial>();
 
             for (int k = 0; k < dRoots.Count; ++k) {
                 // cn = ... + nCoeffs[2]s^2 + nCoeffs[1]s + nCoeffs[0]
