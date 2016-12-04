@@ -33,6 +33,8 @@ namespace WWUserControls {
         private const int FR_LINE_BOTTOM = FR_LINE_TOP + FR_LINE_HEIGHT;
         private const int FR_LINE_YCENTER = (FR_LINE_TOP + FR_LINE_BOTTOM) / 2;
 
+        private const double DISP_MAG_THRESHOLD = 0.001 * 0.001 * 0.001;
+
         public enum FreqScaleType {
             Linear,
             Logarithmic,
@@ -102,7 +104,13 @@ namespace WWUserControls {
                 System.Diagnostics.Debug.Assert(false);
                 break;
             case FreqScaleType.Linear:
-                return new Tuple<double, double>(0, 100 * 1000);
+                switch ((FreqRangeType)comboBoxFreqRange.SelectedIndex) {
+                case FreqRangeType.SF_10HzTo100kHz:
+                    return new Tuple<double, double>(0, 100 * 1000);
+                case FreqRangeType.SF_0_1HzTo10Hz:
+                    return new Tuple<double, double>(0, 10);
+                }
+                break;
             }
 
             System.Diagnostics.Debug.Assert(false);
@@ -431,20 +439,24 @@ namespace WWUserControls {
 
 
                     if (bDraw && ShowGain) {
-                        var lineM = new Line();
-                        lineM.Stroke = Brushes.Blue;
-                        LineSetPos(lineM, lastPosM.X, lastPosM.Y, posM.X, posM.Y);
-                        mLineList.Add(lineM);
-                        canvasFR.Children.Add(lineM);
+                        if (DISP_MAG_THRESHOLD < fr[i].Magnitude()) {
+                            var lineM = new Line();
+                            lineM.Stroke = Brushes.Blue;
+                            LineSetPos(lineM, lastPosM.X, lastPosM.Y, posM.X, posM.Y);
+                            mLineList.Add(lineM);
+                            canvasFR.Children.Add(lineM);
+                        }
                     }
                 }
 
                 if (2 <= i && ShowPhase) {
-                    var lineP = new Line();
-                    lineP.Stroke = Brushes.Red;
-                    LineSetPos(lineP, lastPosP.X, lastPosP.Y, posP.X, posP.Y);
-                    mLineList.Add(lineP);
-                    canvasFR.Children.Add(lineP);
+                    if (DISP_MAG_THRESHOLD < fr[i].Magnitude()) {
+                        var lineP = new Line();
+                        lineP.Stroke = Brushes.Red;
+                        LineSetPos(lineP, lastPosP.X, lastPosP.Y, posP.X, posP.Y);
+                        mLineList.Add(lineP);
+                        canvasFR.Children.Add(lineP);
+                    }
                 }
                 lastPosP = posP;
                 lastPosM = posM;
