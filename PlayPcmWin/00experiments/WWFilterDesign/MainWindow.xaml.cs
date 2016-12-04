@@ -126,7 +126,7 @@ namespace WWAudioFilter {
 
                 AddLog("Transfer function (After Partial Fraction Decomposition): H(s) = ");
                 for (int i = 0; i < polynomialList.Count(); ++i) {
-                    AddLog(polynomialList[i].ToString("s"));
+                    AddLog(polynomialList[i].ToString("s/ωc"));
                     if (i != polynomialList.Count - 1) {
                         AddLog(" + ");
                     }
