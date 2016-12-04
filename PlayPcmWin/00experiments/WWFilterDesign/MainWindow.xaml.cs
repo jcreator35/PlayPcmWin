@@ -72,9 +72,17 @@ namespace WWAudioFilter {
             double hs = Math.Pow(10, gs / 20);
 
             var bwd = new ButterworthDesign(h0, hc, hs, ωc, ωs, betaType);
-            AddLog(string.Format("order={0}\nCoeffs", bwd.Order()));
+            AddLog(string.Format("order={0}\n", bwd.Order()));
 
             double constant = bwd.TransferFunctionConstant();
+
+            // 伝達関数をログに出力。
+            AddLog(string.Format("Transfer function: H(s) = {0}", constant));
+            for (int i = 0; i < bwd.Order(); ++i) {
+                var a = bwd.PoleNth(i);
+                AddLog(string.Format(" / (s/ωc + {0})", WWComplex.Minus(a)));
+            }
+            AddLog("\n");
 
             // 周波数応答グラフに伝達関数をセット。
             mFrequencyResponse.TransferFunction = (WWComplex s) => {
@@ -92,7 +100,6 @@ namespace WWAudioFilter {
             mPoleZeroPlot.SetScale(bwd.PoleNth(0).Magnitude());
             for (int i = 0; i < bwd.Order(); ++i) {
                 var p = bwd.PoleNth(i);
-                AddLog(string.Format("  {0}\n", p));
                 mPoleZeroPlot.AddPole(p);
             }
             mPoleZeroPlot.TransferFunction = (WWComplex s) => {
