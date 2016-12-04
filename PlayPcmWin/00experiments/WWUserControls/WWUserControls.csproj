@@ -93,6 +93,9 @@
     <Compile Include="SPoleZeroPlot.xaml.cs">
       <DependentUpon>SPoleZeroPlot.xaml</DependentUpon>
     </Compile>
+    <Compile Include="TimeDomainPlot.xaml.cs">
+      <DependentUpon>TimeDomainPlot.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Page Include="FrequencyResponse.xaml">
@@ -102,6 +105,10 @@
     <Page Include="SPoleZeroPlot.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="TimeDomainPlot.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>

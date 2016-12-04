@@ -72,9 +72,7 @@ namespace WWAudioFilter {
             double hs = Math.Pow(10, gs / 20);
 
             var bwd = new ButterworthDesign(h0, hc, hs, ωc, ωs, betaType);
-            AddLog(string.Format("order={0}\n", bwd.Order()));
-
-            AddLog(string.Format("β={0}\n", bwd.Beta()));
+            AddLog(string.Format("order={0}, β={1}\n", bwd.Order(), bwd.Beta()));
 
             double constant = bwd.TransferFunctionConstant();
 
@@ -114,8 +112,8 @@ namespace WWAudioFilter {
             };
             mPoleZeroPlot.Update();
 
-            // 逆ラプラス変換する。
             {
+                // 伝達関数を部分分数展開する。
                 var nPolynomialCoeffs = new List<WWComplex>();
                 nPolynomialCoeffs.Add(new WWComplex(constant, 0));
 
@@ -126,15 +124,48 @@ namespace WWAudioFilter {
                 }
                 var polynomialList = WWPolynomial.PartialFractionDecomposition(nPolynomialCoeffs, dRoots);
 
-                Console.WriteLine("Impulse Response=");
+                AddLog("Transfer function (After Partial Fraction Decomposition): H(s) = ");
                 for (int i = 0; i < polynomialList.Count(); ++i) {
-                    Console.WriteLine("    " + polynomialList[i].ToString("s"));
+                    AddLog(polynomialList[i].ToString("s"));
                     if (i != polynomialList.Count - 1) {
-                        Console.WriteLine("    + ");
+                        AddLog(" + ");
                     }
                 }
-                Console.WriteLine("");
+                AddLog("\n");
+
+                mTimeDomainPlot.ImpulseResponseFunction = (double t) => {
+                    if (t <= 0) {
+                        return 0;
+                    }
+
+                    // 逆ラプラス変換してインパルス応答関数を得る。
+                    WWComplex result = new WWComplex(0,0);
+
+                    foreach (var item in polynomialList) {
+                        // numerator * exp(denominator * t)
+                        result.Add(WWComplex.Mul(item.NumeratorCoeff(0),
+                            new WWComplex(Math.Exp(-t * item.DenominatorCoeff(0).real) * Math.Cos(-t * item.DenominatorCoeff(0).imaginary),
+                                          Math.Exp(-t * item.DenominatorCoeff(0).real) * Math.Sin(-t * item.DenominatorCoeff(0).imaginary))));
+                    }
+
+                    return result.real;
+                };
+
+                AddLog("Impulse Response (frequency normalized): h(t) = ");
+                for (int i=0; i<polynomialList.Count; ++i) {
+                    var item = polynomialList[i];
+                    AddLog(string.Format("({0}) * exp(-t * ({1}))", item.NumeratorCoeff(0), item.DenominatorCoeff(0)));
+                    if (i != polynomialList.Count - 1) {
+                        AddLog(" + ");
+                    }
+                }
+                AddLog("\n");
+
+                mTimeDomainPlot.TimeScale = 1.0 / bwd.CutoffFrequency();
+                mTimeDomainPlot.Update();
             }
+
+
         }
 
 

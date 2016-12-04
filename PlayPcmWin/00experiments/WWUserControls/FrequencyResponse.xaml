@@ -4,17 +4,17 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             d:DesignWidth="640" d:DesignHeight="480" Loaded="UserControl_Loaded">
+             d:DesignWidth="640" d:DesignHeight="440" Loaded="UserControl_Loaded">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="360" />
+            <RowDefinition Height="340" />
             <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
-        <Canvas Width="640" Height="360" Name="canvasFR" Grid.ColumnSpan="2">
-            <Line X1="64" Y1="288" X2="576" Y2="288" Stroke="Black" />
-            <Line X1="64" Y1="32" X2="64" Y2="288" Stroke="Black" />
-            <Line X1="576" Y1="32" X2="576" Y2="288" Stroke="Black" />
-            <Line X1="64" Y1="32" X2="576" Y2="32" Stroke="Black" />
+        <Canvas Width="640" Height="340" Name="canvasFR" Grid.ColumnSpan="2">
+            <Line X1="64" Y1="288" X2="576" Y2="288" Stroke="LightGray" />
+            <Line X1="64" Y1="32" X2="64" Y2="288" Stroke="LightGray" />
+            <Line X1="576" Y1="32" X2="576" Y2="288" Stroke="LightGray" />
+            <Line X1="64" Y1="32" X2="576" Y2="32" Stroke="LightGray" />
 
             <Line X1="64" Y1="64" X2="576" Y2="64" Stroke="LightGray" Name="lineFRMag0875"/>
             <Line X1="64" Y1="96" X2="576" Y2="96" Stroke="LightGray" Name="lineFRMag0750"/>
@@ -33,7 +33,7 @@
             <Label Canvas.Left="15" Canvas.Top="212" Content="0.25" Name="labelFRMag0250" Foreground="Blue" HorizontalContentAlignment="Right" Width="50" />
             <Label Canvas.Left="15" Canvas.Top="244" Content="0.125" Name="labelFRMag0125" Foreground="Blue" HorizontalContentAlignment="Right" Width="50" />
             <Label Canvas.Left="15" Canvas.Top="276" Content="0" Name="labelFRMag0000" Foreground="Blue" HorizontalContentAlignment="Right" Width="50" />
-            <Label Canvas.Left="275" Canvas.Top="326" Content="Frequency (Hz)" Height="28" />
+            <Label Canvas.Left="275" Canvas.Top="310" Content="Frequency (Hz)" Height="28" />
             <Label Canvas.Left="0" Canvas.Top="215" Content="Magnitude" Height="28" Foreground="Blue" Name="labelMagnitude">
                 <Label.RenderTransform>
                     <RotateTransform Angle="-90" />

@@ -114,6 +114,13 @@ namespace WWMath {
             return new WWComplex(-uni.real, -uni.imaginary);
         }
 
+        /// <summary>
+        /// 内容が同じときtrue
+        /// </summary>
+        public bool EqualValue(WWComplex rhs) {
+            return real == rhs.real && imaginary == rhs.imaginary;
+        }
+
         public override string ToString() {
             if (Math.Abs(imaginary) < 0.0001) {
                 return string.Format("{0:G4}", real);

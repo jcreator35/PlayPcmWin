@@ -1,0 +1,57 @@
+﻿<UserControl x:Class="WWUserControls.TimeDomainPlot"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignWidth="600" d:DesignHeight="500" Loaded="UserControl_Loaded">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="360" />
+            <RowDefinition Height="1*" />
+        </Grid.RowDefinitions>
+        <Canvas Grid.ColumnSpan="2" Height="360" Name="canvasTD" Width="600">
+            <Line Stroke="LightGray" X1="64" X2="564" Y1="288" Y2="288" />
+            <Line Stroke="LightGray" X1="64" X2="64" Y1="32" Y2="288" />
+            <Line Stroke="LightGray" X1="564" X2="564" Y1="32" Y2="288" />
+            <Line Stroke="LightGray" X1="64" X2="564" Y1="32" Y2="32" />
+            <Line Name="lineFRMag0875" Stroke="LightGray" X1="64" X2="564" Y1="64" Y2="64" />
+            <Line Name="lineFRMag0750" Stroke="LightGray" X1="64" X2="564" Y1="96" Y2="96" />
+            <Line Name="lineFRMag0625" Stroke="LightGray" X1="64" X2="564" Y1="128" Y2="128" />
+            <Line Name="lineFRMag0500" Stroke="LightGray" X1="64" X2="564" Y1="160" Y2="160" />
+            <Line Name="lineFRMag0375" Stroke="LightGray" X1="64" X2="564" Y1="192" Y2="192" />
+            <Line Name="lineFRMag0250" Stroke="LightGray" X1="64" X2="564" Y1="224" Y2="224" />
+            <Line Name="lineFRMag0125" Stroke="LightGray" X1="64" X2="564" Y1="256" Y2="256" />
+            <Label Canvas.Left="15" Canvas.Top="20" Content="1.0" Foreground="Black" HorizontalContentAlignment="Right" Name="labelFRAmp100" Width="50" />
+            <Label Canvas.Left="15" Canvas.Top="52" Content="0.75" Foreground="Black" HorizontalContentAlignment="Right" Name="labelFRAmp075" Width="50" />
+            <Label Canvas.Left="15" Canvas.Top="84" Content="0.5" Foreground="Black" HorizontalContentAlignment="Right" Name="labelFRAmp050" Width="50" />
+            <Label Canvas.Left="15" Canvas.Top="116" Content="0.25" Foreground="Black" HorizontalContentAlignment="Right" Name="labelFRAmp025" Width="50" />
+            <Label Canvas.Left="15" Canvas.Top="148" Content="0" Foreground="Black" HorizontalContentAlignment="Right" Name="labelFRAmp000" Width="50" />
+            <Label Canvas.Left="15" Canvas.Top="180" Content="-0.25" Foreground="Black" HorizontalContentAlignment="Right" Name="labelFRAmpM025" Width="50" />
+            <Label Canvas.Left="15" Canvas.Top="212" Content="-0.5" Foreground="Black" HorizontalContentAlignment="Right" Name="labelFRAmpM050" Width="50" />
+            <Label Canvas.Left="15" Canvas.Top="244" Content="-0.75" Foreground="Black" HorizontalContentAlignment="Right" Name="labelFRAmpM075" Width="50" />
+            <Label Canvas.Left="15" Canvas.Top="276" Content="-1.0" Foreground="Black" HorizontalContentAlignment="Right" Name="labelFRAmpM100" Width="50" />
+            <Label Canvas.Left="275" Canvas.Top="326" Content="Time (sec)" Height="28" />
+            <Label Canvas.Left="0" Canvas.Top="215" Content="Amplitude" Foreground="Black" Height="28" Name="labelMagnitude">
+                <Label.RenderTransform>
+                    <RotateTransform Angle="-90" />
+                </Label.RenderTransform>
+            </Label>
+        </Canvas>
+        <GroupBox Grid.Row="1" Header="Settings" Name="groupBoxSettings" Visibility="Collapsed">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="1*" />
+                </Grid.RowDefinitions>
+            </Grid>
+        </GroupBox>
+    </Grid>
+</UserControl>

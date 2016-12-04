@@ -54,10 +54,17 @@ namespace WWMath {
             }
 
             if (c0.Magnitude() == 0) {
+                if (c1.EqualValue(new WWComplex(1,0))) {
+                    return string.Format("{0}", variableSymbol);
+                }
                 return string.Format("({0}){1}", c1, variableSymbol);
             }
 
-            return string.Format("({0}){1} + ({2})", c1, variableSymbol, c0);
+            if (c1.EqualValue(new WWComplex(1, 0))) {
+                return string.Format("({0} + ({1})", variableSymbol, c0);
+            } else {
+                return string.Format("({0}){1} + ({2})", c1, variableSymbol, c0);
+            }
         }
 
         public override string ToString() {
