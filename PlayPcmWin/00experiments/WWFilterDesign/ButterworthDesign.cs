@@ -74,24 +74,33 @@ namespace WWAudioFilter {
         /// <param name="omegaS">ストップバンド周波数 (Hz)</param>
         /// <returns>最小次数</returns>
         private int CalcNfMin() {
-            double nfmin = Math.Log(( ( mH0 * mH0 ) / ( mHs * mHs ) - 1.0 ) / ( ( ( mH0 * mH0 ) / ( mHc * mHc ) ) - 1.0 )) / ( 2.0 * Math.Log(mΩs) );
+            // Analog Electronic Filters pp.44
+            double nfmin = Math.Log10(( ( mH0 * mH0 ) / ( mHs * mHs ) - 1.0 ) / ( ( ( mH0 * mH0 ) / ( mHc * mHc ) ) - 1.0 )) / ( 2.0 * Math.Log10(mΩs) );
             return (int)( Math.Ceiling(nfmin) );
         }
 
         private double Calcβmax() {
+            // Analog Electronic Filters pp.42
             return Math.Sqrt(mH0 * mH0 / mHc / mHc - 1.0);
         }
 
         private double Calcβmin() {
+            // Analog Electronic Filters pp.44
             return Math.Sqrt(mH0 * mH0 / mHs / mHs - 1.0) / Math.Pow(mΩs, mN);
         }
 
+        /// <summary>
+        /// ノーマライズド　バターワースフィルターの最小次数 Nfmin。
+        /// </summary>
         public int Order() {
             return mN;
         }
 
+        /// <summary>
+        /// s平面の左半面にある極の個数。
+        /// </summary>
         public int PoleNum() {
-            return 2 * mN;
+            return mN;
         }
 
         /// <summary>
@@ -104,24 +113,29 @@ namespace WWAudioFilter {
                 throw new System.ArgumentOutOfRangeException("nth");
             }
 
-            // Analog Electronic Filters p.50
+            // Analog Electronic Filters pp.50
             if (nth < mN) {
                 // nth < Nの時 sk+
-                // s平面の左側のポール
+                // H(s) s平面の左半面にある曲。
                 double angle = ( 2.0 * nth + 1.0 ) / 2.0 / mN * Math.PI + Math.PI / 2.0;
                 double re = Math.Pow(mβ, -1.0 / mN) * Math.Cos(angle);
                 double im = Math.Pow(mβ, -1.0 / mN) * Math.Sin(angle);
                 return new WWComplex(re, im);
+#if false
             } else {
                 // N <= nthの時 sk-
-                // s平面の右側のポール
+                // H(-s) s平面の右半面にある曲。
                 nth -= mN;
 
                 double angle = ( 2.0 * nth + 1.0 ) / 2.0 / mN * Math.PI - Math.PI / 2.0;
                 double re = Math.Pow(mβ, -1.0 / mN) * Math.Cos(angle);
                 double im = Math.Pow(mβ, -1.0 / mN) * Math.Sin(angle);
                 return new WWComplex(re, im);
+#endif
             }
+
+            System.Diagnostics.Debug.Assert(false);
+            return new WWComplex(0,0);
         }
 
         /// <summary>

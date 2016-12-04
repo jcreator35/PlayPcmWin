@@ -76,6 +76,18 @@ namespace WWAudioFilter {
 
             double constant = bwd.TransferFunctionConstant();
 
+            // 周波数応答グラフに伝達関数をセット。
+            mFrequencyResponse.TransferFunction = (WWComplex s) => {
+                WWComplex denominator = new WWComplex(1, 0);
+                for (int i = 0; i < bwd.Order(); ++i) {
+                    var a = bwd.PoleNth(i);
+                    denominator.Mul(WWComplex.Sub(WWComplex.Div(s, ωc), a));
+                }
+                return WWComplex.Div(new WWComplex(constant, 0), denominator);
+            };
+            mFrequencyResponse.Update();
+
+            // Pole-Zeroプロットにポールの位置をセット。
             mPoleZeroPlot.ClearPoleZero();
             mPoleZeroPlot.SetScale(bwd.PoleNth(0).Magnitude());
             for (int i = 0; i < bwd.Order(); ++i) {
@@ -96,10 +108,11 @@ namespace WWAudioFilter {
                 }
                 var polynomialList = WWPolynomial.PartialFractionDecomposition(nPolynomialCoeffs, dRoots);
 
+                Console.WriteLine("Impulse Response=");
                 for (int i = 0; i < polynomialList.Count(); ++i) {
-                    Console.WriteLine(polynomialList[i].ToString("s"));
+                    Console.WriteLine("    " + polynomialList[i].ToString("s"));
                     if (i != polynomialList.Count - 1) {
-                        Console.WriteLine(" + ");
+                        Console.WriteLine("    + ");
                     }
                 }
                 Console.WriteLine("");

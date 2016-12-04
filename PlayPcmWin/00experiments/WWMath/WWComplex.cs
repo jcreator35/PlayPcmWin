@@ -53,9 +53,9 @@ namespace WWMath {
             return this;
         }
 
-        public WWComplex Div(WWComplex rhs) {
-            var denom = new WWComplex(rhs).Reciprocal();
-            return Mul(denom);
+        public WWComplex Div(double rhs) {
+            var recip = 1.0 / rhs;
+            return Mul(recip);
         }
 
         public WWComplex Mul(WWComplex rhs) {
@@ -67,13 +67,18 @@ namespace WWMath {
             imaginary = tI;
 #else
             // more efficient way
-            double k1 = real          * (rhs.real  + rhs.imaginary);
-            double k2 = rhs.imaginary * (real      + imaginary);
-            double k3 = rhs.real      * (imaginary - real);
-            real      = k1 - k2;
+            double k1 = real * (rhs.real + rhs.imaginary);
+            double k2 = rhs.imaginary * (real + imaginary);
+            double k3 = rhs.real * (imaginary - real);
+            real = k1 - k2;
             imaginary = k1 + k3;
 #endif
             return this;
+        }
+
+        public WWComplex Div(WWComplex rhs) {
+            var recip = new WWComplex(rhs).Reciprocal();
+            return Mul(recip);
         }
 
         public void CopyFrom(WWComplex rhs) {
@@ -98,6 +103,10 @@ namespace WWMath {
             return new WWComplex(lhs).Mul(rhs);
         }
         public static WWComplex Div(WWComplex lhs, WWComplex rhs) {
+            return new WWComplex(lhs).Div(rhs);
+        }
+
+        public static WWComplex Div(WWComplex lhs, double rhs) {
             return new WWComplex(lhs).Div(rhs);
         }
 

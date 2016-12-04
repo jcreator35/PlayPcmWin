@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace WWAudioFilter {
+namespace WWFilterDesign {
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
