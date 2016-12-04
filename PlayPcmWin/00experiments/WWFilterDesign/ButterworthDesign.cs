@@ -97,6 +97,13 @@ namespace WWAudioFilter {
         }
 
         /// <summary>
+        /// カットオフ周波数ωc。sをこの値で割る。(周波数スケーリング)
+        /// </summary>
+        public double CutoffFrequency() {
+            return mωc;
+        }
+
+        /// <summary>
         /// s平面の左半面にある極の個数。
         /// </summary>
         public int PoleNum() {
@@ -105,7 +112,7 @@ namespace WWAudioFilter {
 
         /// <summary>
         /// H(s)の分母の多項式の根を戻す。
-        /// カットオフ周波数は1 rad/s。ωc Hzのとき sをωc*πで割る。
+        /// カットオフ周波数は1 rad/s。ωc Hzのとき sをωcで割る。
         /// H(s) = frac{h0/β}{\Pi_{k=0}^{N-1}{\(s-sk+\)}}
         /// </summary>
         public WWComplex PoleNth(int nth) {

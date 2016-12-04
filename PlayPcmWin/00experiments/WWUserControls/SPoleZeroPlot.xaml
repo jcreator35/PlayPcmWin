@@ -8,8 +8,8 @@
     <Grid Height="400" Width="300">
         <Grid.RowDefinitions>
             <RowDefinition Height="300" />
-            <RowDefinition Height="1*" />
-            <RowDefinition Height="1*" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="30" />
             <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
         <Canvas Height="256" HorizontalAlignment="Center" Name="canvasPoleZero" VerticalAlignment="Center" Width="256" Grid.ColumnSpan="2" Margin="22">
@@ -28,11 +28,11 @@
         <TextBlock HorizontalAlignment="Right" Name="textBlockRe" Text="→Re" VerticalAlignment="Center" />
         <TextBlock HorizontalAlignment="Center" Name="textBlockIm" Text="Im↑" VerticalAlignment="Top"  />
         <TextBlock HorizontalAlignment="Center" Name="textBlockTitle" Text="Pole-zero plot (S plane)" VerticalAlignment="Bottom" />
-        <Canvas Grid.Row="1" Margin="10,4,10,0" Name="canvasLegend" />
-        <Label Content="0°" Grid.Row="2" HorizontalAlignment="Left" Name="label0" VerticalAlignment="Top" />
-        <Label Content="180°" Grid.Row="2" Margin="134,0,0,0" HorizontalAlignment="Left" Name="label80" VerticalAlignment="Top" />
-        <Label Content="360°" Grid.Row="2" Margin="266,0,0,0" HorizontalAlignment="Left" Name="label360" VerticalAlignment="Top" />
-        <ComboBox Grid.Row="3" HorizontalAlignment="Left" Margin="6,0,0,0" Name="comboBoxGradationType" VerticalAlignment="Center" Width="200">
+        <Canvas Grid.Row="1" Margin="10,4,22,0" Name="canvasGradationSample" Width="256" Height="26"/>
+        <Label Content="0°" Grid.Row="2" HorizontalAlignment="Left" Name="label0" VerticalAlignment="Top" Margin="6,0,0,0" />
+        <Label Content="180°" Grid.Row="2" Margin="134,0,0,0" HorizontalAlignment="Left" Name="label180" VerticalAlignment="Top" />
+        <Label Content="360°" Grid.Row="2" Margin="256,0,0,0" HorizontalAlignment="Left" Name="label360" VerticalAlignment="Top" Width="38" />
+        <ComboBox Grid.Row="3" HorizontalAlignment="Left" Margin="6,0,0,0" Name="comboBoxGradationType" VerticalAlignment="Center" Width="200" SelectionChanged="comboBoxGradationType_SelectionChanged">
             <ComboBoxItem Content="Show Magnitude" Name="comboBoxItemMagnitude" IsSelected="True" />
             <ComboBoxItem Content="Show Phase" Name="comboBoxItemPhase" />
         </ComboBox>

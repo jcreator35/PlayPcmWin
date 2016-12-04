@@ -92,9 +92,18 @@ namespace WWAudioFilter {
             mPoleZeroPlot.SetScale(bwd.PoleNth(0).Magnitude());
             for (int i = 0; i < bwd.Order(); ++i) {
                 var p = bwd.PoleNth(i);
-                AddLog(string.Format("  {0}\nCoeffs", p));
+                AddLog(string.Format("  {0}\n", p));
                 mPoleZeroPlot.AddPole(p);
             }
+            mPoleZeroPlot.TransferFunction = (WWComplex s) => {
+                WWComplex denominator = new WWComplex(1, 0);
+                for (int i = 0; i < bwd.Order(); ++i) {
+                    var a = bwd.PoleNth(i);
+                    denominator.Mul(WWComplex.Sub(s, a));
+                }
+                return WWComplex.Div(new WWComplex(constant, 0), denominator);
+            };
+            mPoleZeroPlot.Update();
 
             // 逆ラプラス変換する。
             {
