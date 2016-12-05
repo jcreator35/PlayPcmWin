@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             d:DesignWidth="600" d:DesignHeight="500" Loaded="UserControl_Loaded">
+             d:DesignWidth="600" d:DesignHeight="430" Loaded="UserControl_Loaded">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="360" />
@@ -38,19 +38,19 @@
                 </Label.RenderTransform>
             </Label>
         </Canvas>
-        <GroupBox Grid.Row="1" Header="Settings" Name="groupBoxSettings" Visibility="Collapsed">
+        <GroupBox Grid.Row="1" Header="Settings" Name="groupBoxSettings" >
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*" />
-                    <ColumnDefinition Width="1*" />
                     <ColumnDefinition Width="1*" />
                     <ColumnDefinition Width="1*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="1*" />
-                    <RowDefinition Height="1*" />
-                    <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
+                <ComboBox Margin="12,0,12,0" Name="comboBoxFunction" VerticalAlignment="Center" SelectionChanged="comboBoxFunction_SelectionChanged">
+                    <ComboBoxItem Content="Show Impulse Response" IsSelected="True" />
+                    <ComboBoxItem Content="Show Step Response" />
+                </ComboBox>
             </Grid>
         </GroupBox>
     </Grid>

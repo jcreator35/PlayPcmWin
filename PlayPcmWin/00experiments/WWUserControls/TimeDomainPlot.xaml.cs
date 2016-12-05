@@ -46,9 +46,16 @@ namespace WWUserControls {
 
         private const double MINUS_TIME_RATIO = 0.2;
 
-        public delegate double ImpulseResponseFunctionDelegate(double t);
+        public delegate double TimeDomainResponseFunctionDelegate(double t);
 
-        public ImpulseResponseFunctionDelegate ImpulseResponseFunction = (double t) => { return 0; };
+        public TimeDomainResponseFunctionDelegate ImpulseResponseFunction = (double t) => { return 0; };
+
+        public TimeDomainResponseFunctionDelegate StepResponseFunction = (double t) => { if (t <= 0) { return 0; } return 1; };
+
+        public enum FunctionType {
+            ImpulseResponse,
+            StepResponse,
+        };
 
         private double PlotXToTime(int idx) {
             return 2.0 * Math.PI * TimeRange * ((double)idx / FR_LINE_WIDTH - MINUS_TIME_RATIO);
@@ -90,7 +97,15 @@ namespace WWUserControls {
 
             for (int idx = 0; idx < FR_LINE_WIDTH; ++idx) {
                 double t = PlotXToTime(idx);
-                double y = ImpulseResponseFunction(t);
+                double y = 0;
+                switch ((FunctionType)comboBoxFunction.SelectedIndex) {
+                case FunctionType.ImpulseResponse:
+                    y = ImpulseResponseFunction(t);
+                    break;
+                case FunctionType.StepResponse:
+                    y = StepResponseFunction(t);
+                    break;
+                }
 
                 if (maxMagnitude < Math.Abs(y)) {
                     maxMagnitude = Math.Abs(y);
@@ -156,6 +171,10 @@ namespace WWUserControls {
                 }
             }
 
+        }
+
+        private void comboBoxFunction_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+            Update();
         }
 
     }

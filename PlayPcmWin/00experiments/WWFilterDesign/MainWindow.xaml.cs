@@ -114,20 +114,33 @@ namespace WWAudioFilter {
 
             {
                 // 伝達関数を部分分数展開する。
-                var nPolynomialCoeffs = new List<WWComplex>();
-                nPolynomialCoeffs.Add(new WWComplex(constant, 0));
+                var polynomialNumeratorConstant = new List<WWComplex>();
+                polynomialNumeratorConstant.Add(new WWComplex(constant, 0));
 
-                var dRoots = new List<WWComplex>();
+                var transferFunctionRoots = new List<WWComplex>();
+                var stepResponseTFRoots = new List<WWComplex>();
                 for (int i = 0; i < bwd.Order(); ++i) {
                     var p = bwd.PoleNth(i);
-                    dRoots.Add(p);
+                    transferFunctionRoots.Add(p);
+                    stepResponseTFRoots.Add(p);
                 }
-                var polynomialList = WWPolynomial.PartialFractionDecomposition(nPolynomialCoeffs, dRoots);
+                stepResponseTFRoots.Add(new WWComplex(0, 0));
+                var transferFunctionPFD = WWPolynomial.PartialFractionDecomposition(polynomialNumeratorConstant, transferFunctionRoots);
+                var stepResponseTFPFD = WWPolynomial.PartialFractionDecomposition(polynomialNumeratorConstant, stepResponseTFRoots);
 
                 AddLog("Transfer function (After Partial Fraction Decomposition): H(s) = ");
-                for (int i = 0; i < polynomialList.Count(); ++i) {
-                    AddLog(polynomialList[i].ToString("s/ωc"));
-                    if (i != polynomialList.Count - 1) {
+                for (int i = 0; i < transferFunctionPFD.Count(); ++i) {
+                    AddLog(transferFunctionPFD[i].ToString("s/ωc"));
+                    if (i != transferFunctionPFD.Count - 1) {
+                        AddLog(" + ");
+                    }
+                }
+                AddLog("\n");
+
+                AddLog("Unit Step Function (After Partial Fraction Decomposition): Yγ(s) = ");
+                for (int i = 0; i < stepResponseTFPFD.Count(); ++i) {
+                    AddLog(stepResponseTFPFD[i].ToString("s/ωc"));
+                    if (i != stepResponseTFPFD.Count - 1) {
                         AddLog(" + ");
                     }
                 }
@@ -141,7 +154,7 @@ namespace WWAudioFilter {
                     // 逆ラプラス変換してインパルス応答関数を得る。
                     WWComplex result = new WWComplex(0,0);
 
-                    foreach (var item in polynomialList) {
+                    foreach (var item in transferFunctionPFD) {
                         // numerator * exp(denominator * t)
                         result.Add(WWComplex.Mul(item.NumeratorCoeff(0),
                             new WWComplex(Math.Exp(-t * item.DenominatorCoeff(0).real) * Math.Cos(-t * item.DenominatorCoeff(0).imaginary),
@@ -152,10 +165,49 @@ namespace WWAudioFilter {
                 };
 
                 AddLog("Impulse Response (frequency normalized): h(t) = ");
-                for (int i=0; i<polynomialList.Count; ++i) {
-                    var item = polynomialList[i];
+                for (int i = 0; i < transferFunctionPFD.Count; ++i) {
+                    var item = transferFunctionPFD[i];
                     AddLog(string.Format("({0}) * exp(-t * ({1}))", item.NumeratorCoeff(0), item.DenominatorCoeff(0)));
-                    if (i != polynomialList.Count - 1) {
+                    if (i != transferFunctionPFD.Count - 1) {
+                        AddLog(" + ");
+                    }
+                }
+                AddLog("\n");
+
+                mTimeDomainPlot.StepResponseFunction = (double t) => {
+                    if (t <= 0) {
+                        return 0;
+                    }
+
+                    // 逆ラプラス変換してインパルス応答関数を得る。
+                    WWComplex result = new WWComplex(0, 0);
+
+                    foreach (var item in stepResponseTFPFD) {
+                        if (item.DenominatorCoeff(0).EqualValue(new WWComplex(0, 0))) {
+                            // b/s → b*u(t)
+                            result.Add(item.NumeratorCoeff(0));
+                        } else {
+                            // b/(s-a) → b * exp(a * t)
+                            result.Add(WWComplex.Mul(item.NumeratorCoeff(0),
+                                new WWComplex(Math.Exp(-t * item.DenominatorCoeff(0).real) * Math.Cos(-t * item.DenominatorCoeff(0).imaginary),
+                                              Math.Exp(-t * item.DenominatorCoeff(0).real) * Math.Sin(-t * item.DenominatorCoeff(0).imaginary))));
+                        }
+                    }
+
+                    return result.real;
+                };
+
+                AddLog("Step Response (frequency normalized): h(t) = ");
+                for (int i = 0; i < stepResponseTFPFD.Count; ++i) {
+                    var item = stepResponseTFPFD[i];
+                    if (item.DenominatorCoeff(0).EqualValue(new WWComplex(0, 0))) {
+                        // b/s → b*u(t)
+                        AddLog(string.Format("({0}) * u(t)", item.NumeratorCoeff(0)));
+                    } else {
+                        // b/(s-a) → b * exp(a * t)
+                        AddLog(string.Format("({0}) * exp(-t * ({1}))", item.NumeratorCoeff(0), item.DenominatorCoeff(0)));
+                    }
+                    if (i != stepResponseTFPFD.Count - 1) {
                         AddLog(" + ");
                     }
                 }
