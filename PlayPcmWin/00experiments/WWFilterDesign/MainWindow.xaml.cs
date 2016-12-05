@@ -197,7 +197,7 @@ namespace WWAudioFilter {
                     return result.real;
                 };
 
-                AddLog("Step Response (frequency normalized): h(t) = ");
+                AddLog("Step Response (frequency normalized): y(t) = ");
                 for (int i = 0; i < stepResponseTFPFD.Count; ++i) {
                     var item = stepResponseTFPFD[i];
                     if (item.DenominatorCoeff(0).EqualValue(new WWComplex(0, 0))) {
