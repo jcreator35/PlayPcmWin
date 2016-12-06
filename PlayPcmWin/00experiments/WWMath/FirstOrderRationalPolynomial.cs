@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace WWMath {
-    public class FirstOrderRationalPolynomial {
+    public class FirstOrderRationalPolynomial : RationalPolynomial {
         private WWComplex[] numer = new WWComplex[2];
         private WWComplex[] denom = new WWComplex[2];
 
@@ -29,52 +26,32 @@ namespace WWMath {
                 denom[0] = d0;
         }
 
-        public WWComplex[] NumeratorCoeffs() {
+        public override int Order() { return 1; }
+
+        public override WWComplex[] NumeratorCoeffs() {
             return numer;
         }
 
-        public WWComplex[] DenominatorCoeffs() {
+        public override WWComplex[] DenominatorCoeffs() {
             return denom;
         }
 
-        public WWComplex NumeratorCoeff(int nth) {
+        public override WWComplex NumeratorCoeff(int nth) {
             return numer[nth];
         }
 
-        public WWComplex DenominatorCoeff(int nth) {
+        public override WWComplex DenominatorCoeff(int nth) {
             return denom[nth];
-        }
-
-        /// <summary>
-        /// output string represents "c1x + c0"
-        /// </summary>
-        private string PolynomialToString(WWComplex c1, WWComplex c0, string variableSymbol) {
-            if (c1.Magnitude() == 0) {
-                return string.Format("{0}", c0);
-            }
-
-            if (c0.Magnitude() == 0) {
-                if (c1.EqualValue(new WWComplex(1,0))) {
-                    return string.Format("{0}", variableSymbol);
-                }
-                return string.Format("({0}){1}", c1, variableSymbol);
-            }
-
-            if (c1.EqualValue(new WWComplex(1, 0))) {
-                return string.Format("({0} + ({1})", variableSymbol, c0);
-            } else {
-                return string.Format("({0}){1} + ({2})", c1, variableSymbol, c0);
-            }
         }
 
         public override string ToString() {
             return ToString("x");
         }
 
-        public string ToString(string variableSymbol) {
-            string n = PolynomialToString(numer[1], numer[0], variableSymbol);
-            string d = PolynomialToString(denom[1], denom[0], variableSymbol);
-            return string.Format("｛{0}｝/｛{1}｝", n, d);
+        public override string ToString(string variableSymbol) {
+            string n = WWUtil.PolynomialToString(numer[1], numer[0], variableSymbol);
+            string d = WWUtil.PolynomialToString(denom[1], denom[0], variableSymbol);
+            return string.Format("{{ {0} }} / {{ {1} }}", n, d);
         }
     }
 }

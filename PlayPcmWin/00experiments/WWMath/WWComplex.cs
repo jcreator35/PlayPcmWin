@@ -126,14 +126,14 @@ namespace WWMath {
                 return string.Format("{0:G4}", real);
             }
             if (Math.Abs(real) < 0.0001) {
-                return string.Format("{0:G4}j", imaginary);
+                return string.Format("{0:G4}i", imaginary);
             }
 
             if (imaginary < 0) {
                 // マイナス記号が自動で出る。
-                return string.Format("{0:G4}{1:G4}j", real, imaginary);
+                return string.Format("{0:G4}{1:G4}i", real, imaginary);
             } else {
-                return string.Format("{0:G4}+{1:G4}j", real, imaginary);
+                return string.Format("{0:G4}+{1:G4}i", real, imaginary);
             }
         }
     }

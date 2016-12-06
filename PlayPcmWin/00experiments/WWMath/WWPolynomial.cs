@@ -1,10 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace WWMath {
     public class WWPolynomial {
+        /// <summary>
+        /// 1次有理多項式 x 1次有理多項式
+        /// </summary>
+        public static SecondOrderRationalPolynomial Mul(FirstOrderRationalPolynomial lhs, FirstOrderRationalPolynomial rhs) {
+            // 分子の項 x 分子の項
+            var n2 = WWComplex.Mul(lhs.NumeratorCoeff(1), rhs.NumeratorCoeff(1));
+            var n1 = WWComplex.Add(WWComplex.Mul(lhs.NumeratorCoeff(1), rhs.NumeratorCoeff(0)),
+                                   WWComplex.Mul(lhs.NumeratorCoeff(0), rhs.NumeratorCoeff(1)));
+            var n0 = WWComplex.Mul(lhs.NumeratorCoeff(0), rhs.NumeratorCoeff(0));
+
+            // 分母の項 x 分母の項
+            var d2 = WWComplex.Mul(lhs.DenominatorCoeff(1), rhs.DenominatorCoeff(1));
+            var d1 = WWComplex.Add(WWComplex.Mul(lhs.DenominatorCoeff(1), rhs.DenominatorCoeff(0)),
+                                   WWComplex.Mul(lhs.DenominatorCoeff(0), rhs.DenominatorCoeff(1)));
+            var d0 = WWComplex.Mul(lhs.DenominatorCoeff(0), rhs.DenominatorCoeff(0));
+
+            return new SecondOrderRationalPolynomial(n2, n1, n0, d2, d1, d0);
+        }
 
         /// <summary>
         /// p次オールポールの多項式(分子は多項式係数のリストで分母は根のリスト)を部分分数展開する。分子の多項式の次数はp次未満。
