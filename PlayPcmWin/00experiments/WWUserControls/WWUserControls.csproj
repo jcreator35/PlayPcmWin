@@ -86,6 +86,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common.cs" />
     <Compile Include="FrequencyResponse.xaml.cs">
       <DependentUpon>FrequencyResponse.xaml</DependentUpon>
     </Compile>

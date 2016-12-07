@@ -167,13 +167,9 @@ namespace WWUserControls {
             return HsvToBgra(-phase * 180.0 / Math.PI + 240.0, 1.0, 1.0);
         }
 
+        public Common.TransferFunctionDelegate TransferFunction = (WWComplex s) => { return new WWComplex(1, 0); };
+
         private Image mImage = null;
-
-        public delegate WWComplex TransferFunctionDelegate(WWComplex s);
-
-        public TransferFunctionDelegate TransferFunction = (WWComplex s) => { return new WWComplex(1, 0); };
-
-
         private Image mImageSample = null;
 
         /// <summary>

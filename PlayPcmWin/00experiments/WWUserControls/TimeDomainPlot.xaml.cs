@@ -46,11 +46,8 @@ namespace WWUserControls {
 
         private const double MINUS_TIME_RATIO = 0.2;
 
-        public delegate double TimeDomainResponseFunctionDelegate(double t);
-
-        public TimeDomainResponseFunctionDelegate ImpulseResponseFunction = (double t) => { return 0; };
-
-        public TimeDomainResponseFunctionDelegate StepResponseFunction = (double t) => { if (t <= 0) { return 0; } return 1; };
+        public Common.TimeDomainResponseFunctionDelegate ImpulseResponseFunction = (double t) => { return 0; };
+        public Common.TimeDomainResponseFunctionDelegate StepResponseFunction = (double t) => { if (t <= 0) { return 0; } return 1; };
 
         public enum FunctionType {
             ImpulseResponse,
