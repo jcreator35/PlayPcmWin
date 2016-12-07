@@ -92,6 +92,9 @@
                         </Canvas>
                     </Grid>
                 </GroupBox>
+                <GroupBox Header="Analog Filter Circuit" Name="groupBoxAFC" >
+                    <wwuc:AnalogFilterCircuit x:Name="mAnalogFilterCircuit"  />
+                </GroupBox>
                 <GroupBox Header="Pole-Zero Plot" Name="groupBoxPoleZero" >
                     <wwuc:SPoleZeroPlot x:Name="mPoleZeroPlot"  />
                 </GroupBox>
@@ -100,9 +103,6 @@
                 </GroupBox>
                 <GroupBox Header="Time Domain Plot" Name="groupBoxTD">
                     <wwuc:TimeDomainPlot x:Name="mTimeDomainPlot"  />
-                </GroupBox>
-                <GroupBox Header="Analog Filter Circuit" Name="groupBoxAFC" >
-                    <wwuc:AnalogFilterCircuit x:Name="mAnalogFilterCircuit"  />
                 </GroupBox>
             </WrapPanel>
         </ScrollViewer>

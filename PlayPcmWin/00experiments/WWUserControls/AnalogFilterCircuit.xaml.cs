@@ -20,6 +20,7 @@ namespace WWUserControls {
     public partial class AnalogFilterCircuit : UserControl {
         public AnalogFilterCircuit() {
             InitializeComponent();
+            CutoffFrequencyHz = 1.0;
         }
 
         private List<RationalPolynomial> mRealPolynomialList = new List<RationalPolynomial>();
@@ -34,6 +35,14 @@ namespace WWUserControls {
             mRealPolynomialList.Add(realPolynomial);
         }
 
+        /// <summary>
+        /// カットオフ周波数 (Hz)
+        /// </summary>
+        public double CutoffFrequencyHz { get; set; }
+
+        /// <summary>
+        /// 描画する位置。
+        /// </summary>
         private double mX = 0;
 
         private void AddLine(double x1, double y1, double x2, double y2, SolidColorBrush brush) {
@@ -70,7 +79,7 @@ namespace WWUserControls {
             Canvas.SetTop(c, y - diameter / 2);
         }
 
-        private const double CIRCUIT_INPUT_LINE_H = 100;
+        private const double CIRCUIT_INPUT_LINE_H = 80;
         private const double INPUT_CIRCLE_WH = 6;
         private const double INPUT_LINE_W = 30;
 
@@ -91,6 +100,35 @@ namespace WWUserControls {
 
             AddLine(mX, CIRCUIT_INPUT_LINE_H, mX + INPUT_LINE_W, CIRCUIT_INPUT_LINE_H, mBrush);
             mX += INPUT_LINE_W;
+
+            // ボルテージフォロアー。
+            {
+                var p = new List<Point>();
+                p.Add(new Point(mX, CIRCUIT_INPUT_LINE_H));
+                p.Add(new Point(mX, CIRCUIT_INPUT_LINE_H - OPAMP_INPUT_H_OFFS));
+                p.Add(new Point(mX + 10, CIRCUIT_INPUT_LINE_H - OPAMP_INPUT_H_OFFS));
+                AddLineStrip(p, mBrush);
+            }
+            mX += 10;
+
+            AddOpamp(mX, CIRCUIT_INPUT_LINE_H);
+
+            {
+                // フィードバックの線。
+                var p = new List<Point>();
+                p.Add(new Point(mX, CIRCUIT_INPUT_LINE_H + OPAMP_INPUT_H_OFFS));
+                p.Add(new Point(mX - 10, CIRCUIT_INPUT_LINE_H + OPAMP_INPUT_H_OFFS));
+                p.Add(new Point(mX - 10, CIRCUIT_INPUT_LINE_H + OPAMP_INPUT_H_OFFS + 20));
+                p.Add(new Point(mX + OPAMP_WIDTH + 10, CIRCUIT_INPUT_LINE_H + OPAMP_INPUT_H_OFFS + 20));
+                p.Add(new Point(mX + OPAMP_WIDTH + 10, CIRCUIT_INPUT_LINE_H));
+                AddLineStrip(p, mBrush);
+            }
+
+            AddLine(mX + OPAMP_WIDTH, CIRCUIT_INPUT_LINE_H, mX + OPAMP_WIDTH + 50, CIRCUIT_INPUT_LINE_H, mBrush);
+
+            mX += OPAMP_WIDTH + 50;
+
+
         }
 
         /// <summary>
@@ -225,41 +263,41 @@ namespace WWUserControls {
             Canvas.SetTop(tb, y);
         }
 
-        private int mR = 0;
-        private int mC = 0;
+        private List<double> mR = new List<double>();
+        private List<double> mC = new List<double>();
 
+        private double mResistorMultiplier = 10 * 1000;
+
+        /// <summary>
+        /// Analog Electronic Filters pp.58
+        /// </summary>
         private void DrawFirstOrderFilter(FirstOrderRationalPolynomial pf) {
-            // ボルテージフォロアー。
-            {
-                var p = new List<Point>();
-                p.Add(new Point(mX, CIRCUIT_INPUT_LINE_H));
-                p.Add(new Point(mX, CIRCUIT_INPUT_LINE_H - OPAMP_INPUT_H_OFFS));
-                p.Add(new Point(mX + 10, CIRCUIT_INPUT_LINE_H - OPAMP_INPUT_H_OFFS));
-                AddLineStrip(p, mBrush);
-            }
-            mX += 10;
+            /* a == 1/R0C0
+             * C0 = aR0
+             */
+            double r0 = 1;
+            double c0 = pf.D(0).real * r0;
+            /* 非反転増幅回路のゲイン = R0C0
+             * r2/r1 == r0c0 - 1/1
+             */
+            double r1 = 1;
+            double r2 = (r0 * c0 - 1.0) / r1;
 
-            AddOpamp(mX, CIRCUIT_INPUT_LINE_H);
+            // 周波数スケーリング。キャパシタの値をωcで割る。
+            double ωc = CutoffFrequencyHz * 2.0 * Math.PI;
+            c0 /= ωc;
 
-            {
-                // フィードバックの線。
-                var p = new List<Point>();
-                p.Add(new Point(mX, CIRCUIT_INPUT_LINE_H + OPAMP_INPUT_H_OFFS));
-                p.Add(new Point(mX - 10, CIRCUIT_INPUT_LINE_H + OPAMP_INPUT_H_OFFS));
-                p.Add(new Point(mX - 10, CIRCUIT_INPUT_LINE_H + OPAMP_INPUT_H_OFFS + 20));
-                p.Add(new Point(mX + OPAMP_WIDTH + 10, CIRCUIT_INPUT_LINE_H + OPAMP_INPUT_H_OFFS + 20));
-                p.Add(new Point(mX + OPAMP_WIDTH + 10, CIRCUIT_INPUT_LINE_H));
-                AddLineStrip(p, mBrush);
-            }
-
-            AddLine(mX + OPAMP_WIDTH, CIRCUIT_INPUT_LINE_H, mX + OPAMP_WIDTH + 20, CIRCUIT_INPUT_LINE_H, mBrush);
-
-            mX += OPAMP_WIDTH + 20;
+            // 最後に抵抗値を全て10 * 1000倍する。
+            r0 *= mResistorMultiplier;
+            r1 *= mResistorMultiplier;
+            r2 *= mResistorMultiplier;
 
             // 抵抗R0
             AddResistorH(mX, CIRCUIT_INPUT_LINE_H);
-            AddText(mX, CIRCUIT_INPUT_LINE_H-23, string.Format("R{0}", mR));
-            ++mR;
+
+            AddText(mX, CIRCUIT_INPUT_LINE_H-23, string.Format("R{0}", mR.Count()));
+            mR.Add(r0);
+
 
             {
                 // 抵抗の右から出る横線。オペアンプの＋入力につながる。
@@ -277,8 +315,8 @@ namespace WWUserControls {
 
             // キャパシターC0
             AddCapacitorV(mX + RESISTOR_LENGTH + 10, CIRCUIT_INPUT_LINE_H + 30);
-            AddText(      mX + RESISTOR_LENGTH + 10 - 28, CIRCUIT_INPUT_LINE_H + 25, string.Format("C{0}", mC));
-            ++mC;
+            AddText(      mX + RESISTOR_LENGTH + 10 - 28, CIRCUIT_INPUT_LINE_H + 25, string.Format("C{0}", mC.Count()));
+            mC.Add(c0);
 
             {
                 // キャパシタC0から非反転アンプのフィードバックのGNDに接続する線。
@@ -291,10 +329,10 @@ namespace WWUserControls {
 
             mX += RESISTOR_LENGTH + 10 + 40;
 
-            // 抵抗Rx
+            // 抵抗R1
             AddResistorV(mX, CIRCUIT_INPUT_LINE_H + 30 + CAPACITOR_THICKNESS);
-            AddText(mX-20, CIRCUIT_INPUT_LINE_H + 30 + CAPACITOR_THICKNESS, string.Format("R{0}", mR));
-            ++mR;
+            AddText(mX-20, CIRCUIT_INPUT_LINE_H + 30 + CAPACITOR_THICKNESS, string.Format("R{0}", mR.Count()));
+            mR.Add(r1);
 
             // 抵抗Rxの下からGNDにつながる縦線。
             AddLine(mX, CIRCUIT_INPUT_LINE_H + 30 + CAPACITOR_THICKNESS + RESISTOR_LENGTH,
@@ -320,10 +358,10 @@ namespace WWUserControls {
             AddLine(mX - 10, CIRCUIT_INPUT_LINE_H + OPAMP_INPUT_H_OFFS + 20,
                     mX, CIRCUIT_INPUT_LINE_H + OPAMP_INPUT_H_OFFS + 20, mBrush);
 
-            // フィードバック抵抗。
+            // フィードバック抵抗R2。
             AddResistorH(mX, CIRCUIT_INPUT_LINE_H + OPAMP_INPUT_H_OFFS + 20);
-            AddText(mX + 5, CIRCUIT_INPUT_LINE_H + OPAMP_INPUT_H_OFFS + 25, string.Format("R{0}", mR));
-            ++mR;
+            AddText(mX + 5, CIRCUIT_INPUT_LINE_H + OPAMP_INPUT_H_OFFS + 25, string.Format("R{0}", mR.Count()));
+            mR.Add(r2);
 
             {
                 // フィードバック抵抗からオペアンプの線。
@@ -336,16 +374,163 @@ namespace WWUserControls {
 
             // オペアンプの出力線。
             AddLine(mX +OPAMP_WIDTH, CIRCUIT_INPUT_LINE_H,
-                    mX + OPAMP_WIDTH+20, CIRCUIT_INPUT_LINE_H, mBrush);
+                    mX + OPAMP_WIDTH+50, CIRCUIT_INPUT_LINE_H, mBrush);
 
-            mX += OPAMP_WIDTH+20;
+            mX += OPAMP_WIDTH+50;
+        }
+
+        /// <summary>
+        /// Sallen-Key Minimum Sensitivity 2nd order Lowpass filter
+        /// Analog Electronic Filters pp.470
+        /// </summary>
+        private void DrawSecondOrderFilter(SecondOrderRationalPolynomial ps) {
+            /*       ___
+             * ω0 = √d0
+             * Q = ω0/d1
+             * k = 4/3
+             * c2 = 1F
+             */
+            double ω0 = Math.Sqrt(ps.D(0).real);
+            double Q = ω0 / ps.D(1).real;
+            double k = 4.0 / 3.0;
+            double c2 = 1.0;
+
+            double c1 = Math.Sqrt(3.0) * Q * c2;
+            double r1 = 1.0 / (ω0 * Q * c2);
+            double r2 = 1.0 / (Math.Sqrt(3.0) * ω0 * c2);
+
+            // 周波数スケーリング。キャパシタの値をωcで割る。
+            double ωc = CutoffFrequencyHz * 2.0 * Math.PI;
+            c1 /= ωc;
+            c2 /= ωc;
+
+            // 最後に抵抗値を全て10 * 1000倍する。
+            r1 *= 10 * 1000;
+            r2 *= 10 * 1000;
+
+            // 抵抗R1
+            AddResistorH(mX, CIRCUIT_INPUT_LINE_H);
+            AddText(mX, CIRCUIT_INPUT_LINE_H - 23, string.Format("R{0}", mR.Count()));
+            mR.Add(r1);
+
+            // R1の右から出る横線。R2の入力につながる。
+            AddLine(mX + RESISTOR_LENGTH, CIRCUIT_INPUT_LINE_H,
+                    mX + RESISTOR_LENGTH + 20, CIRCUIT_INPUT_LINE_H, mBrush);
+
+            mX += RESISTOR_LENGTH + 20;
+
+            // 抵抗R2
+            AddResistorH(mX, CIRCUIT_INPUT_LINE_H);
+            AddText(mX, CIRCUIT_INPUT_LINE_H - 23, string.Format("R{0}", mR.Count()));
+            mR.Add(r2);
+
+            {
+                // 抵抗R2の右から出る横線。オペアンプの＋入力につながる。
+                var p = new List<Point>();
+                p.Add(new Point(mX + RESISTOR_LENGTH, CIRCUIT_INPUT_LINE_H));
+                p.Add(new Point(mX + RESISTOR_LENGTH + 10 + 40, CIRCUIT_INPUT_LINE_H));
+                p.Add(new Point(mX + RESISTOR_LENGTH + 10 + 40, CIRCUIT_INPUT_LINE_H - OPAMP_INPUT_H_OFFS));
+                p.Add(new Point(mX + RESISTOR_LENGTH + 10 + 40 + 10, CIRCUIT_INPUT_LINE_H - OPAMP_INPUT_H_OFFS));
+                AddLineStrip(p, mBrush);
+            }
+
+            {
+                // 抵抗R1-R2とキャパシタC1をつなげる縦線。
+                var p = new List<Point>();
+                p.Add(new Point(mX -10,                    CIRCUIT_INPUT_LINE_H));
+                p.Add(new Point(mX -10,                    CIRCUIT_INPUT_LINE_H - 30));
+                p.Add(new Point(mX + RESISTOR_LENGTH + 10, CIRCUIT_INPUT_LINE_H - 30));
+                AddLineStrip(p, mBrush);
+            }
+
+            mX += RESISTOR_LENGTH + 10;
+
+            // キャパシターC1
+            AddCapacitorH(mX, CIRCUIT_INPUT_LINE_H - 30);
+            AddText(mX-5, CIRCUIT_INPUT_LINE_H -58, string.Format("C{0}", mC.Count()));
+            mC.Add(c1);
+
+            {
+                // キャパシターC1からオペアンプのー入力。
+                var p = new List<Point>();
+                p.Add(new Point(mX + CAPACITOR_THICKNESS, CIRCUIT_INPUT_LINE_H - 30));
+                p.Add(new Point(mX + 40 + 10 + OPAMP_WIDTH + 10, CIRCUIT_INPUT_LINE_H - 30));
+                p.Add(new Point(mX + 40 + 10 + OPAMP_WIDTH + 10, CIRCUIT_INPUT_LINE_H + 30));
+                p.Add(new Point(mX + 40, CIRCUIT_INPUT_LINE_H + 30));
+                p.Add(new Point(mX + 40, CIRCUIT_INPUT_LINE_H + OPAMP_INPUT_H_OFFS));
+                p.Add(new Point(mX + 40 + 10, CIRCUIT_INPUT_LINE_H + OPAMP_INPUT_H_OFFS));
+                AddLineStrip(p, mBrush);
+            }
+
+
+            // R2からC2に接続する縦線。
+            AddLine(mX, CIRCUIT_INPUT_LINE_H,
+                    mX, CIRCUIT_INPUT_LINE_H + 30, mBrush);
+
+            // キャパシターC2
+            AddCapacitorV(mX, CIRCUIT_INPUT_LINE_H + 30);
+            AddText(mX - 32, CIRCUIT_INPUT_LINE_H + 25, string.Format("C{0}", mC.Count()));
+            mC.Add(c2);
+
+            // C2からGNDに接続する縦線。
+            AddLine(mX, CIRCUIT_INPUT_LINE_H + 30 + CAPACITOR_THICKNESS,
+                    mX, CIRCUIT_INPUT_LINE_H + 50 + CAPACITOR_THICKNESS, mBrush);
+
+            AddGnd(mX, CIRCUIT_INPUT_LINE_H + 50 + CAPACITOR_THICKNESS);
+
+            mX += 40 + 10;
+
+            AddOpamp(mX, CIRCUIT_INPUT_LINE_H);
+
+            // オペアンプの出力線。
+            AddLine(mX + OPAMP_WIDTH, CIRCUIT_INPUT_LINE_H,
+                    mX + OPAMP_WIDTH + 50, CIRCUIT_INPUT_LINE_H, mBrush);
+
+            mX += OPAMP_WIDTH + 50;
+
+        }
+
+        private static string ValueString(double v) {
+            if (1000.0 * 1000 * 1000 <= v) {
+                return string.Format("{0:F}G", v / (1000.0 * 1000 * 1000));
+            }
+            if (1000.0 * 1000 <= v) {
+                return string.Format("{0:F}M", v / (1000.0 * 1000));
+            }
+
+            if (1000.0 <= v) {
+                return string.Format("{0:F}k", v / (1000.0));
+            }
+
+            if (v <= 0.001 * 0.001 * 0.001) {
+                return string.Format("{0:F}p", v * (1000.0 * 1000.0 * 1000.0 * 1000.0));
+            }
+
+            if (v <= 0.001) {
+                return string.Format("{0:F}μ", v * (1000.0 * 1000.0));
+            }
+
+            if (v <= 1.0) {
+                return string.Format("{0:F}m", v * (1000.0));
+            }
+
+            return string.Format("{0:F}", v);
+        }
+
+        private static string ResistorValueString(double v) {
+            return string.Format("{0}Ω", ValueString(v));
+        }
+
+        private static string CapacitorValueString(double v) {
+            return string.Format("{0}F", ValueString(v));
         }
 
         public void Update() {
             canvas1.Children.Clear();
             mX = 0;
-            mR = 0;
-            mC = 0;
+            mR.Clear();
+            mC.Clear();
+            textBoxParameters.Clear();
 
             DrawInput();
 
@@ -355,13 +540,24 @@ namespace WWUserControls {
                     // 1次多項式。
                     DrawFirstOrderFilter(pf);
                 } else {
+                    var ps = p as SecondOrderRationalPolynomial;
                     // 2次多項式。
+                    DrawSecondOrderFilter(ps);
                 }
             }
 
             DrawOutput();
             canvas1.Width = mX;
             canvas1.Height = CIRCUIT_INPUT_LINE_H * 3;
+
+            textBoxParameters.Clear();
+            textBoxParameters.Text += string.Format("Stage = {0}\n", mRealPolynomialList.Count());
+            for (int i = 0; i < mR.Count(); ++i) {
+                textBoxParameters.Text += string.Format("R{0}={1}\n", i, ResistorValueString(mR[i]));
+            }
+            for (int i = 0; i < mC.Count(); ++i) {
+                textBoxParameters.Text += string.Format("C{0}={1}\n", i, CapacitorValueString(mC[i]));
+            }
         }
     }
 }

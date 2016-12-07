@@ -98,6 +98,7 @@ namespace WWAudioFilter {
             AddLog(string.Format("Analog Filter Stages = {0}\n", afd.RealPolynomialCount()));
 
             mAnalogFilterCircuit.Clear();
+            mAnalogFilterCircuit.CutoffFrequencyHz = fc;
             for (int i=0; i<afd.RealPolynomialCount(); ++i) {
                 mAnalogFilterCircuit.Add(afd.RealPolynomialNth(i));
             }

@@ -140,9 +140,9 @@ namespace WWAudioFilter {
 
                     foreach (var item in H_PFD) {
                         // numerator * exp(denominator * t)
-                        result.Add(WWComplex.Mul(item.NumeratorCoeff(0),
-                            new WWComplex(Math.Exp(-t * item.DenominatorCoeff(0).real) * Math.Cos(-t * item.DenominatorCoeff(0).imaginary),
-                                          Math.Exp(-t * item.DenominatorCoeff(0).real) * Math.Sin(-t * item.DenominatorCoeff(0).imaginary))));
+                        result.Add(WWComplex.Mul(item.N(0),
+                            new WWComplex(Math.Exp(-t * item.D(0).real) * Math.Cos(-t * item.D(0).imaginary),
+                                          Math.Exp(-t * item.D(0).real) * Math.Sin(-t * item.D(0).imaginary))));
                     }
 
                     return result.real;
@@ -151,7 +151,7 @@ namespace WWAudioFilter {
                 Console.Write("Impulse Response (frequency normalized): h(t) = ");
                 for (int i = 0; i < H_PFD.Count; ++i) {
                     var item = H_PFD[i];
-                    Console.Write(string.Format("({0}) * e^ {{ -t * ({1}) }}", item.NumeratorCoeff(0), item.DenominatorCoeff(0)));
+                    Console.Write(string.Format("({0}) * e^ {{ -t * ({1}) }}", item.N(0), item.D(0)));
                     if (i != H_PFD.Count - 1) {
                         Console.Write(" + ");
                     }
@@ -167,14 +167,14 @@ namespace WWAudioFilter {
                     WWComplex result = new WWComplex(0, 0);
 
                     foreach (var item in stepResponseTFPFD) {
-                        if (item.DenominatorCoeff(0).EqualValue(new WWComplex(0, 0))) {
+                        if (item.D(0).EqualValue(new WWComplex(0, 0))) {
                             // b/s → b*u(t)
-                            result.Add(item.NumeratorCoeff(0));
+                            result.Add(item.N(0));
                         } else {
                             // b/(s-a) → b * exp(a * t)
-                            result.Add(WWComplex.Mul(item.NumeratorCoeff(0),
-                                new WWComplex(Math.Exp(-t * item.DenominatorCoeff(0).real) * Math.Cos(-t * item.DenominatorCoeff(0).imaginary),
-                                              Math.Exp(-t * item.DenominatorCoeff(0).real) * Math.Sin(-t * item.DenominatorCoeff(0).imaginary))));
+                            result.Add(WWComplex.Mul(item.N(0),
+                                new WWComplex(Math.Exp(-t * item.D(0).real) * Math.Cos(-t * item.D(0).imaginary),
+                                              Math.Exp(-t * item.D(0).real) * Math.Sin(-t * item.D(0).imaginary))));
                         }
                     }
 
@@ -184,12 +184,12 @@ namespace WWAudioFilter {
                 Console.Write("Step Response (frequency normalized): y(t) = ");
                 for (int i = 0; i < stepResponseTFPFD.Count; ++i) {
                     var item = stepResponseTFPFD[i];
-                    if (item.DenominatorCoeff(0).EqualValue(new WWComplex(0, 0))) {
+                    if (item.D(0).EqualValue(new WWComplex(0, 0))) {
                         // b/s → b*u(t)
-                        Console.Write(string.Format("({0}) * u(t)", item.NumeratorCoeff(0)));
+                        Console.Write(string.Format("({0}) * u(t)", item.N(0)));
                     } else {
                         // b/(s-a) → b * exp(a * t)
-                        Console.Write(string.Format("({0}) * e^ {{ -t * ({1}) }}", item.NumeratorCoeff(0), item.DenominatorCoeff(0)));
+                        Console.Write(string.Format("({0}) * e^ {{ -t * ({1}) }}", item.N(0), item.D(0)));
                     }
                     if (i != stepResponseTFPFD.Count() - 1) {
                         Console.Write(" + ");
@@ -197,7 +197,7 @@ namespace WWAudioFilter {
                 }
                 Console.WriteLine("");
 
-                TimeDomainFunctionTimeScale = 1.0 / bwd.CutoffFrequency();
+                TimeDomainFunctionTimeScale = 1.0 / bwd.CutoffFrequencyHz();
 
                 // 共役複素数のペアを組み合わせて伝達関数の係数を全て実数にする。
                 // s平面のjω軸から遠い項から並べる。
@@ -221,9 +221,6 @@ namespace WWAudioFilter {
 
                 Console.Write("Transfer function (real coefficients): H(s) = ");
                 for (int i = 0; i < mRealPolynomialList.Count(); ++i) {
-                    // 周波数スケーリングする。
-                    mRealPolynomialList[i].FrequencyScaling(ωc);
-
                     Console.Write(mRealPolynomialList[i].ToString("s"));
                     if (i != mRealPolynomialList.Count() - 1) {
                         Console.Write(" + ");

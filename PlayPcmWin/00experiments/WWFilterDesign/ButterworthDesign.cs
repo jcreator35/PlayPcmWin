@@ -101,10 +101,18 @@ namespace WWAudioFilter {
         }
 
         /// <summary>
-        /// カットオフ周波数ωc。sをこの値で割る。(周波数スケーリング)
+        /// カットオフ周波数ωc (rad/s)。
+        /// sをこの値で割る(周波数スケーリング)
         /// </summary>
         public double CutoffFrequency() {
             return mωc;
+        }
+
+        /// <summary>
+        /// カットオフ周波数 (Hz)
+        /// </summary>
+        public double CutoffFrequencyHz() {
+            return mωc / (2.0 * Math.PI);
         }
 
         /// <summary>

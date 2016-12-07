@@ -36,11 +36,11 @@ namespace WWMath {
             return denom;
         }
 
-        public override WWComplex NumeratorCoeff(int nth) {
+        public override WWComplex N(int nth) {
             return numer[nth];
         }
 
-        public override WWComplex DenominatorCoeff(int nth) {
+        public override WWComplex D(int nth) {
             return denom[nth];
         }
 

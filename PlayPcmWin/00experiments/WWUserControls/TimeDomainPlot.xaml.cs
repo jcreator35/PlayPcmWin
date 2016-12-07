@@ -21,7 +21,7 @@ namespace WWUserControls {
             InitializeComponent();
 
             TimeRange = 20.0;
-            TimeScale = 1.0;
+            TimeScale = 0.01;
             mInitialized = true;
         }
 
@@ -55,11 +55,11 @@ namespace WWUserControls {
         };
 
         private double PlotXToTime(int idx) {
-            return 2.0 * Math.PI * TimeRange * ((double)idx / FR_LINE_WIDTH - MINUS_TIME_RATIO);
+            return TimeRange * ((double)idx / FR_LINE_WIDTH - MINUS_TIME_RATIO);
         }
 
         private int TimeToPlotX(double t) {
-            return (int)((t / ( 2.0 * Math.PI * TimeRange) + MINUS_TIME_RATIO) * FR_LINE_WIDTH);
+            return (int)((t / TimeRange + MINUS_TIME_RATIO) * FR_LINE_WIDTH);
         }
 
         private void LineSetPos(Line l, double x1, double y1, double x2, double y2) {
@@ -97,10 +97,10 @@ namespace WWUserControls {
                 double y = 0;
                 switch ((FunctionType)comboBoxFunction.SelectedIndex) {
                 case FunctionType.ImpulseResponse:
-                    y = ImpulseResponseFunction(t);
+                    y = ImpulseResponseFunction(t*2*Math.PI);
                     break;
                 case FunctionType.StepResponse:
-                    y = StepResponseFunction(t);
+                    y = StepResponseFunction(t * 2 * Math.PI);
                     break;
                 }
 

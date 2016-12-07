@@ -7,9 +7,9 @@ namespace WWMath {
 
         public abstract WWComplex[] DenominatorCoeffs();
 
-        public abstract WWComplex NumeratorCoeff(int nth);
+        public abstract WWComplex N(int nth);
 
-        public abstract WWComplex DenominatorCoeff(int nth);
+        public abstract WWComplex D(int nth);
 
         public abstract int Order();
 

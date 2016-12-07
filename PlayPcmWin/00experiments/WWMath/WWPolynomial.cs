@@ -8,16 +8,16 @@ namespace WWMath {
         /// </summary>
         public static SecondOrderRationalPolynomial Mul(FirstOrderRationalPolynomial lhs, FirstOrderRationalPolynomial rhs) {
             // 分子の項 x 分子の項
-            var n2 = WWComplex.Mul(lhs.NumeratorCoeff(1), rhs.NumeratorCoeff(1));
-            var n1 = WWComplex.Add(WWComplex.Mul(lhs.NumeratorCoeff(1), rhs.NumeratorCoeff(0)),
-                                   WWComplex.Mul(lhs.NumeratorCoeff(0), rhs.NumeratorCoeff(1)));
-            var n0 = WWComplex.Mul(lhs.NumeratorCoeff(0), rhs.NumeratorCoeff(0));
+            var n2 = WWComplex.Mul(lhs.N(1), rhs.N(1));
+            var n1 = WWComplex.Add(WWComplex.Mul(lhs.N(1), rhs.N(0)),
+                                   WWComplex.Mul(lhs.N(0), rhs.N(1)));
+            var n0 = WWComplex.Mul(lhs.N(0), rhs.N(0));
 
             // 分母の項 x 分母の項
-            var d2 = WWComplex.Mul(lhs.DenominatorCoeff(1), rhs.DenominatorCoeff(1));
-            var d1 = WWComplex.Add(WWComplex.Mul(lhs.DenominatorCoeff(1), rhs.DenominatorCoeff(0)),
-                                   WWComplex.Mul(lhs.DenominatorCoeff(0), rhs.DenominatorCoeff(1)));
-            var d0 = WWComplex.Mul(lhs.DenominatorCoeff(0), rhs.DenominatorCoeff(0));
+            var d2 = WWComplex.Mul(lhs.D(1), rhs.D(1));
+            var d1 = WWComplex.Add(WWComplex.Mul(lhs.D(1), rhs.D(0)),
+                                   WWComplex.Mul(lhs.D(0), rhs.D(1)));
+            var d0 = WWComplex.Mul(lhs.D(0), rhs.D(0));
 
             return new SecondOrderRationalPolynomial(n2, n1, n0, d2, d1, d0);
         }
