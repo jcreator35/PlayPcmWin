@@ -79,9 +79,21 @@ namespace WWUserControls {
             Canvas.SetTop(c, y - diameter / 2);
         }
 
+        private void AddFilledCircle(double x, double y, double diameter, SolidColorBrush brush) {
+            var c = new Ellipse();
+            c.Stroke = brush;
+            c.Fill = brush;
+            c.Width = diameter;
+            c.Height = diameter;
+            canvas1.Children.Add(c);
+            Canvas.SetLeft(c, x - diameter / 2);
+            Canvas.SetTop(c, y - diameter / 2);
+        }
+
         private const double CIRCUIT_INPUT_LINE_H = 80;
         private const double INPUT_CIRCLE_WH = 6;
         private const double INPUT_LINE_W = 30;
+        private const double OUTPUT_LINE_W = 10;
 
         private const double RESISTOR_LENGTH = 3 * 6;
 
@@ -125,6 +137,8 @@ namespace WWUserControls {
             }
 
             AddLine(mX + OPAMP_WIDTH, CIRCUIT_INPUT_LINE_H, mX + OPAMP_WIDTH + 50, CIRCUIT_INPUT_LINE_H, mBrush);
+
+            //AddFilledCircle(mX + OPAMP_WIDTH + 10, CIRCUIT_INPUT_LINE_H, 5, mBrush);
 
             mX += OPAMP_WIDTH + 50;
 
@@ -246,8 +260,8 @@ namespace WWUserControls {
         }
 
         private void DrawOutput() {
-            AddLine(mX, CIRCUIT_INPUT_LINE_H, mX + INPUT_LINE_W, CIRCUIT_INPUT_LINE_H, mBrush);
-            mX += INPUT_LINE_W + INPUT_CIRCLE_WH/2;
+            AddLine(mX, CIRCUIT_INPUT_LINE_H, mX + OUTPUT_LINE_W, CIRCUIT_INPUT_LINE_H, mBrush);
+            mX += OUTPUT_LINE_W + INPUT_CIRCLE_WH/2;
 
             AddCircle(mX, CIRCUIT_INPUT_LINE_H, INPUT_CIRCLE_WH, mBrush);
             mX += INPUT_CIRCLE_WH/2;
@@ -485,6 +499,8 @@ namespace WWUserControls {
             // オペアンプの出力線。
             AddLine(mX + OPAMP_WIDTH, CIRCUIT_INPUT_LINE_H,
                     mX + OPAMP_WIDTH + 50, CIRCUIT_INPUT_LINE_H, mBrush);
+
+            AddFilledCircle(mX + OPAMP_WIDTH + 10, CIRCUIT_INPUT_LINE_H, 5, mBrush);
 
             mX += OPAMP_WIDTH + 50;
 
