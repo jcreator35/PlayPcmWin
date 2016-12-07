@@ -93,6 +93,15 @@ namespace WWAudioFilter {
             mTimeDomainPlot.StepResponseFunction = afd.UnitStepResponseFunction;
             mTimeDomainPlot.TimeScale = afd.TimeDomainFunctionTimeScale;
             mTimeDomainPlot.Update();
+
+            // アナログ回路表示。
+            AddLog(string.Format("Analog Filter Stages = {0}\n", afd.RealPolynomialCount()));
+
+            mAnalogFilterCircuit.Clear();
+            for (int i=0; i<afd.RealPolynomialCount(); ++i) {
+                mAnalogFilterCircuit.Add(afd.RealPolynomialNth(i));
+            }
+            mAnalogFilterCircuit.Update();
         }
     }
 }

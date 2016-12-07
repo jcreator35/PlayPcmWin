@@ -15,6 +15,10 @@ namespace WWMath {
             this.imaginary = rhs.imaginary;
         }
 
+        public WWComplex CreateCopy() {
+            return new WWComplex(this);
+        }
+
         public void Set(double real, double imaginary) {
             this.real = real;
             this.imaginary = imaginary;
@@ -36,28 +40,43 @@ namespace WWMath {
             return Math.Atan2(imaginary, real);
         }
 
+        /// <summary>
+        /// 自分自身が書き換わるので注意。
+        /// </summary>
         public WWComplex Add(WWComplex rhs) {
             real      += rhs.real;
             imaginary += rhs.imaginary;
             return this;
         }
+        /// <summary>
+        /// 自分自身が書き換わるので注意。
+        /// </summary>
         public WWComplex Sub(WWComplex rhs) {
             real -= rhs.real;
             imaginary -= rhs.imaginary;
             return this;
         }
 
+        /// <summary>
+        /// 自分自身が書き換わるので注意。
+        /// </summary>
         public WWComplex Mul(double v) {
             real      *= v;
             imaginary *= v;
             return this;
         }
 
+        /// <summary>
+        /// 自分自身が書き換わるので注意。
+        /// </summary>
         public WWComplex Div(double rhs) {
             var recip = 1.0 / rhs;
             return Mul(recip);
         }
 
+        /// <summary>
+        /// 自分自身が書き換わるので注意。
+        /// </summary>
         public WWComplex Mul(WWComplex rhs) {
 #if false
             // straightforward but slow
@@ -76,6 +95,9 @@ namespace WWMath {
             return this;
         }
 
+        /// <summary>
+        /// 自分自身が書き換わるので注意。
+        /// </summary>
         public WWComplex Div(WWComplex rhs) {
             var recip = new WWComplex(rhs).Reciprocal();
             return Mul(recip);
@@ -86,6 +108,9 @@ namespace WWMath {
             imaginary = rhs.imaginary;
         }
 
+        /// <summary>
+        /// 自分自身が書き換わるので注意。
+        /// </summary>
         public WWComplex Reciprocal() {
             double sq = real * real + imaginary * imaginary;
             real = real / sq;

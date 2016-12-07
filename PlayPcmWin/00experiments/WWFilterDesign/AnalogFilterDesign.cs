@@ -34,8 +34,17 @@ namespace WWAudioFilter {
         public WWUserControls.Common.TimeDomainResponseFunctionDelegate ImpulseResponseFunction;
         public WWUserControls.Common.TimeDomainResponseFunctionDelegate UnitStepResponseFunction;
 
-
         public double TimeDomainFunctionTimeScale { get; set; }
+
+        public int RealPolynomialCount() {
+            return mRealPolynomialList.Count();
+        }
+
+        public RationalPolynomial RealPolynomialNth(int n) {
+            return mRealPolynomialList[n];
+        }
+
+        private List<RationalPolynomial> mRealPolynomialList = new List<RationalPolynomial>();
 
         /// <summary>
         /// バターワースローパスフィルターの設計。
@@ -192,28 +201,31 @@ namespace WWAudioFilter {
 
                 // 共役複素数のペアを組み合わせて伝達関数の係数を全て実数にする。
                 // s平面のjω軸から遠い項から並べる。
-                var H_Real = new List<RationalPolynomial>();
+                mRealPolynomialList.Clear();
                 if ((H_PFD.Count() & 1) == 1) {
                     // 奇数。
                     int center = H_PFD.Count() / 2;
-                    H_Real.Add(H_PFD[center]);
+                    mRealPolynomialList.Add(H_PFD[center].CreateCopy());
                     for (int i = 0; i < H_PFD.Count() / 2; ++i) {
-                        H_Real.Add(WWPolynomial.Mul(
+                        mRealPolynomialList.Add(WWPolynomial.Mul(
                             H_PFD[center - i - 1], H_PFD[center + i + 1]));
                     }
                 } else {
                     // 偶数。
                     int center = H_PFD.Count() / 2;
                     for (int i = 0; i < H_PFD.Count() / 2; ++i) {
-                        H_Real.Add(WWPolynomial.Mul(
+                        mRealPolynomialList.Add(WWPolynomial.Mul(
                             H_PFD[center - i - 1], H_PFD[center + i]));
                     }
                 }
 
                 Console.Write("Transfer function (real coefficients): H(s) = ");
-                for (int i = 0; i < H_Real.Count(); ++i) {
-                    Console.Write(H_Real[i].ToString("s"));
-                    if (i != H_Real.Count() - 1) {
+                for (int i = 0; i < mRealPolynomialList.Count(); ++i) {
+                    // 周波数スケーリングする。
+                    mRealPolynomialList[i].FrequencyScaling(ωc);
+
+                    Console.Write(mRealPolynomialList[i].ToString("s"));
+                    if (i != mRealPolynomialList.Count() - 1) {
                         Console.Write(" + ");
                     }
                 }
