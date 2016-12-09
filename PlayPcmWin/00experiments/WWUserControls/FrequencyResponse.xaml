@@ -71,6 +71,7 @@
                 <Label Grid.Row="1" Content="Frequency Range:" HorizontalAlignment="Right" Name="labelFreqRange" VerticalAlignment="Center" Grid.Column="0"  />
                 <ComboBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Name="comboBoxFreqRange" VerticalAlignment="center" Width="125" SelectionChanged="comboBox_SelectionChanged" >
                     <ComboBoxItem Content="10Hz ～ 100kHz" IsSelected="True"/>
+                    <ComboBoxItem Content="10Hz ～ 1MHz" />
                     <ComboBoxItem Content="0.1Hz ～ 10Hz" />
                 </ComboBox>
                 <Label Grid.Column="2" Content="Magnitude Scale:" HorizontalAlignment="Right" Name="labelMagScale" VerticalAlignment="Center" />

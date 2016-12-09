@@ -42,6 +42,7 @@ namespace WWUserControls {
 
         public enum FreqRangeType {
             SF_10HzTo100kHz,
+            SF_10HzTo1MHz,
             SF_0_1HzTo10Hz,
         };
 
@@ -98,6 +99,8 @@ namespace WWUserControls {
                 switch ((FreqRangeType)comboBoxFreqRange.SelectedIndex) {
                 case FreqRangeType.SF_10HzTo100kHz:
                     return new Tuple<double, double>(10, 100 * 1000);
+                case FreqRangeType.SF_10HzTo1MHz:
+                    return new Tuple<double, double>(10, 1000 * 1000);
                 case FreqRangeType.SF_0_1HzTo10Hz:
                     return new Tuple<double, double>(0.1, 10);
                 }
@@ -107,6 +110,8 @@ namespace WWUserControls {
                 switch ((FreqRangeType)comboBoxFreqRange.SelectedIndex) {
                 case FreqRangeType.SF_10HzTo100kHz:
                     return new Tuple<double, double>(0, 100 * 1000);
+                case FreqRangeType.SF_10HzTo1MHz:
+                    return new Tuple<double, double>(0, 1000 * 1000);
                 case FreqRangeType.SF_0_1HzTo10Hz:
                     return new Tuple<double, double>(0, 10);
                 }
