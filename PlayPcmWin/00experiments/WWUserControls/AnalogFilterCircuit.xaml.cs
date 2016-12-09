@@ -526,9 +526,9 @@ namespace WWUserControls {
 
             // C2からGNDに接続する縦線。
             AddLine(mX, CIRCUIT_INPUT_LINE_H + 30 + CAPACITOR_THICKNESS,
-                    mX, CIRCUIT_INPUT_LINE_H + 50 + CAPACITOR_THICKNESS, mBrush);
+                    mX, CIRCUIT_INPUT_LINE_H + 30 + CAPACITOR_THICKNESS + RESISTOR_LENGTH + 10, mBrush);
 
-            AddGnd(mX, CIRCUIT_INPUT_LINE_H + 50 + CAPACITOR_THICKNESS);
+            AddGnd(mX, CIRCUIT_INPUT_LINE_H + 30 + CAPACITOR_THICKNESS + RESISTOR_LENGTH + 10);
 
             mX += 40 + 10;
 
@@ -592,7 +592,10 @@ namespace WWUserControls {
 
             DrawInput();
 
+            int order = 0;
+
             foreach (var p in mRealPolynomialList) {
+                order += p.Order();
                 if (p.Order() == 1) {
                     var pf = p as FirstOrderRationalPolynomial;
                     // 1次多項式。
@@ -609,7 +612,7 @@ namespace WWUserControls {
             canvas1.Height = CIRCUIT_INPUT_LINE_H * 3;
 
             textBoxParameters.Clear();
-            textBoxParameters.Text += string.Format("Stage = {0}\n", mRealPolynomialList.Count());
+            textBoxParameters.Text += string.Format("Order = {0}, Stage = {1}\n", order, mRealPolynomialList.Count());
             for (int i = 0; i < mR.Count(); ++i) {
                 textBoxParameters.Text += string.Format("R{0}={1}\n", i, ResistorValueString(mR[i]));
             }

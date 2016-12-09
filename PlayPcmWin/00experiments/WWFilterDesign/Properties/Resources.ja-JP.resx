@@ -118,48 +118,48 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AnalogFilterCircuit" xml:space="preserve">
-    <value>Analog Filter Circuit</value>
+    <value>アナログフィルター回路</value>
   </data>
   <data name="AnalogFilterSpecification" xml:space="preserve">
-    <value>Analog Filter Specification</value>
+    <value>アナログフィルター仕様設定</value>
   </data>
   <data name="Butterworth" xml:space="preserve">
-    <value>Butterworth</value>
+    <value>バターワース</value>
   </data>
   <data name="DesignParameters" xml:space="preserve">
-    <value>Design Parameters</value>
+    <value>設計パラメーター</value>
   </data>
   <data name="FilterType" xml:space="preserve">
-    <value>Filter Type</value>
+    <value>フィルター種類</value>
   </data>
   <data name="Frequency" xml:space="preserve">
-    <value>Frequency</value>
+    <value>周波数</value>
   </data>
   <data name="FrequencyResponse" xml:space="preserve">
-    <value>Frequency Response</value>
+    <value>F特</value>
   </data>
   <data name="Gain" xml:space="preserve">
-    <value>Gain</value>
+    <value>ゲイン</value>
   </data>
   <data name="Log" xml:space="preserve">
-    <value>Log</value>
+    <value>ログ</value>
   </data>
   <data name="Optimization" xml:space="preserve">
-    <value>Optimization</value>
+    <value>最適化</value>
   </data>
   <data name="Passband" xml:space="preserve">
-    <value>Passband</value>
+    <value>通過域</value>
   </data>
   <data name="PoleZeroPlot" xml:space="preserve">
     <value>Pole-Zero Plot</value>
   </data>
   <data name="Stopband" xml:space="preserve">
-    <value>Stopband</value>
+    <value>阻止域</value>
   </data>
   <data name="TimeDomainPlot" xml:space="preserve">
-    <value>Time Domain Plot</value>
+    <value>時間領域プロット</value>
   </data>
   <data name="Update" xml:space="preserve">
-    <value>Update</value>
+    <value>更新</value>
   </data>
 </root>

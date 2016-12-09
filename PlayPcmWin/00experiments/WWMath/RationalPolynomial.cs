@@ -15,7 +15,5 @@ namespace WWMath {
 
         public abstract string ToString(string variableSymbol);
 
-        public abstract void FrequencyScaling(double ωc);
-
     }
 }

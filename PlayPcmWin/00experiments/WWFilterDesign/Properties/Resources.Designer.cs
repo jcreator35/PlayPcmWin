@@ -59,5 +59,140 @@ namespace WWAudioFilter.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Analog Filter Circuit.
+        /// </summary>
+        internal static string AnalogFilterCircuit {
+            get {
+                return ResourceManager.GetString("AnalogFilterCircuit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Analog Filter Specification.
+        /// </summary>
+        internal static string AnalogFilterSpecification {
+            get {
+                return ResourceManager.GetString("AnalogFilterSpecification", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Butterworth.
+        /// </summary>
+        internal static string Butterworth {
+            get {
+                return ResourceManager.GetString("Butterworth", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Design Parameters.
+        /// </summary>
+        internal static string DesignParameters {
+            get {
+                return ResourceManager.GetString("DesignParameters", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Filter Type.
+        /// </summary>
+        internal static string FilterType {
+            get {
+                return ResourceManager.GetString("FilterType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Frequency.
+        /// </summary>
+        internal static string Frequency {
+            get {
+                return ResourceManager.GetString("Frequency", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Frequency Response.
+        /// </summary>
+        internal static string FrequencyResponse {
+            get {
+                return ResourceManager.GetString("FrequencyResponse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gain.
+        /// </summary>
+        internal static string Gain {
+            get {
+                return ResourceManager.GetString("Gain", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Log.
+        /// </summary>
+        internal static string Log {
+            get {
+                return ResourceManager.GetString("Log", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Optimization.
+        /// </summary>
+        internal static string Optimization {
+            get {
+                return ResourceManager.GetString("Optimization", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Passband.
+        /// </summary>
+        internal static string Passband {
+            get {
+                return ResourceManager.GetString("Passband", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pole-Zero Plot.
+        /// </summary>
+        internal static string PoleZeroPlot {
+            get {
+                return ResourceManager.GetString("PoleZeroPlot", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Stopband.
+        /// </summary>
+        internal static string Stopband {
+            get {
+                return ResourceManager.GetString("Stopband", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Time Domain Plot.
+        /// </summary>
+        internal static string TimeDomainPlot {
+            get {
+                return ResourceManager.GetString("TimeDomainPlot", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update.
+        /// </summary>
+        internal static string Update {
+            get {
+                return ResourceManager.GetString("Update", resourceCulture);
+            }
+        }
     }
 }

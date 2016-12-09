@@ -59,20 +59,5 @@ namespace WWMath {
             string d = WWUtil.PolynomialToString(denom[2], denom[1], denom[0], variableSymbol);
             return string.Format("{{ {0} }} / {{ {1} }}", n, d);
         }
-
-        /// <summary>
-        /// 伝達関数の多項式を周波数スケーリングする。
-        /// </summary>
-        /// <param name="ωc">周波数 (rad/s)</param>
-        public override void FrequencyScaling(double ωc) {
-            /* 教科書には2次の項をωc^2で割り、1次の項をωcで割ると書いてある。
-             * しかし、分母のsの2乗の項を1にしたいので、分子と分母をωc^2倍する。
-             * ということは結局、1次の項をωc倍、定数項をωc^2倍する。
-             */
-            numer[1].Mul(ωc);
-            denom[1].Mul(ωc);
-            numer[0].Mul(ωc * ωc);
-            denom[0].Mul(ωc * ωc);
-        }
     }
 }

@@ -11,6 +11,27 @@ namespace WWAudioFilter {
     public partial class MainWindow : Window {
         public MainWindow() {
             InitializeComponent();
+
+            LocalizeUI();
+        }
+
+        private void LocalizeUI() {
+            groupBoxSpecification.Header = Properties.Resources.AnalogFilterSpecification;
+            groupBoxFR.Header = Properties.Resources.FrequencyResponse;
+            groupBoxTD.Header = Properties.Resources.TimeDomainPlot;
+            groupBoxPoleZero.Header = Properties.Resources.PoleZeroPlot;
+            groupBoxAFC.Header = Properties.Resources.AnalogFilterCircuit;
+            groupBoxDesignParameters.Header = Properties.Resources.DesignParameters;
+
+            textBlockGain.Text = "↑" + Properties.Resources.Gain;
+            textblockFrequency.Text = Properties.Resources.Frequency;
+            groupBoxFilterType.Header = Properties.Resources.FilterType;
+            radioButtonFilterTypeButterworth.Content = Properties.Resources.Butterworth;
+            labelOptimization.Content = Properties.Resources.Optimization + ":";
+            buttonUpdate.Content = Properties.Resources.Update;
+
+            comboBoxItemβmax.Content = Properties.Resources.Stopband;
+            comboBoxItemβmin.Content = Properties.Resources.Passband;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
@@ -30,6 +51,36 @@ namespace WWAudioFilter {
             UpdateButterWorth();
         }
 
+        struct Unit {
+            public char unit;
+            public double unitValue;
+            public Unit(char aUnit, double aUnitValue) {
+                unit = aUnit;
+                unitValue = aUnitValue;
+            }
+        };
+
+        private Unit[] mUnits = new Unit[] { new Unit('k', 1000.0), new Unit('M', 1000.0 * 1000) };
+
+        private string TrimUnitString(string s, out double unit) {
+            unit = 1.0;
+
+            s = s.Trim();
+            if (s.Length == 0) {
+                return s;
+            }
+
+            foreach (var item in mUnits) {
+                if (s[s.Length - 1] == item.unit) {
+                    s = s.TrimEnd(item.unit);
+                    unit = item.unitValue;
+                    return s;
+                }
+            }
+
+            return s;
+        }
+
         private void UpdateButterWorth() {
             mTextBoxLog.Clear();
 
@@ -38,6 +89,8 @@ namespace WWAudioFilter {
             double gs = 0;
             double fc = 0;
             double fs = 0;
+
+            double unit = 1.0;
 
             if (!double.TryParse(textBoxG0.Text, out g0)) {
                 MessageBox.Show("G0 parse error.");
@@ -52,12 +105,22 @@ namespace WWAudioFilter {
                 return;
             }
 
-            if (!double.TryParse(textBoxFc.Text, out fc) || fc <= 0) {
+            string fcS = textBoxFc.Text;
+            fcS = TrimUnitString(fcS, out unit);
+            if (!double.TryParse(fcS, out fc) || fc <= 0) {
                 MessageBox.Show("Fc parse error. Fc must be greater than 0");
                 return;
             }
+            fc *= unit;
 
-            if (!double.TryParse(textBoxFs.Text, out fs) || fs <= 0 || fs <= fc) {
+            string fsS = textBoxFs.Text;
+            fsS = TrimUnitString(fsS, out unit);
+            if (!double.TryParse(fsS, out fs)) {
+                MessageBox.Show("Fs parse error. Fs must be number.");
+                return;
+            }
+            fs *= unit;
+            if (fs <= 0 || fs <= fc) {
                 MessageBox.Show("Fs parse error. Fs must be greater than Fc and greater than 0");
                 return;
             }

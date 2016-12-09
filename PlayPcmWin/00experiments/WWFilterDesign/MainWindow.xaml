@@ -29,8 +29,8 @@
                             <TextBlock Text="0" Margin="15,140,0,0" />
                             <TextBlock Text="Fc" Margin="80,150,0,0" />
                             <TextBlock Text="Fs" Margin="110,150,0,0" />
-                            <TextBlock Text="↑Gain" Margin="0,0,0,0" />
-                            <TextBlock Text="Frequency" Margin="70,166,0,0" />
+                            <TextBlock Text="↑Gain" Margin="0,0,0,0" Name="textBlockGain" />
+                            <TextBlock Text="Frequency" Margin="70,166,0,0" Name="textblockFrequency" />
                             <Line X1="25" Y1="15" X2="25" Y2="150" Stroke="Black" />
                             <Line X1="25" Y1="150" X2="180" Y2="150" Stroke="Black" />
 
@@ -40,7 +40,7 @@
 
                             <Line X1="25" Y1="50" X2="90" Y2="50" Stroke="Blue" />
                             <Line X1="90" Y1="50" X2="90" Y2="150" Stroke="Blue" />
-                            <Button Content="Update" Name="button1" Width="75" Click="buttonUpdate_Click" Canvas.Left="205" Canvas.Top="146" />
+                            <Button Content="Update" Name="buttonUpdate" Width="75" Click="buttonUpdate_Click" Canvas.Left="205" Canvas.Top="146" />
                             <GroupBox Header="Filter Type" Name="groupBoxFilterType" Canvas.Left="205" Canvas.Top="6">
                                 <Grid>
                                     <Grid.RowDefinitions>
@@ -50,17 +50,17 @@
                                     <RadioButton Content="Butterworth" HorizontalAlignment="Left" Name="radioButtonFilterTypeButterworth" VerticalAlignment="Center" Margin="6" IsChecked="True" />
                                 </Grid>
                             </GroupBox>
-                            <GroupBox Header="Design Parameters" Canvas.Left="205" Canvas.Top="60">
+                            <GroupBox Header="Design Parameters" Canvas.Left="205" Canvas.Top="60" Width="400" Name="groupBoxDesignParameters">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="1*" />
-                                        <ColumnDefinition Width="1*" />
-                                        <ColumnDefinition Width="1*" />
-                                        <ColumnDefinition Width="1*" />
+                                        <ColumnDefinition Width="2*" />
                                         <ColumnDefinition Width="1*" />
                                         <ColumnDefinition Width="1*" />
                                         <ColumnDefinition Width="2*" />
                                         <ColumnDefinition Width="1*" />
+                                        <ColumnDefinition Width="3*" />
+                                        <ColumnDefinition Width="2*" />
                                         <ColumnDefinition Width="1*" />
                                     </Grid.ColumnDefinitions>
                                     <Grid.RowDefinitions>
@@ -80,7 +80,7 @@
                                     <TextBox Name="textBoxFc" Text="1000" Grid.Row="1" Grid.Column="1" Margin="4" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
                                     <Label Content="Hz" Grid.Row="1" Grid.Column="2" VerticalAlignment="Center" Grid.ColumnSpan="4" Margin="0,4" />
                                     <Label Content="Fs:" Grid.Column="3" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Center" />
-                                    <TextBox Name="textBoxFs" Text="2000" Margin="4" Grid.Row="1" Grid.Column="4" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                                    <TextBox Name="textBoxFs" Text="2k" Margin="4" Grid.Row="1" Grid.Column="4" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
                                     <Label Content="Hz" Grid.Row="1" Grid.Column="5" VerticalAlignment="Center" Margin="0,4" />
                                     <Label Content="Optimization:" Grid.Column="6" Grid.Row="1" HorizontalAlignment="Right" Name="labelOptimization" VerticalAlignment="Center" />
                                     <ComboBox Grid.Column="7" Grid.ColumnSpan="2" Grid.Row="1" HorizontalAlignment="Left" Name="comboBoxOptimization" VerticalAlignment="Center">
