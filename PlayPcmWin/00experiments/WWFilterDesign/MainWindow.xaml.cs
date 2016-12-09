@@ -137,6 +137,27 @@ namespace WWAudioFilter {
             mTextBoxLog.Clear();
             AddLog(string.Format("Order={0}, Beta={1}\n", afd.Order(), afd.Beta()));
 
+            // 伝達関数の式をログに出力。
+            AddLog(string.Format("Transfer function H(s) = "));
+            for (int i = 0; i < afd.RealPolynomialCount(); ++i) {
+                AddLog(string.Format("{0}", afd.RealPolynomialNth(i).ToString("s")));
+                if (i != afd.RealPolynomialCount() -1) {
+                    AddLog(" + ");
+                }
+            }
+            AddLog("\n");
+
+            // インパルス応答の式をログに出力。
+            AddLog(("Impulse Response (frequency normalized): h(t) = "));
+            for (int i = 0; i < afd.HPfdCount(); ++i) {
+                var item = afd.HPfdNth(i);
+                AddLog(string.Format("({0}) * e^ {{ -t * ({1}) }}", item.N(0), item.D(0)));
+                if (i != afd.HPfdCount() - 1) {
+                    AddLog(" + ");
+                }
+            }
+            AddLog("\n");
+
             // 周波数応答グラフに伝達関数をセット。
             mFrequencyResponse.TransferFunction = afd.TransferFunction;
             mFrequencyResponse.Update();
@@ -167,5 +188,6 @@ namespace WWAudioFilter {
             }
             mAnalogFilterCircuit.Update();
         }
+
     }
 }

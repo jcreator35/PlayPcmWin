@@ -47,6 +47,25 @@ namespace WWAudioFilter {
         private List<RationalPolynomial> mRealPolynomialList = new List<RationalPolynomial>();
 
         /// <summary>
+        /// partial fraction decomposition-ed transfer function
+        /// </summary>
+        private List<FirstOrderRationalPolynomial> mH_PFD = new List<FirstOrderRationalPolynomial>();
+
+        /// <summary>
+        /// polynomial count of partial fraction decomposition-ed transfer function
+        /// </summary>
+        public int HPfdCount() {
+            return mH_PFD.Count();
+        }
+
+        /// <summary>
+        /// partial fraction decomposition-ed transfer function
+        /// </summary>
+        public FirstOrderRationalPolynomial HPfdNth(int n) {
+            return mH_PFD[n];
+        }
+
+        /// <summary>
         /// バターワースローパスフィルターの設計。
         /// </summary>
         /// <param name="g0">0Hzのゲイン (dB)</param>
@@ -70,7 +89,7 @@ namespace WWAudioFilter {
             mOrder = bwd.Order();
             mBeta = bwd.Beta();
             mNumeratorConstant = bwd.TransferFunctionConstant();
-            Console.WriteLine("order={0}, β={1}", mOrder, mBeta);
+            //Console.WriteLine("order={0}, β={1}", mOrder, mBeta);
 
             // 伝達関数のポールの位置。
             mPoleList.Clear();
@@ -109,18 +128,21 @@ namespace WWAudioFilter {
                     stepResponseTFRoots.Add(p);
                 }
                 stepResponseTFRoots.Add(new WWComplex(0, 0));
-                var H_PFD = WWPolynomial.PartialFractionDecomposition(numeratorC, H_Roots);
+                mH_PFD = WWPolynomial.PartialFractionDecomposition(numeratorC, H_Roots);
                 var stepResponseTFPFD = WWPolynomial.PartialFractionDecomposition(numeratorC, stepResponseTFRoots);
 
+                /*
                 Console.Write("Transfer function (After Partial Fraction Decomposition): H(s) = ");
-                for (int i = 0; i < H_PFD.Count(); ++i) {
-                    Console.Write(H_PFD[i].ToString("s/ωc"));
-                    if (i != H_PFD.Count - 1) {
+                for (int i = 0; i < mH_PFD.Count(); ++i) {
+                    Console.Write(mH_PFD[i].ToString("s/ωc"));
+                    if (i != mH_PFD.Count - 1) {
                         Console.Write(" + ");
                     }
                 }
                 Console.WriteLine("");
+                */
 
+                /*
                 Console.Write("Unit Step Function (After Partial Fraction Decomposition): Yγ(s) = ");
                 for (int i = 0; i < stepResponseTFPFD.Count(); ++i) {
                     Console.Write(stepResponseTFPFD[i].ToString("s/ωc"));
@@ -129,6 +151,7 @@ namespace WWAudioFilter {
                     }
                 }
                 Console.WriteLine("");
+                */
 
                 ImpulseResponseFunction = (double t) => {
                     if (t <= 0) {
@@ -138,7 +161,7 @@ namespace WWAudioFilter {
                     // 逆ラプラス変換してインパルス応答関数を得る。
                     WWComplex result = new WWComplex(0, 0);
 
-                    foreach (var item in H_PFD) {
+                    foreach (var item in mH_PFD) {
                         // numerator * exp(denominator * t)
                         result.Add(WWComplex.Mul(item.N(0),
                             new WWComplex(Math.Exp(-t * item.D(0).real) * Math.Cos(-t * item.D(0).imaginary),
@@ -148,15 +171,17 @@ namespace WWAudioFilter {
                     return result.real;
                 };
 
+                /*
                 Console.Write("Impulse Response (frequency normalized): h(t) = ");
-                for (int i = 0; i < H_PFD.Count; ++i) {
-                    var item = H_PFD[i];
+                for (int i = 0; i < mH_PFD.Count; ++i) {
+                    var item = mH_PFD[i];
                     Console.Write(string.Format("({0}) * e^ {{ -t * ({1}) }}", item.N(0), item.D(0)));
-                    if (i != H_PFD.Count - 1) {
+                    if (i != mH_PFD.Count - 1) {
                         Console.Write(" + ");
                     }
                 }
                 Console.WriteLine("");
+                */
 
                 UnitStepResponseFunction = (double t) => {
                     if (t <= 0) {
@@ -181,6 +206,7 @@ namespace WWAudioFilter {
                     return result.real;
                 };
 
+                /*
                 Console.Write("Step Response (frequency normalized): y(t) = ");
                 for (int i = 0; i < stepResponseTFPFD.Count; ++i) {
                     var item = stepResponseTFPFD[i];
@@ -196,29 +222,31 @@ namespace WWAudioFilter {
                     }
                 }
                 Console.WriteLine("");
+                */
 
                 TimeDomainFunctionTimeScale = 1.0 / bwd.CutoffFrequencyHz();
 
                 // 共役複素数のペアを組み合わせて伝達関数の係数を全て実数にする。
                 // s平面のjω軸から遠い項から並べる。
                 mRealPolynomialList.Clear();
-                if ((H_PFD.Count() & 1) == 1) {
+                if ((mH_PFD.Count() & 1) == 1) {
                     // 奇数。
-                    int center = H_PFD.Count() / 2;
-                    mRealPolynomialList.Add(H_PFD[center].CreateCopy());
-                    for (int i = 0; i < H_PFD.Count() / 2; ++i) {
+                    int center = mH_PFD.Count() / 2;
+                    mRealPolynomialList.Add(mH_PFD[center].CreateCopy());
+                    for (int i = 0; i < mH_PFD.Count() / 2; ++i) {
                         mRealPolynomialList.Add(WWPolynomial.Mul(
-                            H_PFD[center - i - 1], H_PFD[center + i + 1]));
+                            mH_PFD[center - i - 1], mH_PFD[center + i + 1]));
                     }
                 } else {
                     // 偶数。
-                    int center = H_PFD.Count() / 2;
-                    for (int i = 0; i < H_PFD.Count() / 2; ++i) {
+                    int center = mH_PFD.Count() / 2;
+                    for (int i = 0; i < mH_PFD.Count() / 2; ++i) {
                         mRealPolynomialList.Add(WWPolynomial.Mul(
-                            H_PFD[center - i - 1], H_PFD[center + i]));
+                            mH_PFD[center - i - 1], mH_PFD[center + i]));
                     }
                 }
 
+                /*
                 Console.Write("Transfer function (real coefficients): H(s) = ");
                 for (int i = 0; i < mRealPolynomialList.Count(); ++i) {
                     Console.Write(mRealPolynomialList[i].ToString("s"));
@@ -227,6 +255,7 @@ namespace WWAudioFilter {
                     }
                 }
                 Console.WriteLine("");
+                */
 
                 return true;
             }
