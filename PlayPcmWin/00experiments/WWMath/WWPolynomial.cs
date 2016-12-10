@@ -35,7 +35,8 @@ namespace WWMath {
         /// F(s) = ------------- + ------------- + ------------- + … + ---------------------
         ///         s-dRoots[0]     s-dRoots[1]     s-dRoots[2]         s-dRoots[p-1]
         /// </summary>
-        public static List<FirstOrderRationalPolynomial> PartialFractionDecomposition(List<WWComplex> nCoeffs, List<WWComplex> dRoots) {
+        public static List<FirstOrderRationalPolynomial> PartialFractionDecomposition(
+                List<WWComplex> nCoeffs, List<WWComplex> dRoots) {
             var result = new List<FirstOrderRationalPolynomial>();
 
             if (dRoots.Count == 1 && nCoeffs.Count == 1) {
