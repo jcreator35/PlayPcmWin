@@ -41,7 +41,7 @@ namespace WWMath {
         }
 
         /// <summary>
-        /// 自分自身が書き換わるので注意。
+        /// 自分自身が書き換わるので注意。value of this instance is changed
         /// </summary>
         public WWComplex Add(WWComplex rhs) {
             real      += rhs.real;
@@ -49,7 +49,7 @@ namespace WWMath {
             return this;
         }
         /// <summary>
-        /// 自分自身が書き換わるので注意。
+        /// 自分自身が書き換わるので注意。value of this instance is changed
         /// </summary>
         public WWComplex Sub(WWComplex rhs) {
             real -= rhs.real;
@@ -58,7 +58,7 @@ namespace WWMath {
         }
 
         /// <summary>
-        /// 自分自身が書き換わるので注意。
+        /// 自分自身が書き換わるので注意。value of this instance is changed
         /// </summary>
         public WWComplex Mul(double v) {
             real      *= v;
@@ -67,7 +67,7 @@ namespace WWMath {
         }
 
         /// <summary>
-        /// 自分自身が書き換わるので注意。
+        /// 自分自身が書き換わるので注意。value of this instance is changed
         /// </summary>
         public WWComplex Div(double rhs) {
             var recip = 1.0 / rhs;
@@ -75,7 +75,7 @@ namespace WWMath {
         }
 
         /// <summary>
-        /// 自分自身が書き換わるので注意。
+        /// 自分自身が書き換わるので注意。value of this instance is changed
         /// </summary>
         public WWComplex Mul(WWComplex rhs) {
 #if false
@@ -96,7 +96,7 @@ namespace WWMath {
         }
 
         /// <summary>
-        /// 自分自身が書き換わるので注意。
+        /// 自分自身が書き換わるので注意。value of this instance is changed
         /// </summary>
         public WWComplex Div(WWComplex rhs) {
             var recip = new WWComplex(rhs).Reciprocal();
@@ -109,7 +109,7 @@ namespace WWMath {
         }
 
         /// <summary>
-        /// 自分自身が書き換わるので注意。
+        /// 自分自身が書き換わるので注意。value of this instance is changed
         /// </summary>
         public WWComplex Reciprocal() {
             double sq = real * real + imaginary * imaginary;
@@ -118,23 +118,39 @@ namespace WWMath {
             return this;
         }
 
+        /// <summary>
+        /// create copy and copy := lhs + rhs, returns copy.
+        /// </summary>
         public static WWComplex Add(WWComplex lhs, WWComplex rhs) {
             return new WWComplex(lhs).Add(rhs);
         }
+        /// <summary>
+        /// create copy and copy := lhs - rhs, returns copy.
+        /// </summary>
         public static WWComplex Sub(WWComplex lhs, WWComplex rhs) {
             return new WWComplex(lhs).Sub(rhs);
         }
+        /// <summary>
+        /// create copy and copy := lhs * rhs, returns copy.
+        /// </summary>
         public static WWComplex Mul(WWComplex lhs, WWComplex rhs) {
             return new WWComplex(lhs).Mul(rhs);
         }
+        /// <summary>
+        /// create copy and copy := lhs / rhs, returns copy.
+        /// </summary>
         public static WWComplex Div(WWComplex lhs, WWComplex rhs) {
             return new WWComplex(lhs).Div(rhs);
         }
-
+        /// <summary>
+        /// create copy and copy := lhs / rhs, returns copy.
+        /// </summary>
         public static WWComplex Div(WWComplex lhs, double rhs) {
             return new WWComplex(lhs).Div(rhs);
         }
-
+        /// <summary>
+        /// create copy and copy := -uni, returns copy.
+        /// </summary>
         public static WWComplex Minus(WWComplex uni) {
             return new WWComplex(-uni.real, -uni.imaginary);
         }

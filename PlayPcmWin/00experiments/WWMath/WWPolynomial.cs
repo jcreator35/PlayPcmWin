@@ -51,7 +51,6 @@ namespace WWMath {
                 throw new ArgumentException("nCoeffs");
             }
 
-
             for (int k = 0; k < dRoots.Count; ++k) {
                 // cn = ... + nCoeffs[2]s^2 + nCoeffs[1]s + nCoeffs[0]
                 // 係数c[0]は、s==dRoots[0]としたときの、cn/(s-dRoots[1])(s-dRoots[2])(s-dRoots[3])…(s-dRoots[p-1])
