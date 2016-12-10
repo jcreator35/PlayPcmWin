@@ -128,6 +128,7 @@ namespace WWAudioFilter {
                     stepResponseTFRoots.Add(p);
                 }
                 stepResponseTFRoots.Add(new WWComplex(0, 0));
+
                 mH_PFD = WWPolynomial.PartialFractionDecomposition(numeratorC, H_Roots);
                 var stepResponseTFPFD = WWPolynomial.PartialFractionDecomposition(numeratorC, stepResponseTFRoots);
 
