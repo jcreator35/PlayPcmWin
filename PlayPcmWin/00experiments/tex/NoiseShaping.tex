@@ -4,29 +4,29 @@
 
 \renewcommand\Re{\operatorname{\mathfrak{Re}}}
 \renewcommand\Im{\operatorname{\mathfrak{Im}}}
-\section{ノイズシェイピングの量子化雑音のF特}
-\subsection{1次のノイズシェイピングの量子化雑音のF特}
-出力量子化雑音の伝達関数 \( H_1(z) \)は
+\section{繝弱う繧ｺ繧ｷ繧ｧ繧､繝斐Φ繧ｰ縺ｮ驥丞ｭ仙喧髮鷹浹縺ｮF迚ｹ}
+\subsection{1谺｡縺ｮ繝弱う繧ｺ繧ｷ繧ｧ繧､繝斐Φ繧ｰ縺ｮ驥丞ｭ仙喧髮鷹浹縺ｮF迚ｹ}
+蜃ｺ蜉幃㍼蟄仙喧髮鷹浹縺ｮ莨晞＃髢｢謨ｰ \( H_1(z) \)縺ｯ
 \begin{eqnarray}
 H_1(z) = 1 - z^{-1}
 \end{eqnarray}
 
-出力量子化雑音のF特 \( |H_1(\mathrm{e}^{j\omega})| \) は
+蜃ｺ蜉幃㍼蟄仙喧髮鷹浹縺ｮF迚ｹ \( |H_1(\mathrm{e}^{j\omega})| \) 縺ｯ
 \begin{eqnarray*}
 |H_1(\mathrm{e}^{j\omega})| &=& \sqrt{ \Re \left( 1 - \mathrm{e}^{-j\omega} \right)^2 + \Im \left( 1 - \mathrm{e}^{-j\omega} \right)^2 }
 \end{eqnarray*}
 
-角周波数 \( \omega \) は, サンプリング周波数 \( f_c \),\, 信号周波数 \( f \)とすると \( \omega = \frac{2\pi f}{f_c} \)
-で表される周波数.
+隗貞捉豕｢謨ｰ \( \omega \) 縺ｯ, 繧ｵ繝ｳ繝励Μ繝ｳ繧ｰ蜻ｨ豕｢謨ｰ \( f_c \),\, 菫｡蜿ｷ蜻ｨ豕｢謨ｰ \( f \)縺ｨ縺吶ｋ縺ｨ \( \omega = \frac{2\pi f}{f_c} \)
+縺ｧ陦ｨ縺輔ｌ繧句捉豕｢謨ｰ.
 
 \( \mathrm{e}^{j\omega} = \cos(\omega) + j\sin(\omega),\,
 \Re \left( \mathrm{e}^{-j\omega} \right) = \cos(-\omega) = \cos(\omega),\,
-\Im \left( \mathrm{e}^{-j\omega} \right) = \sin(-\omega) = -\sin(\omega)\)より
+\Im \left( \mathrm{e}^{-j\omega} \right) = \sin(-\omega) = -\sin(\omega)\)繧医ｊ
 \begin{eqnarray*}
 |H_1(\mathrm{e}^{j\omega})| &=& \sqrt{ (1-\cos(\omega))^2 + \sin^2(\omega) } \\
                  &=& \sqrt{ 1 -2\cos(\omega) + \cos^2(\omega) + \sin^2(\omega) }
 \end{eqnarray*}
-\( \cos^2(\omega) + \sin^2(\omega) = 1,\, 1-\cos(\omega) = \sin^2(\frac{\omega}{2}) \) より
+\( \cos^2(\omega) + \sin^2(\omega) = 1,\, 1-\cos(\omega) = \sin^2(\frac{\omega}{2}) \) 繧医ｊ
 \begin{eqnarray*}
 |H_1(\mathrm{e}^{j\omega})| &=& \sqrt{ 2 -2\cos(\omega) } = \sqrt{ 2(1 -\cos(\omega)) } = \sqrt{ 4\sin^2(\frac{\omega}{2})) } = 2|\sin(\frac{\omega}{2})|
 \end{eqnarray*}
@@ -34,18 +34,18 @@ H_1(z) = 1 - z^{-1}
 \therefore |H_1(\mathrm{e}^{j\omega})| = 2|\sin(\frac{\omega}{2})|
 \end{eqnarray}
 
-\subsection{2次のノイズシェイピングの量子化雑音のF特}
-出力量子化雑音の伝達関数 \( H_2(z) \)は
+\subsection{2谺｡縺ｮ繝弱う繧ｺ繧ｷ繧ｧ繧､繝斐Φ繧ｰ縺ｮ驥丞ｭ仙喧髮鷹浹縺ｮF迚ｹ}
+蜃ｺ蜉幃㍼蟄仙喧髮鷹浹縺ｮ莨晞＃髢｢謨ｰ \( H_2(z) \)縺ｯ
 \begin{eqnarray}
 H_2(z) = 1 - 2z^{-1} + z^{-2}
 \end{eqnarray}
 
-出力量子化雑音のF特 \( |H_2(\mathrm{e}^{j\omega})| \) は
+蜃ｺ蜉幃㍼蟄仙喧髮鷹浹縺ｮF迚ｹ \( |H_2(\mathrm{e}^{j\omega})| \) 縺ｯ
 \begin{eqnarray*}
 |H_2(\mathrm{e}^{j\omega})| &=& \sqrt{ \Re \left( 1 - 2\mathrm{e}^{-j\omega} + \mathrm{e}^{-2j\omega} \right)^2 + \Im \left( 1 - 2\mathrm{e}^{-j\omega} +\mathrm{e}^{-2j\omega} \right)^2 } \\
                             &=& \sqrt{ \left\{ 1-2\cos(\omega)+\cos(2\omega)\right\}^2 + \left\{ 2\sin(\omega) - \sin(2\omega) \right\}^2 }
 \end{eqnarray*}
-\( \cos(2\omega) = 2\cos^2(\omega)-1 ,\, \sin(2\omega) = 2\sin(\omega)\cos(\omega) ,\, \cos^2(\omega)+\sin^2(\omega) = 1 \) より
+\( \cos(2\omega) = 2\cos^2(\omega)-1 ,\, \sin(2\omega) = 2\sin(\omega)\cos(\omega) ,\, \cos^2(\omega)+\sin^2(\omega) = 1 \) 繧医ｊ
 \begin{eqnarray*}
 |H_2(\mathrm{e}^{j\omega})| &=& \sqrt{ \left\{ 1-2\cos(\omega)+2\cos^2(\omega)-1 \right\}^2 + \left\{ 2\sin(\omega) - 2\sin(\omega)\cos(\omega) \right\}^2 } \\
                             &=& \sqrt{ \left\{ 2\cos(\omega)(1-\cos(\omega))\right\}^2 + \left\{ 2\sin(\omega)(1-\cos(\omega)) \right\}^2 } \\
