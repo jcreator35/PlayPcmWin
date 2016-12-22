@@ -48,7 +48,12 @@ namespace WWAudioFilter {
         }
 
         private void Update() {
-            UpdateButterWorth();
+            if (radioButtonFilterTypeButterworth.IsChecked == true) {
+                UpdateButterWorth();
+            }
+            if (radioButtonFilterTypeChebyshev.IsChecked == true) {
+                UpdateChebyshev();
+            }
         }
 
         struct Unit {
@@ -81,58 +86,83 @@ namespace WWAudioFilter {
             return s;
         }
 
-        private void UpdateButterWorth() {
-            mTextBoxLog.Clear();
+        double mG0 = 0;
+        double mGc = 0;
+        double mGs = 0;
+        double mFc = 0;
+        double mFs = 0;
+        ApproximationBase.BetaType mBetaType;
 
-            double g0 = 0;
-            double gc = 0;
-            double gs = 0;
-            double fc = 0;
-            double fs = 0;
-
+        private bool GetParametersFromUI() {
             double unit = 1.0;
 
-            if (!double.TryParse(textBoxG0.Text, out g0)) {
+            if (!double.TryParse(textBoxG0.Text, out mG0)) {
                 MessageBox.Show("G0 parse error.");
-                return;
+                return false;
             }
-            if (!double.TryParse(textBoxGc.Text, out gc) || g0 <= gc) {
-                MessageBox.Show("Gc parse error. gc must be smaller than g0");
-                return;
+            if (!double.TryParse(textBoxGc.Text, out mGc) || mG0 <= mGc) {
+                MessageBox.Show("Gc parse error. mGc must be smaller than mG0");
+                return false;
             }
-            if (!double.TryParse(textBoxGs.Text, out gs) || gc <= gs) {
-                MessageBox.Show("Gs parse error. gs must be smaller than gc");
-                return;
+            if (!double.TryParse(textBoxGs.Text, out mGs) || mGc <= mGs) {
+                MessageBox.Show("Gs parse error. mGs must be smaller than mGc");
+                return false;
             }
 
             string fcS = textBoxFc.Text;
             fcS = TrimUnitString(fcS, out unit);
-            if (!double.TryParse(fcS, out fc) || fc <= 0) {
+            if (!double.TryParse(fcS, out mFc) || mFc <= 0) {
                 MessageBox.Show("Fc parse error. Fc must be greater than 0");
-                return;
+                return false;
             }
-            fc *= unit;
+            mFc *= unit;
 
             string fsS = textBoxFs.Text;
             fsS = TrimUnitString(fsS, out unit);
-            if (!double.TryParse(fsS, out fs)) {
+            if (!double.TryParse(fsS, out mFs)) {
                 MessageBox.Show("Fs parse error. Fs must be number.");
-                return;
+                return false;
             }
-            fs *= unit;
-            if (fs <= 0 || fs <= fc) {
+            mFs *= unit;
+            if (mFs <= 0 || mFs <= mFc) {
                 MessageBox.Show("Fs parse error. Fs must be greater than Fc and greater than 0");
+                return false;
+            }
+
+            mBetaType = ApproximationBase.BetaType.BetaMax;
+            if (comboBoxOptimization.SelectedItem == comboBoxItemβmin) {
+                mBetaType = ButterworthDesign.BetaType.BetaMin;
+            }
+            return true;
+        }
+
+        private void UpdateChebyshev() {
+            mTextBoxLog.Clear();
+            if (!GetParametersFromUI()) {
                 return;
             }
 
-            var betaType = ButterworthDesign.BetaType.BetaMax;
-            if (comboBoxOptimization.SelectedItem == comboBoxItemβmin) {
-                betaType = ButterworthDesign.BetaType.BetaMin;
+            // Hz → rad/s
+            double ωc = mFc * 2.0 * Math.PI;
+            double ωs = mFs * 2.0 * Math.PI;
+
+            // dB → linear
+            double h0 = Math.Pow(10, mG0 / 20);
+            double hc = Math.Pow(10, mGc / 20);
+            double hs = Math.Pow(10, mGs / 20);
+
+            var cd = new ChebyshevDesign(h0, hc, hs, ωc, ωs, mBetaType);
+        }
+
+        private void UpdateButterWorth() {
+            mTextBoxLog.Clear();
+            if (!GetParametersFromUI()) {
+                return;
             }
 
             var afd = new AnalogFilterDesign();
 
-            afd.DesignButterworthLowpass(g0, gc, gs, fc, fs, betaType);
+            afd.DesignButterworthLowpass(mG0, mGc, mGs, mFc, mFs, mBetaType);
 
             mTextBoxLog.Clear();
             AddLog(string.Format("Order={0}, Beta={1}\n", afd.Order(), afd.Beta()));
@@ -182,7 +212,7 @@ namespace WWAudioFilter {
             AddLog(string.Format("Analog Filter Stages = {0}\n", afd.RealPolynomialCount()));
 
             mAnalogFilterCircuit.Clear();
-            mAnalogFilterCircuit.CutoffFrequencyHz = fc;
+            mAnalogFilterCircuit.CutoffFrequencyHz = mFc;
             for (int i=0; i<afd.RealPolynomialCount(); ++i) {
                 mAnalogFilterCircuit.Add(afd.RealPolynomialNth(i));
             }

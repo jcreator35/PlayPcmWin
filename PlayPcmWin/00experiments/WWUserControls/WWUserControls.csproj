@@ -94,8 +94,8 @@
       <DependentUpon>FrequencyResponse.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SPoleZeroPlot.xaml.cs">
-      <DependentUpon>SPoleZeroPlot.xaml</DependentUpon>
+    <Compile Include="PoleZeroPlot.xaml.cs">
+      <DependentUpon>PoleZeroPlot.xaml</DependentUpon>
     </Compile>
     <Compile Include="TimeDomainPlot.xaml.cs">
       <DependentUpon>TimeDomainPlot.xaml</DependentUpon>
@@ -110,7 +110,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="SPoleZeroPlot.xaml">
+    <Page Include="PoleZeroPlot.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

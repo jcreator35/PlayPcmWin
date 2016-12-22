@@ -85,7 +85,9 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ApproximationBase.cs" />
     <Compile Include="ButterworthDesign.cs" />
+    <Compile Include="ChebyshevDesign.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

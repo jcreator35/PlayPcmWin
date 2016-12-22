@@ -371,10 +371,10 @@ namespace WWUserControls {
         /// </summary>
         private void DrawFirstOrderFilter(FirstOrderRationalPolynomial pf) {
             /* a == 1/R0C0
-             * C0 = aR0
+             * C0 = R0/a
              */
             double r0 = 1;
-            double c0 = pf.D(0).real * r0;
+            double c0 = r0 / pf.D(0).real;
 
             // 周波数スケーリング。キャパシタの値をωcで割る。
             double ωc = CutoffFrequencyHz * 2.0 * Math.PI;
@@ -428,20 +428,24 @@ namespace WWUserControls {
         /// Analog Electronic Filters pp.470
         /// </summary>
         private void DrawSecondOrderFilter(SecondOrderRationalPolynomial ps) {
-            /*       ___
+            /* k=1
+             * R1=R2=1
+             * とする。
+             * 
+             * C1=2Q/ω0
+             * 
+             * C2=1/2ω0Q
+             * 
+             *       ___
              * ω0 = √d0
              * Q = ω0/d1
-             * k = 4/3
-             * c2 = 1F
              */
             double ω0 = Math.Sqrt(ps.D(0).real);
             double Q = ω0 / ps.D(1).real;
-            double k = 4.0 / 3.0;
-            double c2 = 1.0;
-
-            double c1 = Math.Sqrt(3.0) * Q * c2;
-            double r1 = 1.0 / (ω0 * Q * c2);
-            double r2 = 1.0 / (Math.Sqrt(3.0) * ω0 * c2);
+            double r1 = 1;
+            double r2 = 1;
+            double c1 = 2.0 * Q / ω0;
+            double c2 = 1.0 / 2.0 / ω0 / Q;
 
             // 周波数スケーリング。キャパシタの値をωcで割る。
             double ωc = CutoffFrequencyHz * 2.0 * Math.PI;

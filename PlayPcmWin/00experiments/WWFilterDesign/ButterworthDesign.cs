@@ -2,7 +2,7 @@
 using WWMath;
 
 namespace WWAudioFilter {
-    public class ButterworthDesign {
+    public class ButterworthDesign : ApproximationBase {
         private double mH0;
         private double mHc;
         private double mHs;
@@ -19,11 +19,6 @@ namespace WWAudioFilter {
         private double mβ;
         private int mN;
 
-        public enum BetaType {
-            BetaMax,
-            BetaMin
-        };
-
         /// <summary>
         /// Calculate the order of Transfer function and βmax from the filter specification.
         /// H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.41
@@ -33,7 +28,7 @@ namespace WWAudioFilter {
         /// <param name="hs">stopband gain</param>
         /// <param name="ωc">cut off frequency. rad/s</param>
         /// <param name="ωs">stopband frequency. rad/s</param>
-        public ButterworthDesign(double h0, double hc, double hs, double ωc, double ωs, BetaType bt) {
+        public ButterworthDesign(double h0, double hc, double hs, double ωc, double ωs, ApproximationBase.BetaType bt) {
             if (h0 <= 0) {
                 throw new System.ArgumentOutOfRangeException("h0");
             }
@@ -56,10 +51,10 @@ namespace WWAudioFilter {
             mN = CalcNfMin();
 
             switch (bt) {
-            case BetaType.BetaMax:
+            case ApproximationBase.BetaType.BetaMax:
                 mβ = Calcβmax();
                 break;
-            case BetaType.BetaMin:
+            case ApproximationBase.BetaType.BetaMin:
                 mβ = Calcβmin();
                 break;
             }
@@ -139,8 +134,9 @@ namespace WWAudioFilter {
                 // nth < Nの時 sk+
                 // H(s) s平面の左半面にある曲。
                 double angle = ( 2.0 * nth + 1.0 ) / 2.0 / mN * Math.PI + Math.PI / 2.0;
-                double re = Math.Pow(mβ, -1.0 / mN) * Math.Cos(angle);
-                double im = Math.Pow(mβ, -1.0 / mN) * Math.Sin(angle);
+                double magnitude = Math.Pow(mβ, -1.0 / mN);
+                double re = magnitude * Math.Cos(angle);
+                double im = magnitude * Math.Sin(angle);
                 return new WWComplex(re, im);
 #if false
             } else {

@@ -73,6 +73,7 @@
                     <ComboBoxItem Content="10Hz ～ 100kHz" IsSelected="True"/>
                     <ComboBoxItem Content="10Hz ～ 1MHz" />
                     <ComboBoxItem Content="0.1Hz ～ 10Hz" />
+                    <ComboBoxItem Content="10Hz ～ Nyquist Freq" IsEnabled="False" />
                 </ComboBox>
                 <Label Grid.Column="2" Content="Magnitude Scale:" HorizontalAlignment="Right" Name="labelMagScale" VerticalAlignment="Center" />
                 <ComboBox Grid.Column="3" HorizontalAlignment="Left" Name="comboBoxMagScale" VerticalAlignment="center" Width="125" SelectionChanged="comboBox_SelectionChanged" >

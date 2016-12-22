@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WWAudioFilter {
+namespace WWMath {
     public class WWDftCpu {
         /// <summary>
         /// 1次元DFT。要素数Nとして、N分の1した結果を戻す。

@@ -68,13 +68,13 @@ namespace WWAudioFilter {
         /// <summary>
         /// バターワースローパスフィルターの設計。
         /// </summary>
-        /// <param name="g0">0Hzのゲイン (dB)</param>
-        /// <param name="gc">カットオフ周波数のゲイン (dB)</param>
-        /// <param name="gs">ストップバンドのゲイン (dB)</param>
-        /// <param name="fc">カットオフ周波数(Hz)</param>
-        /// <param name="fs">ストップバンドの下限周波数(Hz)</param>
+        /// <param name="mG0">0Hzのゲイン (dB)</param>
+        /// <param name="mGc">カットオフ周波数のゲイン (dB)</param>
+        /// <param name="mGs">ストップバンドのゲイン (dB)</param>
+        /// <param name="mFc">カットオフ周波数(Hz)</param>
+        /// <param name="mFs">ストップバンドの下限周波数(Hz)</param>
         /// <returns></returns>
-        public bool DesignButterworthLowpass(double g0, double gc, double gs, double fc, double fs, ButterworthDesign.BetaType betaType) {
+        public bool DesignButterworthLowpass(double g0, double gc, double gs, double fc, double fs, ApproximationBase.BetaType betaType) {
 
             // Hz → rad/s
             double ωc = fc * 2.0 * Math.PI;

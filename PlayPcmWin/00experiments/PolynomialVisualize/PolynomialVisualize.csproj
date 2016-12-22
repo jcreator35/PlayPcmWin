@@ -77,11 +77,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="ImageToFreqResponse.cs" />
-    <Compile Include="TransferFunction.cs" />
-    <Compile Include="Util.cs" />
-    <Compile Include="WWComplex.cs" />
     <Compile Include="WWComplexF.cs" />
-    <Compile Include="WWDftCpu.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -118,6 +114,16 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WWMath\WWMath.csproj">
+      <Project>{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}</Project>
+      <Name>WWMath</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WWUserControls\WWUserControls.csproj">
+      <Project>{2721D7F3-8A5A-4059-A619-BB5ED7ACCC0C}</Project>
+      <Name>WWUserControls</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

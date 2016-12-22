@@ -21,10 +21,24 @@ namespace WWUserControls {
             ShowGain = true;
             ShowPhase = true;
             PhaseShiftDegree = -180;
+            NyquistFrequency = 44100;
 
             mInitialized = true;
             Update();
         }
+
+        public enum ModeType {
+            SPlane,
+            ZPlane
+        };
+
+        private ModeType mMode = ModeType.SPlane;
+
+        public ModeType Mode {
+            get { return mMode; }
+            set { mMode = value; ModeChanged(); }
+        }
+
 
         private const int FR_LINE_LEFT = 64;
         private const int FR_LINE_HEIGHT = 256;
@@ -40,10 +54,13 @@ namespace WWUserControls {
             Logarithmic,
         };
 
+        public double NyquistFrequency { get; set; }
+
         public enum FreqRangeType {
             SF_10HzTo100kHz,
             SF_10HzTo1MHz,
             SF_0_1HzTo10Hz,
+            SF_10HzToNyquist
         };
 
         public enum MagScaleType {
@@ -168,7 +185,12 @@ namespace WWUserControls {
             return 0;
         }
 
-        private List<double> GenerateVGridFreqListLinear() {
+        private enum FreqListType {
+            ForLine,
+            ForLabel
+        };
+
+        private List<double> GenerateVGridFreqListLinear(FreqListType t) {
             var result = new List<double>();
             double count = 10;
             double interval = FreqStartEnd().Item2 / count;
@@ -182,9 +204,13 @@ namespace WWUserControls {
             return result;
         }
 
-        private List<double> GenerateVGridFreqListLogarithmic() {
+        private List<double> GenerateVGridFreqListLogarithmic(FreqListType t) {
             var result = new List<double>();
             var itemInDecade = new double[] { 1, 2, 5 };
+            if (t == FreqListType.ForLine) {
+                itemInDecade = new double[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+            }
+
             var freqStartEnd = FreqStartEnd();
             double freq = freqStartEnd.Item1;
 
@@ -209,12 +235,12 @@ namespace WWUserControls {
         /// グリッド縦棒の周波数のリストを生成。
         /// </summary>
         /// <returns></returns>
-        private List<double> GenerateVerticalGridFreqList() {
+        private List<double> GenerateVerticalGridFreqList(FreqListType t) {
             switch ((FreqScaleType)comboBoxFreqScale.SelectedIndex) {
             case FreqScaleType.Linear:
-                return GenerateVGridFreqListLinear();
+                return GenerateVGridFreqListLinear(t);
             case FreqScaleType.Logarithmic:
-                return GenerateVGridFreqListLogarithmic();
+                return GenerateVGridFreqListLogarithmic(t);
             }
 
             System.Diagnostics.Debug.Assert(false);
@@ -268,17 +294,33 @@ namespace WWUserControls {
 
         public Common.TransferFunctionDelegate TransferFunction = (WWComplex s) => { return new WWComplex(1, 0); };
 
+        public void ModeChanged() {
+            if (!mInitialized) {
+                return;
+            }
+            switch (Mode) {
+            case ModeType.SPlane:
+                comboBoxFreqRange.SelectedIndex = (int)FreqRangeType.SF_10HzTo100kHz;
+                comboBoxFreqRange.IsEnabled = true;
+                break;
+            case ModeType.ZPlane:
+                comboBoxFreqRange.SelectedIndex = (int)FreqRangeType.SF_10HzToNyquist;
+                comboBoxFreqRange.IsEnabled = false;
+                break;
+            }
+        }
+
         public void Update() {
             if (!mInitialized) {
                 return;
             }
 
-            /*
-            for (int i = 0; i < FR_LINE_WIDTH; ++i) {
-                double freq = PlotXToFrequency(i);
-                Console.WriteLine("{0} {1} {2}", i, freq, FrequencyToPlotX(freq));
+            switch (mMode) {
+            case ModeType.SPlane:
+                break;
+            case ModeType.ZPlane:
+                break;
             }
-            */
 
             foreach (var item in mLineList) {
                 canvasFR.Children.Remove(item);
@@ -297,6 +339,7 @@ namespace WWUserControls {
 
             for (int i = 0; i < FR_LINE_WIDTH; ++i) {
                 double ω = 2.0 * Math.PI * PlotXToFrequency(i);
+
                 var h = TransferFunction(new WWComplex(0, ω));
                 double magnitude = h.Magnitude();
                 if (maxMagnitude < magnitude) {
@@ -318,26 +361,26 @@ namespace WWUserControls {
             labelPhaseM90.Content = string.Format("{0}", -90 + PhaseShiftDegree);
             labelPhaseM180.Content = string.Format("{0}", -180 + PhaseShiftDegree);
 
-            var vGridFreqList = GenerateVerticalGridFreqList();
+            var vGridFreqList = GenerateVerticalGridFreqList(FreqListType.ForLine);
+            foreach (var freq in vGridFreqList) {
+                double x = FrequencyToPlotX(freq);
+                var l = new Line();
+                LineSetPos(l, FR_LINE_LEFT + x, FR_LINE_TOP, FR_LINE_LEFT + x, FR_LINE_BOTTOM);
+                l.Stroke = new SolidColorBrush(Colors.LightGray);
+                canvasFR.Children.Add(l);
+                mLineList.Add(l);
+            }
+
+            vGridFreqList = GenerateVerticalGridFreqList(FreqListType.ForLabel);
             foreach (var freq in vGridFreqList) {
                 double x = FrequencyToPlotX(freq);
 
-                {
-                    var l = new Line();
-                    LineSetPos(l, FR_LINE_LEFT + x, FR_LINE_TOP, FR_LINE_LEFT + x, FR_LINE_BOTTOM);
-                    l.Stroke = new SolidColorBrush(Colors.LightGray);
-                    canvasFR.Children.Add(l);
-                    mLineList.Add(l);
-                }
-
-                {
-                    var t = new Label();
-                    t.Content = FreqString(freq);
-                    canvasFR.Children.Add(t);
-                    Canvas.SetLeft(t, FR_LINE_LEFT + x - 10);
-                    Canvas.SetTop(t, FR_LINE_BOTTOM);
-                    mLabelList.Add(t);
-                }
+                var t = new Label();
+                t.Content = FreqString(freq);
+                canvasFR.Children.Add(t);
+                Canvas.SetLeft(t, FR_LINE_LEFT + x - 10);
+                Canvas.SetTop(t, FR_LINE_BOTTOM);
+                mLabelList.Add(t);
                 //Console.WriteLine("{0} {1}Hz", x, freq);
             }
 
