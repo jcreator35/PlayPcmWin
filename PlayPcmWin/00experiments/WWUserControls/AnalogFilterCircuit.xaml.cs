@@ -22,11 +22,64 @@ namespace WWUserControls {
         public void Clear() {
             canvas1.Children.Clear();
             mRealPolynomialList.Clear();
+            stackPanelResistor.Children.Clear();
             mX = 0;
         }
 
         public void Add(RationalPolynomial realPolynomial) {
             mRealPolynomialList.Add(realPolynomial);
+        }
+
+        public enum ResistorValueType {
+            RV_2_2kΩ,
+            RV_4_7kΩ,
+            RV_10kΩ,
+            RV_22kΩ,
+            RV_47kΩ,
+            NUM
+        };
+
+        private double [] mResistorValues = new double[] {
+            2200,
+            4700,
+            10000,
+            22000,
+            47000
+        };
+
+        public double ResistorValueTypeToValue(ResistorValueType t) {
+            return mResistorValues[(int)t];
+        }
+
+        public int FilterStages { get { return mRealPolynomialList.Count(); } }
+
+        public void AddFinished() {
+            stackPanelResistor.Children.Clear();
+
+            var nameList = new List<string>();
+            nameList.Add("2.2kΩ");
+            nameList.Add("4.7kΩ");
+            nameList.Add("10kΩ");
+            nameList.Add("22kΩ");
+            nameList.Add("47kΩ");
+
+            for (int i=0; i<FilterStages; ++i) {
+                var cb = new ComboBox();
+                var values = Enum.GetValues(typeof(ResistorValueType));
+                for (int j=0; j<(int)ResistorValueType.NUM; ++j) {
+                    var item = (ResistorValueType)j;
+                    var cbi = new ComboBoxItem();
+                    cbi.Content = string.Format(Properties.Resources.ResistorValueDescription, i+1, nameList[j]);
+                    cb.Items.Add(cbi);
+                }
+                cb.SelectedIndex = (int)ResistorValueType.RV_10kΩ;
+                cb.SelectionChanged += new SelectionChangedEventHandler(ComboBoxResistorValueSelectionChanged);
+                stackPanelResistor.Children.Add(cb);
+            }
+        }
+
+        void ComboBoxResistorValueSelectionChanged(object sender, SelectionChangedEventArgs e) {
+            Update();
         }
 
         /// <summary>
@@ -146,12 +199,12 @@ namespace WWUserControls {
         /// 反転アンプ。
         /// </summary>
         /// <param name="gain">ゲイン。反転なので負の値を入れること。</param>
-        private void AddVoltageInverter(double gain) {
+        private void AddVoltageInverter(double gain, double resistorValue) {
             if (0 < gain) {
                 throw new ArgumentOutOfRangeException("gain");
             }
 
-            double rIn = mResistorMultiplier;
+            double rIn = resistorValue;
             double rF = -gain * rIn;
 
             // 入力抵抗Rin
@@ -364,12 +417,10 @@ namespace WWUserControls {
         private List<double> mR = new List<double>();
         private List<double> mC = new List<double>();
 
-        private double mResistorMultiplier = 10 * 1000;
-
         /// <summary>
         /// Analog Electronic Filters pp.58
         /// </summary>
-        private void DrawFirstOrderFilter(FirstOrderRationalPolynomial pf) {
+        private void DrawFirstOrderFilter(FirstOrderRationalPolynomial pf, double resistorValue) {
             /* a == 1/R0C0
              * C0 = R0/a
              */
@@ -381,8 +432,8 @@ namespace WWUserControls {
             c0 /= ωc;
 
             // 最後に抵抗値を全て10 * 1000倍、キャパシターの容量を10*1000分の1にする。
-            r0 *= mResistorMultiplier;
-            c0 /= mResistorMultiplier;
+            r0 *= resistorValue;
+            c0 /= resistorValue;
 
             // 抵抗R0
             AddResistorH(mX, CIRCUIT_INPUT_LINE_H);
@@ -427,7 +478,7 @@ namespace WWUserControls {
         /// Sallen-Key Minimum Sensitivity 2nd order Lowpass filter
         /// Analog Electronic Filters pp.470
         /// </summary>
-        private void DrawSecondOrderFilter(SecondOrderRationalPolynomial ps) {
+        private void DrawSecondOrderFilter(SecondOrderRationalPolynomial ps, double resistorValue) {
             /* k=1
              * R1=R2=1
              * とする。
@@ -453,10 +504,10 @@ namespace WWUserControls {
             c2 /= ωc;
 
             // 最後に抵抗値を全て10 * 1000倍、キャパシターの容量を10*1000分の一する。
-            r1 *= mResistorMultiplier;
-            r2 *= mResistorMultiplier;
-            c1 /= mResistorMultiplier;
-            c2 /= mResistorMultiplier;
+            r1 *= resistorValue;
+            r2 *= resistorValue;
+            c1 /= resistorValue;
+            c2 /= resistorValue;
 
             // 抵抗R1
             AddResistorH(mX, CIRCUIT_INPUT_LINE_H);
@@ -591,18 +642,24 @@ namespace WWUserControls {
             DrawInput();
 
             int order = 0;
-
+            int nStage = 0;
             foreach (var p in mRealPolynomialList) {
+                var cb = stackPanelResistor.Children[nStage] as ComboBox;
+                ResistorValueType rvt = (ResistorValueType)cb.SelectedIndex;
+                double resistorValue = ResistorValueTypeToValue(rvt);
+
                 order += p.Order();
                 if (p.Order() == 1) {
                     var pf = p as FirstOrderRationalPolynomial;
                     // 1次多項式。
-                    DrawFirstOrderFilter(pf);
+                    DrawFirstOrderFilter(pf, resistorValue);
                 } else {
                     var ps = p as SecondOrderRationalPolynomial;
                     // 2次多項式。
-                    DrawSecondOrderFilter(ps);
+                    DrawSecondOrderFilter(ps, resistorValue);
                 }
+
+                ++nStage;
             }
 
             DrawOutput();

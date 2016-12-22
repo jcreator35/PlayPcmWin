@@ -216,6 +216,7 @@ namespace WWAudioFilter {
             for (int i=0; i<afd.RealPolynomialCount(); ++i) {
                 mAnalogFilterCircuit.Add(afd.RealPolynomialNth(i));
             }
+            mAnalogFilterCircuit.AddFinished();
             mAnalogFilterCircuit.Update();
         }
 

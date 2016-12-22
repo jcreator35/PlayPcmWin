@@ -6,11 +6,15 @@
              mc:Ignorable="d" 
               d:DesignWidth="800" d:DesignHeight="400" >
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="1*" />
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="200" />
             <RowDefinition Height="200" />
         </Grid.RowDefinitions>
-        <ScrollViewer Name="scrollViewer1" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Hidden">
+        <ScrollViewer Name="scrollViewer1" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Hidden" Grid.ColumnSpan="2">
             <Canvas Name="canvas1" >
 
                 <Line X1="100" Y1="100" X2="105" Y2="90" Stroke="Black" />
@@ -22,10 +26,13 @@
                 <Line X1="130" Y1="110" X2="135" Y2="100" Stroke="Black" />
             </Canvas>
         </ScrollViewer>
-        <GroupBox Grid.Row="1" Header="Resistor and Capacitor Values" Name="groupBoxParameters" >
+        <GroupBox Grid.Row="1" Header="Resistor and Capacitor Values" Name="groupBoxParameters" Grid.Column="1">
             <Grid>
                 <TextBox Name="textBoxParameters" AcceptsReturn="True" AcceptsTab="True" IsReadOnly="True" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" />
             </Grid>
+        </GroupBox>
+        <GroupBox Grid.Row="1" Header="Resistor Values Settings" Name="groupBoxResistorValueSettings" >
+            <StackPanel Name="stackPanelResistor" />
         </GroupBox>
     </Grid>
 </UserControl>
