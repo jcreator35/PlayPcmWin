@@ -47,8 +47,8 @@
                                         <ColumnDefinition Width="1*" />
                                         <ColumnDefinition Width="1*" />
                                     </Grid.ColumnDefinitions>
-                                    <RadioButton Content="Butterworth" HorizontalAlignment="Left" Name="radioButtonFilterTypeButterworth" VerticalAlignment="Center" Margin="6,6,0,6" IsChecked="True" />
-                                    <RadioButton Grid.Column="1" Content="Chebyshev" HorizontalAlignment="Left" Name="radioButtonFilterTypeChebyshev" VerticalAlignment="Center" Margin="6,6,0,6" />
+                                    <RadioButton Content="Butterworth" HorizontalAlignment="Left" Name="radioButtonFilterTypeButterworth" VerticalAlignment="Center" Margin="6,6,0,6" IsChecked="True" Checked="buttonUpdate_Click" />
+                                    <RadioButton Grid.Column="1" Content="Chebyshev" HorizontalAlignment="Left" Name="radioButtonFilterTypeChebyshev" VerticalAlignment="Center" Margin="6,6,0,6" Checked="buttonUpdate_Click" />
                                 </Grid>
                             </GroupBox>
                             <GroupBox Header="Design Parameters" Canvas.Left="205" Canvas.Top="60" Width="400" Name="groupBoxDesignParameters">

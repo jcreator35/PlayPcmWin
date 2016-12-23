@@ -88,6 +88,15 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Chebyshev.
+        /// </summary>
+        internal static string Chebyshev {
+            get {
+                return ResourceManager.GetString("Chebyshev", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Design Parameters.
         /// </summary>
         internal static string DesignParameters {

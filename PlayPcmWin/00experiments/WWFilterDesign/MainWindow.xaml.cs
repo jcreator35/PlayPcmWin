@@ -9,10 +9,13 @@ namespace WWAudioFilter {
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window {
+        private bool mInitialized = false;
+
         public MainWindow() {
             InitializeComponent();
 
             LocalizeUI();
+            mInitialized = true;
         }
 
         private void LocalizeUI() {
@@ -27,6 +30,7 @@ namespace WWAudioFilter {
             textblockFrequency.Text = Properties.Resources.Frequency;
             groupBoxFilterType.Header = Properties.Resources.FilterType;
             radioButtonFilterTypeButterworth.Content = Properties.Resources.Butterworth;
+            radioButtonFilterTypeChebyshev.Content = Properties.Resources.Chebyshev;
             labelOptimization.Content = Properties.Resources.Optimization + ":";
             buttonUpdate.Content = Properties.Resources.Update;
 
@@ -45,15 +49,6 @@ namespace WWAudioFilter {
         private void AddLog(string s) {
             mTextBoxLog.AppendText(s);
             mTextBoxLog.ScrollToEnd();
-        }
-
-        private void Update() {
-            if (radioButtonFilterTypeButterworth.IsChecked == true) {
-                UpdateButterWorth();
-            }
-            if (radioButtonFilterTypeChebyshev.IsChecked == true) {
-                UpdateChebyshev();
-            }
         }
 
         struct Unit {
@@ -92,6 +87,7 @@ namespace WWAudioFilter {
         double mFc = 0;
         double mFs = 0;
         ApproximationBase.BetaType mBetaType;
+        AnalogFilterDesign.FilterType mFilterType;
 
         private bool GetParametersFromUI() {
             double unit = 1.0;
@@ -133,39 +129,29 @@ namespace WWAudioFilter {
             if (comboBoxOptimization.SelectedItem == comboBoxItemβmin) {
                 mBetaType = ButterworthDesign.BetaType.BetaMin;
             }
+
+            mFilterType = AnalogFilterDesign.FilterType.Butterworth;
+            if (radioButtonFilterTypeChebyshev.IsChecked == true) {
+                mFilterType = AnalogFilterDesign.FilterType.Chebyshev;
+            }
+
             return true;
         }
 
-        private void UpdateChebyshev() {
-            mTextBoxLog.Clear();
-            if (!GetParametersFromUI()) {
+        private void Update() {
+            if (!mInitialized) {
                 return;
             }
-
-            // Hz → rad/s
-            double ωc = mFc * 2.0 * Math.PI;
-            double ωs = mFs * 2.0 * Math.PI;
-
-            // dB → linear
-            double h0 = Math.Pow(10, mG0 / 20);
-            double hc = Math.Pow(10, mGc / 20);
-            double hs = Math.Pow(10, mGs / 20);
-
-            var cd = new ChebyshevDesign(h0, hc, hs, ωc, ωs, mBetaType);
-        }
-
-        private void UpdateButterWorth() {
             mTextBoxLog.Clear();
             if (!GetParametersFromUI()) {
                 return;
             }
 
             var afd = new AnalogFilterDesign();
-
-            afd.DesignButterworthLowpass(mG0, mGc, mGs, mFc, mFs, mBetaType);
-
+            afd.DesignLowpass(mG0, mGc, mGs, mFc, mFs, mFilterType, mBetaType);
+            
             mTextBoxLog.Clear();
-            AddLog(string.Format("Order={0}, Beta={1}\n", afd.Order(), afd.Beta()));
+            AddLog(string.Format("Order={0}\n", afd.Order()));
 
             // 伝達関数の式をログに出力。
             AddLog(string.Format("Transfer function H(s) = "));

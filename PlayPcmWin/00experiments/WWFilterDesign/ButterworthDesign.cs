@@ -3,21 +3,7 @@ using WWMath;
 
 namespace WWAudioFilter {
     public class ButterworthDesign : ApproximationBase {
-        private double mH0;
-        private double mHc;
-        private double mHs;
-
-        /// <summary>
-        /// cutoff frequency. rad/s
-        /// </summary>
-        private double mωc;
-
-        /// <summary>
-        /// (Ωc=1としたときの)正規化ストップバンド周波数. Ωs = ωs/ωc 
-        /// </summary>
-        private double mΩs;
         private double mβ;
-        private int mN;
 
         /// <summary>
         /// Calculate the order of Transfer function and βmax from the filter specification.
@@ -85,37 +71,8 @@ namespace WWAudioFilter {
             return Math.Sqrt(mH0 * mH0 / mHs / mHs - 1.0) / Math.Pow(mΩs, mN);
         }
 
-        /// <summary>
-        /// ノーマライズド　バターワースフィルターの最小次数 Nfmin。
-        /// </summary>
-        public int Order() {
-            return mN;
-        }
-
         public double Beta() {
             return mβ;
-        }
-
-        /// <summary>
-        /// カットオフ周波数ωc (rad/s)。
-        /// sをこの値で割る(周波数スケーリング)
-        /// </summary>
-        public double CutoffFrequency() {
-            return mωc;
-        }
-
-        /// <summary>
-        /// カットオフ周波数 (Hz)
-        /// </summary>
-        public double CutoffFrequencyHz() {
-            return mωc / (2.0 * Math.PI);
-        }
-
-        /// <summary>
-        /// s平面の左半面にある極の個数。
-        /// </summary>
-        public int PoleNum() {
-            return mN;
         }
 
         /// <summary>
@@ -124,42 +81,26 @@ namespace WWAudioFilter {
         /// H(s) = frac{h0/β}{\Pi_{k=0}^{N-1}{\(s-sk+\)}}
         /// H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.50.
         /// </summary>
-        public WWComplex PoleNth(int nth) {
-            if (nth < 0 || mN <= 0 || mN * 2 <= nth) {
+        public override WWComplex PoleNth(int nth) {
+            if (nth < 0 || mN <= 0 || mN <= nth) {
                 throw new System.ArgumentOutOfRangeException("nth");
             }
 
             // Analog Electronic Filters pp.50
-            if (nth < mN) {
-                // nth < Nの時 sk+
-                // H(s) s平面の左半面にある曲。
-                double angle = ( 2.0 * nth + 1.0 ) / 2.0 / mN * Math.PI + Math.PI / 2.0;
-                double magnitude = Math.Pow(mβ, -1.0 / mN);
-                double re = magnitude * Math.Cos(angle);
-                double im = magnitude * Math.Sin(angle);
-                return new WWComplex(re, im);
-#if false
-            } else {
-                // N <= nthの時 sk-
-                // H(-s) s平面の右半面にある曲。
-                nth -= mN;
-
-                double angle = ( 2.0 * nth + 1.0 ) / 2.0 / mN * Math.PI - Math.PI / 2.0;
-                double re = Math.Pow(mβ, -1.0 / mN) * Math.Cos(angle);
-                double im = Math.Pow(mβ, -1.0 / mN) * Math.Sin(angle);
-                return new WWComplex(re, im);
-#endif
-            }
-
-            System.Diagnostics.Debug.Assert(false);
-            return new WWComplex(0,0);
+            // sk+
+            // H(s) s平面の左半面にある曲。
+            double angle = ( 2.0 * nth + 1.0 ) / 2.0 / mN * Math.PI + Math.PI / 2.0;
+            double magnitude = Math.Pow(mβ, -1.0 / mN);
+            double re = magnitude * Math.Cos(angle);
+            double im = magnitude * Math.Sin(angle);
+            return new WWComplex(re, im);
         }
 
         /// <summary>
         /// H(s)の定数倍成分h0/βを戻す。
         /// H(s) = frac{h0/β}{\Pi_{k=0}^{N-1}{\(s-sk+\)}}
         /// </summary>
-        public double TransferFunctionConstant() {
+        public override double TransferFunctionConstant() {
             return mH0 / mβ;
         }
     };

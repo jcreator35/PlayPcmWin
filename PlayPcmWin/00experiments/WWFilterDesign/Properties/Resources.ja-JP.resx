@@ -126,6 +126,9 @@
   <data name="Butterworth" xml:space="preserve">
     <value>バターワース</value>
   </data>
+  <data name="Chebyshev" xml:space="preserve">
+    <value>チェビシェフ</value>
+  </data>
   <data name="DesignParameters" xml:space="preserve">
     <value>設計パラメーター</value>
   </data>

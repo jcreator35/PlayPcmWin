@@ -31,20 +31,52 @@ namespace WWUserControls {
         }
 
         public enum ResistorValueType {
+            RV_1kΩ,
+            RV_1_5kΩ,
             RV_2_2kΩ,
+            RV_3_3kΩ,
             RV_4_7kΩ,
+            RV_6_8kΩ,
             RV_10kΩ,
+            RV_15kΩ,
             RV_22kΩ,
+            RV_33kΩ,
             RV_47kΩ,
+            RV_68kΩ,
+            RV_100kΩ,
             NUM
         };
 
         private double [] mResistorValues = new double[] {
+            1000,
+            1500,
             2200,
+            3300,
             4700,
+            6800,
             10000,
+            15000,
             22000,
-            47000
+            33000,
+            47000,
+            68000,
+            100000
+        };
+
+        private string[] mResistorStrings = new string[] {
+            "1kΩ",
+            "1.5kΩ",
+            "2.2kΩ",
+            "3.3kΩ",
+            "4.7kΩ",
+            "6.8kΩ",
+            "10kΩ",
+            "15kΩ",
+            "22kΩ",
+            "33kΩ",
+            "47kΩ",
+            "68kΩ",
+            "100kΩ",
         };
 
         public double ResistorValueTypeToValue(ResistorValueType t) {
@@ -53,15 +85,9 @@ namespace WWUserControls {
 
         public int FilterStages { get { return mRealPolynomialList.Count(); } }
 
+
         public void AddFinished() {
             stackPanelResistor.Children.Clear();
-
-            var nameList = new List<string>();
-            nameList.Add("2.2kΩ");
-            nameList.Add("4.7kΩ");
-            nameList.Add("10kΩ");
-            nameList.Add("22kΩ");
-            nameList.Add("47kΩ");
 
             for (int i=0; i<FilterStages; ++i) {
                 var cb = new ComboBox();
@@ -69,7 +95,7 @@ namespace WWUserControls {
                 for (int j=0; j<(int)ResistorValueType.NUM; ++j) {
                     var item = (ResistorValueType)j;
                     var cbi = new ComboBoxItem();
-                    cbi.Content = string.Format(Properties.Resources.ResistorValueDescription, i+1, nameList[j]);
+                    cbi.Content = string.Format(Properties.Resources.ResistorValueDescription, i+1, mResistorStrings[j]);
                     cb.Items.Add(cbi);
                 }
                 cb.SelectedIndex = (int)ResistorValueType.RV_10kΩ;

@@ -11,12 +11,14 @@ namespace WWAudioFilter {
             return mOrder;
         }
 
+        /*
         public double Beta() {
             return mBeta;
         }
+        */
 
         private int mOrder;
-        private double mBeta;
+        //private double mBeta;
         private double mNumeratorConstant;
 
         public double NumeratorConstant() {
@@ -65,8 +67,13 @@ namespace WWAudioFilter {
             return mH_PFD[n];
         }
 
+        public enum FilterType {
+            Butterworth,
+            Chebyshev
+        };
+
         /// <summary>
-        /// バターワースローパスフィルターの設計。
+        /// ローパスフィルターの設計。
         /// </summary>
         /// <param name="mG0">0Hzのゲイン (dB)</param>
         /// <param name="mGc">カットオフ周波数のゲイン (dB)</param>
@@ -74,7 +81,7 @@ namespace WWAudioFilter {
         /// <param name="mFc">カットオフ周波数(Hz)</param>
         /// <param name="mFs">ストップバンドの下限周波数(Hz)</param>
         /// <returns></returns>
-        public bool DesignButterworthLowpass(double g0, double gc, double gs, double fc, double fs, ApproximationBase.BetaType betaType) {
+        public bool DesignLowpass(double g0, double gc, double gs, double fc, double fs, FilterType ft, ApproximationBase.BetaType betaType) {
 
             // Hz → rad/s
             double ωc = fc * 2.0 * Math.PI;
@@ -85,22 +92,32 @@ namespace WWAudioFilter {
             double hc = Math.Pow(10, gc / 20);
             double hs = Math.Pow(10, gs / 20);
 
-            var bwd = new ButterworthDesign(h0, hc, hs, ωc, ωs, betaType);
-            mOrder = bwd.Order();
-            mBeta = bwd.Beta();
-            mNumeratorConstant = bwd.TransferFunctionConstant();
-            //Console.WriteLine("order={0}, β={1}", mOrder, mBeta);
+            ApproximationBase filter;
+            switch (ft) {
+            case FilterType.Butterworth:
+                filter = new ButterworthDesign(h0, hc, hs, ωc, ωs, betaType);
+                break;
+            case FilterType.Chebyshev:
+                filter = new ChebyshevDesign(h0, hc, hs, ωc, ωs, betaType);
+                break;
+            default:
+                throw new NotImplementedException();
+            }
+            mOrder = filter.Order();
+            //mBeta = filter.Beta();
+            mNumeratorConstant = filter.TransferFunctionConstant();
+            //Console.WriteLine("order={0}, β={1}", mN, mBeta);
 
             // 伝達関数のポールの位置。
             mPoleList.Clear();
-            for (int i = 0; i < bwd.Order(); ++i) {
-                mPoleList.Add(bwd.PoleNth(i));
+            for (int i = 0; i < filter.Order(); ++i) {
+                mPoleList.Add(filter.PoleNth(i));
             }
 
             TransferFunction = (WWComplex s) => {
                 WWComplex denominator = new WWComplex(1, 0);
-                for (int i = 0; i < bwd.Order(); ++i) {
-                    var a = bwd.PoleNth(i);
+                for (int i = 0; i < filter.Order(); ++i) {
+                    var a = filter.PoleNth(i);
                     denominator.Mul(WWComplex.Sub(WWComplex.Div(s, ωc), a));
                 }
                 return WWComplex.Div(new WWComplex(mNumeratorConstant, 0), denominator);
@@ -108,8 +125,8 @@ namespace WWAudioFilter {
 
             PoleZeroPlotTransferFunction = (WWComplex s) => {
                 WWComplex denominator = new WWComplex(1, 0);
-                for (int i = 0; i < bwd.Order(); ++i) {
-                    var a = bwd.PoleNth(i);
+                for (int i = 0; i < filter.Order(); ++i) {
+                    var a = filter.PoleNth(i);
                     denominator.Mul(WWComplex.Sub(s, a));
                 }
                 return WWComplex.Div(new WWComplex(mNumeratorConstant, 0), denominator);
@@ -122,8 +139,8 @@ namespace WWAudioFilter {
 
                 var H_Roots = new List<WWComplex>();
                 var stepResponseTFRoots = new List<WWComplex>();
-                for (int i = 0; i < bwd.Order(); ++i) {
-                    var p = bwd.PoleNth(i);
+                for (int i = 0; i < filter.Order(); ++i) {
+                    var p = filter.PoleNth(i);
                     H_Roots.Add(p);
                     stepResponseTFRoots.Add(p);
                 }
@@ -225,7 +242,7 @@ namespace WWAudioFilter {
                 Console.WriteLine("");
                 */
 
-                TimeDomainFunctionTimeScale = 1.0 / bwd.CutoffFrequencyHz();
+                TimeDomainFunctionTimeScale = 1.0 / filter.CutoffFrequencyHz();
 
                 // 共役複素数のペアを組み合わせて伝達関数の係数を全て実数にする。
                 // s平面のjω軸から遠い項から並べる。
