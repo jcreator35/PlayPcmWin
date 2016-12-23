@@ -91,7 +91,7 @@ namespace WWUserControls {
                 var e = new Ellipse();
                 e.Width = DIAMETER_ZERO;
                 e.Height = DIAMETER_ZERO;
-                e.Stroke = new SolidColorBrush(Colors.Black);
+                e.Stroke = new SolidColorBrush(Colors.White);
                 mPoleList.Add(e);
                 canvasPoleZero.Children.Add(e);
                 Canvas.SetLeft(e, x - DIAMETER_ZERO / 2);

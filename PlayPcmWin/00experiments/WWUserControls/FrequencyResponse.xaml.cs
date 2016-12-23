@@ -20,7 +20,7 @@ namespace WWUserControls {
         private void UserControl_Loaded(object sender, RoutedEventArgs e) {
             ShowGain = true;
             ShowPhase = true;
-            PhaseShiftDegree = -180;
+            ShowGroupDelay = true;
             NyquistFrequency = 44100;
 
             mInitialized = true;
@@ -79,6 +79,7 @@ namespace WWUserControls {
 
         public bool ShowGain { get; set; }
         public bool ShowPhase { get; set; }
+        public bool ShowGroupDelay { get; set; }
 
         /// <summary>
         /// Magnitude Scale(対数軸)の8乗根を戻す。目盛が8つあるので。
@@ -102,9 +103,6 @@ namespace WWUserControls {
         private double MagRangeMax() {
             return Math.Pow(MagnitudeRangeValue(), 8);
         }
-
-
-        public double PhaseShiftDegree { get; set; }
 
         private List<Line> mLineList = new List<Line>();
         private List<Label> mLabelList = new List<Label>();
@@ -165,7 +163,7 @@ namespace WWUserControls {
         /// <summary>
         /// 周波数 → プロット座標x
         /// </summary>
-        /// <param name="freq">周波数 Hz</param>
+        /// <param name="n">周波数 Hz</param>
         /// <returns>プロット座標x</returns>
         private double FrequencyToPlotX(double freq) {
             switch ((FreqScaleType)comboBoxFreqScale.SelectedIndex) {
@@ -247,44 +245,6 @@ namespace WWUserControls {
             return null;
         }
 
-        static private string FreqString(double freq) {
-            if (freq < 1000) {
-                return string.Format("{0}", freq);
-            }
-            if (freq < 1000 * 10) {
-                return string.Format("{0:0}k", freq / 1000);
-            }
-            if (freq < 1000 * 100) {
-                if (freq / 100 == (int)(freq / 100)) {
-                    // 10.00kとか20.00kは10k,20kと書く
-                    return string.Format("{0:0}k", freq / 1000);
-                }
-                return string.Format("{0:0.0}k", freq / 1000);
-            }
-            if (freq < 1000 * 1000) {
-                return string.Format("{0:0}k", freq / 1000);
-            }
-            if (freq < 1000 * 1000 * 10) {
-                if (freq / 10000 == (int)(freq / 10000)) {
-                    // 1.00Mとか2.00Mは1M,2Mと書く
-                    return string.Format("{0:0}M", freq / 1000 / 1000);
-                }
-                return string.Format("{0:0.00}M", freq / 1000 / 1000);
-            }
-            if (freq < 1000 * 1000 * 100) {
-                if (freq / 100000 == (int)(freq / 100000)) {
-                    // 10.0Mとか20.0Mは10M,20Mと書く
-                    return string.Format("{0:0}M", freq / 1000 / 1000);
-                }
-                return string.Format("{0:0.0}M", freq / 1000 / 1000);
-            }
-            if (freq < 1000 * 1000 * 1000) {
-                return string.Format("{0:0}M", freq / 1000 / 1000);
-            }
-
-            return string.Format("{0.00}G", freq / 1000 / 1000 / 1000);
-        }
-
         private void LineSetPos(Line l, double x1, double y1, double x2, double y2) {
             l.X1 = x1;
             l.Y1 = y1;
@@ -334,8 +294,19 @@ namespace WWUserControls {
             
             // F特の計算。
 
-            var fr = new WWComplex[FR_LINE_WIDTH];
-            double maxMagnitude = 0.0f;
+            var frMagnitude = new double[FR_LINE_WIDTH];
+
+            // frequency - phase
+            var frPhase = new double[FR_LINE_WIDTH];
+
+            // angle frequency of idx
+            var frω = new double[FR_LINE_WIDTH];
+
+            var frGroupDelay = new double[FR_LINE_WIDTH];
+
+            double maxMagnitude = 0.0;
+            double minPhase = 0.0;
+            double maxGroupDelay = 0.0;
 
             for (int i = 0; i < FR_LINE_WIDTH; ++i) {
                 double ω = 2.0 * Math.PI * PlotXToFrequency(i);
@@ -346,20 +317,61 @@ namespace WWUserControls {
                     maxMagnitude = magnitude;
                 }
 
-                fr[i] = h;
+                frω[i] = ω;
+                frMagnitude[i] = h.Magnitude();
 
-                //Console.WriteLine("{0}Hz: {1}dB", ω / (2.0 * Math.PI), 20.0 * Math.Log10(h.Magnitude()));
+                if (i == 0) {
+                    frPhase[i] = h.Phase();
+                } else {
+                    frPhase[i] = h.Phase();
+                    while (frPhase[i - 1] < frPhase[i]) {
+                        frPhase[i] -= 2.0 * Math.PI;
+                    }
+                }
+                if (frPhase[i] < minPhase) {
+                    minPhase = frPhase[i];
+                }
+
+                if (1 <= i) {
+                    double phaseDiff = frPhase[i] - frPhase[i - 1];
+                    frGroupDelay[i] = -phaseDiff / (frω[i] - frω[i - 1]);
+                    if (maxGroupDelay < frGroupDelay[i]) {
+                        maxGroupDelay = frGroupDelay[i];
+                    }
+                }
+                /*
+                Console.WriteLine("{0}Hz: {1:g4}dB {2:g4} deg", ω / (2.0 * Math.PI),
+                    20.0 * Math.Log10(frMagnitude[i]),
+                    frPhase[i]*180.0/Math.PI);
+                */
             }
 
             if (maxMagnitude < float.Epsilon) {
                 maxMagnitude = 1.0f;
             }
+            if (-float.Epsilon < minPhase) {
+                // 30°
+                minPhase = -Math.PI/6;
+            }
 
-            labelPhase180.Content = string.Format("{0}", 180 + PhaseShiftDegree);
-            labelPhase90.Content = string.Format("{0}", 90 + PhaseShiftDegree);
-            labelPhase0.Content = string.Format("{0}", 0 + PhaseShiftDegree);
-            labelPhaseM90.Content = string.Format("{0}", -90 + PhaseShiftDegree);
-            labelPhaseM180.Content = string.Format("{0}", -180 + PhaseShiftDegree);
+            if (maxGroupDelay < 0.0001) {
+                maxGroupDelay = 0.0001;
+            }
+
+            double minDegree = minPhase * 180.0 / Math.PI;
+
+            labelPhase180.Content  = string.Format("{0:g4}", 0);
+            labelPhase90.Content   = string.Format("{0:g4}", minDegree * (1.0/4.0));
+            labelPhase0.Content    = string.Format("{0:g4}", minDegree * (2.0 / 4.0));
+            labelPhaseM90.Content  = string.Format("{0:g4}", minDegree * (3.0 / 4.0));
+            labelPhaseM180.Content = string.Format("{0:g4}", minDegree * (4.0 / 4.0));
+
+            labelGroupDelay0.Content = Common.UnitNumberString(maxGroupDelay * (0.0 / 4.0));
+            labelGroupDelay1.Content = Common.UnitNumberString(maxGroupDelay * (1.0 / 4.0));
+            labelGroupDelay2.Content = Common.UnitNumberString(maxGroupDelay * (2.0 / 4.0));
+            labelGroupDelay3.Content = Common.UnitNumberString(maxGroupDelay * (3.0 / 4.0));
+            labelGroupDelay4.Content = Common.UnitNumberString(maxGroupDelay * (4.0 / 4.0));
+
 
             var vGridFreqList = GenerateVerticalGridFreqList(FreqListType.ForLine);
             foreach (var freq in vGridFreqList) {
@@ -376,12 +388,12 @@ namespace WWUserControls {
                 double x = FrequencyToPlotX(freq);
 
                 var t = new Label();
-                t.Content = FreqString(freq);
+                t.Content = Common.UnitNumberString(freq);
                 canvasFR.Children.Add(t);
                 Canvas.SetLeft(t, FR_LINE_LEFT + x - 10);
                 Canvas.SetTop(t, FR_LINE_BOTTOM);
                 mLabelList.Add(t);
-                //Console.WriteLine("{0} {1}Hz", x, freq);
+                //Console.WriteLine("{0} {1}Hz", x, n);
             }
 
             double magRange = MagnitudeRangeValue();
@@ -438,34 +450,48 @@ namespace WWUserControls {
                 labelPhaseM90.Visibility = visibility;
             }
 
+            {
+                var visibility = ShowGroupDelay ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+                labelGroupDelay.Visibility = visibility;
+                labelGroupDelay0.Visibility = visibility;
+                labelGroupDelay1.Visibility = visibility;
+                labelGroupDelay2.Visibility = visibility;
+                labelGroupDelay3.Visibility = visibility;
+                labelGroupDelay4.Visibility = visibility;
+            }
+
             // 周波数応答の折れ線を作る。
 
             double magRangeMax = MagRangeMax();
             var lastPosM = new Point();
             var lastPosP = new Point();
+            var lastPosG = new Point();
 
             for (int i = 0; i < FR_LINE_WIDTH; ++i) {
                 Point posM = new Point();
                 Point posP = new Point();
+                Point posG = new Point();
 
-                double phase = fr[i].Phase() + PhaseShiftDegree;
+                double phase = frPhase[i];
+                /*
                 while (phase <= -Math.PI) {
                     phase += 2.0 * Math.PI;
                 }
                 while (Math.PI < phase) {
                     phase -= 2.0f * Math.PI;
                 }
+                */
 
-                posP = new Point(FR_LINE_LEFT + i, FR_LINE_YCENTER - FR_LINE_HEIGHT * phase / (2.0f * Math.PI));
+                posP = new Point(FR_LINE_LEFT + i, FR_LINE_TOP + FR_LINE_HEIGHT * phase / minPhase);
 
                 switch ((MagScaleType)comboBoxMagScale.SelectedIndex) {
                 case MagScaleType.Linear:
-                    posM = new Point(FR_LINE_LEFT + i, FR_LINE_BOTTOM - FR_LINE_HEIGHT * fr[i].Magnitude() / maxMagnitude);
+                    posM = new Point(FR_LINE_LEFT + i, FR_LINE_BOTTOM - FR_LINE_HEIGHT * frMagnitude[i] / maxMagnitude);
                     break;
                 case MagScaleType.Logarithmic:
                     posM = new Point(FR_LINE_LEFT + i,
                         FR_LINE_TOP 
-                        + FR_LINE_HEIGHT * 20.0 * Math.Log10(fr[i].Magnitude() / maxMagnitude)
+                        + FR_LINE_HEIGHT * 20.0 * Math.Log10(frMagnitude[i] / maxMagnitude)
                           / (20.0 * Math.Log10(magRangeMax)));
                     break;
                 default:
@@ -485,7 +511,7 @@ namespace WWUserControls {
 
 
                     if (bDraw && ShowGain) {
-                        if (DISP_MAG_THRESHOLD < fr[i].Magnitude()) {
+                        if (DISP_MAG_THRESHOLD < frMagnitude[i]) {
                             var lineM = new Line();
                             lineM.Stroke = Brushes.Blue;
                             LineSetPos(lineM, lastPosM.X, lastPosM.Y, posM.X, posM.Y);
@@ -495,8 +521,10 @@ namespace WWUserControls {
                     }
                 }
 
-                if (2 <= i && ShowPhase) {
-                    if (DISP_MAG_THRESHOLD < fr[i].Magnitude()) {
+                if (1 <= i && ShowPhase) {
+                    // phase plot
+                    // 振幅が小さいと回転の精度が低いので表示しない。
+                    if (DISP_MAG_THRESHOLD < frMagnitude[i]) {
                         var lineP = new Line();
                         lineP.Stroke = Brushes.Red;
                         LineSetPos(lineP, lastPosP.X, lastPosP.Y, posP.X, posP.Y);
@@ -504,8 +532,30 @@ namespace WWUserControls {
                         canvasFR.Children.Add(lineP);
                     }
                 }
+
+                if (1 <= i && ShowGroupDelay) {
+                    // group delay plot.
+                    // 振幅が小さいと回転の精度が低いので表示しない。
+                    if (DISP_MAG_THRESHOLD < frMagnitude[i]) {
+                        double phaseDiff = frPhase[i] - frPhase[i - 1];
+                        double groupDelay = -phaseDiff / (frω[i] - frω[i - 1]);
+                        //Console.WriteLine("{0} {1}", i, groupDelay);
+
+                        posG = new Point(FR_LINE_LEFT + i, FR_LINE_BOTTOM - FR_LINE_HEIGHT * groupDelay / maxGroupDelay);
+
+                        if (2 <= i) {
+                            var lineG = new Line();
+                            lineG.Stroke = Brushes.Gray;
+                            LineSetPos(lineG, lastPosG.X, lastPosG.Y, posG.X, posG.Y);
+                            mLineList.Add(lineG);
+                            canvasFR.Children.Add(lineG);
+                        }
+                    }
+                }
+
                 lastPosP = posP;
                 lastPosM = posM;
+                lastPosG = posG;
             }
         }
 
@@ -531,5 +581,13 @@ namespace WWUserControls {
             Update();
         }
 
+        private void checkBoxShowGroupDelay_Changed(object sender, RoutedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            }
+
+            ShowGroupDelay = checkBoxShowGroupDelay.IsChecked == true;
+            Update();
+        }
     }
 }

@@ -118,7 +118,7 @@ namespace WWUserControls {
 
                 {
                     var label = new Label();
-                    label.Content = string.Format("{0}", t * TimeScale);
+                    label.Content = Common.UnitNumberString(t * TimeScale);
                     canvasTD.Children.Add(label);
                     Canvas.SetLeft(label, FR_LINE_LEFT + idx - 10);
                     Canvas.SetTop(label, FR_LINE_BOTTOM);

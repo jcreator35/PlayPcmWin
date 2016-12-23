@@ -4,13 +4,13 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             d:DesignWidth="640" d:DesignHeight="440" Loaded="UserControl_Loaded">
+             d:DesignWidth="724" d:DesignHeight="440" Loaded="UserControl_Loaded">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="340" />
             <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
-        <Canvas Width="640" Height="340" Name="canvasFR" Grid.ColumnSpan="2">
+        <Canvas Width="724" Height="340" Name="canvasFR" Grid.ColumnSpan="2">
             <Line X1="64" Y1="288" X2="576" Y2="288" Stroke="LightGray" />
             <Line X1="64" Y1="32" X2="64" Y2="288" Stroke="LightGray" />
             <Line X1="576" Y1="32" X2="576" Y2="288" Stroke="LightGray" />
@@ -44,11 +44,22 @@
                     <RotateTransform Angle="-90" />
                 </Label.RenderTransform>
             </Label>
-            <Label Canvas.Left="576" Canvas.Top="144" Content="0" Foreground="Red"  Name="labelPhase0"/>
             <Label Canvas.Left="576" Canvas.Top="20" Content="+180" Foreground="Red" Name="labelPhase180"/>
-            <Label Canvas.Left="576" Canvas.Top="273" Content="-180" Foreground="Red" Name="labelPhaseM180" />
             <Label Canvas.Left="576" Canvas.Top="84" Content="+90" Foreground="Red" Name="labelPhase90"/>
+            <Label Canvas.Left="576" Canvas.Top="144" Content="0" Foreground="Red"  Name="labelPhase0"/>
             <Label Canvas.Left="576" Canvas.Top="210" Content="-90" Foreground="Red" Name="labelPhaseM90"/>
+            <Label Canvas.Left="576" Canvas.Top="273" Content="-180" Foreground="Red" Name="labelPhaseM180" />
+
+            <Label Name="labelGroupDelay" Canvas.Left="685" Canvas.Top="220" Content="GroupDelay (sec)" Height="28" Foreground="Gray">
+                <Label.RenderTransform>
+                    <RotateTransform Angle="-90" />
+                </Label.RenderTransform>
+            </Label>
+            <Label Canvas.Left="640" Canvas.Top="84" Content="4" Foreground="Gray" Name="labelGroupDelay4"/>
+            <Label Canvas.Left="640" Canvas.Top="20" Content="3" Foreground="Gray" Name="labelGroupDelay3"/>
+            <Label Canvas.Left="640" Canvas.Top="144" Content="2" Foreground="Gray"  Name="labelGroupDelay2"/>
+            <Label Canvas.Left="640" Canvas.Top="210" Content="1" Foreground="Gray" Name="labelGroupDelay1"/>
+            <Label Canvas.Left="640" Canvas.Top="273" Content="0" Foreground="Gray" Name="labelGroupDelay0" />
         </Canvas>
         <GroupBox Grid.Row="1" Header="Settings" Name="groupBoxSettings" >
             <Grid>
@@ -91,6 +102,7 @@
                 </ComboBox>
                 <CheckBox Content="Show Magnitude" Grid.Row="2" HorizontalAlignment="Left" Margin="12,0,0,0" Name="checkBoxShowGain" VerticalAlignment="Center" Checked="checkBoxShowGain_Changed" Unchecked="checkBoxShowGain_Changed" IsChecked="True" />
                 <CheckBox Content="Show Phase" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" Margin="12,0,0,0" Name="checkBoxShowPhase" VerticalAlignment="Center" Checked="checkBoxShowPhase_Changed" Unchecked="checkBoxShowPhase_Changed" IsChecked="True" />
+                <CheckBox Content="Show Group Delay" Grid.Column="2" Grid.Row="2" HorizontalAlignment="Left" Margin="12,0,0,0" Name="checkBoxShowGroupDelay" VerticalAlignment="Center" Checked="checkBoxShowGroupDelay_Changed" Unchecked="checkBoxShowGroupDelay_Changed" IsChecked="True" />
             </Grid>
         </GroupBox>
     </Grid>
