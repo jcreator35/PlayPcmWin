@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using WWMath;
 
 namespace WWAudioFilter {
@@ -11,25 +10,31 @@ namespace WWAudioFilter {
             return mOrder;
         }
 
-        /*
-        public double Beta() {
-            return mBeta;
-        }
-        */
-
         private int mOrder;
-        //private double mBeta;
         private double mNumeratorConstant;
 
         public double NumeratorConstant() {
             return mNumeratorConstant;
         }
 
+        public int NumOfPoles() {
+            return mPoleList.Count;
+        }
+
+        public int NumOfZeroes() {
+            return mZeroList.Count;
+        }
+
         public WWComplex PoleNth(int nth) {
             return mPoleList[nth];
         }
 
+        public WWComplex ZeroNth(int nth) {
+            return mZeroList[nth];
+        }
+
         private List<WWComplex> mPoleList = new List<WWComplex>();
+        private List<WWComplex> mZeroList = new List<WWComplex>();
 
         public WWUserControls.Common.TransferFunctionDelegate TransferFunction;
         public WWUserControls.Common.TransferFunctionDelegate PoleZeroPlotTransferFunction;
@@ -104,32 +109,49 @@ namespace WWAudioFilter {
                 throw new NotImplementedException();
             }
             mOrder = filter.Order();
-            //mBeta = filter.Beta();
             mNumeratorConstant = filter.TransferFunctionConstant();
             //Console.WriteLine("order={0}, β={1}", mN, mBeta);
 
             // 伝達関数のポールの位置。
             mPoleList.Clear();
-            for (int i = 0; i < filter.Order(); ++i) {
+            for (int i = 0; i < filter.NumOfPoles(); ++i) {
                 mPoleList.Add(filter.PoleNth(i));
             }
 
+            // 伝達関数の零の位置。
+            mZeroList.Clear();
+            for (int i = 0; i < filter.NumOfZeroes(); ++i) {
+                mZeroList.Add(filter.ZeroNth(i));
+            }
+
             TransferFunction = (WWComplex s) => {
+                WWComplex numerator = new WWComplex(mNumeratorConstant, 0);
+                for (int i = 0; i < filter.NumOfZeroes(); ++i) {
+                    var b = filter.ZeroNth(i);
+                    numerator.Mul(WWComplex.Sub(WWComplex.Div(s, ωc), b));
+                }
+
                 WWComplex denominator = new WWComplex(1, 0);
-                for (int i = 0; i < filter.Order(); ++i) {
+                for (int i = 0; i < filter.NumOfPoles(); ++i) {
                     var a = filter.PoleNth(i);
                     denominator.Mul(WWComplex.Sub(WWComplex.Div(s, ωc), a));
                 }
-                return WWComplex.Div(new WWComplex(mNumeratorConstant, 0), denominator);
+                return WWComplex.Div(numerator, denominator);
             };
 
             PoleZeroPlotTransferFunction = (WWComplex s) => {
+                WWComplex numerator = new WWComplex(mNumeratorConstant, 0);
+                for (int i = 0; i < filter.NumOfZeroes(); ++i) {
+                    var b = filter.ZeroNth(i);
+                    numerator.Mul(WWComplex.Sub(s, b));
+                }
+
                 WWComplex denominator = new WWComplex(1, 0);
-                for (int i = 0; i < filter.Order(); ++i) {
+                for (int i = 0; i < filter.NumOfPoles(); ++i) {
                     var a = filter.PoleNth(i);
                     denominator.Mul(WWComplex.Sub(s, a));
                 }
-                return WWComplex.Div(new WWComplex(mNumeratorConstant, 0), denominator);
+                return WWComplex.Div(numerator, denominator);
             };
 
             {

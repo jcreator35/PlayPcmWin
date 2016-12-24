@@ -55,8 +55,8 @@
                     <RotateTransform Angle="-90" />
                 </Label.RenderTransform>
             </Label>
-            <Label Canvas.Left="640" Canvas.Top="84" Content="4" Foreground="Gray" Name="labelGroupDelay4"/>
-            <Label Canvas.Left="640" Canvas.Top="20" Content="3" Foreground="Gray" Name="labelGroupDelay3"/>
+            <Label Canvas.Left="640" Canvas.Top="20" Content="4" Foreground="Gray" Name="labelGroupDelay4"/>
+            <Label Canvas.Left="640" Canvas.Top="84" Content="3" Foreground="Gray" Name="labelGroupDelay3"/>
             <Label Canvas.Left="640" Canvas.Top="144" Content="2" Foreground="Gray"  Name="labelGroupDelay2"/>
             <Label Canvas.Left="640" Canvas.Top="210" Content="1" Foreground="Gray" Name="labelGroupDelay1"/>
             <Label Canvas.Left="640" Canvas.Top="273" Content="0" Foreground="Gray" Name="labelGroupDelay0" />

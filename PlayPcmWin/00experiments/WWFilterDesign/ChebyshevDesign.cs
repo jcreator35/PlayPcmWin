@@ -48,6 +48,13 @@ namespace WWAudioFilter {
             }
         }
 
+        public override int NumOfPoles() {
+            return mN;
+        }
+
+        public override int NumOfZeroes() {
+            return 0;
+        }
 
         /// H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.73.
         public override WWComplex PoleNth(int nth) {

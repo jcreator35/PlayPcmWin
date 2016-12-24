@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using WWMath;
 
 namespace WWAudioFilter {
@@ -37,6 +34,15 @@ namespace WWAudioFilter {
             return mN;
         }
 
+        public virtual int NumOfPoles() {
+            return mN;
+        }
+
+        public virtual int NumOfZeroes() {
+            return 0;
+        }
+
+
         /// <summary>
         /// カットオフ周波数ωc (rad/s)。
         /// sをこの値で割る(周波数スケーリング)
@@ -61,6 +67,10 @@ namespace WWAudioFilter {
 
         public virtual WWComplex PoleNth(int nth) {
             return new WWComplex(-1.0, 0);
+        }
+
+        public virtual WWComplex ZeroNth(int nth) {
+            return new WWComplex(0, 0);
         }
 
         public virtual double TransferFunctionConstant() { return 1; }
