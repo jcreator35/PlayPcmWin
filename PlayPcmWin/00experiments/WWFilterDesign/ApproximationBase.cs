@@ -58,13 +58,6 @@ namespace WWAudioFilter {
             return mωc / ( 2.0 * Math.PI );
         }
 
-        /// <summary>
-        /// s平面の左半面にある極の個数。
-        /// </summary>
-        public int PoleNum() {
-            return mN;
-        }
-
         public virtual WWComplex PoleNth(int nth) {
             return new WWComplex(-1.0, 0);
         }
