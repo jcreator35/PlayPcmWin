@@ -194,12 +194,12 @@ namespace WWMath {
         }
 
         public static long Factorial(int n) {
-            if (n < 0) {
+            if (n < 0 || 21 < n) {
                 throw new ArgumentOutOfRangeException("n");
             }
 
             long rv = 1;
-            for (int i = 1; i < n; ++i) {
+            for (int i = 2; i < n; ++i) {
                 rv = rv * i;
             }
 
