@@ -192,5 +192,18 @@ namespace WWMath {
             } while (double.Epsilon < Math.Abs(rn));
             return r;
         }
+
+        public static long Factorial(int n) {
+            if (n < 0) {
+                throw new ArgumentOutOfRangeException("n");
+            }
+
+            long rv = 1;
+            for (int i = 1; i < n; ++i) {
+                rv = rv * i;
+            }
+
+            return rv;
+        }
     }
 }

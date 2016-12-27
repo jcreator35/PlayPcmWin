@@ -150,6 +150,9 @@
   <data name="Optimization" xml:space="preserve">
     <value>Optimization</value>
   </data>
+  <data name="Pascal" xml:space="preserve">
+    <value>Pascal</value>
+  </data>
   <data name="Passband" xml:space="preserve">
     <value>Passband</value>
   </data>

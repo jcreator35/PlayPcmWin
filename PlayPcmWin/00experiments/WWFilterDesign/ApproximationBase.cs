@@ -68,5 +68,26 @@ namespace WWAudioFilter {
 
         public virtual double TransferFunctionConstant() { return 1; }
 
+        /// <summary>
+        /// Calc concrete value of Transfer function H(s)
+        /// </summary>
+        /// <param name="s">coordinate on s plane</param>
+        /// <returns>transfer function value</returns>
+        public WWComplex H(WWComplex s) {
+            WWComplex numerator = new WWComplex(TransferFunctionConstant(),0);
+            for (int i=0; i<NumOfZeroes(); ++i) {
+                var b = ZeroNth(i);
+                numerator.Mul(WWComplex.Sub(s, b));
+            }
+
+            WWComplex denominator = new WWComplex(1, 0);
+            for (int i = 0; i < mN; ++i) {
+                WWComplex a = PoleNth(i);
+
+                denominator.Mul(WWComplex.Sub(s, a));
+            }
+
+            return WWComplex.Div(numerator, denominator);
+        }
     }
 }

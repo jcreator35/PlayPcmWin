@@ -74,7 +74,8 @@ namespace WWAudioFilter {
 
         public enum FilterType {
             Butterworth,
-            Chebyshev
+            Chebyshev,
+            Pascal
         };
 
         /// <summary>
@@ -104,6 +105,9 @@ namespace WWAudioFilter {
                 break;
             case FilterType.Chebyshev:
                 filter = new ChebyshevDesign(h0, hc, hs, ωc, ωs, betaType);
+                break;
+            case FilterType.Pascal:
+                filter = new PascalDesign(h0, hc, hs, ωc, ωs, betaType);
                 break;
             default:
                 throw new NotImplementedException();

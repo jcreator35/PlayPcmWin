@@ -150,6 +150,9 @@
   <data name="Optimization" xml:space="preserve">
     <value>最適化</value>
   </data>
+  <data name="Pascal" xml:space="preserve">
+    <value>パスカル</value>
+  </data>
   <data name="Passband" xml:space="preserve">
     <value>通過域</value>
   </data>

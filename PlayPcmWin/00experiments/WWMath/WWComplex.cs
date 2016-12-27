@@ -119,6 +119,14 @@ namespace WWMath {
         }
 
         /// <summary>
+        /// 自分自身が書き換わるので注意。value of this instance is changed
+        /// </summary>
+        public WWComplex ComplexConjugate() {
+            imaginary = -imaginary;
+            return this;
+        }
+
+        /// <summary>
         /// create copy and copy := lhs + rhs, returns copy.
         /// </summary>
         public static WWComplex Add(WWComplex lhs, WWComplex rhs) {
@@ -153,6 +161,13 @@ namespace WWMath {
         /// </summary>
         public static WWComplex Minus(WWComplex uni) {
             return new WWComplex(-uni.real, -uni.imaginary);
+        }
+
+        /// <summary>
+        /// create copy and copy := complex conjugate of uni, returns copy.
+        /// </summary>
+        public static WWComplex ComplexConjugate(WWComplex uni) {
+            return new WWComplex(uni.real, -uni.imaginary);
         }
 
         /// <summary>

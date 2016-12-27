@@ -160,6 +160,15 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Pascal.
+        /// </summary>
+        internal static string Pascal {
+            get {
+                return ResourceManager.GetString("Pascal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Passband.
         /// </summary>
         internal static string Passband {

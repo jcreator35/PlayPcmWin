@@ -27,6 +27,7 @@ namespace WWAudioFilter {
             groupBoxFilterType.Header = Properties.Resources.FilterType;
             radioButtonFilterTypeButterworth.Content = Properties.Resources.Butterworth;
             radioButtonFilterTypeChebyshev.Content = Properties.Resources.Chebyshev;
+            radioButtonFilterTypePascal.Content = Properties.Resources.Pascal;
             labelOptimization.Content = Properties.Resources.Optimization + ":";
             buttonUpdate.Content = Properties.Resources.Update;
 
@@ -130,6 +131,9 @@ namespace WWAudioFilter {
             if (radioButtonFilterTypeChebyshev.IsChecked == true) {
                 mFilterType = AnalogFilterDesign.FilterType.Chebyshev;
             }
+            if (radioButtonFilterTypePascal.IsChecked == true) {
+                mFilterType = AnalogFilterDesign.FilterType.Pascal;
+            }
 
             return true;
         }
@@ -144,8 +148,13 @@ namespace WWAudioFilter {
             }
 
             var afd = new AnalogFilterDesign();
-            afd.DesignLowpass(mG0, mGc, mGs, mFc, mFs, mFilterType, mBetaType);
-            
+            try {
+                afd.DesignLowpass(mG0, mGc, mGs, mFc, mFs, mFilterType, mBetaType);
+            } catch (System.ArgumentOutOfRangeException ex) {
+                MessageBox.Show(string.Format("Design failed! {0}", ex));
+                return;
+            }
+
             mTextBoxLog.Clear();
             AddLog(string.Format("Order={0}\n", afd.Order()));
 
