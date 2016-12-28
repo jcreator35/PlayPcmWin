@@ -51,14 +51,6 @@ namespace WWAudioFilter {
             mCharacteristicValues.Add(7,  new CharacteristicValue(7,  0.66950940, +0.01901625, 0.77599290));
             mCharacteristicValues.Add(8,  new CharacteristicValue(8,  0.70882772, -0.01588792, 0.79978194));
             mCharacteristicValues.Add(9,  new CharacteristicValue(9,  0.73987600, +0.01358345, 0.81900877));
-            /*
-            mCharacteristicValues.Add(10, new CharacteristicValue(10, 0.76500826, -0.01182234, 0.83486553));
-            mCharacteristicValues.Add(11, new CharacteristicValue(11, 0.78576311, +0.01043707, 0.84816452));
-            mCharacteristicValues.Add(12, new CharacteristicValue(12, 0.80318872, -0.00932176, 0.85947728));
-            mCharacteristicValues.Add(13, new CharacteristicValue(13, 0.81802376, +0.00840640, 0.86921746));
-            mCharacteristicValues.Add(14, new CharacteristicValue(14, 0.83080378, -0.00764299, 0.87769147));
-            mCharacteristicValues.Add(15, new CharacteristicValue(15, 0.84192645, +0.00699753, 0.88513110));
-            */
 
             // H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.95
             // Table 2.8 αmax = 0.01
@@ -380,7 +372,7 @@ namespace WWAudioFilter {
             }
 
             if (bt != BetaType.BetaMax) {
-                throw new System.ArgumentOutOfRangeException("This version of Pascal approximation only supports betaMax");
+                throw new System.ArgumentOutOfRangeException("This version of Pascal approximation only supports stopband optimized design");
             }
 
             mH0 = h0;
