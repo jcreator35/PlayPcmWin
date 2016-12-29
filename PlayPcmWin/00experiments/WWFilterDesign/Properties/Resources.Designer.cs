@@ -142,6 +142,15 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Inverse Chebyshev.
+        /// </summary>
+        internal static string InverseChebyshev {
+            get {
+                return ResourceManager.GetString("InverseChebyshev", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Log.
         /// </summary>
         internal static string Log {

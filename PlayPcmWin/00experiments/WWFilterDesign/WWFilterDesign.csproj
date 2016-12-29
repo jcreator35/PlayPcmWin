@@ -89,6 +89,7 @@
     <Compile Include="ButterworthDesign.cs" />
     <Compile Include="CauerDesign.cs" />
     <Compile Include="ChebyshevDesign.cs" />
+    <Compile Include="InverseChebyshevDesign.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

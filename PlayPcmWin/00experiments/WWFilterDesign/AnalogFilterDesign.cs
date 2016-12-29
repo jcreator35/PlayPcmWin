@@ -75,7 +75,8 @@ namespace WWAudioFilter {
         public enum FilterType {
             Butterworth,
             Chebyshev,
-            Pascal
+            Pascal,
+            InverseChebyshev
         };
 
         /// <summary>
@@ -108,6 +109,9 @@ namespace WWAudioFilter {
                 break;
             case FilterType.Pascal:
                 filter = new PascalDesign(h0, hc, hs, ωc, ωs, betaType);
+                break;
+            case FilterType.InverseChebyshev:
+                filter = new InverseChebyshevDesign(h0, hc, hs, ωc, ωs, betaType);
                 break;
             default:
                 throw new NotImplementedException();
@@ -160,20 +164,35 @@ namespace WWAudioFilter {
 
             {
                 // 伝達関数を部分分数展開する。
-                var numeratorC = new List<WWComplex>();
-                numeratorC.Add(new WWComplex(mNumeratorConstant, 0));
+
+                var numeratorCoeffs = new List<WWComplex>();
+                if (filter.NumOfZeroes() == 0) {
+                    numeratorCoeffs.Add(new WWComplex(mNumeratorConstant, 0));
+                } else {
+                    /*
+                    // 多項式の根のリストをexpandして多項式の係数のリストを作る。
+                    var rootList = new List<WWComplex>();
+
+                    for (int i = 0; i < filter.NumOfZeroes(); ++i) {
+                        var b = filter.ZeroNth(i);
+                        rootList.Add(b);
+                    }
+
+                    numeratorCoeffs = WWPolynomial.RootListToCoefficientList(rootList, mNumeratorConstant);
+                    */
+                }
 
                 var H_Roots = new List<WWComplex>();
                 var stepResponseTFRoots = new List<WWComplex>();
-                for (int i = 0; i < filter.Order(); ++i) {
+                for (int i = 0; i < filter.NumOfPoles(); ++i) {
                     var p = filter.PoleNth(i);
                     H_Roots.Add(p);
                     stepResponseTFRoots.Add(p);
                 }
                 stepResponseTFRoots.Add(new WWComplex(0, 0));
 
-                mH_PFD = WWPolynomial.PartialFractionDecomposition(numeratorC, H_Roots);
-                var stepResponseTFPFD = WWPolynomial.PartialFractionDecomposition(numeratorC, stepResponseTFRoots);
+                mH_PFD = WWPolynomial.PartialFractionDecomposition(numeratorCoeffs, H_Roots);
+                var stepResponseTFPFD = WWPolynomial.PartialFractionDecomposition(numeratorCoeffs, stepResponseTFRoots);
 
                 /*
                 Console.Write("Transfer function (After Partial Fraction Decomposition): H(s) = ");

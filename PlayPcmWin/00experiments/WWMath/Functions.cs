@@ -25,7 +25,7 @@ namespace WWMath {
         /// 双曲線関数sinhの逆関数 y=arsinh(x)。xとyは1対1の対応。
         /// </summary>
         /// <returns></returns>
-        public static double ArcSinHyp(double x) {
+        public static double ArSinHyp(double x) {
             return Math.Log(x+Math.Sqrt(x*x+1));
         }
 

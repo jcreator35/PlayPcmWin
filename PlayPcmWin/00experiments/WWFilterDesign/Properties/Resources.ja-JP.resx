@@ -144,6 +144,9 @@
   <data name="Gain" xml:space="preserve">
     <value>ゲイン</value>
   </data>
+  <data name="InverseChebyshev" xml:space="preserve">
+    <value>逆チェビシェフ</value>
+  </data>
   <data name="Log" xml:space="preserve">
     <value>ログ</value>
   </data>

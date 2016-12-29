@@ -28,6 +28,7 @@ namespace WWAudioFilter {
             radioButtonFilterTypeButterworth.Content = Properties.Resources.Butterworth;
             radioButtonFilterTypeChebyshev.Content = Properties.Resources.Chebyshev;
             radioButtonFilterTypePascal.Content = Properties.Resources.Pascal;
+            radioButtonFilterTypeInverseChebyshev.Content = Properties.Resources.InverseChebyshev;
             labelOptimization.Content = Properties.Resources.Optimization + ":";
             buttonUpdate.Content = Properties.Resources.Update;
 
@@ -134,6 +135,9 @@ namespace WWAudioFilter {
             if (radioButtonFilterTypePascal.IsChecked == true) {
                 mFilterType = AnalogFilterDesign.FilterType.Pascal;
             }
+            if (radioButtonFilterTypeInverseChebyshev.IsChecked == true) {
+                mFilterType = AnalogFilterDesign.FilterType.InverseChebyshev;
+            }
 
             return true;
         }
@@ -183,12 +187,16 @@ namespace WWAudioFilter {
             mFrequencyResponse.TransferFunction = afd.TransferFunction;
             mFrequencyResponse.Update();
 
-            // Pole-Zeroプロットにポールの位置をセット。
+            // Pole-Zeroプロットに極と零の位置をセット。
             mPoleZeroPlot.ClearPoleZero();
             mPoleZeroPlot.SetScale(afd.PoleNth(0).Magnitude());
-            for (int i = 0; i < afd.Order(); ++i) {
+            for (int i = 0; i < afd.NumOfPoles(); ++i) {
                 var p = afd.PoleNth(i);
                 mPoleZeroPlot.AddPole(p);
+            }
+            for (int i = 0; i < afd.NumOfZeroes(); ++i) {
+                var p = afd.ZeroNth(i);
+                mPoleZeroPlot.AddZero(p);
             }
             mPoleZeroPlot.TransferFunction = afd.PoleZeroPlotTransferFunction;
             mPoleZeroPlot.Update();

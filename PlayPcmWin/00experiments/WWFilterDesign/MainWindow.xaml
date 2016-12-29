@@ -16,13 +16,13 @@
 
         <ScrollViewer>
             <WrapPanel>
-                <GroupBox Header="Analog Filter Specification" Height="209" Name="groupBoxSpecification" Width="707" >
+                <GroupBox Header="Analog Filter Specification" Height="209" Name="groupBoxSpecification" >
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="200" />
                             <ColumnDefinition Width="1*" />
                         </Grid.ColumnDefinitions>
-                        <Canvas Grid.ColumnSpan="2">
+                        <Canvas>
                             <TextBlock Text="G0" Margin="5,20,0,0" />
                             <TextBlock Text="Gc" Margin="5,40,0,0" />
                             <TextBlock Text="Gs" Margin="5,110,0,0" />
@@ -40,9 +40,14 @@
 
                             <Line X1="25" Y1="50" X2="90" Y2="50" Stroke="Blue" />
                             <Line X1="90" Y1="50" X2="90" Y2="150" Stroke="Blue" />
-                            <Button Content="Update" Name="buttonUpdate" Width="75" Click="buttonUpdate_Click" Canvas.Left="205" Canvas.Top="146" />
-                            <GroupBox Header="Filter Type" Name="groupBoxFilterType" Canvas.Left="205" Canvas.Top="6" Width="400">
+                        </Canvas>
+                        <StackPanel Grid.Column="1">
+                            <GroupBox Header="Filter Type" Name="groupBoxFilterType" Width="400" HorizontalAlignment="Left">
                                 <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="1*" />
+                                        <RowDefinition Height="1*" />
+                                    </Grid.RowDefinitions>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="1*" />
                                         <ColumnDefinition Width="1*" />
@@ -51,9 +56,10 @@
                                     <RadioButton Content="Butterworth" HorizontalAlignment="Left" Name="radioButtonFilterTypeButterworth" VerticalAlignment="Center" Margin="6,6,0,6" IsChecked="True" Checked="buttonUpdate_Click" />
                                     <RadioButton Grid.Column="1" Content="Chebyshev" HorizontalAlignment="Left" Name="radioButtonFilterTypeChebyshev" VerticalAlignment="Center" Margin="6,6,0,6" Checked="buttonUpdate_Click" />
                                     <RadioButton Grid.Column="2" Content="Pascal" HorizontalAlignment="Left" Name="radioButtonFilterTypePascal" VerticalAlignment="Center" Margin="6,6,0,6" Checked="buttonUpdate_Click" />
+                                    <RadioButton Grid.Row="1" Content="Inverse Chebyshev" HorizontalAlignment="Left" Name="radioButtonFilterTypeInverseChebyshev" VerticalAlignment="Center" Margin="6,6,0,6" Checked="buttonUpdate_Click" />
                                 </Grid>
                             </GroupBox>
-                            <GroupBox Header="Design Parameters" Canvas.Left="205" Canvas.Top="60" Width="400" Name="groupBoxDesignParameters">
+                            <GroupBox Header="Design Parameters" Width="400" Name="groupBoxDesignParameters" HorizontalAlignment="Left">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="1*" />
@@ -92,7 +98,8 @@
                                     </ComboBox>
                                 </Grid>
                             </GroupBox>
-                        </Canvas>
+                            <Button Content="Update" Name="buttonUpdate" Width="75" Click="buttonUpdate_Click" HorizontalContentAlignment="Center" HorizontalAlignment="Left" />
+                        </StackPanel>
                     </Grid>
                 </GroupBox>
                 <GroupBox Header="Analog Filter Circuit" Name="groupBoxAFC" >

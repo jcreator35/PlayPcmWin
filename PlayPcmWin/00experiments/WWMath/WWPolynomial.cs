@@ -23,6 +23,46 @@ namespace WWMath {
         }
 
         /// <summary>
+        /// 多項式の係数のリスト(変数x)を受け取ってx倍して戻す。
+        /// </summary>
+        private static List<WWComplex> MultiplyX(List<WWComplex> coeffList) {
+            var rv = new List<WWComplex>();
+            rv.Add(new WWComplex(0,0));
+            for (int i = 0; i < coeffList.Count; ++i) {
+                rv.Add(new WWComplex(coeffList[i]));
+            }
+            return rv;
+        }
+
+        /// <summary>
+        /// 多項式の係数のリストを受け取り、全体をc倍して戻す。
+        /// </summary>
+        private static List<WWComplex> MultiplyC(List<WWComplex> coeffList, WWComplex c) {
+            var rv = new List<WWComplex>();
+            for (int i = 0; i < coeffList.Count;++i) {
+                rv.Add(new WWComplex(coeffList[i]).Mul(c));
+            }
+            return rv;
+        }
+
+        /*
+        /// <summary>
+        /// 多項式の根のリストと定数倍のパラメーターを受け取って多項式のn乗の項のリストを戻す。
+        /// c(s-b[0])(s-b[1]) → c(s^2-(b[0]+b[1])s+b[0]b[1])
+        /// rv[2] := c
+        /// rv[1] := -c*(b[0]+b[1])
+        /// rv[0] := c*(b[0]b[1])
+        /// </summary>
+        /// <param name="rootList">多項式の根のリスト</param>
+        /// <param name="constantMultiplier">定数倍のパラメーター()例参照</param>
+        /// <returns></returns>
+        public static List<WWComplex> RootListToCoeffList(List<WWComplex> b, WWComplex c) {
+            if (b.Count) {
+            }
+        }
+        */
+
+        /// <summary>
         /// p次オールポールの多項式(分子は多項式係数のリストで分母は根のリスト)を部分分数展開する。分子の多項式の次数はp次未満。
         ///
         ///             ... + nCoeffs[2]s^2 + nCoeffs[1]s + nCoeffs[0]

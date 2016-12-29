@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using WWMath;
 
 namespace WWAudioFilter {
-    public class ChebyshevDesign : ApproximationBase {
-        private double mε;
+    class InverseChebyshevDesign : ApproximationBase {
+                private double mε;
 
-        public ChebyshevDesign(double h0, double hc, double hs, double ωc, double ωs, ApproximationBase.BetaType bt) {
+        public InverseChebyshevDesign(double h0, double hc, double hs, double ωc, double ωs, ApproximationBase.BetaType bt) {
             if (h0 <= 0) {
                 throw new System.ArgumentOutOfRangeException("h0");
             }
@@ -26,11 +29,11 @@ namespace WWAudioFilter {
             mΩs = ωs / ωc;
 
             mN = CalcOrder();
-
+            // H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.118
             // calc ε
             switch (bt) {
             case ApproximationBase.BetaType.BetaMax:
-                mε = Math.Sqrt(h0 * h0 / hc / hc - 1);
+                mε = Math.Sqrt(h0 * h0 / hs / hs - 1);
                 break;
             case ApproximationBase.BetaType.BetaMin: {
                     // Calc cn(Ωs)
@@ -42,7 +45,7 @@ namespace WWAudioFilter {
                         Ω *= mΩs;
                     }
 
-                    mε = Math.Sqrt(h0 * h0 / hs / hs - 1) / cnΩs;
+                    mε = Math.Sqrt(h0 * h0 / hc / hc - 1) / cnΩs;
                 }
                 break;
             }
@@ -53,7 +56,27 @@ namespace WWAudioFilter {
         }
 
         public override int NumOfZeroes() {
-            return 0;
+            return (mN/2)*2;
+        }
+
+        public override WWComplex ZeroNth(int nth) {
+            if (nth < 0 || mN <= 0 || ((mN / 2)*2) <= nth) {
+                throw new System.ArgumentOutOfRangeException("nth");
+            }
+
+            // H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.112.
+            int k = nth + 1;
+            if ( mN / 2 <= nth) {
+                k = nth - (mN/2);
+            }
+            double ρk = Math.Cos((2.0 * k - 1.0) / 2.0 / mN * Math.PI);
+
+            double Ωzk = mΩs / ρk;
+            if (mN / 2 <= nth) {
+                Ωzk = -Ωzk;
+            }
+
+            return new WWComplex(0, Ωzk);
         }
 
         public override WWComplex PoleNth(int nth) {
@@ -63,13 +86,14 @@ namespace WWAudioFilter {
                 throw new System.ArgumentOutOfRangeException("nth");
             }
 
-            // H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.73.
-            // sk = σk + jΩk
+            // H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.113.
+            // σkとΩkはChebyshev Approximationと同じ。
             double σk = Math.Sin(( 2.0 * N + 2.0 * nth + 1 ) * Math.PI / 2.0 / N)
                 * Math.Sinh(1.0 / N * WWMath.Functions.ArSinHyp(1.0 / mε));
             double Ωk = Math.Cos(( 2.0 * N + 2.0 * nth + 1 ) * Math.PI / 2.0 / N)
                 * Math.Cosh(1.0 / N * WWMath.Functions.ArSinHyp(1.0 / mε));
-            return new WWComplex(σk, Ωk);
+
+            return new WWComplex(mΩs * σk / (σk * σk + Ωk * Ωk), -mΩs * Ωk / (σk * σk + Ωk * Ωk));
         }
 
         private double[] Multiply2Ω(double[] v) {
@@ -111,10 +135,9 @@ namespace WWAudioFilter {
             return rv;
         }
 
-        /// <summary>
-        /// H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.65.
-        /// </summary>
         private int CalcOrder() {
+            // H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.65.
+            // H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.117.
             double numer = WWMath.Functions.ArCosHypPositive(
                     Math.Sqrt((mH0 * mH0 / mHs / mHs - 1)
                         / (mH0 * mH0 / mHc / mHc - 1)));
@@ -125,11 +148,29 @@ namespace WWAudioFilter {
 
         /// <summary>
         /// H(s)の定数倍成分を戻す。
-        /// H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.73.
         /// </summary>
         public override double TransferFunctionConstant() {
-            return mH0 / mε / Math.Pow(2.0, mN-1);
+            // H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.112.
+            int η = mN & 1;
+            double K = mε * Math.Abs(Cη());
+            if (η == 1) {
+                K *= mΩs;
+            } else {
+                K /= Math.Sqrt(1.0 + mε * mε * Cη() * Cη());
+            }
+            return mH0 * K;
         }
 
+        private double Cη() {
+            int η= mN&1;
+            double rv = 1;
+            if (η==1){
+                rv = mN;
+            }
+            if ((((mN + 3 * η)/2) & 1) == 1) {
+                rv = -rv;
+            }
+            return rv;
+        }
     }
-};
+}

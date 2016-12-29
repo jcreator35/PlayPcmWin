@@ -43,7 +43,7 @@ namespace WWUserControls {
         /// <summary>
         /// 零の直径。
         /// </summary>
-        const double DIAMETER_ZERO = 7;
+        const double DIAMETER_ZERO = 10;
 
         private double mPoleZeroScale = 1.0;
 
