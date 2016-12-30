@@ -18,8 +18,8 @@ namespace WWUserControls {
 
         private bool mInitialized = false;
 
-        private List<UIElement> mPoleList = new List<UIElement>();
-        private List<UIElement> mZeroList = new List<UIElement>();
+        private List<Line> mPoleList = new List<Line>();
+        private List<Ellipse> mZeroList = new List<Ellipse>();
 
         public enum ModeType {
             SPlane,
@@ -32,8 +32,8 @@ namespace WWUserControls {
          * 原点は(128,128) */
         const double OFFS_X = 128;
         const double OFFS_Y = 128;
-        const double SCALE_X = 64;
-        const double SCALE_Y = 64;
+        const double SCALE_X = 96;
+        const double SCALE_Y = 96;
 
         /// <summary>
         /// 極の×の大きさ。
@@ -51,10 +51,10 @@ namespace WWUserControls {
 
         public void SetScale(double s) {
             mPoleZeroScale = s;
-            mXm1.Text = string.Format("-{0:G4}", s);
-            mYm1.Text = string.Format("-{0:G4}j", s);
-            mXp1.Text = string.Format("+{0:G4}", s);
-            mYp1.Text = string.Format("+{0:G4}j", s);
+            mXm1.Text = string.Format("-{0:G3}", s);
+            mYm1.Text = string.Format("-{0:G3}i", s);
+            mXp1.Text = string.Format("+{0:G3}", s);
+            mYp1.Text = string.Format("+{0:G3}i", s);
         }
 
         public void AddPole(WWComplex pole) {
@@ -67,7 +67,7 @@ namespace WWUserControls {
                 l.X2 = x + SCALE_CROSS;
                 l.Y1 = y - SCALE_CROSS;
                 l.Y2 = y + SCALE_CROSS;
-                l.Stroke = new SolidColorBrush(Colors.Black);
+                l.Stroke = TextColor();
                 mPoleList.Add(l);
                 canvasPoleZero.Children.Add(l);
             }
@@ -77,7 +77,7 @@ namespace WWUserControls {
                 l.X2 = x - SCALE_CROSS;
                 l.Y1 = y - SCALE_CROSS;
                 l.Y2 = y + SCALE_CROSS;
-                l.Stroke = new SolidColorBrush(Colors.Black);
+                l.Stroke = TextColor();
                 mPoleList.Add(l);
                 canvasPoleZero.Children.Add(l);
             }
@@ -91,8 +91,8 @@ namespace WWUserControls {
                 var e = new Ellipse();
                 e.Width = DIAMETER_ZERO;
                 e.Height = DIAMETER_ZERO;
-                e.Stroke = new SolidColorBrush(Colors.White);
-                mPoleList.Add(e);
+                e.Stroke = TextColor();
+                mZeroList.Add(e);
                 canvasPoleZero.Children.Add(e);
                 Canvas.SetLeft(e, x - DIAMETER_ZERO / 2);
                 Canvas.SetTop(e, y - DIAMETER_ZERO / 2);
@@ -109,6 +109,23 @@ namespace WWUserControls {
 
             mPoleList.Clear();
             mZeroList.Clear();
+        }
+
+        private void ColorPoleZero() {
+            foreach (var i in mPoleList) {
+                i.Stroke = TextColor();
+            }
+            foreach (var i in mZeroList) {
+                i.Stroke = TextColor();
+            }
+        }
+
+        private SolidColorBrush TextColor() {
+            var color = new SolidColorBrush(Colors.Red);
+            if (comboBoxGradationType.SelectedIndex == 1) {
+                color = new SolidColorBrush(Colors.White);
+            }
+            return color;
         }
 
         public void Update() {
@@ -129,6 +146,22 @@ namespace WWUserControls {
 
             UpdateGradation();
             UpdateGradationSample();
+
+            ColorPoleZero();
+
+            var color = TextColor();
+            mLineH1.Stroke = color;
+            mLineH2.Stroke = color;
+            mLineH3.Stroke = color;
+            mLineV1.Stroke = color;
+            mLineV2.Stroke = color;
+            mLineV3.Stroke = color;
+            unitCircle.Stroke = color;
+            mXm1.Foreground = color;
+            mXp1.Foreground = color;
+            mYm1.Foreground = color;
+            mYp1.Foreground = color;
+            mZero.Foreground = color;
         }
 
         /// <summary>

@@ -22,6 +22,9 @@ namespace WWUserControls {
             if (absn < 0.001) {
                 return string.Format("{0:0}μ", n * 1000.0 * 1000.0);
             }
+            if (absn < 0.01) {
+                return string.Format("{0:0.0}m", n * 1000.0);
+            }
             if (absn < 1) {
                 return string.Format("{0:0}m", n * 1000.0);
             }
@@ -30,7 +33,7 @@ namespace WWUserControls {
                 return string.Format("{0}", n);
             }
             if (absn < 1000 * 10) {
-                return string.Format("{0:0}k", n / 1000);
+                return string.Format("{0:0.0}k", n / 1000);
             }
             if (absn < 1000 * 100) {
                 if (absn / 100 == (int)(absn / 100)) {

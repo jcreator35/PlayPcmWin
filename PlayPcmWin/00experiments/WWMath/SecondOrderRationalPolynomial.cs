@@ -11,12 +11,12 @@ namespace WWMath {
         ///  ------------------
         ///   d2x^2 + d1x + d0
         /// </summary>
-        /// <param name="n2">numerator second order coefficient</param>
-        /// <param name="n1">numerator first order coefficient</param>
-        /// <param name="n0">numerator zero order coefficient</param>
-        /// <param name="d2">denominator second order coefficient</param>
-        /// <param name="d1">denominator first order coefficient</param>
-        /// <param name="d0">denominator zero order coefficient</param>
+        /// <param name="n2">numerator second orderPlus1 coefficient</param>
+        /// <param name="n1">numerator first orderPlus1 coefficient</param>
+        /// <param name="n0">numerator zero orderPlus1 coefficient</param>
+        /// <param name="d2">denominator second orderPlus1 coefficient</param>
+        /// <param name="d1">denominator first orderPlus1 coefficient</param>
+        /// <param name="d0">denominator zero orderPlus1 coefficient</param>
         public SecondOrderRationalPolynomial(WWComplex n2, WWComplex n1, WWComplex n0,
                 WWComplex d2, WWComplex d1, WWComplex d0) {
             if (d2.Magnitude() == 0 && d1.Magnitude() == 0 && d0.Magnitude() == 0) {

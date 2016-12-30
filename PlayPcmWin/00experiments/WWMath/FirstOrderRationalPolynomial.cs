@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace WWMath {
     public class FirstOrderRationalPolynomial : RationalPolynomial {
@@ -11,10 +12,10 @@ namespace WWMath {
         ///  ----------
         ///   d1x + d0
         /// </summary>
-        /// <param name="n1">numerator first order coefficient</param>
-        /// <param name="n0">numerator zero order coefficient</param>
-        /// <param name="d1">denominator first order coefficient</param>
-        /// <param name="d0">denominator zero order coefficient</param>
+        /// <param name="n1">numerator first orderPlus1 coefficient</param>
+        /// <param name="n0">numerator zero orderPlus1 coefficient</param>
+        /// <param name="d1">denominator first orderPlus1 coefficient</param>
+        /// <param name="d0">denominator zero orderPlus1 coefficient</param>
         public FirstOrderRationalPolynomial(WWComplex n1, WWComplex n0, WWComplex d1, WWComplex d0) {
                 if (d1.Magnitude() == 0 && d0.Magnitude() == 0) {
                     throw new DivideByZeroException();
@@ -58,6 +59,43 @@ namespace WWMath {
             return new FirstOrderRationalPolynomial(
                 numer[1].CreateCopy(), numer[0].CreateCopy(),
                 denom[1].CreateCopy(), denom[0].CreateCopy());
+        }
+
+        /// <summary>
+        /// 1次多項式を作る。
+        /// coeffList[0] + x * coeffList[1]
+        /// </summary>
+        public static List<FirstOrderRationalPolynomial> CreateFromCoeffList(List<WWComplex> coeffList) {
+            var p = new List<FirstOrderRationalPolynomial>();
+            if (coeffList.Count == 0) {
+                return p;
+            }
+            if (coeffList.Count == 1) {
+                // 定数を追加。
+                p.Add(new FirstOrderRationalPolynomial(WWComplex.Zero(), coeffList[0], WWComplex.Zero(), WWComplex.Unity()));
+            }
+            if (coeffList.Count == 2) {
+                // 1次式を追加。
+                p.Add(new FirstOrderRationalPolynomial(coeffList[1], coeffList[0], WWComplex.Zero(), WWComplex.Unity()));
+            }
+
+            return p;
+        }
+
+        /// <summary>
+        /// 2つの1次多項式のリストを足したコピーを作成する。引数のリストの内容は変更しない。
+        /// </summary>
+        public static List<FirstOrderRationalPolynomial> Add(List<FirstOrderRationalPolynomial> lhs, List<FirstOrderRationalPolynomial> rhs) {
+            var rv = new List<FirstOrderRationalPolynomial>();
+
+            foreach (var i in lhs) {
+                rv.Add(i.CreateCopy());
+            }
+            foreach (var i in rhs) {
+                rv.Add(i.CreateCopy());
+            }
+
+            return rv;
         }
     }
 }

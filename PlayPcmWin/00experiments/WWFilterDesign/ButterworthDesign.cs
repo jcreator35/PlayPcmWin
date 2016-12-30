@@ -6,7 +6,7 @@ namespace WWAudioFilter {
         private double mβ;
 
         /// <summary>
-        /// Calculate the order of Transfer function and βmax from the filter specification.
+        /// Calculate the orderPlus1 of Transfer function and βmax from the filter specification.
         /// H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.41
         /// </summary>
         /// <param name="h0">gain of 0 Hz</param>

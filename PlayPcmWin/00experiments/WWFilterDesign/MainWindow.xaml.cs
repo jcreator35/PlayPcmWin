@@ -37,6 +37,9 @@ namespace WWAudioFilter {
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
+            WWMath.WWPolynomial.Test();
+            ChebyshevDesign.Test();
+
             Update();
         }
 
@@ -189,7 +192,12 @@ namespace WWAudioFilter {
 
             // Pole-Zeroプロットに極と零の位置をセット。
             mPoleZeroPlot.ClearPoleZero();
-            mPoleZeroPlot.SetScale(afd.PoleNth(0).Magnitude());
+
+            double scale = afd.PoleNth(0).Magnitude();
+            if (0 < afd.NumOfZeroes() && scale < afd.ZeroNth(0).Magnitude()) {
+                scale = afd.ZeroNth(0).Magnitude();
+            }
+            mPoleZeroPlot.SetScale(scale);
             for (int i = 0; i < afd.NumOfPoles(); ++i) {
                 var p = afd.PoleNth(i);
                 mPoleZeroPlot.AddPole(p);
@@ -211,12 +219,19 @@ namespace WWAudioFilter {
             AddLog(string.Format("Analog Filter Stages = {0}\n", afd.RealPolynomialCount()));
 
             mAnalogFilterCircuit.Clear();
-            mAnalogFilterCircuit.CutoffFrequencyHz = mFc;
-            for (int i=0; i<afd.RealPolynomialCount(); ++i) {
-                mAnalogFilterCircuit.Add(afd.RealPolynomialNth(i));
+
+            if (0 < afd.NumOfZeroes()) {
+                // 零を含む回路の表示は未実装。
+                groupBoxAFC.Visibility = System.Windows.Visibility.Collapsed;
+            } else {
+                groupBoxAFC.Visibility = System.Windows.Visibility.Visible;
+                mAnalogFilterCircuit.CutoffFrequencyHz = mFc;
+                for (int i = 0; i < afd.RealPolynomialCount(); ++i) {
+                    mAnalogFilterCircuit.Add(afd.RealPolynomialNth(i));
+                }
+                mAnalogFilterCircuit.AddFinished();
+                mAnalogFilterCircuit.Update();
             }
-            mAnalogFilterCircuit.AddFinished();
-            mAnalogFilterCircuit.Update();
         }
 
     }

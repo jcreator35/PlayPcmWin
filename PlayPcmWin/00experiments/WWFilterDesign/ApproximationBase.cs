@@ -23,7 +23,7 @@ namespace WWAudioFilter {
         protected double mΩs;
 
         /// <summary>
-        /// 回路の次数 order
+        /// 回路の次数 orderPlus1
         /// </summary>
         protected int mN;
 

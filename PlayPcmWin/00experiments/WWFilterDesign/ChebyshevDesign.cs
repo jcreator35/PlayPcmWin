@@ -72,9 +72,9 @@ namespace WWAudioFilter {
             return new WWComplex(σk, Ωk);
         }
 
-        private double[] Multiply2Ω(double[] v) {
+        private static double[] Multiply2Ω(double[] v) {
             var rv = new double[v.Length + 1];
-            for (int i=0; i < v.Length; ++i) {
+            for (int i = 0; i < v.Length; ++i) {
                 rv[i + 1] = 2.0 * v[i];
             }
             return rv;
@@ -84,24 +84,26 @@ namespace WWAudioFilter {
         /// Chebyshev polynomial coefficients of CN(Ω)
         /// H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.60.
         /// </summary>
-        /// <param name="n">order of polynomial</param>
-        /// <returns>rv[0] : constant coeff, rv[1] 1st order coeff, rv[2] 2nd order coeff ...</returns>
-        private double[] ChebyshevPolynomialCoefficients(int n) {
+        /// <param name="n">orderPlus1 of polynomial</param>
+        /// <returns>rv[0] : constant coeff, rv[1] 1st orderPlus1 coeff, rv[2] 2nd orderPlus1 coeff ...</returns>
+        public static double[] ChebyshevPolynomialCoefficients(int n) {
             if (n < 0) {
                 throw new ArgumentException("n");
             }
 
             if (n == 0) {
+                //                    定数項
                 return new double[] { 1 };
             }
             if (n == 1) {
-                return new double[] { 1, 0 };
+                //                    定数項  1次の項
+                return new double[] { 0, 1 };
             }
 
             var p = Multiply2Ω(ChebyshevPolynomialCoefficients(n - 1));
             var pp = ChebyshevPolynomialCoefficients(n - 2);
             var rv = new double[n + 1];
-            for (int i=0; i <= n; ++i) {
+            for (int i = 0; i <= n; ++i) {
                 if (i < pp.Length) {
                     rv[i] = p[i] - pp[i];
                 } else {
@@ -131,5 +133,12 @@ namespace WWAudioFilter {
             return mH0 / mε / Math.Pow(2.0, mN-1);
         }
 
+        public static void Test() {
+            var c0 = ChebyshevPolynomialCoefficients(0);
+            var c1 = ChebyshevPolynomialCoefficients(1);
+            var c2 = ChebyshevPolynomialCoefficients(2);
+            var c3 = ChebyshevPolynomialCoefficients(3);
+            var c4 = ChebyshevPolynomialCoefficients(4);
+        }
     }
 };

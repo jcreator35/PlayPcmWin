@@ -29,6 +29,21 @@ namespace WWMath {
         }
 
         /// <summary>
+        /// 大体ゼロのときtrueを戻す。使用する際は大体ゼロの範囲の広さに注意。
+        /// </summary>
+        public bool AlmostZero() {
+            return Math.Abs(real) < double.Epsilon &&
+                Math.Abs(imaginary) < double.Epsilon;
+        }
+
+        /// <summary>
+        /// 内容が全く同じときtrue
+        /// </summary>
+        public bool EqualValue(WWComplex rhs) {
+            return real == rhs.real && imaginary == rhs.imaginary;
+        }
+
+        /// <summary>
         /// Phase in radians
         /// </summary>
         /// <returns>radians, -π to +π</returns>
@@ -170,13 +185,6 @@ namespace WWMath {
             return new WWComplex(uni.real, -uni.imaginary);
         }
 
-        /// <summary>
-        /// 内容が同じときtrue
-        /// </summary>
-        public bool EqualValue(WWComplex rhs) {
-            return real == rhs.real && imaginary == rhs.imaginary;
-        }
-
         public override string ToString() {
             if (Math.Abs(imaginary) < 0.0001) {
                 return string.Format("{0:G4}", real);
@@ -191,6 +199,14 @@ namespace WWMath {
             } else {
                 return string.Format("{0:G4}+{1:G4}i", real, imaginary);
             }
+        }
+
+        public static WWComplex Unity() {
+            return new WWComplex(1, 0);
+        }
+
+        public static WWComplex Zero() {
+            return new WWComplex(0, 0);
         }
     }
 }

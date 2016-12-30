@@ -13,17 +13,17 @@
             <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
         <Canvas Height="256" HorizontalAlignment="Center" Name="canvasPoleZero" VerticalAlignment="Center" Width="256" Grid.ColumnSpan="2" Margin="22">
-            <Line X1="0" X2="256" Y1="64" Y2="64" Stroke="LightGray" />
-            <Line X1="0" X2="256" Y1="128" Y2="128" Stroke="Gray" />
-            <Line X1="0" X2="256" Y1="192" Y2="192" Stroke="LightGray" />
-            <Line X1="64" X2="64" Y1="0" Y2="256" Stroke="LightGray" />
-            <Line X1="128" X2="128" Y1="0" Y2="256" Stroke="Gray" />
-            <Line X1="192" X2="192" Y1="0" Y2="256" Stroke="LightGray" />
-            <TextBlock Canvas.Left="50" Canvas.Top="128" Text="-1" Name="mXm1" />
-            <TextBlock Canvas.Left="118" Canvas.Top="128" Text="0" />
-            <TextBlock Canvas.Left="190" Canvas.Top="128" Text="+1" Name="mXp1" />
-            <TextBlock Canvas.Left="114" Canvas.Top="50" Text="+i" Name="mYp1" />
-            <TextBlock Canvas.Left="118" Canvas.Top="190" Text="-i" Name="mYm1" />
+            <Line X1="0" X2="256" Y1="32" Y2="32" Stroke="Red" Name="mLineH1" />
+            <Line X1="0" X2="256" Y1="128" Y2="128" Stroke="Red" Name="mLineH2" />
+            <Line X1="0" X2="256" Y1="224" Y2="224" Stroke="Red" Name="mLineH3" />
+            <Line X1="32" X2="32" Y1="0" Y2="256" Stroke="Red" Name="mLineV1" />
+            <Line X1="128" X2="128" Y1="0" Y2="256" Stroke="Red" Name="mLineV2" />
+            <Line X1="224" X2="224" Y1="0" Y2="256" Stroke="Red" Name="mLineV3" />
+            <TextBlock Canvas.Left="18" Canvas.Top="128" Text="-1" Name="mXm1" Foreground="Red" />
+            <TextBlock Canvas.Left="118" Canvas.Top="128" Text="0" Name="mZero" Foreground="Red" />
+            <TextBlock Canvas.Left="222" Canvas.Top="128" Text="+1" Name="mXp1" Foreground="Red" />
+            <TextBlock Canvas.Left="114" Canvas.Top="18" Text="+i" Name="mYp1" Foreground="Red" />
+            <TextBlock Canvas.Left="118" Canvas.Top="222" Text="-i" Name="mYm1" Foreground="Red" />
         </Canvas>
         <TextBlock HorizontalAlignment="Right" Name="textBlockRe" Text="→Re" VerticalAlignment="Center" />
         <TextBlock HorizontalAlignment="Center" Name="textBlockIm" Text="Im↑" VerticalAlignment="Top"  />
@@ -32,7 +32,7 @@
         <Label Content="0°" Grid.Row="2" HorizontalAlignment="Left" Name="label0" VerticalAlignment="Top" Margin="6,0,0,0" />
         <Label Content="180°" Grid.Row="2" Margin="134,0,0,0" HorizontalAlignment="Left" Name="label180" VerticalAlignment="Top" />
         <Label Content="360°" Grid.Row="2" Margin="256,0,0,0" HorizontalAlignment="Left" Name="label360" VerticalAlignment="Top" Width="38" />
-        <Ellipse Name="unitCircle" Width="128" Height="128" Stroke="Black" />
+        <Ellipse Name="unitCircle" Width="192" Height="192" Stroke="Red" />
         <ComboBox Grid.Row="3" HorizontalAlignment="Left" Margin="6,0,0,0" Name="comboBoxGradationType" VerticalAlignment="Center" Width="200" SelectionChanged="comboBoxGradationType_SelectionChanged">
             <ComboBoxItem Content="Show Magnitude" Name="comboBoxItemMagnitude" IsSelected="True" />
             <ComboBoxItem Content="Show Phase" Name="comboBoxItemPhase" />
