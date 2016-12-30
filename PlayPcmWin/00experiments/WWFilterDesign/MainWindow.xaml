@@ -3,118 +3,122 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:wwuc="clr-namespace:WWUserControls;assembly=WWUserControls"
         Title="WWFilterDesign" Height="950" Width="1600" Loaded="Window_Loaded">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="1*" />
-            <RowDefinition Height="140" />
-        </Grid.RowDefinitions>
-        <GroupBox Grid.Row="1" Header="Log" Name="groupBoxLog" >
-            <Grid>
-                <TextBox AcceptsReturn="True" Name="mTextBoxLog" VerticalScrollBarVisibility="Auto" IsReadOnly="True" TextWrapping="Wrap" />
-            </Grid>
-        </GroupBox>
+    <Grid >
+        <TextBlock Name="mTextBlockCalculating" Text="Calculating..." FontSize="72" HorizontalAlignment="Center" VerticalAlignment="Center" Panel.ZIndex="100" />
 
-        <ScrollViewer>
-            <WrapPanel>
-                <GroupBox Header="Analog Filter Specification" Height="209" Name="groupBoxSpecification" >
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="200" />
-                            <ColumnDefinition Width="1*" />
-                        </Grid.ColumnDefinitions>
-                        <Canvas>
-                            <TextBlock Text="G0" Margin="5,20,0,0" />
-                            <TextBlock Text="Gc" Margin="5,40,0,0" />
-                            <TextBlock Text="Gs" Margin="5,110,0,0" />
-                            <TextBlock Text="0" Margin="15,140,0,0" />
-                            <TextBlock Text="Fc" Margin="80,150,0,0" />
-                            <TextBlock Text="Fs" Margin="110,150,0,0" />
-                            <TextBlock Text="↑Gain" Margin="0,0,0,0" Name="textBlockGain" />
-                            <TextBlock Text="Frequency" Margin="70,166,0,0" Name="textblockFrequency" />
-                            <Line X1="25" Y1="15" X2="25" Y2="150" Stroke="Black" />
-                            <Line X1="25" Y1="150" X2="180" Y2="150" Stroke="Black" />
+        <Grid Name="mMainPanel">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="140" />
+            </Grid.RowDefinitions>
+            <GroupBox Grid.Row="1" Header="Log" Name="groupBoxLog" >
+                <Grid>
+                    <TextBox AcceptsReturn="True" Name="mTextBoxLog" VerticalScrollBarVisibility="Auto" IsReadOnly="True" TextWrapping="Wrap" />
+                </Grid>
+            </GroupBox>
 
-                            <Line X1="25" Y1="30" X2="120" Y2="30" Stroke="Blue" />
-                            <Line X1="120" Y1="30" X2="120" Y2="120" Stroke="Blue" />
-                            <Line X1="120" Y1="120" X2="180" Y2="120" Stroke="Blue" />
+            <ScrollViewer>
+                <WrapPanel>
+                    <GroupBox Header="Analog Filter Specification" Height="209" Name="groupBoxSpecification" >
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200" />
+                                <ColumnDefinition Width="1*" />
+                            </Grid.ColumnDefinitions>
+                            <Canvas>
+                                <TextBlock Text="G0" Margin="5,20,0,0" />
+                                <TextBlock Text="Gc" Margin="5,40,0,0" />
+                                <TextBlock Text="Gs" Margin="5,110,0,0" />
+                                <TextBlock Text="0" Margin="15,140,0,0" />
+                                <TextBlock Text="Fc" Margin="80,150,0,0" />
+                                <TextBlock Text="Fs" Margin="110,150,0,0" />
+                                <TextBlock Text="↑Gain" Margin="0,0,0,0" Name="textBlockGain" />
+                                <TextBlock Text="Frequency" Margin="70,166,0,0" Name="textblockFrequency" />
+                                <Line X1="25" Y1="15" X2="25" Y2="150" Stroke="Black" />
+                                <Line X1="25" Y1="150" X2="180" Y2="150" Stroke="Black" />
 
-                            <Line X1="25" Y1="50" X2="90" Y2="50" Stroke="Blue" />
-                            <Line X1="90" Y1="50" X2="90" Y2="150" Stroke="Blue" />
-                        </Canvas>
-                        <StackPanel Grid.Column="1">
-                            <GroupBox Header="Filter Type" Name="groupBoxFilterType" Width="400" HorizontalAlignment="Left">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="1*" />
-                                        <RowDefinition Height="1*" />
-                                    </Grid.RowDefinitions>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="1*" />
-                                        <ColumnDefinition Width="1*" />
-                                        <ColumnDefinition Width="1*" />
-                                    </Grid.ColumnDefinitions>
-                                    <RadioButton Content="Butterworth" HorizontalAlignment="Left" Name="radioButtonFilterTypeButterworth" VerticalAlignment="Center" Margin="6,6,0,6" Checked="buttonUpdate_Click" />
-                                    <RadioButton Grid.Column="1" Content="Chebyshev" HorizontalAlignment="Left" Name="radioButtonFilterTypeChebyshev" VerticalAlignment="Center" Margin="6,6,0,6" Checked="buttonUpdate_Click" />
-                                    <RadioButton Grid.Column="2" Content="Pascal" HorizontalAlignment="Left" Name="radioButtonFilterTypePascal" VerticalAlignment="Center" Margin="6,6,0,6" Checked="buttonUpdate_Click" />
-                                    <RadioButton Grid.Row="1" Content="Inverse Chebyshev" HorizontalAlignment="Left" Name="radioButtonFilterTypeInverseChebyshev" VerticalAlignment="Center" Margin="6,6,0,6" Checked="buttonUpdate_Click" IsChecked="True" />
-                                </Grid>
-                            </GroupBox>
-                            <GroupBox Header="Design Parameters" Width="400" Name="groupBoxDesignParameters" HorizontalAlignment="Left">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="1*" />
-                                        <ColumnDefinition Width="2*" />
-                                        <ColumnDefinition Width="1*" />
-                                        <ColumnDefinition Width="1*" />
-                                        <ColumnDefinition Width="2*" />
-                                        <ColumnDefinition Width="1*" />
-                                        <ColumnDefinition Width="3*" />
-                                        <ColumnDefinition Width="2*" />
-                                        <ColumnDefinition Width="1*" />
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="1*" />
-                                        <RowDefinition Height="1*" />
-                                    </Grid.RowDefinitions>
-                                    <Label Content="G0:" HorizontalAlignment="Right" VerticalAlignment="Center" />
-                                    <TextBox Name="textBoxG0" Text="0" Margin="4" Grid.Column="1" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" IsReadOnly="True" />
-                                    <Label Content="dB" Grid.Column="2" VerticalAlignment="Center" />
-                                    <Label Content="Gc:" Grid.Row="0" Grid.Column="3" HorizontalAlignment="Right" VerticalAlignment="Center" />
-                                    <TextBox Name="textBoxGc" Text="-0.915" Margin="4" Grid.Column="4" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
-                                    <Label Content="dB" Grid.Row="0" Grid.Column="5" VerticalAlignment="Center" />
-                                    <Label Content="Gs:" Grid.Row="0" Grid.Column="6" HorizontalAlignment="Right" VerticalAlignment="Center" />
-                                    <TextBox Name="textBoxGs" Text="-30.45" Margin="4" Grid.Row="0" Grid.Column="7" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
-                                    <Label Content="dB" Grid.Row="0" Grid.Column="8" VerticalAlignment="Center" />
-                                    <Label Content="Fc:" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center" />
-                                    <TextBox Name="textBoxFc" Text="1000" Grid.Row="1" Grid.Column="1" Margin="4" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
-                                    <Label Content="Hz" Grid.Row="1" Grid.Column="2" VerticalAlignment="Center" Grid.ColumnSpan="4" Margin="0,4" />
-                                    <Label Content="Fs:" Grid.Column="3" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Center" />
-                                    <TextBox Name="textBoxFs" Text="1.5k" Margin="4" Grid.Row="1" Grid.Column="4" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
-                                    <Label Content="Hz" Grid.Row="1" Grid.Column="5" VerticalAlignment="Center" Margin="0,4" />
-                                    <Label Content="Optimization:" Grid.Column="6" Grid.Row="1" HorizontalAlignment="Right" Name="labelOptimization" VerticalAlignment="Center" />
-                                    <ComboBox Grid.Column="7" Grid.ColumnSpan="2" Grid.Row="1" HorizontalAlignment="Left" Name="comboBoxOptimization" VerticalAlignment="Center">
-                                        <ComboBoxItem Content="Stopband" Name="comboBoxItemβmax" IsSelected="True" />
-                                        <ComboBoxItem Content="Passband" Name="comboBoxItemβmin" />
-                                    </ComboBox>
-                                </Grid>
-                            </GroupBox>
-                            <Button Content="Update" Name="buttonUpdate" Width="75" Click="buttonUpdate_Click" HorizontalContentAlignment="Center" HorizontalAlignment="Left" />
-                        </StackPanel>
-                    </Grid>
-                </GroupBox>
-                <GroupBox Header="Analog Filter Circuit" Name="groupBoxAFC" >
-                    <wwuc:AnalogFilterCircuit x:Name="mAnalogFilterCircuit"  />
-                </GroupBox>
-                <GroupBox Header="Pole-Zero Plot" Name="groupBoxPoleZero" >
-                    <wwuc:PoleZeroPlot x:Name="mPoleZeroPlot"  />
-                </GroupBox>
-                <GroupBox Header="Frequency Response" Name="groupBoxFR">
-                    <wwuc:FrequencyResponse x:Name="mFrequencyResponse"  />
-                </GroupBox>
-                <GroupBox Header="Time Domain Plot" Name="groupBoxTD">
-                    <wwuc:TimeDomainPlot x:Name="mTimeDomainPlot"  />
-                </GroupBox>
-            </WrapPanel>
-        </ScrollViewer>
+                                <Line X1="25" Y1="30" X2="120" Y2="30" Stroke="Blue" />
+                                <Line X1="120" Y1="30" X2="120" Y2="120" Stroke="Blue" />
+                                <Line X1="120" Y1="120" X2="180" Y2="120" Stroke="Blue" />
+
+                                <Line X1="25" Y1="50" X2="90" Y2="50" Stroke="Blue" />
+                                <Line X1="90" Y1="50" X2="90" Y2="150" Stroke="Blue" />
+                            </Canvas>
+                            <StackPanel Grid.Column="1">
+                                <GroupBox Header="Filter Type" Name="groupBoxFilterType" Width="400" HorizontalAlignment="Left">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="1*" />
+                                            <RowDefinition Height="1*" />
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="1*" />
+                                            <ColumnDefinition Width="1*" />
+                                            <ColumnDefinition Width="1*" />
+                                        </Grid.ColumnDefinitions>
+                                        <RadioButton Content="Butterworth" HorizontalAlignment="Left" Name="radioButtonFilterTypeButterworth" VerticalAlignment="Center" Margin="6,6,0,6" Checked="buttonUpdate_Click" />
+                                        <RadioButton Grid.Column="1" Content="Chebyshev" HorizontalAlignment="Left" Name="radioButtonFilterTypeChebyshev" VerticalAlignment="Center" Margin="6,6,0,6" Checked="buttonUpdate_Click" />
+                                        <RadioButton Grid.Column="2" Content="Pascal" HorizontalAlignment="Left" Name="radioButtonFilterTypePascal" VerticalAlignment="Center" Margin="6,6,0,6" Checked="buttonUpdate_Click" />
+                                        <RadioButton Grid.Row="1" Content="Inverse Chebyshev" HorizontalAlignment="Left" Name="radioButtonFilterTypeInverseChebyshev" VerticalAlignment="Center" Margin="6,6,0,6" Checked="buttonUpdate_Click" IsChecked="True" />
+                                    </Grid>
+                                </GroupBox>
+                                <GroupBox Header="Design Parameters" Width="400" Name="groupBoxDesignParameters" HorizontalAlignment="Left">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="1*" />
+                                            <ColumnDefinition Width="2*" />
+                                            <ColumnDefinition Width="1*" />
+                                            <ColumnDefinition Width="1*" />
+                                            <ColumnDefinition Width="2*" />
+                                            <ColumnDefinition Width="1*" />
+                                            <ColumnDefinition Width="3*" />
+                                            <ColumnDefinition Width="2*" />
+                                            <ColumnDefinition Width="1*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="1*" />
+                                            <RowDefinition Height="1*" />
+                                        </Grid.RowDefinitions>
+                                        <Label Content="G0:" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                        <TextBox Name="textBoxG0" Text="0" Margin="4" Grid.Column="1" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" IsReadOnly="True" />
+                                        <Label Content="dB" Grid.Column="2" VerticalAlignment="Center" />
+                                        <Label Content="Gc:" Grid.Row="0" Grid.Column="3" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                        <TextBox Name="textBoxGc" Text="-0.915" Margin="4" Grid.Column="4" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                                        <Label Content="dB" Grid.Row="0" Grid.Column="5" VerticalAlignment="Center" />
+                                        <Label Content="Gs:" Grid.Row="0" Grid.Column="6" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                        <TextBox Name="textBoxGs" Text="-30.45" Margin="4" Grid.Row="0" Grid.Column="7" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                                        <Label Content="dB" Grid.Row="0" Grid.Column="8" VerticalAlignment="Center" />
+                                        <Label Content="Fc:" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                        <TextBox Name="textBoxFc" Text="1000" Grid.Row="1" Grid.Column="1" Margin="4" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                                        <Label Content="Hz" Grid.Row="1" Grid.Column="2" VerticalAlignment="Center" Grid.ColumnSpan="4" Margin="0,4" />
+                                        <Label Content="Fs:" Grid.Column="3" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                        <TextBox Name="textBoxFs" Text="1.5k" Margin="4" Grid.Row="1" Grid.Column="4" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                                        <Label Content="Hz" Grid.Row="1" Grid.Column="5" VerticalAlignment="Center" Margin="0,4" />
+                                        <Label Content="Optimization:" Grid.Column="6" Grid.Row="1" HorizontalAlignment="Right" Name="labelOptimization" VerticalAlignment="Center" />
+                                        <ComboBox Grid.Column="7" Grid.ColumnSpan="2" Grid.Row="1" HorizontalAlignment="Left" Name="comboBoxOptimization" VerticalAlignment="Center">
+                                            <ComboBoxItem Content="Stopband" Name="comboBoxItemβmax" IsSelected="True" />
+                                            <ComboBoxItem Content="Passband" Name="comboBoxItemβmin" />
+                                        </ComboBox>
+                                    </Grid>
+                                </GroupBox>
+                                <Button Content="Update" Name="buttonUpdate" Width="75" Click="buttonUpdate_Click" HorizontalContentAlignment="Center" HorizontalAlignment="Left" />
+                            </StackPanel>
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox Header="Analog Filter Circuit" Name="groupBoxAFC" >
+                        <wwuc:AnalogFilterCircuit x:Name="mAnalogFilterCircuit"  />
+                    </GroupBox>
+                    <GroupBox Header="Pole-Zero Plot" Name="groupBoxPoleZero" >
+                        <wwuc:PoleZeroPlot x:Name="mPoleZeroPlot"  />
+                    </GroupBox>
+                    <GroupBox Header="Frequency Response" Name="groupBoxFR">
+                        <wwuc:FrequencyResponse x:Name="mFrequencyResponse"  />
+                    </GroupBox>
+                    <GroupBox Header="Time Domain Plot" Name="groupBoxTD">
+                        <wwuc:TimeDomainPlot x:Name="mTimeDomainPlot"  />
+                    </GroupBox>
+                </WrapPanel>
+            </ScrollViewer>
+        </Grid>
     </Grid>
 </Window>

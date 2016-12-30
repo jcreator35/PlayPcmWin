@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.ComponentModel;
 
 namespace WWAudioFilter {
     /// <summary>
@@ -34,13 +35,6 @@ namespace WWAudioFilter {
 
             comboBoxItemβmax.Content = Properties.Resources.Stopband;
             comboBoxItemβmin.Content = Properties.Resources.Passband;
-        }
-
-        private void Window_Loaded(object sender, RoutedEventArgs e) {
-            WWMath.WWPolynomial.Test();
-            ChebyshevDesign.Test();
-
-            Update();
         }
 
         private void buttonUpdate_Click(object sender, RoutedEventArgs e) {
@@ -145,31 +139,41 @@ namespace WWAudioFilter {
             return true;
         }
 
-        private void Update() {
-            if (!mInitialized) {
-                return;
-            }
+        private AnalogFilterDesign mAfd;
+
+        class BackgroundCalcResult {
+            public string message;
+            public bool success;
+        };
+
+        BackgroundWorker mBw = new BackgroundWorker();
+
+        private void Window_Loaded(object sender, RoutedEventArgs e) {
+            WWMath.WWPolynomial.Test();
+            ChebyshevDesign.Test();
+
+            mBw.DoWork += new DoWorkEventHandler(CalcFilter);
+            mBw.RunWorkerCompleted += new RunWorkerCompletedEventHandler(CalcFilterCompleted);
+            Update();
+        }
+
+        void CalcFilterCompleted(object sender, RunWorkerCompletedEventArgs e) {
+            mMainPanel.IsEnabled = true;
+            mTextBlockCalculating.Visibility = System.Windows.Visibility.Collapsed;
             mTextBoxLog.Clear();
-            if (!GetParametersFromUI()) {
+            
+            var r = e.Result as BackgroundCalcResult;
+            if (!r.success) {
+                MessageBox.Show(r.message);
                 return;
             }
 
-            var afd = new AnalogFilterDesign();
-            try {
-                afd.DesignLowpass(mG0, mGc, mGs, mFc, mFs, mFilterType, mBetaType);
-            } catch (System.ArgumentOutOfRangeException ex) {
-                MessageBox.Show(string.Format("Design failed! {0}", ex));
-                return;
-            }
-
-            mTextBoxLog.Clear();
-            AddLog(string.Format("Order={0}\n", afd.Order()));
-
+            AddLog(string.Format("Order={0}\n", mAfd.Order()));
             // 伝達関数の式をログに出力。
             AddLog(string.Format("Transfer function H(s) = "));
-            for (int i = 0; i < afd.RealPolynomialCount(); ++i) {
-                AddLog(string.Format("{0}", afd.RealPolynomialNth(i).ToString("s")));
-                if (i != afd.RealPolynomialCount() -1) {
+            for (int i = 0; i < mAfd.RealPolynomialCount(); ++i) {
+                AddLog(string.Format("{0}", mAfd.RealPolynomialNth(i).ToString("s")));
+                if (i != mAfd.RealPolynomialCount() - 1) {
                     AddLog(" + ");
                 }
             }
@@ -177,61 +181,94 @@ namespace WWAudioFilter {
 
             // インパルス応答の式をログに出力。
             AddLog(("Impulse Response (frequency normalized): h(t) = "));
-            for (int i = 0; i < afd.HPfdCount(); ++i) {
-                var item = afd.HPfdNth(i);
+            for (int i = 0; i < mAfd.HPfdCount(); ++i) {
+                var item = mAfd.HPfdNth(i);
                 AddLog(string.Format("({0}) * e^ {{ -t * ({1}) }}", item.N(0), item.D(0)));
-                if (i != afd.HPfdCount() - 1) {
+                if (i != mAfd.HPfdCount() - 1) {
                     AddLog(" + ");
                 }
             }
             AddLog("\n");
 
             // 周波数応答グラフに伝達関数をセット。
-            mFrequencyResponse.TransferFunction = afd.TransferFunction;
+            mFrequencyResponse.TransferFunction = mAfd.TransferFunction;
             mFrequencyResponse.Update();
 
             // Pole-Zeroプロットに極と零の位置をセット。
             mPoleZeroPlot.ClearPoleZero();
 
-            double scale = afd.PoleNth(0).Magnitude();
-            if (0 < afd.NumOfZeroes() && scale < afd.ZeroNth(0).Magnitude()) {
-                scale = afd.ZeroNth(0).Magnitude();
+            double scale = mAfd.PoleNth(0).Magnitude();
+            if (0 < mAfd.NumOfZeroes() && scale < mAfd.ZeroNth(0).Magnitude()) {
+                scale = mAfd.ZeroNth(0).Magnitude();
             }
             mPoleZeroPlot.SetScale(scale);
-            for (int i = 0; i < afd.NumOfPoles(); ++i) {
-                var p = afd.PoleNth(i);
+            for (int i = 0; i < mAfd.NumOfPoles(); ++i) {
+                var p = mAfd.PoleNth(i);
                 mPoleZeroPlot.AddPole(p);
             }
-            for (int i = 0; i < afd.NumOfZeroes(); ++i) {
-                var p = afd.ZeroNth(i);
+            for (int i = 0; i < mAfd.NumOfZeroes(); ++i) {
+                var p = mAfd.ZeroNth(i);
                 mPoleZeroPlot.AddZero(p);
             }
-            mPoleZeroPlot.TransferFunction = afd.PoleZeroPlotTransferFunction;
+            mPoleZeroPlot.TransferFunction = mAfd.PoleZeroPlotTransferFunction;
             mPoleZeroPlot.Update();
 
             // 時間ドメインプロットの更新。
-            mTimeDomainPlot.ImpulseResponseFunction = afd.ImpulseResponseFunction;
-            mTimeDomainPlot.StepResponseFunction = afd.UnitStepResponseFunction;
-            mTimeDomainPlot.TimeScale = afd.TimeDomainFunctionTimeScale;
+            mTimeDomainPlot.ImpulseResponseFunction = mAfd.ImpulseResponseFunction;
+            mTimeDomainPlot.StepResponseFunction = mAfd.UnitStepResponseFunction;
+            mTimeDomainPlot.TimeScale = mAfd.TimeDomainFunctionTimeScale;
             mTimeDomainPlot.Update();
 
             // アナログ回路表示。
-            AddLog(string.Format("Analog Filter Stages = {0}\n", afd.RealPolynomialCount()));
+            AddLog(string.Format("Analog Filter Stages = {0}\n", mAfd.RealPolynomialCount()));
 
             mAnalogFilterCircuit.Clear();
 
-            if (0 < afd.NumOfZeroes()) {
+            if (0 < mAfd.NumOfZeroes()) {
                 // 零を含む回路の表示は未実装。
                 groupBoxAFC.Visibility = System.Windows.Visibility.Collapsed;
             } else {
                 groupBoxAFC.Visibility = System.Windows.Visibility.Visible;
                 mAnalogFilterCircuit.CutoffFrequencyHz = mFc;
-                for (int i = 0; i < afd.RealPolynomialCount(); ++i) {
-                    mAnalogFilterCircuit.Add(afd.RealPolynomialNth(i));
+                for (int i = 0; i < mAfd.RealPolynomialCount(); ++i) {
+                    mAnalogFilterCircuit.Add(mAfd.RealPolynomialNth(i));
                 }
                 mAnalogFilterCircuit.AddFinished();
                 mAnalogFilterCircuit.Update();
             }
+        }
+
+        void CalcFilter(object sender, DoWorkEventArgs e) {
+            var r = new BackgroundCalcResult();
+            e.Result = r;
+
+            r.success = false;
+            r.message = "unknown error";
+
+            mAfd = new AnalogFilterDesign();
+            try {
+                mAfd.DesignLowpass(mG0, mGc, mGs, mFc, mFs, mFilterType, mBetaType);
+                r.success = true;
+            } catch (System.ArgumentOutOfRangeException ex) {
+                r.message = string.Format("Design failed! {0}", ex);
+                return;
+            } catch (System.Exception ex) {
+                r.message = string.Format("BUG: should be fixed! {0}", ex);
+                return;
+            }
+        }
+
+        private void Update() {
+            if (!mInitialized) {
+                return;
+            }
+            if (!GetParametersFromUI()) {
+                return;
+            }
+
+            mMainPanel.IsEnabled = false;
+            mTextBlockCalculating.Visibility = System.Windows.Visibility.Visible;
+            mBw.RunWorkerAsync();
         }
 
     }

@@ -546,7 +546,7 @@ namespace WWUserControls {
                         if (DISP_MAG_THRESHOLD < frMagnitude[i]) {
                             double phaseDiff = frPhase[i] - frPhase[i - 1];
                             double groupDelay = -phaseDiff / (frω[i] - frω[i - 1]);
-                            Console.WriteLine("{0} {1}", i, groupDelay);
+                            //Console.WriteLine("{0} {1}", i, groupDelay);
 
                             posG = new Point(FR_LINE_LEFT + i, FR_LINE_BOTTOM - FR_LINE_HEIGHT * groupDelay / maxGroupDelay);
 
