@@ -99,6 +99,10 @@
                     <ComboBoxItem Content="24 dB" />
                     <ComboBoxItem Content="48 dB" />
                     <ComboBoxItem Content="96 dB" IsSelected="True"/>
+                    <ComboBoxItem Content="120 dB" />
+                    <ComboBoxItem Content="140 dB" />
+                    <ComboBoxItem Content="160 dB" />
+                    <ComboBoxItem Content="180 dB" />
                 </ComboBox>
                 <CheckBox Content="Show Magnitude" Grid.Row="2" HorizontalAlignment="Left" Margin="12,0,0,0" Name="checkBoxShowGain" VerticalAlignment="Center" Checked="checkBoxShowGain_Changed" Unchecked="checkBoxShowGain_Changed" IsChecked="True" />
                 <CheckBox Content="Show Phase" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" Margin="12,0,0,0" Name="checkBoxShowPhase" VerticalAlignment="Center" Checked="checkBoxShowPhase_Changed" Unchecked="checkBoxShowPhase_Changed" IsChecked="True" />
