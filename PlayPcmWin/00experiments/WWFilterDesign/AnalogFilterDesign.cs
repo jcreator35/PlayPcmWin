@@ -76,7 +76,8 @@ namespace WWAudioFilter {
             Butterworth,
             Chebyshev,
             Pascal,
-            InverseChebyshev
+            InverseChebyshev,
+            Cauer
         };
 
         private static WWComplex InverseLaplaceTransformOne(FirstOrderRationalPolynomial p, double t) {
@@ -190,6 +191,9 @@ namespace WWAudioFilter {
                 break;
             case FilterType.InverseChebyshev:
                 filter = new InverseChebyshevDesign(h0, hc, hs, ωc, ωs, betaType);
+                break;
+            case FilterType.Cauer:
+                filter = new CauerDesign(h0, hc, hs, ωc, ωs, betaType);
                 break;
             default:
                 throw new NotImplementedException();

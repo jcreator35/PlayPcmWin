@@ -60,6 +60,7 @@
                                         <RadioButton Grid.Column="1" Content="Chebyshev" HorizontalAlignment="Left" Name="radioButtonFilterTypeChebyshev" VerticalAlignment="Center" Margin="6,6,0,6" Checked="buttonUpdate_Click" />
                                         <RadioButton Grid.Column="2" Content="Pascal" HorizontalAlignment="Left" Name="radioButtonFilterTypePascal" VerticalAlignment="Center" Margin="6,6,0,6" Checked="buttonUpdate_Click" />
                                         <RadioButton Grid.Row="1" Content="Inverse Chebyshev" HorizontalAlignment="Left" Name="radioButtonFilterTypeInverseChebyshev" VerticalAlignment="Center" Margin="6,6,0,6" Checked="buttonUpdate_Click" />
+                                        <RadioButton Grid.Row="1" Grid.Column="1" Content="Cauer Elliptic" HorizontalAlignment="Left" Name="radioButtonFilterTypeCauer" VerticalAlignment="Center" Margin="6,6,0,6" Checked="buttonUpdate_Click" />
                                     </Grid>
                                 </GroupBox>
                                 <GroupBox Header="Design Parameters" Width="400" Name="groupBoxDesignParameters" HorizontalAlignment="Left">

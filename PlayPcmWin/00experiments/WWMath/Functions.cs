@@ -31,22 +31,24 @@ namespace WWMath {
 
         /// <summary>
         /// Arithmetic Geometric Mean
-        /// H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.170.
+        /// H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. 
+        /// pp.170
         /// </summary>
         public static double AGM(double x, double y) {
-            if (Math.Abs(x) < double.Epsilon && Math.Abs(y) < double.Epsilon) {
-                return x;
+
+            while (1e-10 < Math.Abs(x - y)/x) {
+                if (Math.Abs(x - y) < float.Epsilon) {
+                    return x;
+                }
+
+                double am = (x + y) / 2;
+                double gm = Math.Sqrt(x * y);
+
+                x = am;
+                y = gm;
             }
 
-            double am = (x+y)/2;
-            double gm = Math.Sqrt(x*y);
-
-            double diff = Math.Abs(am-gm)/x;
-            if (diff < double.Epsilon) {
-                return x;
-            }
-
-            return AGM(am, gm);
+            return x;
         }
 
         /// <summary>
@@ -68,7 +70,8 @@ namespace WWMath {
         /// H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.170.
         /// </summary>
         public static double JacobiNomeQ(double x) {
-            return Math.Exp(-Math.PI * AGM(1.0, Math.Sqrt(1.0 - x * x)) / AGM(1.0, x));
+            // Equation 4.6
+            return Math.Exp(LnJacobiNomeQ(x));
         }
 
         /// <summary>
@@ -77,6 +80,7 @@ namespace WWMath {
         /// <param name="x"></param>
         /// <returns></returns>
         public static double LnJacobiNomeQ(double x) {
+            // Equation 4.7
             return -Math.PI * AGM(1.0, Math.Sqrt(1.0 - x * x)) / AGM(1.0, x);
         }
 

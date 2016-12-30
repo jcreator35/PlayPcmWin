@@ -88,6 +88,15 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cauer Elliptic.
+        /// </summary>
+        internal static string CauerElliptic {
+            get {
+                return ResourceManager.GetString("CauerElliptic", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Chebyshev.
         /// </summary>
         internal static string Chebyshev {

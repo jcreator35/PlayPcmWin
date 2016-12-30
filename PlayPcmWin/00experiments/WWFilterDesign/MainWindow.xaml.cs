@@ -30,6 +30,7 @@ namespace WWAudioFilter {
             radioButtonFilterTypeChebyshev.Content = Properties.Resources.Chebyshev;
             radioButtonFilterTypePascal.Content = Properties.Resources.Pascal;
             radioButtonFilterTypeInverseChebyshev.Content = Properties.Resources.InverseChebyshev;
+            radioButtonFilterTypeCauer.Content = Properties.Resources.CauerElliptic;
             labelOptimization.Content = Properties.Resources.Optimization + ":";
             buttonUpdate.Content = Properties.Resources.Update;
 
@@ -135,7 +136,9 @@ namespace WWAudioFilter {
             if (radioButtonFilterTypeInverseChebyshev.IsChecked == true) {
                 mFilterType = AnalogFilterDesign.FilterType.InverseChebyshev;
             }
-
+            if (radioButtonFilterTypeCauer.IsChecked == true) {
+                mFilterType = AnalogFilterDesign.FilterType.Cauer;
+            }
             return true;
         }
 

@@ -126,6 +126,9 @@
   <data name="Butterworth" xml:space="preserve">
     <value>バターワース</value>
   </data>
+  <data name="CauerElliptic" xml:space="preserve">
+    <value>Cauer 楕円</value>
+  </data>
   <data name="Chebyshev" xml:space="preserve">
     <value>チェビシェフ</value>
   </data>

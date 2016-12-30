@@ -126,6 +126,9 @@
   <data name="Butterworth" xml:space="preserve">
     <value>Butterworth</value>
   </data>
+  <data name="CauerElliptic" xml:space="preserve">
+    <value>Cauer Elliptic</value>
+  </data>
   <data name="Chebyshev" xml:space="preserve">
     <value>Chebyshev</value>
   </data>
