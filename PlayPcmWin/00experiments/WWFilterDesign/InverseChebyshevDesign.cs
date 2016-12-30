@@ -62,7 +62,6 @@ namespace WWAudioFilter {
 
         public override WWComplex ZeroNth(int nth) {
             // 絶対値の大きいほうから並べる。
-
             int k;
             if (nth < (mN/2)) {
                 k = (mN/2 - 1) - nth;
@@ -70,9 +69,12 @@ namespace WWAudioFilter {
                 k = nth - mN / 2;
             }
 
-            double ρk = Math.Cos((2.0*k+1)*Math.PI/2.0/mN);
+            // H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.112.
+            // Equation 3.30
+            double ρk = Math.Cos((2.0 * k + 1) * Math.PI / 2.0 / mN);
             double Ωzk = mΩs / ρk;
             if ((mN / 2) <= nth) {
+                // s^2 + Ωzk^2 == 0 has two roots: s=Ωzki and s=-Ωzki
                 Ωzk = -Ωzk;
             }
             return new WWComplex(0,Ωzk);
