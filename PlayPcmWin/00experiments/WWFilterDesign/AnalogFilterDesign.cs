@@ -79,38 +79,64 @@ namespace WWAudioFilter {
             InverseChebyshev
         };
 
+        private static WWComplex InverseLaplaceTransformOne(FirstOrderRationalPolynomial p, double t) {
+            if (p.D(1).EqualValue(WWComplex.Zero())
+                    && p.D(0).EqualValue(WWComplex.Unity())) {
+                if (!p.N(1).EqualValue(WWComplex.Zero())) {
+                    throw new NotImplementedException();
+                }
+                // 1 → δ(t)
+                if (t == 0) {
+                    return p.N(0);
+                }
+                return WWComplex.Zero();
+            }
+
+            if (p.D(0).EqualValue(WWComplex.Zero())) {
+                // b/s → b*u(t)
+                return p.N(0);
+            }
+
+            // b/(s-a) → b * exp(a * t)
+            return WWComplex.Mul(p.N(0),
+                new WWComplex(Math.Exp(-t * p.D(0).real) * Math.Cos(-t * p.D(0).imaginary),
+                                Math.Exp(-t * p.D(0).real) * Math.Sin(-t * p.D(0).imaginary)));
+        }
+
         /// <summary>
         /// 伝達関数Hを逆ラプラス変換して時刻tのインパルス応答 h(t)を戻す。
         /// </summary>
-        private double InverseLaplaceTransformValue(List<FirstOrderRationalPolynomial> H, double t) {
+        private double InverseLaplaceTransformValue(List<FirstOrderRationalPolynomial> Hf, List<FirstOrderRationalPolynomial> Hi, double t) {
             if (t <= 0) {
                 return 0;
             }
 
-            WWComplex rv = new WWComplex(0, 0);
+            // 共役複素数のペアを作って足す。
+            WWComplex rvf = new WWComplex(0, 0);
+            if ((Hf.Count & 1) == 1) {
+                rvf.Add(InverseLaplaceTransformOne(Hf[Hf.Count/2], t));
+            }
+            if (2 <= Hf.Count) {
+                for (int i = 0; i < Hf.Count / 2; ++i) {
+                    var p0 = Hf[i];
+                    var p1 = Hf[Hf.Count - i - 1];
 
-            foreach (var item in H) {
-                if (item.D(1).EqualValue(WWComplex.Zero())
-                        && item.D(0).EqualValue(WWComplex.Unity())) {
-                    // 1 → δ(t)
-                    if (!item.N(1).EqualValue(WWComplex.Zero())) {
-                        throw new NotImplementedException();
-                    }
-                    if (t == 0) {
-                        rv.Add(item.N(0));
-                    }
-                } else if (item.D(0).EqualValue(WWComplex.Zero())) {
-                    // b/s → b*u(t)
-                    rv.Add(item.N(0));
-                } else {
-                    // b/(s-a) → b * exp(a * t)
-                    rv.Add(WWComplex.Mul(item.N(0),
-                        new WWComplex(Math.Exp(-t * item.D(0).real) * Math.Cos(-t * item.D(0).imaginary),
-                                      Math.Exp(-t * item.D(0).real) * Math.Sin(-t * item.D(0).imaginary))));
+                    var v0 = InverseLaplaceTransformOne(p0, t);
+                    var v1 = InverseLaplaceTransformOne(p1, t);
+                    var v = WWComplex.Add(v0, v1);
+
+                    //Console.WriteLine("{0} {1}", i, v);
+                    rvf.Add(v);
                 }
             }
 
-            return rv.real;
+            WWComplex rvi = new WWComplex(0, 0);
+            foreach (var p in Hi) {
+                var v = InverseLaplaceTransformOne(p, t);
+                rvi.Add(v);
+            }
+
+            return WWComplex.Add(rvf, rvi).real;
         }
 
         /// <summary>
@@ -218,16 +244,14 @@ namespace WWAudioFilter {
 
                 mH_PFD = FirstOrderRationalPolynomial.Add(H_fraction, H_integer);
 
-                var Hstep = FirstOrderRationalPolynomial.Add(
-                    WWPolynomial.PartialFractionDecomposition(H_s.numerCoeffList, stepResponseTFRoots),
-                    H_integer);
+                var Hstep_fraction = WWPolynomial.PartialFractionDecomposition(H_s.numerCoeffList, stepResponseTFRoots);
 
                 ImpulseResponseFunction = (double t) => {
-                    return InverseLaplaceTransformValue(mH_PFD, t);
+                    return InverseLaplaceTransformValue(H_fraction, H_integer, t);
                 };
 
                 UnitStepResponseFunction = (double t) => {
-                    return InverseLaplaceTransformValue(Hstep, t);
+                    return InverseLaplaceTransformValue(Hstep_fraction, H_integer, t);
                 };
 
                 TimeDomainFunctionTimeScale = 1.0 / filter.CutoffFrequencyHz();
@@ -252,12 +276,10 @@ namespace WWAudioFilter {
                     }
                 }
 
-                {   // 零。
-                    System.Diagnostics.Debug.Assert((H_integer.Count & 1) == 0);
-                    int center = H_integer.Count() / 2;
-                    for (int i = 0; i < H_integer.Count() / 2; ++i) {
-                        mRealPolynomialList.Add(WWPolynomial.Mul(
-                            H_integer[center - i - 1], H_integer[center + i]));
+                {   // integral polynomialは全て実数係数の多項式。単に足す。
+                    System.Diagnostics.Debug.Assert(H_integer.Count <= 1);
+                    foreach (var p in H_integer) {
+                        mRealPolynomialList.Add(p);
                     }
                 }
 

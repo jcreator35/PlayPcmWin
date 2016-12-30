@@ -41,15 +41,22 @@
         <GroupBox Grid.Row="1" Header="Settings" Name="groupBoxSettings" >
             <Grid>
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*" />
                     <ColumnDefinition Width="1*" />
                     <ColumnDefinition Width="1*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
-                <ComboBox Margin="12,0,12,0" Name="comboBoxFunction" VerticalAlignment="Center" SelectionChanged="comboBoxFunction_SelectionChanged">
+                <ComboBox Margin="12,0,12,0" Name="comboBoxFunction" VerticalAlignment="Center" SelectionChanged="comboBox_SelectionChanged">
                     <ComboBoxItem Content="Show Impulse Response" IsSelected="True" />
                     <ComboBoxItem Content="Show Step Response" />
+                </ComboBox>
+                <Label Content="Time scale:" Grid.Column="1" HorizontalAlignment="Right" Name="labelTimeScale" VerticalAlignment="Center" />
+                <ComboBox Grid.Column="2" HorizontalAlignment="Left" Name="comboBoxTimeScale" VerticalAlignment="Center" Width="120" SelectionChanged="comboBox_SelectionChanged">
+                    <ComboBoxItem Content="1x" IsSelected="True" />
+                    <ComboBoxItem Content="2x" />
+                    <ComboBoxItem Content="5x" />
                 </ComboBox>
             </Grid>
         </GroupBox>

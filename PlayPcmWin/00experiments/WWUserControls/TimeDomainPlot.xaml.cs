@@ -24,6 +24,11 @@ namespace WWUserControls {
             Update();
         }
 
+        private double[] mTimeScales = {
+            1.0,
+            2.0,
+            5.0};
+
         private const int FR_LINE_LEFT = 64;
         private const int FR_LINE_HEIGHT = 256;
         private const int FR_LINE_WIDTH = 500;
@@ -70,6 +75,10 @@ namespace WWUserControls {
             if (!mInitialized) {
                 return;
             }
+
+            double scale = mTimeScales[comboBoxTimeScale.SelectedIndex];
+            TimeScale = 0.01 * scale;
+            TimeRange = 20.0 * scale;
 
             foreach (var item in mLineList) {
                 canvasTD.Children.Remove(item);
@@ -163,7 +172,7 @@ namespace WWUserControls {
 
         }
 
-        private void comboBoxFunction_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+        private void comboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) {
             Update();
         }
 
