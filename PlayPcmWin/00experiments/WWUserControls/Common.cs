@@ -28,9 +28,14 @@ namespace WWUserControls {
             if (absn < 1) {
                 return string.Format("{0:0}m", n * 1000.0);
             }
-
+            if (absn < 10) {
+                return string.Format("{0:0.00}", n);
+            }
+            if (absn < 100) {
+                return string.Format("{0:0.0}", n);
+            }
             if (absn < 1000) {
-                return string.Format("{0}", n);
+                return string.Format("{0:0}", n);
             }
             if (absn < 1000 * 10) {
                 return string.Format("{0:0.0}k", n / 1000);

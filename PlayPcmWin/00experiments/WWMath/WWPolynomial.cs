@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace WWMath {
     public class WWPolynomial {
         /// <summary>
         /// 1次有理多項式 x 1次有理多項式
         /// </summary>
-        public static SecondOrderRationalPolynomial Mul(FirstOrderRationalPolynomial lhs, FirstOrderRationalPolynomial rhs) {
+        public static SecondOrderRationalPolynomial
+        Mul(FirstOrderRationalPolynomial lhs, FirstOrderRationalPolynomial rhs) {
             // 分子の項 x 分子の項
             var n2 = WWComplex.Mul(lhs.N(1), rhs.N(1));
             var n1 = WWComplex.Add(WWComplex.Mul(lhs.N(1), rhs.N(0)),
@@ -25,7 +27,8 @@ namespace WWMath {
         /// <summary>
         /// 多項式の係数のリスト(変数x)を受け取ってx倍して戻す。引数のcoeffListの内容は変更しない。
         /// </summary>
-        public static List<WWComplex> MultiplyX(List<WWComplex> coeffList) {
+        public static List<WWComplex>
+        MultiplyX(List<WWComplex> coeffList) {
             var rv = new List<WWComplex>();
             rv.Add(new WWComplex(0,0));
             for (int i = 0; i < coeffList.Count; ++i) {
@@ -37,7 +40,8 @@ namespace WWMath {
         /// <summary>
         /// 多項式の係数のリストを受け取り、全体をc倍して戻す。引数のcoeffListの内容は変更しない。
         /// </summary>
-        public static List<WWComplex> MultiplyC(List<WWComplex> coeffList, WWComplex c) {
+        public static List<WWComplex>
+        MultiplyC(List<WWComplex> coeffList, WWComplex c) {
             var rv = new List<WWComplex>();
             for (int i = 0; i < coeffList.Count;++i) {
                 rv.Add(new WWComplex(coeffList[i]).Mul(c));
@@ -50,7 +54,8 @@ namespace WWMath {
         /// </summary>
         /// <param name="coeffList">多項式の係数のリスト。coeffList[0]:定数項、coeffList[1]:1次の項。</param>
         /// <param name="n">次数。0=定数のみ。1==定数と1次の項。</param>
-        private static List<WWComplex> TrimPolynomialOrder(List<WWComplex> coeffList, int n) {
+        private static List<WWComplex>
+        TrimPolynomialOrder(List<WWComplex> coeffList, int n) {
             var rv = new List<WWComplex>();
             for (int i = 0; i <= n; ++i) {
                 if (coeffList.Count <= i) {
@@ -67,7 +72,8 @@ namespace WWMath {
         /// <summary>
         /// 最高次の項が0のとき削除して次数を減らす。
         /// </summary>
-        private static List<WWComplex> ReduceOrder(List<WWComplex> coeffList) {
+        private static List<WWComplex>
+        ReduceOrder(List<WWComplex> coeffList) {
             var rv = new List<WWComplex>();
             for (int i = 0; i < coeffList.Count; ++i) {
                 rv.Add(new WWComplex(coeffList[i]));
@@ -90,7 +96,8 @@ namespace WWMath {
         /// <param name="lhs">多項式の係数のリストl</param>
         /// <param name="rhs">多項式の係数のリストr</param>
         /// <returns>l+r</returns>
-        public static List<WWComplex> Add(List<WWComplex> lhs, List<WWComplex> rhs) {
+        public static List<WWComplex>
+        Add(List<WWComplex> lhs, List<WWComplex> rhs) {
             var rv = new List<WWComplex>();
             int orderPlus1 = lhs.Count;
             if (orderPlus1 < rhs.Count) {
@@ -124,16 +131,17 @@ namespace WWMath {
         /// <param name="rootList">多項式の根のリスト</param>
         /// <param name="constantMultiplier">定数倍のパラメーター()例参照</param>
         /// <returns></returns>
-        public static List<WWComplex> RootListToCoeffList(List<WWComplex> b, WWComplex c) {
+        public static List<WWComplex>
+        RootListToCoeffList(List<WWComplex> b, WWComplex c) {
             var b2 = new List<WWComplex>();
             foreach (var i in b) {
-                b2.Add(i);
+                b2.Add(new WWComplex(i));
             }
 
             // (x-b[0])
             var coeff = new List<WWComplex>();
             coeff.Add(new WWComplex(b2[0]).Mul(-1));
-            coeff.Add(new WWComplex(1, 0));
+            coeff.Add(WWComplex.Unity());
 
             b2.RemoveAt(0);
 
@@ -166,7 +174,12 @@ namespace WWMath {
                         } else {
                             Console.Write(" + ");
                         }
-                        Console.Write("{0}*({1}^{2})", coeffList[i], x, i);
+
+                        if (i == 0) {
+                            Console.Write("{0}", coeffList[i]);
+                        } else {
+                            Console.Write("{0}*({1}^{2})", coeffList[i], x, i);
+                        }
                     }
                     if (!bFirst) {
                         Console.Write(" + ");
@@ -186,7 +199,11 @@ namespace WWMath {
                         } else {
                             Console.Write(" + ");
                         }
-                        Console.Write("{0}*({1}^{2})", numerCoeffList[i], x, i);
+                        if (i == 0) {
+                            Console.Write("{0}", numerCoeffList[i]);
+                        } else {
+                            Console.Write("{0}*({1}^{2})", numerCoeffList[i], x, i);
+                        }
                     }
                 }
 
@@ -199,7 +216,7 @@ namespace WWMath {
                             continue;
                         }
 
-                        Console.Write("({0}-({1}))", x, denomRootList[i]);
+                        Console.Write("({0}+({1}))", x, WWComplex.Minus(denomRootList[i]));
                     }
                 }
                 Console.WriteLine(" }");
@@ -266,15 +283,16 @@ namespace WWMath {
         ///
         ///             ... + nCoeffs[2]s^2 + nCoeffs[1]s + nCoeffs[0]
         /// F(s) = ----------------------------------------------------------
-        ///          (s-dRoots[0])(s-dRoots[1])(s-dRoots[3])…(s-dRoots[p-1])
+        ///          (s-denomR[0])(s-denomR[1])(s-denomR[3])…(s-denomR[p-1])
         ///          
         /// 戻り値は、多項式を部分分数分解した結果の、1次有理多項式のp個のリスト。
         /// 
         ///             c[0]            c[1]            c[2]             c[p-1]
         /// F(s) = ------------- + ------------- + ------------- + … + ---------------------
-        ///         s-dRoots[0]     s-dRoots[1]     s-dRoots[2]         s-dRoots[p-1]
+        ///         s-denomR[0]     s-denomR[1]     s-denomR[2]         s-denomR[p-1]
         /// </summary>
-        public static List<FirstOrderRationalPolynomial> PartialFractionDecomposition(
+        public static List<FirstOrderRationalPolynomial>
+        PartialFractionDecomposition(
                 List<WWComplex> nCoeffs, List<WWComplex> dRoots) {
             var result = new List<FirstOrderRationalPolynomial>();
 
@@ -284,7 +302,7 @@ namespace WWMath {
             }
 
             if (dRoots.Count < 2) {
-                throw new ArgumentException("dRoots");
+                throw new ArgumentException("denomR");
             }
             if (dRoots.Count < nCoeffs.Count) {
                 throw new ArgumentException("nCoeffs");
@@ -292,9 +310,9 @@ namespace WWMath {
 
             for (int k = 0; k < dRoots.Count; ++k) {
                 // cn = ... + nCoeffs[2]s^2 + nCoeffs[1]s + nCoeffs[0]
-                // 係数c[0]は、s==dRoots[0]としたときの、cn/(s-dRoots[1])(s-dRoots[2])(s-dRoots[3])…(s-dRoots[p-1])
-                // 係数c[1]は、s==dRoots[1]としたときの、cn/(s-dRoots[0])(s-dRoots[2])(s-dRoots[3])…(s-dRoots[p-1])
-                // 係数c[2]は、s==dRoots[2]としたときの、cn/(s-dRoots[0])(s-dRoots[1])(s-dRoots[3])…(s-dRoots[p-1])
+                // 係数c[0]は、s==denomR[0]としたときの、cn/(s-denomR[1])(s-denomR[2])(s-denomR[3])…(s-denomR[p-1])
+                // 係数c[1]は、s==denomR[1]としたときの、cn/(s-denomR[0])(s-denomR[2])(s-denomR[3])…(s-denomR[p-1])
+                // 係数c[2]は、s==denomR[2]としたときの、cn/(s-denomR[0])(s-denomR[1])(s-denomR[3])…(s-denomR[p-1])
 
                 // 分子の値c。
                 var c = new WWComplex(0, 0);
@@ -312,13 +330,41 @@ namespace WWMath {
                     c.Div(WWComplex.Sub(dRoots[k], dRoots[i]));
                 }
 
-                result.Add(new FirstOrderRationalPolynomial(new WWComplex(0,0), c, new WWComplex(1,0), WWComplex.Minus(dRoots[k])));
+                result.Add(new FirstOrderRationalPolynomial(
+                    WWComplex.Zero(), c,
+                    WWComplex.Unity(), WWComplex.Minus(dRoots[k])));
             }
 
             return result;
         }
 
+        public static string CoeffListToString(List<WWComplex> c, string variableName) {
+            var sb = new StringBuilder();
+            bool bFirst = true;
+            for (int i = c.Count - 1; 0 <= i; --i) {
+                if (!c[i].AlmostZero()) {
+                    if (!bFirst) {
+                        sb.Append(" +");
+                    } else {
+                        bFirst = false;
+                    }
 
+                    if (i == 0) {
+                        sb.AppendFormat(" {0}", c[i]);
+                    } else if (i == 1) {
+                        sb.AppendFormat(" {0} * {1}", c[i], variableName);
+                    } else {
+                        sb.AppendFormat(" {0} * {1}^{2}", c[i], variableName, i);
+                    }
+                }
+            }
+
+            if (bFirst) {
+                sb.Append("0");
+            }
+
+            return sb.ToString();
+        }
 
         public static void Test() {
             {
@@ -334,20 +380,20 @@ namespace WWMath {
                  * X(s) = ------- + ------ + -------
                  *         s + 1       s      s - 2
                  */
-                var nPolynomialCoeffs = new List<WWComplex>();
-                nPolynomialCoeffs.Add(new WWComplex(3, 0));
-                nPolynomialCoeffs.Add(new WWComplex(1, 0));
+                var numerCoeffs = new List<WWComplex>();
+                numerCoeffs.Add(new WWComplex(3, 0));
+                numerCoeffs.Add(new WWComplex(1, 0));
 
                 var dRoots = new List<WWComplex>();
                 dRoots.Add(new WWComplex(-1, 0));
                 dRoots.Add(new WWComplex(0, 0));
                 dRoots.Add(new WWComplex(2, 0));
 
-                var polynomialList = WWPolynomial.PartialFractionDecomposition(nPolynomialCoeffs, dRoots);
+                var p = WWPolynomial.PartialFractionDecomposition(numerCoeffs, dRoots);
 
-                for (int i = 0; i < polynomialList.Count; ++i) {
-                    Console.WriteLine(polynomialList[i].ToString("s"));
-                    if (i != polynomialList.Count - 1) {
+                for (int i = 0; i < p.Count; ++i) {
+                    Console.WriteLine(p[i].ToString("s"));
+                    if (i != p.Count - 1) {
                         Console.WriteLine(" + ");
                     }
                 }
@@ -370,6 +416,50 @@ namespace WWMath {
 
                 var r = Reduction(numerC, denomR);
                 r.Print("x");
+            }
+
+            {
+                // 約分のテスト
+                //  x^2+3x+2            (x^2+3x+2) -(x^2+7x+12)            -4x-10
+                // ────────────  ⇒ 1+ ─────────────────────────  ⇒  1 + ────────────
+                //  (x+3)(x+4)           x^2+7x+12                         (x+3)(x+4)
+
+                var numerC = new List<WWComplex>();
+                numerC.Add(new WWComplex(2, 0)); // 定数項。
+                numerC.Add(new WWComplex(3, 0)); // 1乗の項。
+                numerC.Add(WWComplex.Unity());  // 2乗の項。
+
+                var denomR = new List<WWComplex>();
+                denomR.Add(new WWComplex(-3, 0));
+                denomR.Add(new WWComplex(-4, 0));
+
+                var r = Reduction(numerC, denomR);
+                r.Print("x");
+            }
+            {
+                // 部分分数分解。
+                //  -4x-10             2      -6
+                // ────────────  ⇒  ───── + ─────
+                //  (x+3)(x+4)        x+3     x+4
+
+                var numerC = new List<WWComplex>();
+                numerC.Add(new WWComplex(-10, 0));
+                numerC.Add(new WWComplex(-4, 0));
+
+                var denomR = new List<WWComplex>();
+                denomR.Add(new WWComplex(-3, 0));
+                denomR.Add(new WWComplex(-4, 0));
+
+                var p = WWPolynomial.PartialFractionDecomposition(numerC, denomR);
+
+                for (int i = 0; i < p.Count; ++i) {
+                    Console.WriteLine(p[i].ToString("s"));
+                    if (i != p.Count - 1) {
+                        Console.WriteLine(" + ");
+                    }
+                }
+
+                Console.WriteLine("");
             }
         }
     }

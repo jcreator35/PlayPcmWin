@@ -54,6 +54,7 @@
                 </ComboBox>
                 <Label Content="Time scale:" Grid.Column="1" HorizontalAlignment="Right" Name="labelTimeScale" VerticalAlignment="Center" />
                 <ComboBox Grid.Column="2" HorizontalAlignment="Left" Name="comboBoxTimeScale" VerticalAlignment="Center" Width="120" SelectionChanged="comboBox_SelectionChanged">
+                    <ComboBoxItem Content="0.1x" />
                     <ComboBoxItem Content="1x" IsSelected="True" />
                     <ComboBoxItem Content="2x" />
                     <ComboBoxItem Content="5x" />

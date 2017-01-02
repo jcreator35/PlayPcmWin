@@ -30,13 +30,13 @@ namespace WWMath {
         }
 
         /// <summary>
-        /// Arithmetic Geometric Mean
+        /// Arithmetic Geometric Mean 算術幾何平均
         /// H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. 
         /// pp.170
         /// </summary>
         public static double AGM(double x, double y) {
-
-            while (1e-10 < Math.Abs(x - y)/x) {
+            int i=0;
+            while (1e-15 < Math.Abs(x - y)/x) {
                 if (Math.Abs(x - y) < float.Epsilon) {
                     return x;
                 }
@@ -46,7 +46,10 @@ namespace WWMath {
 
                 x = am;
                 y = gm;
+
+                ++i;
             }
+            Console.WriteLine("AGM {0}", i);
 
             return x;
         }
@@ -62,7 +65,8 @@ namespace WWMath {
                 throw new ArgumentOutOfRangeException("k");
             }
 
-            return Math.PI / 2.0 / AGM(1, Math.Sqrt(1.0 - k * k));
+            // Equation 4.5
+            return Math.PI / 2/AGM(1-k, 1+k);
         }
 
         /// <summary>
@@ -94,18 +98,20 @@ namespace WWMath {
                 throw new ArgumentOutOfRangeException("y");
             }
 
+            // Equation 4.10
+
             double r = 1.0;
 
             int m = 1;
             int s = -1;
             double rn = 0.0;
             do {
-                rn = s * 2.0 * Math.Pow(y, m * m) * Math.Cos(2.0 * Math.PI * z * m);
+                rn = s * 2.0 * Math.Pow(y, m * m) * Math.Cos(2.0 * m * Math.PI * z);
                 r += rn;
 
                 s *= -1;
                 ++m;
-            } while (double.Epsilon < Math.Abs(rn));
+            } while (float.Epsilon < Math.Abs(rn));
             return r;
         }
 
@@ -119,6 +125,8 @@ namespace WWMath {
                 throw new ArgumentOutOfRangeException("y");
             }
 
+            // Equation 4.11
+
             double r = 0.0;
 
             int m = 0;
@@ -130,7 +138,7 @@ namespace WWMath {
 
                 s *= -1;
                 ++m;
-            } while (double.Epsilon < Math.Abs(rn));
+            } while (float.Epsilon < Math.Abs(rn));
             return r;
         }
 
@@ -208,6 +216,20 @@ namespace WWMath {
             }
 
             return rv;
+        }
+
+        public static void Test() {
+            for (double k=0.9999; k < 1; k += 0.00001) {
+                var v0=AGM(1, Math.Sqrt(1 - k * k));
+                var v1=AGM(1 - k, 1 + k);
+                var v2 = CompleteEllipticIntegralK(k);
+                Console.WriteLine("{0} {1} {2} {3}", k, v0, v1,v2);
+            }
+            for (double u=0; u < 10; u += 0.5) {
+                var v0=EllipticSine(u,0.975);
+                var v1=EllipticSine(u, 0.25);
+                Console.WriteLine("{0} {1} {2}", u, v0, v1);
+            }
         }
     }
 }

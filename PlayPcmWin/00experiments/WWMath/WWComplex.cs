@@ -173,6 +173,7 @@ namespace WWMath {
         }
         /// <summary>
         /// create copy and copy := -uni, returns copy.
+        /// argument value is not changed.
         /// </summary>
         public static WWComplex Minus(WWComplex uni) {
             return new WWComplex(-uni.real, -uni.imaginary);

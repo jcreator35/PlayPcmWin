@@ -49,6 +49,7 @@ namespace WWAudioFilter {
                 break;
             case ApproximationBase.BetaType.BetaMin:
                 mε = Calcβmin();
+                mHc = hc = CalcHcMax();
                 break;
             }
 
@@ -68,9 +69,9 @@ namespace WWAudioFilter {
             // 定数Cの計算。
             // Equation 4.93
             if (η == 0) {
-                mC = mH0 / Math.Sqrt(1.0 + mε * mε) / Math.Pow(mΩs, 2.0 * mN - 3.0 * η);
+                mC = mH0 / Math.Sqrt(1.0 + mε * mε) / Math.Pow(mΩs, (2.0 * mN - 3.0 * η)/2);
             } else {
-                mC = mH0 * σ * Math.Sqrt(1.0 + mε * mε) / Math.Pow(mΩs, 2.0 * mN - 3.0 * η);
+                mC = mH0 * σ / Math.Pow(mΩs, (2.0 * mN - 3.0 * η)/2);
             }
             for (int m = 1; m <= (mN-η)/2; ++m) {
                 double Ωzrm = Ω_ZR(m,k);
@@ -80,7 +81,7 @@ namespace WWAudioFilter {
 
             // 分子
             // Equation 4.81
-            for (int i = 0; i < (mN / 2) * 2; ++i) {
+            for (int i = 0; i < mN / 2; ++i) {
                 int m = i + 1;
                 double b = mΩs / Ω_ZR(m, k);
                 mZeroList.Add(new WWComplex(0, -b));
@@ -122,7 +123,7 @@ namespace WWAudioFilter {
         private double Ω_0(double m, double k, double σ) {
             // Equation 4.87
             double Ωzrm = Ω_ZR(m,k);
-            return Math.Sqrt(mΩs * (mΩs * σ * σ + Ωzrm)/(mΩs + σ*σ *Ωzrm));
+            return Math.Sqrt(mΩs * ( mΩs * σ * σ + Ωzrm * Ωzrm ) / ( mΩs + σ * σ * Ωzrm * Ωzrm));
         }
 
         /// <summary>
@@ -158,6 +159,7 @@ namespace WWAudioFilter {
         /// discremination factor L_N(Ωs)
         /// </summary>
         private static double L_N(double Ωs, int N) {
+#if false
             // Analog Electronic Filters pp.178
             // Equation 4.36
             double k = 1.0 / Ωs;
@@ -172,6 +174,34 @@ namespace WWAudioFilter {
                 denom *= Math.Pow(Functions.EllipticSine(((2.0 * m - 1 + η) / N + 1) * Kk, k), 4);
             }
             return numer / denom;
+#else
+            // Analog Electronic Filters pp.178
+            // Equation 4.37
+            int η = N & 1;
+            double k = 1.0 / Ωs;
+            double r = 1.0;
+            if (η == 1) {
+                r = 1.0 / k;
+            }
+            for (int m = 1; m <= ( N - η ) / 2; ++m) {
+                double z = (2.0*m-1+η)/2/N+1.0/2.0;
+                double y = Math.Exp(-Math.PI * Functions.AGM(1.0, Math.Sqrt(1.0 - k * k))
+                                            / Functions.AGM(1.0, k));
+                var θ04 = Math.Pow(Functions.JacobiTheta0(z, y), 4);
+                var θ14 = Math.Pow(Functions.JacobiTheta1(z, y), 4);
+                r *= θ04 / θ14;
+            }
+
+            return r;
+#endif
+        }
+
+        private double CalcHcMax() {
+            // Analog Electronic Filters pp.185
+            // Equation 4.64
+            double lnΩs = L_N(mΩs, mN);
+            double r = mH0 / Math.Sqrt(1.0 + ( mH0 * mH0 / mHs / mHs - 1 ) / lnΩs / lnΩs);
+            return r;
         }
 
         private double Calcβmax() {

@@ -39,7 +39,6 @@ namespace WWUserControls {
             set { mMode = value; ModeChanged(); }
         }
 
-
         private const int FR_LINE_LEFT = 64;
         private const int FR_LINE_HEIGHT = 256;
         private const int FR_LINE_WIDTH = 512;
@@ -49,6 +48,10 @@ namespace WWUserControls {
 
         private const double DISP_MAG_THRESHOLD = 0.001 * 0.001 * 0.001;
 
+        public bool ShowGain { get; set; }
+        public bool ShowPhase { get; set; }
+        public bool ShowGroupDelay { get; set; }
+
         public enum FreqScaleType {
             Linear,
             Logarithmic,
@@ -57,9 +60,14 @@ namespace WWUserControls {
         public double NyquistFrequency { get; set; }
 
         public enum FreqRangeType {
+            SF_0_0001HzTo1Hz,
+            SF_0_001HzTo10Hz,
+            SF_0_01HzTo100Hz,
+            SF_0_1HzTo1kHz,
+            SF_1HzTo10kHz,
             SF_10HzTo100kHz,
             SF_10HzTo1MHz,
-            SF_0_1HzTo10Hz,
+            SF_10HzTo10MHz,
             SF_10HzToNyquist
         };
 
@@ -69,11 +77,15 @@ namespace WWUserControls {
         };
 
         public enum MagnitudeRangeType {
+            M0_1dB,
+            M0_3dB,
             M1dB,
             M3dB,
+            M6dB,
             M12dB,
             M24dB,
             M48dB,
+            M72dB,
             M96dB,
             M120dB,
             M140dB,
@@ -81,20 +93,70 @@ namespace WWUserControls {
             M180dB
         }
 
-        public bool ShowGain { get; set; }
-        public bool ShowPhase { get; set; }
-        public bool ShowGroupDelay { get; set; }
+        private Tuple<double, double> FreqStartEnd() {
+            switch ((FreqScaleType)comboBoxFreqScale.SelectedIndex) {
+            case FreqScaleType.Logarithmic:
+                // 対数の時、開始周波数は0.1, 1, 10, 100, …でなければならない
+                switch ((FreqRangeType)comboBoxFreqRange.SelectedIndex) {
+                case FreqRangeType.SF_0_0001HzTo1Hz:
+                    return new Tuple<double, double>(0.0001, 1);
+                case FreqRangeType.SF_0_001HzTo10Hz:
+                    return new Tuple<double, double>(0.001, 10);
+                case FreqRangeType.SF_0_01HzTo100Hz:
+                    return new Tuple<double, double>(0.01, 100);
+                case FreqRangeType.SF_0_1HzTo1kHz:
+                    return new Tuple<double, double>(0.1, 1000);
+                case FreqRangeType.SF_1HzTo10kHz:
+                    return new Tuple<double, double>(1, 10 * 1000);
+                case FreqRangeType.SF_10HzTo100kHz:
+                    return new Tuple<double, double>(10, 100 * 1000);
+                case FreqRangeType.SF_10HzTo1MHz:
+                    return new Tuple<double, double>(10, 1000 * 1000);
+                case FreqRangeType.SF_10HzTo10MHz:
+                    return new Tuple<double, double>(10, 10 * 1000 * 1000);
+                }
+                System.Diagnostics.Debug.Assert(false);
+                break;
+            case FreqScaleType.Linear:
+                switch ((FreqRangeType)comboBoxFreqRange.SelectedIndex) {
+                case FreqRangeType.SF_0_0001HzTo1Hz:
+                    return new Tuple<double, double>(0, 1);
+                case FreqRangeType.SF_0_001HzTo10Hz:
+                    return new Tuple<double, double>(0, 10);
+                case FreqRangeType.SF_0_01HzTo100Hz:
+                    return new Tuple<double, double>(0, 100);
+                case FreqRangeType.SF_0_1HzTo1kHz:
+                    return new Tuple<double, double>(0, 1000);
+                case FreqRangeType.SF_1HzTo10kHz:
+                    return new Tuple<double, double>(0, 10 * 1000);
+                case FreqRangeType.SF_10HzTo100kHz:
+                    return new Tuple<double, double>(0, 100 * 1000);
+                case FreqRangeType.SF_10HzTo1MHz:
+                    return new Tuple<double, double>(0, 1000 * 1000);
+                case FreqRangeType.SF_10HzTo10MHz:
+                    return new Tuple<double, double>(0, 10 * 1000 * 1000);
+                }
+                break;
+            }
+
+            System.Diagnostics.Debug.Assert(false);
+            return new Tuple<double, double>(0, 100 * 1000);
+        }
 
         /// <summary>
         /// Magnitude Scale(対数軸)の8乗根を戻す。目盛が8つあるので。
         /// </summary>
         private double MagnitudeRangeValue() {
             double[] mRange = new double[] {
+                Math.Pow(Math.Pow(10.0,-0.1/20.0), 1.0/8.0), // -0.1dBの8乗根
+                Math.Pow(Math.Pow(10.0,-0.3/20.0), 1.0/8.0), // -0.3dBの8乗根
                 Math.Pow(Math.Pow(10.0, -1.0/20.0), 1.0/8.0), // -1dBの8乗根
                 Math.Pow(1.0/Math.Sqrt(2.0), 1.0/8.0), // -3dBの8乗根
+                Math.Pow(1.0/2.0, 1.0/8.0), // -6dBの8乗根
                 Math.Pow(1.0/4.0, 1.0/8.0), // -12dBの8乗根
                 Math.Pow(1.0/16.0, 1.0/8.0), // -24dBの8乗根
                 Math.Pow(1.0/256.0, 1.0/8.0), // -48dBの8乗根
+                Math.Pow(1.0/4096.0, 1.0/8.0), // -72dBの8乗根
                 Math.Pow(1.0/65536, 1.0/8.0), // -96dBの8乗根
                 Math.Pow(Math.Pow(10.0,-120.0/20.0), 1.0/8.0), // -120dBの8乗根。
                 Math.Pow(Math.Pow(10.0,-140.0/20.0), 1.0/8.0),
@@ -114,36 +176,6 @@ namespace WWUserControls {
 
         private List<Line> mLineList = new List<Line>();
         private List<Label> mLabelList = new List<Label>();
-
-        private Tuple<double, double> FreqStartEnd() {
-            switch ((FreqScaleType)comboBoxFreqScale.SelectedIndex) {
-            case FreqScaleType.Logarithmic:
-                // 対数の時、開始周波数は0.1, 1, 10, 100, …でなければならない
-                switch ((FreqRangeType)comboBoxFreqRange.SelectedIndex) {
-                case FreqRangeType.SF_10HzTo100kHz:
-                    return new Tuple<double, double>(10, 100 * 1000);
-                case FreqRangeType.SF_10HzTo1MHz:
-                    return new Tuple<double, double>(10, 1000 * 1000);
-                case FreqRangeType.SF_0_1HzTo10Hz:
-                    return new Tuple<double, double>(0.1, 10);
-                }
-                System.Diagnostics.Debug.Assert(false);
-                break;
-            case FreqScaleType.Linear:
-                switch ((FreqRangeType)comboBoxFreqRange.SelectedIndex) {
-                case FreqRangeType.SF_10HzTo100kHz:
-                    return new Tuple<double, double>(0, 100 * 1000);
-                case FreqRangeType.SF_10HzTo1MHz:
-                    return new Tuple<double, double>(0, 1000 * 1000);
-                case FreqRangeType.SF_0_1HzTo10Hz:
-                    return new Tuple<double, double>(0, 10);
-                }
-                break;
-            }
-
-            System.Diagnostics.Debug.Assert(false);
-            return new Tuple<double, double>(0, 100 * 1000);
-        }
 
         /// <summary>
         /// プロット座標x → 周波数
@@ -490,8 +522,6 @@ namespace WWUserControls {
                 }
                 */
 
-                posP = new Point(FR_LINE_LEFT + i, FR_LINE_TOP + FR_LINE_HEIGHT * phase / minPhase);
-
                 switch ((MagScaleType)comboBoxMagScale.SelectedIndex) {
                 case MagScaleType.Linear:
                     posM = new Point(FR_LINE_LEFT + i, FR_LINE_BOTTOM - FR_LINE_HEIGHT * frMagnitude[i] / maxMagnitude);
@@ -516,22 +546,22 @@ namespace WWUserControls {
                     break;
                 }
 
-                // bDraw==false : 振幅が小さいと回転の精度が低いので計算も表示もしない。
-                if (bDraw) {
-                    if (ShowGain) {
-                        if (DISP_MAG_THRESHOLD < frMagnitude[i]) {
-                            var lineM = new Line();
-                            lineM.Stroke = Brushes.Blue;
-                            LineSetPos(lineM, lastPosM.X, lastPosM.Y, posM.X, posM.Y);
-                            mLineList.Add(lineM);
-                            canvasFR.Children.Add(lineM);
-                        }
+                if (ShowGain && bDraw) {
+                    if (DISP_MAG_THRESHOLD < frMagnitude[i]) {
+                        var lineM = new Line();
+                        lineM.Stroke = Brushes.Blue;
+                        LineSetPos(lineM, lastPosM.X, lastPosM.Y, posM.X, posM.Y);
+                        mLineList.Add(lineM);
+                        canvasFR.Children.Add(lineM);
                     }
+                }
 
-                    if (ShowPhase) {
-                        // phase plot
-                        // 振幅が小さいと回転の精度が低いので表示しない。
-                        if (DISP_MAG_THRESHOLD < frMagnitude[i]) {
+                if (ShowPhase) {
+                    // phase plot
+                    // 振幅が小さいと回転の精度が低いので表示しない。
+                    if (DISP_MAG_THRESHOLD < frMagnitude[i]) {
+                        posP = new Point(FR_LINE_LEFT + i, FR_LINE_TOP + FR_LINE_HEIGHT * phase / minPhase);
+                        if (1 <= i && ( posP.X - lastPosP.X ) < 2) {
                             var lineP = new Line();
                             lineP.Stroke = Brushes.Red;
                             LineSetPos(lineP, lastPosP.X, lastPosP.Y, posP.X, posP.Y);
@@ -539,24 +569,24 @@ namespace WWUserControls {
                             canvasFR.Children.Add(lineP);
                         }
                     }
+                }
 
-                    if (ShowGroupDelay) {
-                        // group delay plot.
-                        // 振幅が小さいと回転の精度が低いので表示しない。
-                        if (DISP_MAG_THRESHOLD < frMagnitude[i]) {
-                            double phaseDiff = frPhase[i] - frPhase[i - 1];
-                            double groupDelay = -phaseDiff / (frω[i] - frω[i - 1]);
-                            //Console.WriteLine("{0} {1}", i, groupDelay);
+                if (ShowGroupDelay) {
+                    // group delay plot.
+                    // 振幅が小さいと回転の精度が低いので表示しない。
+                    if (1 <= i && DISP_MAG_THRESHOLD < frMagnitude[i]) {
+                        double phaseDiff = frPhase[i] - frPhase[i - 1];
+                        double groupDelay = -phaseDiff / ( frω[i] - frω[i - 1] );
+                        //Console.WriteLine("{0} {1}", i, groupDelay);
 
-                            posG = new Point(FR_LINE_LEFT + i, FR_LINE_BOTTOM - FR_LINE_HEIGHT * groupDelay / maxGroupDelay);
+                        posG = new Point(FR_LINE_LEFT + i, FR_LINE_BOTTOM - FR_LINE_HEIGHT * groupDelay / maxGroupDelay);
 
-                            if (2 <= i && (posG.X - lastPosG.X) < 2) {
-                                var lineG = new Line();
-                                lineG.Stroke = Brushes.Gray;
-                                LineSetPos(lineG, lastPosG.X, lastPosG.Y, posG.X, posG.Y);
-                                mLineList.Add(lineG);
-                                canvasFR.Children.Add(lineG);
-                            }
+                        if (2 <= i && ( posG.X - lastPosG.X ) < 2) {
+                            var lineG = new Line();
+                            lineG.Stroke = Brushes.Gray;
+                            LineSetPos(lineG, lastPosG.X, lastPosG.Y, posG.X, posG.Y);
+                            mLineList.Add(lineG);
+                            canvasFR.Children.Add(lineG);
                         }
                     }
                 }

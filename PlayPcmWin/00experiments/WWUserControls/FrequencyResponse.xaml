@@ -81,9 +81,14 @@
                 </ComboBox>
                 <Label Grid.Row="1" Content="Frequency Range:" HorizontalAlignment="Right" Name="labelFreqRange" VerticalAlignment="Center" Grid.Column="0"  />
                 <ComboBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Name="comboBoxFreqRange" VerticalAlignment="center" Width="125" SelectionChanged="comboBox_SelectionChanged" >
+                    <ComboBoxItem Content="0.0001Hz ～ 1Hz" />
+                    <ComboBoxItem Content="0.001Hz ～ 10Hz" />
+                    <ComboBoxItem Content="0.01Hz ～ 100Hz" />
+                    <ComboBoxItem Content="0.1Hz ～ 1kHz" />
+                    <ComboBoxItem Content="1Hz ～ 10kHz" />
                     <ComboBoxItem Content="10Hz ～ 100kHz" IsSelected="True"/>
                     <ComboBoxItem Content="10Hz ～ 1MHz" />
-                    <ComboBoxItem Content="0.1Hz ～ 10Hz" />
+                    <ComboBoxItem Content="10Hz ～ 10MHz" />
                     <ComboBoxItem Content="10Hz ～ Nyquist Freq" IsEnabled="False" />
                 </ComboBox>
                 <Label Grid.Column="2" Content="Magnitude Scale:" HorizontalAlignment="Right" Name="labelMagScale" VerticalAlignment="Center" />
@@ -93,11 +98,15 @@
                 </ComboBox>
                 <Label Grid.Column="2" Grid.Row="1" Content="Magnitude Range (Log):" HorizontalAlignment="Right" Name="labelMagRange" VerticalAlignment="Center"  />
                 <ComboBox Grid.Column="3" Grid.Row="1" HorizontalAlignment="Left" Name="comboBoxMagRange" VerticalAlignment="center" Width="125" SelectionChanged="comboBox_SelectionChanged" >
+                    <ComboBoxItem Content="0.1 dB" />
+                    <ComboBoxItem Content="0.3 dB" />
                     <ComboBoxItem Content="1 dB" />
                     <ComboBoxItem Content="3 dB" />
+                    <ComboBoxItem Content="6 dB" />
                     <ComboBoxItem Content="12 dB" />
                     <ComboBoxItem Content="24 dB" />
                     <ComboBoxItem Content="48 dB" />
+                    <ComboBoxItem Content="72 dB" />
                     <ComboBoxItem Content="96 dB" IsSelected="True"/>
                     <ComboBoxItem Content="120 dB" />
                     <ComboBoxItem Content="140 dB" />

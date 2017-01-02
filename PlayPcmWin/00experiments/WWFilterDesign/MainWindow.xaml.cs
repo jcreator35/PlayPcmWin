@@ -1,5 +1,7 @@
 ﻿using System.Windows;
 using System.ComponentModel;
+using WWMath;
+using System.Collections.Generic;
 
 namespace WWAudioFilter {
     /// <summary>
@@ -152,8 +154,9 @@ namespace WWAudioFilter {
         BackgroundWorker mBw = new BackgroundWorker();
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
-            WWMath.WWPolynomial.Test();
-            ChebyshevDesign.Test();
+            WWPolynomial.Test();
+            //ChebyshevDesign.Test();
+            Functions.Test();
 
             mBw.DoWork += new DoWorkEventHandler(CalcFilter);
             mBw.RunWorkerCompleted += new RunWorkerCompletedEventHandler(CalcFilterCompleted);
@@ -164,7 +167,7 @@ namespace WWAudioFilter {
             mMainPanel.IsEnabled = true;
             mTextBlockCalculating.Visibility = System.Windows.Visibility.Collapsed;
             mTextBoxLog.Clear();
-            
+
             var r = e.Result as BackgroundCalcResult;
             if (!r.success) {
                 MessageBox.Show(r.message);
@@ -172,10 +175,44 @@ namespace WWAudioFilter {
             }
 
             AddLog(string.Format("Order={0}\n", mAfd.Order()));
+
             // 伝達関数の式をログに出力。
-            AddLog(string.Format("Transfer function H(s) = "));
+            AddLog("Transfer function (factorized, normalized) H(s) = ");
+            AddLog(string.Format("{0:G4}", mAfd.NumeratorConstant()));
+            for (int i = 0; i < mAfd.NumOfZeroes(); ++i) {
+                AddLog(string.Format(" (s + {0})", WWComplex.Minus(mAfd.ZeroNth(i))));
+            }
+            AddLog(" /");
+            for (int i = 0; i < mAfd.NumOfPoles(); ++i) {
+                AddLog(string.Format(" (s + {0})", WWComplex.Minus(mAfd.PoleNth(i))));
+            }
+            AddLog("\n");
+
+            {   // Show expanded Transfer function
+                var zeroList = new List<WWComplex>();
+                for (int i = 0; i < mAfd.NumOfZeroes(); ++i) {
+                    zeroList.Add(mAfd.ZeroNth(i));
+                }
+
+                var poleList = new List<WWComplex>();
+                for (int i = 0; i < mAfd.NumOfPoles(); ++i) {
+                    poleList.Add(mAfd.PoleNth(i));
+                }
+
+                var numer = WWPolynomial.RootListToCoeffList(zeroList,
+                    new WWComplex(mAfd.NumeratorConstant(), 0));
+                var denom = WWPolynomial.RootListToCoeffList(poleList, WWComplex.Unity());
+
+                AddLog("Transfer function (expanded, normalized) H(s) = {");
+                AddLog(WWPolynomial.CoeffListToString(numer, "s"));
+                AddLog(" } / {");
+                AddLog(WWPolynomial.CoeffListToString(denom, "s"));
+                AddLog(" }\n");
+            }
+
+            AddLog(string.Format("Transfer function with real coefficients H(s) = "));
             for (int i = 0; i < mAfd.RealPolynomialCount(); ++i) {
-                AddLog(string.Format("{0}", mAfd.RealPolynomialNth(i).ToString("s")));
+                AddLog(string.Format("{0}", mAfd.RealPolynomialNth(i).ToString("(s/ωc)")));
                 if (i != mAfd.RealPolynomialCount() - 1) {
                     AddLog(" + ");
                 }
@@ -185,8 +222,24 @@ namespace WWAudioFilter {
             // インパルス応答の式をログに出力。
             AddLog(("Impulse Response (frequency normalized): h(t) = "));
             for (int i = 0; i < mAfd.HPfdCount(); ++i) {
-                var item = mAfd.HPfdNth(i);
-                AddLog(string.Format("({0}) * e^ {{ -t * ({1}) }}", item.N(0), item.D(0)));
+                var p = mAfd.HPfdNth(i);
+
+                if (!p.N(1).EqualValue(WWComplex.Zero())) {
+                    throw new System.NotImplementedException();
+                }
+
+                if (p.D(1).EqualValue(WWComplex.Zero())
+                        && p.D(0).EqualValue(WWComplex.Unity())) {
+                    // 1 → δ(t)
+                    AddLog(string.Format("{0:G4} * δ(t)", p.N(0)));
+                } else if (p.D(0).EqualValue(WWComplex.Zero())) {
+                    // b/s → b*u(t)
+                    AddLog(string.Format("{0:G4} * u(t)", p.N(0)));
+                } else {
+                    // b/(s-a) ⇒ b * exp(t * a)
+                    AddLog(string.Format("({0}) * e^ {{ t * ({1}) }}", p.N(0), WWComplex.Minus(p.D(0))));
+                }
+
                 if (i != mAfd.HPfdCount() - 1) {
                     AddLog(" + ");
                 }

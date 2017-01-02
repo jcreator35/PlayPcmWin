@@ -81,11 +81,18 @@ namespace WWAudioFilter {
         };
 
         private static WWComplex InverseLaplaceTransformOne(FirstOrderRationalPolynomial p, double t) {
+            if (t < 0) {
+                return WWComplex.Zero();
+            }
+
+            if (!p.N(1).EqualValue(WWComplex.Zero())) {
+                // 約分によって分子が定数になるはずである。
+                throw new NotImplementedException();
+            }
+
             if (p.D(1).EqualValue(WWComplex.Zero())
                     && p.D(0).EqualValue(WWComplex.Unity())) {
-                if (!p.N(1).EqualValue(WWComplex.Zero())) {
-                    throw new NotImplementedException();
-                }
+                // 定数。
                 // 1 → δ(t)
                 if (t == 0) {
                     return p.N(0);
@@ -94,6 +101,8 @@ namespace WWAudioFilter {
             }
 
             if (p.D(0).EqualValue(WWComplex.Zero())) {
+                System.Diagnostics.Debug.Assert(!p.D(1).EqualValue(WWComplex.Zero()));
+
                 // b/s → b*u(t)
                 return p.N(0);
             }
@@ -107,7 +116,8 @@ namespace WWAudioFilter {
         /// <summary>
         /// 伝達関数Hを逆ラプラス変換して時刻tのインパルス応答 h(t)を戻す。
         /// </summary>
-        private double InverseLaplaceTransformValue(List<FirstOrderRationalPolynomial> Hf, List<FirstOrderRationalPolynomial> Hi, double t) {
+        private double InverseLaplaceTransformValue(List<FirstOrderRationalPolynomial> Hf,
+                List<FirstOrderRationalPolynomial> Hi, double t) {
             if (t <= 0) {
                 return 0;
             }
@@ -167,8 +177,9 @@ namespace WWAudioFilter {
         /// <param name="mFc">カットオフ周波数(Hz)</param>
         /// <param name="mFs">ストップバンドの下限周波数(Hz)</param>
         /// <returns></returns>
-        public bool DesignLowpass(double g0, double gc, double gs, double fc, double fs, FilterType ft, ApproximationBase.BetaType betaType) {
-
+        public bool DesignLowpass(double g0, double gc, double gs,
+                double fc, double fs, FilterType ft,
+                ApproximationBase.BetaType betaType) {
             // Hz → rad/s
             double ωc = fc * 2.0 * Math.PI;
             double ωs = fs * 2.0 * Math.PI;
@@ -223,47 +234,68 @@ namespace WWAudioFilter {
             };
 
             {
-                // 伝達関数を部分分数展開する。
+                // Unit Step Function
+                WWPolynomial.PolynomialAndRationalPolynomial H_s;
+                {
+                    var unitStepRoots = new List<WWComplex>();
+                    for (int i = 0; i < filter.NumOfPoles(); ++i) {
+                        var p = filter.PoleNth(i);
+                        unitStepRoots.Add(p);
+                    }
+                    unitStepRoots.Add(new WWComplex(0, 0));
 
-                var H_Roots = new List<WWComplex>();
-                var stepResponseTFRoots = new List<WWComplex>();
-                for (int i = 0; i < filter.NumOfPoles(); ++i) {
-                    var p = filter.PoleNth(i);
-                    H_Roots.Add(p);
-                    stepResponseTFRoots.Add(p);
+                    var numerCoeffs = new List<WWComplex>();
+                    if (filter.NumOfZeroes() == 0) {
+                        numerCoeffs.Add(new WWComplex(mNumeratorConstant, 0));
+                    } else {
+                        numerCoeffs = WWPolynomial.RootListToCoeffList(mZeroList, new WWComplex(mNumeratorConstant, 0));
+                    }
+
+                    H_s = WWPolynomial.Reduction(numerCoeffs, unitStepRoots);
                 }
-                stepResponseTFRoots.Add(new WWComplex(0, 0));
 
-                var numerCoeffs = new List<WWComplex>();
-                if (filter.NumOfZeroes() == 0) {
-                    numerCoeffs.Add(new WWComplex(mNumeratorConstant, 0));
-                } else {
-                    numerCoeffs = WWPolynomial.RootListToCoeffList(mZeroList, new WWComplex(mNumeratorConstant, 0));
-                }
-
-                var H_s = WWPolynomial.Reduction(numerCoeffs, H_Roots);
-
-                var H_fraction = WWPolynomial.PartialFractionDecomposition(H_s.numerCoeffList, H_Roots);
+                var H_fraction = WWPolynomial.PartialFractionDecomposition(H_s.numerCoeffList, H_s.denomRootList);
                 var H_integer = FirstOrderRationalPolynomial.CreateFromCoeffList(H_s.coeffList);
 
-                mH_PFD = FirstOrderRationalPolynomial.Add(H_fraction, H_integer);
+                UnitStepResponseFunction = (double t) => {
+                    return InverseLaplaceTransformValue(H_fraction, H_integer, t);
+                };
+            }
+            {
+                // 伝達関数 Transfer function
+                WWPolynomial.PolynomialAndRationalPolynomial H_s;
+                {
+                    var H_Roots = new List<WWComplex>();
+                    for (int i = 0; i < filter.NumOfPoles(); ++i) {
+                        var p = filter.PoleNth(i);
+                        H_Roots.Add(p);
+                    }
 
-                var Hstep_fraction = WWPolynomial.PartialFractionDecomposition(H_s.numerCoeffList, stepResponseTFRoots);
+                    var numerCoeffs = new List<WWComplex>();
+                    if (filter.NumOfZeroes() == 0) {
+                        numerCoeffs.Add(new WWComplex(mNumeratorConstant, 0));
+                    } else {
+                        numerCoeffs = WWPolynomial.RootListToCoeffList(mZeroList, new WWComplex(mNumeratorConstant, 0));
+                    }
+
+                    H_s = WWPolynomial.Reduction(numerCoeffs, H_Roots);
+                }
+
+                var H_fraction = WWPolynomial.PartialFractionDecomposition(H_s.numerCoeffList, H_s.denomRootList);
+                var H_integer = FirstOrderRationalPolynomial.CreateFromCoeffList(H_s.coeffList);
 
                 ImpulseResponseFunction = (double t) => {
                     return InverseLaplaceTransformValue(H_fraction, H_integer, t);
                 };
 
-                UnitStepResponseFunction = (double t) => {
-                    return InverseLaplaceTransformValue(Hstep_fraction, H_integer, t);
-                };
+                mH_PFD = FirstOrderRationalPolynomial.Add(H_fraction, H_integer);
 
                 TimeDomainFunctionTimeScale = 1.0 / filter.CutoffFrequencyHz();
 
                 // 共役複素数のペアを組み合わせて伝達関数の係数を全て実数にする。
                 // s平面のjω軸から遠い項から並べる。
                 mRealPolynomialList.Clear();
-                if ((H_fraction.Count() & 1) == 1) {
+                if (( H_fraction.Count() & 1 ) == 1) {
                     // 奇数。
                     int center = H_fraction.Count() / 2;
                     mRealPolynomialList.Add(H_fraction[center].CreateCopy());

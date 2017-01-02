@@ -25,6 +25,7 @@ namespace WWUserControls {
         }
 
         private double[] mTimeScales = {
+            0.1,
             1.0,
             2.0,
             5.0};
