@@ -154,9 +154,9 @@ namespace WWAudioFilter {
         BackgroundWorker mBw = new BackgroundWorker();
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
-            WWPolynomial.Test();
+            //WWPolynomial.Test();
             //ChebyshevDesign.Test();
-            Functions.Test();
+            //Functions.Test();
 
             mBw.DoWork += new DoWorkEventHandler(CalcFilter);
             mBw.RunWorkerCompleted += new RunWorkerCompletedEventHandler(CalcFilterCompleted);
