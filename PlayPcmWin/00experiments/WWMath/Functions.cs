@@ -114,7 +114,7 @@ namespace WWMath {
 
                 s *= -1;
                 ++m;
-            } while (float.Epsilon < Math.Abs(rn));
+            } while (float.Epsilon < Math.Abs(rn));  //< 終了条件が怪しい。
             return r;
         }
 
@@ -141,7 +141,7 @@ namespace WWMath {
 
                 s *= -1;
                 ++m;
-            } while (float.Epsilon < Math.Abs(rn));
+            } while (float.Epsilon < Math.Abs(rn));  //< 終了条件が怪しい。
             return r;
         }
 
