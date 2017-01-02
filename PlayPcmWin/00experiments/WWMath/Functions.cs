@@ -1,4 +1,6 @@
-﻿using System;
+﻿// 日本語
+
+using System;
 
 namespace WWMath {
     public class Functions {
@@ -55,7 +57,7 @@ namespace WWMath {
         }
 
         /// <summary>
-        /// Complete Elliptic Integral of first kind K(k)
+        /// Complete Elliptic Integral of first kind K(k) 第1種完全楕円積分
         /// H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.170.
         /// </summary>
         /// <param name="k"></param>
@@ -90,7 +92,7 @@ namespace WWMath {
         }
 
         /// <summary>
-        /// Jacobi theta function θ0(z,y)
+        /// Jacobi theta function θ0(z,y) テータ関数
         /// H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.171.
         /// </summary>
         /// <param name="y"> -1 &lt; y &lt; 1</param>
@@ -117,7 +119,7 @@ namespace WWMath {
         }
 
         /// <summary>
-        /// Jacobi theta function θ1(z,y)
+        /// Jacobi theta function θ1(z,y) テータ関数
         /// H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.171.
         /// </summary>
         /// <param name="y"> -1 &lt; y &lt; 1</param>
@@ -155,7 +157,7 @@ namespace WWMath {
         }
 
         /// <summary>
-        /// Jacobi theta function θ0h(z,y)
+        /// Jacobi theta function θ0h(z,y) テータ関数の亜種
         /// H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.192.
         /// </summary>
         /// <param name="z"></param>
@@ -182,7 +184,7 @@ namespace WWMath {
         }
 
         /// <summary>
-        /// Jacobi theta function θ1h(z,y)
+        /// Jacobi theta function θ1h(z,y) テータ関数の亜種
         /// H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.192.
         /// </summary>
         /// <param name="y"> -1 &lt; y &lt; 1</param>
