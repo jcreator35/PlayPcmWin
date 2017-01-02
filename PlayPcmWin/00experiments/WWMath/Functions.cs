@@ -84,6 +84,7 @@ namespace WWMath {
         /// <param name="x"></param>
         /// <returns></returns>
         public static double LnJacobiNomeQ(double x) {
+            // p.170
             // Equation 4.7
             return -Math.PI * AGM(1.0, Math.Sqrt(1.0 - x * x)) / AGM(1.0, x);
         }

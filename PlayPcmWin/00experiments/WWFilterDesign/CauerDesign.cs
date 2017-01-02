@@ -59,6 +59,7 @@ namespace WWAudioFilter {
                 * Math.Log((Math.Sqrt(mε * mε + 1) + 1)
                          / (Math.Sqrt(mε * mε + 1) - 1));
 
+            // pp.192
             // Equation 4.84
             double σ = Functions.JacobiTheta1h(Λ, Functions.JacobiNomeQ(1.0 / mΩs))
                      / Functions.JacobiTheta0h(Λ, Functions.JacobiNomeQ(1.0 / mΩs));
@@ -69,9 +70,9 @@ namespace WWAudioFilter {
             // 定数Cの計算。
             // Equation 4.93
             if (η == 0) {
-                mC = mH0 / Math.Sqrt(1.0 + mε * mε) / Math.Pow(mΩs, (2.0 * mN - 3.0 * η)/2);
+                mC = mH0 / Math.Sqrt(1.0 + mε * mε) / Math.Pow(mΩs, mN);
             } else {
-                mC = mH0 * σ / Math.Pow(mΩs, (2.0 * mN - 3.0 * η)/2);
+                mC = mH0 * σ / Math.Pow(mΩs, (2.0 * mN - 3.0)/2);
             }
             for (int m = 1; m <= (mN-η)/2; ++m) {
                 double Ωzrm = Ω_ZR(m,k);
@@ -121,6 +122,7 @@ namespace WWAudioFilter {
         /// Ω_0(m)
         /// </summary>
         private double Ω_0(double m, double k, double σ) {
+            // p.193
             // Equation 4.87
             double Ωzrm = Ω_ZR(m,k);
             return Math.Sqrt(mΩs * ( mΩs * σ * σ + Ωzrm * Ωzrm ) / ( mΩs + σ * σ * Ωzrm * Ωzrm));
@@ -130,6 +132,7 @@ namespace WWAudioFilter {
         /// Q_0(m)
         /// </summary>
         private double Q_0(double m, double k, double σ) {
+            // p.193
             // Equation 4.89
             double Ωzrm = Ω_ZR(m, k);
             return Ωzrm / 2.0 / σ * Math.Sqrt((σ * σ + Ωzrm * Ωzrm / mΩs) * (σ * σ + mΩs / Ωzrm / Ωzrm)
