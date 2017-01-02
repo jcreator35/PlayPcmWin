@@ -138,8 +138,14 @@ namespace WWMath {
                 b2.Add(new WWComplex(i));
             }
 
-            // (x-b[0])
             var coeff = new List<WWComplex>();
+            if (b.Count == 0) {
+                // 定数項のみ。
+                coeff.Add(c);
+                return coeff;
+            }
+
+            // (x-b[0])
             coeff.Add(new WWComplex(b2[0]).Mul(-1));
             coeff.Add(WWComplex.Unity());
 

@@ -33,9 +33,10 @@
         <Label Content="180°" Grid.Row="2" Margin="134,0,0,0" HorizontalAlignment="Left" Name="label180" VerticalAlignment="Top" />
         <Label Content="360°" Grid.Row="2" Margin="256,0,0,0" HorizontalAlignment="Left" Name="label360" VerticalAlignment="Top" Width="38" />
         <Ellipse Name="unitCircle" Width="192" Height="192" Stroke="Red" />
-        <ComboBox Grid.Row="3" HorizontalAlignment="Left" Margin="6,0,0,0" Name="comboBoxGradationType" VerticalAlignment="Center" Width="200" SelectionChanged="comboBoxGradationType_SelectionChanged">
-            <ComboBoxItem Content="Show Magnitude" Name="comboBoxItemMagnitude" IsSelected="True" />
-            <ComboBoxItem Content="Show Phase" Name="comboBoxItemPhase" />
-        </ComboBox>
+            <ComboBox Grid.Row="3" HorizontalAlignment="Left" Margin="6,0,0,0" Name="comboBoxGradationType" VerticalAlignment="Center" Width="157" SelectionChanged="comboBoxGradationType_SelectionChanged">
+                <ComboBoxItem Content="Show Magnitude" Name="comboBoxItemMagnitude" IsSelected="True" />
+                <ComboBoxItem Content="Show Phase" Name="comboBoxItemPhase" />
+            </ComboBox>
+        <CheckBox Content="Show Grid" Grid.Row="3" HorizontalAlignment="Left" Margin="192,0,0,0" Name="checkBoxShowGrid" VerticalAlignment="Center" Checked="checkBoxShowGrid_Checked" Unchecked="checkBoxShowGrid_Unchecked" IsChecked="True" />
     </Grid>
 </UserControl>

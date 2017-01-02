@@ -162,6 +162,25 @@ namespace WWUserControls {
             mYm1.Foreground = color;
             mYp1.Foreground = color;
             mZero.Foreground = color;
+
+            {
+                Visibility v = System.Windows.Visibility.Visible;
+                if (checkBoxShowGrid.IsChecked != true) {
+                    v = System.Windows.Visibility.Collapsed;
+                }
+                mLineH1.Visibility = v;
+                mLineH2.Visibility = v;
+                mLineH3.Visibility = v;
+                mLineV1.Visibility = v;
+                mLineV2.Visibility = v;
+                mLineV3.Visibility = v;
+                unitCircle.Visibility = v;
+                mXm1.Visibility = v;
+                mXp1.Visibility = v;
+                mYm1.Visibility = v;
+                mYp1.Visibility = v;
+                mZero.Visibility = v;
+            }
         }
 
         /// <summary>
@@ -378,6 +397,14 @@ namespace WWUserControls {
         //private Ellipse mUnitCircle = null;
 
         private void comboBoxGradationType_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+            Update();
+        }
+
+        private void checkBoxShowGrid_Checked(object sender, RoutedEventArgs e) {
+            Update();
+        }
+
+        private void checkBoxShowGrid_Unchecked(object sender, RoutedEventArgs e) {
             Update();
         }
     }
