@@ -38,7 +38,7 @@ namespace WWMath {
         /// </summary>
         public static double AGM(double x, double y) {
             int i=0;
-            while (1e-15 < Math.Abs(x - y)/x) {
+            while (1e-15 < Math.Abs(x - y)/x) {  //< この計算打ち切り条件は、テキトウなシミュレーションによってまずまずの精度が得られる事を確かめてある。
                 if (Math.Abs(x - y) < float.Epsilon) {
                     return x;
                 }
@@ -114,7 +114,7 @@ namespace WWMath {
 
                 s *= -1;
                 ++m;
-            } while (float.Epsilon < Math.Abs(rn));  //< 終了条件が怪しい。
+            } while (float.Epsilon < Math.Abs(rn));  //< 計算打ち切り条件が怪しい。
             return r;
         }
 
@@ -141,7 +141,7 @@ namespace WWMath {
 
                 s *= -1;
                 ++m;
-            } while (float.Epsilon < Math.Abs(rn));  //< 終了条件が怪しい。
+            } while (float.Epsilon < Math.Abs(rn));  //< 計算打ち切り条件が怪しい。
             return r;
         }
 
@@ -179,7 +179,7 @@ namespace WWMath {
 
                 s *= -1;
                 ++m;
-            } while (double.Epsilon < Math.Abs(rn));
+            } while (double.Epsilon < Math.Abs(rn));  //< 計算打ち切り条件が怪しい。
             return r;
         }
 
@@ -204,7 +204,7 @@ namespace WWMath {
 
                 s *= -1;
                 ++m;
-            } while (double.Epsilon < Math.Abs(rn));
+            } while (double.Epsilon < Math.Abs(rn));  //< 計算打ち切り条件が怪しい。
             return r;
         }
 
