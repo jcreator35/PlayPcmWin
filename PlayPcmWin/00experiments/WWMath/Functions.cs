@@ -7,6 +7,7 @@ namespace WWMath {
         /// <summary>
         /// area cos hyp, Inverse hyperbolic cosine
         /// 双曲線関数coshの逆関数 y=arcosh(x)の正の解。x1つに対してyが正負計2つ対応するがそのうち正のyの値を戻す。
+        /// 高木貞治, 解析概論 改訂第3版, 岩波書店, 1983, pp.209
         /// </summary>
         /// <param name="x">xの定義域は 1≤x </param>
         public static double ArCosHypPositive(double x) {
@@ -16,6 +17,7 @@ namespace WWMath {
         /// <summary>
         /// area cos hyp, Inverse hyperbolic cosine
         /// 双曲線関数coshの逆関数 y=arcosh(x)の負の解。x1つに対してyが正負計2つ対応するがそのうち負のyの値を戻す。
+        /// 高木貞治, 解析概論 改訂第3版, 岩波書店, 1983, pp.209
         /// </summary>
         /// <param name="x">xの定義域は 1≤x </param>
         public static double ArCosHypNegative(double x) {
