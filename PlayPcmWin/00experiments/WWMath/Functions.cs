@@ -5,7 +5,7 @@ using System;
 namespace WWMath {
     public class Functions {
         /// <summary>
-        /// area cos hyp
+        /// area cos hyp, Inverse hyperbolic cosine
         /// 双曲線関数coshの逆関数 y=arcosh(x)の正の解。x1つに対してyが正負計2つ対応するがそのうち正のyの値を戻す。
         /// </summary>
         /// <param name="x">xの定義域は 1≤x </param>
@@ -14,7 +14,7 @@ namespace WWMath {
         }
 
         /// <summary>
-        /// area cos hyp
+        /// area cos hyp, Inverse hyperbolic cosine
         /// 双曲線関数coshの逆関数 y=arcosh(x)の負の解。x1つに対してyが正負計2つ対応するがそのうち負のyの値を戻す。
         /// </summary>
         /// <param name="x">xの定義域は 1≤x </param>
@@ -23,7 +23,7 @@ namespace WWMath {
         }
 
         /// <summary>
-        /// area sin hyp
+        /// area sin hyp, Inverse hyperbolic sine
         /// 双曲線関数sinhの逆関数 y=arsinh(x)。xとyは1対1の対応。
         /// </summary>
         /// <returns></returns>
