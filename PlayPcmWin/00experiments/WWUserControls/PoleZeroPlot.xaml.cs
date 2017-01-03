@@ -133,6 +133,11 @@ namespace WWUserControls {
                 return;
             }
 
+            Visibility v = System.Windows.Visibility.Visible;
+            if (checkBoxShowGrid.IsChecked != true) {
+                v = System.Windows.Visibility.Collapsed;
+            }
+
             switch (Mode) {
             case ModeType.SPlane:
                 textBlockGraphTitle.Text = "Pole-Zero Plot (S plane)";
@@ -140,7 +145,7 @@ namespace WWUserControls {
                 break;
             case ModeType.ZPlane:
                 textBlockGraphTitle.Text = "Pole-Zero Plot (Z plane)";
-                unitCircle.Visibility = System.Windows.Visibility.Visible;
+                unitCircle.Visibility = v;
                 break;
             }
 
@@ -164,17 +169,12 @@ namespace WWUserControls {
             mZero.Foreground = color;
 
             {
-                Visibility v = System.Windows.Visibility.Visible;
-                if (checkBoxShowGrid.IsChecked != true) {
-                    v = System.Windows.Visibility.Collapsed;
-                }
                 mLineH1.Visibility = v;
                 mLineH2.Visibility = v;
                 mLineH3.Visibility = v;
                 mLineV1.Visibility = v;
                 mLineV2.Visibility = v;
                 mLineV3.Visibility = v;
-                unitCircle.Visibility = v;
                 mXm1.Visibility = v;
                 mXp1.Visibility = v;
                 mYm1.Visibility = v;
