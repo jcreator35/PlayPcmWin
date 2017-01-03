@@ -60,8 +60,6 @@ namespace WWMath {
         /// Complete Elliptic Integral of first kind K(k) 第1種完全楕円積分
         /// H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.170.
         /// </summary>
-        /// <param name="k"></param>
-        /// <returns></returns>
         public static double CompleteEllipticIntegralK(double k) {
             if (k < 0.0 || 1.0 <= k) {
                 throw new ArgumentOutOfRangeException("k");
