@@ -27,8 +27,8 @@ namespace WWMath {
         /// <summary>
         /// area sin hyp, Inverse hyperbolic sine
         /// 双曲線関数sinhの逆関数 y=arsinh(x)。xとyは1対1の対応。
+        /// 高木貞治, 解析概論 改訂第3版, 岩波書店, 1983, pp.209
         /// </summary>
-        /// <returns></returns>
         public static double ArSinHyp(double x) {
             return Math.Log(x+Math.Sqrt(x*x+1));
         }
@@ -83,8 +83,6 @@ namespace WWMath {
         /// <summary>
         /// ln(q(x)), q(x) == Jacobi Nome q
         /// </summary>
-        /// <param name="x"></param>
-        /// <returns></returns>
         public static double LnJacobiNomeQ(double x) {
             // p.170
             // Equation 4.7
@@ -149,7 +147,6 @@ namespace WWMath {
         /// Elliptic sine sn(u,x)
         /// H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.171.
         /// </summary>
-        /// <returns></returns>
         public static double EllipticSine(double u, double x) {
             double kx = CompleteEllipticIntegralK(x);
             double qx = JacobiNomeQ(x);
@@ -160,9 +157,6 @@ namespace WWMath {
         /// Jacobi theta function θ0h(z,y) テータ関数の亜種
         /// H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.192.
         /// </summary>
-        /// <param name="z"></param>
-        /// <param name="y"></param>
-        /// <returns></returns>
         public static double JacobiTheta0h(double z, double y) {
             if (1.0 < Math.Abs(y)) {
                 throw new ArgumentOutOfRangeException("y");
