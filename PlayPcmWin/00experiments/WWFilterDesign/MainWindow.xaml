@@ -59,8 +59,8 @@
                                         <RadioButton Content="Butterworth" HorizontalAlignment="Left" Name="radioButtonFilterTypeButterworth" VerticalAlignment="Center" Margin="6,6,0,6" Checked="buttonUpdate_Click" />
                                         <RadioButton Grid.Column="1" Content="Chebyshev" HorizontalAlignment="Left" Name="radioButtonFilterTypeChebyshev" VerticalAlignment="Center" Margin="6,6,0,6" Checked="buttonUpdate_Click" />
                                         <RadioButton Grid.Column="2" Content="Pascal" HorizontalAlignment="Left" Name="radioButtonFilterTypePascal" VerticalAlignment="Center" Margin="6,6,0,6" Checked="buttonUpdate_Click" />
-                                        <RadioButton Grid.Row="1" Content="Inverse Chebyshev" HorizontalAlignment="Left" Name="radioButtonFilterTypeInverseChebyshev" VerticalAlignment="Center" Margin="6,6,0,6" Checked="buttonUpdate_Click" IsChecked="True" />
-                                        <RadioButton Grid.Row="1" Grid.Column="1" Content="Cauer Elliptic" HorizontalAlignment="Left" Name="radioButtonFilterTypeCauer" VerticalAlignment="Center" Margin="6,6,0,6" Checked="buttonUpdate_Click" />
+                                        <RadioButton Grid.Row="1" Content="Inverse Chebyshev" HorizontalAlignment="Left" Name="radioButtonFilterTypeInverseChebyshev" VerticalAlignment="Center" Margin="6,6,0,6" Checked="buttonUpdate_Click" />
+                                        <RadioButton Grid.Row="1" Grid.Column="1" Content="Cauer Elliptic" HorizontalAlignment="Left" Name="radioButtonFilterTypeCauer" VerticalAlignment="Center" Margin="6,6,0,6" Checked="buttonUpdate_Click" IsChecked="True" />
                                     </Grid>
                                 </GroupBox>
                                 <GroupBox Header="Design Parameters" Width="400" Name="groupBoxDesignParameters" HorizontalAlignment="Left">
@@ -82,9 +82,9 @@
                                         </Grid.RowDefinitions>
                                         <TextBox Name="textBoxG0" Text="0" Margin="4" Grid.Column="1" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" IsReadOnly="True" />
                                         <TextBox Name="textBoxGc" Text="-1" Margin="4" Grid.Column="4" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
-                                        <TextBox Name="textBoxGs" Text="-24.08" Margin="4" Grid.Row="0" Grid.Column="7" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
-                                        <TextBox Name="textBoxFc" Text="1000" Grid.Row="1" Grid.Column="1" Margin="4" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
-                                        <TextBox Name="textBoxFs" Text="3k" Margin="4" Grid.Row="1" Grid.Column="4" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                                        <TextBox Name="textBoxGs" Text="-90" Margin="4" Grid.Row="0" Grid.Column="7" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                                        <TextBox Name="textBoxFc" Text="20k" Grid.Row="1" Grid.Column="1" Margin="4" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                                        <TextBox Name="textBoxFs" Text="22.5k" Margin="4" Grid.Row="1" Grid.Column="4" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
                                         <Label Content="G0:" HorizontalAlignment="Right" VerticalAlignment="Center" />
                                         <Label Content="dB" Grid.Column="2" VerticalAlignment="Center" />
                                         <Label Content="Gc:" Grid.Row="0" Grid.Column="3" HorizontalAlignment="Right" VerticalAlignment="Center" />

@@ -13,6 +13,8 @@ namespace WWUserControls {
     public partial class FrequencyResponse : UserControl {
         public FrequencyResponse() {
             InitializeComponent();
+            NyquistFrequency = 44100;
+            mInitialized = true;
         }
 
         private bool mInitialized = false;
@@ -21,9 +23,7 @@ namespace WWUserControls {
             ShowGain = true;
             ShowPhase = true;
             ShowGroupDelay = true;
-            NyquistFrequency = 44100;
 
-            mInitialized = true;
             Update();
         }
 
@@ -68,7 +68,6 @@ namespace WWUserControls {
             SF_10HzTo100kHz,
             SF_10HzTo1MHz,
             SF_10HzTo10MHz,
-            SF_10HzToNyquist
         };
 
         public enum MagScaleType {
@@ -298,28 +297,13 @@ namespace WWUserControls {
             if (!mInitialized) {
                 return;
             }
-            switch (Mode) {
-            case ModeType.SPlane:
-                comboBoxFreqRange.SelectedIndex = (int)FreqRangeType.SF_10HzTo100kHz;
-                comboBoxFreqRange.IsEnabled = true;
-                break;
-            case ModeType.ZPlane:
-                comboBoxFreqRange.SelectedIndex = (int)FreqRangeType.SF_10HzToNyquist;
-                comboBoxFreqRange.IsEnabled = false;
-                break;
-            }
+
+            // 特にすることは無い。
         }
 
         public void Update() {
             if (!mInitialized) {
                 return;
-            }
-
-            switch (mMode) {
-            case ModeType.SPlane:
-                break;
-            case ModeType.ZPlane:
-                break;
             }
 
             foreach (var item in mLineList) {

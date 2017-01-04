@@ -1,11 +1,4 @@
-﻿using System;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using WWAudioFilter;
-using System.Collections.Generic;
-using System.Windows.Shapes;
+﻿using System.Windows;
 using WWMath;
 
 namespace PolynomialVisualize {
@@ -26,43 +19,29 @@ namespace PolynomialVisualize {
 
         private bool mInitialized = false;
 
-        private double [] mNumer = new double[9];
-        private double [] mDenom = new double[9];
+        private const int ORDER_PLUS_1 = 9;
 
+        private double [] mNumer = new double[ORDER_PLUS_1];
+        private double [] mDenom = new double[ORDER_PLUS_1];
 
         private WWComplex TransferFunction(WWComplex z) {
-            var zRecip = new WWComplex(z).Reciprocal();
+            var zR = WWComplex.Reciprocal(z);
+            var zRecip = new WWComplex[ORDER_PLUS_1];
+            zRecip[0] = WWComplex.Unity();
+            for (int i=1; i < zRecip.Length; ++i) {
+                zRecip[i] = WWComplex.Mul(zRecip[i - 1], zR);
+            }
 
-            var zRecip2 = new WWComplex(zRecip).Mul(zRecip);
-            var zRecip3 = new WWComplex(zRecip2).Mul(zRecip);
-            var zRecip4 = new WWComplex(zRecip3).Mul(zRecip);
-            var zRecip5 = new WWComplex(zRecip4).Mul(zRecip);
-            var zRecip6 = new WWComplex(zRecip5).Mul(zRecip);
-            var zRecip7 = new WWComplex(zRecip6).Mul(zRecip);
-            var zRecip8 = new WWComplex(zRecip7).Mul(zRecip);
+            var denom = WWComplex.Zero();
+            for (int i=0; i < zRecip.Length; ++i) {
+                denom = WWComplex.Add(denom, WWComplex.Mul(new WWComplex(mDenom[i], 0), zRecip[i]));
+            }
+            var numer = WWComplex.Zero();
+            for (int i=0; i < zRecip.Length; ++i) {
+                numer = WWComplex.Add(numer, WWComplex.Mul(new WWComplex(mNumer[i], 0), zRecip[i]));
+            }
 
-            var hDenom0 = new WWComplex(mDenom[0], 0.0f);
-            var hDenom1 = new WWComplex(mDenom[1], 0.0f).Mul(zRecip);
-            var hDenom2 = new WWComplex(mDenom[2], 0.0f).Mul(zRecip2);
-            var hDenom3 = new WWComplex(mDenom[3], 0.0f).Mul(zRecip3);
-            var hDenom4 = new WWComplex(mDenom[4], 0.0f).Mul(zRecip4);
-            var hDenom5 = new WWComplex(mDenom[5], 0.0f).Mul(zRecip5);
-            var hDenom6 = new WWComplex(mDenom[6], 0.0f).Mul(zRecip6);
-            var hDenom7 = new WWComplex(mDenom[7], 0.0f).Mul(zRecip7);
-            var hDenom8 = new WWComplex(mDenom[8], 0.0f).Mul(zRecip8);
-            var hDenom = new WWComplex(hDenom0).Add(hDenom1).Add(hDenom2).Add(hDenom3).Add(hDenom4).Add(hDenom5).Add(hDenom6).Add(hDenom7).Add(hDenom8).Reciprocal();
-
-            var hNumer0 = new WWComplex(mNumer[0], 0.0f);
-            var hNumer1 = new WWComplex(mNumer[1], 0.0f).Mul(zRecip);
-            var hNumer2 = new WWComplex(mNumer[2], 0.0f).Mul(zRecip2);
-            var hNumer3 = new WWComplex(mNumer[3], 0.0f).Mul(zRecip3);
-            var hNumer4 = new WWComplex(mNumer[4], 0.0f).Mul(zRecip4);
-            var hNumer5 = new WWComplex(mNumer[5], 0.0f).Mul(zRecip5);
-            var hNumer6 = new WWComplex(mNumer[6], 0.0f).Mul(zRecip6);
-            var hNumer7 = new WWComplex(mNumer[7], 0.0f).Mul(zRecip7);
-            var hNumer8 = new WWComplex(mNumer[8], 0.0f).Mul(zRecip8);
-            var hNumer = new WWComplex(hNumer0).Add(hNumer1).Add(hNumer2).Add(hNumer3).Add(hNumer4).Add(hNumer5).Add(hNumer6).Add(hNumer7).Add(hNumer8);
-            var h = new WWComplex(hNumer).Mul(hDenom);
+            var h = WWComplex.Div(numer, denom);
 
             // 孤立特異点や極で起きる異常を適当に除去する
             if (double.IsNaN(h.Magnitude())) {

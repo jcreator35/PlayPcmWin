@@ -57,8 +57,8 @@ namespace WWMath {
 
         public FirstOrderRationalPolynomial CreateCopy() {
             return new FirstOrderRationalPolynomial(
-                numer[1].CreateCopy(), numer[0].CreateCopy(),
-                denom[1].CreateCopy(), denom[0].CreateCopy());
+                numer[1], numer[0],
+                denom[1], denom[0]);
         }
 
         /// <summary>

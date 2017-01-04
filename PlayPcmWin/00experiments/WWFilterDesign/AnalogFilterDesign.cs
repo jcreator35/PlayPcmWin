@@ -123,9 +123,9 @@ namespace WWAudioFilter {
             }
 
             // 共役複素数のペアを作って足す。
-            WWComplex rvf = new WWComplex(0, 0);
+            var rvf = WWComplex.Zero();
             if ((Hf.Count & 1) == 1) {
-                rvf.Add(InverseLaplaceTransformOne(Hf[Hf.Count/2], t));
+                rvf = WWComplex.Add(rvf, InverseLaplaceTransformOne(Hf[Hf.Count/2], t));
             }
             if (2 <= Hf.Count) {
                 for (int i = 0; i < Hf.Count / 2; ++i) {
@@ -137,14 +137,14 @@ namespace WWAudioFilter {
                     var v = WWComplex.Add(v0, v1);
 
                     //Console.WriteLine("{0} {1}", i, v);
-                    rvf.Add(v);
+                    rvf = WWComplex.Add(rvf, v);
                 }
             }
 
-            WWComplex rvi = new WWComplex(0, 0);
+            var rvi = WWComplex.Zero();
             foreach (var p in Hi) {
                 var v = InverseLaplaceTransformOne(p, t);
-                rvi.Add(v);
+                rvi = WWComplex.Add(rvi, v);
             }
 
             return WWComplex.Add(rvf, rvi).real;
@@ -154,16 +154,16 @@ namespace WWAudioFilter {
         /// 伝達関数の地点sの値を計算する。
         /// </summary>
         private WWComplex TransferFunctionValue(WWComplex s) {
-            WWComplex numer = new WWComplex(mNumeratorConstant, 0);
+            var numer = new WWComplex(mNumeratorConstant, 0);
             for (int i = 0; i < mZeroList.Count; ++i) {
                 var b = mZeroList[i];
-                numer.Mul(WWComplex.Sub(s, b));
+                numer = WWComplex.Mul(numer, WWComplex.Sub(s, b));
             }
 
-            WWComplex denom = new WWComplex(1, 0);
+            var denom = WWComplex.Unity();
             for (int i = 0; i < mPoleList.Count; ++i) {
                 var a = mPoleList[i];
-                denom.Mul(WWComplex.Sub(s, a));
+                denom = WWComplex.Mul(denom, WWComplex.Sub(s, a));
             }
             return WWComplex.Div(numer, denom);
         }
@@ -211,7 +211,6 @@ namespace WWAudioFilter {
             }
             mOrder = filter.Order();
             mNumeratorConstant = filter.TransferFunctionConstant();
-            //Console.WriteLine("orderPlus1={0}, β={1}", mN, mBeta);
 
             // 伝達関数のポールの位置。
             mPoleList.Clear();

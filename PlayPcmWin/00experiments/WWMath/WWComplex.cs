@@ -2,8 +2,8 @@
 
 namespace WWMath {
     public struct WWComplex {
-        public double real;
-        public double imaginary;
+        public readonly double real;
+        public readonly double imaginary;
 
         public WWComplex(double real, double imaginary) {
             this.real      = real;
@@ -13,15 +13,6 @@ namespace WWMath {
         public WWComplex(WWComplex rhs) {
             this.real      = rhs.real;
             this.imaginary = rhs.imaginary;
-        }
-
-        public WWComplex CreateCopy() {
-            return new WWComplex(this);
-        }
-
-        public void Set(double real, double imaginary) {
-            this.real = real;
-            this.imaginary = imaginary;
         }
 
         public double Magnitude() {
@@ -53,6 +44,109 @@ namespace WWMath {
             }
 
             return Math.Atan2(imaginary, real);
+        }
+
+        /// <summary>
+        /// create copy and copy := lhs + rhs, returns copy.
+        /// </summary>
+        public static WWComplex Add(WWComplex lhs, WWComplex rhs) {
+            return new WWComplex(lhs.real+rhs.real, lhs.imaginary+rhs.imaginary);
+        }
+        /// <summary>
+        /// create copy and copy := lhs - rhs, returns copy.
+        /// </summary>
+        public static WWComplex Sub(WWComplex lhs, WWComplex rhs) {
+            return new WWComplex(lhs.real - rhs.real, lhs.imaginary - rhs.imaginary);
+        }
+        /// <summary>
+        /// create copy and copy := lhs * rhs, returns copy.
+        /// </summary>
+        public static WWComplex Mul(WWComplex lhs, WWComplex rhs) {
+#if false
+            // straightforward but slow
+            double tR = real * rhs.real      - imaginary * rhs.imaginary;
+            double tI = real * rhs.imaginary + imaginary * rhs.real;
+            real      = tR;
+            imaginary = tI;
+#else
+            // more efficient way
+            double k1 = lhs.real * ( rhs.real + rhs.imaginary );
+            double k2 = rhs.imaginary * ( lhs.real + lhs.imaginary );
+            double k3 = rhs.real * ( lhs.imaginary - lhs.real );
+            double real = k1 - k2;
+            double imaginary = k1 + k3;
+#endif
+            return new WWComplex(real,imaginary);
+        }
+        public static WWComplex Mul(WWComplex lhs, double v) {
+            return new WWComplex(lhs.real * v, lhs.imaginary * v);
+        }
+        public static WWComplex Reciprocal(WWComplex uni) {
+            double sq = uni.real * uni.real + uni.imaginary * uni.imaginary;
+            double real = uni.real / sq;
+            double imaginary = -uni.imaginary / sq;
+            return new WWComplex(real, imaginary);
+        }
+        /// <summary>
+        /// create copy and copy := lhs / rhs, returns copy.
+        /// </summary>
+        public static WWComplex Div(WWComplex lhs, WWComplex rhs) {
+            var recip = Reciprocal(rhs);
+            return Mul(lhs, recip);
+        }
+        public static WWComplex Div(WWComplex lhs, double rhs) {
+            var recip = 1.0 / rhs;
+            return Mul(lhs, recip);
+        }
+        /// <summary>
+        /// create copy and copy := -uni, returns copy.
+        /// argument value is not changed.
+        /// </summary>
+        public static WWComplex Minus(WWComplex uni) {
+            return new WWComplex(-uni.real, -uni.imaginary);
+        }
+
+        /// <summary>
+        /// create copy and copy := complex conjugate of uni, returns copy.
+        /// </summary>
+        public static WWComplex ComplexConjugate(WWComplex uni) {
+            return new WWComplex(uni.real, -uni.imaginary);
+        }
+
+        public override string ToString() {
+            if (Math.Abs(imaginary) < 0.0001) {
+                return string.Format("{0:G4}", real);
+            }
+            if (Math.Abs(real) < 0.0001) {
+                return string.Format("{0:G4}i", imaginary);
+            }
+
+            if (imaginary < 0) {
+                // マイナス記号が自動で出る。
+                return string.Format("{0:G4}{1:G4}i", real, imaginary);
+            } else {
+                return string.Format("{0:G4}+{1:G4}i", real, imaginary);
+            }
+        }
+
+        static WWComplex mUnity = new WWComplex(1, 0);
+        static WWComplex mZero = new WWComplex(0, 0);
+        public static WWComplex Unity() {
+            return mUnity;
+        }
+
+        public static WWComplex Zero() {
+            return mZero;
+        }
+
+        /*
+        public WWComplex CreateCopy() {
+            return new WWComplex(this);
+        }
+
+        public void Set(double real, double imaginary) {
+            this.real = real;
+            this.imaginary = imaginary;
         }
 
         /// <summary>
@@ -117,7 +211,6 @@ namespace WWMath {
             var recip = new WWComplex(rhs).Reciprocal();
             return Mul(recip);
         }
-
         public void CopyFrom(WWComplex rhs) {
             real      = rhs.real;
             imaginary = rhs.imaginary;
@@ -140,68 +233,6 @@ namespace WWMath {
             imaginary = -imaginary;
             return this;
         }
-
-        /// <summary>
-        /// create copy and copy := lhs + rhs, returns copy.
-        /// </summary>
-        public static WWComplex Add(WWComplex lhs, WWComplex rhs) {
-            return new WWComplex(lhs).Add(rhs);
-        }
-        /// <summary>
-        /// create copy and copy := lhs - rhs, returns copy.
-        /// </summary>
-        public static WWComplex Sub(WWComplex lhs, WWComplex rhs) {
-            return new WWComplex(lhs).Sub(rhs);
-        }
-        /// <summary>
-        /// create copy and copy := lhs * rhs, returns copy.
-        /// </summary>
-        public static WWComplex Mul(WWComplex lhs, WWComplex rhs) {
-            return new WWComplex(lhs).Mul(rhs);
-        }
-        /// <summary>
-        /// create copy and copy := lhs / rhs, returns copy.
-        /// </summary>
-        public static WWComplex Div(WWComplex lhs, WWComplex rhs) {
-            return new WWComplex(lhs).Div(rhs);
-        }
-        /// <summary>
-        /// create copy and copy := lhs / rhs, returns copy.
-        /// </summary>
-        public static WWComplex Div(WWComplex lhs, double rhs) {
-            return new WWComplex(lhs).Div(rhs);
-        }
-        /// <summary>
-        /// create copy and copy := -uni, returns copy.
-        /// argument value is not changed.
-        /// </summary>
-        public static WWComplex Minus(WWComplex uni) {
-            return new WWComplex(-uni.real, -uni.imaginary);
-        }
-
-        /// <summary>
-        /// create copy and copy := complex conjugate of uni, returns copy.
-        /// </summary>
-        public static WWComplex ComplexConjugate(WWComplex uni) {
-            return new WWComplex(uni.real, -uni.imaginary);
-        }
-
-        public override string ToString() {
-            if (Math.Abs(imaginary) < 0.0001) {
-                return string.Format("{0:G4}", real);
-            }
-            if (Math.Abs(real) < 0.0001) {
-                return string.Format("{0:G4}i", imaginary);
-            }
-
-            if (imaginary < 0) {
-                // マイナス記号が自動で出る。
-                return string.Format("{0:G4}{1:G4}i", real, imaginary);
-            } else {
-                return string.Format("{0:G4}+{1:G4}i", real, imaginary);
-            }
-        }
-
         public static WWComplex Unity() {
             return new WWComplex(1, 0);
         }
@@ -209,5 +240,7 @@ namespace WWMath {
         public static WWComplex Zero() {
             return new WWComplex(0, 0);
         }
+        */
+
     }
 }

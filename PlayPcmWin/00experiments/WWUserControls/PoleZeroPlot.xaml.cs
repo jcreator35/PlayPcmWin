@@ -134,18 +134,23 @@ namespace WWUserControls {
             }
 
             Visibility v = System.Windows.Visibility.Visible;
+            Visibility vOnlyS = System.Windows.Visibility.Visible;
+            Visibility vOnlyZ = System.Windows.Visibility.Visible;
             if (checkBoxShowGrid.IsChecked != true) {
                 v = System.Windows.Visibility.Collapsed;
+                vOnlyS = System.Windows.Visibility.Collapsed;
+                vOnlyZ = System.Windows.Visibility.Collapsed;
             }
+
 
             switch (Mode) {
             case ModeType.SPlane:
                 textBlockGraphTitle.Text = "Pole-Zero Plot (S plane)";
-                unitCircle.Visibility = System.Windows.Visibility.Collapsed;
+                vOnlyZ = System.Windows.Visibility.Collapsed;
                 break;
             case ModeType.ZPlane:
                 textBlockGraphTitle.Text = "Pole-Zero Plot (Z plane)";
-                unitCircle.Visibility = v;
+                vOnlyS = System.Windows.Visibility.Collapsed;
                 break;
             }
 
@@ -169,16 +174,17 @@ namespace WWUserControls {
             mZero.Foreground = color;
 
             {
-                mLineH1.Visibility = v;
+                mLineH1.Visibility = vOnlyS;
                 mLineH2.Visibility = v;
-                mLineH3.Visibility = v;
-                mLineV1.Visibility = v;
+                mLineH3.Visibility = vOnlyS;
+                mLineV1.Visibility = vOnlyS;
                 mLineV2.Visibility = v;
-                mLineV3.Visibility = v;
-                mXm1.Visibility = v;
-                mXp1.Visibility = v;
-                mYm1.Visibility = v;
-                mYp1.Visibility = v;
+                mLineV3.Visibility = vOnlyS;
+                unitCircle.Visibility = vOnlyZ;
+                mXm1.Visibility = vOnlyS;
+                mXp1.Visibility = vOnlyS;
+                mYm1.Visibility = vOnlyS;
+                mYp1.Visibility = vOnlyS;
                 mZero.Visibility = v;
             }
         }
