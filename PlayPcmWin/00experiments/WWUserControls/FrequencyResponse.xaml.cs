@@ -335,7 +335,21 @@ namespace WWUserControls {
             for (int i = 0; i < FR_LINE_WIDTH; ++i) {
                 double ω = 2.0 * Math.PI * PlotXToFrequency(i);
 
-                var h = TransferFunction(new WWComplex(0, ω));
+                WWComplex h;
+                switch (Mode) {
+                case ModeType.SPlane:
+                    h = TransferFunction(new WWComplex(0, ω));
+                    break;
+                case ModeType.ZPlane: {
+                        double θ = ω / NyquistFrequency;
+                        h = TransferFunction(new WWComplex(Math.Cos(θ), Math.Sin(θ)));
+                    }
+                    break;
+                default:
+                    System.Diagnostics.Debug.Assert(false);
+                    h = WWComplex.Unity();
+                    break;
+                }
                 double magnitude = h.Magnitude();
                 if (maxMagnitude < magnitude) {
                     maxMagnitude = magnitude;

@@ -181,10 +181,10 @@ namespace WWUserControls {
                 mLineV2.Visibility = v;
                 mLineV3.Visibility = vOnlyS;
                 unitCircle.Visibility = vOnlyZ;
-                mXm1.Visibility = vOnlyS;
-                mXp1.Visibility = vOnlyS;
-                mYm1.Visibility = vOnlyS;
-                mYp1.Visibility = vOnlyS;
+                mXm1.Visibility = v;
+                mXp1.Visibility = v;
+                mYm1.Visibility = v;
+                mYp1.Visibility = v;
                 mZero.Visibility = v;
             }
         }
