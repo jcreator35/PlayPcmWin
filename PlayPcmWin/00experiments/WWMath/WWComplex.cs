@@ -10,11 +10,6 @@ namespace WWMath {
             this.imaginary = imaginary;
         }
 
-        public WWComplex(WWComplex rhs) {
-            this.real      = rhs.real;
-            this.imaginary = rhs.imaginary;
-        }
-
         public double Magnitude() {
             return Math.Sqrt(real * real + imaginary * imaginary);
         }
@@ -138,109 +133,5 @@ namespace WWMath {
         public static WWComplex Zero() {
             return mZero;
         }
-
-        /*
-        public WWComplex CreateCopy() {
-            return new WWComplex(this);
-        }
-
-        public void Set(double real, double imaginary) {
-            this.real = real;
-            this.imaginary = imaginary;
-        }
-
-        /// <summary>
-        /// 自分自身が書き換わるので注意。value of this instance is changed
-        /// </summary>
-        public WWComplex Add(WWComplex rhs) {
-            real      += rhs.real;
-            imaginary += rhs.imaginary;
-            return this;
-        }
-        /// <summary>
-        /// 自分自身が書き換わるので注意。value of this instance is changed
-        /// </summary>
-        public WWComplex Sub(WWComplex rhs) {
-            real -= rhs.real;
-            imaginary -= rhs.imaginary;
-            return this;
-        }
-
-        /// <summary>
-        /// 自分自身が書き換わるので注意。value of this instance is changed
-        /// </summary>
-        public WWComplex Mul(double v) {
-            real      *= v;
-            imaginary *= v;
-            return this;
-        }
-
-        /// <summary>
-        /// 自分自身が書き換わるので注意。value of this instance is changed
-        /// </summary>
-        public WWComplex Div(double rhs) {
-            var recip = 1.0 / rhs;
-            return Mul(recip);
-        }
-
-        /// <summary>
-        /// 自分自身が書き換わるので注意。value of this instance is changed
-        /// </summary>
-        public WWComplex Mul(WWComplex rhs) {
-#if false
-            // straightforward but slow
-            double tR = real * rhs.real      - imaginary * rhs.imaginary;
-            double tI = real * rhs.imaginary + imaginary * rhs.real;
-            real      = tR;
-            imaginary = tI;
-#else
-            // more efficient way
-            double k1 = real * (rhs.real + rhs.imaginary);
-            double k2 = rhs.imaginary * (real + imaginary);
-            double k3 = rhs.real * (imaginary - real);
-            real = k1 - k2;
-            imaginary = k1 + k3;
-#endif
-            return this;
-        }
-
-        /// <summary>
-        /// 自分自身が書き換わるので注意。value of this instance is changed
-        /// </summary>
-        public WWComplex Div(WWComplex rhs) {
-            var recip = new WWComplex(rhs).Reciprocal();
-            return Mul(recip);
-        }
-        public void CopyFrom(WWComplex rhs) {
-            real      = rhs.real;
-            imaginary = rhs.imaginary;
-        }
-
-        /// <summary>
-        /// 自分自身が書き換わるので注意。value of this instance is changed
-        /// </summary>
-        public WWComplex Reciprocal() {
-            double sq = real * real + imaginary * imaginary;
-            real = real / sq;
-            imaginary = -imaginary / sq;
-            return this;
-        }
-
-        /// <summary>
-        /// 自分自身が書き換わるので注意。value of this instance is changed
-        /// </summary>
-        public WWComplex ComplexConjugate() {
-            imaginary = -imaginary;
-            return this;
-        }
-        public static WWComplex Unity() {
-            return new WWComplex(1, 0);
-        }
-
-        public static WWComplex Zero() {
-            return new WWComplex(0, 0);
-        }
-        */
-
     }
 }

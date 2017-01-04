@@ -415,7 +415,7 @@ namespace WWAudioFilter {
             if (mPoleTable[mN].poleList.Count() <= nth) {
                 return WWComplex.ComplexConjugate(mPoleTable[mN].poleList[mN-1-nth]);
             }
-            return new WWComplex(mPoleTable[mN].poleList[nth]);
+            return mPoleTable[mN].poleList[nth];
         }
 
         public override double TransferFunctionConstant() { return mPoleTable[mN].C; }

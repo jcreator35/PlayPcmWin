@@ -32,7 +32,7 @@ namespace WWMath {
             var rv = new List<WWComplex>();
             rv.Add(new WWComplex(0,0));
             for (int i = 0; i < coeffList.Count; ++i) {
-                rv.Add(new WWComplex(coeffList[i]));
+                rv.Add(coeffList[i]);
             }
             return rv;
         }
@@ -61,7 +61,7 @@ namespace WWMath {
                 if (coeffList.Count <= i) {
                     break;
                 }
-                rv.Add(new WWComplex(coeffList[i]));
+                rv.Add(coeffList[i]);
             }
 
             //強制的に次数を減らした結果最高位の係数が0になったとき次数を減らす処理。
@@ -76,7 +76,7 @@ namespace WWMath {
         ReduceOrder(List<WWComplex> coeffList) {
             var rv = new List<WWComplex>();
             for (int i = 0; i < coeffList.Count; ++i) {
-                rv.Add(new WWComplex(coeffList[i]));
+                rv.Add(coeffList[i]);
             }
 
             for (int i=rv.Count - 1; 0 < i; --i) {
@@ -246,11 +246,11 @@ namespace WWMath {
             rv.coeffList = new List<WWComplex>();
             rv.numerCoeffList = new List<WWComplex>();
             for (int i = 0; i < aNumerCoeffList.Count; ++i) {
-                rv.numerCoeffList.Add(new WWComplex(aNumerCoeffList[i]));
+                rv.numerCoeffList.Add(aNumerCoeffList[i]);
             }
             rv.denomRootList = new List<WWComplex>();
             for (int i = 0; i < aDenomRootList.Count; ++i) {
-                rv.denomRootList.Add(new WWComplex(aDenomRootList[i]));
+                rv.denomRootList.Add(aDenomRootList[i]);
             }
 
             if (rv.numerCoeffList.Count - 1 < rv.denomRootList.Count) {

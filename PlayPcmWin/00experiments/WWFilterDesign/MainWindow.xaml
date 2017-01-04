@@ -84,7 +84,7 @@
                                         <TextBox Name="textBoxGc" Text="-1" Margin="4" Grid.Column="4" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
                                         <TextBox Name="textBoxGs" Text="-90" Margin="4" Grid.Row="0" Grid.Column="7" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
                                         <TextBox Name="textBoxFc" Text="20k" Grid.Row="1" Grid.Column="1" Margin="4" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
-                                        <TextBox Name="textBoxFs" Text="22.5k" Margin="4" Grid.Row="1" Grid.Column="4" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                                        <TextBox Name="textBoxFs" Text="176.4k" Margin="4" Grid.Row="1" Grid.Column="4" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
                                         <Label Content="G0:" HorizontalAlignment="Right" VerticalAlignment="Center" />
                                         <Label Content="dB" Grid.Column="2" VerticalAlignment="Center" />
                                         <Label Content="Gc:" Grid.Row="0" Grid.Column="3" HorizontalAlignment="Right" VerticalAlignment="Center" />
