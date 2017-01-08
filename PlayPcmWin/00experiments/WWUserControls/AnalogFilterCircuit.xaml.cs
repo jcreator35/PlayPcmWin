@@ -386,9 +386,7 @@ namespace WWUserControls {
             double rF = -gain * rIn;
 
             // 入力抵抗Rin
-            AddResistorH(mX, CIRCUIT_INPUT_LINE_H);
-            AddText(mX, CIRCUIT_INPUT_LINE_H - 23, string.Format("R{0}", mR.Count()));
-            mR.Add(rIn);
+            AddResistorH(mX, CIRCUIT_INPUT_LINE_H, ResistorValueString(rIn));
 
             mX += RESISTOR_LENGTH;
 
@@ -427,9 +425,7 @@ namespace WWUserControls {
             }
 
             // 抵抗Rf
-            AddResistorH(mX, CIRCUIT_INPUT_LINE_H - 30);
-            AddText(mX, CIRCUIT_INPUT_LINE_H - 30 - 23, string.Format("R{0}", mR.Count()));
-            mR.Add(rF);
+            AddResistorH(mX, CIRCUIT_INPUT_LINE_H - 30, ResistorValueString(rF));
 
             {
                 // 抵抗Rfの出力からオペアンプの出力への線。
@@ -606,9 +602,6 @@ namespace WWUserControls {
             Canvas.SetTop(tb, y);
         }
 
-        private List<double> mR = new List<double>();
-        private List<double> mC = new List<double>();
-
         /// <summary>
         /// Analog Electronic Filters pp.58
         /// </summary>
@@ -631,7 +624,6 @@ namespace WWUserControls {
 
             // 抵抗R0
             AddResistorH(mX, CIRCUIT_INPUT_LINE_H, ResistorValueString(r0));
-            mR.Add(r0);
 
             // 抵抗の右から出る横線。右にアンプがある。
             AddLine(mX + RESISTOR_LENGTH, CIRCUIT_INPUT_LINE_H,
@@ -645,7 +637,6 @@ namespace WWUserControls {
 
             // キャパシターC0
             AddCapacitorV(mX, CIRCUIT_INPUT_LINE_H + 30, CapacitorValueString(c0));
-            mC.Add(c0);
 
             // キャパシタC0からGNDに接続する線。
             AddLine(mX, CIRCUIT_INPUT_LINE_H + 30 + CAPACITOR_THICKNESS,
@@ -731,17 +722,6 @@ namespace WWUserControls {
 
             textBoxParameters.Text += string.Format("Stage {0} is 2nd order State variable lowpass notch filter. Fp={1}Hz Fn={2}Hz Q={3:G3}\n",
                 nStage + 1, ValueString(ωp / 2 / Math.PI), ValueString(ωn / 2 / Math.PI), Q);
-
-            mR.Add(r);
-            mR.Add(r);
-            mR.Add(r);
-            mR.Add(r);
-            mR.Add(r5);
-            mR.Add(rf);
-            mR.Add(rf);
-            mR.Add(r8);
-            mR.Add(r);
-            mR.Add(r);
 
             // 抵抗R1
             AddResistorH(mX, CIRCUIT_INPUT_LINE_H, ResistorValueString(r));
@@ -1061,7 +1041,6 @@ namespace WWUserControls {
 
             // 抵抗R1
             AddResistorH(mX, CIRCUIT_INPUT_LINE_H, ResistorValueString(r1));
-            mR.Add(r1);
 
             // R1の右から出る横線。R2の入力につながる。
             AddLine(mX + RESISTOR_LENGTH, CIRCUIT_INPUT_LINE_H,
@@ -1071,7 +1050,6 @@ namespace WWUserControls {
 
             // 抵抗R2
             AddResistorH(mX, CIRCUIT_INPUT_LINE_H, ResistorValueString(r2));
-            mR.Add(r2);
 
             {
                 // 抵抗R2の右から出る横線。オペアンプの＋入力につながる。
@@ -1096,7 +1074,6 @@ namespace WWUserControls {
 
             // キャパシターC1
             AddCapacitorH(mX, CIRCUIT_INPUT_LINE_H - 30, CapacitorValueString(c1));
-            mC.Add(c1);
 
             {
                 // キャパシターC1からオペアンプのー入力。
@@ -1117,7 +1094,6 @@ namespace WWUserControls {
 
             // キャパシターC2
             AddCapacitorV(mX, CIRCUIT_INPUT_LINE_H + 30, CapacitorValueString(c2));
-            mC.Add(c2);
 
             // C2からGNDに接続する縦線。
             AddLine(mX, CIRCUIT_INPUT_LINE_H + 30 + CAPACITOR_THICKNESS,
@@ -1236,8 +1212,6 @@ namespace WWUserControls {
         public void Update() {
             canvas1.Children.Clear();
             mX = 0;
-            mR.Clear();
-            mC.Clear();
             textBoxParameters.Clear();
 
             DrawInput();
@@ -1274,14 +1248,6 @@ namespace WWUserControls {
             canvas1.Height = CIRCUIT_INPUT_LINE_H * 3;
 
             textBoxParameters.Text += string.Format("Order = {0}, Stage = {1}\n", order, mRealPolynomialList.Count());
-            /*
-            for (int i = 0; i < mR.Count(); ++i) {
-                textBoxParameters.Text += string.Format("R{0}={1}\n", i, ResistorValueString(mR[i]));
-            }
-            for (int i = 0; i < mC.Count(); ++i) {
-                textBoxParameters.Text += string.Format("C{0}={1}\n", i, CapacitorValueString(mC[i]));
-            }
-            */
         }
     }
 }
