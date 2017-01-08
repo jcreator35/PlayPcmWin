@@ -1137,11 +1137,11 @@ namespace WWUserControls {
             }
             if (100.0 <= v) {
                 // 100Ω~999Ω
-                return string.Format("{0:F0}k", v);
+                return string.Format("{0:F0}", v);
             }
             if (10.0 <= v) {
                 // 10Ω~99Ω
-                return string.Format("{0:F1}k", v);
+                return string.Format("{0:F1}", v);
             }
 
             if (v < 0.01 * 0.001 * 0.001 * 0.001) {
