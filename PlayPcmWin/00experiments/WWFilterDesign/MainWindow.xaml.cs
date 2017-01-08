@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using WWMath;
 using System.Collections.Generic;
+using WWAnalogFilterDesign;
 
 namespace WWAudioFilter {
     /// <summary>

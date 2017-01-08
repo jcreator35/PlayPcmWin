@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WWMath", "..\WWMath\WWMath.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WWUserControls", "..\WWUserControls\WWUserControls.csproj", "{2721D7F3-8A5A-4059-A619-BB5ED7ACCC0C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WWAnalogFilterDesign", "..\WWAnalogFilterDesign\WWAnalogFilterDesign.csproj", "{1E839CF4-3899-48BE-A4B2-047CA45BFBC2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -42,6 +44,14 @@ Global
 		{2721D7F3-8A5A-4059-A619-BB5ED7ACCC0C}.Release|x64.Build.0 = Release|x64
 		{2721D7F3-8A5A-4059-A619-BB5ED7ACCC0C}.Release|x86.ActiveCfg = Release|x86
 		{2721D7F3-8A5A-4059-A619-BB5ED7ACCC0C}.Release|x86.Build.0 = Release|x86
+		{1E839CF4-3899-48BE-A4B2-047CA45BFBC2}.Debug|x64.ActiveCfg = Debug|x64
+		{1E839CF4-3899-48BE-A4B2-047CA45BFBC2}.Debug|x64.Build.0 = Debug|x64
+		{1E839CF4-3899-48BE-A4B2-047CA45BFBC2}.Debug|x86.ActiveCfg = Debug|x86
+		{1E839CF4-3899-48BE-A4B2-047CA45BFBC2}.Debug|x86.Build.0 = Debug|x86
+		{1E839CF4-3899-48BE-A4B2-047CA45BFBC2}.Release|x64.ActiveCfg = Release|x64
+		{1E839CF4-3899-48BE-A4B2-047CA45BFBC2}.Release|x64.Build.0 = Release|x64
+		{1E839CF4-3899-48BE-A4B2-047CA45BFBC2}.Release|x86.ActiveCfg = Release|x86
+		{1E839CF4-3899-48BE-A4B2-047CA45BFBC2}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
