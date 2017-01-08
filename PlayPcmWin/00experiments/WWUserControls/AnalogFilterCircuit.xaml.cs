@@ -20,6 +20,7 @@ namespace WWUserControls {
         private List<RationalPolynomial> mRealPolynomialList = new List<RationalPolynomial>();
 
         public enum ResistorValueType {
+            RV_680Ω,
             RV_1kΩ,
             RV_1_5kΩ,
             RV_2_2kΩ,
@@ -37,6 +38,7 @@ namespace WWUserControls {
         };
 
         private double[] mResistorValues = new double[] {
+            680,
             1000,
             1500,
             2200,
@@ -53,6 +55,7 @@ namespace WWUserControls {
         };
 
         private string[] mResistorStrings = new string[] {
+            "680Ω",
             "1.0kΩ",
             "1.5kΩ",
             "2.2kΩ",
