@@ -212,7 +212,7 @@ namespace WWAudioFilter {
 
             AddLog(string.Format("Transfer function with real coefficients H(s) = "));
             for (int i = 0; i < mAfd.RealPolynomialCount(); ++i) {
-                AddLog(string.Format("{0}", mAfd.RealPolynomialNth(i).ToString("(s/ωc)")));
+                AddLog(mAfd.RealPolynomialNth(i).ToString("(s/ωc)"));
                 if (i != mAfd.RealPolynomialCount() - 1) {
                     AddLog(" + ");
                 }
@@ -280,10 +280,7 @@ namespace WWAudioFilter {
 
             mAnalogFilterCircuit.Clear();
 
-            if (0 < mAfd.NumOfZeroes()) {
-                // 零を含む回路の表示は未実装。
-                groupBoxAFC.Visibility = System.Windows.Visibility.Collapsed;
-            } else {
+            {
                 groupBoxAFC.Visibility = System.Windows.Visibility.Visible;
                 mAnalogFilterCircuit.CutoffFrequencyHz = mFc;
                 for (int i = 0; i < mAfd.RealPolynomialCount(); ++i) {

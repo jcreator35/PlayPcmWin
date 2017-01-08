@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 namespace WWMath {
     public class FirstOrderRationalPolynomial : RationalPolynomial {
-        private WWComplex[] numer = new WWComplex[2];
-        private WWComplex[] denom = new WWComplex[2];
+        private readonly WWComplex[] numer = new WWComplex[2];
+        private readonly WWComplex[] denom = new WWComplex[2];
 
         /// <summary>
         /// rational polynomial
@@ -29,14 +29,6 @@ namespace WWMath {
 
         public override int Order() { return 1; }
 
-        public override WWComplex[] NumeratorCoeffs() {
-            return numer;
-        }
-
-        public override WWComplex[] DenominatorCoeffs() {
-            return denom;
-        }
-
         public override WWComplex N(int nth) {
             return numer[nth];
         }
@@ -53,12 +45,6 @@ namespace WWMath {
             string n = WWUtil.PolynomialToString(numer[1], numer[0], variableSymbol);
             string d = WWUtil.PolynomialToString(denom[1], denom[0], variableSymbol);
             return string.Format("{{ {0} }} / {{ {1} }}", n, d);
-        }
-
-        public FirstOrderRationalPolynomial CreateCopy() {
-            return new FirstOrderRationalPolynomial(
-                numer[1], numer[0],
-                denom[1], denom[0]);
         }
 
         /// <summary>
@@ -83,16 +69,16 @@ namespace WWMath {
         }
 
         /// <summary>
-        /// 2つの1次多項式のリストを足したコピーを作成する。引数のリストの内容は変更しない。
+        /// 2つの1次多項式のリストを足したリストを戻す。
         /// </summary>
         public static List<FirstOrderRationalPolynomial> Add(List<FirstOrderRationalPolynomial> lhs, List<FirstOrderRationalPolynomial> rhs) {
             var rv = new List<FirstOrderRationalPolynomial>();
 
             foreach (var i in lhs) {
-                rv.Add(i.CreateCopy());
+                rv.Add(i);
             }
             foreach (var i in rhs) {
-                rv.Add(i.CreateCopy());
+                rv.Add(i);
             }
 
             return rv;

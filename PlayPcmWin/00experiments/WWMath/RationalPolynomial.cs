@@ -2,11 +2,6 @@
 namespace WWMath {
     public abstract class RationalPolynomial {
 
-
-        public abstract WWComplex[] NumeratorCoeffs();
-
-        public abstract WWComplex[] DenominatorCoeffs();
-
         public abstract WWComplex N(int nth);
 
         public abstract WWComplex D(int nth);

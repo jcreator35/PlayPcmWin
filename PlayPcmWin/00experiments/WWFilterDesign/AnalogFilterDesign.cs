@@ -291,31 +291,80 @@ namespace WWAudioFilter {
 
                 TimeDomainFunctionTimeScale = 1.0 / filter.CutoffFrequencyHz();
 
-                // 共役複素数のペアを組み合わせて伝達関数の係数を全て実数にする。
-                // s平面のjω軸から遠い項から並べる。
-                mRealPolynomialList.Clear();
-                if (( H_fraction.Count() & 1 ) == 1) {
-                    // 奇数。
-                    int center = H_fraction.Count() / 2;
-                    mRealPolynomialList.Add(H_fraction[center].CreateCopy());
-                    for (int i = 0; i < H_fraction.Count() / 2; ++i) {
-                        mRealPolynomialList.Add(WWPolynomial.Mul(
-                            H_fraction[center - i - 1], H_fraction[center + i + 1]));
+                if (NumOfZeroes() == 0) {
+                    // 共役複素数のペアを組み合わせて伝達関数の係数を全て実数にする。
+                    // s平面のjω軸から遠い項から並べる。
+                    mRealPolynomialList.Clear();
+                    if ((H_fraction.Count() & 1) == 1) {
+                        // 奇数。
+                        int center = H_fraction.Count() / 2;
+                        mRealPolynomialList.Add(H_fraction[center]);
+                        for (int i = 0; i < H_fraction.Count() / 2; ++i) {
+                            mRealPolynomialList.Add(WWPolynomial.Mul(
+                                H_fraction[center - i - 1], H_fraction[center + i + 1]));
+                        }
+                    } else {
+                        // 偶数。
+                        int center = H_fraction.Count() / 2;
+                        for (int i = 0; i < H_fraction.Count() / 2; ++i) {
+                            mRealPolynomialList.Add(WWPolynomial.Mul(
+                                H_fraction[center - i - 1], H_fraction[center + i]));
+                        }
                     }
-                } else {
-                    // 偶数。
-                    int center = H_fraction.Count() / 2;
-                    for (int i = 0; i < H_fraction.Count() / 2; ++i) {
-                        mRealPolynomialList.Add(WWPolynomial.Mul(
-                            H_fraction[center - i - 1], H_fraction[center + i]));
-                    }
-                }
 
-                {   // integral polynomialは全て実数係数の多項式。単に足す。
-                    System.Diagnostics.Debug.Assert(H_integer.Count <= 1);
-                    foreach (var p in H_integer) {
-                        mRealPolynomialList.Add(p);
+#if true
+                    System.Diagnostics.Debug.Assert(H_integer.Count == 0);
+#else
+                    {   // integral polynomialは全て実数係数の多項式。単に足す。
+                        foreach (var p in H_integer) {
+                            mRealPolynomialList.Add(p);
+                        }
                     }
+#endif
+                } else {
+                    // 共役複素数のペアを組み合わせて伝達関数の係数を全て実数にする。
+                    // s平面のjω軸から遠い項から並べる。
+
+                    // zeroListとPoleListを使って、実係数の2次多項式を作り、
+                    // 伝達関数をこういう感じに実係数2次有理多項式の積の形にする。
+                    //            (s^2+c1)(s^2+c2)          (s^2+c1)       (s^2+c2)
+                    // H(s) = ──────────────────────── ⇒ ──────────── * ────────────
+                    //        (s^2+a1s+b1)(s^2+a2s+b2)    (s^2+a1s+b1)   (s^2+a2s+b2)
+
+
+                    mRealPolynomialList.Clear();
+                    if ((mPoleList.Count & 1) == 1) {
+                        // 奇数。
+                        int center = mPoleList.Count / 2;
+                        mRealPolynomialList.Add(new FirstOrderRationalPolynomial(
+                            WWComplex.Zero(), WWComplex.Unity(),
+                            WWComplex.Unity(), WWComplex.Minus(mPoleList[center])));
+
+                        for (int i = 0; i < mPoleList.Count / 2; ++i) {
+                            var p0 = new FirstOrderRationalPolynomial(
+                                WWComplex.Unity(), WWComplex.Minus(mZeroList[center - i - 1]),
+                                WWComplex.Unity(), WWComplex.Minus(mPoleList[center - i - 1]));
+                            var p1 = new FirstOrderRationalPolynomial(
+                                WWComplex.Unity(), WWComplex.Minus(mZeroList[center + i]),
+                                WWComplex.Unity(), WWComplex.Minus(mPoleList[center + i + 1]));
+                            var p = WWPolynomial.Mul(p0, p1);
+                            mRealPolynomialList.Add(p);
+                        }
+                    } else {
+                        // 偶数。
+                        int center = mPoleList.Count / 2;
+                        for (int i = 0; i < mPoleList.Count / 2; ++i) {
+                            var p0 = new FirstOrderRationalPolynomial(
+                                WWComplex.Unity(), WWComplex.Minus(mZeroList[center - i - 1]),
+                                WWComplex.Unity(), WWComplex.Minus(mPoleList[center - i - 1]));
+                            var p1 = new FirstOrderRationalPolynomial(
+                                WWComplex.Unity(), WWComplex.Minus(mZeroList[center + i]),
+                                WWComplex.Unity(), WWComplex.Minus(mPoleList[center + i]));
+                            var p = WWPolynomial.Mul(p0, p1);
+                            mRealPolynomialList.Add(p);
+                        }
+                    }
+
                 }
 
                 return true;

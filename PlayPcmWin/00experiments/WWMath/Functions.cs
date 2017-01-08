@@ -53,7 +53,7 @@ namespace WWMath {
 
                 ++i;
             }
-            Console.WriteLine("AGM {0}", i);
+            //Console.WriteLine("AGM {0}", i);
 
             return x;
         }

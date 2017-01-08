@@ -61,7 +61,16 @@ namespace WWUserControls.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Resistor value of stage #{0} = {1}.
+        ///   Looks up a localized string similar to C of stage #{0} = {1}.
+        /// </summary>
+        internal static string CapacitorValueDescription {
+            get {
+                return ResourceManager.GetString("CapacitorValueDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to R of stage #{0} = {1}.
         /// </summary>
         internal static string ResistorValueDescription {
             get {

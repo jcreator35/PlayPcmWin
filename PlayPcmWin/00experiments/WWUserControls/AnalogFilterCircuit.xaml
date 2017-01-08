@@ -26,14 +26,14 @@
                 <Line X1="130" Y1="110" X2="135" Y2="100" Stroke="Black" />
             </Canvas>
         </ScrollViewer>
-        <GroupBox Grid.Row="1" Header="Resistor and Capacitor Values" Name="groupBoxParameters" Grid.Column="1">
+        <GroupBox Grid.Row="1" Header="Design notes" Name="groupBoxParameters" Grid.Column="1">
             <Grid>
                 <TextBox Name="textBoxParameters" AcceptsReturn="True" AcceptsTab="True" IsReadOnly="True" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" />
             </Grid>
         </GroupBox>
         <GroupBox Grid.Row="1" Header="Resistor Values Settings" Name="groupBoxResistorValueSettings" >
             <ScrollViewer>
-                <StackPanel Name="stackPanelResistor" Margin="4" />
+                <StackPanel Name="stackPanelResistor" />
             </ScrollViewer>
         </GroupBox>
     </Grid>

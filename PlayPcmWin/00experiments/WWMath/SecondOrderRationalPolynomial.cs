@@ -2,8 +2,8 @@
 
 namespace WWMath {
     public class SecondOrderRationalPolynomial : RationalPolynomial {
-        private WWComplex[] numer = new WWComplex[3];
-        private WWComplex[] denom = new WWComplex[3];
+        private readonly WWComplex[] numer = new WWComplex[3];
+        private readonly WWComplex[] denom = new WWComplex[3];
 
         /// <summary>
         /// rational polynomial
@@ -33,14 +33,6 @@ namespace WWMath {
         }
 
         public override int Order() { return 2; }
-
-        public override WWComplex[] NumeratorCoeffs() {
-            return numer;
-        }
-
-        public override WWComplex[] DenominatorCoeffs() {
-            return denom;
-        }
 
         public override WWComplex N(int nth) {
             return numer[nth];
