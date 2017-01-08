@@ -668,7 +668,7 @@ namespace WWUserControls {
 
         /// <summary>
         /// 2nd order state variable lowpass notch or highpass notch filter
-        /// 今田悟 深谷武彦,実用アナログフィルタ設計法,CQ出版,1989
+        /// 今田悟 and 深谷武彦,実用アナログフィルタ設計法,CQ出版,1989
         /// p.63 and p.58 Figure 2.15(a)
         /// </summary>
         private void DrawStateVariableNotchSecondOrderFilter(int nStage, SecondOrderRationalPolynomial ps, double r, double c) {
