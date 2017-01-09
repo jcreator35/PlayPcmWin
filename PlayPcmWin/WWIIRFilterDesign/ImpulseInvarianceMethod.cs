@@ -15,6 +15,11 @@ namespace WWIIRFilterDesign {
             return mH_z;
         }
 
+        /// <summary>
+        /// Design of Discrete-time IIR filters from continuous-time filter using impulse invariance method
+        /// A. V. Oppenheim, R. W. Schafer, Discrete-Time Signal Processing, 3rd Ed, Prentice Hall, 2009
+        /// pp. 526 - 529
+        /// </summary>
         public ImpulseInvarianceMethod(List<FirstOrderRationalPolynomial> H_s, double ωc, double sampleFreq) {
             /*
              * H_sはノーマライズされているので、戻す。
