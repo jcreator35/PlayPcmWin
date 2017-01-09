@@ -81,7 +81,7 @@ namespace WWUserControls {
         }
 
         public void AddZero(WWComplex zero) {
-            mPoleCoordList.Add(zero);
+            mZeroCoordList.Add(zero);
         }
 
         public void ClearPoleZero() {
