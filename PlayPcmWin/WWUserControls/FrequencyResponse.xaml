@@ -106,8 +106,8 @@
                     <ComboBoxItem Content="24 dB" />
                     <ComboBoxItem Content="48 dB" />
                     <ComboBoxItem Content="72 dB" />
-                    <ComboBoxItem Content="96 dB" IsSelected="True"/>
-                    <ComboBoxItem Content="120 dB" />
+                    <ComboBoxItem Content="96 dB" />
+                    <ComboBoxItem Content="120 dB" IsSelected="True" />
                     <ComboBoxItem Content="140 dB" />
                     <ComboBoxItem Content="160 dB" />
                     <ComboBoxItem Content="180 dB" />

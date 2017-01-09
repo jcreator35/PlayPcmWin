@@ -7,6 +7,8 @@ namespace WWMath {
         public abstract WWComplex D(int nth);
 
         public abstract int Order();
+        public abstract int NumerOrder();
+        public abstract int DenomOrder();
 
         public abstract string ToString(string variableSymbol);
 

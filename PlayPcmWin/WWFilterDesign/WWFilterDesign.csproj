@@ -127,6 +127,10 @@
       <Project>{1E839CF4-3899-48BE-A4B2-047CA45BFBC2}</Project>
       <Name>WWAnalogFilterDesign</Name>
     </ProjectReference>
+    <ProjectReference Include="..\WWIIRFilterDesign\WWIIRFilterDesign.csproj">
+      <Project>{5A41EECC-9BB3-478E-B2A5-715CF1C61E8A}</Project>
+      <Name>WWIIRFilterDesign</Name>
+    </ProjectReference>
     <ProjectReference Include="..\WWMath\WWMath.csproj">
       <Project>{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}</Project>
       <Name>WWMath</Name>

@@ -19,7 +19,8 @@
 
             <ScrollViewer>
                 <WrapPanel>
-                    <GroupBox Header="Analog Filter Specification" Height="209" Name="groupBoxSpecification" >
+
+                    <GroupBox Header="Analog Filter Specification" Height="255" Name="groupBoxSpecification" >
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="200" />
@@ -59,8 +60,8 @@
                                         <RadioButton Content="Butterworth" HorizontalAlignment="Left" Name="radioButtonFilterTypeButterworth" VerticalAlignment="Center" Margin="6,6,0,6" Checked="buttonUpdate_Click" />
                                         <RadioButton Grid.Column="1" Content="Chebyshev" HorizontalAlignment="Left" Name="radioButtonFilterTypeChebyshev" VerticalAlignment="Center" Margin="6,6,0,6" Checked="buttonUpdate_Click" />
                                         <RadioButton Grid.Column="2" Content="Pascal" HorizontalAlignment="Left" Name="radioButtonFilterTypePascal" VerticalAlignment="Center" Margin="6,6,0,6" Checked="buttonUpdate_Click" />
-                                        <RadioButton Grid.Row="1" Content="Inverse Chebyshev" HorizontalAlignment="Left" Name="radioButtonFilterTypeInverseChebyshev" VerticalAlignment="Center" Margin="6,6,0,6" Checked="buttonUpdate_Click" IsChecked="True" />
-                                        <RadioButton Grid.Row="1" Grid.Column="1" Content="Cauer Elliptic" HorizontalAlignment="Left" Name="radioButtonFilterTypeCauer" VerticalAlignment="Center" Margin="6,6,0,6" Checked="buttonUpdate_Click" />
+                                        <RadioButton Grid.Row="1" Content="Inverse Chebyshev" HorizontalAlignment="Left" Name="radioButtonFilterTypeInverseChebyshev" VerticalAlignment="Center" Margin="6,6,0,6" Checked="buttonUpdate_Click" />
+                                        <RadioButton Grid.Row="1" Grid.Column="1" Content="Cauer Elliptic" HorizontalAlignment="Left" Name="radioButtonFilterTypeCauer" VerticalAlignment="Center" Margin="6,6,0,6" Checked="buttonUpdate_Click" IsChecked="True" />
                                     </Grid>
                                 </GroupBox>
                                 <GroupBox Header="Design Parameters" Width="400" Name="groupBoxDesignParameters" HorizontalAlignment="Left">
@@ -82,9 +83,9 @@
                                         </Grid.RowDefinitions>
                                         <TextBox Name="textBoxG0" Text="0" Margin="4" Grid.Column="1" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" IsReadOnly="True" />
                                         <TextBox Name="textBoxGc" Text="-1" Margin="4" Grid.Column="4" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
-                                        <TextBox Name="textBoxGs" Text="-90" Margin="4" Grid.Row="0" Grid.Column="7" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                                        <TextBox Name="textBoxGs" Text="-120" Margin="4" Grid.Row="0" Grid.Column="7" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
                                         <TextBox Name="textBoxFc" Text="20k" Grid.Row="1" Grid.Column="1" Margin="4" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
-                                        <TextBox Name="textBoxFs" Text="176.4k" Margin="4" Grid.Row="1" Grid.Column="4" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                                        <TextBox Name="textBoxFs" Text="22.05k" Margin="4" Grid.Row="1" Grid.Column="4" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
                                         <Label Content="G0:" HorizontalAlignment="Right" VerticalAlignment="Center" />
                                         <Label Content="dB" Grid.Column="2" VerticalAlignment="Center" />
                                         <Label Content="Gc:" Grid.Row="0" Grid.Column="3" HorizontalAlignment="Right" VerticalAlignment="Center" />
@@ -102,6 +103,19 @@
                                         </ComboBox>
                                     </Grid>
                                 </GroupBox>
+                                <GroupBox Header="Discrete-time IIR filter parameter">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="5*" />
+                                            <ColumnDefinition Width="3*" />
+                                            <ColumnDefinition Width="2*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Label Content="Sampling Frequency:" HorizontalAlignment="Right" Name="labelSamplingFrequency" VerticalAlignment="Center" />
+                                        <TextBox Grid.Column="1" Text="176.4k" HorizontalContentAlignment="Right" HorizontalAlignment="Left" Name="textBoxSamplingFrequency" VerticalAlignment="Center" Width="120" />
+                                        <Label Content="Hz" Grid.Column="2" HorizontalAlignment="Left" Name="labelSamplingHz" VerticalAlignment="Center" />
+                                    </Grid>
+                                </GroupBox>
+
                                 <Button Content="Update" Name="buttonUpdate" Width="75" Click="buttonUpdate_Click" HorizontalContentAlignment="Center" HorizontalAlignment="Left" />
                             </StackPanel>
                         </Grid>
@@ -110,13 +124,19 @@
                         <wwuc:AnalogFilterCircuit x:Name="mAnalogFilterCircuit"  />
                     </GroupBox>
                     <GroupBox Header="Pole-Zero Plot" Name="groupBoxPoleZero" >
-                        <wwuc:PoleZeroPlot x:Name="mPoleZeroPlot"  />
+                        <wwuc:PoleZeroPlot x:Name="mPoleZeroPlotS"  />
                     </GroupBox>
                     <GroupBox Header="Frequency Response" Name="groupBoxFR">
-                        <wwuc:FrequencyResponse x:Name="mFrequencyResponse"  />
+                        <wwuc:FrequencyResponse x:Name="mFrequencyResponseS"  />
                     </GroupBox>
                     <GroupBox Header="Time Domain Plot" Name="groupBoxTD">
                         <wwuc:TimeDomainPlot x:Name="mTimeDomainPlot"  />
+                    </GroupBox>
+                    <GroupBox Header="Pole-Zero Plot of Discrete-time IIR filter" Name="groupBoxPoleZeroZ" >
+                        <wwuc:PoleZeroPlot x:Name="mPoleZeroPlotZ"  />
+                    </GroupBox>
+                    <GroupBox Header="Frequency Response of Discrete-time IIR filter" Name="groupBoxFRZ">
+                        <wwuc:FrequencyResponse x:Name="mFrequencyResponseZ"  />
                     </GroupBox>
                 </WrapPanel>
             </ScrollViewer>

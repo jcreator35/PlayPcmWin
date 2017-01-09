@@ -291,7 +291,7 @@ namespace WWUserControls {
             l.Y2 = y2;
         }
 
-        public Common.TransferFunctionDelegate TransferFunction = (WWComplex s) => { return new WWComplex(1, 0); };
+        public WWMath.Functions.TransferFunctionDelegate TransferFunction = (WWComplex s) => { return new WWComplex(1, 0); };
 
         public void ModeChanged() {
             if (!mInitialized) {

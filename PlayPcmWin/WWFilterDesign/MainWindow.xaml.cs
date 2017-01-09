@@ -3,6 +3,7 @@ using System.ComponentModel;
 using WWMath;
 using System.Collections.Generic;
 using WWAnalogFilterDesign;
+using System;
 
 namespace WWAudioFilter {
     /// <summary>
@@ -80,17 +81,29 @@ namespace WWAudioFilter {
             return s;
         }
 
-        double mG0 = 0;
-        double mGc = 0;
-        double mGs = 0;
-        double mFc = 0;
-        double mFs = 0;
-        ApproximationBase.BetaType mBetaType;
-        AnalogFilterDesign.FilterType mFilterType;
+        private double mG0 = 0;
+        private double mGc = 0;
+        private double mGs = 0;
+        private double mFc = 0;
+        private double mFs = 0;
+        private ApproximationBase.BetaType mBetaType;
+        private AnalogFilterDesign.FilterType mFilterType;
+        private double mSamplingFrequency = 176400;
+
+        private bool TryParseNumberWithUnit(string s, out double number) {
+            double unit = 1.0;
+            number = 0.0;
+
+            var sNumber = TrimUnitString(s, out unit);
+            if (!double.TryParse(sNumber, out number)) {
+                //MessageBox.Show(string.Format("{0} parse error.",s));
+                return false;
+            }
+            number *= unit;
+            return true;
+        }
 
         private bool GetParametersFromUI() {
-            double unit = 1.0;
-
             if (!double.TryParse(textBoxG0.Text, out mG0)) {
                 MessageBox.Show("G0 parse error.");
                 return false;
@@ -104,21 +117,16 @@ namespace WWAudioFilter {
                 return false;
             }
 
-            string fcS = textBoxFc.Text;
-            fcS = TrimUnitString(fcS, out unit);
-            if (!double.TryParse(fcS, out mFc) || mFc <= 0) {
+            if (!TryParseNumberWithUnit(textBoxFc.Text, out mFc) || mFc <= 0) {
                 MessageBox.Show("Fc parse error. Fc must be greater than 0");
                 return false;
             }
-            mFc *= unit;
 
-            string fsS = textBoxFs.Text;
-            fsS = TrimUnitString(fsS, out unit);
-            if (!double.TryParse(fsS, out mFs)) {
+            if (!TryParseNumberWithUnit(textBoxFs.Text, out mFs)) {
                 MessageBox.Show("Fs parse error. Fs must be number.");
                 return false;
             }
-            mFs *= unit;
+
             if (mFs <= 0 || mFs <= mFc) {
                 MessageBox.Show("Fs parse error. Fs must be greater than Fc and greater than 0");
                 return false;
@@ -142,6 +150,12 @@ namespace WWAudioFilter {
             if (radioButtonFilterTypeCauer.IsChecked == true) {
                 mFilterType = AnalogFilterDesign.FilterType.Cauer;
             }
+
+            if (!TryParseNumberWithUnit(textBoxSamplingFrequency.Text, out mSamplingFrequency) || mSamplingFrequency <= 0) {
+                MessageBox.Show("SamplingFrequency parse error. it must be greater than 0");
+                return false;
+            }
+
             return true;
         }
 
@@ -221,9 +235,11 @@ namespace WWAudioFilter {
             AddLog("\n");
 
             // インパルス応答の式をログに出力。
+            var H_s = new List<FirstOrderRationalPolynomial>();
             AddLog(("Impulse Response (frequency normalized): h(t) = "));
             for (int i = 0; i < mAfd.HPfdCount(); ++i) {
                 var p = mAfd.HPfdNth(i);
+                H_s.Add(p);
 
                 if (!p.N(1).EqualValue(WWComplex.Zero())) {
                     throw new System.NotImplementedException();
@@ -248,27 +264,27 @@ namespace WWAudioFilter {
             AddLog("\n");
 
             // 周波数応答グラフに伝達関数をセット。
-            mFrequencyResponse.TransferFunction = mAfd.TransferFunction;
-            mFrequencyResponse.Update();
+            mFrequencyResponseS.TransferFunction = mAfd.TransferFunction;
+            mFrequencyResponseS.Update();
 
             // Pole-Zeroプロットに極と零の位置をセット。
-            mPoleZeroPlot.ClearPoleZero();
+            mPoleZeroPlotS.ClearPoleZero();
 
             double scale = mAfd.PoleNth(0).Magnitude();
             if (0 < mAfd.NumOfZeroes() && scale < mAfd.ZeroNth(0).Magnitude()) {
                 scale = mAfd.ZeroNth(0).Magnitude();
             }
-            mPoleZeroPlot.SetScale(scale);
+            mPoleZeroPlotS.SetScale(scale);
             for (int i = 0; i < mAfd.NumOfPoles(); ++i) {
                 var p = mAfd.PoleNth(i);
-                mPoleZeroPlot.AddPole(p);
+                mPoleZeroPlotS.AddPole(p);
             }
             for (int i = 0; i < mAfd.NumOfZeroes(); ++i) {
                 var p = mAfd.ZeroNth(i);
-                mPoleZeroPlot.AddZero(p);
+                mPoleZeroPlotS.AddZero(p);
             }
-            mPoleZeroPlot.TransferFunction = mAfd.PoleZeroPlotTransferFunction;
-            mPoleZeroPlot.Update();
+            mPoleZeroPlotS.TransferFunction = mAfd.PoleZeroPlotTransferFunction;
+            mPoleZeroPlotS.Update();
 
             // 時間ドメインプロットの更新。
             mTimeDomainPlot.ImpulseResponseFunction = mAfd.ImpulseResponseFunction;
@@ -290,6 +306,19 @@ namespace WWAudioFilter {
                 mAnalogFilterCircuit.AddFinished();
                 mAnalogFilterCircuit.Update();
             }
+
+            // IIRフィルターの表示。
+            var iim = new WWIIRFilterDesign.ImpulseInvarianceMethod(H_s, mFc * 2.0 * Math.PI, mSamplingFrequency);
+            AddLog(string.Format("IIR Filter H(z) = {0}", iim.Hz().ToString("z", WWUtil.SymbolOrder.Inverted)));
+
+            mPoleZeroPlotZ.Mode = WWUserControls.PoleZeroPlot.ModeType.ZPlane;
+            mPoleZeroPlotZ.TransferFunction = iim.TransferFunction;
+            mPoleZeroPlotZ.Update();
+
+            mFrequencyResponseZ.Mode = WWUserControls.FrequencyResponse.ModeType.ZPlane;
+            mFrequencyResponseZ.NyquistFrequency = mSamplingFrequency / 2;
+            mFrequencyResponseZ.TransferFunction = iim.TransferFunction;
+            mFrequencyResponseZ.Update();
         }
 
         void CalcFilter(object sender, DoWorkEventArgs e) {

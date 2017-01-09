@@ -36,10 +36,10 @@ namespace WWAnalogFilterDesign {
         private List<WWComplex> mPoleList = new List<WWComplex>();
         private List<WWComplex> mZeroList = new List<WWComplex>();
 
-        public WWUserControls.Common.TransferFunctionDelegate TransferFunction;
-        public WWUserControls.Common.TransferFunctionDelegate PoleZeroPlotTransferFunction;
-        public WWUserControls.Common.TimeDomainResponseFunctionDelegate ImpulseResponseFunction;
-        public WWUserControls.Common.TimeDomainResponseFunctionDelegate UnitStepResponseFunction;
+        public WWMath.Functions.TransferFunctionDelegate TransferFunction;
+        public WWMath.Functions.TransferFunctionDelegate PoleZeroPlotTransferFunction;
+        public WWMath.Functions.TimeDomainResponseFunctionDelegate ImpulseResponseFunction;
+        public WWMath.Functions.TimeDomainResponseFunctionDelegate UnitStepResponseFunction;
 
         public double TimeDomainFunctionTimeScale { get; set; }
 

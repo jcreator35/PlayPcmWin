@@ -24,6 +24,75 @@ namespace WWMath {
             return new SecondOrderRationalPolynomial(n2, n1, n0, d2, d1, d0);
         }
 
+        public static HighOrderRationalPolynomial
+        Add(HighOrderRationalPolynomial lhs, FirstOrderRationalPolynomial rhs) {
+            /*  nL          nR
+             * x^2+2x+2    x+4
+             * ───────── + ────
+             * x^2+ x+1    x+3
+             *  dL          dR
+             *  
+             *          dL       dR
+             * 分母 = (x^2+x+1) (x+3)
+             * 分母の次数 = order(dL) + order(dR) + 1
+             * 
+             *          nL       dR      nR    dL
+             * 分子 = (x^2+2x+2)(x+3) + (x+4)(x^2+x+1)
+             * 分子の次数 = order(nL) + order(dR) + 1 か order(nR) * order(dL) + 1の大きいほう
+             */
+
+            var denomL = new List<WWComplex>();
+            for (int i = 0; i < lhs.DenomOrder()+1; ++i) {
+                denomL.Add(lhs.D(i));
+            }
+            var numerL = new List<WWComplex>();
+            for (int i = 0; i < lhs.NumerOrder()+1; ++i) {
+                numerL.Add(lhs.N(i));
+            }
+
+            // 分母の項
+            List<WWComplex> denomResult;
+            {
+                var denomX = new List<WWComplex>();
+                if (1 == rhs.DenomOrder()) {
+                    denomX = MultiplyX(denomL);
+                    denomX = MultiplyC(denomX, rhs.D(1));
+                }
+                var denomC = MultiplyC(denomL, rhs.D(0));
+                denomResult = Add(denomX, denomC);
+            }
+
+            // 分子の項
+            List<WWComplex> numerResult;
+            {
+                List<WWComplex> numer0;
+                {
+                    var numerX0 = new List<WWComplex>();
+                    if (1 == rhs.DenomOrder()) {
+                        numerX0 = MultiplyX(numerL);
+                        numerX0 = MultiplyC(numerX0, rhs.D(1));
+                    }
+                    var numerC0 = MultiplyC(numerL, rhs.D(0));
+                    numer0 = Add(numerX0, numerC0);
+                }
+
+                List<WWComplex> numer1;
+                {
+                    var numerX1 = new List<WWComplex>();
+                    if (1 == rhs.NumerOrder()) {
+                        numerX1 = MultiplyX(denomL);
+                        numerX1 = MultiplyC(numerX1, rhs.N(1));
+                    }
+                    var numerC1 = MultiplyC(denomL, rhs.N(0));
+                    numer1 = Add(numerX1, numerC1);
+                }
+
+                numerResult = Add(numer0, numer1);
+            }
+
+            return new HighOrderRationalPolynomial(numerResult.ToArray(), denomResult.ToArray());
+        }
+
         /// <summary>
         /// 多項式の係数のリスト(変数x)を受け取ってx倍して戻す。引数のcoeffListの内容は変更しない。
         /// </summary>

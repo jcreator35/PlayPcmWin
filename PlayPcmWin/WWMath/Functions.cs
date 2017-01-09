@@ -215,6 +215,9 @@ namespace WWMath {
             return rv;
         }
 
+        public delegate WWComplex TransferFunctionDelegate(WWComplex s);
+        public delegate double TimeDomainResponseFunctionDelegate(double t);
+
         public static void Test() {
             for (double k=0.9999; k < 1; k += 0.00001) {
                 var v0=AGM(1, Math.Sqrt(1 - k * k));

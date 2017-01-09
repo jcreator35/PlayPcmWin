@@ -29,6 +29,20 @@ namespace WWMath {
 
         public override int Order() { return 1; }
 
+        public override int NumerOrder() {
+            if (numer[1].Magnitude() == 0) {
+                return 0;
+            }
+            return 1;
+        }
+
+        public override int DenomOrder() {
+            if (denom[1].Magnitude() == 0) {
+                return 0;
+            }
+            return 1;
+        }
+
         public override WWComplex N(int nth) {
             return numer[nth];
         }

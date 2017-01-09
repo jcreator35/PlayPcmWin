@@ -8,8 +8,9 @@
     <Grid Height="400" Width="300">
         <Grid.RowDefinitions>
             <RowDefinition Height="300" />
-            <RowDefinition Height="30" />
-            <RowDefinition Height="30" />
+            <RowDefinition Height="24" />
+            <RowDefinition Height="24" />
+            <RowDefinition Height="24" />
             <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
         <Canvas Height="256" HorizontalAlignment="Center" Name="canvasPoleZero" VerticalAlignment="Center" Width="256" Grid.ColumnSpan="2" Margin="22">
@@ -28,7 +29,7 @@
         <TextBlock HorizontalAlignment="Right" Name="textBlockRe" Text="→Re" VerticalAlignment="Center" />
         <TextBlock HorizontalAlignment="Center" Name="textBlockIm" Text="Im↑" VerticalAlignment="Top"  />
         <TextBlock HorizontalAlignment="Center" Name="textBlockGraphTitle" Text="Pole-zero plot (S plane)" VerticalAlignment="Bottom" />
-        <Canvas Grid.Row="1" Margin="10,4,22,0" Name="canvasGradationSample" Width="256" Height="26"/>
+        <Canvas Grid.Row="1" Margin="0,0,22,0" Name="canvasGradationSample" Width="256" Height="24"/>
         <Label Content="0°" Grid.Row="2" HorizontalAlignment="Left" Name="label0" VerticalAlignment="Top" Margin="6,0,0,0" />
         <Label Content="180°" Grid.Row="2" Margin="134,0,0,0" HorizontalAlignment="Left" Name="label180" VerticalAlignment="Top" />
         <Label Content="360°" Grid.Row="2" Margin="256,0,0,0" HorizontalAlignment="Left" Name="label360" VerticalAlignment="Top" Width="38" />
@@ -38,5 +39,11 @@
                 <ComboBoxItem Content="Show Phase" Name="comboBoxItemPhase" />
             </ComboBox>
         <CheckBox Content="Show Grid" Grid.Row="3" HorizontalAlignment="Left" Margin="192,0,0,0" Name="checkBoxShowGrid" VerticalAlignment="Center" Checked="checkBoxShowGrid_Checked" Unchecked="checkBoxShowGrid_Unchecked" IsChecked="True" />
+        <ComboBox Grid.Row="4" HorizontalAlignment="Left" Margin="6,0,0,0" Name="comboBoxScale" VerticalAlignment="Center" Width="100" SelectionChanged="comboBoxScale_SelectionChanged">
+            <ComboBoxItem Content="Scale = 1x" Name="comboBoxItemScale1x" IsSelected="True" />
+            <ComboBoxItem Content="Scale = 2x" Name="comboBoxItemScale2x" />
+            <ComboBoxItem Content="Scale = 5x" Name="comboBoxItemScale5x" />
+            <ComboBoxItem Content="Scale = 10x" Name="comboBoxItemScale10x" />
+        </ComboBox>
     </Grid>
 </UserControl>

@@ -3,9 +3,6 @@ using WWMath;
 
 namespace WWUserControls {
     public class Common {
-        public delegate WWComplex TransferFunctionDelegate(WWComplex s);
-        public delegate double TimeDomainResponseFunctionDelegate(double t);
-
         public static string UnitNumberString(double n) {
             if (n == 0.0) {
                 return "0";

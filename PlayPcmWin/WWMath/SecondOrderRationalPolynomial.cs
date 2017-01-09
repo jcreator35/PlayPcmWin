@@ -33,6 +33,26 @@ namespace WWMath {
         }
 
         public override int Order() { return 2; }
+        
+        public override int NumerOrder() {
+            if (numer[2].Magnitude() != 0) {
+                return 2;
+            }
+            if (numer[1].Magnitude() != 0) {
+                return 1;
+            }
+            return 0;
+        }
+
+        public override int DenomOrder() {
+            if (denom[2].Magnitude() != 0) {
+                return 2;
+            }
+            if (denom[1].Magnitude() != 0) {
+                return 1;
+            }
+            return 0;
+        }
 
         public override WWComplex N(int nth) {
             return numer[nth];

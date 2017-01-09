@@ -158,5 +158,61 @@ namespace WWMath {
                 ZeroOrderCoeffToString(c0));
         }
 
+        public enum SymbolOrder {
+            NonInverted,
+            Inverted
+        };
+
+        public static string PolynomialToString(WWComplex[] pCoeffs, string variableSymbol, SymbolOrder invert) {
+            var sb = new StringBuilder();
+            bool bFirst = true;
+
+            if (invert == SymbolOrder.Inverted) {
+                for (int i = 0; i < pCoeffs.Length; ++i) {
+                    var p = pCoeffs[i];
+                    if (p.AlmostZero()) {
+                        continue;
+                    }
+
+                    if (!bFirst) {
+                        sb.Append(" + ");
+                    } else {
+                        bFirst = false;
+                    }
+
+                    if (i == 0) {
+                        sb.AppendFormat("({0})", p);
+                    } else {
+                        sb.AppendFormat("({0})*{1}^({2})", p, variableSymbol, -i);
+                    }
+                }
+            } else {
+                for (int i = pCoeffs.Length - 1; 0 <= i; --i) {
+                    var p = pCoeffs[i];
+                    if (p.AlmostZero()) {
+                        continue;
+                    }
+
+                    if (!bFirst) {
+                        sb.Append(" + ");
+                    } else {
+                        bFirst = false;
+                    }
+
+                    if (i == 0) {
+                        sb.AppendFormat("({0})", p);
+                    } else {
+                        sb.AppendFormat("({0})*{1}^{2}", p, variableSymbol, i);
+                    }
+                }
+            }
+
+            if (bFirst) {
+                sb.Append("0");
+            }
+
+            return sb.ToString();
+        }
+
     }
 }

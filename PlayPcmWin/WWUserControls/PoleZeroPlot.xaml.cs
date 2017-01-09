@@ -18,6 +18,16 @@ namespace WWUserControls {
 
         private bool mInitialized = false;
 
+        public static double[] mUserScaleList = {
+            1.0,
+            1.0/2.0,
+            1.0/5.0,
+            1.0/10.0,
+        };
+
+        private List<WWComplex> mPoleCoordList = new List<WWComplex>();
+        private List<WWComplex> mZeroCoordList = new List<WWComplex>();
+
         private List<Line> mPoleList = new List<Line>();
         private List<Ellipse> mZeroList = new List<Ellipse>();
 
@@ -45,12 +55,21 @@ namespace WWUserControls {
         /// </summary>
         const double DIAMETER_ZERO = 10;
 
+        // 極と零の最大のものが入るスケール。
         private double mPoleZeroScale = 1.0;
+
+        // ユーザースケール。
+        public double mUserScale = 1.0;
+
+        // 表示用のスケール。userScale * poleZeroScale
+        private double mDisplayScale = 1.0;
 
         public double MagnitudeScale { get; set; }
 
         public void SetScale(double s) {
             mPoleZeroScale = s;
+            mDisplayScale = mPoleZeroScale * mUserScale;
+
             mXm1.Text = string.Format("-{0:G3}", s);
             mYm1.Text = string.Format("-{0:G3}i", s);
             mXp1.Text = string.Format("+{0:G3}", s);
@@ -58,45 +77,11 @@ namespace WWUserControls {
         }
 
         public void AddPole(WWComplex pole) {
-            double x = OFFS_X + pole.real / mPoleZeroScale * SCALE_X;
-            double y = OFFS_Y - pole.imaginary / mPoleZeroScale * SCALE_Y;
-
-            {
-                var l = new Line();
-                l.X1 = x - SCALE_CROSS;
-                l.X2 = x + SCALE_CROSS;
-                l.Y1 = y - SCALE_CROSS;
-                l.Y2 = y + SCALE_CROSS;
-                l.Stroke = TextColor();
-                mPoleList.Add(l);
-                canvasPoleZero.Children.Add(l);
-            }
-            {
-                var l = new Line();
-                l.X1 = x + SCALE_CROSS;
-                l.X2 = x - SCALE_CROSS;
-                l.Y1 = y - SCALE_CROSS;
-                l.Y2 = y + SCALE_CROSS;
-                l.Stroke = TextColor();
-                mPoleList.Add(l);
-                canvasPoleZero.Children.Add(l);
-            }
+            mPoleCoordList.Add(pole);
         }
 
         public void AddZero(WWComplex zero) {
-            double x = OFFS_X + zero.real / mPoleZeroScale * SCALE_X;
-            double y = OFFS_Y - zero.imaginary / mPoleZeroScale * SCALE_Y;
-
-            {
-                var e = new Ellipse();
-                e.Width = DIAMETER_ZERO;
-                e.Height = DIAMETER_ZERO;
-                e.Stroke = TextColor();
-                mZeroList.Add(e);
-                canvasPoleZero.Children.Add(e);
-                Canvas.SetLeft(e, x - DIAMETER_ZERO / 2);
-                Canvas.SetTop(e, y - DIAMETER_ZERO / 2);
-            }
+            mPoleCoordList.Add(zero);
         }
 
         public void ClearPoleZero() {
@@ -109,14 +94,62 @@ namespace WWUserControls {
 
             mPoleList.Clear();
             mZeroList.Clear();
+            mPoleCoordList.Clear();
+            mZeroCoordList.Clear();
         }
 
-        private void ColorPoleZero() {
-            foreach (var i in mPoleList) {
-                i.Stroke = TextColor();
+        public void RedrawPoleZero() {
+            {
+                foreach (var pole in mPoleList) {
+                    canvasPoleZero.Children.Remove(pole);
+                }
+                foreach (var zero in mZeroList) {
+                    canvasPoleZero.Children.Remove(zero);
+                }
+
+                mPoleList.Clear();
+                mZeroList.Clear();
             }
-            foreach (var i in mZeroList) {
-                i.Stroke = TextColor();
+
+            foreach (var pole in mPoleCoordList) {
+                double x = OFFS_X + pole.real / mDisplayScale * SCALE_X;
+                double y = OFFS_Y - pole.imaginary / mDisplayScale * SCALE_Y;
+
+                {
+                    var l = new Line();
+                    l.X1 = x - SCALE_CROSS;
+                    l.X2 = x + SCALE_CROSS;
+                    l.Y1 = y - SCALE_CROSS;
+                    l.Y2 = y + SCALE_CROSS;
+                    l.Stroke = TextColor();
+                    mPoleList.Add(l);
+                    canvasPoleZero.Children.Add(l);
+                }
+                {
+                    var l = new Line();
+                    l.X1 = x + SCALE_CROSS;
+                    l.X2 = x - SCALE_CROSS;
+                    l.Y1 = y - SCALE_CROSS;
+                    l.Y2 = y + SCALE_CROSS;
+                    l.Stroke = TextColor();
+                    mPoleList.Add(l);
+                    canvasPoleZero.Children.Add(l);
+                }
+            }
+            foreach (var zero in mZeroCoordList) {
+                double x = OFFS_X + zero.real / mDisplayScale * SCALE_X;
+                double y = OFFS_Y - zero.imaginary / mDisplayScale * SCALE_Y;
+
+                {
+                    var e = new Ellipse();
+                    e.Width = DIAMETER_ZERO;
+                    e.Height = DIAMETER_ZERO;
+                    e.Stroke = TextColor();
+                    mZeroList.Add(e);
+                    canvasPoleZero.Children.Add(e);
+                    Canvas.SetLeft(e, x - DIAMETER_ZERO / 2);
+                    Canvas.SetTop(e, y - DIAMETER_ZERO / 2);
+                }
             }
         }
 
@@ -132,6 +165,9 @@ namespace WWUserControls {
             if (!mInitialized) {
                 return;
             }
+
+            mUserScale = mUserScaleList[comboBoxScale.SelectedIndex];
+            mDisplayScale = mUserScale * mPoleZeroScale;
 
             Visibility v = System.Windows.Visibility.Visible;
             Visibility vOnlyS = System.Windows.Visibility.Visible;
@@ -157,7 +193,7 @@ namespace WWUserControls {
             UpdateGradation();
             UpdateGradationSample();
 
-            ColorPoleZero();
+            RedrawPoleZero();
 
             var color = TextColor();
             mLineH1.Stroke = color;
@@ -244,7 +280,7 @@ namespace WWUserControls {
             return HsvToBgra(-phase * 180.0 / Math.PI + 240.0, 1.0, 1.0);
         }
 
-        public Common.TransferFunctionDelegate TransferFunction = (WWComplex s) => { return new WWComplex(1, 0); };
+        public WWMath.Functions.TransferFunctionDelegate TransferFunction = (WWComplex s) => { return new WWComplex(1, 0); };
 
         private Image mImage = null;
         private Image mImageSample = null;
@@ -348,8 +384,8 @@ namespace WWUserControls {
             int pos = 0;
             for (int yI = 0; yI < bm.PixelHeight; yI++) {
                 for (int xI = 0; xI < bm.PixelWidth; xI++) {
-                    double x = (xI - OFFS_X) * (mPoleZeroScale / SCALE_X);
-                    double y = (OFFS_Y - yI) * (mPoleZeroScale / SCALE_Y);
+                    double x = (xI - OFFS_X) * (mDisplayScale / SCALE_X);
+                    double y = (OFFS_Y - yI) * (mDisplayScale / SCALE_Y);
                     var h = TransferFunction(new WWComplex(x, y));
                     if (comboBoxGradationType.SelectedIndex == 0) {
                         // magnitude
@@ -411,6 +447,10 @@ namespace WWUserControls {
         }
 
         private void checkBoxShowGrid_Unchecked(object sender, RoutedEventArgs e) {
+            Update();
+        }
+
+        private void comboBoxScale_SelectionChanged(object sender, SelectionChangedEventArgs e) {
             Update();
         }
     }
