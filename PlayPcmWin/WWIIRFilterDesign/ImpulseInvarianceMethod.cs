@@ -34,11 +34,15 @@ namespace WWIIRFilterDesign {
             var pList = new List<FirstOrderRationalPolynomial>();
 
             foreach (var pS in H_s) {
+                WWComplex sktd;
                 if (pS.DenomOrder() == 0) {
-                    throw new NotSupportedException();
+                    System.Diagnostics.Debug.Assert(pS.D(0).EqualValue(WWComplex.Unity()));
+                    // ? 
+                    // a * u[t] → exp^(a)
+                    sktd = WWComplex.Minus(WWComplex.Mul(WWComplex.Unity(), ωc * td));
+                } else {
+                    sktd = WWComplex.Minus(WWComplex.Mul(pS.D(0), ωc * td));
                 }
-
-                var sktd = WWComplex.Minus(WWComplex.Mul(pS.D(0), ωc * td));
 
                 // e^{sktd} = e^{real(sktd)} * e^{imag{sktd}}
                 //          = e^{real(sktd)} * ( cos(imag{sktd}) + i*sin(imag{sktd})

@@ -116,11 +116,11 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\WWMath\WWMath.csproj">
+    <ProjectReference Include="..\..\WWMath\WWMath.csproj">
       <Project>{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}</Project>
       <Name>WWMath</Name>
     </ProjectReference>
-    <ProjectReference Include="..\WWUserControls\WWUserControls.csproj">
+    <ProjectReference Include="..\..\WWUserControls\WWUserControls.csproj">
       <Project>{2721D7F3-8A5A-4059-A619-BB5ED7ACCC0C}</Project>
       <Name>WWUserControls</Name>
     </ProjectReference>

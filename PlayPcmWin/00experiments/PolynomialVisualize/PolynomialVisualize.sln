@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PolynomialVisualize", "PolynomialVisualize.csproj", "{149A1AD6-F003-4D24-9910-4B422D77BFAB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WWMath", "..\WWMath\WWMath.csproj", "{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WWMath", "..\..\WWMath\WWMath.csproj", "{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WWUserControls", "..\WWUserControls\WWUserControls.csproj", "{2721D7F3-8A5A-4059-A619-BB5ED7ACCC0C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WWUserControls", "..\..\WWUserControls\WWUserControls.csproj", "{2721D7F3-8A5A-4059-A619-BB5ED7ACCC0C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
