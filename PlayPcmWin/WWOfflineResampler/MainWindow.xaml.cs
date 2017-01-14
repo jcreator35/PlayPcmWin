@@ -65,15 +65,15 @@ namespace WWOfflineResampler {
             mState = State.Ready;
             Update();
 
-            /* サンプルレートの比の計算のテスト。
+#if false
+            //サンプルレートの比の計算のテスト。
             foreach (int a in mTargetSampleRateList) {
                 foreach (int b in mTargetSampleRateList) {
                     long lcm = WWMath.Functions.LCM(a, b);
-                    Console.WriteLine("LCM({0}, {1}) = {2},  {3}/{4}", a, b,
-                        lcm, lcm/a, lcm/b);
+                    Console.WriteLine("{0}, {1}, {2},{3}", a, b, lcm/a, lcm/b);
                 }
             }
-            */
+#endif
         }
 
         private void buttonBrowseInputFile_Click(object sender, RoutedEventArgs e) {
