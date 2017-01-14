@@ -371,11 +371,15 @@ namespace WWOfflineResampler {
                 return false;
             }
 
+            Console.WriteLine("target samplerate={0}kHz.\nProcessing...\n", targetSR * 0.001);
+
             var param = new BWStartParams(inputFile, targetSR, outputFile);
             var result = DoWork(param, (int percent, BWProgressParam p) => { });
 
             if (0 < result.message.Length) {
                 Console.WriteLine(result.message);
+            } else {
+                Console.WriteLine("Finished successfully.");
             }
 
             return true;
