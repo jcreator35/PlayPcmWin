@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using WWUtil;
-using WWMath;
-using WWIIRFilterDesign;
+using System.Diagnostics;
 using System.Threading.Tasks;
+using WWIIRFilterDesign;
+using WWMath;
+using WWUtil;
 
 namespace WWOfflineResampler {
     class Main {
@@ -14,7 +15,9 @@ namespace WWOfflineResampler {
         public const int START_PERCENT = 5;
         public const int CONVERT_START_PERCENT = 10;
         public const int WRITE_START_PERCENT = 90;
-        public const int FRAGMENT_SAMPLES = 4 * 1024 * 1024;
+        public const int FRAGMENT_SAMPLES = 32 * 1024;
+
+        private Stopwatch mSw = new Stopwatch();
 
         public enum State {
             Started,
@@ -226,6 +229,8 @@ namespace WWOfflineResampler {
                         metaR.sampleRate / 1000.0, param.targetSampleRate / 1000.0,
                         lcm / metaR.sampleRate, lcm / param.targetSampleRate)));
 
+                mSw.Restart();
+
                 // 書き込み準備。
                 WWFlacRWCS.Metadata metaW = new WWFlacRWCS.Metadata(metaR);
                 metaW.sampleRate = param.targetSampleRate;
@@ -321,7 +326,10 @@ namespace WWOfflineResampler {
                             + (WRITE_START_PERCENT - CONVERT_START_PERCENT)
                             * ((double)processedSamples / totalSamplesOfAllChannels));
 
-                        ReportProgress(percentage, new BWProgressParam(State.Converting, ""));
+                        if (1000 < mSw.ElapsedMilliseconds) {
+                            ReportProgress(percentage, new BWProgressParam(State.Converting, ""));
+                            mSw.Restart();
+                        }
                     }
 
                     rv = flacW.EncodeAddPcm(ch, pcmW);

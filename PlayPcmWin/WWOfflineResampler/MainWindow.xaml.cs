@@ -7,12 +7,17 @@ using System.Windows;
 using WWIIRFilterDesign;
 using WWMath;
 using WWUtil;
+using System.Globalization;
 
 namespace WWOfflineResampler {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window {
+        private static string AssemblyVersion {
+            get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); }
+        }
+
         private enum State {
             NotReady,
             Ready,
@@ -52,6 +57,8 @@ namespace WWOfflineResampler {
 
             mPoleZeroPlotZ.Mode = WWUserControls.PoleZeroPlot.ModeType.ZPlane;
             mPoleZeroPlotZ.Update();
+
+            Title = string.Format(CultureInfo.CurrentCulture, "WWOfflineResampler version {0}", AssemblyVersion);
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
