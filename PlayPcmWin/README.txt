@@ -1,20 +1,27 @@
 Open Visual Studio x64 Win64 command prompt and enter following commands to create snk files.
 
 > cd \work\BpsConvWin2
-C:\work\BpsConvWin2> sn -k FlacIntegrityCheck\FlacIntegrityCheck.snk
-C:\work\BpsConvWin2> sn -k PcmDataLib\PcmDataLib.snk
-C:\work\BpsConvWin2> sn -k PlayPcmWin\PlayPcmWin.snk
-C:\work\BpsConvWin2> sn -k PlayPcmWinAlbum\PlayPcmWinAlbum.snk
-C:\work\BpsConvWin2> sn -k RecPcmWin\RecPcmWin.snk
-C:\work\BpsConvWin2> sn -k TimerResolutionMonitor\TimerResolutionMonitor.snk
-C:\work\BpsConvWin2> sn -k WasapiBitmatchChecker\WasapiBitmatchChecker.snk
-C:\work\BpsConvWin2> sn -k WasapiCS\WasapiCS.snk
-C:\work\BpsConvWin2> sn -k WasapiPcmUtil\WasapiPcmUtil.snk
-C:\work\BpsConvWin2> sn -k WavRWLib2\WavRWLib2.snk
-C:\work\BpsConvWin2> sn -k WWAudioFilter\WWAudioFilter.snk
-C:\work\BpsConvWin2> sn -k WWFlacRWCS\WWFlacRWCS.snk
-C:\work\BpsConvWin2> sn -k WWUtil\WWUtil.snk
-C:\work\BpsConvWin2> sn -k WWXmlRW\WWXmlRW.snk
+ sn -k FlacIntegrityCheck\FlacIntegrityCheck.snk
+ sn -k PcmDataLib\PcmDataLib.snk
+ sn -k PlayPcmWin\PlayPcmWin.snk
+ sn -k PlayPcmWinAlbum\PlayPcmWinAlbum.snk
+ sn -k RecPcmWin\RecPcmWin.snk
+ sn -k TimerResolutionMonitor\TimerResolutionMonitor.snk
+ sn -k WasapiBitmatchChecker\WasapiBitmatchChecker.snk
+ sn -k WasapiCS\WasapiCS.snk
+ sn -k WasapiPcmUtil\WasapiPcmUtil.snk
+ sn -k WavRWLib2\WavRWLib2.snk
+ sn -k WWAudioFilter\WWAudioFilter.snk
+ sn -k WWFlacRWCS\WWFlacRWCS.snk
+ sn -k WWUtil\WWUtil.snk
+ sn -k WWXmlRW\WWXmlRW.snk
+
+ sn -k WWAnalogFilterDesign\WWAnalogFilterDesign.snk
+ sn -k WWFilterDesign\WWFilterDesign.snk
+ sn -k WWIIRFilterDesign\WWIIRFilterDesign.snk
+ sn -k WWMath\WWMath.snk
+ sn -k WWOfflineResampler\WWOfflineResampler.snk
+ sn -k WWUserControls\WWUserControls.snk
 
 Open PlayPcmWin\PlayPcmWin.sln to build/run PlayPcmWin
 
@@ -22,5 +29,7 @@ Open PlayPcmWinAlbum\PPWA.sln to build/run PlayPcmWinAlbum
 
 Open RecPcmWin\RecPcmWin.sln to build/run RecPcmWin
 
-Open WWAudioFilter\WWAudioFiltervs2010.sln to build/run WWAudioFilter
+Open WWAudioFilter\WWAudioFiltervs2010.sln to build/run WWAudioFilter (choose x64 build target)
+
+Open WWOfflineResampler\WWOfflineResampler.sln to build/run WWOfflineResampler (choose x64 build target)
 
