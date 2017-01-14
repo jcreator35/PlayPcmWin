@@ -171,7 +171,6 @@ namespace WWOfflineResampler {
             return pcm;
         }
 
-
         public BWCompletedParam DoWork(BWStartParams param, ProgressReportDelegate ReportProgress) {
             int rv = 0;
 
@@ -241,8 +240,8 @@ namespace WWOfflineResampler {
                 }
 
                 var svs = new SampleValueStatistics();
-                long totalSamplesToProcess = metaR.totalSamples * metaR.channels;
-                long processedSampes = 0;
+                long totalSamplesOfAllChannels = metaR.totalSamples * metaR.channels;
+                long processedSamples = 0;
 
                 // 変換する
                 //for (int ch=0; ch<metaR.channels;++ch){
@@ -253,9 +252,9 @@ namespace WWOfflineResampler {
 #if true
                     // 共役複素数のペアを足して係数を全て実数にする。
                     var iirFilter = new IIRFilterReal();
-                    for (int i = 0; i < mIIRiim.HzCount()/ 2; ++i) {
+                    for (int i = 0; i < mIIRiim.HzCount() / 2; ++i) {
                         var p0 = mIIRiim.Hz(i);
-                        var p1 = mIIRiim.Hz(mIIRiim.HzCount()-1-i);
+                        var p1 = mIIRiim.Hz(mIIRiim.HzCount() - 1 - i);
                         var p = WWPolynomial.Add(p0, p1);
                         iirFilter.Add(p);
                     }
@@ -297,29 +296,30 @@ namespace WWOfflineResampler {
                             u.Set(i, v);
                             svs.Add(v);
                         }
-
                         // ダウンサンプルする
                         var y = Downsample(u, downsampleScale);
 
-                        // アップサンプル時に音量がupsampleScale分の1に下がっているのでupsampleScale倍する。
+#if true
+                        // インパルストレインアップサンプル時に音量が下がっているのでupsampleScale倍する。
                         const double kSampleValueLimit = (double)8388607 / 8388608;
                         double gain = upsampleScale;
-                        if (svs.MaxAbsValue() * gain < kSampleValueLimit) {
+                        if (kSampleValueLimit < svs.MaxAbsValue() * gain) {
                             gain = kSampleValueLimit / svs.MaxAbsValue();
                         }
                         y = ApplyGain(y, gain);
+#endif
 
                         // 出力する。
                         byte[] yPcm = ConvertToIntegerPcm(y, metaW.BytesPerSample);
                         pcmW.CopyFrom(yPcm, 0, posY, yPcm.Length);
-                        posY += y.Length;
+                        posY += yPcm.Length;
 
                         remain -= size;
-                        processedSampes += size;
+                        processedSamples += size;
 
-                        int percentage = (int)((long)CONVERT_START_PERCENT
+                        int percentage = (int)(CONVERT_START_PERCENT
                             + (WRITE_START_PERCENT - CONVERT_START_PERCENT)
-                            * (processedSampes / totalSamplesToProcess));
+                            * ((double)processedSamples / totalSamplesOfAllChannels));
 
                         ReportProgress(percentage, new BWProgressParam(State.Converting, ""));
                     }
