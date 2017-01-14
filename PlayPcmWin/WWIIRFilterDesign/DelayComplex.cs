@@ -2,7 +2,7 @@
 using WWMath;
 
 namespace WWIIRFilterDesign {
-    class DelayC {
+    class DelayComplex {
         public int DelaySamples { get { return mDelay.Length; } }
 
         // ring buffer
@@ -12,7 +12,7 @@ namespace WWIIRFilterDesign {
         /// <summary>
         /// n samples delay
         /// </summary>
-        public DelayC(int n) {
+        public DelayComplex(int n) {
             if (n < 1) {
                 throw new ArgumentOutOfRangeException("n");
             }

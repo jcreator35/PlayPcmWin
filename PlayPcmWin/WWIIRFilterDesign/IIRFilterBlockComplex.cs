@@ -4,17 +4,21 @@ namespace WWIIRFilterDesign {
     /// <summary>
     /// Building block of IIR filter. used by IIRFilter class
     /// </summary>
-    class IIRFilterBlock {
-        private DelayC mDelayX;
-        private DelayC mDelayY;
+    class IIRFilterBlockComplex {
+        private DelayComplex mDelayX;
+        private DelayComplex mDelayY;
         private RationalPolynomial mH;
         private WWComplex[] mA;
         private WWComplex[] mB;
 
-        public IIRFilterBlock(RationalPolynomial p) {
+        public override string ToString() {
+            return mH.ToString();
+        }
+        
+        public IIRFilterBlockComplex(RationalPolynomial p) {
             mH = p;
-            mDelayX = new DelayC(p.NumerOrder()+1);
-            mDelayY = new DelayC(p.DenomOrder()+1);
+            mDelayX = new DelayComplex(p.NumerOrder()+1);
+            mDelayY = new DelayComplex(p.DenomOrder()+1);
 
             mB = new WWComplex[p.NumerOrder() + 1];
             for (int i = 0; i < mB.Length; ++i) {
@@ -32,6 +36,9 @@ namespace WWIIRFilterDesign {
             mDelayX.Filter(x);
 
             WWComplex y = WWComplex.Zero();
+            
+            // Direct form 1 structure
+            // Discrete-time signal processing 3rd edition pp.417 figure 6.14
 
             // まずフィードフォワードの計算。
             // ディレイから取り出した値に係数bを掛ける。

@@ -1,6 +1,6 @@
-﻿using WWMath;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using WWMath;
 
 namespace WWIIRFilterDesign {
     public class ImpulseInvarianceMethod {

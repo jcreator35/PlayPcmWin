@@ -42,19 +42,19 @@ namespace WWMath {
         }
 
         /// <summary>
-        /// create copy and copy := lhs + rhs, returns copy.
+        /// create copy and copy := L + R, returns copy.
         /// </summary>
         public static WWComplex Add(WWComplex lhs, WWComplex rhs) {
             return new WWComplex(lhs.real+rhs.real, lhs.imaginary+rhs.imaginary);
         }
         /// <summary>
-        /// create copy and copy := lhs - rhs, returns copy.
+        /// create copy and copy := L - R, returns copy.
         /// </summary>
         public static WWComplex Sub(WWComplex lhs, WWComplex rhs) {
             return new WWComplex(lhs.real - rhs.real, lhs.imaginary - rhs.imaginary);
         }
         /// <summary>
-        /// create copy and copy := lhs * rhs, returns copy.
+        /// create copy and copy := L * R, returns copy.
         /// </summary>
         public static WWComplex Mul(WWComplex lhs, WWComplex rhs) {
 #if false
@@ -83,7 +83,7 @@ namespace WWMath {
             return new WWComplex(real, imaginary);
         }
         /// <summary>
-        /// create copy and copy := lhs / rhs, returns copy.
+        /// create copy and copy := L / R, returns copy.
         /// </summary>
         public static WWComplex Div(WWComplex lhs, WWComplex rhs) {
             var recip = Reciprocal(rhs);

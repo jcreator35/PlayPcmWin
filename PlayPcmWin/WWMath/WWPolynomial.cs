@@ -23,6 +23,52 @@ namespace WWMath {
 
             return new SecondOrderRationalPolynomial(n2, n1, n0, d2, d1, d0);
         }
+        
+        /// <summary>
+        /// 1次有理多項式 + 1次有理多項式
+        /// </summary>
+        public static SecondOrderRationalPolynomial
+        Add(FirstOrderRationalPolynomial L, FirstOrderRationalPolynomial R) {
+            /*  nL     nR
+             * x+2    x+4
+             * ─── + ────
+             * x+1    x+3
+             *  dL     dR
+             *  
+             *         nL   dR      nR   dL
+             * 分子 = (x+2)(x+3) + (x+4)(x+1) = (x^2+5x+6) + (x^2+5x+4) = 2x^2+10x+10
+             * 分子の次数 = 2
+             * 
+             *         dL   dR
+             * 分母 = (x+1)(x+3) = x^2 + (1+3)x + 1*3
+             * 分母の次数 = 2
+             */
+
+            // 分子の項
+            var n2 = WWComplex.Add(
+                WWComplex.Mul(L.N(1), R.D(1)),
+                WWComplex.Mul(R.N(1), L.D(1)));
+
+            var n1 = WWComplex.Add(
+                WWComplex.Add(WWComplex.Mul(L.N(0), R.D(1)),
+                              WWComplex.Mul(L.N(1), R.D(0))),
+                WWComplex.Add(WWComplex.Mul(R.N(0), L.D(1)),
+                              WWComplex.Mul(R.N(1), L.D(0))));
+
+            var n0 = WWComplex.Add(
+                WWComplex.Mul(L.N(0), R.D(0)),
+                WWComplex.Mul(R.N(0), L.D(0)));
+
+            // 分母の項
+            var d2 = WWComplex.Mul(L.D(1), R.D(1));
+
+            var d1 = WWComplex.Add(WWComplex.Mul(L.D(0), R.D(1)),
+                                   WWComplex.Mul(L.D(1), R.D(0)));
+
+            var d0 = WWComplex.Mul(L.D(0), R.D(0));
+
+            return new SecondOrderRationalPolynomial(n2, n1, n0, d2, d1, d0);
+        }
 
         public static HighOrderRationalPolynomial
         Add(HighOrderRationalPolynomial lhs, FirstOrderRationalPolynomial rhs) {
@@ -162,8 +208,8 @@ namespace WWMath {
         /// <summary>
         /// 2つの多項式の和を戻す。
         /// </summary>
-        /// <param name="lhs">多項式の係数のリストl</param>
-        /// <param name="rhs">多項式の係数のリストr</param>
+        /// <param name="L">多項式の係数のリストl</param>
+        /// <param name="R">多項式の係数のリストr</param>
         /// <returns>l+r</returns>
         public static List<WWComplex>
         Add(List<WWComplex> lhs, List<WWComplex> rhs) {
