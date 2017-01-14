@@ -329,8 +329,13 @@ namespace WWOfflineResampler {
                 });
 
                 double maxMagnitudeDb = FieldQuantityToDecibel(svs.MaxAbsValue() * upsampleScale);
+                string clippedMsg = "";
+                if (0 <= maxMagnitudeDb) {
+                    clippedMsg = "★★★ CLIPPED! ★★★";
+                }
                 ReportProgress(WRITE_START_PERCENT, new BWProgressParam(State.WriteFile,
-                    string.Format("Maximum magnitude={0:G3}dBFS\nNow writing FLAC file {1}...\n", maxMagnitudeDb, param.outputFile)));
+                    string.Format("Maximum magnitude={0:G3}dBFS. {1}\nNow writing FLAC file {2}...\n",
+                    maxMagnitudeDb, clippedMsg, param.outputFile)));
                 rv = flacW.EncodeRun(param.outputFile);
                 if (rv < 0) {
                     break;
