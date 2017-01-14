@@ -36,8 +36,8 @@ namespace WWFlacRWCS {
                 return Properties.Resources.FlacErrorRecvBufferSizeInsufficient;
             case (int)WWFlacRWCS.FlacErrorCode.Other:
                 return Properties.Resources.FlacErrorOther;
-            case (int)WWFlacRWCS.FlacErrorCode.FileReadOpen:
-                return Properties.Resources.FlacErrorFileReadOpen;
+            case (int)WWFlacRWCS.FlacErrorCode.ErrorFileOpen:
+                return Properties.Resources.FlacErrorFileOpen;
             case (int)WWFlacRWCS.FlacErrorCode.BufferSizeMismatch:
                 return Properties.Resources.FlacErrorBufferSizeMismatch;
             case (int)WWFlacRWCS.FlacErrorCode.MemoryExhausted:

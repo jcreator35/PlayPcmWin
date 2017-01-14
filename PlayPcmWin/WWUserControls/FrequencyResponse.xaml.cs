@@ -13,7 +13,7 @@ namespace WWUserControls {
     public partial class FrequencyResponse : UserControl {
         public FrequencyResponse() {
             InitializeComponent();
-            NyquistFrequency = 44100;
+            SamplingFrequency = 44100;
             mInitialized = true;
         }
 
@@ -57,7 +57,7 @@ namespace WWUserControls {
             Logarithmic,
         };
 
-        public double NyquistFrequency { get; set; }
+        public double SamplingFrequency { get; set; }
 
         public enum FreqRangeType {
             SF_0_0001HzTo1Hz,
@@ -341,7 +341,7 @@ namespace WWUserControls {
                     h = TransferFunction(new WWComplex(0, ω));
                     break;
                 case ModeType.ZPlane: {
-                        double θ = ω / NyquistFrequency;
+                        double θ = ω / SamplingFrequency;
                         h = TransferFunction(new WWComplex(Math.Cos(θ), Math.Sin(θ)));
                     }
                     break;
@@ -506,6 +506,10 @@ namespace WWUserControls {
             var lastPosG = new Point();
 
             for (int i = 0; i < FR_LINE_WIDTH; ++i) {
+                if (mMode == ModeType.ZPlane && SamplingFrequency/2 < frω[i] / 2 / Math.PI) {
+                    break;
+                }
+
                 Point posM = new Point();
                 Point posP = new Point();
                 Point posG = new Point();

@@ -626,7 +626,8 @@ namespace WWAudioFilter {
             return 0;
         }
 
-        public int Run(string fromPath, List<FilterBase> aFilters, string toPath, ProgressReportCallback Callback) {
+        public int Run(string fromPath, List<FilterBase> aFilters,
+                string toPath, ProgressReportCallback Callback) {
             AudioData audioDataFrom;
             AudioData audioDataTo;
             int rv;

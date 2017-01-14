@@ -215,6 +215,36 @@ namespace WWMath {
             return rv;
         }
 
+        /// <summary>
+        /// 2つの数の最小公倍数を戻す。
+        /// </summary>
+        public static long LCM(int a, int b) {
+            return Math.Abs(((long)a * b)) / GCD(a, b);
+        }
+
+        /// <summary>
+        /// 2つの数の最大公約数を戻す。 Euclidean algorithm
+        /// </summary>
+        public static int GCD(int a, int b) {
+            if (a < 0 || b < 0) {
+                throw new NotImplementedException();
+            }
+
+            if (a < b) {
+                // swap a and b to be a > b
+                int tmp = a;
+                a = b;
+                b = tmp;
+            }
+
+            while (b != 0) {
+                int tmp = a % b;
+                a = b;
+                b = tmp;
+            }
+            return a;
+        }
+
         public delegate WWComplex TransferFunctionDelegate(WWComplex s);
         public delegate double TimeDomainResponseFunctionDelegate(double t);
 

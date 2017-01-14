@@ -18,7 +18,7 @@ namespace WWFlacRWCS {
         NumFrameIsNotAligned = -11,
         RecvBufferSizeInsufficient = -12,
         Other = -13,
-        FileReadOpen = -14,
+        ErrorFileOpen = -14,
         BufferSizeMismatch = -15,
         MemoryExhausted = -16,
         Encoder = -17,

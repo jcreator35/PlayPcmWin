@@ -138,8 +138,8 @@
   <data name="FlacErrorEncoderProcessFailed" xml:space="preserve">
     <value>Error: FLAC encoder process failed</value>
   </data>
-  <data name="FlacErrorFileReadOpen" xml:space="preserve">
-    <value>Error: FLAC file read open error</value>
+  <data name="FlacErrorFileOpen" xml:space="preserve">
+    <value>Error: FLAC file open error</value>
   </data>
   <data name="FlacErrorFrameCrcMismatch" xml:space="preserve">
     <value>Error: FLAC frame CRC mismatch</value>

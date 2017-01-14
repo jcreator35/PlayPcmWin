@@ -82,6 +82,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DelayC.cs" />
+    <Compile Include="IIRFilter.cs" />
+    <Compile Include="IIRFilterBlock.cs" />
     <Compile Include="ImpulseInvarianceMethod.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

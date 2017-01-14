@@ -306,19 +306,6 @@ namespace WWAudioFilter {
                 mAnalogFilterCircuit.AddFinished();
                 mAnalogFilterCircuit.Update();
             }
-
-            // IIRフィルターの表示。
-            var iim = new WWIIRFilterDesign.ImpulseInvarianceMethod(H_s, mFc * 2.0 * Math.PI, mSamplingFrequency);
-            AddLog(string.Format("IIR Filter H(z) = {0}", iim.Hz().ToString("z", WWUtil.SymbolOrder.Inverted)));
-
-            mPoleZeroPlotZ.Mode = WWUserControls.PoleZeroPlot.ModeType.ZPlane;
-            mPoleZeroPlotZ.TransferFunction = iim.TransferFunction;
-            mPoleZeroPlotZ.Update();
-
-            mFrequencyResponseZ.Mode = WWUserControls.FrequencyResponse.ModeType.ZPlane;
-            mFrequencyResponseZ.NyquistFrequency = mSamplingFrequency / 2;
-            mFrequencyResponseZ.TransferFunction = iim.TransferFunction;
-            mFrequencyResponseZ.Update();
         }
 
         void CalcFilter(object sender, DoWorkEventArgs e) {

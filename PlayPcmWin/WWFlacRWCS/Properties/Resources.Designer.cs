@@ -124,11 +124,11 @@ namespace WWFlacRWCS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Error: FLAC file read open error.
+        ///   Looks up a localized string similar to Error: FLAC file open error.
         /// </summary>
-        internal static string FlacErrorFileReadOpen {
+        internal static string FlacErrorFileOpen {
             get {
-                return ResourceManager.GetString("FlacErrorFileReadOpen", resourceCulture);
+                return ResourceManager.GetString("FlacErrorFileOpen", resourceCulture);
             }
         }
         

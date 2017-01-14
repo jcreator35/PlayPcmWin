@@ -132,12 +132,6 @@
                     <GroupBox Header="Time Domain Plot" Name="groupBoxTD">
                         <wwuc:TimeDomainPlot x:Name="mTimeDomainPlot"  />
                     </GroupBox>
-                    <GroupBox Header="Pole-Zero Plot of Discrete-time IIR filter" Name="groupBoxPoleZeroZ" >
-                        <wwuc:PoleZeroPlot x:Name="mPoleZeroPlotZ"  />
-                    </GroupBox>
-                    <GroupBox Header="Frequency Response of Discrete-time IIR filter" Name="groupBoxFRZ">
-                        <wwuc:FrequencyResponse x:Name="mFrequencyResponseZ"  />
-                    </GroupBox>
                 </WrapPanel>
             </ScrollViewer>
         </Grid>
