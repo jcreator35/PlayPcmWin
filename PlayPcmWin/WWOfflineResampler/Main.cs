@@ -280,22 +280,27 @@ namespace WWOfflineResampler {
                         iirFilter.Add(mIIRiim.Hz(mIIRiim.HzCount() / 2));
                     }
 #endif
-                    long remain = metaR.totalSamples;
+                    long remainFrom = metaR.totalSamples;
+                    long remainTo = metaW.totalSamples;
                     long posY = 0;
                     // 1単位で処理するサンプル数は、ソースのサンプルレートの倍数にすると
                     // 出力サンプル数がちょうど割り切れる。
                     for (long posX = 0; posX < metaR.totalSamples; posX += metaR.sampleRate) {
-                        int size = metaR.sampleRate;
-                        if (remain < size) {
-                            size = (int)remain;
+                        int sizeFrom = metaR.sampleRate;
+                        if (remainFrom < sizeFrom) {
+                            sizeFrom = (int)remainFrom;
                         }
 
                         // 入力サンプル列x
-                        var x = GetSamples(flacR, metaR, ch, posX, size);
+                        var x = GetSamples(flacR, metaR, ch, posX, sizeFrom);
+                        int sizeTo = (int)((long)x.Length * upsampleScale / downsampleScale);
+                        if (remainTo < sizeTo) {
+                            sizeTo = (int)remainTo;
+                        }
 
 #if true
                         // ローパスフィルターでエイリアシング雑音を除去しながらリサンプルする。
-                        var y = new double[(long)x.Length * upsampleScale / downsampleScale];
+                        var y = new double[sizeTo];
                         for (long i = 0; i < x.Length * upsampleScale; ++i) {
                             double v = 0;
                             if ((i % upsampleScale) == 0) {
@@ -306,7 +311,10 @@ namespace WWOfflineResampler {
                             v *= upsampleScale;
                             svs.Add(v);
                             if ((i % downsampleScale) == 0) {
-                                y[i / downsampleScale] = v;
+                                int posTo = (int)(i / downsampleScale);
+                                if (posTo < y.Length) {
+                                    y[posTo] = v;
+                                }
                             }
                         }
 #else
@@ -339,8 +347,9 @@ namespace WWOfflineResampler {
                         pcmW.CopyFrom(yPcm, 0, posY, yPcm.Length);
                         posY += yPcm.Length;
 
-                        remain -= size;
-                        processedSamples += size;
+                        remainFrom -= sizeFrom;
+                        remainTo -= y.Length;
+                        processedSamples += sizeFrom;
 
                         int percentage = (int)(CONVERT_START_PERCENT
                             + (WRITE_START_PERCENT - CONVERT_START_PERCENT)
