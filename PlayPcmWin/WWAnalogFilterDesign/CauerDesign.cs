@@ -14,7 +14,7 @@ namespace WWAnalogFilterDesign {
 
         /// <summary>
         /// Cauer Elliptic lowpass filter
-        /// H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.165
+        /// H. G. Dimopoulos, Analog Electronic Filters: theory, design and synthesis, Springer, 2012. pp.165
         /// </summary>
         /// <param name="h0">gain of 0 Hz</param>
         /// <param name="hc">gain of cutoff frequency</param>
@@ -53,7 +53,7 @@ namespace WWAnalogFilterDesign {
                 break;
             }
 
-            // H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012.
+            // H. G. Dimopoulos, Analog Electronic Filters: theory, design and synthesis, Springer, 2012.
             // pp.192 Equation 4.82
             double Λ = 1.0 / 2.0 / Math.PI / mN
                 * Math.Log((Math.Sqrt(mε * mε + 1) + 1)

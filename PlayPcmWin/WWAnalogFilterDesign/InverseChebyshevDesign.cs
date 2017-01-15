@@ -29,7 +29,7 @@ namespace WWAnalogFilterDesign {
             mΩs = ωs / ωc;
 
             mN = CalcOrder();
-            // H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.118
+            // H. G. Dimopoulos, Analog Electronic Filters: theory, design and synthesis, Springer, 2012. pp.118
             // pp.126のFig 3.17参照。
             // calc ε
             switch (bt) {
@@ -69,7 +69,7 @@ namespace WWAnalogFilterDesign {
                 k = nth - mN / 2;
             }
 
-            // H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.112.
+            // H. G. Dimopoulos, Analog Electronic Filters: theory, design and synthesis, Springer, 2012. pp.112.
             // Equation 3.30
             double ρk = Math.Cos((2.0 * k + 1) * Math.PI / 2.0 / mN);
             double Ωzk = mΩs / ρk;
@@ -81,7 +81,7 @@ namespace WWAnalogFilterDesign {
         }
 
         public override WWComplex PoleNth(int nth) {
-            // H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.113.
+            // H. G. Dimopoulos, Analog Electronic Filters: theory, design and synthesis, Springer, 2012. pp.113.
             // Equation 3.38
 
             double N = mN;
@@ -102,7 +102,7 @@ namespace WWAnalogFilterDesign {
         }
 
         /// <summary>
-        /// H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.65.
+        /// H. G. Dimopoulos, Analog Electronic Filters: theory, design and synthesis, Springer, 2012. pp.65.
         /// </summary>
         private int CalcOrder() {
             double numer = WWMath.Functions.ArCosHypPositive(
@@ -115,7 +115,7 @@ namespace WWAnalogFilterDesign {
 
         /// <summary>
         /// H(s)の定数倍成分を戻す。
-        /// H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.73.
+        /// H. G. Dimopoulos, Analog Electronic Filters: theory, design and synthesis, Springer, 2012. pp.73.
         /// </summary>
         public override double TransferFunctionConstant() {
             int η=mN & 1;

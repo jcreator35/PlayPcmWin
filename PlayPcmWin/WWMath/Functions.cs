@@ -35,7 +35,7 @@ namespace WWMath {
 
         /// <summary>
         /// Arithmetic Geometric Mean 算術幾何平均
-        /// H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. 
+        /// H. G. Dimopoulos, Analog Electronic Filters: theory, design and synthesis, Springer, 2012. 
         /// pp.170
         /// </summary>
         public static double AGM(double x, double y) {
@@ -60,7 +60,7 @@ namespace WWMath {
 
         /// <summary>
         /// Complete Elliptic Integral of first kind K(k) 第1種完全楕円積分
-        /// H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.170.
+        /// H. G. Dimopoulos, Analog Electronic Filters: theory, design and synthesis, Springer, 2012. pp.170.
         /// </summary>
         public static double CompleteEllipticIntegralK(double k) {
             if (k < 0.0 || 1.0 <= k) {
@@ -73,7 +73,7 @@ namespace WWMath {
 
         /// <summary>
         /// Jacobi Nome q(x) (Modular constant)
-        /// H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.170.
+        /// H. G. Dimopoulos, Analog Electronic Filters: theory, design and synthesis, Springer, 2012. pp.170.
         /// </summary>
         public static double JacobiNomeQ(double x) {
             // Equation 4.6
@@ -91,7 +91,7 @@ namespace WWMath {
 
         /// <summary>
         /// Jacobi theta function θ0(z,y) テータ関数
-        /// H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.171.
+        /// H. G. Dimopoulos, Analog Electronic Filters: theory, design and synthesis, Springer, 2012. pp.171.
         /// </summary>
         /// <param name="y"> -1 &lt; y &lt; 1</param>
         public static double JacobiTheta0(double z, double y) {
@@ -118,7 +118,7 @@ namespace WWMath {
 
         /// <summary>
         /// Jacobi theta function θ1(z,y) テータ関数
-        /// H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.171.
+        /// H. G. Dimopoulos, Analog Electronic Filters: theory, design and synthesis, Springer, 2012. pp.171.
         /// </summary>
         /// <param name="y"> -1 &lt; y &lt; 1</param>
         public static double JacobiTheta1(double z, double y) {
@@ -145,7 +145,7 @@ namespace WWMath {
 
         /// <summary>
         /// Elliptic sine sn(u,x)
-        /// H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.171.
+        /// H. G. Dimopoulos, Analog Electronic Filters: theory, design and synthesis, Springer, 2012. pp.171.
         /// </summary>
         public static double EllipticSine(double u, double x) {
             double kx = CompleteEllipticIntegralK(x);
@@ -155,7 +155,7 @@ namespace WWMath {
 
         /// <summary>
         /// Jacobi theta function θ0h(z,y) テータ関数の亜種
-        /// H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.192.
+        /// H. G. Dimopoulos, Analog Electronic Filters: theory, design and synthesis, Springer, 2012. pp.192.
         /// </summary>
         public static double JacobiTheta0h(double z, double y) {
             if (1.0 < Math.Abs(y)) {
@@ -179,7 +179,7 @@ namespace WWMath {
 
         /// <summary>
         /// Jacobi theta function θ1h(z,y) テータ関数の亜種
-        /// H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.192.
+        /// H. G. Dimopoulos, Analog Electronic Filters: theory, design and synthesis, Springer, 2012. pp.192.
         /// </summary>
         /// <param name="y"> -1 &lt; y &lt; 1</param>
         public static double JacobiTheta1h(double z, double y) {

@@ -362,7 +362,7 @@ namespace WWOfflineResampler {
         private static readonly string COMMAND_TARGETSR = "-targetSR";
 
         private void PrintUsage(string programName) {
-            Console.WriteLine("Commandline Usage: {0} -targetSR [samplerate] inputAudioFile outputAudioFile", programName);
+            Trace.WriteLine(string.Format("Commandline Usage: {0} -targetSR [samplerate] inputAudioFile outputAudioFile", programName));
         }
 
         public bool ParseCommandLine() {
@@ -384,15 +384,16 @@ namespace WWOfflineResampler {
                 return false;
             }
 
-            Console.WriteLine("target samplerate={0}kHz.\nProcessing...\n", targetSR * 0.001);
+            Trace.WriteLine(string.Format("target samplerate={0}kHz.\nProcessing...\n", targetSR * 0.001));
 
             var param = new BWStartParams(inputFile, targetSR, outputFile);
-            var result = DoWork(param, (int percent, BWProgressParam p) => { });
+            var result = DoWork(param, (int percent, BWProgressParam p) => {
+                Trace.WriteLine(string.Format("{0}% {1}", percent, p.message)); });
 
             if (0 < result.message.Length) {
-                Console.WriteLine(result.message);
+                Trace.WriteLine(result.message);
             } else {
-                Console.WriteLine("Finished successfully.");
+                Trace.WriteLine("Finished successfully.");
             }
 
             return true;

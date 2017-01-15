@@ -63,7 +63,7 @@ namespace WWAnalogFilterDesign {
                 throw new System.ArgumentOutOfRangeException("nth");
             }
 
-            // H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.73.
+            // H. G. Dimopoulos, Analog Electronic Filters: theory, design and synthesis, Springer, 2012. pp.73.
             // sk = σk + jΩk
             double σk = Math.Sin(( 2.0 * N + 2.0 * nth + 1 ) * Math.PI / 2.0 / N)
                 * Math.Sinh(1.0 / N * WWMath.Functions.ArSinHyp(1.0 / mε));
@@ -82,7 +82,7 @@ namespace WWAnalogFilterDesign {
 
         /// <summary>
         /// Chebyshev polynomial coefficients of CN(Ω)
-        /// H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.60.
+        /// H. G. Dimopoulos, Analog Electronic Filters: theory, design and synthesis, Springer, 2012. pp.60.
         /// </summary>
         /// <param name="n">orderPlus1 of polynomial</param>
         /// <returns>rv[0] : constant coeff, rv[1] 1st orderPlus1 coeff, rv[2] 2nd orderPlus1 coeff ...</returns>
@@ -114,7 +114,7 @@ namespace WWAnalogFilterDesign {
         }
 
         /// <summary>
-        /// H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.65.
+        /// H. G. Dimopoulos, Analog Electronic Filters: theory, design and synthesis, Springer, 2012. pp.65.
         /// </summary>
         private int CalcOrder() {
             double numer = WWMath.Functions.ArCosHypPositive(
@@ -127,7 +127,7 @@ namespace WWAnalogFilterDesign {
 
         /// <summary>
         /// H(s)の定数倍成分を戻す。
-        /// H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.73.
+        /// H. G. Dimopoulos, Analog Electronic Filters: theory, design and synthesis, Springer, 2012. pp.73.
         /// </summary>
         public override double TransferFunctionConstant() {
             return mH0 / mε / Math.Pow(2.0, mN-1);

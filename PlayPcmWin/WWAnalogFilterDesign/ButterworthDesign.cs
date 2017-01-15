@@ -7,7 +7,7 @@ namespace WWAnalogFilterDesign {
 
         /// <summary>
         /// Calculate the orderPlus1 of Transfer function and βmax from the filter specification.
-        /// H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.41
+        /// H. G. Dimopoulos, Analog Electronic Filters: theory, design and synthesis, Springer, 2012. pp.41
         /// </summary>
         /// <param name="h0">gain of 0 Hz</param>
         /// <param name="hc">gain of cutoff frequency</param>
@@ -83,7 +83,7 @@ namespace WWAnalogFilterDesign {
         /// H(s)の分母の多項式の根を戻す。
         /// カットオフ周波数は1 rad/s。ωc Hzのとき sをωcで割る。
         /// H(s) = frac{h0/β}{\Pi_{k=0}^{N-1}{\(s-sk+\)}}
-        /// H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.50.
+        /// H. G. Dimopoulos, Analog Electronic Filters: theory, design and synthesis, Springer, 2012. pp.50.
         /// </summary>
         public override WWComplex PoleNth(int nth) {
             if (nth < 0 || mN <= 0 || mN <= nth) {

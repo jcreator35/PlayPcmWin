@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using WWMath;
 
 namespace WWAnalogFilterDesign {
     class PascalDesign : ApproximationBase {
-        /// H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.80
+        /// H. G. Dimopoulos, Analog Electronic Filters: theory, design and synthesis, Springer, 2012. pp.80
         /// Table 2.4 Characteristic values of Pa(N, Ω)
         struct CharacteristicValue {
             public int N;
@@ -41,7 +40,7 @@ namespace WWAnalogFilterDesign {
         static Dictionary<int, PoleLocation> mPoleTable1_5 = new Dictionary<int, PoleLocation>();
 
         static PascalDesign() {
-            // H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.80
+            // H. G. Dimopoulos, Analog Electronic Filters: theory, design and synthesis, Springer, 2012. pp.80
             // Table 2.4
             mCharacteristicValues.Add(2,  new CharacteristicValue(2,  0.00000000, -0.12500000, 0.47140452));
             mCharacteristicValues.Add(3,  new CharacteristicValue(3,  0.28867513, +0.06415003, 0.57735029));
@@ -52,7 +51,7 @@ namespace WWAnalogFilterDesign {
             mCharacteristicValues.Add(8,  new CharacteristicValue(8,  0.70882772, -0.01588792, 0.79978194));
             mCharacteristicValues.Add(9,  new CharacteristicValue(9,  0.73987600, +0.01358345, 0.81900877));
 
-            // H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.95
+            // H. G. Dimopoulos, Analog Electronic Filters: theory, design and synthesis, Springer, 2012. pp.95
             // Table 2.8 αmax = 0.01
             mPoleTable0_01.Add(
                 2, new PoleLocation(2, 10.413869, new WWComplex[] {
@@ -411,7 +410,7 @@ namespace WWAnalogFilterDesign {
         }
 
         public override WWComplex PoleNth(int nth) {
-            // H. G. Dimopoulos, Analog Electronic Filters: theory, design amd synthesis, Springer, 2012. pp.87
+            // H. G. Dimopoulos, Analog Electronic Filters: theory, design and synthesis, Springer, 2012. pp.87
             if (mPoleTable[mN].poleList.Count() <= nth) {
                 return WWComplex.ComplexConjugate(mPoleTable[mN].poleList[mN-1-nth]);
             }
