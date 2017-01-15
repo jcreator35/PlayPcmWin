@@ -348,7 +348,7 @@ namespace WWOfflineResampler {
                         posY += yPcm.Length;
 
                         remainFrom -= sizeFrom;
-                        remainTo -= y.Length;
+                        remainTo   -= sizeTo;
                         processedSamples += sizeFrom;
 
                         int percentage = (int)(CONVERT_START_PERCENT
