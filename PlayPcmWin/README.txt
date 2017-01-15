@@ -2,7 +2,7 @@ Open Visual Studio x64 Win64 command prompt and enter following commands to crea
 
 > cd \work\BpsConvWin2
  sn -k FlacIntegrityCheck\FlacIntegrityCheck.snk
- sn -k PcmDataLib\PcmDataLib.snk
+ sn -k PcmData\PcmDataLib.snk
  sn -k PlayPcmWin\PlayPcmWin.snk
  sn -k PlayPcmWinAlbum\PlayPcmWinAlbum.snk
  sn -k RecPcmWin\RecPcmWin.snk
