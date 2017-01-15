@@ -15,7 +15,6 @@ namespace WWOfflineResampler {
         public const int START_PERCENT = 5;
         public const int CONVERT_START_PERCENT = 10;
         public const int WRITE_START_PERCENT = 90;
-        public const int FRAGMENT_SAMPLES = 32 * 1024;
 
         private Stopwatch mSw = new Stopwatch();
 
@@ -283,8 +282,10 @@ namespace WWOfflineResampler {
 #endif
                     long remain = metaR.totalSamples;
                     long posY = 0;
-                    for (long posX = 0; posX < metaR.totalSamples; posX += FRAGMENT_SAMPLES) {
-                        int size = FRAGMENT_SAMPLES;
+                    // 1単位で処理するサンプル数は、ソースのサンプルレートの倍数にすると
+                    // 出力サンプル数がちょうど割り切れる。
+                    for (long posX = 0; posX < metaR.totalSamples; posX += metaR.sampleRate) {
+                        int size = metaR.sampleRate;
                         if (remain < size) {
                             size = (int)remain;
                         }
@@ -292,6 +293,23 @@ namespace WWOfflineResampler {
                         // 入力サンプル列x
                         var x = GetSamples(flacR, metaR, ch, posX, size);
 
+#if true
+                        // ローパスフィルターでエイリアシング雑音を除去しながらリサンプルする。
+                        var y = new double[(long)x.Length * upsampleScale / downsampleScale];
+                        for (long i = 0; i < x.Length * upsampleScale; ++i) {
+                            double v = 0;
+                            if ((i % upsampleScale) == 0) {
+                                v = x[i / upsampleScale];
+                            }
+                            v = iirFilter.Filter(v);
+                            // インパルストレインアップサンプル時に音量が下がっているのでupsampleScale倍する。
+                            v *= upsampleScale;
+                            svs.Add(v);
+                            if ((i % downsampleScale) == 0) {
+                                y[i / downsampleScale] = v;
+                            }
+                        }
+#else
                         // アップサンプルする。
                         var u = Upsample(x, upsampleScale);
 
@@ -299,18 +317,20 @@ namespace WWOfflineResampler {
                         for (long i = 0; i < u.LongLength; ++i) {
                             double v = iirFilter.Filter(u.At(i));
                             u.Set(i, v);
-                            svs.Add(v);
+                            svs.Add(v*upsampleScale);
                         }
                         // ダウンサンプルする
                         var y = Downsample(u, downsampleScale);
 
-#if true
                         // インパルストレインアップサンプル時に音量が下がっているのでupsampleScale倍する。
-                        const double kSampleValueLimit = (double)8388607 / 8388608;
                         double gain = upsampleScale;
+
+                        /*
+                        const double kSampleValueLimit = (double)8388607 / 8388608;
                         if (kSampleValueLimit < svs.MaxAbsValue() * gain) {
                             gain = kSampleValueLimit / svs.MaxAbsValue();
                         }
+                        */
                         y = ApplyGain(y, gain);
 #endif
 
@@ -336,7 +356,7 @@ namespace WWOfflineResampler {
                     System.Diagnostics.Debug.Assert(0 <= rv);
                 });
 
-                double maxMagnitudeDb = FieldQuantityToDecibel(svs.MaxAbsValue() * upsampleScale);
+                double maxMagnitudeDb = FieldQuantityToDecibel(svs.MaxAbsValue());
                 string clippedMsg = "";
                 if (0 <= maxMagnitudeDb) {
                     clippedMsg = "★★★ CLIPPED! ★★★";
