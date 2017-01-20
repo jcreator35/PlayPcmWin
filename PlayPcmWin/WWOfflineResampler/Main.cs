@@ -139,40 +139,6 @@ namespace WWOfflineResampler {
             return 20.0 * Math.Log10(v);
         }
 
-        /// <summary>
-        /// アップサンプル。インパルストレイン方式。
-        /// </summary>
-        private LargeArray<double> Upsample(double[] from, int scale) {
-            var to = new LargeArray<double>(from.LongLength * scale);
-
-            for (int i = 0; i < from.Length; ++i) {
-                to.Set((long)i * scale, from[i]);
-            }
-            return to;
-        }
-
-        /// <summary>
-        /// ダウンサンプル。デシメーション。
-        /// </summary>
-        private double[] Downsample(LargeArray<double> from, int scale) {
-            var to = new double[from.LongLength / scale];
-
-            for (int i = 0; i < to.Length; ++i) {
-                to[i] = from.At((long)i * scale);
-            }
-            return to;
-        }
-
-        /// <summary>
-        /// 音量調整。
-        /// </summary>
-        private double[] ApplyGain(double[] pcm, double gain) {
-            for (int i = 0; i < pcm.Length; ++i) {
-                pcm[i] = pcm[i] * gain;
-            }
-            return pcm;
-        }
-
         public BWCompletedParam DoWork(BWStartParams param, ProgressReportDelegate ReportProgress) {
             int rv = 0;
 
@@ -253,7 +219,6 @@ namespace WWOfflineResampler {
                     var pcmW = new WWUtil.LargeArray<byte>(metaW.totalSamples * metaW.BytesPerSample);
 
                     // ローパスフィルターを作る。
-#if true
                     // 共役複素数のペアを足して係数を全て実数にする。
                     var iirFilter = new IIRFilterReal();
                     for (int i = 0; i < mIIRiim.HzCount() / 2; ++i) {
@@ -266,20 +231,6 @@ namespace WWOfflineResampler {
                         // 奇数時フィルターの時、実係数の1次有理式がある。
                         iirFilter.Add(mIIRiim.Hz(mIIRiim.HzCount() / 2));
                     }
-#else
-                    // 複素数係数のまま計算。
-                    // 共役複素数のペアになる感じに並べる。
-                    var iirFilter = new IIRFilterComplex();
-                    for (int i = 0; i < mIIRiim.HzCount()/2; ++i) {
-                        var p0 = mIIRiim.Hz(i);
-                        var p1 = mIIRiim.Hz(mIIRiim.HzCount()-1-i);
-                        iirFilter.Add(p0);
-                        iirFilter.Add(p1);
-                    }
-                    if (1 == (mIIRiim.HzCount() & 1)) {
-                        iirFilter.Add(mIIRiim.Hz(mIIRiim.HzCount() / 2));
-                    }
-#endif
                     long remainFrom = metaR.totalSamples;
                     long remainTo = metaW.totalSamples;
                     long posY = 0;
@@ -298,7 +249,6 @@ namespace WWOfflineResampler {
                             sizeTo = (int)remainTo;
                         }
 
-#if true
                         // ローパスフィルターでエイリアシング雑音を除去しながらリサンプルする。
                         var y = new double[sizeTo];
                         for (long i = 0; i < x.Length * upsampleScale; ++i) {
@@ -317,30 +267,6 @@ namespace WWOfflineResampler {
                                 }
                             }
                         }
-#else
-                        // アップサンプルする。
-                        var u = Upsample(x, upsampleScale);
-
-                        // ローパスフィルターでエイリアシング雑音を除去する。
-                        for (long i = 0; i < u.LongLength; ++i) {
-                            double v = iirFilter.Filter(u.At(i));
-                            u.Set(i, v);
-                            svs.Add(v*upsampleScale);
-                        }
-                        // ダウンサンプルする
-                        var y = Downsample(u, downsampleScale);
-
-                        // インパルストレインアップサンプル時に音量が下がっているのでupsampleScale倍する。
-                        double gain = upsampleScale;
-
-                        /*
-                        const double kSampleValueLimit = (double)8388607 / 8388608;
-                        if (kSampleValueLimit < svs.MaxAbsValue() * gain) {
-                            gain = kSampleValueLimit / svs.MaxAbsValue();
-                        }
-                        */
-                        y = ApplyGain(y, gain);
-#endif
 
                         // 出力する。
                         byte[] yPcm = ConvertToIntegerPcm(y, metaW.BytesPerSample);

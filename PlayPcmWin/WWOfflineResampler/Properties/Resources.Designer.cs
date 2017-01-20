@@ -61,6 +61,15 @@ namespace WWOfflineResampler.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Error: Dropped data is not file!.
+        /// </summary>
+        internal static string DroppedDataIsNotFile {
+            get {
+                return ResourceManager.GetString("DroppedDataIsNotFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to FLAC files(*.flac)|*.flac.
         /// </summary>
         internal static string FilterReadAudioFiles {

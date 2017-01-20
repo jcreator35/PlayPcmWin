@@ -8,6 +8,7 @@ using WWIIRFilterDesign;
 using WWMath;
 using WWUtil;
 using System.Globalization;
+using System.Text;
 
 namespace WWOfflineResampler {
     /// <summary>
@@ -223,5 +224,28 @@ namespace WWOfflineResampler {
             mBw.RunWorkerAsync(new Main.BWStartParams(textBoxInputFile.Text, targetSampleRate, textBoxOutputFile.Text));
         }
 
+        private void Window_DragEnter(object sender, DragEventArgs e) {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop)) {
+                e.Effects = DragDropEffects.Copy;
+            } else {
+                e.Effects = DragDropEffects.None;
+            }
+        }
+
+        private void Window_Drop(object sender, DragEventArgs e) {
+            var paths = e.Data.GetData(DataFormats.FileDrop) as string[];
+            if (null == paths) {
+                var sb = new StringBuilder(Properties.Resources.DroppedDataIsNotFile);
+
+                var formats = e.Data.GetFormats(false);
+                foreach (var format in formats) {
+                    sb.Append(string.Format(CultureInfo.InvariantCulture, "{1}    {0}", format, Environment.NewLine));
+                }
+                MessageBox.Show(sb.ToString());
+                return;
+            }
+            textBoxInputFile.Text = paths[0];
+            InputFormUpdated();
+        }
     }
 }
