@@ -252,13 +252,18 @@ namespace WWOfflineResampler {
                         // ローパスフィルターでエイリアシング雑音を除去しながらリサンプルする。
                         var y = new double[sizeTo];
                         for (long i = 0; i < x.Length * upsampleScale; ++i) {
+#if true
+                            // 零次ホールド。
+                            double v = x[i / upsampleScale];
+#else
+                            // インパルストレイン。
                             double v = 0;
                             if ((i % upsampleScale) == 0) {
-                                v = x[i / upsampleScale];
+                                // インパルストレインアップサンプル時に音量が下がるのでupsampleScale倍する。
+                                v = upsampleScale * x[i / upsampleScale];
                             }
+#endif
                             v = iirFilter.Filter(v);
-                            // インパルストレインアップサンプル時に音量が下がっているのでupsampleScale倍する。
-                            v *= upsampleScale;
                             svs.Add(v);
                             if ((i % downsampleScale) == 0) {
                                 int posTo = (int)(i / downsampleScale);
