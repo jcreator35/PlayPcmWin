@@ -251,6 +251,9 @@ namespace WWOfflineResampler {
                             sizeTo = (int)remainTo;
                         }
 
+                        // 零次ホールドでアップサンプルするのでハイ落ちを補償する。
+                        x = zohCompensation.Filter(x);
+
                         // ローパスフィルターでエイリアシング雑音を除去しながらリサンプルする。
                         var y = new double[sizeTo];
                         for (long i = 0; i < x.Length * upsampleScale; ++i) {
@@ -274,8 +277,6 @@ namespace WWOfflineResampler {
                                 }
                             }
                         }
-
-                        y = zohCompensation.Filter(y);
 
                         // 出力する。
                         byte[] yPcm = ConvertToIntegerPcm(y, metaW.BytesPerSample);

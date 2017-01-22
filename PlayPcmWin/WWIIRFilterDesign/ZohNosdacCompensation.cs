@@ -79,7 +79,7 @@ namespace WWIIRFilterDesign {
         }
 
         public double [] Filter(double [] inPcm) {
-            double[] outPcm = new double[inPcm.Length];
+             var outPcm = new double[inPcm.Length];
 
             for (long i = 0; i < outPcm.Length; ++i) {
                 mDelay.Filter(inPcm[i]);
