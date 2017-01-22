@@ -233,6 +233,7 @@ namespace WWOfflineResampler {
                         // 奇数時フィルターの時、実係数の1次有理式がある。
                         iirFilter.Add(mIIRiim.Hz(mIIRiim.HzCount() / 2));
                     }
+
                     long remainFrom = metaR.totalSamples;
                     long remainTo = metaW.totalSamples;
                     long posY = 0;
@@ -251,8 +252,10 @@ namespace WWOfflineResampler {
                             sizeTo = (int)remainTo;
                         }
 
-                        // 零次ホールドでアップサンプルするのでハイ落ちを補償する。
-                        x = zohCompensation.Filter(x);
+                        if (1 < upsampleScale) {
+                            // 零次ホールドでアップサンプルするのでハイ落ちを補償する。
+                            x = zohCompensation.Filter(x);
+                        }
 
                         // ローパスフィルターでエイリアシング雑音を除去しながらリサンプルする。
                         var y = new double[sizeTo];
