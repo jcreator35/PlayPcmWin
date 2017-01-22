@@ -80,6 +80,7 @@
     <Compile Include="IIRFilterBlockReal.cs" />
     <Compile Include="ImpulseInvarianceMethod.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ZohNosdacCompensation.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WWMath\WWMath.csproj">

@@ -218,6 +218,8 @@ namespace WWOfflineResampler {
                 Parallel.For(0, metaR.channels, (int ch) => {
                     var pcmW = new WWUtil.LargeArray<byte>(metaW.totalSamples * metaW.BytesPerSample);
 
+                    var zohCompensation = new WWIIRFilterDesign.ZohNosdacCompensation(33);
+
                     // ローパスフィルターを作る。
                     // 共役複素数のペアを足して係数を全て実数にする。
                     var iirFilter = new IIRFilterReal();
@@ -272,6 +274,8 @@ namespace WWOfflineResampler {
                                 }
                             }
                         }
+
+                        y = zohCompensation.Filter(y);
 
                         // 出力する。
                         byte[] yPcm = ConvertToIntegerPcm(y, metaW.BytesPerSample);
