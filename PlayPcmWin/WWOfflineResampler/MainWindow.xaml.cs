@@ -184,6 +184,18 @@ namespace WWOfflineResampler {
 
                 mPoleZeroPlotZ.Mode = WWUserControls.PoleZeroPlot.ModeType.ZPlane;
                 mPoleZeroPlotZ.TransferFunction = mMain.IIRiim().TransferFunction;
+                for (int i = 0; i < mMain.IIRiim().HzCount(); ++i) {
+                    var p = mMain.IIRiim().Hz(i);
+                    if (p.NumerOrder() == 1) {
+                        mPoleZeroPlotZ.AddZero(WWComplex.Minus(WWComplex.Div(p.N(1), p.N(0))));
+                    }
+                    if (p.DenomOrder() == 1) {
+                        mPoleZeroPlotZ.AddPole(WWComplex.Minus(WWComplex.Div(p.D(1), p.D(0))));
+                    }
+                    if (p.NumerOrder() == 0 && p.DenomOrder() == 1) {
+                        mPoleZeroPlotZ.AddZero(WWComplex.Zero());
+                    }
+                }
                 mPoleZeroPlotZ.Update();
 
                 mFrequencyResponseZ.Mode = WWUserControls.FrequencyResponse.ModeType.ZPlane;
