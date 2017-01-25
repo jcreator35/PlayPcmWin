@@ -192,9 +192,6 @@ namespace WWOfflineResampler {
                     if (p.DenomOrder() == 1) {
                         mPoleZeroPlotZ.AddPole(WWComplex.Minus(WWComplex.Div(p.D(1), p.D(0))));
                     }
-                    if (p.NumerOrder() == 0 && p.DenomOrder() == 1) {
-                        mPoleZeroPlotZ.AddZero(WWComplex.Zero());
-                    }
                 }
                 mPoleZeroPlotZ.Update();
 
