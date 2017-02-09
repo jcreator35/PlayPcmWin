@@ -5,6 +5,8 @@ namespace WWMath {
         public readonly double real;
         public readonly double imaginary;
 
+        public static string imaginaryUnit = "i";
+
         public WWComplex(double real, double imaginary) {
             this.real      = real;
             this.imaginary = imaginary;
@@ -113,14 +115,14 @@ namespace WWMath {
                 return string.Format("{0:G4}", real);
             }
             if (Math.Abs(real) < 0.0001) {
-                return string.Format("{0:G4}i", imaginary);
+                return string.Format("{0:G4}{1}", imaginary, imaginaryUnit);
             }
 
             if (imaginary < 0) {
                 // マイナス記号が自動で出る。
-                return string.Format("{0:G4}{1:G4}i", real, imaginary);
+                return string.Format("{0:G4}{1:G4}{2}", real, imaginary, imaginaryUnit);
             } else {
-                return string.Format("{0:G4}+{1:G4}i", real, imaginary);
+                return string.Format("{0:G4}+{1:G4}{2}", real, imaginary, imaginaryUnit);
             }
         }
 

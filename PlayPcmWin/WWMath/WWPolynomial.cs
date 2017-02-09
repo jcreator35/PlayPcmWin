@@ -518,7 +518,7 @@ namespace WWMath {
                 var p = WWPolynomial.PartialFractionDecomposition(numerCoeffs, dRoots);
 
                 for (int i = 0; i < p.Count; ++i) {
-                    Console.WriteLine(p[i].ToString("s"));
+                    Console.WriteLine(p[i].ToString("s", "i"));
                     if (i != p.Count - 1) {
                         Console.WriteLine(" + ");
                     }
@@ -579,7 +579,7 @@ namespace WWMath {
                 var p = WWPolynomial.PartialFractionDecomposition(numerC, denomR);
 
                 for (int i = 0; i < p.Count; ++i) {
-                    Console.WriteLine(p[i].ToString("s"));
+                    Console.WriteLine(p[i].ToString("s", "i"));
                     if (i != p.Count - 1) {
                         Console.WriteLine(" + ");
                     }

@@ -114,6 +114,7 @@ public:
     EDataFlow GetDataFlow(void) const { return m_dataFlow; }
     int GetEndpointBufferFrameNum(void) const { return m_bufferFrameNum; }
     int64_t GetCaptureGlitchCount(void) const { return m_glitchCount; }
+    void ResetCaptureGlitchCount(void) { m_glitchCount = 0; }
 
     WWStreamType StreamType(void) const { return m_pcmStream.StreamType(); }
     WWPcmStream &PcmStream(void) { return m_pcmStream; }

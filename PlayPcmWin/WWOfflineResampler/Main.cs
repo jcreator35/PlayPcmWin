@@ -213,6 +213,9 @@ namespace WWOfflineResampler {
                 long totalSamplesOfAllChannels = metaR.totalSamples * metaR.channels;
                 long processedSamples = 0;
 
+                // Mathematica用の設定。
+                WWComplex.imaginaryUnit = "I";
+
                 // 変換する
                 //for (int ch=0; ch<metaR.channels;++ch){
                 Parallel.For(0, metaR.channels, (int ch) => {
@@ -227,11 +230,16 @@ namespace WWOfflineResampler {
                         var p0 = mIIRiim.Hz(i);
                         var p1 = mIIRiim.Hz(mIIRiim.HzCount() - 1 - i);
                         var p = WWPolynomial.Add(p0, p1);
+                        //Console.WriteLine("{0}", p.ToString("(z)^(-1)", "I"));
+                        Console.WriteLine("{0}", p.ToString("((x+I*y)^(-1))", "I"));
                         iirFilter.Add(p);
                     }
                     if (1 == (mIIRiim.HzCount() & 1)) {
-                        // 奇数時フィルターの時、実係数の1次有理式がある。
-                        iirFilter.Add(mIIRiim.Hz(mIIRiim.HzCount() / 2));
+                        // 奇数次フィルターの時、実係数の1次有理式がある。
+                        var p = mIIRiim.Hz(mIIRiim.HzCount() / 2);
+                        //Console.WriteLine("{0}", p.ToString("(z)^(-1)", "I"));
+                        Console.WriteLine("{0}", p.ToString("((x+I*y)^(-1))", "I"));
+                        iirFilter.Add(p);
                     }
 
                     long remainFrom = metaR.totalSamples;

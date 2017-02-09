@@ -68,15 +68,15 @@ namespace WWMath {
             return denom.Length - 1;
         }
 
-        public override string ToString(string variableSymbol) {
-            string n = WWUtil.PolynomialToString(numer, variableSymbol, WWUtil.SymbolOrder.NonInverted);
-            string d = WWUtil.PolynomialToString(denom, variableSymbol, WWUtil.SymbolOrder.NonInverted);
+        public override string ToString(string variableSymbol, string imaginaryUnit) {
+            string n = WWUtil.PolynomialToString(numer, variableSymbol, WWUtil.SymbolOrder.NonInverted, imaginaryUnit);
+            string d = WWUtil.PolynomialToString(denom, variableSymbol, WWUtil.SymbolOrder.NonInverted, imaginaryUnit);
             return string.Format("{{ {0} }} / {{ {1} }}", n, d);
         }
 
-        public string ToString(string variableSymbol, WWUtil.SymbolOrder so) {
-            string n = WWUtil.PolynomialToString(numer, variableSymbol, so);
-            string d = WWUtil.PolynomialToString(denom, variableSymbol, so);
+        public string ToString(string variableSymbol, WWUtil.SymbolOrder so, string imaginaryUnit) {
+            string n = WWUtil.PolynomialToString(numer, variableSymbol, so, imaginaryUnit);
+            string d = WWUtil.PolynomialToString(denom, variableSymbol, so, imaginaryUnit);
             return string.Format("{{ {0} }} / {{ {1} }}", n, d);
         }
     }

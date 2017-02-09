@@ -143,6 +143,10 @@ namespace Wasapi {
         WasapiIO_GetCaptureGlitchCount(int instanceId);
 
         [DllImport("WasapiIODLL.dll")]
+        private extern static void
+        WasapiIO_ResetCaptureGlitchCount(int instanceId);
+
+        [DllImport("WasapiIODLL.dll")]
         private extern static int
         WasapiIO_StartPlayback(int instanceId, int wavDataId);
 
@@ -686,6 +690,10 @@ namespace Wasapi {
 
         public long GetCaptureGlitchCount() {
             return WasapiIO_GetCaptureGlitchCount(mId);
+        }
+
+        public void ResetCaptureGlitchCount() {
+            WasapiIO_ResetCaptureGlitchCount(mId);
         }
 
         public int StartPlayback(int wavDataId) {

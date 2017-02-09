@@ -52,12 +52,12 @@ namespace WWMath {
         }
 
         public override string ToString() {
-            return ToString("x");
+            return ToString("x", "i");
         }
 
-        public override string ToString(string variableSymbol) {
-            string n = WWUtil.PolynomialToString(numer[1], numer[0], variableSymbol);
-            string d = WWUtil.PolynomialToString(denom[1], denom[0], variableSymbol);
+        public override string ToString(string variableSymbol, string imaginaryUnit) {
+            string n = WWUtil.PolynomialToString(numer[1], numer[0], variableSymbol, imaginaryUnit);
+            string d = WWUtil.PolynomialToString(denom[1], denom[0], variableSymbol, imaginaryUnit);
             return string.Format("{{ {0} }} / {{ {1} }}", n, d);
         }
 

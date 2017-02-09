@@ -198,7 +198,8 @@ namespace WasapiBitmatchChecker.Properties {
         
         /// <summary>
         ///   Looks up a localized string similar to Captured data was different from rendered data!
-        ///  PCM size played = {0:F3} MiB ({1:F3} Mbit). Tested PCM Duration = {2:F1} seconds
+        ///  PCM size played = {0:F3} MiB ({1:F3} Mbit). Tested PCM Duration = {2:F1} seconds.
+        ///  different bytes = {3}, capture glitch = {4}
         ///.
         /// </summary>
         internal static string msgCompareDifferent {

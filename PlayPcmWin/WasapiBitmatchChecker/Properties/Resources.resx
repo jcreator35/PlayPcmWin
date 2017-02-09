@@ -165,7 +165,8 @@
   </data>
   <data name="msgCompareDifferent" xml:space="preserve">
     <value>Captured data was different from rendered data!
-  PCM size played = {0:F3} MiB ({1:F3} Mbit). Tested PCM Duration = {2:F1} seconds
+  PCM size played = {0:F3} MiB ({1:F3} Mbit). Tested PCM Duration = {2:F1} seconds.
+  different bytes = {3}, capture glitch = {4}
 </value>
   </data>
   <data name="msgCompareIdentical" xml:space="preserve">

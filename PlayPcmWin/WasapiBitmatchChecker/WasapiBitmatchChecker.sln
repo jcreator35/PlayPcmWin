@@ -2,6 +2,10 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WasapiBitmatchChecker", "WasapiBitmatchChecker.csproj", "{E6E378E2-B9A7-4357-9FAE-39FF28AF8FCE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{136171C7-C541-424C-AEC3-FF42CE4DB567} = {136171C7-C541-424C-AEC3-FF42CE4DB567}
+		{C2210BF3-3EAF-42BF-992D-BE6D84A3CC8A} = {C2210BF3-3EAF-42BF-992D-BE6D84A3CC8A}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WasapiIODLL", "..\WasapiIODLL\WasapiIODLL.vcxproj", "{136171C7-C541-424C-AEC3-FF42CE4DB567}"
 EndProject

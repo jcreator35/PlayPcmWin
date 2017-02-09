@@ -505,6 +505,15 @@ WasapiIO_GetCaptureGlitchCount(int instanceId)
 }
 
 __declspec(dllexport)
+void __stdcall
+WasapiIO_ResetCaptureGlitchCount(int instanceId)
+{
+    WasapiIO *self = Instance(instanceId);
+    assert(self);
+    self->wasapi.ResetCaptureGlitchCount();
+}
+
+__declspec(dllexport)
 HRESULT __stdcall
 WasapiIO_StartPlayback(int instanceId, int wavDataId)
 {

@@ -144,6 +144,10 @@ int64_t __stdcall
 WasapiIO_GetCaptureGlitchCount(int instanceId);
 
 __declspec(dllexport)
+void __stdcall
+WasapiIO_ResetCaptureGlitchCount(int instanceId);
+
+__declspec(dllexport)
 HRESULT __stdcall
 WasapiIO_Start(int instanceId, int pcmId);
 

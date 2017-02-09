@@ -165,7 +165,8 @@
   </data>
   <data name="msgCompareDifferent" xml:space="preserve">
     <value>失敗! 録音したPCMデータと再生したPCMデータのサンプル値が異なっています.
-  PCMデータサイズ = {0:F3} MiB ({1:F3} Mビット). PCMデータの長さ = {2:F1} 秒
+  PCMデータサイズ = {0:F3} MiB ({1:F3} Mビット). PCMデータの長さ = {2:F1} 秒.
+  相違バイト数 = {3}, 録音異常 = {4}
 </value>
   </data>
   <data name="msgCompareIdentical" xml:space="preserve">

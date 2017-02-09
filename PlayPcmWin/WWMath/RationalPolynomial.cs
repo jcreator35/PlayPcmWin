@@ -10,7 +10,7 @@ namespace WWMath {
         public abstract int NumerOrder();
         public abstract int DenomOrder();
 
-        public abstract string ToString(string variableSymbol);
+        public abstract string ToString(string variableSymbol, string imaginaryUnit);
 
     }
 }

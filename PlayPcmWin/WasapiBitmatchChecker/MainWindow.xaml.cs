@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.IO;
 using WWUtil;
+using System.Diagnostics;
 
 namespace WasapiBitmatchChecker {
     /// <summary>
@@ -21,7 +22,7 @@ namespace WasapiBitmatchChecker {
             get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); }
         }
 
-        enum State {
+        private enum State {
             Init,
             Syncing,
             Running,
@@ -38,7 +39,7 @@ namespace WasapiBitmatchChecker {
 
         private Wasapi.WasapiCS.CaptureCallback mCaptureDataArrivedDelegate;
 
-        private static int NUM_PROLOGUE_FRAMES = 262144;
+        //private static int NUM_PROLOGUE_FRAMES = 262144;
         private long mNumTestFrames = 1000 * 1000;
         private static int NUM_CHANNELS = 2;
         private int mSampleRate;
@@ -64,7 +65,7 @@ namespace WasapiBitmatchChecker {
         private PcmDataLib.PcmData mPcmTest;
         private PcmDataLib.PcmData mPcmRecorded;
 
-        Random mRand = new Random();
+        private Random mRand = new Random();
 
         private LargeArray<byte> mCapturedPcmData;
         private long mCapturedBytes;
@@ -72,6 +73,37 @@ namespace WasapiBitmatchChecker {
         private Object mLock = new Object();
 
         private Wasapi.WasapiCS.StateChangedCallback mStateChanged;
+
+        private Stopwatch mProgressStopwatch = new Stopwatch();
+
+        private class StartTestingResult {
+            public bool result;
+            public string text;
+        };
+
+        private enum AudioContentType {
+            SYNC,
+            READY,
+            TEST
+        };
+
+        private BackgroundWorker mBwStartTesting;
+
+        private enum ButtonStartStopState {
+            Disable,
+            StartEnable,
+            StopEnable,
+        };
+
+        private BackgroundWorker mBwLoadPcm;
+
+        private PcmDataLib.PcmData mPlayPcmData;
+
+        private class LoadPcmResult {
+            public string path;
+            public bool result;
+            public PcmDataLib.PcmData pcmData;
+        };
 
         private void LocalizeUI() {
             groupBoxPcmDataSettings.Header = Properties.Resources.groupBoxPcmDataSettings;
@@ -130,9 +162,6 @@ namespace WasapiBitmatchChecker {
             UpdateDeviceList();
 
             mSyncTimeout = new DispatcherTimer();
-            mSyncTimeout.Tick += new EventHandler(SyncTimeoutTickCallback);
-            mSyncTimeout.Interval = new TimeSpan(0, 0, 5);
-
             textBoxLog.Text = string.Format("WasapiBitmatchChecker version {0}\r\n", AssemblyVersion);
 
             mStateChanged = new Wasapi.WasapiCS.StateChangedCallback(StateChangedCallback);
@@ -354,14 +383,138 @@ namespace WasapiBitmatchChecker {
             return true;
         }
 
+        /// <summary>
+        /// 再生中。バックグラウンドスレッド。
+        /// </summary>
+        private void PlayDoWork(object o, DoWorkEventArgs args) {
+            //Console.WriteLine("PlayDoWork started");
+            BackgroundWorker bw = (BackgroundWorker)o;
+
+            while (!mWasapiPlay.Run(100)) {
+                System.Threading.Thread.Sleep(1);
+                if (bw.CancellationPending) {
+                    Console.WriteLine("PlayDoWork() CANCELED");
+                    mWasapiPlay.Stop();
+                    args.Cancel = true;
+                }
+
+                int id = mWasapiPlay.GetPcmDataId(WasapiCS.PcmDataUsageType.NowPlaying);
+
+                var playPosition = mWasapiPlay.GetPlayCursorPosition(WasapiCS.PcmDataUsageType.NowPlaying);
+                if (id == (int)AudioContentType.TEST && 1000 < mProgressStopwatch.ElapsedMilliseconds) {
+                    // テスト音再生中に1秒に1回の頻度でプログレスバーを更新する。
+                    mPlayWorker.ReportProgress((int)(playPosition.PosFrame * 95 / playPosition.TotalFrameNum));
+                    mProgressStopwatch.Restart();
+                }
+            }
+
+            // 正常に最後まで再生が終わった場合、ここでStopを呼んで、後始末する。
+            // キャンセルの場合は、2回Stopが呼ばれることになるが、問題ない!!!
+            mWasapiPlay.Stop();
+
+            // 停止完了後タスクの処理は、ここではなく、PlayRunWorkerCompletedで行う。
+        }
+
+        private void PlayWorkerProgressChanged(object sender, ProgressChangedEventArgs e) {
+            progressBar1.Value = e.ProgressPercentage;
+        }
+
+        /// <summary>
+        /// 再生終了。
+        /// </summary>
+        private void PlayRunWorkerCompleted(object o, RunWorkerCompletedEventArgs args) {
+            mWasapiPlay.Unsetup();
+            mProgressStopwatch.Stop();
+            // このあと録音も程なく終わる。
+        }
+
+        private void RecDoWork(object o, DoWorkEventArgs args) {
+            BackgroundWorker bw = (BackgroundWorker)o;
+
+            while (!mWasapiRec.Run(100) && mState != State.RecCompleted) {
+                System.Threading.Thread.Sleep(1);
+                if (bw.CancellationPending) {
+                    Console.WriteLine("RecDoWork() CANCELED");
+                    mWasapiRec.Stop();
+                    args.Cancel = true;
+                }
+            }
+
+            // キャンセルの場合は、2回Stopが呼ばれることになるが、問題ない!!!
+            mWasapiRec.Stop();
+
+            // 停止完了後タスクの処理は、ここではなく、RecRunWorkerCompletedで行う。
+        }
+
+        private void RecRunWorkerCompleted(object o, RunWorkerCompletedEventArgs args) {
+            //Console.WriteLine("RecRunWorkerCompleted()");
+
+            lock (mLock) {
+                mWasapiRec.Unsetup();
+
+                CompareRecordedData();
+
+                // 完了。UIの状態を戻す。
+                UpdateButtonStartStop(ButtonStartStopState.StartEnable);
+
+                groupBoxPcmDataSettings.IsEnabled = true;
+                groupBoxPlayback.IsEnabled = true;
+                groupBoxRecording.IsEnabled = true;
+
+                progressBar1.Value = 0;
+
+                mState = State.Init;
+            }
+        }
+
+        //=========================================================================================================
+
+        // 開始ボタンを押すと以下の順に実行される。
+        //                BwStartTesting_DoWork()
+        //                └PreparePcmData()
+        //                BwStartTesting_RunWorkerCompleted()
+        //                     ↓                       ↓
+        // mPlayWorker.RunWorkerAsync()         mRecWorker.RunWorkerAsync()
+        // PlayDoWork()                         RecDoWork() → CaptureDataArrived()
+        //                                                    ├CaptureSync()
+        //                                                    └CaptureRunning()
+        // PlayRunWorkerCompleted()             RecRunWorkerCompleted()
+        //                                      └CompareRecordedData()
+        private void buttonStart_Click(object sender, RoutedEventArgs e) {
+            if (!UpdateTestParamsFromUI()) {
+                return;
+            }
+
+            //Console.WriteLine("buttonStart_Click()");
+
+            groupBoxPcmDataSettings.IsEnabled = false;
+            groupBoxPlayback.IsEnabled = false;
+            groupBoxRecording.IsEnabled = false;
+
+            UpdateButtonStartStop(ButtonStartStopState.Disable);
+
+            textBoxLog.Text += "Preparing data.\n";
+            textBoxLog.ScrollToEnd();
+
+            mBwStartTesting = new BackgroundWorker();
+            mBwStartTesting.DoWork += new DoWorkEventHandler(BwStartTesting_DoWork);
+            mBwStartTesting.RunWorkerCompleted += new RunWorkerCompletedEventHandler(BwStartTesting_RunWorkerCompleted);
+            mBwStartTesting.RunWorkerAsync();
+        }
+
         private void PreparePcmData() {
+            // mPcmSync : 長さ2秒、同期をするために頭に1回小さいクリック音を入れる。これを連続再生する。
+            // mPcmReady : 長さ2秒、頭に小さいクリック音がある。このPCMの直後にテストデータを再生する。
+
+            const int SYNC_PCM_SECONDS = 1;
+
             {
                 mPcmSync = new PcmDataLib.PcmData();
                 mPcmSync.SetFormat(NUM_CHANNELS,
                         WasapiCS.SampleFormatTypeToUseBitsPerSample(mPlaySampleFormat),
                         WasapiCS.SampleFormatTypeToValidBitsPerSample(mPlaySampleFormat),
                         mSampleRate,
-                        PcmDataLib.PcmData.ValueRepresentationType.SInt, mSampleRate);
+                        PcmDataLib.PcmData.ValueRepresentationType.SInt, SYNC_PCM_SECONDS * mSampleRate);
                 var syncData = new LargeArray<byte>((WasapiCS.SampleFormatTypeToUseBitsPerSample(mPlaySampleFormat) / 8) * NUM_CHANNELS * mPcmSync.NumFrames);
                 mPcmSync.SetSampleLargeArray(syncData);
             }
@@ -373,6 +526,22 @@ namespace WasapiBitmatchChecker {
                 mPcmReady.SetSampleLargeArray(readyData);
             }
 
+            switch (mPlaySampleFormat) {
+            case WasapiCS.SampleFormatType.Sint16:
+                mPcmSync.SetSampleValueInInt32(0, 0, 0x00040000);
+                mPcmReady.SetSampleValueInInt32(0, 0, 0x00030000);
+                break;
+            case WasapiCS.SampleFormatType.Sint24:
+            case WasapiCS.SampleFormatType.Sint32V24:
+                mPcmSync.SetSampleValueInInt32(0, 0, 0x00000400);
+                mPcmReady.SetSampleValueInInt32(0, 0, 0x00000300);
+                break;
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                break;
+            }
+
+            // mPcmTest : テストデータ。このPCMデータを再生し、再生データと録音データが一致するかどうかを調べる。
             if (mUseFile) {
                 var conv = new WasapiPcmUtil.PcmFormatConverter(NUM_CHANNELS);
                 mPcmTest = conv.Convert(mPlayPcmData, mPlaySampleFormat,
@@ -396,133 +565,13 @@ namespace WasapiBitmatchChecker {
                 mPcmTest.SetSampleLargeArray(mNumTestFrames, randData);
             }
 
+            // 録音データ置き場。
             mCapturedPcmData = new LargeArray<byte>((long)(WasapiCS.SampleFormatTypeToUseBitsPerSample(mRecSampleFormat) / 8)
-                    * NUM_CHANNELS * (mNumTestFrames + NUM_PROLOGUE_FRAMES));
-
-            switch (mPlaySampleFormat) {
-            case WasapiCS.SampleFormatType.Sint16:
-                mPcmSync.SetSampleValueInInt32(0, 0, 0x00040000);
-                mPcmReady.SetSampleValueInInt32(0, 0, 0x00030000);
-                break;
-            case WasapiCS.SampleFormatType.Sint24:
-            case WasapiCS.SampleFormatType.Sint32V24:
-                mPcmSync.SetSampleValueInInt32(0, 0, 0x00000400);
-                mPcmReady.SetSampleValueInInt32(0, 0, 0x00000300);
-                break;
-            default:
-                System.Diagnostics.Debug.Assert(false);
-                break;
-            }
+                    * NUM_CHANNELS * (mNumTestFrames + (4*SYNC_PCM_SECONDS)*mSampleRate));
         }
 
-        /// <summary>
-        /// 再生中。バックグラウンドスレッド。
-        /// </summary>
-        private void PlayDoWork(object o, DoWorkEventArgs args) {
-            //Console.WriteLine("PlayDoWork started");
-            BackgroundWorker bw = (BackgroundWorker)o;
-
-            while (!mWasapiPlay.Run(100)) {
-                System.Threading.Thread.Sleep(1);
-                if (bw.CancellationPending) {
-                    Console.WriteLine("PlayDoWork() CANCELED");
-                    mWasapiPlay.Stop();
-                    args.Cancel = true;
-                }
-                
-                var playPosition = mWasapiPlay.GetPlayCursorPosition(WasapiCS.PcmDataUsageType.NowPlaying);
-                if (playPosition.TotalFrameNum == mNumTestFrames) {
-                    // 本編を再生している時だけプログレスバーを動かす
-                    mPlayWorker.ReportProgress((int)(playPosition.PosFrame * 95 / playPosition.TotalFrameNum));
-                }
-            }
-
-            // 正常に最後まで再生が終わった場合、ここでStopを呼んで、後始末する。
-            // キャンセルの場合は、2回Stopが呼ばれることになるが、問題ない!!!
-            mWasapiPlay.Stop();
-
-            // 停止完了後タスクの処理は、ここではなく、PlayRunWorkerCompletedで行う。
-        }
-
-        private void PlayWorkerProgressChanged(object sender, ProgressChangedEventArgs e) {
-            progressBar1.Value = e.ProgressPercentage;
-        }
-
-        /// <summary>
-        /// 再生終了。
-        /// </summary>
-        private void PlayRunWorkerCompleted(object o, RunWorkerCompletedEventArgs args) {
-            mWasapiPlay.Unsetup();
-            // このあと録音も程なく終わり、RecRunWorkerCompletedでデバイス一覧表示は更新される。
-        }
-
-        private void RecDoWork(object o, DoWorkEventArgs args) {
-            BackgroundWorker bw = (BackgroundWorker)o;
-
-            while (!mWasapiRec.Run(100) && mState != State.RecCompleted) {
-                System.Threading.Thread.Sleep(1);
-                if (bw.CancellationPending) {
-                    Console.WriteLine("RecDoWork() CANCELED");
-                    mWasapiRec.Stop();
-                    args.Cancel = true;
-                }
-            }
-
-            // キャンセルの場合は、2回Stopが呼ばれることになるが、問題ない!!!
-            mWasapiRec.Stop();
-
-            // 停止完了後タスクの処理は、ここではなく、RecRunWorkerCompletedで行う。
-        }
-
-        private void RecRunWorkerCompleted(object o, RunWorkerCompletedEventArgs args) {
-            lock (mLock) {
-                mWasapiRec.Unsetup();
-
-                CompareRecordedData();
-
-                // 完了。UIの状態を戻す。
-                UpdateButtonStartStop(ButtonStartStopState.StartEnable);
-
-                groupBoxPcmDataSettings.IsEnabled = true;
-                groupBoxPlayback.IsEnabled = true;
-                groupBoxRecording.IsEnabled = true;
-
-                progressBar1.Value = 0;
-
-                mState = State.Init;
-            }
-        }
-
-
-
-        //=========================================================================================================
-
-        private void buttonStart_Click(object sender, RoutedEventArgs e) {
-            if (!UpdateTestParamsFromUI()) {
-                return;
-            }
-
-            groupBoxPcmDataSettings.IsEnabled = false;
-            groupBoxPlayback.IsEnabled = false;
-            groupBoxRecording.IsEnabled = false;
-
-            UpdateButtonStartStop(ButtonStartStopState.Disable);
-
-            textBoxLog.Text += "Preparing data.\n";
-            textBoxLog.ScrollToEnd();
-
-            mBwStartTesting = new BackgroundWorker();
-            mBwStartTesting.DoWork += new DoWorkEventHandler(BwStartTesting_DoWork);
-            mBwStartTesting.RunWorkerCompleted += new RunWorkerCompletedEventHandler(BwStartTesting_RunWorkerCompleted);
-            mBwStartTesting.RunWorkerAsync();
-        }
-
-        class StartTestingResult {
-            public bool result;
-            public string text;
-        };
-
-        void BwStartTesting_DoWork(object sender, DoWorkEventArgs e) {
+        private void BwStartTesting_DoWork(object sender, DoWorkEventArgs e) {
+            //Console.WriteLine("BwStartTesting_DoWork()");
             var r = new StartTestingResult();
             r.result = false;
             r.text = "StartTesting failed!\n";
@@ -553,6 +602,7 @@ namespace WasapiBitmatchChecker {
 
                 var ss = mWasapiPlay.GetSessionStatus();
 
+                /*
                 {
                     var data = mPcmSync.GetSampleLargeArray();
                     var trimmed = new LargeArray<byte>(ss.EndpointBufferFrameNum * mPcmSync.BitsPerFrame / 8);
@@ -565,15 +615,21 @@ namespace WasapiBitmatchChecker {
                     trimmed.CopyFrom(data, 0, 0, trimmed.LongLength);
                     mPcmReady.SetSampleLargeArray(ss.EndpointBufferFrameNum, trimmed);
                 }
+                */
+
                 mWasapiPlay.ClearPlayList();
                 mWasapiPlay.AddPlayPcmDataStart();
-                mWasapiPlay.AddPlayPcmData(0, mPcmSync.GetSampleLargeArray());
-                mWasapiPlay.AddPlayPcmData(1, mPcmReady.GetSampleLargeArray());
-                mWasapiPlay.AddPlayPcmData(2, mPcmTest.GetSampleLargeArray());
+                mWasapiPlay.AddPlayPcmData((int)AudioContentType.SYNC, mPcmSync.GetSampleLargeArray());
+                mWasapiPlay.AddPlayPcmData((int)AudioContentType.READY, mPcmReady.GetSampleLargeArray());
+                mWasapiPlay.AddPlayPcmData((int)AudioContentType.TEST, mPcmTest.GetSampleLargeArray());
                 mWasapiPlay.AddPlayPcmDataEnd();
 
                 mWasapiPlay.SetPlayRepeat(false);
-                mWasapiPlay.ConnectPcmDataNext(0, 0);
+
+                // SYNCを連続再生する。
+                mWasapiPlay.ConnectPcmDataNext((int)AudioContentType.SYNC, (int)AudioContentType.SYNC);
+
+                // READYの再生が終わったらTESTの再生が始まり、TESTの再生が終わったら再生が終了する。
 
                 // 録音
                 mCapturedBytes = 0;
@@ -607,6 +663,7 @@ namespace WasapiBitmatchChecker {
         }
 
         void BwStartTesting_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
+            //Console.WriteLine("BwStartTesting_RunWorkerCompleted()");
             var r = e.Result as StartTestingResult;
 
             textBoxLog.Text += r.text;
@@ -629,7 +686,12 @@ namespace WasapiBitmatchChecker {
             System.Threading.Thread.Sleep(500);
 
             // SYNC失敗タイマーのセット
+            mSyncTimeout.Tick += new EventHandler(SyncTimeoutTickCallback);
+            mSyncTimeout.Interval = new TimeSpan(0, 0, 10);
             mSyncTimeout.Start();
+
+            // プログレスバー更新頻度制限のためのストップウォッチ。
+            mProgressStopwatch.Start();
 
             int hr = mWasapiPlay.StartPlayback(0);
             mPlayWorker.RunWorkerAsync();
@@ -639,9 +701,6 @@ namespace WasapiBitmatchChecker {
 
             mState = State.Syncing;
         }
-
-        BackgroundWorker mBwStartTesting;
-
 
         void SyncTimeoutTickCallback(object sender, EventArgs e) {
             mSyncTimeout.Stop();
@@ -655,12 +714,6 @@ namespace WasapiBitmatchChecker {
             mWasapiPlay.Unsetup();
             mWasapiRec.Unsetup();
         }
-
-        enum ButtonStartStopState {
-            Disable,
-            StartEnable,
-            StopEnable,
-        };
 
         private void UpdateButtonStartStop(ButtonStartStopState s) {
             switch (s) {
@@ -701,9 +754,14 @@ namespace WasapiBitmatchChecker {
         }
 
         private void CaptureSync(byte[] data) {
+            // 届いたPCMデータ dataの中の値を調べて、SYNCの値(4)が現れる位置を調べ
+            // mRecSyncPosInBytesにセットし、SYNCが正常に取得できていたら
+            // 届いたPCMデータをSYNCで頭出ししてmCapturedPcmDataに保存する。
+            // mCapturedPcmDataに入ったPCMデータのバイト数をmCapturedBytesに保存する。
+            // 再生リストをSYNC再生後にREADYを再生するよう変更する。
             int useBitsPerSample = WasapiCS.SampleFormatTypeToUseBitsPerSample(mRecSampleFormat) / 8;
             int nFrames = (int)(data.Length / useBitsPerSample / NUM_CHANNELS);
-            int mRecSyncPosInBytes = -1;
+            int recSyncPosInBytes = -1;
             int zeroSamples = 0;
             int syncSamples = 0;
             for (int pos=0; pos < data.Length; pos += useBitsPerSample) {
@@ -714,7 +772,7 @@ namespace WasapiBitmatchChecker {
                     }
                     if (data[pos] == 4 && data[pos + 1] == 0) {
                         ++syncSamples;
-                        mRecSyncPosInBytes = pos;
+                        recSyncPosInBytes = pos;
                     }
                     break;
                 case WasapiCS.SampleFormatType.Sint24:
@@ -723,7 +781,7 @@ namespace WasapiBitmatchChecker {
                     }
                     if (data[pos] == 4 && data[pos + 1] == 0 && data[pos + 2] == 0) {
                         ++syncSamples;
-                        mRecSyncPosInBytes = pos;
+                        recSyncPosInBytes = pos;
                     }
                     break;
                 case WasapiCS.SampleFormatType.Sint32V24:
@@ -732,7 +790,7 @@ namespace WasapiBitmatchChecker {
                     }
                     if (data[pos + 1] == 4 && data[pos + 2] == 0 && data[pos + 3] == 0) {
                         ++syncSamples;
-                        mRecSyncPosInBytes = pos;
+                        recSyncPosInBytes = pos;
                     }
                     break;
                 default:
@@ -740,21 +798,30 @@ namespace WasapiBitmatchChecker {
                     break;
                 }
             }
-            if (0 <= mRecSyncPosInBytes && zeroSamples + syncSamples == nFrames * NUM_CHANNELS) {
+
+            /*
+            Console.WriteLine("recSyncPosInBytes={0} zeroSamples={1} syncSamples={2} nSamples={3}",
+                recSyncPosInBytes, zeroSamples, syncSamples, nFrames * NUM_CHANNELS);
+            */
+
+            if (0 <= recSyncPosInBytes && zeroSamples + syncSamples == nFrames * NUM_CHANNELS) {
                 // SYNC frame arrived
                 mSyncTimeout.Stop();
 
-                //Console.WriteLine("Sync Frame arrived. offset={0}", mRecSyncPosInBytes);
+                //Console.WriteLine("Sync Frame arrived. offset={0}", recSyncPosInBytes);
 
-                mCapturedPcmData.CopyFrom(data, mRecSyncPosInBytes, 0, data.Length - mRecSyncPosInBytes);
-                mCapturedBytes = data.Length - mRecSyncPosInBytes;
+                mCapturedPcmData.CopyFrom(data, recSyncPosInBytes, 0, data.Length - recSyncPosInBytes);
+                mCapturedBytes = data.Length - recSyncPosInBytes;
 
-                mWasapiPlay.ConnectPcmDataNext(0, 1);
+                // SYNCの次に再生する曲をREADYに変更。
+                mWasapiPlay.ConnectPcmDataNext((int)AudioContentType.SYNC, (int)AudioContentType.READY);
                 mState = State.Running;
             }
         }
 
         private void CaptureRunning(byte[] data) {
+            // 届いたPCMデータをmCapturedPcmDataにAppendし、
+            // mCapturedBytesを更新する。
             if (mCapturedBytes + data.Length <= mCapturedPcmData.LongLength) {
                 mCapturedPcmData.CopyFrom(data, 0, mCapturedBytes, data.Length);
                 mCapturedBytes += data.Length;
@@ -763,6 +830,11 @@ namespace WasapiBitmatchChecker {
 
                 //Console.WriteLine("Captured {0} frames", capturedFrames);
             } else {
+                int copyBytes = (int)(mCapturedPcmData.LongLength - mCapturedBytes);
+
+                mCapturedPcmData.CopyFrom(data, 0, mCapturedBytes, copyBytes);
+                mCapturedBytes += copyBytes;
+
                 // キャプチャー終了. データの整合性チェックはRecRunWorkerCompletedで行う。
                 mState = State.RecCompleted;
             }
@@ -781,7 +853,7 @@ namespace WasapiBitmatchChecker {
                     WasapiCS.SampleFormatTypeToUseBitsPerSample(mRecSampleFormat),
                     WasapiCS.SampleFormatTypeToValidBitsPerSample(mRecSampleFormat),
                     mSampleRate, PcmDataLib.PcmData.ValueRepresentationType.SInt,
-                    mCapturedPcmData.LongLength / NUM_CHANNELS / (WasapiCS.SampleFormatTypeToUseBitsPerSample(mRecSampleFormat) / 8));
+                    mCapturedBytes / NUM_CHANNELS / (WasapiCS.SampleFormatTypeToUseBitsPerSample(mRecSampleFormat) / 8));
             mPcmRecorded.SetSampleLargeArray(mCapturedPcmData);
 
             // 開始合図位置compareStartFrameをサーチ
@@ -826,26 +898,34 @@ namespace WasapiBitmatchChecker {
             long numTestBytes = mNumTestFrames * NUM_CHANNELS
                 * (WasapiCS.SampleFormatTypeToValidBitsPerSample(mRecSampleFormat) / 8);
 
+            long differentBytes = 0;
             for (long pos=0; pos < mNumTestFrames; ++pos) {
                 for (int ch=0; ch<NUM_CHANNELS; ++ch) {
                     if (mPcmTest.GetSampleValueInInt32(ch, pos)
                             != mPcmRecorded.GetSampleValueInInt32(ch, pos + compareStartFrame)) {
-                        textBoxLog.Text += string.Format(Properties.Resources.msgCompareDifferent,
-                                (double)numTestBytes /1024.0/1024.0, (double)numTestBytes * 8L * 0.001 * 0.001, (double)mNumTestFrames / mSampleRate);
-                        textBoxLog.ScrollToEnd();
-                        return;
+                        ++differentBytes;
                     }
                 }
             }
 
-            textBoxLog.Text += string.Format(Properties.Resources.msgCompareIdentical,
-                    (double)numTestBytes /1024.0/1024.0, (double)numTestBytes * 8L * 0.001 * 0.001, (double)mNumTestFrames / mSampleRate);
-            textBoxLog.ScrollToEnd();
+            if (0 < differentBytes) {
+                textBoxLog.Text += string.Format(Properties.Resources.msgCompareDifferent,
+                        (double)numTestBytes / 1024.0 / 1024.0, (double)numTestBytes * 8L * 0.001 * 0.001,
+                        (double)mNumTestFrames / mSampleRate, differentBytes, mWasapiRec.GetCaptureGlitchCount());
+                textBoxLog.ScrollToEnd();
+                return;
+            } else {
+                textBoxLog.Text += string.Format(Properties.Resources.msgCompareIdentical,
+                        (double)numTestBytes / 1024.0 / 1024.0, (double)numTestBytes * 8L * 0.001 * 0.001, (double)mNumTestFrames / mSampleRate);
+                textBoxLog.ScrollToEnd();
+            }
+
+            mWasapiRec.ResetCaptureGlitchCount();
         }
 
         private void CaptureDataArrived(byte[] data) {
             lock (mLock) {
-                // Console.WriteLine("CaptureDataArrived {0} bytes", data.Length);
+                // Console.WriteLine("CaptureDataArrived {0} bytes, {1} frames", data.Length, data.Length / (mPcmTest.BitsPerFrame/8));
                 switch (mState) {
                 case State.Syncing:
                     CaptureSync(data);
@@ -858,8 +938,6 @@ namespace WasapiBitmatchChecker {
                 }
             }
         }
-
-        private BackgroundWorker mBwLoadPcm;
 
         private bool ReadPcmFile() {
             var dlg = new Microsoft.Win32.OpenFileDialog();
@@ -911,15 +989,6 @@ namespace WasapiBitmatchChecker {
                 radioButtonPcmRandom.IsChecked = true;
             }
         }
-
-
-        private PcmDataLib.PcmData mPlayPcmData;
-
-        class LoadPcmResult {
-            public string path;
-            public bool result;
-            public PcmDataLib.PcmData pcmData;
-        };
 
         private void LoadPcm_DoWork(object sender, DoWorkEventArgs e) {
             string path = (string)e.Argument;
