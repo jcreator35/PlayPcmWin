@@ -175,18 +175,19 @@ namespace WavRWLib2 {
 
             if (40 == subChunk1Size) {
                 // Console.WriteLine("D: FmtSubChunk.ReadRiffChunk() WAVEFORMATEXTENSIBLE\n");
-            } else if (16 != subChunk1Size && 18 != subChunk1Size) {
+            } else if (14 != subChunk1Size && 16 != subChunk1Size && 18 != subChunk1Size) {
                 ErrorReason = string.Format("E: FmtSubChunk.ReadRiffChunk() subChunk1Size!=16 {0} this file type is not supported", subChunk1Size);
                 return 0;
             }
 
             ushort audioFormat = br.ReadUInt16();
             if (1 == audioFormat) {
+                // WAVE_FORMAT_PCM
                 SampleValueRepresentationType = PcmDataLib.PcmData.ValueRepresentationType.SInt;
             } else if (3 == audioFormat) {
                 SampleValueRepresentationType = PcmDataLib.PcmData.ValueRepresentationType.SFloat;
             } else if (0xfffe == audioFormat) {
-                // WAVEFORMATEXTENSIBLE
+                // WAVEFORMATEXTENSIBLE == 0xfffe
             } else {
                 ErrorReason = string.Format("E: non PCM format {0}. Cannot read this wav file.", audioFormat);
                 return 0;
@@ -196,15 +197,20 @@ namespace WavRWLib2 {
             uint sampleRate = br.ReadUInt32();
             uint byteRate = br.ReadUInt32();
             ushort blockAlign = br.ReadUInt16();
-            BitsPerSample = br.ReadUInt16();
+
+            if (16 <= subChunk1Size) {
+                BitsPerSample = br.ReadUInt16();
+            } else {
+                BitsPerSample = blockAlign * 8 / NumChannels;
+            }
 
             if (BitsPerSample == 20) {
                 // WaveLab creates such WAVE file. (WAVEFORMAT structure with BitsPerSample==20 and apparently 1 sample==3bytes)
                 BitsPerSample = 24;
                 ValidBitsPerSample = 20;
             } else {
-                // WAVEFORMATの場合、ValidBitsPerSampleはここで確定する。
-                // WAVEFORMATEXの場合、真のValidBitsPerSampleが20行後に判明する。
+                // WAVEFORMATEXの場合、ValidBitsPerSampleはここで確定する。
+                // WAVEFORMATEXTENSIBLEの場合、真のValidBitsPerSampleが20行後に判明する。
                 ValidBitsPerSample = BitsPerSample;
             }
 
@@ -216,15 +222,20 @@ namespace WavRWLib2 {
             }
             SampleRate = (int)sampleRate;
 
-            if (16 < subChunk1Size) {
+            if (18  <= subChunk1Size) {
                 // cbSize 2bytes
                 extensibleSize = br.ReadUInt16();
             }
 
             if (22 == extensibleSize) {
-                // WAVEFORMATEX(22 bytes)
+                // WAVEFORMATEXTENSIBLE(22 bytes)
 
                 ValidBitsPerSample = br.ReadUInt16();
+                if (ValidBitsPerSample == 0) {
+                    // Adobe Audition CS5.5
+                    ValidBitsPerSample = BitsPerSample;
+                }
+
                 ChannelMask = br.ReadUInt32();
                 var formatGuid = br.ReadBytes(16);
 
