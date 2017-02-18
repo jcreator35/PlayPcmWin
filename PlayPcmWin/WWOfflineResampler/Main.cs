@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using WWIIRFilterDesign;
 using WWMath;
-using WWUtil;
 
 namespace WWOfflineResampler {
     class Main {

@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Threading.Tasks;
-using System.Windows;
-using WWIIRFilterDesign;
-using WWMath;
-using WWUtil;
 using System.Globalization;
 using System.Text;
+using System.Windows;
+using WWMath;
 
 namespace WWOfflineResampler {
     /// <summary>

@@ -1,9 +1,8 @@
-﻿using System.Windows;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
-using WWMath;
-using System.Collections.Generic;
+using System.Windows;
 using WWAnalogFilterDesign;
-using System;
+using WWMath;
 
 namespace WWAudioFilter {
     /// <summary>
@@ -227,7 +226,7 @@ namespace WWAudioFilter {
 
             AddLog(string.Format("Transfer function with real coefficients H(s) = "));
             for (int i = 0; i < mAfd.RealPolynomialCount(); ++i) {
-                AddLog(mAfd.RealPolynomialNth(i).ToString("(s/ωc)"));
+                AddLog(mAfd.RealPolynomialNth(i).ToString("(s/ωc)", "i"));
                 if (i != mAfd.RealPolynomialCount() - 1) {
                     AddLog(" + ");
                 }

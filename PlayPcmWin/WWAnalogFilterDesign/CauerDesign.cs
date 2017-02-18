@@ -1,6 +1,6 @@
 ﻿using System;
-using WWMath;
 using System.Collections.Generic;
+using WWMath;
 
 namespace WWAnalogFilterDesign {
     /// <summary>

@@ -1,17 +1,14 @@
 ﻿using System;
-using System.Text;
-using System.Windows;
-using Wasapi;
-using WavRWLib2;
-using System.IO;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
-using PcmDataLib;
-using System.Collections.Generic;
+using System.IO;
 using System.Threading;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using WWUtil;
+using System.Windows.Shapes;
+using Wasapi;
 
 namespace RecPcmWin {
     public partial class MainWindow : Window {
@@ -58,41 +55,88 @@ namespace RecPcmWin {
 
         public MainWindow() {
             InitializeComponent();
+        }
 
-            mPref = PreferenceStore.Load();
+        private Rectangle[] mRectangleG8chArray;
+        private Rectangle[] mRectangleY8chArray;
+        private Rectangle[] mRectangleR8chArray;
+        private Rectangle[] mRectangleMask8chArray;
+        private Rectangle[] mRectanglePeak8chArray;
+        private TextBlock[] mTextBlockLevelMeter8chArray;
 
-            if (0 != string.CompareOrdinal(Thread.CurrentThread.CurrentUICulture.Name, mPref.CultureString)) {
-                // カルチャーをセットする。
-                CultureInfo newCulture = new CultureInfo(mPref.CultureString);
-                Thread.CurrentThread.CurrentCulture = newCulture;
-                Thread.CurrentThread.CurrentUICulture = newCulture;
-            }
-
-            comboBoxLang.SelectedIndex = CultureStringToIdx(Thread.CurrentThread.CurrentUICulture.Name);
-
-            int hr = 0;
-            hr = mWasapiCtrl.Init();
-            AddLog(string.Format("RecPcmWin version {0}\r\n", AssemblyVersion));
-            AddLog(string.Format("wasapi.Init() {0:X8}\r\n", hr));
-
-            Closed += new EventHandler(MainWindow_Closed);
-
-            CreateDeviceList();
-
-            UpdateUITexts();
-
-            PreferenceToUI();
-
-            int currentSec = 0;
-            int maxSec = (int)((long)mPref.RecordingBufferSizeMB * 1024 * 1024 / GetBytesPerSec(mPref));
-            UpdateDurationLabel(currentSec, maxSec);
-            
-            ResetLevelMeter();
-
+        private void InitLevelMeter() {
             mLevelMeter = new LevelMeter(mPref.SampleFormat, mPref.NumOfChannels, mPref.PeakHoldSeconds,
                 mPref.WasapiBufferSizeMS * 0.001, mPref.ReleaseTimeDbPerSec);
 
-            mInitialized = true;
+            mRectangleG8chArray = new Rectangle[] {
+                rectangleG1,
+                rectangleG2,
+                rectangleG3,
+                rectangleG4,
+                rectangleG5,
+
+                rectangleG6,
+                rectangleG7,
+                rectangleG8,
+            };
+
+            mRectangleY8chArray = new Rectangle[] {
+                rectangleY1,
+                rectangleY2,
+                rectangleY3,
+                rectangleY4,
+                rectangleY5,
+
+                rectangleY6,
+                rectangleY7,
+                rectangleY8,
+            };
+
+            mRectangleR8chArray = new Rectangle[] {
+                rectangleR1,
+                rectangleR2,
+                rectangleR3,
+                rectangleR4,
+                rectangleR5,
+
+                rectangleR6,
+                rectangleR7,
+                rectangleR8,
+            };
+            mRectangleMask8chArray = new Rectangle[] {
+                rectangleMask1,
+                rectangleMask2,
+                rectangleMask3,
+                rectangleMask4,
+                rectangleMask5,
+
+                rectangleMask6,
+                rectangleMask7,
+                rectangleMask8,
+            };
+            mRectanglePeak8chArray = new Rectangle[] {
+                rectanglePeak1,
+                rectanglePeak2,
+                rectanglePeak3,
+                rectanglePeak4,
+                rectanglePeak5,
+
+                rectanglePeak6,
+                rectanglePeak7,
+                rectanglePeak8,
+            };
+
+            mTextBlockLevelMeter8chArray = new TextBlock[] {
+                textBlockLevelMeter1,
+                textBlockLevelMeter2,
+                textBlockLevelMeter3,
+                textBlockLevelMeter4,
+                textBlockLevelMeter5,
+
+                textBlockLevelMeter6,
+                textBlockLevelMeter7,
+                textBlockLevelMeter8,
+            };
         }
 
         private void UpdateUITexts() {
@@ -243,16 +287,54 @@ namespace RecPcmWin {
             return new SolidColorBrush(Colors.Red);
         }
 
+        private void ResetLevelMeter() {
+            Canvas.SetLeft(rectangleMaskL, METER_LEFT_X);
+            Canvas.SetLeft(rectangleMaskR, METER_LEFT_X);
+            rectangleMaskL.Width = METER_WIDTH;
+            rectangleMaskR.Width = METER_WIDTH;
+            foreach (var r in mRectangleMask8chArray) {
+                Canvas.SetLeft(r, METER_LEFT_X);
+                r.Width = METER_WIDTH;
+            }
+
+            Canvas.SetLeft(rectanglePeakL, METER_LEFT_X);
+            Canvas.SetLeft(rectanglePeakR, METER_LEFT_X);
+            rectanglePeakL.Fill = new SolidColorBrush(Colors.Transparent);
+            rectanglePeakR.Fill = new SolidColorBrush(Colors.Transparent);
+            foreach (var r in mRectanglePeak8chArray) {
+                Canvas.SetLeft(r, METER_LEFT_X);
+                r.Fill = new SolidColorBrush(Colors.Transparent);
+            }
+
+            textBlockLevelMeterL.Text = string.Format(CultureInfo.CurrentCulture, "  L");
+            textBlockLevelMeterR.Text = string.Format(CultureInfo.CurrentCulture, "  R");
+            for (int ch=0; ch<mTextBlockLevelMeter8chArray.Length; ++ch) {
+                mTextBlockLevelMeter8chArray[ch].Text = string.Format(CultureInfo.CurrentCulture, "  Ch.{0}", ch + 1);
+            }
+        }
+
         private void UpdateLevelMeterScale() {
             double greenW = MeterValueDbToW(mPref.YellowLevelDb);
             rectangleGL.Width = greenW;
             rectangleGR.Width = greenW;
+            foreach (var r in mRectangleG8chArray) {
+                r.Width = greenW;
+            }
+
             Canvas.SetLeft(rectangleYL, METER_LEFT_X + greenW);
             Canvas.SetLeft(rectangleYR, METER_LEFT_X + greenW);
             rectangleYL.Width = METER_0DB_W - greenW;
             rectangleYR.Width = METER_0DB_W - greenW;
+            foreach (var r in mRectangleY8chArray) {
+                Canvas.SetLeft(r, METER_LEFT_X + greenW);
+                r.Width = METER_0DB_W - greenW;
+            }
+
             Canvas.SetLeft(rectangleRL, METER_LEFT_X + METER_0DB_W);
             Canvas.SetLeft(rectangleRR, METER_LEFT_X + METER_0DB_W);
+            foreach (var r in mRectangleR8chArray) {
+                Canvas.SetLeft(r, METER_LEFT_X + METER_0DB_W);
+            }
 
             switch (mPref.YellowLevelDb) {
             case -12:
@@ -261,12 +343,22 @@ namespace RecPcmWin {
                 labelLevelMeterM10dB.Visibility = System.Windows.Visibility.Hidden;
                 lineM12dB.Visibility = System.Windows.Visibility.Visible;
                 labelLevelMeterM12dB.Visibility = System.Windows.Visibility.Visible;
+
+                lineM10dB8.Visibility = System.Windows.Visibility.Hidden;
+                labelLevelMeterM10dB8.Visibility = System.Windows.Visibility.Hidden;
+                lineM12dB8.Visibility = System.Windows.Visibility.Visible;
+                labelLevelMeterM12dB8.Visibility = System.Windows.Visibility.Visible;
                 break;
             case -10:
                 lineM10dB.Visibility = System.Windows.Visibility.Visible;
                 labelLevelMeterM10dB.Visibility = System.Windows.Visibility.Visible;
                 lineM12dB.Visibility = System.Windows.Visibility.Hidden;
                 labelLevelMeterM12dB.Visibility = System.Windows.Visibility.Hidden;
+
+                lineM10dB8.Visibility = System.Windows.Visibility.Visible;
+                labelLevelMeterM10dB8.Visibility = System.Windows.Visibility.Visible;
+                lineM12dB8.Visibility = System.Windows.Visibility.Hidden;
+                labelLevelMeterM12dB8.Visibility = System.Windows.Visibility.Hidden;
                 break;
             default:
                 System.Diagnostics.Debug.Assert(false);
@@ -303,8 +395,23 @@ namespace RecPcmWin {
                     rectanglePeakL.Fill = DbToBrush(peakHoldDb[0]);
                     rectanglePeakR.Fill = DbToBrush(peakHoldDb[1]);
 
-                    textBoxLevelMeterL.Text = string.Format(CultureInfo.CurrentCulture, "  L\n{0}", DbToString(peakDb[0]));
-                    textBoxLevelMeterR.Text = string.Format(CultureInfo.CurrentCulture, "  R\n{0}", DbToString(peakDb[1]));
+                    textBlockLevelMeterL.Text = string.Format(CultureInfo.CurrentCulture, "  L\n{0}", DbToString(peakDb[0]));
+                    textBlockLevelMeterR.Text = string.Format(CultureInfo.CurrentCulture, "  R\n{0}", DbToString(peakDb[1]));
+                }
+                break;
+            case 8: {
+                    for (int ch = 0; ch < 8; ++ch) {
+                        double maskW = METER_WIDTH - MeterValueDbToW(peakDb[ch]);
+                        Canvas.SetLeft(mRectangleMask8chArray[ch], METER_LEFT_X + (METER_WIDTH - maskW));
+                        mRectangleMask8chArray[ch].Width = maskW;
+
+                        double peakHoldX = METER_LEFT_X + MeterValueDbToW(peakHoldDb[ch]);
+                        Canvas.SetLeft(mRectanglePeak8chArray[ch], peakHoldX);
+
+                        mRectanglePeak8chArray[ch].Fill = DbToBrush(peakHoldDb[ch]);
+
+                        mTextBlockLevelMeter8chArray[ch].Text = string.Format(CultureInfo.CurrentCulture, "{0}", DbToString(peakDb[ch]));
+                    }
                 }
                 break;
             default:
@@ -312,28 +419,30 @@ namespace RecPcmWin {
             }
         }
 
-        private void ResetLevelMeter() {
-            Canvas.SetLeft(rectangleMaskL, METER_LEFT_X);
-            Canvas.SetLeft(rectangleMaskR, METER_LEFT_X);
-            rectangleMaskL.Width = METER_WIDTH;
-            rectangleMaskR.Width = METER_WIDTH;
-            Canvas.SetLeft(rectanglePeakL, METER_LEFT_X);
-            Canvas.SetLeft(rectanglePeakR, METER_LEFT_X);
-            rectanglePeakL.Fill = new SolidColorBrush(Colors.Transparent);
-            rectanglePeakR.Fill = new SolidColorBrush(Colors.Transparent);
-            textBoxLevelMeterL.Text = string.Format(CultureInfo.CurrentCulture, "  L");
-            textBoxLevelMeterR.Text = string.Format(CultureInfo.CurrentCulture, "  R");
-        }
-
         private void ControlCaptureCallback(byte[] pcmData) {
             // このスレッドは描画できないので注意。
 
             mLevelMeter.Update(pcmData);
-            double[] peakDb = new double[2];
-            double[] peakHoldDb = new double[2];
-            for (int ch = 0; ch < 2; ++ch) {
-                peakDb[ch] = mLevelMeter.GetPeakDb(ch);
-                peakHoldDb[ch] = mLevelMeter.GetPeakHoldDb(ch);
+
+            double[] peakDb;
+            double[] peakHoldDb;
+
+            if (mLevelMeter.NumChannels <= 2) {
+                peakDb = new double[2];
+                peakHoldDb = new double[2];
+
+                for (int ch = 0; ch < 2; ++ch) {
+                    peakDb[ch] = mLevelMeter.GetPeakDb(ch);
+                    peakHoldDb[ch] = mLevelMeter.GetPeakHoldDb(ch);
+                }
+            } else {
+                peakDb = new double[8];
+                peakHoldDb = new double[8];
+
+                for (int ch = 0; ch < 8; ++ch) {
+                    peakDb[ch] = mLevelMeter.GetPeakDb(ch);
+                    peakHoldDb[ch] = mLevelMeter.GetPeakHoldDb(ch);
+                }
             }
 
             if (DateTime.Now.Ticks - mLevelMeterLastDispTick < LEVEL_METER_UPDATE_INTERVAL_MS * 10000) {
@@ -559,6 +668,14 @@ namespace RecPcmWin {
                 AddLog("This device supports hardware volume control.\r\n");
             } else {
                 AddLog("This device does not support hardware volume control.\r\n");
+            }
+
+            if (mPref.NumOfChannels <= 2) {
+                canvasLevelMeter2ch.Visibility = Visibility.Visible;
+                canvasLevelMeter8ch.Visibility = Visibility.Hidden;
+            } else {
+                canvasLevelMeter2ch.Visibility = Visibility.Hidden;
+                canvasLevelMeter8ch.Visibility = Visibility.Visible;
             }
 
             mBW = new BackgroundWorker();
@@ -928,6 +1045,42 @@ namespace RecPcmWin {
                 return;
             }
             mPref.SampleRate = gComboBoxItemSampleRate[comboBoxSampleRate.SelectedIndex];
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e) {
+            mPref = PreferenceStore.Load();
+
+            if (0 != string.CompareOrdinal(Thread.CurrentThread.CurrentUICulture.Name, mPref.CultureString)) {
+                // カルチャーをセットする。
+                CultureInfo newCulture = new CultureInfo(mPref.CultureString);
+                Thread.CurrentThread.CurrentCulture = newCulture;
+                Thread.CurrentThread.CurrentUICulture = newCulture;
+            }
+
+            InitLevelMeter();
+
+            comboBoxLang.SelectedIndex = CultureStringToIdx(Thread.CurrentThread.CurrentUICulture.Name);
+
+            int hr = 0;
+            hr = mWasapiCtrl.Init();
+            AddLog(string.Format("RecPcmWin version {0}\r\n", AssemblyVersion));
+            AddLog(string.Format("wasapi.Init() {0:X8}\r\n", hr));
+
+            Closed += new EventHandler(MainWindow_Closed);
+
+            CreateDeviceList();
+
+            UpdateUITexts();
+
+            PreferenceToUI();
+
+            int currentSec = 0;
+            int maxSec = (int)((long)mPref.RecordingBufferSizeMB * 1024 * 1024 / GetBytesPerSec(mPref));
+            UpdateDurationLabel(currentSec, maxSec);
+            
+            ResetLevelMeter();
+
+            mInitialized = true;
         }
     }
 }

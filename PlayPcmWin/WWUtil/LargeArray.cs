@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection.Emit;
 using System.Diagnostics.Contracts;
 
 namespace WWUtil {

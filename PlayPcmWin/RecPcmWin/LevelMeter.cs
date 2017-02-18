@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Wasapi;
-using WWAudioFilter;
 using System.Diagnostics;
+using Wasapi;
 
 namespace RecPcmWin {
     class LevelMeter {
@@ -14,6 +10,12 @@ namespace RecPcmWin {
         private double[] mLastPeakLevelDb;
 
         private Stopwatch mSw = new Stopwatch();
+
+        public int NumChannels {
+            get {
+                return mCh;
+            }
+        }
 
         /// <param name="peakHoldSec">-1のとき∞</param>
         /// <param name="updateIntervalSec">録音バッファー秒数を入れる。</param>
@@ -97,10 +99,18 @@ namespace RecPcmWin {
         }
 
         public double GetPeakDb(int ch) {
+            if (ch < 0 || mCh <= ch) {
+                return -144;
+            }
+
             return mPeakCalcArray[ch].PeakDb;
         }
 
         public double GetPeakHoldDb(int ch) {
+            if (ch < 0 || mCh <= ch) {
+                return -144;
+            }
+
             return mPeakCalcArray[ch].PeakHoldDb;
         }
 

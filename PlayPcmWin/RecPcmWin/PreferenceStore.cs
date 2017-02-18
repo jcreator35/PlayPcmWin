@@ -1,10 +1,5 @@
-﻿using PcmDataLib;
-using System.Collections.Generic;
-using System.Xml.Serialization;
-using System.Collections.ObjectModel;
-using System.Text;
+﻿using System.Threading;
 using Wasapi;
-using System.Threading;
 
 namespace RecPcmWin {
     public class Preference : WWXmlRW.SaveLoadContents {
@@ -51,7 +46,7 @@ namespace RecPcmWin {
             SampleRate = 44100;
             SampleFormat = WasapiCS.SampleFormatType.Sint16;
             NumOfChannels = 2;
-            WasapiBufferSizeMS = 200;
+            WasapiBufferSizeMS = 100;
             WasapiDataFeedMode = WasapiCS.DataFeedMode.EventDriven;
             RecordingBufferSizeMB = 256;
             PreferredDeviceIdString = "";
