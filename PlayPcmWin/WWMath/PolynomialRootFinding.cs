@@ -147,7 +147,6 @@ namespace WWMath {
                     mRoots.Add(new WWComplex(root, 0));
                     mRoots.Add(new WWComplex(root, 0));
                     mRoots.Add(new WWComplex(root, 0));
-                    mCoeffs.Clear();
                     return;
                 }
                 // double root and a simple root
@@ -156,7 +155,6 @@ namespace WWMath {
                 mRoots.Add(new WWComplex(root2, 0));
                 mRoots.Add(new WWComplex(root2, 0));
                 mRoots.Add(new WWComplex(root1, 0));
-                mCoeffs.Clear();
                 return;
             }
 
