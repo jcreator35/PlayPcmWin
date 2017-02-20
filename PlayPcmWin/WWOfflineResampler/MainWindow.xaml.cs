@@ -173,6 +173,7 @@ namespace WWOfflineResampler {
             progressBar1.Value = e.ProgressPercentage;
 
             if (mState == State.FilterDesigned) {
+                // 設計されたフィルターを表示する。
                 mTimeDomainPlot.ImpulseResponseFunction = mMain.Afd().ImpulseResponseFunction;
                 mTimeDomainPlot.StepResponseFunction = mMain.Afd().UnitStepResponseFunction;
                 mTimeDomainPlot.TimeScale = mMain.Afd().TimeDomainFunctionTimeScale;
@@ -180,15 +181,32 @@ namespace WWOfflineResampler {
 
                 mPoleZeroPlotZ.Mode = WWUserControls.PoleZeroPlot.ModeType.ZPlane;
                 mPoleZeroPlotZ.TransferFunction = mMain.IIRiim().TransferFunction;
+
                 for (int i = 0; i < mMain.IIRiim().HzCount(); ++i) {
                     var p = mMain.IIRiim().Hz(i);
-                    if (p.NumerOrder() == 1) {
-                        mPoleZeroPlotZ.AddZero(WWComplex.Minus(WWComplex.Div(p.N(1), p.N(0))));
-                    }
+
                     if (p.DenomOrder() == 1) {
+                        // ポールの位置。
                         mPoleZeroPlotZ.AddPole(WWComplex.Minus(WWComplex.Div(p.D(1), p.D(0))));
                     }
                 }
+
+                {
+                    // 零の位置を計算する。
+                    // 合体したH(z)の分子の実係数多項式の根が零の位置。
+                    HighOrderRationalPolynomial HzCombined = mMain.IIRiim().HzCombined();
+                    var coeffs = new double[HzCombined.NumerOrder() + 1];
+                    for (int i = 0; i < coeffs.Length; ++i) {
+                        coeffs[i] = HzCombined.N(i).real;
+                    }
+
+                    var rf = new PolynomialRootFinding();
+                    var roots = rf.FindRoots(coeffs);
+                    foreach (var r in roots) {
+                        mPoleZeroPlotZ.AddZero(r);
+                    }
+                }
+
                 mPoleZeroPlotZ.Update();
 
                 mFrequencyResponseZ.Mode = WWUserControls.FrequencyResponse.ModeType.ZPlane;

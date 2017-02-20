@@ -168,6 +168,7 @@ namespace WWAudioFilter {
         BackgroundWorker mBw = new BackgroundWorker();
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
+            WWMath.PolynomialRootFinding.Test();
             //WWPolynomial.Test();
             //ChebyshevDesign.Test();
             //Functions.Test();

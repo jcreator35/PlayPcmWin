@@ -11,11 +11,11 @@ namespace WavRWLib2 {
         /// <summary>
         /// chunk must be placed on 2 bytes aligned
         /// </summary>
-        private static bool NeedPad(int chunkSize) {
+        private static bool NeedPad(long chunkSize) {
             return (chunkSize & 1) == 1;
         }
 
-        private bool AddPadIfNecessary(BinaryWriter bw, int chunkSize) {
+        private bool AddPadIfNecessary(BinaryWriter bw, long chunkSize) {
             if (!NeedPad(chunkSize)) {
                 return false;
             }
@@ -139,12 +139,6 @@ namespace WavRWLib2 {
             bw.Write(chunkId);
 
             uint chunkSize;
-            if (UInt32.MaxValue < rawData.LongLength) {
-                throw new ArgumentException("numSamples");
-                // RF64形式。別途ds64チャンクを用意して、そこにdata chunkのバイト数を入れる。
-                // ChunkSize = UInt32.MaxValue;
-            }
-
             if (isDs64) {
                 chunkSize = UInt32.MaxValue;
             } else {
@@ -155,6 +149,43 @@ namespace WavRWLib2 {
             bw.Write(rawData);
 
             AddPadIfNecessary(bw, rawData.Length);
+        }
+
+        public void DataChunkWrite(BinaryWriter bw, bool isDs64, WWUtil.LargeArray<byte> rawData) {
+            var chunkId = new byte[4];
+            chunkId[0] = (byte)'d';
+            chunkId[1] = (byte)'a';
+            chunkId[2] = (byte)'t';
+            chunkId[3] = (byte)'a';
+            bw.Write(chunkId);
+
+            if (UInt32.MaxValue < rawData.LongLength && !isDs64) {
+                throw new ArgumentException("large rawData. needs DS64");
+                // RF64形式。別途ds64チャンクを用意して、そこにdata chunkのバイト数を入れる。
+                // ChunkSize = UInt32.MaxValue;
+            }
+
+            uint chunkSize;
+            if (isDs64) {
+                chunkSize = UInt32.MaxValue;
+            } else {
+                chunkSize = (uint)rawData.LongLength;
+            }
+
+            bw.Write(chunkSize);
+
+            int fragmentLength = 1048576;
+            for (long pos = 0; pos < rawData.LongLength; pos += fragmentLength) {
+                int count = fragmentLength;
+                if (rawData.LongLength - pos < count) {
+                    count = (int)(rawData.LongLength - pos);
+                }
+                var buff = new byte[count];
+                rawData.CopyTo(pos, ref buff, 0, count);
+                bw.Write(buff);
+            }
+
+            AddPadIfNecessary(bw, rawData.LongLength);
         }
 
         public void DataChunkHeaderWrite(BinaryWriter bw, int chunkSize) {

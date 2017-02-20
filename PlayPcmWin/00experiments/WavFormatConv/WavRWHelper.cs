@@ -24,7 +24,7 @@ namespace WavFormatConv {
                 reader.ValidBitsPerSample, reader.SampleRate,
                 reader.SampleValueRepresentationType, reader.NumFrames);
 
-            pcm.SetSampleArray(reader.GetSampleArray());
+            pcm.SetSampleLargeArray(reader.GetSampleLargeArray());
 
             return pcm;
         }
@@ -63,6 +63,16 @@ namespace WavFormatConv {
                                 if (pcm.NumChannels == 2) {
                                     dwChannelMask = 3;
                                 }
+                                if (pcm.NumChannels == 4) {
+                                    dwChannelMask = 0x33;
+                                }
+                                if (pcm.NumChannels == 6) {
+                                    dwChannelMask = 0x3f;
+                                }
+                                if (pcm.NumChannels == 8) {
+                                    dwChannelMask = 0xff;
+                                }
+
 
                                 writer.FmtChunkWriteExtensible(bw, (short)pcm.NumChannels, (int)pcm.SampleRate,
                                     (short)pcm.BitsPerSample, (short)pcm.ValidBitsPerSample,
@@ -79,14 +89,15 @@ namespace WavFormatConv {
                         var data = i as DataChunkParams;
                         long posDataStart = bw.BaseStream.Position;
 
-                        writer.DataChunkWrite(bw, isDs64, pcm.GetSampleArray());
+                        writer.DataChunkWrite(bw, isDs64, pcm.GetSampleLargeArray());
                         if (!isDs64 && 0 < data.ExtraChunkBytes) {
                             // 実際よりも長いチャンクサイズを書き込む。
 
                             long posDataEnd = bw.BaseStream.Position;
 
                             bw.BaseStream.Seek(posDataStart + 4, SeekOrigin.Begin);
-                            int chunkSize = pcm.GetSampleArray().Length + data.ExtraChunkBytes;
+                            long chunkSize = pcm.GetSampleLargeArray().LongLength + data.ExtraChunkBytes;
+                            int chunkSize32 = (int)chunkSize;
                             bw.Write(chunkSize);
 
                             bw.BaseStream.Seek(posDataEnd, SeekOrigin.Begin);
@@ -138,7 +149,7 @@ namespace WavFormatConv {
                 long riffSize = posEnd - posRiff - 8;
                 riffSize += riff.ExtraChunkBytes;
 
-                long dataSize = pcm.GetSampleArray().LongLength;
+                long dataSize = pcm.GetSampleLargeArray().LongLength;
                 if (0 < dcp.ExtraChunkBytes) {
                     dataSize += dcp.ExtraChunkBytes;
                 }

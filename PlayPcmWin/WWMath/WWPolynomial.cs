@@ -167,7 +167,7 @@ namespace WWMath {
         /// <summary>
         /// 多項式の次数を強制的にn次にする。n+1次以上の項を消す
         /// </summary>
-        /// <param name="coeffList">多項式の係数のリスト。coeffList[0]:定数項、coeffList[1]:1次の項。</param>
+        /// <param name="mCoeffs">多項式の係数のリスト。mCoeffs[0]:定数項、mCoeffs[1]:1次の項。</param>
         /// <param name="n">次数。0=定数のみ。1==定数と1次の項。</param>
         private static List<WWComplex>
         TrimPolynomialOrder(List<WWComplex> coeffList, int n) {

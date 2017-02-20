@@ -2,13 +2,14 @@
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
+using WWUtil;
 
 namespace WavRWLib2 {
     public class WavReader {
         class DataSubChunk {
             public uint ChunkSize { get; set; }
 
-            private byte[] mRawData;
+            private LargeArray<byte> mRawData;
 
             /// <summary>
             /// ファイル先頭から、このデータチャンクのPCMデータ先頭までのオフセット
@@ -16,7 +17,7 @@ namespace WavRWLib2 {
             public long Offset { get; set; }
             public long NumFrames { get; set; }
 
-            public byte[] GetSampleArray() {
+            public LargeArray<byte> GetSampleLargeArray() {
                 return mRawData;
             }
 
@@ -82,7 +83,16 @@ namespace WavRWLib2 {
                     PcmDataLib.Util.BinaryReaderSkip(br, startBytes);
                 }
 
-                mRawData = br.ReadBytes((int)newNumFrames * frameBytes);
+                mRawData = new LargeArray<byte>(newNumFrames * frameBytes);
+                int fragmentBytes = 1048576;
+                for (long pos=0; pos<mRawData.LongLength; pos += fragmentBytes) {
+                    int bytes = fragmentBytes;
+                    if (mRawData.LongLength - pos < bytes) {
+                        bytes = (int)(mRawData.LongLength-pos);
+                    }
+                    var buff = br.ReadBytes(bytes);
+                    mRawData.CopyFrom(buff, 0, pos, bytes);
+                }
                 NumFrames = newNumFrames;
                 return true;
             }
@@ -605,12 +615,12 @@ namespace WavRWLib2 {
             }
         }
 
-        public byte[] GetSampleArray() {
+        public LargeArray<byte> GetSampleLargeArray() {
             if (mDscList.Count != 1) {
                 Console.WriteLine("multi data chunk wav. not supported");
                 return null;
             }
-            return mDscList[0].GetSampleArray();
+            return mDscList[0].GetSampleLargeArray();
         }
 
         int mCurrentDsc = -1;

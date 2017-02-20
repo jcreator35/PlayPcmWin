@@ -19,6 +19,10 @@ namespace WWUserControls {
         private bool mInitialized = false;
 
         public static double[] mUserScaleList = {
+            20,
+            10,
+            5,
+            2,
             1.0,
             1.0/2.0,
             1.0/5.0,
@@ -178,7 +182,6 @@ namespace WWUserControls {
                 vOnlyZ = System.Windows.Visibility.Collapsed;
             }
 
-
             switch (Mode) {
             case ModeType.SPlane:
                 textBlockGraphTitle.Text = "Pole-Zero Plot (S plane)";
@@ -222,6 +225,10 @@ namespace WWUserControls {
                 mYm1.Visibility = v;
                 mYp1.Visibility = v;
                 mZero.Visibility = v;
+                mXp1.Text = string.Format("+{0}", mUserScale);
+                mXm1.Text = string.Format("-{0}", mUserScale);
+                mYp1.Text = string.Format("+{0}i", mUserScale);
+                mYm1.Text = string.Format("-{0}i", mUserScale);
             }
         }
 

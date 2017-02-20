@@ -69,6 +69,7 @@
   <ItemGroup>
     <Compile Include="Functions.cs" />
     <Compile Include="HighOrderRationalPolynomial.cs" />
+    <Compile Include="PolynomialRootFinding.cs" />
     <Compile Include="RationalPolynomial.cs" />
     <Compile Include="SecondOrderRationalPolynomial.cs" />
     <Compile Include="FirstOrderRationalPolynomial.cs" />

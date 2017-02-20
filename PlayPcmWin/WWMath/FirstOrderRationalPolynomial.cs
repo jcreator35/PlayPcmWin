@@ -63,7 +63,7 @@ namespace WWMath {
 
         /// <summary>
         /// 1次多項式を作る。
-        /// coeffList[0] + x * coeffList[1]
+        /// mCoeffs[0] + x * mCoeffs[1]
         /// </summary>
         public static List<FirstOrderRationalPolynomial> CreateFromCoeffList(List<WWComplex> coeffList) {
             var p = new List<FirstOrderRationalPolynomial>();

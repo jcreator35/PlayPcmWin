@@ -40,6 +40,10 @@
             </ComboBox>
         <CheckBox Content="Show Grid" Grid.Row="3" HorizontalAlignment="Left" Margin="192,0,0,0" Name="checkBoxShowGrid" VerticalAlignment="Center" Checked="checkBoxShowGrid_Checked" Unchecked="checkBoxShowGrid_Unchecked" IsChecked="True" />
         <ComboBox Grid.Row="4" HorizontalAlignment="Left" Margin="6,0,0,0" Name="comboBoxScale" VerticalAlignment="Center" Width="100" SelectionChanged="comboBoxScale_SelectionChanged">
+            <ComboBoxItem Content="Scale = 0.05x" Name="comboBoxItemScale0_05x" />
+            <ComboBoxItem Content="Scale = 0.1x" Name="comboBoxItemScale0_1x" />
+            <ComboBoxItem Content="Scale = 0.2x" Name="comboBoxItemScale0_2x" />
+            <ComboBoxItem Content="Scale = 0.5x" Name="comboBoxItemScale0_5x" />
             <ComboBoxItem Content="Scale = 1x" Name="comboBoxItemScale1x" IsSelected="True" />
             <ComboBoxItem Content="Scale = 2x" Name="comboBoxItemScale2x" />
             <ComboBoxItem Content="Scale = 5x" Name="comboBoxItemScale5x" />

@@ -407,7 +407,7 @@ MetadataCallback(const FLAC__StreamDecoder *decoder,
     }
 
     if (metadata->type == FLAC__METADATA_TYPE_PICTURE) {
-        // dprintf("picture bytes=%d\n", PIC.data_length);
+        dprintf("picture bytes=%d\n", PIC.data_length);
 
         strncpy_s(fdi->pictureMimeTypeStr, PIC.mime_type, sizeof fdi->pictureMimeTypeStr -1);
         strncpy_s(fdi->pictureDescriptionStr, (const char*)PIC.description, sizeof fdi->pictureDescriptionStr -1);
