@@ -91,7 +91,6 @@ namespace WWMath {
             System.Diagnostics.Debug.Assert(2 == coeffs.Length);
             double root = -coeffs[0] / coeffs[1];
             mRoots.Add(new WWComplex(root, 0));
-            mCoeffs.Clear();
         }
 
         private void FindRootQuadratic(double[] coeffs) {
@@ -116,7 +115,6 @@ namespace WWMath {
                 mRoots.Add(new WWComplex(real, +imag));
                 mRoots.Add(new WWComplex(real, -imag));
             }
-            mCoeffs.Clear();
         }
 
         private static bool AlmostZero(double v) {
@@ -141,6 +139,7 @@ namespace WWMath {
 
             double Δ0 = b * b - 3 * a * c;
 
+            // ↓ 雑な0かどうかの判定処理。
             if (AlmostZero(Δ)) {
                 if (AlmostZero(Δ0)) {
                     // triple root
@@ -218,7 +217,6 @@ namespace WWMath {
                 mRoots.Add(root0);
                 mRoots.Add(root1);
                 mRoots.Add(root2);
-                mCoeffs.Clear();
                 return;
             }
         }
@@ -228,14 +226,17 @@ namespace WWMath {
 
             if (mCoeffs.Count == 2) {
                 FindRootLinear(new double[] { mCoeffs[0], mCoeffs[1] });
+                mCoeffs.Clear();
                 return;
             }
             if (mCoeffs.Count == 3) {
                 FindRootQuadratic(new double[] { mCoeffs[0], mCoeffs[1], mCoeffs[2] });
+                mCoeffs.Clear();
                 return;
             }
             if (mCoeffs.Count == 4) {
                 FindRootCubic(new double[] { mCoeffs[0], mCoeffs[1], mCoeffs[2], mCoeffs[3] });
+                mCoeffs.Clear();
                 return;
             }
 
@@ -278,7 +279,8 @@ namespace WWMath {
                     }
                     u = newU;
                     v = newV;
-                } while (0.00000001 < improvement);
+                } while (0.00000001 < improvement); // ←雑な終了条件。
+
 
                 // x^2 +ux +v = 0の解を足す。
                 FindRootQuadratic(new double[] { v, u, 1 });
