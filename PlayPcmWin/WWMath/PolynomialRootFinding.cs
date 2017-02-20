@@ -143,14 +143,14 @@ namespace WWMath {
             if (AlmostZero(Δ)) {
                 if (AlmostZero(Δ0)) {
                     // triple root
-                    double root = -b / 3 / a;
+                    double root = -b / (3 * a);
                     mRoots.Add(new WWComplex(root, 0));
                     mRoots.Add(new WWComplex(root, 0));
                     mRoots.Add(new WWComplex(root, 0));
                     return;
                 }
                 // double root and a simple root
-                double root2 = (9 * a * d - b * c) / 2 / Δ0;
+                double root2 = (9 * a * d - b * c) / (2 * Δ0);
                 double root1 = (4 * a * b * c - 9 * a * a * d - b * b * b);
                 mRoots.Add(new WWComplex(root2, 0));
                 mRoots.Add(new WWComplex(root2, 0));
@@ -166,7 +166,7 @@ namespace WWMath {
 
                 WWComplex C;
                 {
-                    WWComplex c1 = new WWComplex(Δ1/2.0, 0);
+                    WWComplex c1 = new WWComplex(Δ1/2, 0);
 
                     double c2Sqrt = Math.Sqrt(Math.Abs(-27 * a * a * Δ)/4);
                     WWComplex c2;
