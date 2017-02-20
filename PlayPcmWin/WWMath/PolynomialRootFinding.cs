@@ -187,7 +187,7 @@ namespace WWMath {
                         c1c2 = c1Mc2;
                     }
 
-                    // 3乗根 = 大きさが3乗根で位相が3分の1．
+                    // 3乗根 = 大きさが3分の1乗で角度が3分の1．
                     double magnitude = c1c2.Magnitude();
                     double phase = c1c2.Phase();
                     double cMag = Math.Pow(magnitude,1.0/3.0);
