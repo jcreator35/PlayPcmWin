@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 namespace WWMath {
-    public class FirstOrderRationalPolynomial : RationalPolynomial {
+    public class FirstOrderComplexRationalPolynomial : ComplexRationalPolynomial {
         private readonly WWComplex[] numer = new WWComplex[2];
         private readonly WWComplex[] denom = new WWComplex[2];
 
@@ -16,7 +16,7 @@ namespace WWMath {
         /// <param name="n0">numerator zero orderPlus1 coefficient</param>
         /// <param name="d1">denominator first orderPlus1 coefficient</param>
         /// <param name="d0">denominator zero orderPlus1 coefficient</param>
-        public FirstOrderRationalPolynomial(WWComplex n1, WWComplex n0, WWComplex d1, WWComplex d0) {
+        public FirstOrderComplexRationalPolynomial(WWComplex n1, WWComplex n0, WWComplex d1, WWComplex d0) {
                 if (d1.Magnitude() == 0 && d0.Magnitude() == 0) {
                     throw new DivideByZeroException();
                 }
@@ -65,18 +65,18 @@ namespace WWMath {
         /// 1次多項式を作る。
         /// mCoeffs[0] + x * mCoeffs[1]
         /// </summary>
-        public static List<FirstOrderRationalPolynomial> CreateFromCoeffList(List<WWComplex> coeffList) {
-            var p = new List<FirstOrderRationalPolynomial>();
-            if (coeffList.Count == 0) {
+        public static List<FirstOrderComplexRationalPolynomial> CreateFromCoeffList(WWComplex [] coeffList) {
+            var p = new List<FirstOrderComplexRationalPolynomial>();
+            if (coeffList.Length == 0) {
                 return p;
             }
-            if (coeffList.Count == 1) {
+            if (coeffList.Length == 1) {
                 // 定数を追加。
-                p.Add(new FirstOrderRationalPolynomial(WWComplex.Zero(), coeffList[0], WWComplex.Zero(), WWComplex.Unity()));
+                p.Add(new FirstOrderComplexRationalPolynomial(WWComplex.Zero(), coeffList[0], WWComplex.Zero(), WWComplex.Unity()));
             }
-            if (coeffList.Count == 2) {
+            if (coeffList.Length == 2) {
                 // 1次式を追加。
-                p.Add(new FirstOrderRationalPolynomial(coeffList[1], coeffList[0], WWComplex.Zero(), WWComplex.Unity()));
+                p.Add(new FirstOrderComplexRationalPolynomial(coeffList[1], coeffList[0], WWComplex.Zero(), WWComplex.Unity()));
             }
 
             return p;
@@ -85,8 +85,8 @@ namespace WWMath {
         /// <summary>
         /// 2つの1次多項式のリストを足したリストを戻す。
         /// </summary>
-        public static List<FirstOrderRationalPolynomial> Add(List<FirstOrderRationalPolynomial> lhs, List<FirstOrderRationalPolynomial> rhs) {
-            var rv = new List<FirstOrderRationalPolynomial>();
+        public static List<FirstOrderComplexRationalPolynomial> Add(List<FirstOrderComplexRationalPolynomial> lhs, List<FirstOrderComplexRationalPolynomial> rhs) {
+            var rv = new List<FirstOrderComplexRationalPolynomial>();
 
             foreach (var i in lhs) {
                 rv.Add(i);

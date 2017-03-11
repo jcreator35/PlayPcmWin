@@ -1,7 +1,7 @@
 ﻿using System;
 
 namespace WWMath {
-    public class HighOrderRationalPolynomial : RationalPolynomial {
+    public class HighOrderComplexRationalPolynomial : ComplexRationalPolynomial {
         /// <summary>
         /// numer[0]=定数項。
         /// numer[1]=1次の項。
@@ -15,14 +15,14 @@ namespace WWMath {
         /// </summary>
         private readonly WWComplex[] denom;
 
-        public HighOrderRationalPolynomial(WWComplex[] aNumer, WWComplex[] aDenom) {
+        public HighOrderComplexRationalPolynomial(WWComplex[] aNumer, WWComplex[] aDenom) {
             numer = new WWComplex[aNumer.Length];
             denom = new WWComplex[aDenom.Length];
             Array.Copy(aNumer, numer, aNumer.Length);
             Array.Copy(aDenom, denom, aDenom.Length);
         }
 
-        public HighOrderRationalPolynomial(FirstOrderRationalPolynomial uni) {
+        public HighOrderComplexRationalPolynomial(FirstOrderComplexRationalPolynomial uni) {
             int numerCount = 1;
             if (1 == uni.NumerOrder()) {
                 numerCount = 2;

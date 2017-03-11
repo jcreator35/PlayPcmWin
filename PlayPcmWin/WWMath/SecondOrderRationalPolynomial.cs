@@ -1,7 +1,7 @@
 ﻿using System;
 
 namespace WWMath {
-    public class SecondOrderRationalPolynomial : RationalPolynomial {
+    public class SecondOrderRationalPolynomial : ComplexRationalPolynomial {
         private readonly WWComplex[] numer = new WWComplex[3];
         private readonly WWComplex[] denom = new WWComplex[3];
 

@@ -62,21 +62,13 @@ namespace WWMath {
         private List<WWComplex> mRoots = new List<WWComplex>();
         private List<double> mCoeffs;
 
-        public List<WWComplex> FindRoots(double[] coeffs) {
-            var c = new List<double>();
-            for (int i = 0; i < coeffs.Length; ++i) {
-                c.Add(coeffs[i]);
-            }
-            return FindRoots(c);
-        }
-
         /// 実係数多項式の根を計算する。
         /// @param mCoeffs 多項式の係数のリスト。coeffs[0]:定数項、coeffs[1]:1次の項…。
         /// @return 根のリストを戻す。
-        public List<WWComplex> FindRoots(List<double> coeffs) {
+        public List<WWComplex> FindRoots(double [] coeffs) {
             mRoots.Clear();
             mCoeffs = new List<double>();
-            for (int i = 0; i < coeffs.Count; ++i) {
+            for (int i = 0; i < coeffs.Length; ++i) {
                 mCoeffs.Add(coeffs[i]);
             }
 
@@ -250,10 +242,11 @@ namespace WWMath {
                 double [] b = new double[a.Length];
                 double [] f = new double[a.Length];
 
-                double u = a[a.Length - 2] / a[a.Length - 1];
-                double v = a[a.Length - 3] / a[a.Length - 1];
+                double u = 1.0;// a[a.Length - 2] / a[a.Length - 1];
+                double v = 1.0;// a[a.Length - 3] / a[a.Length - 1];
 
                 double improvement = 1.0;
+                int loop = 0;
                 do {
                     for (int i = a.Length - 3; 0 <= i; --i) {
                         b[i] = a[i + 2] - u * b[i + 1] - v * b[i + 2];
@@ -277,7 +270,9 @@ namespace WWMath {
                     }
                     u = newU;
                     v = newV;
-                } while (0.00000001 < improvement); // ←雑な終了条件。
+                    ++loop;
+                    Console.WriteLine("u={0}, v={1}", u, v);
+                } while (0.000000001 < improvement); // ←雑な終了条件。
 
 
                 // x^2 +ux +v = 0の解を足す。

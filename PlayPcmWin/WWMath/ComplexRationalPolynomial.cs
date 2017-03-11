@@ -1,6 +1,6 @@
 ﻿
 namespace WWMath {
-    public abstract class RationalPolynomial {
+    public abstract class ComplexRationalPolynomial {
 
         public abstract WWComplex N(int nth);
 
