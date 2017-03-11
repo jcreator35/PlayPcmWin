@@ -83,12 +83,27 @@ namespace WaveFormDisp {
         private void UpdateSampleValueList() {
             mSampleValueList = new List<double>();
 
+#if true
+            int zeroSamples = 40;
+            int sineSamples = 40;
+            for (int i = 0; i < zeroSamples; ++i) {
+                mSampleValueList.Add(0);
+            }
+            for (int i = 0; i < sineSamples; ++i) {
+                double y = mParams.amplitude * Math.Sin(
+                    mParams.angularVelocity * Math.PI * i +
+                    mParams.phase * Math.PI) + mParams.constant;
+                mSampleValueList.Add(y);
+            }
+
+#else
             for (int i = 0; i < mParams.sampleCount; ++i) {
                 double y = mParams.amplitude * Math.Sin(
                     mParams.angularVelocity * Math.PI * i +
                     mParams.phase * Math.PI) + mParams.constant;
                 mSampleValueList.Add(y);
             }
+#endif
         }
 
         private void CanvasSetLeftTop(UIElement e, double x, double y) {
@@ -146,7 +161,9 @@ namespace WaveFormDisp {
 
             foreach (var t in mWaveFormFrom.points) {
                 canvasWaveFormFrom.Children.Remove(t.Item1);
-                canvasWaveFormFrom.Children.Remove(t.Item2);
+                if (t.Item2 != null) {
+                    canvasWaveFormFrom.Children.Remove(t.Item2);
+                }
                 canvasWaveFormFrom.Children.Remove(t.Item3);
             }
             mWaveFormFrom.points.Clear();
@@ -161,12 +178,13 @@ namespace WaveFormDisp {
                 double y = canvasWaveFormFrom.ActualHeight / 2 - (canvasWaveFormFrom.ActualHeight / 4) * v;
 
                 var el = new Ellipse();
-                el.Width = 6;
-                el.Height = 6;
+                el.Width = 4;
+                el.Height = 4;
                 el.Fill = Brushes.Black;
                 canvasWaveFormFrom.Children.Add(el);
-                CanvasSetLeftTop(el, x - 3, y - 3);
+                CanvasSetLeftTop(el, x - el.Width / 2, y - el.Height/2);
 
+#if false
                 var la = new Label();
                 la.Content = string.Format("{0:0.00}", v);
                 canvasWaveFormFrom.Children.Add(la);
@@ -175,7 +193,9 @@ namespace WaveFormDisp {
                 } else {
                     CanvasSetLeftTop(la, x - 16, y);
                 }
-
+#else
+                Label la = null;
+#endif
                 var li = new Line();
                 li.Stroke = Brushes.Black;
                 canvasWaveFormFrom.Children.Add(li);
@@ -193,7 +213,9 @@ namespace WaveFormDisp {
 
                 double y = 0;
                 for (int i = 0; i < sampleCount + 3 + 10; ++i) {
-                    y += mSampleValueList[(i - 7 + 2 * sampleCount) % sampleCount] * SincPi((i - 7) - x);
+                    int pos = i - 7 + 2 * sampleCount;
+                    // 左端と右端がつながっている。
+                    y += mSampleValueList[pos % sampleCount] * SincPi((i - 7) - x);
                 }
                 polyLineWF.Points.Add(new Point(
                         GRAPH_YAXIS_POS_X + x * pointIntervalX,

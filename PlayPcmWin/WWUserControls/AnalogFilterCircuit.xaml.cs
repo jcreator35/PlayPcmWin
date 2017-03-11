@@ -17,7 +17,7 @@ namespace WWUserControls {
             CutoffFrequencyHz = 1.0;
         }
 
-        private List<RationalPolynomial> mRealPolynomialList = new List<RationalPolynomial>();
+        private List<ComplexRationalPolynomial> mRealPolynomialList = new List<ComplexRationalPolynomial>();
 
         public enum ResistorValueType {
             RV_680Ω,
@@ -183,7 +183,7 @@ namespace WWUserControls {
             mX = 0;
         }
 
-        public void Add(RationalPolynomial realPolynomial) {
+        public void Add(ComplexRationalPolynomial realPolynomial) {
             mRealPolynomialList.Add(realPolynomial);
         }
 
@@ -608,7 +608,7 @@ namespace WWUserControls {
         /// <summary>
         /// Analog Electronic Filters pp.58
         /// </summary>
-        private void DrawFirstOrderFilter(int nStage, FirstOrderRationalPolynomial pf, double resistorValue) {
+        private void DrawFirstOrderFilter(int nStage, FirstOrderComplexRationalPolynomial pf, double resistorValue) {
             /* a == 1/R0C0
              * C0 = R0/a
              */
@@ -1226,7 +1226,7 @@ namespace WWUserControls {
                 if (p.Order() == 1) {
                     // 1次多項式。
 
-                    var pf = p as FirstOrderRationalPolynomial;
+                    var pf = p as FirstOrderComplexRationalPolynomial;
                     double rf = GetResistorValueOfStage(nStage);
                     DrawFirstOrderFilter(nStage, pf, rf);
                 } else {

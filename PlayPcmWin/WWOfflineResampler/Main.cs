@@ -8,7 +8,7 @@ using WWMath;
 namespace WWOfflineResampler {
     class Main {
         private const double CUTOFF_GAIN_DB = -1.0;
-        private const double STOPBAND_RIPPLE_DB = -110;
+        private const double STOPBAND_RIPPLE_DB = -16; //-110;
         private const double CUTOFF_RATIO_OF_NYQUIST = 0.9;
 
         public const int START_PERCENT = 5;
@@ -180,7 +180,7 @@ namespace WWOfflineResampler {
                     WWAnalogFilterDesign.AnalogFilterDesign.FilterType.Cauer,
                     WWAnalogFilterDesign.ApproximationBase.BetaType.BetaMax);
 
-                var H_s = new List<FirstOrderRationalPolynomial>();
+                var H_s = new List<FirstOrderComplexRationalPolynomial>();
                 for (int i = 0; i < mAfd.HPfdCount(); ++i) {
                     var p = mAfd.HPfdNth(i);
                     H_s.Add(p);

@@ -7,7 +7,7 @@ namespace WWIIRFilterDesign {
     class IIRFilterBlockComplex {
         private DelayComplex mDelayX;
         private DelayComplex mDelayY;
-        private RationalPolynomial mH;
+        private ComplexRationalPolynomial mH;
         private WWComplex[] mA;
         private WWComplex[] mB;
 
@@ -15,7 +15,7 @@ namespace WWIIRFilterDesign {
             return mH.ToString();
         }
         
-        public IIRFilterBlockComplex(RationalPolynomial p) {
+        public IIRFilterBlockComplex(ComplexRationalPolynomial p) {
             mH = p;
             mDelayX = new DelayComplex(p.NumerOrder()+1);
             mDelayY = new DelayComplex(p.DenomOrder()+1);

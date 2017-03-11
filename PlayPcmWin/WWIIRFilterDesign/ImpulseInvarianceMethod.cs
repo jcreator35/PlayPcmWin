@@ -8,18 +8,18 @@ namespace WWIIRFilterDesign {
         // y[1] : z^{-2}の項
         // y[1] : z^{-1}の項
         // y[0] : 定数項
-        private HighOrderRationalPolynomial mH_z;
-        public HighOrderRationalPolynomial HzCombined() {
+        private HighOrderComplexRationalPolynomial mH_z;
+        public HighOrderComplexRationalPolynomial HzCombined() {
             return mH_z;
         }
 
-        private List<FirstOrderRationalPolynomial> mHzList = new List<FirstOrderRationalPolynomial>();
+        private List<FirstOrderComplexRationalPolynomial> mHzList = new List<FirstOrderComplexRationalPolynomial>();
 
         public int HzCount() {
             return mHzList.Count;
         }
 
-        public FirstOrderRationalPolynomial Hz(int nth) {
+        public FirstOrderComplexRationalPolynomial Hz(int nth) {
             return mHzList[nth];
         }
 
@@ -36,7 +36,7 @@ namespace WWIIRFilterDesign {
         /// A. V. Oppenheim, R. W. Schafer, Discrete-Time Signal Processing, 3rd Ed, Prentice Hall, 2009
         /// pp. 526 - 529
         /// </summary>
-        public ImpulseInvarianceMethod(List<FirstOrderRationalPolynomial> H_s,
+        public ImpulseInvarianceMethod(List<FirstOrderComplexRationalPolynomial> H_s,
                 double ωc, double sampleFreq) {
             mSamplingFrequency = sampleFreq;
             /*
@@ -68,14 +68,14 @@ namespace WWIIRFilterDesign {
 
                 // y[1] : z^{-1}の項
                 // y[0] : 定数項
-                var pZ = new FirstOrderRationalPolynomial(
+                var pZ = new FirstOrderComplexRationalPolynomial(
                     WWComplex.Zero(), WWComplex.Mul(pS.N(0), ωc * td),
                     WWComplex.Minus(expsktd), WWComplex.Unity());
 
                 mHzList.Add(pZ);
             }
 
-            mH_z = new HighOrderRationalPolynomial(mHzList[0]);
+            mH_z = new HighOrderComplexRationalPolynomial(mHzList[0]);
             for (int i = 1; i < mHzList.Count; ++i) {
                 mH_z = WWPolynomial.Add(mH_z, mHzList[i]);
             }

@@ -204,14 +204,14 @@ namespace WWAudioFilter {
             AddLog("\n");
 
             {   // Show expanded Transfer function
-                var zeroList = new List<WWComplex>();
+                var zeroList = new WWComplex[mAfd.NumOfZeroes()];
                 for (int i = 0; i < mAfd.NumOfZeroes(); ++i) {
-                    zeroList.Add(mAfd.ZeroNth(i));
+                    zeroList[i] = mAfd.ZeroNth(i);
                 }
 
-                var poleList = new List<WWComplex>();
+                var poleList = new WWComplex[mAfd.NumOfPoles()];
                 for (int i = 0; i < mAfd.NumOfPoles(); ++i) {
-                    poleList.Add(mAfd.PoleNth(i));
+                    poleList[i] = mAfd.PoleNth(i);
                 }
 
                 var numer = WWPolynomial.RootListToCoeffList(zeroList,
@@ -219,9 +219,9 @@ namespace WWAudioFilter {
                 var denom = WWPolynomial.RootListToCoeffList(poleList, WWComplex.Unity());
 
                 AddLog("Transfer function (expanded, normalized) H(s) = {");
-                AddLog(WWPolynomial.CoeffListToString(numer, "s"));
+                AddLog(new ComplexPolynomial(numer).ToString("s"));
                 AddLog(" } / {");
-                AddLog(WWPolynomial.CoeffListToString(denom, "s"));
+                AddLog(new ComplexPolynomial(denom).ToString("s"));
                 AddLog(" }\n");
             }
 
@@ -235,7 +235,7 @@ namespace WWAudioFilter {
             AddLog("\n");
 
             // インパルス応答の式をログに出力。
-            var H_s = new List<FirstOrderRationalPolynomial>();
+            var H_s = new List<FirstOrderComplexRationalPolynomial>();
             AddLog(("Impulse Response (frequency normalized): h(t) = "));
             for (int i = 0; i < mAfd.HPfdCount(); ++i) {
                 var p = mAfd.HPfdNth(i);

@@ -47,16 +47,16 @@ namespace WWAnalogFilterDesign {
             return mRealPolynomialList.Count();
         }
 
-        public RationalPolynomial RealPolynomialNth(int n) {
+        public ComplexRationalPolynomial RealPolynomialNth(int n) {
             return mRealPolynomialList[n];
         }
 
-        private List<RationalPolynomial> mRealPolynomialList = new List<RationalPolynomial>();
+        private List<ComplexRationalPolynomial> mRealPolynomialList = new List<ComplexRationalPolynomial>();
 
         /// <summary>
         /// partial fraction decomposition-ed transfer function
         /// </summary>
-        private List<FirstOrderRationalPolynomial> mH_PFD = new List<FirstOrderRationalPolynomial>();
+        private List<FirstOrderComplexRationalPolynomial> mH_PFD = new List<FirstOrderComplexRationalPolynomial>();
 
         /// <summary>
         /// polynomial count of partial fraction decomposition-ed transfer function
@@ -68,7 +68,7 @@ namespace WWAnalogFilterDesign {
         /// <summary>
         /// partial fraction decomposition-ed transfer function
         /// </summary>
-        public FirstOrderRationalPolynomial HPfdNth(int n) {
+        public FirstOrderComplexRationalPolynomial HPfdNth(int n) {
             return mH_PFD[n];
         }
 
@@ -80,7 +80,7 @@ namespace WWAnalogFilterDesign {
             Cauer
         };
 
-        private static WWComplex InverseLaplaceTransformOne(FirstOrderRationalPolynomial p, double t) {
+        private static WWComplex InverseLaplaceTransformOne(FirstOrderComplexRationalPolynomial p, double t) {
             if (t < 0) {
                 return WWComplex.Zero();
             }
@@ -116,8 +116,8 @@ namespace WWAnalogFilterDesign {
         /// <summary>
         /// 伝達関数Hを逆ラプラス変換して時刻tのインパルス応答 h(t)を戻す。
         /// </summary>
-        private double InverseLaplaceTransformValue(List<FirstOrderRationalPolynomial> Hf,
-                List<FirstOrderRationalPolynomial> Hi, double t) {
+        private double InverseLaplaceTransformValue(List<FirstOrderComplexRationalPolynomial> Hf,
+                List<FirstOrderComplexRationalPolynomial> Hi, double t) {
             if (t <= 0) {
                 return 0;
             }
@@ -236,25 +236,25 @@ namespace WWAnalogFilterDesign {
                 // Unit Step Function
                 WWPolynomial.PolynomialAndRationalPolynomial H_s;
                 {
-                    var unitStepRoots = new List<WWComplex>();
+                    var unitStepRoots = new WWComplex[filter.NumOfPoles()+1];
                     for (int i = 0; i < filter.NumOfPoles(); ++i) {
                         var p = filter.PoleNth(i);
-                        unitStepRoots.Add(p);
+                        unitStepRoots[i] = p;
                     }
-                    unitStepRoots.Add(new WWComplex(0, 0));
+                    unitStepRoots[unitStepRoots.Length-1] = WWComplex.Zero();
 
                     var numerCoeffs = new List<WWComplex>();
                     if (filter.NumOfZeroes() == 0) {
                         numerCoeffs.Add(new WWComplex(mNumeratorConstant, 0));
                     } else {
-                        numerCoeffs = WWPolynomial.RootListToCoeffList(mZeroList, new WWComplex(mNumeratorConstant, 0));
+                        numerCoeffs.AddRange(WWPolynomial.RootListToCoeffList(mZeroList.ToArray(), new WWComplex(mNumeratorConstant, 0)));
                     }
 
-                    H_s = WWPolynomial.Reduction(numerCoeffs, unitStepRoots);
+                    H_s = WWPolynomial.Reduction(numerCoeffs.ToArray(), unitStepRoots);
                 }
 
                 var H_fraction = WWPolynomial.PartialFractionDecomposition(H_s.numerCoeffList, H_s.denomRootList);
-                var H_integer = FirstOrderRationalPolynomial.CreateFromCoeffList(H_s.coeffList);
+                var H_integer = FirstOrderComplexRationalPolynomial.CreateFromCoeffList(H_s.coeffList);
 
                 UnitStepResponseFunction = (double t) => {
                     return InverseLaplaceTransformValue(H_fraction, H_integer, t);
@@ -264,30 +264,30 @@ namespace WWAnalogFilterDesign {
                 // 伝達関数 Transfer function
                 WWPolynomial.PolynomialAndRationalPolynomial H_s;
                 {
-                    var H_Roots = new List<WWComplex>();
+                    var H_Roots = new WWComplex[filter.NumOfPoles()];
                     for (int i = 0; i < filter.NumOfPoles(); ++i) {
                         var p = filter.PoleNth(i);
-                        H_Roots.Add(p);
+                        H_Roots[i] = p;
                     }
 
                     var numerCoeffs = new List<WWComplex>();
                     if (filter.NumOfZeroes() == 0) {
                         numerCoeffs.Add(new WWComplex(mNumeratorConstant, 0));
                     } else {
-                        numerCoeffs = WWPolynomial.RootListToCoeffList(mZeroList, new WWComplex(mNumeratorConstant, 0));
+                        numerCoeffs.AddRange(WWPolynomial.RootListToCoeffList(mZeroList.ToArray(), new WWComplex(mNumeratorConstant, 0)));
                     }
 
-                    H_s = WWPolynomial.Reduction(numerCoeffs, H_Roots);
+                    H_s = WWPolynomial.Reduction(numerCoeffs.ToArray(), H_Roots);
                 }
 
                 var H_fraction = WWPolynomial.PartialFractionDecomposition(H_s.numerCoeffList, H_s.denomRootList);
-                var H_integer = FirstOrderRationalPolynomial.CreateFromCoeffList(H_s.coeffList);
+                var H_integer = FirstOrderComplexRationalPolynomial.CreateFromCoeffList(H_s.coeffList);
 
                 ImpulseResponseFunction = (double t) => {
                     return InverseLaplaceTransformValue(H_fraction, H_integer, t);
                 };
 
-                mH_PFD = FirstOrderRationalPolynomial.Add(H_fraction, H_integer);
+                mH_PFD = FirstOrderComplexRationalPolynomial.Add(H_fraction, H_integer);
 
                 TimeDomainFunctionTimeScale = 1.0 / filter.CutoffFrequencyHz();
 
@@ -336,15 +336,15 @@ namespace WWAnalogFilterDesign {
                     if ((mPoleList.Count & 1) == 1) {
                         // 奇数。
                         int center = mPoleList.Count / 2;
-                        mRealPolynomialList.Add(new FirstOrderRationalPolynomial(
+                        mRealPolynomialList.Add(new FirstOrderComplexRationalPolynomial(
                             WWComplex.Zero(), WWComplex.Unity(),
                             WWComplex.Unity(), WWComplex.Minus(mPoleList[center])));
 
                         for (int i = 0; i < mPoleList.Count / 2; ++i) {
-                            var p0 = new FirstOrderRationalPolynomial(
+                            var p0 = new FirstOrderComplexRationalPolynomial(
                                 WWComplex.Unity(), WWComplex.Minus(mZeroList[center - i - 1]),
                                 WWComplex.Unity(), WWComplex.Minus(mPoleList[center - i - 1]));
-                            var p1 = new FirstOrderRationalPolynomial(
+                            var p1 = new FirstOrderComplexRationalPolynomial(
                                 WWComplex.Unity(), WWComplex.Minus(mZeroList[center + i]),
                                 WWComplex.Unity(), WWComplex.Minus(mPoleList[center + i + 1]));
                             var p = WWPolynomial.Mul(p0, p1);
@@ -354,10 +354,10 @@ namespace WWAnalogFilterDesign {
                         // 偶数。
                         int center = mPoleList.Count / 2;
                         for (int i = 0; i < mPoleList.Count / 2; ++i) {
-                            var p0 = new FirstOrderRationalPolynomial(
+                            var p0 = new FirstOrderComplexRationalPolynomial(
                                 WWComplex.Unity(), WWComplex.Minus(mZeroList[center - i - 1]),
                                 WWComplex.Unity(), WWComplex.Minus(mPoleList[center - i - 1]));
-                            var p1 = new FirstOrderRationalPolynomial(
+                            var p1 = new FirstOrderComplexRationalPolynomial(
                                 WWComplex.Unity(), WWComplex.Minus(mZeroList[center + i]),
                                 WWComplex.Unity(), WWComplex.Minus(mPoleList[center + i]));
                             var p = WWPolynomial.Mul(p0, p1);

@@ -8,7 +8,7 @@ namespace WWIIRFilterDesign {
         public IIRFilterComplex() {
         }
 
-        public void Add(WWMath.RationalPolynomial p) {
+        public void Add(WWMath.ComplexRationalPolynomial p) {
             var b = new IIRFilterBlockComplex(p);
             mFilterBlockList.Add(b);
         }

@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Text;
 using System.Windows;
 using WWMath;
+using System.Collections.Generic;
 
 namespace WWOfflineResampler {
     /// <summary>
@@ -69,6 +70,8 @@ namespace WWOfflineResampler {
             mState = State.Ready;
             Update();
 
+            WWPolynomial.Test();
+            NewtonsMethod.Test();
 #if false
             //サンプルレートの比の計算のテスト。
             foreach (int a in mTargetSampleRateList) {
@@ -194,16 +197,20 @@ namespace WWOfflineResampler {
                 {
                     // 零の位置を計算する。
                     // 合体したH(z)の分子の実係数多項式の根が零の位置。
-                    HighOrderRationalPolynomial HzCombined = mMain.IIRiim().HzCombined();
-                    var coeffs = new double[HzCombined.NumerOrder() + 1];
-                    for (int i = 0; i < coeffs.Length; ++i) {
-                        coeffs[i] = HzCombined.N(i).real;
+                    HighOrderComplexRationalPolynomial HzCombined = mMain.IIRiim().HzCombined();
+                    var coeffs = new List<double>();
+                    for (int i = 0; i < HzCombined.DenomOrder(); ++i) {
+                        coeffs.Add(HzCombined.D(i).real);
+                    }
+                    if ((coeffs.Count & 1) == 0) {
+                        // 奇数次(係数の数が偶数)のときx倍して偶数次にする。
+                        coeffs.Insert(0, 0.0);
                     }
 
                     var rf = new PolynomialRootFinding();
-                    var roots = rf.FindRoots(coeffs);
+                    var roots = rf.FindRoots(coeffs.ToArray());
                     foreach (var r in roots) {
-                        mPoleZeroPlotZ.AddZero(r);
+                        mPoleZeroPlotZ.AddZero(WWComplex.Reciprocal(r));
                     }
                 }
 

@@ -298,6 +298,7 @@ WriteAllCallback(const FLAC__StreamDecoder *decoder,
         fdi->numFramesPerBlock = frame->header.blocksize;
 
         // 最初のデータが来た。
+        //dprintf("%s fdi->numFramesPerBlock = %d\n", __FUNCTION__, frame->header.blocksize);
     }
 
     if (fdi->errorCode != FRT_Success) {
@@ -306,11 +307,25 @@ WriteAllCallback(const FLAC__StreamDecoder *decoder,
         return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
     }
 
-    // データが来た。ブロック数は frame->header.blocksize
+    // データが来た。ブロック内サンプル数は frame->header.blocksize
     if (fdi->numFramesPerBlock != (int)frame->header.blocksize) {
-        // dprintf(fdi->logFP, "%s fdi->numFramesPerBlock changed %d to %d\n", __FUNCTION__, fdi->numFramesPerBlock, frame->header.blocksize);
+        // 最後のフレームのサンプル数は異なる。余りが入っているので。
+        //dprintf("%s fdi->numFramesPerBlock changed %d to %d\n", __FUNCTION__, fdi->numFramesPerBlock, frame->header.blocksize);
         fdi->numFramesPerBlock = frame->header.blocksize;
     }
+
+    /*
+    switch (frame->header.channel_assignment) {
+    case 0: printf("④");break;
+    case 1:printf("②");break;
+    case 2:printf("③");break;
+    case 3:printf("①");break;
+    default:
+        break;
+    }
+    */
+
+    //printf("%d", frame->header.channel_assignment);
 
     if ((fdi->totalSamples - fdi->retrievedFrames) < fdi->numFramesPerBlock) {
         fdi->errorCode = FRT_RecvBufferSizeInsufficient;

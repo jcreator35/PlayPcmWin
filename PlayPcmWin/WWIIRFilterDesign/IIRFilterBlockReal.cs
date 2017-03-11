@@ -6,7 +6,7 @@ namespace WWIIRFilterDesign {
     /// Building block of IIR filter. used by IIRFilter class
     /// </summary>
     class IIRFilterBlockReal {
-        private RationalPolynomial mH;
+        private ComplexRationalPolynomial mH;
         private double[] mA;
         private double[] mB;
         private double[] mV;
@@ -16,7 +16,7 @@ namespace WWIIRFilterDesign {
             return mH.ToString();
         }
 
-        public IIRFilterBlockReal(RationalPolynomial p) {
+        public IIRFilterBlockReal(ComplexRationalPolynomial p) {
             mH = p;
             mMaxOrder = p.NumerOrder();
             if (mMaxOrder < p.DenomOrder()) {
