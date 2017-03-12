@@ -25,7 +25,8 @@ namespace WWMath {
         }
 
         public static void Test() {
-            double x = FindRoot(new RealPolynomial(new double [] {-1, 0, 1}), 2, 20);
+            var p = new RealPolynomial(new double[] { -1, 0, 1 });
+            double x = FindRoot(p, 2, 20);
             Console.WriteLine("one of the root of x^2-1=0 exists near {0}", x);
         }
     }

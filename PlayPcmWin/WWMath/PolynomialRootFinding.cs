@@ -27,6 +27,14 @@ namespace WWMath {
                 Console.WriteLine("x^2+3x+2=0 : x={0},{1}", r[0], r[1]);
             }
             {
+                var r = rf.FindRoots(new double[] { 2, -3, 1 });
+                Console.WriteLine("x^2-3x+2=0 : x={0},{1}", r[0], r[1]);
+            }
+            {
+                var r = rf.FindRoots(new double[] { 10, -3, 1 });
+                Console.WriteLine("x^2-3x+10=0 : x={0},{1}", r[0], r[1]);
+            }
+            {
                 // 1, -0.5±√3/2i
                 var r = rf.FindRoots(new double[] { -1, 0, 0, 1 });
                 Console.WriteLine("x^3+x^2+x-3=0 : x={0},{1},{2}", r[0], r[1], r[2]);
@@ -85,6 +93,9 @@ namespace WWMath {
             mRoots.Add(new WWComplex(root, 0));
         }
 
+        /// <summary>
+        /// see this document: http://people.csail.mit.edu/bkph/articles/Quadratics.pdf
+        /// </summary>
         private void FindRootQuadratic(double[] coeffs) {
             // 2次多項式 quadratic polynomial equation
             System.Diagnostics.Debug.Assert(3 == coeffs.Length);
@@ -95,17 +106,33 @@ namespace WWMath {
 
             double discriminant = b * b - 4 * a * c;
             if (0 <= discriminant) {
-                double rootP = (-b + Math.Sqrt(discriminant)) / 2 / a;
-                double rootM = (-b - Math.Sqrt(discriminant)) / 2 / a;
+                double x1;
+                double x2;
 
-                mRoots.Add(new WWComplex(rootP, 0));
-                mRoots.Add(new WWComplex(rootM, 0));
+                if (0 <= b) {
+                    x1 = 2 * c / (-b - Math.Sqrt(discriminant));
+                    x2 = (-b - Math.Sqrt(discriminant)) / 2 / a;
+                } else {
+                    x1 = (-b + Math.Sqrt(discriminant)) / 2 / a;
+                    x2 = 2 * c / (-b + Math.Sqrt(discriminant));
+                }
+
+                mRoots.Add(new WWComplex(x1, 0));
+                mRoots.Add(new WWComplex(x2, 0));
             } else {
-                double real = -b / 2 / a;
-                double imag = Math.Sqrt(-discriminant) / 2 / a;
+                WWComplex x1;
+                WWComplex x2;
 
-                mRoots.Add(new WWComplex(real, +imag));
-                mRoots.Add(new WWComplex(real, -imag));
+                if (0 <= b) {
+                    x1 = new WWComplex(-b / 2 / a, -Math.Sqrt(-discriminant) / 2 / a);
+                    x2 = WWComplex.Div(new WWComplex(2 * c, 0), new WWComplex(-b, -Math.Sqrt(-discriminant)));
+                } else {
+                    x1 = WWComplex.Div(new WWComplex(2 * c, 0), new WWComplex(-b, Math.Sqrt(-discriminant)));
+                    x2 = new WWComplex(-b / 2 / a, Math.Sqrt(-discriminant) / 2 / a);
+                }
+
+                mRoots.Add(x1);
+                mRoots.Add(x2);
             }
         }
 
