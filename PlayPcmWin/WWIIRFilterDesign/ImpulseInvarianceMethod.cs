@@ -51,7 +51,7 @@ namespace WWIIRFilterDesign {
 
             foreach (var pS in H_s) {
                 WWComplex sktd;
-                if (pS.DenomOrder() == 0) {
+                if (pS.DenomDegree() == 0) {
                     System.Diagnostics.Debug.Assert(pS.D(0).EqualValue(WWComplex.Unity()));
                     // ? 
                     // a * u[t] → exp^(a)

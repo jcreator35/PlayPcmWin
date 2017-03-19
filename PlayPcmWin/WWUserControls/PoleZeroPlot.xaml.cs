@@ -42,7 +42,7 @@ namespace WWUserControls {
 
         public ModeType Mode { get; set; }
 
-        /* 表示座標系はx+が右、x+が下
+        /* 表示座標系はx+が右、p+が下
          * 原点は(128,128) */
         const double OFFS_X = 128;
         const double OFFS_Y = 128;

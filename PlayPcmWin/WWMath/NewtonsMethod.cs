@@ -8,17 +8,24 @@ namespace WWMath {
         /// <summary>
         /// Find one real root of specified real polynomial
         /// </summary>
-        /// <param name="coeffs">polynomial coeffs. coef[0]: constant, coef[1] 1st order coeff</param>
+        /// <param name="coeffs">polynomial coeffs. coef[0]: constant, coef[1] 1st degree coeff</param>
         /// <param name="initialX">initial estimate of the root position</param>
-        /// <returns>x</returns>
-        public static double FindRoot(RealPolynomial rpoly, double initialX, int loopCount) {
+        /// <returns>p</returns>
+        public static double FindRoot(RealPolynomial rpoly, double initialX, double kEpsilon, int loopCount) {
             var deriv = rpoly.Derivative();
 
+            double prev = initialX;
             double x = initialX;
             for (int i = 0; i < loopCount; ++i) {
                 double f = rpoly.Evaluate(x);
                 double fPrime = deriv.Evaluate(x);
                 x = x - f / fPrime;
+
+                if (Math.Abs(prev - x) < kEpsilon) {
+                    break;
+                }
+
+                prev = x;
             }
 
             return x;
@@ -26,8 +33,8 @@ namespace WWMath {
 
         public static void Test() {
             var p = new RealPolynomial(new double[] { -1, 0, 1 });
-            double x = FindRoot(p, 2, 20);
-            Console.WriteLine("one of the root of x^2-1=0 exists near {0}", x);
+            double x = FindRoot(p, 2, 1e-8, 20);
+            Console.WriteLine("one of the root of p^2-1=0 exists near {0}", x);
         }
     }
 }

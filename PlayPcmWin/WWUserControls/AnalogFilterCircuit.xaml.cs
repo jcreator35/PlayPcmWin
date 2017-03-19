@@ -223,7 +223,7 @@ namespace WWUserControls {
             for (int i=0; i<FilterStages; ++i) {
                 var p = mRealPolynomialList[i];
 
-                if (p.Order() == 2 && p.N(2).EqualValue(WWComplex.Unity())) {
+                if (p.Degree() == 2 && p.N(2).EqualValue(WWComplex.Unity())) {
                     var grid = new Grid();
                     {
                         var cd = new ColumnDefinition();
@@ -293,7 +293,7 @@ namespace WWUserControls {
             }
         }
 
-        /// <param name="x">中心座標</param>
+        /// <param name="p">中心座標</param>
         /// <param name="y">中心座標</param>
         /// <param name="diameter">直径</param>
         /// <param name="brush"></param>
@@ -528,7 +528,7 @@ namespace WWUserControls {
         /// <summary>
         /// 左端座標を指定して横キャパシターを描画。高さはCAPACITOR_THICKNESS
         /// </summary>
-        /// <param name="x"></param>
+        /// <param name="p"></param>
         /// <param name="y"></param>
         private void AddCapacitorH(double x, double y, string text = "") {
             if (text.Length != 0) {
@@ -623,7 +623,7 @@ namespace WWUserControls {
             r0 *= resistorValue;
             c0 /= resistorValue;
 
-            textBoxParameters.Text += string.Format("Stage {0} is 1st order Passive LPF. Fc={1}Hz\n", nStage + 1, ValueString(CutoffFrequencyHz));
+            textBoxParameters.Text += string.Format("Stage {0} is 1st degree Passive LPF. Fc={1}Hz\n", nStage + 1, ValueString(CutoffFrequencyHz));
 
             // 抵抗R0
             AddResistorH(mX, CIRCUIT_INPUT_LINE_H, ResistorValueString(r0));
@@ -661,7 +661,7 @@ namespace WWUserControls {
         }
 
         /// <summary>
-        /// 2nd order state variable lowpass notch or highpass notch filter
+        /// 2nd degree state variable lowpass notch or highpass notch filter
         /// 今田悟 and 深谷武彦,実用アナログフィルタ設計法,CQ出版,1989
         /// p.63 and p.58 Figure 2.15(a)
         /// </summary>
@@ -723,7 +723,7 @@ namespace WWUserControls {
                 r, c, ωc, ωp, ωn, Q, rf, r5, r8);
             */
 
-            textBoxParameters.Text += string.Format("Stage {0} is 2nd order State variable lowpass notch filter. Fp={1}Hz Fn={2}Hz Q={3:G3}\n",
+            textBoxParameters.Text += string.Format("Stage {0} is 2nd degree State variable lowpass notch filter. Fp={1}Hz Fn={2}Hz Q={3:G3}\n",
                 nStage + 1, ValueString(ωp / 2 / Math.PI), ValueString(ωn / 2 / Math.PI), Q);
 
             // 抵抗R1
@@ -1001,7 +1001,7 @@ namespace WWUserControls {
         }
 
         /// <summary>
-        /// Sallen-Key Minimum Sensitivity 2nd order Lowpass filter
+        /// Sallen-Key Minimum Sensitivity 2nd degree Lowpass filter
         /// Analog Electronic Filters pp.470
         /// </summary>
         private void DrawSallenKeyLowpassSecondOrderFilter(int nStage, SecondOrderRationalPolynomial ps, double resistorValue) {
@@ -1222,8 +1222,8 @@ namespace WWUserControls {
             int order = 0;
             int nStage = 0;
             foreach (var p in mRealPolynomialList) {
-                order += p.Order();
-                if (p.Order() == 1) {
+                order += p.Degree();
+                if (p.Degree() == 1) {
                     // 1次多項式。
 
                     var pf = p as FirstOrderComplexRationalPolynomial;
@@ -1250,7 +1250,7 @@ namespace WWUserControls {
             canvas1.Width = mX;
             canvas1.Height = CIRCUIT_INPUT_LINE_H * 3;
 
-            textBoxParameters.Text += string.Format("Order = {0}, Stage = {1}\n", order, mRealPolynomialList.Count());
+            textBoxParameters.Text += string.Format("Degree = {0}, Stage = {1}\n", order, mRealPolynomialList.Count());
         }
     }
 }

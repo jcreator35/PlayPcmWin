@@ -16,8 +16,8 @@ namespace WWMath {
         }
 
         public RealRationalPolynomial(RealPolynomial aNumer, RealPolynomial aDenom) {
-            numer = new double[aNumer.Order() + 1];
-            denom = new double[aDenom.Order() + 1];
+            numer = new double[aNumer.Degree + 1];
+            denom = new double[aDenom.Degree + 1];
 
             for (int i = 0; i < numer.Length; ++i) {
                 numer[i] = aNumer.C(i);
@@ -36,20 +36,40 @@ namespace WWMath {
             return denom[nth];
         }
 
-        public int Order() {
-            int r = NumerOrder();
-            if (r < DenomOrder()) {
-                r = DenomOrder();
+        public RealPolynomial NumerPolynomial() {
+            return new RealPolynomial(numer);
+        }
+
+        public RealPolynomial DenomPolynomial() {
+            return new RealPolynomial(denom);
+        }
+
+        public RealPolynomial ToPolynomial() {
+            if (NumerDegree() != 0) {
+                return null;
+            }
+
+            var c = new double[DenomDegree() + 1];
+            for (int i = 0; i < c.Length; ++i) {
+                c[i] = numer[i] / denom[0];
+            }
+            return new RealPolynomial(c);
+        }
+
+        public int Degree() {
+            int r = NumerDegree();
+            if (r < DenomDegree()) {
+                r = DenomDegree();
             }
 
             return r;
         }
 
-        public int NumerOrder() {
+        public int NumerDegree() {
             return numer.Length - 1;
         }
 
-        public int DenomOrder() {
+        public int DenomDegree() {
             return denom.Length - 1;
         }
 

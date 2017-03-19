@@ -431,7 +431,7 @@ namespace WWUserControls {
                 Canvas.SetLeft(t, FR_LINE_LEFT + x - 10);
                 Canvas.SetTop(t, FR_LINE_BOTTOM);
                 mLabelList.Add(t);
-                //Console.WriteLine("{0} {1}Hz", x, n);
+                //Console.WriteLine("{0} {1}Hz", p, n);
             }
 
             double magRange = MagnitudeRangeValue();

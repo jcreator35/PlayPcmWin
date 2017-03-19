@@ -8,62 +8,62 @@ namespace WWMath {
 
             {
                 var r = rf.FindRoots(new double[] { 2, 3 });
-                Console.WriteLine("3x+2=0 : x={0}", r[0]);
+                Console.WriteLine("3x+2=0 : p={0}", r[0]);
             }
             {
                 var r = rf.FindRoots(new double[] { 1, 2, 1 });
-                Console.WriteLine("x^2+2x+1=0 : x={0},{1}", r[0], r[1]);
+                Console.WriteLine("p^2+2x+1=0 : p={0},{1}", r[0], r[1]);
             }
             {
                 var r = rf.FindRoots(new double[] { 1, 0, 1 });
-                Console.WriteLine("x^2+1=0 : x={0},{1}", r[0], r[1]);
+                Console.WriteLine("p^2+1=0 : p={0},{1}", r[0], r[1]);
             }
             {
                 var r = rf.FindRoots(new double[] { -1, 0, 1 });
-                Console.WriteLine("x^2-1=0 : x={0},{1}", r[0], r[1]);
+                Console.WriteLine("p^2-1=0 : p={0},{1}", r[0], r[1]);
             }
             {
                 var r = rf.FindRoots(new double[] { 2, 3, 1 });
-                Console.WriteLine("x^2+3x+2=0 : x={0},{1}", r[0], r[1]);
+                Console.WriteLine("p^2+3x+2=0 : p={0},{1}", r[0], r[1]);
             }
             {
                 var r = rf.FindRoots(new double[] { 2, -3, 1 });
-                Console.WriteLine("x^2-3x+2=0 : x={0},{1}", r[0], r[1]);
+                Console.WriteLine("p^2-3x+2=0 : p={0},{1}", r[0], r[1]);
             }
             {
                 var r = rf.FindRoots(new double[] { 10, -3, 1 });
-                Console.WriteLine("x^2-3x+10=0 : x={0},{1}", r[0], r[1]);
+                Console.WriteLine("p^2-3x+10=0 : p={0},{1}", r[0], r[1]);
             }
             {
                 // 1, -0.5±√3/2i
                 var r = rf.FindRoots(new double[] { -1, 0, 0, 1 });
-                Console.WriteLine("x^3+x^2+x-3=0 : x={0},{1},{2}", r[0], r[1], r[2]);
+                Console.WriteLine("p^3+p^2+p-3=0 : p={0},{1},{2}", r[0], r[1], r[2]);
             }
             {
                 // 1, -1±√2i
                 var r = rf.FindRoots(new double[] { -3, 1, 1, 1 });
-                Console.WriteLine("x^3+x^2+x-3=0 : x={0},{1},{2}", r[0], r[1], r[2]);
+                Console.WriteLine("p^3+p^2+p-3=0 : p={0},{1},{2}", r[0], r[1], r[2]);
             }
             {
                 // 1,2,2
                 var r = rf.FindRoots(new double[] { -4, 8, -5, 1 });
-                Console.WriteLine("x^3-5x^2+8x-4=0 : x={0},{1},{2}", r[0], r[1], r[2]);
+                Console.WriteLine("p^3-5x^2+8x-4=0 : p={0},{1},{2}", r[0], r[1], r[2]);
             }
             {
                 // 1,2,3
                 var r = rf.FindRoots(new double[] { -6, 11, -6, 1 });
-                Console.WriteLine("x^3-6x^2+11x-6=0 : x={0},{1},{2}", r[0], r[1], r[2]);
+                Console.WriteLine("p^3-6x^2+11x-6=0 : p={0},{1},{2}", r[0], r[1], r[2]);
             }
             {
                 // 1,2,3,4
                 var r = rf.FindRoots(new double[] { 24, -50, 35, -10, 1 });
-                Console.WriteLine("x^4-10x^3+35x^2-50x+24=0 : x={0},{1},{2},{3}", r[0], r[1], r[2], r[3]);
+                Console.WriteLine("p^4-10x^3+35x^2-50x+24=0 : p={0},{1},{2},{3}", r[0], r[1], r[2], r[3]);
             }
 
             {
                 // -1,2,-3,-1/3,1/2
                 var r = rf.FindRoots(new double[] { 6,11,-33,-33,11,6 });
-                Console.WriteLine("6x^5+11x^4-33x^3-33x^2+11x+6=0 : x={0},{1},{2},{3},{4}", r[0], r[1], r[2], r[3],r[4]);
+                Console.WriteLine("6x^5+11x^4-33x^3-33x^2+11x+6=0 : p={0},{1},{2},{3},{4}", r[0], r[1], r[2], r[3],r[4]);
             }
         }
 
@@ -302,7 +302,7 @@ namespace WWMath {
                 } while (0.000000001 < improvement); // ←雑な終了条件。
 
 
-                // x^2 +ux +v = 0の解を足す。
+                // p^2 +ux +v = 0の解を足す。
                 FindRootQuadratic(new double[] { v, u, 1 });
 
                 // mCoeffsを更新する。新しい多項式の係数はb[]

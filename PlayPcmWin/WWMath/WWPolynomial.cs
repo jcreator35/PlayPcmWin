@@ -5,17 +5,17 @@ using System.Text;
 namespace WWMath {
     public class WWPolynomial {
         /// <summary>
-        /// 1次有理多項式 x 1次有理多項式
+        /// 1次有理多項式 p 1次有理多項式
         /// </summary>
         public static SecondOrderRationalPolynomial
         Mul(FirstOrderComplexRationalPolynomial lhs, FirstOrderComplexRationalPolynomial rhs) {
-            // 分子の項 x 分子の項
+            // 分子の項 p 分子の項
             var n2 = WWComplex.Mul(lhs.N(1), rhs.N(1));
             var n1 = WWComplex.Add(WWComplex.Mul(lhs.N(1), rhs.N(0)),
                                    WWComplex.Mul(lhs.N(0), rhs.N(1)));
             var n0 = WWComplex.Mul(lhs.N(0), rhs.N(0));
 
-            // 分母の項 x 分母の項
+            // 分母の項 p 分母の項
             var d2 = WWComplex.Mul(lhs.D(1), rhs.D(1));
             var d1 = WWComplex.Add(WWComplex.Mul(lhs.D(1), rhs.D(0)),
                                    WWComplex.Mul(lhs.D(0), rhs.D(1)));
@@ -23,24 +23,48 @@ namespace WWMath {
 
             return new SecondOrderRationalPolynomial(n2, n1, n0, d2, d1, d0);
         }
-        
+
+        /// <summary>
+        /// n次実多項式 p m次実多項式
+        /// </summary>
+        /// <returns>n+m次実多項式</returns>
+        public static RealPolynomial
+        Mul(RealPolynomial lhs, RealPolynomial rhs) {
+            // 1次 p 2次 = 3次
+            // 2次 p 2次 = 4次
+            // 2次 p 3次 = 5次
+
+            // (p^2+2x+3) * (4x+5)
+
+            var c = new double[lhs.Degree + rhs.Degree + 1];
+            // C#では、cの要素は0で初期化される。
+
+            for (int iL = 0; iL <= lhs.Degree; ++iL) {
+                for (int iR = 0; iR <= rhs.Degree; ++iR) {
+                    c[iL + iR] += lhs.C(iL) * rhs.C(iR);
+                }
+            }
+
+            return new RealPolynomial(c);
+        }
+
         /// <summary>
         /// 1次有理多項式 + 1次有理多項式
         /// </summary>
         public static SecondOrderRationalPolynomial
         Add(FirstOrderComplexRationalPolynomial L, FirstOrderComplexRationalPolynomial R) {
             /*  nL     nR
-             * x+2    x+4
+             * p+2    p+4
              * ─── + ────
-             * x+1    x+3
+             * p+1    p+3
              *  dL     dR
              *  
              *         nL   dR      nR   dL
-             * 分子 = (x+2)(x+3) + (x+4)(x+1) = (x^2+5x+6) + (x^2+5x+4) = 2x^2+10x+10
+             * 分子 = (p+2)(p+3) + (p+4)(p+1) = (p^2+5x+6) + (p^2+5x+4) = 2x^2+10x+10
              * 分子の次数 = 2
              * 
              *         dL   dR
-             * 分母 = (x+1)(x+3) = x^2 + (1+3)x + 1*3
+             * 分母 = (p+1)(p+3) = p^2 + (1+3)p + 1*3
              * 分母の次数 = 2
              */
 
@@ -73,32 +97,32 @@ namespace WWMath {
         public static HighOrderComplexRationalPolynomial
         Add(HighOrderComplexRationalPolynomial lhs, FirstOrderComplexRationalPolynomial rhs) {
             /*  nL          nR
-             * x^2+2x+2    x+4
+             * p^2+2x+2    p+4
              * ───────── + ────
-             * x^2+ x+1    x+3
+             * p^2+ p+1    p+3
              *  dL          dR
              *  
              *          dL       dR
-             * 分母 = (x^2+x+1) (x+3)
-             * 分母の次数 = order(dL) + order(dR) + 1
+             * 分母 = (p^2+p+1) (p+3)
+             * 分母の次数 = degree(dL) + degree(dR) + 1
              * 
              *          nL       dR      nR    dL
-             * 分子 = (x^2+2x+2)(x+3) + (x+4)(x^2+x+1)
-             * 分子の次数 = order(nL) + order(dR) + 1 か order(nR) * order(dL) + 1の大きいほう
+             * 分子 = (p^2+2x+2)(p+3) + (p+4)(p^2+p+1)
+             * 分子の次数 = degree(nL) + degree(dR) + 1 か degree(nR) * degree(dL) + 1の大きいほう
              */
 
             ComplexPolynomial denomL;
             {
-                var d = new WWComplex[lhs.DenomOrder() + 1];
-                for (int i = 0; i <= lhs.DenomOrder(); ++i) {
+                var d = new WWComplex[lhs.DenomDegree() + 1];
+                for (int i = 0; i <= lhs.DenomDegree(); ++i) {
                     d[i] = lhs.D(i);
                 }
                 denomL = new ComplexPolynomial(d);
             }
             ComplexPolynomial numerL;
             {
-                var n = new WWComplex[lhs.NumerOrder() + 1];
-                for (int i = 0; i <= lhs.NumerOrder(); ++i) {
+                var n = new WWComplex[lhs.NumerDegree() + 1];
+                for (int i = 0; i <= lhs.NumerDegree(); ++i) {
                     n[i] = lhs.N(i);
                 }
                 numerL = new ComplexPolynomial(n);
@@ -108,7 +132,7 @@ namespace WWMath {
             ComplexPolynomial denomResult;
             {
                 var denomX = new ComplexPolynomial(new WWComplex[0]);
-                if (1 == rhs.DenomOrder()) {
+                if (1 == rhs.DenomDegree()) {
                     denomX = ComplexPolynomial.MultiplyC(ComplexPolynomial.MultiplyX(denomL), rhs.D(1));
                 }
                 var denomC = ComplexPolynomial.MultiplyC(denomL, rhs.D(0));
@@ -121,7 +145,7 @@ namespace WWMath {
                 ComplexPolynomial numer0;
                 {
                     var numerX0 = new ComplexPolynomial(new WWComplex[0]);
-                    if (1 == rhs.DenomOrder()) {
+                    if (1 == rhs.DenomDegree()) {
                         numerX0 = ComplexPolynomial.MultiplyC(ComplexPolynomial.MultiplyX(numerL), rhs.D(1));
                     }
                     var numerC0 = ComplexPolynomial.MultiplyC(numerL, rhs.D(0));
@@ -131,7 +155,7 @@ namespace WWMath {
                 ComplexPolynomial numer1;
                 {
                     var numerX1 = new ComplexPolynomial(new WWComplex[0]);
-                    if (1 == rhs.NumerOrder()) {
+                    if (1 == rhs.NumerDegree()) {
                         numerX1 = ComplexPolynomial.MultiplyC(ComplexPolynomial.MultiplyX(denomL), rhs.N(1));
                     }
                     var numerC1 = ComplexPolynomial.MultiplyC(denomL, rhs.N(0));
@@ -144,9 +168,25 @@ namespace WWMath {
             return new HighOrderComplexRationalPolynomial(numerResult.ToArray(), denomResult.ToArray());
         }
 
+        public static RealPolynomial Add(RealPolynomial l, RealPolynomial r) {
+            int degree = (l.Degree < r.Degree) ? r.Degree : l.Degree;
+            var c = new double[degree+1];
+
+            for (int i = 0; i <= degree; ++i) {
+                c[i] = 0;
+                if (i <= l.Degree) {
+                    c[i] += l.C(i);
+                }
+                if (i <= r.Degree) {
+                    c[i] += r.C(i);
+                }
+            }
+            return new RealPolynomial(c);
+        }
+
         /// <summary>
         /// 多項式の根のリストと定数倍のパラメーターを受け取って多項式のn乗の項のリストを戻す。
-        /// c(x-b[0])(x-b[1]) → c(x^2-(b[0]+b[1])x+b[0]b[1])
+        /// c(p-b[0])(p-b[1]) → c(p^2-(b[0]+b[1])p+b[0]b[1])
         /// rv[2] := c
         /// rv[1] := -c*(b[0]+b[1])
         /// rv[0] := c*(b[0]b[1])
@@ -154,7 +194,7 @@ namespace WWMath {
         /// <param name="rootList">多項式の根のリスト</param>
         /// <param name="constantMultiplier">定数倍のパラメーター()例参照</param>
         /// <returns></returns>
-        public static WWComplex []
+        public static WWComplex[]
         RootListToCoeffList(WWComplex [] b, WWComplex c) {
             var coeff = new List<WWComplex>();
             if (b.Length == 0) {
@@ -168,7 +208,7 @@ namespace WWMath {
                 b2.Add(i);
             }
 
-            // (x-b[0])
+            // (p-b[0])
             coeff.Add(WWComplex.Mul(b2[0],-1));
             coeff.Add(WWComplex.Unity());
 
@@ -176,7 +216,7 @@ namespace WWMath {
 
             WWComplex[] coeffArray = coeff.ToArray();
             while (0 < b2.Count) {
-                // 多項式に(x-b[k])を掛ける。
+                // 多項式に(p-b[k])を掛ける。
                 var s1 = ComplexPolynomial.MultiplyX(new ComplexPolynomial(coeffArray));
                 var s0 = ComplexPolynomial.MultiplyC(new ComplexPolynomial(coeffArray),
                     WWComplex.Mul(b2[0],-1));
@@ -260,9 +300,9 @@ namespace WWMath {
 
         /// <summary>
         /// 有理多項式の約分をして定数項以上の項を分離、有理多項式の分子の次数を分母の次数未満に減らす。
-        ///  x-1        (x+1) -(x+1) + (x-1)            -2
+        ///  p-1        (p+1) -(p+1) + (p-1)            -2
         /// ─────  ⇒  ──────────────────────  ⇒  1 + ─────
-        ///  x+1                  x+1                   x+1
+        ///  p+1                  p+1                   p+1
         /// 
         /// </summary>
         public static PolynomialAndRationalPolynomial
@@ -292,7 +332,7 @@ namespace WWMath {
                         denomCoeffList[denomCoeffList.Length - 1]);
                 quotient.Insert(0, c);
                 var denomMulX = new ComplexPolynomial(denomCoeffList);
-                while (denomMulX.Order()+1 < rv.numerCoeffList.Length) {
+                while (denomMulX.Degree+1 < rv.numerCoeffList.Length) {
                     denomMulX = ComplexPolynomial.MultiplyX(denomMulX);
                 }
                 denomMulX = ComplexPolynomial.MultiplyC(denomMulX, WWComplex.Mul(c,-1));
@@ -386,30 +426,30 @@ namespace WWMath {
         /// </summary>
         public static AllRealDivisionResult
         AlgebraicLongDivision(RealPolynomial dividend, RealPolynomial divisor) {
-            if (dividend.Order() < divisor.Order()) {
-                throw new ArgumentException("dividendCoef order is smaller than divisorCoef");
+            if (dividend.Degree < divisor.Degree) {
+                throw new ArgumentException("dividendCoef degree is smaller than divisorCoef");
             }
             AllRealDivisionResult r = new AllRealDivisionResult();
 
-            var quotient = new double [dividend.Order() - divisor.Order() + 1];
-            var divRemain = new double[dividend.Order()+1];
+            var quotient = new double [dividend.Degree - divisor.Degree + 1];
+            var divRemain = new double[dividend.Degree+1];
             for (int i = 0; i < divRemain.Length; ++i) {
                 divRemain[i] = dividend.C(i);
             }
             for (int i = 0; i<quotient.Length; ++i) {
-                double q = divRemain[dividend.Order() - i] 
-                    / divisor.C(divisor.Order() - 1);
+                double q = divRemain[dividend.Degree - i] 
+                    / divisor.C(divisor.Degree - 1);
                 quotient[quotient.Length - 1 - i] = q;
-                for (int j = 0; j < divisor.Order()+1; ++j) {
-                    divRemain[dividend.Order() - i - j] -=
-                        q * divisor.C(divisor.Order() - j);
+                for (int j = 0; j < divisor.Degree+1; ++j) {
+                    divRemain[dividend.Degree - i - j] -=
+                        q * divisor.C(divisor.Degree - j);
                 }
             }
 
             r.quotient = new RealPolynomial(quotient);
             r.remainder = new RealRationalPolynomial(
-                new RealPolynomial(divRemain).ReduceOrder(),
-                divisor.ReduceOrder());
+                new RealPolynomial(divRemain).RemoveLeadingZeros(),
+                divisor.RemoveLeadingZeros());
             return r;
         }
 
@@ -450,9 +490,9 @@ namespace WWMath {
 
             {
                 // 約分のテスト
-                //  x-1        (x+1) -(x+1) + (x-1)            -2
+                //  p-1        (p+1) -(p+1) + (p-1)            -2
                 // ─────  ⇒  ──────────────────────  ⇒  1 + ─────
-                //  x+1                  x+1                   x+1
+                //  p+1                  p+1                   p+1
 
                 var numerC = new List<WWComplex>();
                 numerC.Add(new WWComplex(-1, 0)); // 定数項。
@@ -462,14 +502,14 @@ namespace WWMath {
                 denomR.Add(new WWComplex(-1, 0));
 
                 var r = Reduction(numerC.ToArray(), denomR.ToArray());
-                r.Print("x");
+                r.Print("p");
             }
 
             {
                 // 約分のテスト
-                //  x^2+3x+2            (x^2+3x+2) -(x^2+7x+12)            -4x-10
+                //  p^2+3x+2            (p^2+3x+2) -(p^2+7x+12)            -4x-10
                 // ────────────  ⇒ 1+ ─────────────────────────  ⇒  1 + ────────────
-                //  (x+3)(x+4)           x^2+7x+12                         (x+3)(x+4)
+                //  (p+3)(p+4)           p^2+7x+12                         (p+3)(p+4)
 
                 var numerC = new WWComplex [] {
                     new WWComplex(2, 0), // 定数項。
@@ -481,13 +521,13 @@ namespace WWMath {
                     new WWComplex(-4, 0)};
 
                 var r = Reduction(numerC, denomR);
-                r.Print("x");
+                r.Print("p");
             }
             {
                 // 部分分数分解。
                 //  -4x-10             2      -6
                 // ────────────  ⇒  ───── + ─────
-                //  (x+3)(x+4)        x+3     x+4
+                //  (p+3)(p+4)        p+3     p+4
 
                 var numerC = new WWComplex [] {
                     new WWComplex(-10, 0),
@@ -511,14 +551,14 @@ namespace WWMath {
 
             {
                 var deriv = new RealPolynomial(new double[] { 1, 1, 1, 1 }).Derivative();
-                Console.WriteLine("derivative of x^3+x^2+x+1={0}",
-                    deriv.ToString("x"));
+                Console.WriteLine("derivative of p^3+p^2+p+1={0}",
+                    deriv.ToString("p"));
             }
 
             {
                 var r2 = AlgebraicLongDivision(new RealPolynomial(new double[] { 6, 3, 1 }),
                     new RealPolynomial(new double[] { 1, 1}));
-                Console.WriteLine("(x^2+3x+6)/(x+1) = {0} r {1}",
+                Console.WriteLine("(p^2+3x+6)/(p+1) = {0} r {1}",
                     r2.quotient.ToString(), r2.remainder.ToString());
             }
         }

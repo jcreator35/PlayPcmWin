@@ -70,6 +70,7 @@ namespace WWOfflineResampler {
             mState = State.Ready;
             Update();
 
+            JenkinsTraubRpoly.Test();
             PolynomialRootFinding.Test();
             WWPolynomial.Test();
             NewtonsMethod.Test();
@@ -189,7 +190,7 @@ namespace WWOfflineResampler {
                 for (int i = 0; i < mMain.IIRiim().HzCount(); ++i) {
                     var p = mMain.IIRiim().Hz(i);
 
-                    if (p.DenomOrder() == 1) {
+                    if (p.DenomDegree() == 1) {
                         // ポールの位置。
                         mPoleZeroPlotZ.AddPole(WWComplex.Minus(WWComplex.Div(p.D(1), p.D(0))));
                     }
@@ -200,7 +201,7 @@ namespace WWOfflineResampler {
                     // 合体したH(z)の分子の実係数多項式の根が零の位置。
                     HighOrderComplexRationalPolynomial HzCombined = mMain.IIRiim().HzCombined();
                     var coeffs = new List<double>();
-                    for (int i = 0; i < HzCombined.DenomOrder(); ++i) {
+                    for (int i = 0; i < HzCombined.DenomDegree(); ++i) {
                         coeffs.Add(HzCombined.D(i).real);
                     }
                     if ((coeffs.Count & 1) == 0) {

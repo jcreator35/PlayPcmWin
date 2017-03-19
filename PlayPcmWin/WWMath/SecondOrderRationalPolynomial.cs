@@ -32,9 +32,9 @@ namespace WWMath {
             denom[0] = d0;
         }
 
-        public override int Order() { return 2; }
+        public override int Degree() { return 2; }
         
-        public override int NumerOrder() {
+        public override int NumerDegree() {
             if (numer[2].Magnitude() != 0) {
                 return 2;
             }
@@ -44,7 +44,7 @@ namespace WWMath {
             return 0;
         }
 
-        public override int DenomOrder() {
+        public override int DenomDegree() {
             if (denom[2].Magnitude() != 0) {
                 return 2;
             }
@@ -63,7 +63,7 @@ namespace WWMath {
         }
 
         public override string ToString() {
-            return ToString("x", "i");
+            return ToString("p", "i");
         }
 
         public override string ToString(string variableSymbol, string imaginaryUnit) {

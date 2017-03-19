@@ -209,7 +209,7 @@ namespace WWAnalogFilterDesign {
             default:
                 throw new NotImplementedException();
             }
-            mOrder = filter.Order();
+            mOrder = filter.Order;
             mNumeratorConstant = filter.TransferFunctionConstant();
 
             // 伝達関数のポールの位置。

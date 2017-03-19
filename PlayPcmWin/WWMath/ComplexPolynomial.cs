@@ -6,7 +6,7 @@ using System.Text;
 namespace WWMath {
     public class ComplexPolynomial {
         /// <summary>
-        /// coef[0]: constant, coef[1] 1st order coef, ...
+        /// coef[0]: constant, coef[1] 1st degree coef, ...
         /// </summary>
         private readonly WWComplex [] mCoeff;
 
@@ -29,60 +29,62 @@ namespace WWMath {
         /// <returns>l+r</returns>
         public static ComplexPolynomial
         Add(ComplexPolynomial lhs, ComplexPolynomial rhs) {
-            int order = lhs.Order();
-            if (order < rhs.Order()) {
-                order = rhs.Order();
+            int order = lhs.Degree;
+            if (order < rhs.Degree) {
+                order = rhs.Degree;
             }
 
             var rv = new WWComplex[order+1];
             for (int i = 0; i <= order; ++i) {
                 WWComplex ck = WWComplex.Zero();
-                if (i <= lhs.Order()) {
+                if (i <= lhs.Degree) {
                     ck = WWComplex.Add(ck, lhs.C(i));
                 }
-                if (i <= rhs.Order()) {
+                if (i <= rhs.Degree) {
                     ck = WWComplex.Add(ck, rhs.C(i));
                 }
                 rv[i] = ck;
             }
 
             // 最高次の項が0のとき削除して次数を減らす。
-            return new ComplexPolynomial(rv).ReduceOrder();
+            return new ComplexPolynomial(rv).ReduceDegree();
         }
 
         /// <summary>
-        /// coefficient of nth order element
+        /// coefficient of nth degree element
         /// </summary>
         public WWComplex C(int nth) {
             return mCoeff[nth];
         }
-        public int Order() {
-            return mCoeff.Length - 1;
+        public int Degree {
+            get {
+                return mCoeff.Length - 1;
+            }
         }
 
         /// <summary>
         /// 最大次数の係数を0でない状態にした配列を戻す。自分自身は変更しない。
         /// </summary>
         /// <returns>最大次数の係数が0ではない多項式の係数リスト。</returns>
-        public ComplexPolynomial ReduceOrder() {
-            // decide order
-            int order = 0;
+        public ComplexPolynomial ReduceDegree() {
+            // decide result degree
+            int degree = 0;
             for (int i = mCoeff.Length - 1; 0 < i; --i) {
                 if (!mCoeff[i].AlmostZero()) {
-                    order = i;
+                    degree = i;
                     break;
                 }
             }
 
-            var r = new WWComplex[order + 1];
-            Array.Copy(mCoeff, r, order + 1);
+            var r = new WWComplex[degree + 1];
+            Array.Copy(mCoeff, r, degree + 1);
             return new ComplexPolynomial(r);
         }
 
         /// <summary>
         /// Calculate polynomial value at position z
         /// </summary>
-        /// <param name="x">z position</param>
+        /// <param name="p">z position</param>
         /// <returns>y</returns>
         public WWComplex Evaluate(WWComplex z) {
             WWComplex y = WWComplex.Zero();
@@ -100,9 +102,9 @@ namespace WWMath {
         /// </summary>
         public static ComplexPolynomial
         MultiplyX(ComplexPolynomial p) {
-            var rv = new WWComplex [p.Order()+2];
+            var rv = new WWComplex [p.Degree+2];
             rv[0] = WWComplex.Zero();
-            for (int i = 0; i <= p.Order(); ++i) {
+            for (int i = 0; i <= p.Degree; ++i) {
                 rv[i+1] = p.C(i);
             }
             return new ComplexPolynomial(rv);
@@ -113,8 +115,8 @@ namespace WWMath {
         /// </summary>
         public static ComplexPolynomial
         MultiplyC(ComplexPolynomial p, WWComplex c) {
-            var rv = new WWComplex[p.Order() + 1];
-            for (int i = 0; i <= p.Order(); ++i) {
+            var rv = new WWComplex[p.Degree + 1];
+            for (int i = 0; i <= p.Degree; ++i) {
                 rv[i] = WWComplex.Mul(p.C(i), c);
             }
             return new ComplexPolynomial(rv);
@@ -128,8 +130,8 @@ namespace WWMath {
         public static ComplexPolynomial
         TrimPolynomialOrder(ComplexPolynomial p, int n) {
             int newOrder = n;
-            if (p.Order() < newOrder) {
-                newOrder = p.Order();
+            if (p.Degree < newOrder) {
+                newOrder = p.Degree;
             }
             var rv = new WWComplex[newOrder + 1];
             for (int i = 0; i <= newOrder; ++i) {
@@ -137,7 +139,7 @@ namespace WWMath {
             }
 
             //強制的に次数を減らした結果最高位の係数が0になったとき次数を減らす処理。
-            return new ComplexPolynomial(rv).ReduceOrder();
+            return new ComplexPolynomial(rv).ReduceDegree();
         }
 
         public string ToString(string variableName) {

@@ -230,14 +230,14 @@ namespace WWOfflineResampler {
                         var p1 = mIIRiim.Hz(mIIRiim.HzCount() - 1 - i);
                         var p = WWPolynomial.Add(p0, p1);
                         //Console.WriteLine("{0}", p.ToString("(z)^(-1)", "I"));
-                        Console.WriteLine("{0}", p.ToString("((x+I*y)^(-1))", "I"));
+                        Console.WriteLine("{0}", p.ToString("((p+I*y)^(-1))", "I"));
                         iirFilter.Add(p);
                     }
                     if (1 == (mIIRiim.HzCount() & 1)) {
                         // 奇数次フィルターの時、実係数の1次有理式がある。
                         var p = mIIRiim.Hz(mIIRiim.HzCount() / 2);
                         //Console.WriteLine("{0}", p.ToString("(z)^(-1)", "I"));
-                        Console.WriteLine("{0}", p.ToString("((x+I*y)^(-1))", "I"));
+                        Console.WriteLine("{0}", p.ToString("((p+I*y)^(-1))", "I"));
                         iirFilter.Add(p);
                     }
 

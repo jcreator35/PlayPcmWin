@@ -6,27 +6,27 @@ namespace WWMath {
     public class Functions {
         /// <summary>
         /// area cos hyp, Inverse hyperbolic cosine
-        /// 双曲線関数coshの逆関数 y=arcosh(x)の正の解。x1つに対してyが正負計2つ対応するがそのうち正のyの値を戻す。
+        /// 双曲線関数coshの逆関数 y=arcosh(p)の正の解。x1つに対してyが正負計2つ対応するがそのうち正のyの値を戻す。
         /// 高木貞治, 解析概論 改訂第3版, 岩波書店, 1983, pp.209
         /// </summary>
-        /// <param name="x">xの定義域は 1≤x </param>
+        /// <param name="p">xの定義域は 1≤p </param>
         public static double ArCosHypPositive(double x) {
             return Math.Log(x+Math.Sqrt(x*x-1));
         }
 
         /// <summary>
         /// area cos hyp, Inverse hyperbolic cosine
-        /// 双曲線関数coshの逆関数 y=arcosh(x)の負の解。x1つに対してyが正負計2つ対応するがそのうち負のyの値を戻す。
+        /// 双曲線関数coshの逆関数 y=arcosh(p)の負の解。x1つに対してyが正負計2つ対応するがそのうち負のyの値を戻す。
         /// 高木貞治, 解析概論 改訂第3版, 岩波書店, 1983, pp.209
         /// </summary>
-        /// <param name="x">xの定義域は 1≤x </param>
+        /// <param name="p">xの定義域は 1≤p </param>
         public static double ArCosHypNegative(double x) {
             return -Math.Log(x + Math.Sqrt(x * x - 1));
         }
 
         /// <summary>
         /// area sin hyp, Inverse hyperbolic sine
-        /// 双曲線関数sinhの逆関数 y=arsinh(x)。xとyは1対1の対応。
+        /// 双曲線関数sinhの逆関数 y=arsinh(p)。xとyは1対1の対応。
         /// 高木貞治, 解析概論 改訂第3版, 岩波書店, 1983, pp.209
         /// </summary>
         public static double ArSinHyp(double x) {
@@ -72,7 +72,7 @@ namespace WWMath {
         }
 
         /// <summary>
-        /// Jacobi Nome q(x) (Modular constant)
+        /// Jacobi Nome q(p) (Modular constant)
         /// H. G. Dimopoulos, Analog Electronic Filters: theory, design and synthesis, Springer, 2012. pp.170.
         /// </summary>
         public static double JacobiNomeQ(double x) {
@@ -81,7 +81,7 @@ namespace WWMath {
         }
 
         /// <summary>
-        /// ln(q(x)), q(x) == Jacobi Nome q
+        /// ln(q(p)), q(p) == Jacobi Nome q
         /// </summary>
         public static double LnJacobiNomeQ(double x) {
             // p.170
@@ -144,7 +144,7 @@ namespace WWMath {
         }
 
         /// <summary>
-        /// Elliptic sine sn(u,x)
+        /// Elliptic sine sn(u,p)
         /// H. G. Dimopoulos, Analog Electronic Filters: theory, design and synthesis, Springer, 2012. pp.171.
         /// </summary>
         public static double EllipticSine(double u, double x) {

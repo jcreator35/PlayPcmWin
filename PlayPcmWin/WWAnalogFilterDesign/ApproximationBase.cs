@@ -30,8 +30,10 @@ namespace WWAnalogFilterDesign {
         /// <summary>
         /// ノーマライズド　バターワースフィルターの最小次数 Nfmin。
         /// </summary>
-        public int Order() {
-            return mN;
+        public int Order {
+            get {
+                return mN;
+            }
         }
 
         public virtual int NumOfPoles() {

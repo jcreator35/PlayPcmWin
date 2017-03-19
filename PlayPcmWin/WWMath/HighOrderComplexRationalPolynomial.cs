@@ -24,7 +24,7 @@ namespace WWMath {
 
         public HighOrderComplexRationalPolynomial(FirstOrderComplexRationalPolynomial uni) {
             int numerCount = 1;
-            if (1 == uni.NumerOrder()) {
+            if (1 == uni.NumerDegree()) {
                 numerCount = 2;
             }
             numer = new WWComplex[numerCount];
@@ -33,7 +33,7 @@ namespace WWMath {
             }
 
             int denomCount = 1;
-            if (1 == uni.DenomOrder()) {
+            if (1 == uni.DenomDegree()) {
                 denomCount = 2;
             }
             denom = new WWComplex[denomCount];
@@ -50,18 +50,18 @@ namespace WWMath {
             return denom[nth];
         }
 
-        public override int Order() {
-            int order = NumerOrder();
-            if (order < DenomOrder()) {
-                order = DenomOrder();
+        public override int Degree() {
+            int order = NumerDegree();
+            if (order < DenomDegree()) {
+                order = DenomDegree();
             }
             return order;
         }
 
-        public override int NumerOrder() {
+        public override int NumerDegree() {
             return numer.Length-1;
         }
-        public override int DenomOrder() {
+        public override int DenomDegree() {
             return denom.Length - 1;
         }
 

@@ -27,16 +27,16 @@ namespace WWMath {
                 denom[0] = d0;
         }
 
-        public override int Order() { return 1; }
+        public override int Degree() { return 1; }
 
-        public override int NumerOrder() {
+        public override int NumerDegree() {
             if (numer[1].Magnitude() == 0) {
                 return 0;
             }
             return 1;
         }
 
-        public override int DenomOrder() {
+        public override int DenomDegree() {
             if (denom[1].Magnitude() == 0) {
                 return 0;
             }
@@ -52,7 +52,7 @@ namespace WWMath {
         }
 
         public override string ToString() {
-            return ToString("x", "i");
+            return ToString("p", "i");
         }
 
         public override string ToString(string variableSymbol, string imaginaryUnit) {
@@ -63,7 +63,7 @@ namespace WWMath {
 
         /// <summary>
         /// 1次多項式を作る。
-        /// mCoeffs[0] + x * mCoeffs[1]
+        /// mCoeffs[0] + p * mCoeffs[1]
         /// </summary>
         public static List<FirstOrderComplexRationalPolynomial> CreateFromCoeffList(WWComplex [] coeffList) {
             var p = new List<FirstOrderComplexRationalPolynomial>();

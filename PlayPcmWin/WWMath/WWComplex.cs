@@ -104,10 +104,32 @@ namespace WWMath {
         }
 
         /// <summary>
+        /// -1倍したものを戻す。自分自身は変更しない。
+        /// </summary>
+        public WWComplex Minus() {
+            return new WWComplex(-real, -imaginary);
+        }
+
+        /// <summary>
         /// create copy and copy := complex conjugate of uni, returns copy.
         /// </summary>
         public static WWComplex ComplexConjugate(WWComplex uni) {
             return new WWComplex(uni.real, -uni.imaginary);
+        }
+
+        /// <summary>
+        /// scale倍する。自分自身は変更しない。
+        /// </summary>
+        public WWComplex Scale(double scale) {
+            return new WWComplex(scale * real, scale * imaginary);
+        }
+
+        /// <summary>
+        /// 共役複素数を戻す。 自分自身は変更しない。
+        /// </summary>
+        /// <returns>共役複素数。</returns>
+        public WWComplex ComplexConjugate() {
+            return new WWComplex(real, -imaginary);
         }
 
         public override string ToString() {

@@ -18,9 +18,9 @@ namespace WWIIRFilterDesign {
 
         public IIRFilterBlockReal128(ComplexRationalPolynomial p) {
             mH = p;
-            mMaxOrder = p.NumerOrder();
-            if (mMaxOrder < p.DenomOrder()) {
-                mMaxOrder = p.DenomOrder();
+            mMaxOrder = p.NumerDegree();
+            if (mMaxOrder < p.DenomDegree()) {
+                mMaxOrder = p.DenomDegree();
             }
 
             mV = new decimal[mMaxOrder + 1];
