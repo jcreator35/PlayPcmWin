@@ -2,6 +2,11 @@
 using System.Collections.Generic;
 
 namespace WWMath {
+
+    /// <summary>
+    /// 多項式の根を数値的開放で求める。
+    /// 精度が良くない。
+    /// </summary>
     public class PolynomialRootFinding {
         public static void Test() {
             var rf = new PolynomialRootFinding();
@@ -70,7 +75,7 @@ namespace WWMath {
         private List<WWComplex> mRoots = new List<WWComplex>();
         private List<double> mCoeffs;
 
-        /// 実係数多項式の根を計算する。
+        /// 実係数多項式の根を計算する。精度が良くない。
         /// @param mCoeffs 多項式の係数のリスト。coeffs[0]:定数項、coeffs[1]:1次の項…。
         /// @return 根のリストを戻す。
         public List<WWComplex> FindRoots(double [] coeffs) {
