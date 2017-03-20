@@ -82,7 +82,7 @@ namespace WWMath {
         }
 
         /// <summary>
-        /// Calculate polynomial value at position z
+        /// Calculate poly value at position z
         /// </summary>
         /// <param name="p">z position</param>
         /// <returns>y</returns>

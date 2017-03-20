@@ -81,10 +81,10 @@ namespace WWAnalogFilterDesign {
         }
 
         /// <summary>
-        /// Chebyshev polynomial coefficients of CN(Ω)
+        /// Chebyshev poly coefficients of CN(Ω)
         /// H. G. Dimopoulos, Analog Electronic Filters: theory, design and synthesis, Springer, 2012. pp.60.
         /// </summary>
-        /// <param name="n">orderPlus1 of polynomial</param>
+        /// <param name="n">orderPlus1 of poly</param>
         /// <returns>rv[0] : constant coeff, rv[1] 1st orderPlus1 coeff, rv[2] 2nd orderPlus1 coeff ...</returns>
         public static double[] ChebyshevPolynomialCoefficients(int n) {
             if (n < 0) {

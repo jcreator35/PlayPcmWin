@@ -421,8 +421,8 @@ namespace WWMath {
         };
 
         /// <summary>
-        /// Algebraic long division of all-real polynomial by all-real polynomial
-        /// https://www.khanacademy.org/math/algebra-home/alg-polynomials/alg-long-division-of-polynomials/v/polynomial-division
+        /// Algebraic long division of all-real poly by all-real poly
+        /// https://www.khanacademy.org/math/algebra-home/alg-polynomials#alg-long-division-of-polynomials
         /// </summary>
         public static AllRealDivisionResult
         AlgebraicLongDivision(RealPolynomial dividend, RealPolynomial divisor) {
@@ -438,9 +438,9 @@ namespace WWMath {
             }
             for (int i = 0; i<quotient.Length; ++i) {
                 double q = divRemain[dividend.Degree - i] 
-                    / divisor.C(divisor.Degree - 1);
+                    / divisor.C(divisor.Degree);
                 quotient[quotient.Length - 1 - i] = q;
-                for (int j = 0; j < divisor.Degree+1; ++j) {
+                for (int j = 0; j <= divisor.Degree; ++j) {
                     divRemain[dividend.Degree - i - j] -=
                         q * divisor.C(divisor.Degree - j);
                 }

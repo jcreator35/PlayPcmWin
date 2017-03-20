@@ -92,7 +92,7 @@ namespace WWMath {
         }
 
         private void FindRootLinear(double[] coeffs) {
-            // 1次多項式 linear polynomial equation
+            // 1次多項式 linear poly equation
             System.Diagnostics.Debug.Assert(2 == coeffs.Length);
             double root = -coeffs[0] / coeffs[1];
             mRoots.Add(new WWComplex(root, 0));
@@ -102,7 +102,7 @@ namespace WWMath {
         /// see this document: http://people.csail.mit.edu/bkph/articles/Quadratics.pdf
         /// </summary>
         private void FindRootQuadratic(double[] coeffs) {
-            // 2次多項式 quadratic polynomial equation
+            // 2次多項式 quadratic poly equation
             System.Diagnostics.Debug.Assert(3 == coeffs.Length);
 
             double a = coeffs[2];
@@ -146,7 +146,7 @@ namespace WWMath {
         }
 
         private void FindRootCubic(double[] coeffs) {
-            // 3次多項式 cubic polynomial equation
+            // 3次多項式 cubic poly equation
             // https://en.wikipedia.org/wiki/Cubic_function#Algebraic_solution
             System.Diagnostics.Debug.Assert(4 == coeffs.Length);
             double a = coeffs[3];

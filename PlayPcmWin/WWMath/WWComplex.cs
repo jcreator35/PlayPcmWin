@@ -1,7 +1,7 @@
 ﻿using System;
 
 namespace WWMath {
-    public struct WWComplex {
+    public class WWComplex {
         public readonly double real;
         public readonly double imaginary;
 

@@ -6,9 +6,9 @@ using System.Text;
 namespace WWMath {
     public class NewtonsMethod {
         /// <summary>
-        /// Find one real root of specified real polynomial
+        /// Find one real root of specified real poly
         /// </summary>
-        /// <param name="coeffs">polynomial coeffs. coef[0]: constant, coef[1] 1st degree coeff</param>
+        /// <param name="coeffs">poly coeffs. coef[0]: constant, coef[1] 1st degree coeff</param>
         /// <param name="initialX">initial estimate of the root position</param>
         /// <returns>p</returns>
         public static double FindRoot(RealPolynomial rpoly, double initialX, double kEpsilon, int loopCount) {

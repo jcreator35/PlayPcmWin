@@ -38,6 +38,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Collections;
 
 namespace WWMath {
     public class JenkinsTraubRpoly {
@@ -108,22 +109,30 @@ namespace WWMath {
         public bool FindRoots(RealPolynomial p) {
             mRoots.Clear();
 
+            if (p.Degree < 0) {
+                return false;
+            }
+
+            if (p.Degree == 0) {
+                return true;
+            }
+
             // 最大次数の項を1にする。
             mPoly = p.Normalize();
 
             RemoveZeroRoots();
 
-            int degree = mPoly.Degree;
-            if (degree == 0) {
+            if (mPoly.Degree == 0) {
                 return true;
             }
 
             // Choose the initial starting value for the root-finding on the complex plane.
             double phi = 49.0 * kDegToRad;
+            int degree = mPoly.Degree;
 
-            // Iterate until the polynomial has been completely deflated.
+            // Iterate until the poly has been completely deflated.
             for (int i = 0; i < degree; i++) {
-                // Solve in closed form if the polynomial is small enough.
+                // Solve in closed form if the poly is small enough.
                 if (mPoly.Degree <= 2) {
                     break;
                 }
@@ -131,10 +140,10 @@ namespace WWMath {
                 // Compute the root radius.
                 double root_radius = ComputeRootRadius();
 
-                // Stage 1: Apply zero-shifts to the K-polynomial to separate the small zeros of the polynomial.
+                // Stage 1: Apply zero-shifts to the K-poly to separate the small zeros of the poly.
                 ApplyZeroShiftToKPolynomial(kNumZeroShiftIterations);
 
-                // Stage 2: Apply fixed shift iterations to the K-polynomial to separate the roots further.
+                // Stage 2: Apply fixed shift iterations to the K-poly to separate the roots further.
                 WWComplex root = WWComplex.Zero();
                 ConvergenceType convergence = ConvergenceType.NO;
                 for (int j = 0; j < kMaxFixedShiftRestarts; j++) {
@@ -150,7 +159,7 @@ namespace WWMath {
                 }
 
                 // Stage 3: Find the root(s) with variable shift iterations on the
-                // K-polynomial. If this stage was not successful then we return a failure.
+                // K-poly. If this stage was not successful then we return a failure.
                 if (!ApplyVariableShiftToKPolynomial(convergence, root)) {
                     return false;
                 }
@@ -197,7 +206,7 @@ namespace WWMath {
         /// see this document: http://people.csail.mit.edu/bkph/articles/Quadratics.pdf
         /// </summary>
         private WWComplex[] FindQuadraticPolynomialRoots(RealPolynomial poly) {
-            // 2次多項式 quadratic polynomial equation
+            // 2次多項式 quadratic poly equation
             System.Diagnostics.Debug.Assert(poly.Degree == 2);
 
             var result = new WWComplex[2];
@@ -212,29 +221,18 @@ namespace WWMath {
                 double x2;
 
                 if (0 <= b) {
-                    x1 = 2 * c / (-b - Math.Sqrt(discriminant));
-                    x2 = (-b - Math.Sqrt(discriminant)) / 2 / a;
+                    x1 = (-b - Math.Sqrt(discriminant)) / 2 / a;
+                    x2 = 2 * c / (-b - Math.Sqrt(discriminant));
                 } else {
-                    x1 = (-b + Math.Sqrt(discriminant)) / 2 / a;
-                    x2 = 2 * c / (-b + Math.Sqrt(discriminant));
+                    x1 = 2 * c / (-b + Math.Sqrt(discriminant));
+                    x2 = (-b + Math.Sqrt(discriminant)) / 2 / a;
                 }
 
                 result[0] = new WWComplex(x1, 0);
                 result[1] = new WWComplex(x2, 0);
             } else {
-                WWComplex x1;
-                WWComplex x2;
-
-                if (0 <= b) {
-                    x1 = new WWComplex(-b / 2 / a, -Math.Sqrt(-discriminant) / 2 / a);
-                    x2 = WWComplex.Div(new WWComplex(2 * c, 0), new WWComplex(-b, -Math.Sqrt(-discriminant)));
-                } else {
-                    x1 = WWComplex.Div(new WWComplex(2 * c, 0), new WWComplex(-b, Math.Sqrt(-discriminant)));
-                    x2 = new WWComplex(-b / 2 / a, Math.Sqrt(-discriminant) / 2 / a);
-                }
-
-                result[0] = x1;
-                result[1] = x2;
+                result[0] = new WWComplex(-b / 2 / a, Math.Sqrt(-discriminant) / 2 / a);
+                result[1] = new WWComplex(-b / 2 / a, -Math.Sqrt(-discriminant) / 2 / a);
             }
 
             return result;
@@ -242,7 +240,7 @@ namespace WWMath {
 
         /// <summary>
         /// Stage 3: Find the root(s) with variable shift iterations on the
-        /// K-polynomial. If this stage was not successful then we return a failure.
+        /// K-poly. If this stage was not successful then we return a failure.
         /// </summary>
         private bool ApplyVariableShiftToKPolynomial(ConvergenceType conv, WWComplex root) {
             mAttemptedLinearShift = false;
@@ -267,11 +265,20 @@ namespace WWMath {
                 return false;
             }
 
+            Console.WriteLine("ApplyLinearShiftToKPolynomial");
+            Console.WriteLine("root={0}", root);
+            Console.WriteLine("poly={0}", mPoly);
+            Console.WriteLine("kpoly={0}", mKPoly);
+
+            Console.WriteLine("p(r)={0}", mPoly.Evaluate(root));
+            Console.WriteLine("kp(r)={0}", mKPoly.Evaluate(root));
+
             // Compute an initial guess for the root.
             double realRoot =
-                WWComplex.Div(
-                    WWComplex.Sub(root, mPoly.Evaluate(root)),
-                    mKPoly.Evaluate(root)).real;
+                WWComplex.Sub(root, 
+                    WWComplex.Div(mPoly.Evaluate(root), mKPoly.Evaluate(root))).real;
+
+            Console.WriteLine("real_root={0}", realRoot);
 
             RealPolynomial deflatedPoly = null;
             RealPolynomial deflatedKPoly = null;
@@ -283,11 +290,16 @@ namespace WWMath {
             var roots = new List<double>();
             roots.Add(realRoot);
             for (int i = 0; i < max_iterations; i++) {
+                Console.WriteLine("i={0}", i);
                 // Terminate if the root evaluation is within our tolerance. This will
                 // return false if we do not have enough samples.
                 if (HasRootConverged(roots)) {
                     AddRootToOutput(new WWComplex(roots[1], 0));
                     mPoly = deflatedPoly;
+
+                    Console.WriteLine("polynomial_={0}", mPoly);
+                    Console.WriteLine("root converged to {0}", roots[1]);
+                    mAttemptedLinearShift = true;
                     return true;
                 }
 
@@ -298,11 +310,18 @@ namespace WWMath {
                     polyAtRoot = p.evaluatedValue;
                 }
 
+                Console.WriteLine("deflated_p={0}", deflatedPoly);
+                Console.WriteLine("poly(r)={0}", polyAtRoot);
+
                 // If the root is exactly the root then end early. Otherwise, the k
-                // polynomial will be filled with inf or nans.
+                // poly will be filled with inf or nans.
                 if (polyAtRoot == 0) {
                     AddRootToOutput(new WWComplex(realRoot, 0));
                     mPoly = deflatedPoly;
+
+                    Console.WriteLine("polynomial_={0}", mPoly);
+                    Console.WriteLine("root converged to {0}", realRoot);
+                    mAttemptedLinearShift = true;
                     return true;
                 }
 
@@ -316,13 +335,21 @@ namespace WWMath {
                         deflatedPoly.Scale(-kPolyAtRoot / polyAtRoot));
 
                     // 最大次数の項が1になるようにスケールする。
-                    mKPoly.Scale(1.0 / mKPoly.C(mKPoly.Degree));
+                    mKPoly = mKPoly.Scale(1.0 / mKPoly.C(mKPoly.Degree));
                 }
+
+                Console.WriteLine("deflated_k_polynomial={0}", deflatedKPoly);
+                Console.WriteLine("k_poly={0}", mKPoly);
+                Console.WriteLine("kpoly(r)={0}", kPolyAtRoot);
 
                 // Compute the update for the root estimation.
                 kPolyAtRoot = mKPoly.Evaluate(realRoot);
                 double deltaRoot = polyAtRoot / kPolyAtRoot;
                 realRoot -= polyAtRoot / kPolyAtRoot;
+
+                Console.WriteLine("kpoly(r)={0}", kPolyAtRoot);
+                Console.WriteLine("delta_root={0}", deltaRoot);
+                Console.WriteLine("realRoot={0}", realRoot);
 
                 // Save the root so that convergence can be measured. Only the 3 most
                 // recently root values are needed.
@@ -338,6 +365,9 @@ namespace WWMath {
                         Math.Abs(deltaRoot) < 0.001 * Math.Abs(realRoot) &&
                         Math.Abs(prevPolyAtRoot) < Math.Abs(polyAtRoot)) {
                     var new_root = new WWComplex(realRoot, 0);
+
+                    Console.WriteLine("we may found a double real root");
+                    mAttemptedLinearShift = true;
                     return ApplyQuadraticShiftToKPolynomial(new_root,
                         kMaxQuadraticShiftIterations);
                 }
@@ -356,9 +386,9 @@ namespace WWMath {
         ///    sigma(z) = __________________________
         ///                  | K1(s1)  K2(s1) |
         ///                  | K2(s1)  K2(s2) |
-        /// Where K0, K1, and K2 are successive zero-shifts of the K-polynomial.
+        /// Where K0, K1, and K2 are successive zero-shifts of the K-poly.
         ///
-        /// The K-polynomial shifts are otherwise exactly the same as Stage 2 after
+        /// The K-poly shifts are otherwise exactly the same as Stage 2 after
         /// accounting for a variable-shift sigma.
         /// </summary>
         private bool ApplyQuadraticShiftToKPolynomial(WWComplex root, int max_iterations) {
@@ -366,6 +396,8 @@ namespace WWMath {
             if (mAttemptedQuadraticShift) {
                 return false;
             }
+            
+            Console.WriteLine("ApplyQuadraticShiftToKPolynomial");
 
             double kTinyRelativeStep = 0.01;
 
@@ -379,6 +411,8 @@ namespace WWMath {
                 sigma[0] = root.real * root.real + root.imaginary * root.imaginary;
                 sigmaP = new RealPolynomial(sigma);
             }
+
+            Console.WriteLine("sigma={0}", sigmaP);
 
             // These two containers hold values that we test for convergence such that the
             // zero index is the convergence value from 2 iterations ago, the first
@@ -408,13 +442,14 @@ namespace WWMath {
                     AddRootToOutput(roots1[1]);
                     AddRootToOutput(roots2[1]);
                     mPoly = poly_quotient;
+                    mAttemptedQuadraticShift = true;
                     return true;
                 }
 
                 {
-                    var r = WWPolynomial.AlgebraicLongDivision(mPoly, sigmaP);
+                    var r = QuadraticSyntheticDivision(mPoly, sigmaP);
                     poly_quotient = r.quotient;
-                    poly_remainder = r.remainder.NumerPolynomial();
+                    poly_remainder = r.remainder;
                 }
 
                 // Compute a and b from the above equations.
@@ -425,6 +460,7 @@ namespace WWMath {
                 // Check that the roots are close. If not, then try a linear shift.
                 if (Math.Abs(Math.Abs(roots[0].real) - Math.Abs(roots[1].real)) >
                         kRootPairTolerance * Math.Abs(roots[1].real)) {
+                    mAttemptedQuadraticShift = true;
                     return ApplyLinearShiftToKPolynomial(root, kMaxLinearShiftIterations);
                 }
 
@@ -440,16 +476,19 @@ namespace WWMath {
                 }
 
                 {
-                    // Divide the shifted polynomial by the quadratic polynomial.
-                    var r = WWPolynomial.AlgebraicLongDivision(mKPoly, sigmaP);
+                    // Divide the shifted poly by the quadratic poly.
+                    var r = QuadraticSyntheticDivision(mKPoly, sigmaP);
                     kPoly_quotient = r.quotient;
-                    kPoly_remainder = r.remainder.NumerPolynomial();
+                    kPoly_remainder = r.remainder;
                 }
                 d = kPoly_remainder.C(1);
                 c = kPoly_remainder.C(0) - d * sigmaP.C(1);
+                
+                Console.WriteLine("i={0} a={1} b={2} c={3} d={4}", i, a, b, c, d);
 
                 prevV = sigmaP.C(0);
                 sigmaP = ComputeNextSigma(a,b,c,d,sigmaP);
+                Console.WriteLine("next sigma={0}", sigmaP);
 
                 // Compute K_next using the formula above.
                 UpdateKPolynomialWithQuadraticShift(poly_quotient,
@@ -487,7 +526,7 @@ namespace WWMath {
 
         /// <summary>
         /// 変数xの多項式polyを(x-p)で割った商の多項式と、x==pのときpolyの取る値を得る。
-        /// synthetic divisionについては https://www.khanacademy.org/math/algebra2/arithmetic-with-polynomials/synthetic-division-of-polynomials/v/synthetic-division
+        /// synthetic divisionについては https://www.khanacademy.org/math/algebra2/arithmetic-with-polynomials#synthetic-division-of-polynomials
         /// </summary>
         private DivisionResultOfFirstOrderPoly
         SyntheticDivisionAndEvaluate(RealPolynomial poly, double p) {
@@ -524,6 +563,53 @@ namespace WWMath {
             return result;
         }
 
+        public class SyntheticDivisionResult {
+            public RealPolynomial quotient;
+            public RealPolynomial remainder;
+        };
+
+        /// <summary>
+        /// Perform division of a poly by a quadratic factor. The quadratic divisor
+        /// should have leading 1s.
+        /// </summary>
+        public SyntheticDivisionResult QuadraticSyntheticDivision(RealPolynomial poly, RealPolynomial divisor) {
+            System.Diagnostics.Debug.Assert(divisor.Degree == 2);
+
+            var r = new SyntheticDivisionResult();
+            var quotient = new double[poly.Degree-1];
+            var remainder = new double[2];
+
+            quotient[quotient.Length-1] = poly.C(poly.Degree);
+
+            if (quotient.Length == 1) {
+                // If the quotient is a constant then poly is degree 2 and the math is
+                // simple.
+                // polynomialが2次の時quotientが定数になる。このとき
+
+                // 余りの1次の項
+                for (int i=1; 0<=i; --i) {
+                    remainder[i] = poly.C(i) - poly.C(2) * divisor.C(i);
+                }
+                r.quotient = new RealPolynomial(quotient);
+                r.remainder = new RealPolynomial(remainder);
+                return r;
+            }
+
+            quotient[quotient.Length-2] = poly.C(poly.Degree-1) - poly.C(poly.Degree) * divisor.C(divisor.Degree-1);
+            for (int i = 2; i < poly.Degree - 1; i++) {
+                quotient[quotient.Length-1-i] = poly.C(poly.Degree-i)
+                    - quotient[quotient.Length-1-(i - 2)] * divisor.C(0)
+                    - quotient[quotient.Length-1-(i - 1)] * divisor.C(1);
+            }
+
+            remainder[1] = poly.C(1) - divisor.C(1) * quotient[0] - divisor.C(0) * quotient[1];
+            remainder[0] = poly.C(0) - divisor.C(0) * quotient[0];
+            r.quotient = new RealPolynomial(quotient);
+            r.remainder = new RealPolynomial(remainder);
+            return r;
+        }
+
+
         private void AddRootToOutput(WWComplex root) {
             mRoots.Add(root);
         }
@@ -541,21 +627,22 @@ namespace WWMath {
                 sigmaP = new RealPolynomial(sigma);
             }
 
+            Console.WriteLine("sigma={0}", sigmaP);
+
             // Compute the quotient and remainder for divinding P by the quadratic
             // divisor. Since this iteration involves a fixed-shift sigma these may be
             // computed once prior to any iterations.
             RealPolynomial polyQuotient, polyRemainder;
             {
-                var r = WWPolynomial.AlgebraicLongDivision(mPoly, sigmaP);
+                var r = QuadraticSyntheticDivision(mPoly, sigmaP);
                 polyQuotient = r.quotient;
-                polyRemainder = r.remainder.ToPolynomial();
-                System.Diagnostics.Debug.Assert(polyRemainder != null);
+                polyRemainder = r.remainder;
             }
 
             // Compute a and b from the above equations.
             // このa,bは後で使用する。
             double b = polyRemainder.C(1);
-            double a = polyRemainder.C(0) - b * sigmaP.C(0);
+            double a = polyRemainder.C(0) - b * sigmaP.C(1);
 
             // Precompute P(s) for later using the equation above.
             WWComplex pAtRoot = WWComplex.Sub(new WWComplex(a, 0), root.ComplexConjugate().Scale(b));
@@ -569,34 +656,41 @@ namespace WWMath {
             }
 
             var sigmaλ = new double[3];
+            // sigmaλは0初期化されている。
 
             RealPolynomial kPolyQuotient, kPolyRemainder;
             for (int i = 0; i < max_iterations; i++) {
                 mKPoly = mKPoly.Scale(1.0 / mKPoly.C(mKPoly.Degree));
 
-                // Divide the shifted polynomial by the quadratic polynomial.
+                // Divide the shifted poly by the quadratic poly.
                 {
-                    var r = WWPolynomial.AlgebraicLongDivision(mKPoly, sigmaP);
+                    var r = QuadraticSyntheticDivision(mKPoly, sigmaP);
                     kPolyQuotient = r.quotient;
-                    kPolyRemainder = r.remainder.ToPolynomial();
-                    System.Diagnostics.Debug.Assert(kPolyRemainder != null);
+                    kPolyRemainder = r.remainder;
                 }
                 double d = kPolyRemainder.C(1);
-                double c = kPolyRemainder.C(1) - d * sigmaP.C(0);
+                double c = kPolyRemainder.C(0) - d * sigmaP.C(1);
 
                 // Test for convergence.
                 var variableShiftSigma = ComputeNextSigma(a,b,c,d,sigmaP);
+
+                Console.WriteLine("variableShiftSigma={0}", variableShiftSigma);
+
                 var kAtRoot = WWComplex.Sub(new WWComplex(c,0), root.ComplexConjugate().Scale(d));
 
                 // t_lambdaの2次の項←t_lambdaの1次の項
                 // t_lambdaの1次の項←t_lambdaの定数項
                 tλ[2] = tλ[1];
                 tλ[1] = tλ[0];
-                tλ[0] = WWComplex.Sub(root, WWComplex.Div(pAtRoot, kAtRoot).Minus());
+                tλ[0] = WWComplex.Sub(root, WWComplex.Div(pAtRoot, kAtRoot));
 
                 sigmaλ[2] = sigmaλ[1];
                 sigmaλ[1] = sigmaλ[0];
                 sigmaλ[0] = variableShiftSigma.C(0);
+
+                Console.WriteLine("i={0} a={1} b={2} c={3} d={4}", i, a, b, c, d);
+                Console.WriteLine("sigma_lambda={0}", new RealPolynomial(sigmaλ));
+                Console.WriteLine("t_lambda={0}", new ComplexPolynomial(tλ));
 
                 // Return with the convergence code if the sequence has converged.
                 if (HasConverged(sigmaλ)) {
@@ -704,9 +798,13 @@ namespace WWMath {
             linearPoly[1] = 1.0;
             linearPoly[0] = -(a * c + sigmaP.C(1) * a * d + sigmaP.C(0) * b * d) / (b * c - a * d);
 
+            Console.WriteLine("coeff_q_k={0}", coefficient_q_k);
+
             mKPoly = WWPolynomial.Add(
                 kPolyQuotient.Scale(coefficient_q_k),
                 WWPolynomial.Mul(new RealPolynomial(linearPoly), polyQuotient)).AddConstant(b);
+
+            Console.WriteLine("k_poly={0}", mKPoly);
         }
 
         ///<summary>
@@ -767,7 +865,7 @@ namespace WWMath {
         /// mKPolyが作成され、更新される。
         /// </summary>
         private void ApplyZeroShiftToKPolynomial(int numIterations) {
-            // K0 is the first degree derivative of polynomial.
+            // K0 is the first degree derivative of poly.
             var deriv = mPoly.Derivative();
             mKPoly = deriv.Scale(1.0 / ( mPoly.Degree + 1 ));
 
@@ -777,7 +875,7 @@ namespace WWMath {
         }
 
         /// <summary>
-        /// The k polynomial with a zero-shift is
+        /// The k poly with a zero-shift is
         ///  (K(p) - K(0) / P(0) * P(p)) / p.
         ///
         /// This is equivalent to:
@@ -786,13 +884,13 @@ namespace WWMath {
         ///         p           P(0)          p
         ///
         /// Note that removing the constant term and dividing by p is equivalent to
-        /// shifting the polynomial to one degree lower in our representation.
+        /// shifting the poly to one degree lower in our representation.
         /// 
         /// 要するにこの処理は、0次の項を捨て、1次の項→0次の項、2次の項→1次の項、という要領で項の移動をする。
         /// PについてはさらにKの0次の項÷Pの0次の項を各項に掛ける。
         /// </summary>
         private RealPolynomial ComputeZeroShiftKPolynomial(RealPolynomial k) {
-            // Evaluating the polynomial at zero is equivalent to the constant term
+            // Evaluating the poly at zero is equivalent to the constant term
             // (i.e. the last coefficient). Note that reverse() is an expression and does
             // not actually reverse the vector elements.
 
@@ -803,9 +901,9 @@ namespace WWMath {
         }
 
         /// <summary>
-        /// Computes a lower bound on the radius of the roots of polynomial by examining the Cauchy sequence:
+        /// Computes a lower bound on the radius of the roots of poly by examining the Cauchy sequence:
         ///    z^n + |a_1| * z^{n - 1} + ... + |a_{n-1}| * z - |a_n|
-        /// The unique positive zero of this polynomial is an approximate lower bound of the radius of zeros of the original polynomial.
+        /// The unique positive zero of this poly is an approximate lower bound of the radius of zeros of the original poly.
         /// </summary>
         private double ComputeRootRadius() {
             // 係数がすべて正で、定数が負の多項式を作る。
@@ -888,13 +986,312 @@ namespace WWMath {
             return true;
         }
 
+        private static void EXPECT_EQ(bool a, bool b) {
+            System.Diagnostics.Debug.Assert(a == b);
+        }
+
+        private static void EXPECT_EQ(int a, int b) {
+            System.Diagnostics.Debug.Assert(a == b);
+        }
+
+        private static void EXPECT_NEAR(double a, double b, double tolerance) {
+            System.Diagnostics.Debug.Assert(Math.Abs(a-b) < tolerance);
+        }
+
+        private static void EXPECT_NEAR(WWComplex a, WWComplex b, double tolerance) {
+            System.Diagnostics.Debug.Assert(WWComplex.Sub(a, b).Magnitude() < tolerance);
+        }
+
+        // Return the polynomial p(x) = poly(x) * (x - root).
+        private static double [] AddRealRoot(double [] poly, double root) {
+            var poly2 = new double[poly.Length+1];
+            for (int i = 0; i < poly.Length; ++i) {
+                poly2[i + 1] = poly[i];
+            }
+            for (int i = 0; i < poly.Length; ++i) {
+                poly2[i] -= root * poly[i];
+            }
+            return poly2;
+        }
+
+        // p(x) = poly(x) * (x - real - imag*i) * (x - real + imag*i).
+        private static double [] AddComplexRootPair(
+                double [] poly, double real, double imag) {
+            var poly2 = new double[poly.Length + 2];
+            // Multiply poly by x^2 - 2real + abs(real,imag)^2
+            for (int i = 0; i < poly.Length; ++i) {
+                poly2[i + 2] = poly[i];
+            }
+            for (int i = 0; i < poly.Length; ++i) {
+                poly2[i + 1] -= 2 * real * poly[i];
+            }
+            for (int i = 0; i < poly.Length; ++i) {
+                poly2[i] += (real * real + imag * imag) * poly[i];
+            }
+
+            return poly2;
+        }
+
+        // Sort the entries in a vector.
+        // Needed because the roots are not returned in sorted order.
+        private static double [] SortArray(double [] inp) {
+            var outp = new double[inp.Length];
+            Array.Copy(inp,outp, inp.Length);
+            Array.Sort(outp);
+            return outp;
+        }
+        
+        private class WWComplexComparer : IComparer {
+            int IComparer.Compare(Object x, Object y) {
+                var cL = x as WWComplex;
+                var cR = y as WWComplex;
+                if (cL.real != cR.real) {
+                    return (cR.real < cL.real) ? 1 : -1;
+                }
+                if (cL.imaginary != cR.imaginary) {
+                    return (cR.imaginary < cL.imaginary) ? 1 : -1;
+                }
+                return 0;
+            }
+
+        }
+
+        private static WWComplex[] SortArray(WWComplex[] inp) {
+            var outp = new WWComplex[inp.Length];
+            Array.Copy(inp, outp, inp.Length);
+            Array.Sort(outp, new WWComplexComparer());
+            return outp;
+        }
+
+        private static void ExpectArraysNear(WWComplex [] a, WWComplex[] b, double tolerance) {
+            System.Diagnostics.Debug.Assert(a.Length == b.Length);
+            for (int i = 0; i < a.Length; i++) {
+                EXPECT_NEAR(a[i], b[i], tolerance);
+            }
+        }
+
+        private static void RunPolynomialTestRealRoots(double [] real_roots, double epsilon) {
+            var poly = new double[] { 1.23 };
+            for (int i = 0; i < real_roots.Length; ++i) {
+                poly = AddRealRoot(poly, real_roots[i]);
+            }
+
+            var rpoly = new JenkinsTraubRpoly();
+            bool success = rpoly.FindRoots(new RealPolynomial(poly));
+            EXPECT_EQ(success, true);
+            EXPECT_EQ(rpoly.NumOfRoots(), real_roots.Length);
+            
+            var roots = rpoly.RootArray();
+            roots = SortArray(roots);
+
+            var real_roots_complex = new WWComplex[real_roots.Length];
+            for (int i = 0; i < real_roots.Length; ++i) {
+                real_roots_complex[i] = new WWComplex(real_roots[i], 0);
+            }
+
+            ExpectArraysNear(roots, real_roots_complex, epsilon);
+        }
+
+        // For IEEE-754 doubles, machine precision is about 2e-16.
+        private const double kEpsilon = 1e-12;
+        private const double kEpsilonLoose = 1e-10;
+
         public static void Test() {
+            {
+                var rpoly = new JenkinsTraubRpoly();
+                rpoly.FindRoots(new RealPolynomial(new double[] { -6, 11, -6, 1 }));
+                rpoly.PrintRoots();
+                System.Diagnostics.Debug.Assert(AlmostEquals(rpoly.RootArray(),
+                    new WWComplex[] { new WWComplex(1, 0), new WWComplex(2, 0), new WWComplex(3, 0) }));
+            }
+
+            {
+                var rpoly = new JenkinsTraubRpoly();
+                bool success = rpoly.FindRoots(new RealPolynomial(new double[]{}));
+                EXPECT_EQ(success, false);
+            }
+
+            {
+                var rpoly = new JenkinsTraubRpoly();
+                bool success = rpoly.FindRoots(new RealPolynomial(new double[]{1.23}));
+                EXPECT_EQ(success, true);
+                EXPECT_EQ(rpoly.NumOfRoots(), 0);
+            }
+
+            {
+                var roots = new double [] { 42.42 };
+                RunPolynomialTestRealRoots(roots, kEpsilon);
+            }
+
+            {
+                var roots = new double [] { -42.42 };
+                RunPolynomialTestRealRoots(roots, kEpsilon);
+            }
+
+             {
+                var roots =new double [] { 1.0, 42.42 };
+                RunPolynomialTestRealRoots(roots,  kEpsilon);
+            }
+
+             {
+                var roots =new double [] { -42.42, 1.0 };
+                RunPolynomialTestRealRoots(roots, kEpsilon);
+            }
+
+             {
+                var roots =new double [] { -42.42, -1.0 };
+                RunPolynomialTestRealRoots(roots,  kEpsilon);
+            }
+
+             {
+                 var roots = new double[] { 42.42, 42.43 };
+                RunPolynomialTestRealRoots(roots,  kEpsilonLoose);
+            }
+
+            {
+                var poly = new double[] {1.23};
+                poly = AddComplexRootPair(poly, 42.42, 4.2);
+
+                var rpoly = new JenkinsTraubRpoly();
+                bool success = rpoly.FindRoots(new RealPolynomial(poly));
+
+                EXPECT_EQ(success, true);
+                EXPECT_EQ(rpoly.NumOfRoots(), 2);
+                EXPECT_NEAR(rpoly.Root(0).real, 42.42, kEpsilon);
+                EXPECT_NEAR(rpoly.Root(1).real, 42.42, kEpsilon);
+                EXPECT_NEAR(Math.Abs(rpoly.Root(0).imaginary), 4.2, kEpsilon);
+                EXPECT_NEAR(Math.Abs(rpoly.Root(1).imaginary), 4.2, kEpsilon);
+                EXPECT_NEAR(Math.Abs(rpoly.Root(0).imaginary + rpoly.Root(1).imaginary), 0.0, kEpsilon);
+            }
+
+             {
+                var roots = new double [] { 1.23e-4, 1.23e-1, 1.23e+2, 1.23e+5 };
+                RunPolynomialTestRealRoots(roots,  kEpsilonLoose);
+            }
+
+             {
+                var roots = new double [] { 1.23e-1, 2.46e-1, 1.23e+5, 2.46e+5 };
+                RunPolynomialTestRealRoots(roots, kEpsilonLoose);
+            }
+
+             {
+                var roots = new double [] { -42.42, 0.0, 0.0, 42.42 };
+                RunPolynomialTestRealRoots(roots, kEpsilonLoose);
+            }
+
+             {
+                var roots = new double [] { 0.0, 0.0, 0.0, 0.0 };
+                RunPolynomialTestRealRoots(roots, kEpsilon);
+            }
+
+             /*
+             for (int i=0; i<10000; ++i) {
+                 const int N = 10;
+                 var poly = new double[] {1.23};
+                 var roots = new double[N];
+                 var rand = new Random();
+                 for (int j=0; j<N; ++j) {
+                     roots[j] = rand.NextDouble();
+                 }
+
+                 roots = SortArray(roots);
+
+                 for (int j = 0; j < N; ++j) {
+                     poly = AddRealRoot(poly, roots[j]);
+                 }
+
+                 var polyP = new RealPolynomial(poly);
+
+                 var rpoly = new JenkinsTraubRpoly();
+                 bool success = rpoly.FindRoots(polyP);
+                 var real = rpoly.RootArray();
+                 real = SortArray(real);
+                 EXPECT_EQ(success, true);
+                 EXPECT_EQ((int)real.Length, N);
+                 for (int j = 0; j < real.Length; j++) {
+                     EXPECT_NEAR(polyP.Evaluate(real[j]), WWComplex.Zero(), kEpsilonLoose);
+                 }
+             }
+             Console.WriteLine("");
+             */
+
+             /*
+              {
+                 Eigen::VectorXd polynomial(11);
+                 Eigen::VectorXd roots_re(10);
+                 Eigen::VectorXd roots_im(10);
+
+                 polynomial(10) = -52412.8655144021;
+                 polynomial(9) = -28342.548095425875;
+                 polynomial(8) = 20409.84088622263;
+                 polynomial(7) = 25844.743360023815;
+                 polynomial(6) = 11474.831044766257;
+                 polynomial(5) = 1909.2968243041091;
+                 polynomial(4) = -692.3579951742573;
+                 polynomial(3) = -562.5089223272787;
+                 polynomial(2) = -105.89974320540716;
+                 polynomial(1) = 18.62488243410351;
+                 polynomial(0) = 5.576312106019016;
+
+                 EXPECT_TRUE(
+                 rpoly_plus_plus::FindPolynomialRootsJenkinsTraub(polynomial, &roots_re, &roots_im));
+             }
+
+              {
+                 Eigen::VectorXd polynomial(20);
+                 Eigen::VectorXd roots_re(19);
+                 Eigen::VectorXd roots_im(19);
+
+                 polynomial(19) = -3.3501738067312306e8;
+                 polynomial(18) = -6.884086124142883e8;
+                 polynomial(17) = 7.702813653628246e8;
+                 polynomial(16) = 8.451429594854779e8;
+                 polynomial(15) = -7.822417923012168e8;
+                 polynomial(14) = -2.0621500003041908e8;
+                 polynomial(13) = 2.71193932055516e8;
+                 polynomial(12) = 2191206.652049609;
+                 polynomial(11) = -4.3103846059516795e7;
+                 polynomial(10) = 3893518.9815099635;
+                 polynomial(9) = 4037788.101972703;
+                 polynomial(8) = -541891.2574823081;
+                 polynomial(7) = -260979.552665553;
+                 polynomial(6) = 38001.29427556511;
+                 polynomial(5) = 12074.712839195976;
+                 polynomial(4) = -1512.0183242937462;
+                 polynomial(3) = -388.5049059868163;
+                 polynomial(2) = 27.301047297669705;
+                 polynomial(1) = 6.8768381102442575;
+                 polynomial(0) = 0;
+
+                 EXPECT_TRUE(
+                 rpoly_plus_plus::FindPolynomialRootsJenkinsTraub(polynomial, &roots_re, &roots_im));
+             }
+             */
+
+            {
+                var rpoly = new JenkinsTraubRpoly();
+                var r1 = rpoly.QuadraticSyntheticDivision(new RealPolynomial(new double[] { 1, 1, 1 }), new RealPolynomial(new double[] { 0, 0, 1 }));
+
+                var r2 = WWPolynomial.AlgebraicLongDivision(new RealPolynomial(new double[] { 1, 1, 1 }), new RealPolynomial(new double[] { 0, 0, 1 }));
+                Console.WriteLine("r1 q={0} r={1}", r1.quotient, r1.remainder);
+                Console.WriteLine("r2 q={0} r={1}", r2.quotient, r2.remainder);
+            }
+
+            {
+                var rpoly = new JenkinsTraubRpoly();
+                var r1 = rpoly.QuadraticSyntheticDivision(new RealPolynomial(new double[] { 4, 3, 2, 1 }), new RealPolynomial(new double[] { 0, 0, 1 }));
+
+                var r2 = WWPolynomial.AlgebraicLongDivision(new RealPolynomial(new double[] { 4, 3, 2, 1 }), new RealPolynomial(new double[] { 0, 0, 1 }));
+                Console.WriteLine("r1 q={0} r={1}", r1.quotient, r1.remainder);
+                Console.WriteLine("r2 q={0} r={1}", r2.quotient, r2.remainder);
+            }
+
             {
                 var rpoly = new JenkinsTraubRpoly();
                 rpoly.FindRoots(new RealPolynomial(new double[] { 0, 0, 1 }));
                 rpoly.PrintRoots();
                 System.Diagnostics.Debug.Assert(AlmostEquals(rpoly.RootArray(),
-                    new WWComplex[] { WWComplex.Zero(), WWComplex.Zero()}));
+                    new WWComplex[] { WWComplex.Zero(), WWComplex.Zero() }));
             }
 
             {

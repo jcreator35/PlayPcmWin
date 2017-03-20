@@ -6,7 +6,7 @@ namespace WWMath {
         private readonly WWComplex[] denom = new WWComplex[3];
 
         /// <summary>
-        /// rational polynomial
+        /// rational poly
         ///   n2x^2 + n1x + n0
         ///  ------------------
         ///   d2x^2 + d1x + d0

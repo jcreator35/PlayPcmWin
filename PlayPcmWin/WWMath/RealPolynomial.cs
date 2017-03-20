@@ -37,7 +37,7 @@ namespace WWMath {
         public RealPolynomial Normalize() {
             var p = RemoveLeadingZeros();
             if (p.Degree == 0) {
-                throw new ArithmeticException("polynomial degree is zero");
+                throw new ArithmeticException("poly degree is zero");
             }
             
             var c = new double[p.Degree + 1];
@@ -116,7 +116,7 @@ namespace WWMath {
         }
 
         /// <summary>
-        /// calc derivative of all-real polynomial
+        /// calc derivative of all-real poly
         /// </summary>
         /// <returns>derivative</returns>
         public RealPolynomial Derivative() {
@@ -135,7 +135,7 @@ namespace WWMath {
         }
 
         /// <summary>
-        /// Calculate all-real polynomial value at position p
+        /// Calculate all-real poly value at position p
         /// </summary>
         /// <param name="p">p position</param>
         /// <returns>y</returns>
