@@ -80,7 +80,32 @@ namespace WWIIRFilterDesign {
                 mH_z = WWPolynomial.Add(mH_z, mHzList[i]);
             }
 
-            //Console.WriteLine(mH_z.ToString("z", WWUtil.SymbolOrder.Inverted));
+            // ミニマムフェーズにする。
+            {
+                var numerPoly = mH_z.NumerPolynomial();
+                var aCoeffs = new double[numerPoly.Degree+1];
+                for (int i=0; i<aCoeffs.Length; ++i) {
+                    aCoeffs[i] = numerPoly.C(i).real;
+                }
+
+                var rpoly = new JenkinsTraubRpoly();
+                bool result = rpoly.FindRoots(new RealPolynomial(aCoeffs));
+                if (result) {
+                    var zeroes = rpoly.RootArray();
+                    for (int i = 0; i < zeroes.Length; ++i) {
+                        // 単位円の外側にゼロがあるので逆数にする。
+                        if (zeroes[i].Magnitude() < 1.0) {
+                            zeroes[i] = zeroes[i].Reciplocal();
+                        }
+                    }
+
+                    var newNumerCoeffs = WWPolynomial.RootListToCoeffList(zeroes, WWComplex.Unity());
+                    var poleCoeffs = mH_z.DenomPolynomial().ToArray();
+                    mH_z = new HighOrderComplexRationalPolynomial(newNumerCoeffs, poleCoeffs);
+                }
+            }
+
+            Console.WriteLine(mH_z.ToString("z", WWUtil.SymbolOrder.Inverted, "j"));
 
             TransferFunction = (WWComplex z) => { return TransferFunctionValue(z); };
         }

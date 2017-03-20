@@ -49,12 +49,14 @@ namespace WWMath {
         public static WWComplex Add(WWComplex lhs, WWComplex rhs) {
             return new WWComplex(lhs.real+rhs.real, lhs.imaginary+rhs.imaginary);
         }
+
         /// <summary>
         /// create copy and copy := L - R, returns copy.
         /// </summary>
         public static WWComplex Sub(WWComplex lhs, WWComplex rhs) {
             return new WWComplex(lhs.real - rhs.real, lhs.imaginary - rhs.imaginary);
         }
+
         /// <summary>
         /// create copy and copy := L * R, returns copy.
         /// </summary>
@@ -75,15 +77,26 @@ namespace WWMath {
 #endif
             return new WWComplex(real,imaginary);
         }
+
         public static WWComplex Mul(WWComplex lhs, double v) {
             return new WWComplex(lhs.real * v, lhs.imaginary * v);
         }
+
         public static WWComplex Reciprocal(WWComplex uni) {
             double sq = uni.real * uni.real + uni.imaginary * uni.imaginary;
             double real = uni.real / sq;
             double imaginary = -uni.imaginary / sq;
             return new WWComplex(real, imaginary);
         }
+
+        /// <summary>
+        /// returns reciprocal. this instance is not changed.
+        /// </summary>
+        /// <returns></returns>
+        public WWComplex Reciplocal() {
+            return WWComplex.Reciprocal(this);
+        }
+
         /// <summary>
         /// create copy and copy := L / R, returns copy.
         /// </summary>
@@ -91,10 +104,12 @@ namespace WWMath {
             var recip = Reciprocal(rhs);
             return Mul(lhs, recip);
         }
+
         public static WWComplex Div(WWComplex lhs, double rhs) {
             var recip = 1.0 / rhs;
             return Mul(lhs, recip);
         }
+
         /// <summary>
         /// create copy and copy := -uni, returns copy.
         /// argument value is not changed.
