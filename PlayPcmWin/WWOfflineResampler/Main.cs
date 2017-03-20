@@ -8,7 +8,7 @@ using WWMath;
 namespace WWOfflineResampler {
     class Main {
         private const double CUTOFF_GAIN_DB = -1.0;
-        private const double STOPBAND_RIPPLE_DB = -16; //-110;
+        private const double STOPBAND_RIPPLE_DB = -110;
         private const double CUTOFF_RATIO_OF_NYQUIST = 0.9;
 
         public const int START_PERCENT = 5;

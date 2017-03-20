@@ -50,6 +50,14 @@ namespace WWMath {
             return denom[nth];
         }
 
+        public ComplexPolynomial NumerPolynomial() {
+            return new ComplexPolynomial(numer);
+        }
+
+        public ComplexPolynomial DenomPolynomial() {
+            return new ComplexPolynomial(denom);
+        }
+
         public override int Degree() {
             int order = NumerDegree();
             if (order < DenomDegree()) {

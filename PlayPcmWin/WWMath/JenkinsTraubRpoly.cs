@@ -231,8 +231,19 @@ namespace WWMath {
                 result[0] = new WWComplex(x1, 0);
                 result[1] = new WWComplex(x2, 0);
             } else {
-                result[0] = new WWComplex(-b / 2 / a, Math.Sqrt(-discriminant) / 2 / a);
-                result[1] = new WWComplex(-b / 2 / a, -Math.Sqrt(-discriminant) / 2 / a);
+                WWComplex x1;
+                WWComplex x2;
+
+                if (0 <= b) {
+                    x1 = new WWComplex(-b / 2 / a, -Math.Sqrt(-discriminant) / 2 / a);
+                    x2 = WWComplex.Div(new WWComplex(2 * c, 0), new WWComplex(-b, -Math.Sqrt(-discriminant)));
+                } else {
+                    x1 = WWComplex.Div(new WWComplex(2 * c, 0), new WWComplex(-b, Math.Sqrt(-discriminant)));
+                    x2 = new WWComplex(-b / 2 / a, Math.Sqrt(-discriminant) / 2 / a);
+                }
+
+                result[0] = x1;
+                result[1] = x2;
             }
 
             return result;
@@ -367,9 +378,13 @@ namespace WWMath {
                     var new_root = new WWComplex(realRoot, 0);
 
                     Console.WriteLine("we may found a double real root");
-                    mAttemptedLinearShift = true;
-                    return ApplyQuadraticShiftToKPolynomial(new_root,
+                    bool r = ApplyQuadraticShiftToKPolynomial(new_root,
                         kMaxQuadraticShiftIterations);
+                    if (r) {
+                        return true;
+                    } else {
+                        Console.WriteLine("Quadratic Shift attempted and failed");
+                    }
                 }
             }
 
@@ -461,7 +476,12 @@ namespace WWMath {
                 if (Math.Abs(Math.Abs(roots[0].real) - Math.Abs(roots[1].real)) >
                         kRootPairTolerance * Math.Abs(roots[1].real)) {
                     mAttemptedQuadraticShift = true;
-                    return ApplyLinearShiftToKPolynomial(root, kMaxLinearShiftIterations);
+                    bool r = ApplyLinearShiftToKPolynomial(root, kMaxLinearShiftIterations);
+                    if (r) {
+                        return true;
+                    } else {
+                        Console.WriteLine("linear shift tried but failed\n");
+                    }
                 }
 
                 // If the iteration is stalling at a root pair then apply a few fixed shift
@@ -1098,6 +1118,21 @@ namespace WWMath {
 
         public static void Test() {
             {
+                var roots = new double[] { 1.4643848994415114, 1.3072756126590779, 1.0844294564653463, 1.0843989379558703};
+                RunPolynomialTestRealRoots(roots, kEpsilon);
+            }
+
+            {
+                var roots = new double[] { 0.010101626636555006, -0.54582354197820981, -0.79039887691885125};
+                RunPolynomialTestRealRoots(roots, kEpsilon);
+            }
+
+            {
+                var roots = new double[] { 0.82506790368358418, 0.81664479506820897, 0.74382763145847952, 0.043916135135960044, };
+                RunPolynomialTestRealRoots(roots, kEpsilonLoose);
+            }
+
+            {
                 var rpoly = new JenkinsTraubRpoly();
                 rpoly.FindRoots(new RealPolynomial(new double[] { -6, 11, -6, 1 }));
                 rpoly.PrintRoots();
@@ -1107,49 +1142,49 @@ namespace WWMath {
 
             {
                 var rpoly = new JenkinsTraubRpoly();
-                bool success = rpoly.FindRoots(new RealPolynomial(new double[]{}));
+                bool success = rpoly.FindRoots(new RealPolynomial(new double[] { }));
                 EXPECT_EQ(success, false);
             }
 
             {
                 var rpoly = new JenkinsTraubRpoly();
-                bool success = rpoly.FindRoots(new RealPolynomial(new double[]{1.23}));
+                bool success = rpoly.FindRoots(new RealPolynomial(new double[] { 1.23 }));
                 EXPECT_EQ(success, true);
                 EXPECT_EQ(rpoly.NumOfRoots(), 0);
             }
 
             {
-                var roots = new double [] { 42.42 };
+                var roots = new double[] { 42.42 };
                 RunPolynomialTestRealRoots(roots, kEpsilon);
             }
 
             {
-                var roots = new double [] { -42.42 };
+                var roots = new double[] { -42.42 };
                 RunPolynomialTestRealRoots(roots, kEpsilon);
-            }
-
-             {
-                var roots =new double [] { 1.0, 42.42 };
-                RunPolynomialTestRealRoots(roots,  kEpsilon);
-            }
-
-             {
-                var roots =new double [] { -42.42, 1.0 };
-                RunPolynomialTestRealRoots(roots, kEpsilon);
-            }
-
-             {
-                var roots =new double [] { -42.42, -1.0 };
-                RunPolynomialTestRealRoots(roots,  kEpsilon);
-            }
-
-             {
-                 var roots = new double[] { 42.42, 42.43 };
-                RunPolynomialTestRealRoots(roots,  kEpsilonLoose);
             }
 
             {
-                var poly = new double[] {1.23};
+                var roots = new double[] { 1.0, 42.42 };
+                RunPolynomialTestRealRoots(roots, kEpsilon);
+            }
+
+            {
+                var roots = new double[] { -42.42, 1.0 };
+                RunPolynomialTestRealRoots(roots, kEpsilon);
+            }
+
+            {
+                var roots = new double[] { -42.42, -1.0 };
+                RunPolynomialTestRealRoots(roots, kEpsilon);
+            }
+
+            {
+                var roots = new double[] { 42.42, 42.43 };
+                RunPolynomialTestRealRoots(roots, kEpsilonLoose);
+            }
+
+            {
+                var poly = new double[] { 1.23 };
                 poly = AddComplexRootPair(poly, 42.42, 4.2);
 
                 var rpoly = new JenkinsTraubRpoly();
@@ -1164,109 +1199,109 @@ namespace WWMath {
                 EXPECT_NEAR(Math.Abs(rpoly.Root(0).imaginary + rpoly.Root(1).imaginary), 0.0, kEpsilon);
             }
 
-             {
-                var roots = new double [] { 1.23e-4, 1.23e-1, 1.23e+2, 1.23e+5 };
-                RunPolynomialTestRealRoots(roots,  kEpsilonLoose);
-            }
-
-             {
-                var roots = new double [] { 1.23e-1, 2.46e-1, 1.23e+5, 2.46e+5 };
+            {
+                var roots = new double[] { 1.23e-4, 1.23e-1, 1.23e+2, 1.23e+5 };
                 RunPolynomialTestRealRoots(roots, kEpsilonLoose);
             }
 
-             {
-                var roots = new double [] { -42.42, 0.0, 0.0, 42.42 };
+            {
+                var roots = new double[] { 1.23e-1, 2.46e-1, 1.23e+5, 2.46e+5 };
                 RunPolynomialTestRealRoots(roots, kEpsilonLoose);
             }
 
-             {
-                var roots = new double [] { 0.0, 0.0, 0.0, 0.0 };
+            {
+                var roots = new double[] { -42.42, 0.0, 0.0, 42.42 };
+                RunPolynomialTestRealRoots(roots, kEpsilonLoose);
+            }
+
+            {
+                var roots = new double[] { 0.0, 0.0, 0.0, 0.0 };
                 RunPolynomialTestRealRoots(roots, kEpsilon);
             }
 
-             /*
-             for (int i=0; i<10000; ++i) {
-                 const int N = 10;
-                 var poly = new double[] {1.23};
-                 var roots = new double[N];
-                 var rand = new Random();
-                 for (int j=0; j<N; ++j) {
-                     roots[j] = rand.NextDouble();
-                 }
+            /*
+            for (int i=0; i<10000; ++i) {
+                const int N = 10;
+                var poly = new double[] {1.23};
+                var roots = new double[N];
+                var rand = new Random();
+                for (int j=0; j<N; ++j) {
+                    roots[j] = rand.NextDouble();
+                }
 
-                 roots = SortArray(roots);
+                roots = SortArray(roots);
 
-                 for (int j = 0; j < N; ++j) {
-                     poly = AddRealRoot(poly, roots[j]);
-                 }
+                for (int j = 0; j < N; ++j) {
+                    poly = AddRealRoot(poly, roots[j]);
+                }
 
-                 var polyP = new RealPolynomial(poly);
+                var polyP = new RealPolynomial(poly);
 
-                 var rpoly = new JenkinsTraubRpoly();
-                 bool success = rpoly.FindRoots(polyP);
-                 var real = rpoly.RootArray();
-                 real = SortArray(real);
-                 EXPECT_EQ(success, true);
-                 EXPECT_EQ((int)real.Length, N);
-                 for (int j = 0; j < real.Length; j++) {
-                     EXPECT_NEAR(polyP.Evaluate(real[j]), WWComplex.Zero(), kEpsilonLoose);
-                 }
-             }
-             Console.WriteLine("");
-             */
+                var rpoly = new JenkinsTraubRpoly();
+                bool success = rpoly.FindRoots(polyP);
+                var real = rpoly.RootArray();
+                real = SortArray(real);
+                EXPECT_EQ(success, true);
+                EXPECT_EQ((int)real.Length, N);
+                for (int j = 0; j < real.Length; j++) {
+                    EXPECT_NEAR(polyP.Evaluate(real[j]), WWComplex.Zero(), kEpsilonLoose);
+                }
+            }
+            Console.WriteLine("");
+            */
 
-             /*
-              {
-                 Eigen::VectorXd polynomial(11);
-                 Eigen::VectorXd roots_re(10);
-                 Eigen::VectorXd roots_im(10);
+            /*
+             {
+                Eigen::VectorXd polynomial(11);
+                Eigen::VectorXd roots_re(10);
+                Eigen::VectorXd roots_im(10);
 
-                 polynomial(10) = -52412.8655144021;
-                 polynomial(9) = -28342.548095425875;
-                 polynomial(8) = 20409.84088622263;
-                 polynomial(7) = 25844.743360023815;
-                 polynomial(6) = 11474.831044766257;
-                 polynomial(5) = 1909.2968243041091;
-                 polynomial(4) = -692.3579951742573;
-                 polynomial(3) = -562.5089223272787;
-                 polynomial(2) = -105.89974320540716;
-                 polynomial(1) = 18.62488243410351;
-                 polynomial(0) = 5.576312106019016;
+                polynomial(10) = -52412.8655144021;
+                polynomial(9) = -28342.548095425875;
+                polynomial(8) = 20409.84088622263;
+                polynomial(7) = 25844.743360023815;
+                polynomial(6) = 11474.831044766257;
+                polynomial(5) = 1909.2968243041091;
+                polynomial(4) = -692.3579951742573;
+                polynomial(3) = -562.5089223272787;
+                polynomial(2) = -105.89974320540716;
+                polynomial(1) = 18.62488243410351;
+                polynomial(0) = 5.576312106019016;
 
-                 EXPECT_TRUE(
-                 rpoly_plus_plus::FindPolynomialRootsJenkinsTraub(polynomial, &roots_re, &roots_im));
-             }
+                EXPECT_TRUE(
+                rpoly_plus_plus::FindPolynomialRootsJenkinsTraub(polynomial, &roots_re, &roots_im));
+            }
 
-              {
-                 Eigen::VectorXd polynomial(20);
-                 Eigen::VectorXd roots_re(19);
-                 Eigen::VectorXd roots_im(19);
+             {
+                Eigen::VectorXd polynomial(20);
+                Eigen::VectorXd roots_re(19);
+                Eigen::VectorXd roots_im(19);
 
-                 polynomial(19) = -3.3501738067312306e8;
-                 polynomial(18) = -6.884086124142883e8;
-                 polynomial(17) = 7.702813653628246e8;
-                 polynomial(16) = 8.451429594854779e8;
-                 polynomial(15) = -7.822417923012168e8;
-                 polynomial(14) = -2.0621500003041908e8;
-                 polynomial(13) = 2.71193932055516e8;
-                 polynomial(12) = 2191206.652049609;
-                 polynomial(11) = -4.3103846059516795e7;
-                 polynomial(10) = 3893518.9815099635;
-                 polynomial(9) = 4037788.101972703;
-                 polynomial(8) = -541891.2574823081;
-                 polynomial(7) = -260979.552665553;
-                 polynomial(6) = 38001.29427556511;
-                 polynomial(5) = 12074.712839195976;
-                 polynomial(4) = -1512.0183242937462;
-                 polynomial(3) = -388.5049059868163;
-                 polynomial(2) = 27.301047297669705;
-                 polynomial(1) = 6.8768381102442575;
-                 polynomial(0) = 0;
+                polynomial(19) = -3.3501738067312306e8;
+                polynomial(18) = -6.884086124142883e8;
+                polynomial(17) = 7.702813653628246e8;
+                polynomial(16) = 8.451429594854779e8;
+                polynomial(15) = -7.822417923012168e8;
+                polynomial(14) = -2.0621500003041908e8;
+                polynomial(13) = 2.71193932055516e8;
+                polynomial(12) = 2191206.652049609;
+                polynomial(11) = -4.3103846059516795e7;
+                polynomial(10) = 3893518.9815099635;
+                polynomial(9) = 4037788.101972703;
+                polynomial(8) = -541891.2574823081;
+                polynomial(7) = -260979.552665553;
+                polynomial(6) = 38001.29427556511;
+                polynomial(5) = 12074.712839195976;
+                polynomial(4) = -1512.0183242937462;
+                polynomial(3) = -388.5049059868163;
+                polynomial(2) = 27.301047297669705;
+                polynomial(1) = 6.8768381102442575;
+                polynomial(0) = 0;
 
-                 EXPECT_TRUE(
-                 rpoly_plus_plus::FindPolynomialRootsJenkinsTraub(polynomial, &roots_re, &roots_im));
-             }
-             */
+                EXPECT_TRUE(
+                rpoly_plus_plus::FindPolynomialRootsJenkinsTraub(polynomial, &roots_re, &roots_im));
+            }
+            */
 
             {
                 var rpoly = new JenkinsTraubRpoly();

@@ -70,8 +70,8 @@ namespace WWOfflineResampler {
             mState = State.Ready;
             Update();
 
-            JenkinsTraubRpoly.Test();
-            PolynomialRootFinding.Test();
+            //JenkinsTraubRpoly.Test();
+            //PolynomialRootFinding.Test();
             WWPolynomial.Test();
             NewtonsMethod.Test();
 #if false
@@ -200,20 +200,23 @@ namespace WWOfflineResampler {
                     // 零の位置を計算する。
                     // 合体したH(z)の分子の実係数多項式の根が零の位置。
                     HighOrderComplexRationalPolynomial HzCombined = mMain.IIRiim().HzCombined();
-                    var coeffs = new List<double>();
-                    for (int i = 0; i < HzCombined.DenomDegree(); ++i) {
-                        coeffs.Add(HzCombined.D(i).real);
-                    }
-                    if ((coeffs.Count & 1) == 0) {
-                        // 奇数次(係数の数が偶数)のときx倍して偶数次にする。
-                        coeffs.Insert(0, 0.0);
+                    var poly = HzCombined.NumerPolynomial();
+                    var coeffs = new double[poly.Degree + 1];
+                    for (int i = 0; i < coeffs.Length; ++i) {
+                        coeffs[i] = poly.C(i).real;
                     }
 
-                    var rf = new PolynomialRootFinding();
-                    var roots = rf.FindRoots(coeffs.ToArray());
-                    foreach (var r in roots) {
-                        mPoleZeroPlotZ.AddZero(WWComplex.Reciprocal(r));
+                    var rf = new JenkinsTraubRpoly();
+                    bool b = rf.FindRoots(new RealPolynomial(coeffs));
+                    if (b) {
+                        var roots = rf.RootArray();
+                        foreach (var r in roots) {
+                            mPoleZeroPlotZ.AddZero(WWComplex.Reciprocal(r));
+                        }
                     }
+
+                    // 自明な零
+                    mPoleZeroPlotZ.AddZero(WWComplex.Zero());
                 }
 
                 mPoleZeroPlotZ.Update();
