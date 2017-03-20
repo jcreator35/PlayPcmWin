@@ -1026,7 +1026,8 @@ namespace WWMath {
 
         private static void EXPECT_NEAR(WWComplex a, WWComplex b, double tolerance) {
             if (!(WWComplex.Sub(a, b).Magnitude() < tolerance)) {
-                Console.WriteLine("EXPECT_NEAR failed");
+                Console.WriteLine("EXPECT_NEAR failed. a={0} b={1} distance={2} tolerance={3}",
+                    a, b, WWComplex.Sub(a, b).Magnitude(), tolerance);
             }
             System.Diagnostics.Debug.Assert(WWComplex.Sub(a, b).Magnitude() < tolerance);
         }
@@ -1126,12 +1127,11 @@ namespace WWMath {
         private const double kEpsilonLoose = 1e-10;
 
         public static void Test() {
-            /*
             {
                 var roots = new double[] { 1.4643848994415114, 1.3072756126590779, 1.0844294564653463, 1.0843989379558703};
                 RunPolynomialTestRealRoots(roots, kEpsilon);
             }
-
+            /*
             {
                 var roots = new double[] { 0.010101626636555006, -0.54582354197820981, -0.79039887691885125};
                 RunPolynomialTestRealRoots(roots, kEpsilon);
@@ -1229,37 +1229,6 @@ namespace WWMath {
                 RunPolynomialTestRealRoots(roots, kEpsilon);
             }
 
-            /*
-            for (int i=0; i<10000; ++i) {
-                const int N = 10;
-                var poly = new double[] {1.23};
-                var roots = new double[N];
-                var rand = new Random();
-                for (int j=0; j<N; ++j) {
-                    roots[j] = rand.NextDouble();
-                }
-
-                roots = SortArray(roots);
-
-                for (int j = 0; j < N; ++j) {
-                    poly = AddRealRoot(poly, roots[j]);
-                }
-
-                var polyP = new RealPolynomial(poly);
-
-                var rpoly = new JenkinsTraubRpoly();
-                bool success = rpoly.FindRoots(polyP);
-                var real = rpoly.RootArray();
-                real = SortArray(real);
-                EXPECT_EQ(success, true);
-                EXPECT_EQ((int)real.Length, N);
-                for (int j = 0; j < real.Length; j++) {
-                    EXPECT_NEAR(polyP.Evaluate(real[j]), WWComplex.Zero(), kEpsilonLoose);
-                }
-            }
-            Console.WriteLine("");
-            */
-
              {
                  var coeffs = new double [] {
                      5.576312106019016,
@@ -1309,7 +1278,7 @@ namespace WWMath {
                 EXPECT_EQ(true, rpoly.FindRoots(new RealPolynomial(coeffs)));
             }
 
-            {
+             {
                 var rpoly = new JenkinsTraubRpoly();
                 var r1 = rpoly.QuadraticSyntheticDivision(new RealPolynomial(new double[] { 1, 1, 1 }), new RealPolynomial(new double[] { 0, 0, 1 }));
 
@@ -1342,6 +1311,51 @@ namespace WWMath {
                 System.Diagnostics.Debug.Assert(AlmostEquals(rpoly.RootArray(),
                     new WWComplex[] { new WWComplex(-1, 0), new WWComplex(-1, 0) }));
             }
+
+            int tick = 0;
+            var rand = new Random(tick);
+
+            for (int k = 0; k < 100000; ++k) {
+                const int N = 4;
+                var roots = new double[N];
+
+                for (int i = 0; i < N; ++i) {
+                    roots[i] = rand.NextDouble();
+                }
+
+                roots = SortArray(roots);
+
+                RealPolynomial polyP;
+                {
+                    var poly = new double[] { 1.23 };
+                    for (int i = 0; i < N; ++i) {
+                        poly = AddRealRoot(poly, roots[i]);
+                    }
+
+                    polyP = new RealPolynomial(poly);
+                }
+                for (int i = 0; i < roots.Length; i++) {
+                    EXPECT_NEAR(polyP.Evaluate(roots[i]), 0, kEpsilonLoose);
+                }
+
+                var rpoly = new JenkinsTraubRpoly();
+                bool success = rpoly.FindRoots(polyP);
+                var calcRoots = rpoly.RootArray();
+                calcRoots = SortArray(calcRoots);
+                EXPECT_EQ(success, true);
+                EXPECT_EQ((int)calcRoots.Length, N);
+
+                Console.WriteLine("Iteration #{0} tick={1}", k, tick);
+                for (int i = 0; i < roots.Length; ++i) {
+                    Console.WriteLine("    in[{0}]={1}, out[{2}]={3}", i, roots[i], i, calcRoots[i]);
+                }
+                for (int i = 0; i < roots.Length; i++) {
+                    EXPECT_NEAR(polyP.Evaluate(calcRoots[i]), WWComplex.Zero(), kEpsilonLoose);
+                }
+                Console.WriteLine("Succeeded ------------------------------");
+            }
+            Console.WriteLine("");
+
         }
 
     }
