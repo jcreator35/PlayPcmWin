@@ -70,7 +70,7 @@ namespace WWOfflineResampler {
             mState = State.Ready;
             Update();
 
-            //JenkinsTraubRpoly.Test();
+            JenkinsTraubRpoly.Test();
             //PolynomialRootFinding.Test();
             WWPolynomial.Test();
             NewtonsMethod.Test();

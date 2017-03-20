@@ -1007,6 +1007,9 @@ namespace WWMath {
         }
 
         private static void EXPECT_EQ(bool a, bool b) {
+            if (a != b) {
+                Console.WriteLine("a != b");
+            }
             System.Diagnostics.Debug.Assert(a == b);
         }
 
@@ -1015,10 +1018,16 @@ namespace WWMath {
         }
 
         private static void EXPECT_NEAR(double a, double b, double tolerance) {
-            System.Diagnostics.Debug.Assert(Math.Abs(a-b) < tolerance);
+            if (!(Math.Abs(a - b) < tolerance)) {
+                Console.WriteLine("EXPECT_NEAR failed");
+            }
+            System.Diagnostics.Debug.Assert(Math.Abs(a - b) < tolerance);
         }
 
         private static void EXPECT_NEAR(WWComplex a, WWComplex b, double tolerance) {
+            if (!(WWComplex.Sub(a, b).Magnitude() < tolerance)) {
+                Console.WriteLine("EXPECT_NEAR failed");
+            }
             System.Diagnostics.Debug.Assert(WWComplex.Sub(a, b).Magnitude() < tolerance);
         }
 
@@ -1117,6 +1126,7 @@ namespace WWMath {
         private const double kEpsilonLoose = 1e-10;
 
         public static void Test() {
+            /*
             {
                 var roots = new double[] { 1.4643848994415114, 1.3072756126590779, 1.0844294564653463, 1.0843989379558703};
                 RunPolynomialTestRealRoots(roots, kEpsilon);
@@ -1131,7 +1141,7 @@ namespace WWMath {
                 var roots = new double[] { 0.82506790368358418, 0.81664479506820897, 0.74382763145847952, 0.043916135135960044, };
                 RunPolynomialTestRealRoots(roots, kEpsilonLoose);
             }
-
+            */
             {
                 var rpoly = new JenkinsTraubRpoly();
                 rpoly.FindRoots(new RealPolynomial(new double[] { -6, 11, -6, 1 }));
@@ -1250,58 +1260,54 @@ namespace WWMath {
             Console.WriteLine("");
             */
 
-            /*
              {
-                Eigen::VectorXd polynomial(11);
-                Eigen::VectorXd roots_re(10);
-                Eigen::VectorXd roots_im(10);
+                 var coeffs = new double [] {
+                     5.576312106019016,
+                     18.62488243410351,
+                     -105.89974320540716,
+                     -562.5089223272787,
+                      -692.3579951742573,
 
-                polynomial(10) = -52412.8655144021;
-                polynomial(9) = -28342.548095425875;
-                polynomial(8) = 20409.84088622263;
-                polynomial(7) = 25844.743360023815;
-                polynomial(6) = 11474.831044766257;
-                polynomial(5) = 1909.2968243041091;
-                polynomial(4) = -692.3579951742573;
-                polynomial(3) = -562.5089223272787;
-                polynomial(2) = -105.89974320540716;
-                polynomial(1) = 18.62488243410351;
-                polynomial(0) = 5.576312106019016;
-
-                EXPECT_TRUE(
-                rpoly_plus_plus::FindPolynomialRootsJenkinsTraub(polynomial, &roots_re, &roots_im));
+                      1909.2968243041091,
+                      11474.831044766257,
+                      25844.743360023815,
+                      20409.84088622263,
+                      -28342.548095425875,
+                      
+                      -52412.8655144021 };
+                 var rpoly = new JenkinsTraubRpoly();
+                EXPECT_EQ(true, rpoly.FindRoots(new RealPolynomial(coeffs)));
             }
 
              {
-                Eigen::VectorXd polynomial(20);
-                Eigen::VectorXd roots_re(19);
-                Eigen::VectorXd roots_im(19);
+                 var coeffs = new double [] {
+                     -3.3501738067312306e8,
+                     -6.884086124142883e8,
+                     7.702813653628246e8,
+                      8.451429594854779e8,
+                    -7.822417923012168e8 ,
 
-                polynomial(19) = -3.3501738067312306e8;
-                polynomial(18) = -6.884086124142883e8;
-                polynomial(17) = 7.702813653628246e8;
-                polynomial(16) = 8.451429594854779e8;
-                polynomial(15) = -7.822417923012168e8;
-                polynomial(14) = -2.0621500003041908e8;
-                polynomial(13) = 2.71193932055516e8;
-                polynomial(12) = 2191206.652049609;
-                polynomial(11) = -4.3103846059516795e7;
-                polynomial(10) = 3893518.9815099635;
-                polynomial(9) = 4037788.101972703;
-                polynomial(8) = -541891.2574823081;
-                polynomial(7) = -260979.552665553;
-                polynomial(6) = 38001.29427556511;
-                polynomial(5) = 12074.712839195976;
-                polynomial(4) = -1512.0183242937462;
-                polynomial(3) = -388.5049059868163;
-                polynomial(2) = 27.301047297669705;
-                polynomial(1) = 6.8768381102442575;
-                polynomial(0) = 0;
+                      -2.0621500003041908e8,
+                     2.71193932055516e8,
+                     2191206.652049609,
+                     -4.3103846059516795e7,
+                     3893518.9815099635,
 
-                EXPECT_TRUE(
-                rpoly_plus_plus::FindPolynomialRootsJenkinsTraub(polynomial, &roots_re, &roots_im));
+                     4037788.101972703,
+                     -541891.2574823081,
+                     -260979.552665553,
+                     38001.29427556511,
+                     12074.712839195976,
+
+                     -1512.0183242937462,
+                     -388.5049059868163,
+                     27.301047297669705,
+                     6.8768381102442575,
+                 0};
+
+                 var rpoly = new JenkinsTraubRpoly();
+                EXPECT_EQ(true, rpoly.FindRoots(new RealPolynomial(coeffs)));
             }
-            */
 
             {
                 var rpoly = new JenkinsTraubRpoly();
