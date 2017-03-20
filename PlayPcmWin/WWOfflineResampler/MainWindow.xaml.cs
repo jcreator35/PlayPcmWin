@@ -209,14 +209,17 @@ namespace WWOfflineResampler {
                     var rf = new JenkinsTraubRpoly();
                     bool b = rf.FindRoots(new RealPolynomial(coeffs));
                     if (b) {
+                        Console.WriteLine("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■");
+                        Console.WriteLine("polynomial degree = {0}, {1}/{2}", HzCombined.Degree(), HzCombined.NumerDegree(), HzCombined.DenomDegree());
+                        Console.WriteLine("Hz={0}", HzCombined.ToString("z^-1", "j"));
+
                         var roots = rf.RootArray();
                         foreach (var r in roots) {
+                            Console.WriteLine("  zero at {0}", WWComplex.Reciprocal(r));
                             mPoleZeroPlotZ.AddZero(WWComplex.Reciprocal(r));
                         }
                     }
 
-                    // 自明な零
-                    mPoleZeroPlotZ.AddZero(WWComplex.Zero());
                 }
 
                 mPoleZeroPlotZ.Update();

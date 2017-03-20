@@ -230,6 +230,18 @@ namespace WWUserControls {
                 mYp1.Text = string.Format("+{0}i", mUserScale);
                 mYm1.Text = string.Format("-{0}i", mUserScale);
             }
+
+            if (mUserScale < 1.0) {
+                unitCircle.Visibility = Visibility.Collapsed;
+            } else {
+                double centerX = canvasPoleZero.Width / 2;
+                double centerY = canvasPoleZero.Height / 2;
+                double unitCircleDiameter = 192 / mUserScale;
+                unitCircle.Width = unitCircleDiameter;
+                unitCircle.Height = unitCircleDiameter;
+                Canvas.SetLeft(unitCircle, centerX - unitCircleDiameter / 2);
+                Canvas.SetTop(unitCircle, centerY - unitCircleDiameter / 2);
+            }
         }
 
         /// <summary>
