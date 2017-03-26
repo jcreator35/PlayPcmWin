@@ -6,17 +6,29 @@ namespace WWIIRFilterDesign {
     /// Building block of IIR filter. used by IIRFilter class
     /// </summary>
     class IIRFilterBlockReal {
-        private ComplexRationalPolynomial mH;
+        private RealRationalPolynomial mH;
+        /// <summary>
+        /// フィードバックの係数
+        /// </summary>
         private double[] mA;
+
+        /// <summary>
+        /// フィードフォワードの係数
+        /// </summary>
         private double[] mB;
+
+        /// <summary>
+        /// ディレイ
+        /// </summary>
         private double[] mV;
+
         private int mMaxOrder;
         
         public override string ToString() {
             return mH.ToString();
         }
 
-        public IIRFilterBlockReal(ComplexRationalPolynomial p) {
+        public IIRFilterBlockReal(RealRationalPolynomial p) {
             mH = p;
             mMaxOrder = p.NumerDegree();
             if (mMaxOrder < p.DenomDegree()) {
@@ -26,14 +38,23 @@ namespace WWIIRFilterDesign {
             mV = new double[mMaxOrder + 1];
 
             mB = new double[mMaxOrder + 1];
-            for (int i = 0; i < mB.Length; ++i) {
-                mB[i] = p.N(i).real;
+            for (int i = 0; i <= p.NumerDegree(); ++i) {
+                mB[i] = p.N(i);
             }
 
             mA = new double[mMaxOrder + 1];
-            mA[0] = 1;
+            mA[0] = p.D(0);
             for (int i = 1; i < mA.Length; ++i) {
-                mA[i] = -p.D(i).real;
+                mA[i] = -p.D(i);
+            }
+
+            // mA[0]が 1.0になるようにスケールする
+            for (int i = 0; i <= p.NumerDegree(); ++i) {
+                mB[i] /= mA[0];
+            }
+            // mA[0]が最後まで残るように逆順でループする
+            for (int i = mA.Length - 1; 0 <= i; --i) {
+                mA[i] /= mA[0];
             }
         }
 

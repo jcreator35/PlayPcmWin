@@ -42,6 +42,28 @@ namespace WWMath {
             }
         }
 
+        public WWComplex Evaluate(WWComplex x) {
+            WWComplex n = WWComplex.Zero();
+            {
+                WWComplex xN = WWComplex.Unity();
+                for (int i = 0; i < numer.Length; ++i) {
+                    n = WWComplex.Add(n, WWComplex.Mul(numer[i], xN));
+                    xN = WWComplex.Mul(xN, x);
+                }
+            }
+            
+            WWComplex d = WWComplex.Zero();
+            {
+                WWComplex xN = WWComplex.Unity();
+                for (int i = 0; i < denom.Length; ++i) {
+                    d = WWComplex.Add(d, WWComplex.Mul(denom[i], xN));
+                    xN = WWComplex.Mul(xN, x);
+                }
+            }
+
+            return WWComplex.Div(n, d);
+        }
+
         public override WWComplex N(int nth) {
             return numer[nth];
         }
@@ -73,16 +95,20 @@ namespace WWMath {
             return denom.Length - 1;
         }
 
-        public override string ToString(string variableSymbol, string imaginaryUnit) {
-            string n = WWUtil.PolynomialToString(numer, variableSymbol, WWUtil.SymbolOrder.NonInverted, imaginaryUnit);
-            string d = WWUtil.PolynomialToString(denom, variableSymbol, WWUtil.SymbolOrder.NonInverted, imaginaryUnit);
+        public override string ToString(string variableSymbol) {
+            string n = WWUtil.PolynomialToString(numer, variableSymbol, WWUtil.SymbolOrder.NonInverted);
+            string d = WWUtil.PolynomialToString(denom, variableSymbol, WWUtil.SymbolOrder.NonInverted);
             return string.Format("{{ {0} }} / {{ {1} }}", n, d);
         }
 
-        public string ToString(string variableSymbol, WWUtil.SymbolOrder so, string imaginaryUnit) {
-            string n = WWUtil.PolynomialToString(numer, variableSymbol, so, imaginaryUnit);
-            string d = WWUtil.PolynomialToString(denom, variableSymbol, so, imaginaryUnit);
+        public string ToString(string variableSymbol, WWUtil.SymbolOrder so) {
+            string n = WWUtil.PolynomialToString(numer, variableSymbol, so);
+            string d = WWUtil.PolynomialToString(denom, variableSymbol, so);
             return string.Format("{{ {0} }} / {{ {1} }}", n, d);
+        }
+
+        public override string ToString() {
+            return ToString("x");
         }
     }
 }

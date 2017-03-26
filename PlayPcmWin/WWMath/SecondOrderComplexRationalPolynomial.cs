@@ -1,7 +1,7 @@
 ﻿using System;
 
 namespace WWMath {
-    public class SecondOrderRationalPolynomial : ComplexRationalPolynomial {
+    public class SecondOrderComplexRationalPolynomial : ComplexRationalPolynomial {
         private readonly WWComplex[] numer = new WWComplex[3];
         private readonly WWComplex[] denom = new WWComplex[3];
 
@@ -17,7 +17,7 @@ namespace WWMath {
         /// <param name="d2">denominator second orderPlus1 coefficient</param>
         /// <param name="d1">denominator first orderPlus1 coefficient</param>
         /// <param name="d0">denominator zero orderPlus1 coefficient</param>
-        public SecondOrderRationalPolynomial(WWComplex n2, WWComplex n1, WWComplex n0,
+        public SecondOrderComplexRationalPolynomial(WWComplex n2, WWComplex n1, WWComplex n0,
                 WWComplex d2, WWComplex d1, WWComplex d0) {
             if (d2.Magnitude() == 0 && d1.Magnitude() == 0 && d0.Magnitude() == 0) {
                 throw new DivideByZeroException();
@@ -30,6 +30,25 @@ namespace WWMath {
             denom[2] = d2;
             denom[1] = d1;
             denom[0] = d0;
+        }
+        
+        private static bool AlmostZero(double v) {
+            return Math.Abs(v) < 1e-8;
+        }
+
+        public RealRationalPolynomial ToRealPolynomial() {
+            var n = new double[NumerDegree() + 1];
+            for (int i = 0; i < n.Length; ++i) {
+                n[i] = numer[i].real;
+                System.Diagnostics.Debug.Assert(AlmostZero(numer[i].imaginary));
+            }
+
+            var d = new double[DenomDegree() + 1];
+            for (int i = 0; i < d.Length; ++i) {
+                d[i] = denom[i].real;
+                System.Diagnostics.Debug.Assert(AlmostZero(denom[i].imaginary));
+            }
+            return new RealRationalPolynomial(n, d);
         }
 
         public override int Degree() { return 2; }
@@ -63,12 +82,12 @@ namespace WWMath {
         }
 
         public override string ToString() {
-            return ToString("p", "i");
+            return ToString("x");
         }
 
-        public override string ToString(string variableSymbol, string imaginaryUnit) {
-            string n = WWUtil.PolynomialToString(numer[2], numer[1], numer[0], variableSymbol, imaginaryUnit);
-            string d = WWUtil.PolynomialToString(denom[2], denom[1], denom[0], variableSymbol, imaginaryUnit);
+        public override string ToString(string variableSymbol) {
+            string n = WWUtil.PolynomialToString(numer[2], numer[1], numer[0], variableSymbol);
+            string d = WWUtil.PolynomialToString(denom[2], denom[1], denom[0], variableSymbol);
             return string.Format("{{ {0} }} / {{ {1} }}", n, d);
         }
     }

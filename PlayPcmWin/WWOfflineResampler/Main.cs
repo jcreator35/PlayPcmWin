@@ -8,7 +8,20 @@ using WWMath;
 namespace WWOfflineResampler {
     class Main {
         private const double CUTOFF_GAIN_DB = -1.0;
-        private const double STOPBAND_RIPPLE_DB = -110;
+
+        // -10 : 3次 ◎
+        // -20 : 5次
+        // -30 : 5次 〇
+        // -40 : 7次
+        // -50 : 7次 〇
+        // -60 : 9次 〇
+        // -70 : 9次
+        // -80 : 11次 〇
+        // -90 : 11次
+        // -100 : 13次 〇
+        // -110 : 13次
+        // -120 : 15次 〇
+        private const double STOPBAND_RIPPLE_DB = -10;
         private const double CUTOFF_RATIO_OF_NYQUIST = 0.9;
 
         public const int START_PERCENT = 5;
@@ -223,21 +236,11 @@ namespace WWOfflineResampler {
                     var zohCompensation = new WWIIRFilterDesign.ZohNosdacCompensation(33);
 
                     // ローパスフィルターを作る。
-                    // 共役複素数のペアを足して係数を全て実数にする。
-                    var iirFilter = new IIRFilterReal();
-                    for (int i = 0; i < mIIRiim.HzCount() / 2; ++i) {
-                        var p0 = mIIRiim.Hz(i);
-                        var p1 = mIIRiim.Hz(mIIRiim.HzCount() - 1 - i);
-                        var p = WWPolynomial.Add(p0, p1);
-                        //Console.WriteLine("{0}", p.ToString("(z)^(-1)", "I"));
-                        Console.WriteLine("{0}", p.ToString("((p+I*y)^(-1))", "I"));
-                        iirFilter.Add(p);
-                    }
-                    if (1 == (mIIRiim.HzCount() & 1)) {
-                        // 奇数次フィルターの時、実係数の1次有理式がある。
-                        var p = mIIRiim.Hz(mIIRiim.HzCount() / 2);
-                        //Console.WriteLine("{0}", p.ToString("(z)^(-1)", "I"));
-                        Console.WriteLine("{0}", p.ToString("((p+I*y)^(-1))", "I"));
+                    // 実数係数版の多項式を使用。
+                    var iirFilter = new IIRFilterSerial();
+                    for (int i = 0; i < mIIRiim.RealHzCount(); ++i) {
+                        var p = mIIRiim.RealHz(i);
+                        Console.WriteLine("{0}", p.ToString("(z)^(-1)"));
                         iirFilter.Add(p);
                     }
 

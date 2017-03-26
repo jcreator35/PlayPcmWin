@@ -187,9 +187,11 @@ namespace WWOfflineResampler {
                 mPoleZeroPlotZ.Mode = WWUserControls.PoleZeroPlot.ModeType.ZPlane;
                 mPoleZeroPlotZ.TransferFunction = mMain.IIRiim().TransferFunction;
 
-                for (int i = 0; i < mMain.IIRiim().HzCount(); ++i) {
-                    var p = mMain.IIRiim().Hz(i);
+                Console.WriteLine("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■");
+                for (int i = 0; i < mMain.IIRiim().ComplexHzCount(); ++i) {
+                    var p = mMain.IIRiim().ComplexHz(i);
 
+                    Console.WriteLine("pole{0} = {1}", i, p.ToString("z^-1"));
                     if (p.DenomDegree() == 1) {
                         // ポールの位置。
                         mPoleZeroPlotZ.AddPole(WWComplex.Minus(WWComplex.Div(p.D(1), p.D(0))));
@@ -211,7 +213,7 @@ namespace WWOfflineResampler {
                     if (b) {
                         Console.WriteLine("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■");
                         Console.WriteLine("polynomial degree = {0}, {1}/{2}", HzCombined.Degree(), HzCombined.NumerDegree(), HzCombined.DenomDegree());
-                        Console.WriteLine("Hz={0}", HzCombined.ToString("z^-1", "j"));
+                        Console.WriteLine("Hz={0}", HzCombined.ToString("z^-1"));
 
                         var roots = rf.RootArray();
                         foreach (var r in roots) {

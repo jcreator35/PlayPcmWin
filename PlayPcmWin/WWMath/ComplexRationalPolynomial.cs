@@ -10,7 +10,7 @@ namespace WWMath {
         public abstract int NumerDegree();
         public abstract int DenomDegree();
 
-        public abstract string ToString(string variableSymbol, string imaginaryUnit);
+        public abstract string ToString(string variableSymbol);
 
     }
 }

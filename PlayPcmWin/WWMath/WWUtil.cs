@@ -8,7 +8,7 @@ namespace WWMath {
         /// <summary>
         /// 1乗以上の項の係数項の表示。
         /// </summary>
-        public static string FirstCoeffToString(WWComplex c, string variableString, string imaginaryUnit) {
+        public static string FirstCoeffToString(WWComplex c, string variableString) {
             if (c.EqualValue(new WWComplex(1, 0))) {
                 return variableString; // 係数を表示せず、変数のみ表示する。
 
@@ -24,23 +24,23 @@ namespace WWMath {
             }
 
             if (c.EqualValue(new WWComplex(0, 1))) {
-                return string.Format("{0}{1}", imaginaryUnit, variableString);
+                return string.Format("{0}{1}", WWComplex.imaginaryUnit, variableString);
             }
 
             if (c.EqualValue(new WWComplex(0, -1))) {
-                return string.Format("-{0}{1}", imaginaryUnit, variableString);
+                return string.Format("-{0}{1}", WWComplex.imaginaryUnit, variableString);
             }
 
             if (c.real == 0) {
                 // 純虚数。
-                return string.Format("{0}{1}{2}", c.imaginary, imaginaryUnit, variableString);
+                return string.Format("{0}{1}{2}", c.imaginary, WWComplex.imaginaryUnit, variableString);
             }
 
             // 純虚数ではない虚数。
             return string.Format("({0}){1}", c, variableString);
         }
 
-        public static string ContinuedCoeffToString(WWComplex c, string variableString, string imaginaryUnit) {
+        public static string ContinuedCoeffToString(WWComplex c, string variableString) {
             if (c.EqualValue(new WWComplex(1, 0))) {
                 return string.Format(" +{0}", variableString);
             }
@@ -58,18 +58,18 @@ namespace WWMath {
             }
 
             if (c.EqualValue(new WWComplex(0, 1))) {
-                return string.Format(" +{0}{1}", imaginaryUnit, variableString);
+                return string.Format(" +{0}{1}", WWComplex.imaginaryUnit, variableString);
             }
 
             if (c.EqualValue(new WWComplex(0, -1))) {
-                return string.Format(" -{0}{1}", imaginaryUnit, variableString);
+                return string.Format(" -{0}{1}", WWComplex.imaginaryUnit, variableString);
             }
 
             if (c.real == 0) {
                 if (c.imaginary < 0) {
-                    return string.Format(" {0}{1}{2}", c.imaginary, imaginaryUnit, variableString);
+                    return string.Format(" {0}{1}{2}", c.imaginary, WWComplex.imaginaryUnit, variableString);
                 } else {
-                    return string.Format(" +{0}{1}{2}", c.imaginary, imaginaryUnit, variableString);
+                    return string.Format(" +{0}{1}{2}", c.imaginary, WWComplex.imaginaryUnit, variableString);
                 }
             }
 
@@ -79,7 +79,7 @@ namespace WWMath {
         /// <summary>
         /// 1乗以上の項が存在するときに、そのあとにつなげて書くときの定数項の値表示。
         /// </summary>
-        public static string ZeroOrderCoeffToString(WWComplex c, string imaginaryUnit) {
+        public static string ZeroOrderCoeffToString(WWComplex c) {
             if (c.Magnitude() == 0) {
                 return "";
             }
@@ -94,17 +94,17 @@ namespace WWMath {
 
             if (c.real == 0) {
                 if (c.imaginary == 1) {
-                    return string.Format(" {0}", imaginaryUnit);
+                    return string.Format(" {0}", WWComplex.imaginaryUnit);
                 }
 
                 if (c.imaginary == -1) {
-                    return string.Format(" -{0}", imaginaryUnit);
+                    return string.Format(" -{0}", WWComplex.imaginaryUnit);
                 }
 
                 if (c.imaginary < 0) {
-                    return string.Format(" {0}{1}", c.imaginary, imaginaryUnit);
+                    return string.Format(" {0}{1}", c.imaginary, WWComplex.imaginaryUnit);
                 } else {
-                    return string.Format(" +{0}{1}", c.imaginary, imaginaryUnit);
+                    return string.Format(" +{0}{1}", c.imaginary, WWComplex.imaginaryUnit);
                 }
             }
 
@@ -118,47 +118,47 @@ namespace WWMath {
         /// <summary>
         /// output string represents "c1x + c0"
         /// </summary>
-        public static string PolynomialToString(WWComplex c1, WWComplex c0, string variableSymbol, string imaginaryUnit) {
+        public static string PolynomialToString(WWComplex c1, WWComplex c0, string variableSymbol) {
             if (c1.Magnitude() == 0) {
                 return string.Format("{0}", c0);
             }
 
-            return string.Format("{0}{1}", FirstCoeffToString(c1, variableSymbol, imaginaryUnit), ZeroOrderCoeffToString(c0, imaginaryUnit));
+            return string.Format("{0}{1}", FirstCoeffToString(c1, variableSymbol), ZeroOrderCoeffToString(c0));
         }
 
         /// <summary>
         /// output string represents "c2x^2 + c1x + c0"
         /// </summary>
-        public static string PolynomialToString(WWComplex c2, WWComplex c1, WWComplex c0, string variableSymbol,string imaginaryUnit) {
+        public static string PolynomialToString(WWComplex c2, WWComplex c1, WWComplex c0, string variableSymbol) {
             if (c2.Magnitude() == 0) {
                 // 1乗以下の項のみ。
-                return PolynomialToString(c1, c0, variableSymbol, imaginaryUnit);
+                return PolynomialToString(c1, c0, variableSymbol);
             }
 
             if (c1.Magnitude() == 0 && c0.Magnitude() == 0) {
                 // 2乗の項のみ。
-                return FirstCoeffToString(c2, string.Format("{0}^2", variableSymbol), imaginaryUnit);
+                return FirstCoeffToString(c2, string.Format("{0}^2", variableSymbol));
             }
 
             if (c0.Magnitude() == 0) {
                 // 2乗の項と1乗の項。
                 return string.Format("{0}{1}",
-                    FirstCoeffToString(c2, string.Format("{0}^2", variableSymbol), imaginaryUnit),
-                    ContinuedCoeffToString(c1, variableSymbol, imaginaryUnit));
+                    FirstCoeffToString(c2, string.Format("{0}^2", variableSymbol)),
+                    ContinuedCoeffToString(c1, variableSymbol));
             }
 
             if (c1.Magnitude() == 0) {
                 // 2乗の項と定数項。
                 return string.Format("{0}{1}",
-                    FirstCoeffToString(c2, string.Format("{0}^2", variableSymbol), imaginaryUnit),
-                    ZeroOrderCoeffToString(c0, imaginaryUnit), imaginaryUnit);
+                    FirstCoeffToString(c2, string.Format("{0}^2", variableSymbol)),
+                    ZeroOrderCoeffToString(c0));
             }
 
             // 2乗＋1乗＋定数
             return string.Format("{0}{1}{2}",
-                FirstCoeffToString(c2, string.Format("{0}^2", variableSymbol), imaginaryUnit),
-                ContinuedCoeffToString(c1, variableSymbol, imaginaryUnit),
-                ZeroOrderCoeffToString(c0, imaginaryUnit), imaginaryUnit);
+                FirstCoeffToString(c2, string.Format("{0}^2", variableSymbol)),
+                ContinuedCoeffToString(c1, variableSymbol),
+                ZeroOrderCoeffToString(c0));
         }
 
         public enum SymbolOrder {
@@ -166,7 +166,7 @@ namespace WWMath {
             Inverted
         };
 
-        public static string PolynomialToString(WWComplex[] pCoeffs, string variableSymbol, SymbolOrder invert, string imaginaryUnit) {
+        public static string PolynomialToString(WWComplex[] pCoeffs, string variableSymbol, SymbolOrder invert) {
             var sb = new StringBuilder();
             bool bFirst = true;
 

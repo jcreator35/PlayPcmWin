@@ -665,7 +665,7 @@ namespace WWUserControls {
         /// 今田悟 and 深谷武彦,実用アナログフィルタ設計法,CQ出版,1989
         /// p.63 and p.58 Figure 2.15(a)
         /// </summary>
-        private void DrawStateVariableNotchSecondOrderFilter(int nStage, SecondOrderRationalPolynomial ps, double r, double c) {
+        private void DrawStateVariableNotchSecondOrderFilter(int nStage, SecondOrderComplexRationalPolynomial ps, double r, double c) {
             /* 
              * 有理多項式は周波数が正規化されているので、まず係数を周波数スケーリングする。
              * 
@@ -1004,7 +1004,7 @@ namespace WWUserControls {
         /// Sallen-Key Minimum Sensitivity 2nd degree Lowpass filter
         /// Analog Electronic Filters pp.470
         /// </summary>
-        private void DrawSallenKeyLowpassSecondOrderFilter(int nStage, SecondOrderRationalPolynomial ps, double resistorValue) {
+        private void DrawSallenKeyLowpassSecondOrderFilter(int nStage, SecondOrderComplexRationalPolynomial ps, double resistorValue) {
             /* k=1
              * R1=R2=1
              * とする。
@@ -1232,7 +1232,7 @@ namespace WWUserControls {
                 } else {
                     // 2次多項式。
 
-                    var ps = p as SecondOrderRationalPolynomial;
+                    var ps = p as SecondOrderComplexRationalPolynomial;
                     if (ps.N(2).EqualValue(WWComplex.Unity())) {
                         double rf = GetResistorValueOfStage(nStage);
                         double cf = GetCapacitorValueOfStage(nStage);

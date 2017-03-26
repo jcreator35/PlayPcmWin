@@ -28,6 +28,52 @@ namespace WWMath {
             }
         }
 
+        public double Evaluate(double x) {
+            double n = 0;
+            double xN = 1.0;
+            for (int i = 0; i < numer.Length; ++i) {
+                n += xN * numer[i];
+                xN *= x;
+            }
+
+            double d = 0;
+            xN = 1.0;
+            for (int i = 0; i < denom.Length; ++i) {
+                d += xN * denom[i];
+                xN *= x;
+            }
+
+            double y = n/d;
+            return y;
+        }
+        
+        public WWComplex Evaluate(WWComplex x) {
+            WWComplex n = WWComplex.Zero();
+            WWComplex xN = WWComplex.Unity();
+            for (int i = 0; i < numer.Length; ++i) {
+                n = WWComplex.Add(n, WWComplex.Mul(xN, numer[i]));
+                xN = WWComplex.Mul(xN, x);
+            }
+
+            WWComplex d = WWComplex.Zero();
+            xN = WWComplex.Unity();
+            for (int i = 0; i < denom.Length; ++i) {
+                d = WWComplex.Add(d, WWComplex.Mul(xN, denom[i]));
+                xN = WWComplex.Mul(xN, x);
+            }
+
+            WWComplex y = WWComplex.Div(n, d);
+            return y;
+        }
+
+        public double[] NumerCoeffs() {
+            return numer;
+        }
+
+        public double[] DenomCoeffs() {
+            return denom;
+        }
+
         public double N(int nth) {
             return numer[nth];
         }

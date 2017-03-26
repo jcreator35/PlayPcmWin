@@ -76,7 +76,7 @@
     <Compile Include="ComplexRationalPolynomial.cs" />
     <Compile Include="RealPolynomial.cs" />
     <Compile Include="RealRationalPolynomial.cs" />
-    <Compile Include="SecondOrderRationalPolynomial.cs" />
+    <Compile Include="SecondOrderComplexRationalPolynomial.cs" />
     <Compile Include="FirstOrderComplexRationalPolynomial.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WWComplex.cs" />

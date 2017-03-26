@@ -7,7 +7,7 @@ namespace WWMath {
         /// <summary>
         /// 1次有理多項式 p 1次有理多項式
         /// </summary>
-        public static SecondOrderRationalPolynomial
+        public static SecondOrderComplexRationalPolynomial
         Mul(FirstOrderComplexRationalPolynomial lhs, FirstOrderComplexRationalPolynomial rhs) {
             // 分子の項 p 分子の項
             var n2 = WWComplex.Mul(lhs.N(1), rhs.N(1));
@@ -21,7 +21,43 @@ namespace WWMath {
                                    WWComplex.Mul(lhs.D(0), rhs.D(1)));
             var d0 = WWComplex.Mul(lhs.D(0), rhs.D(0));
 
-            return new SecondOrderRationalPolynomial(n2, n1, n0, d2, d1, d0);
+            return new SecondOrderComplexRationalPolynomial(n2, n1, n0, d2, d1, d0);
+        }
+        
+        /// <summary>
+        /// 1次有理多項式p0と、共役の多項式を乗算して実係数有理多項式を得る
+        /// </summary>
+        public static RealRationalPolynomial
+        MulComplexConjugatePair(FirstOrderComplexRationalPolynomial p0) {
+            if (p0.NumerDegree() != 1 || p0.DenomDegree() != 1) {
+                throw new ArgumentException("p0");
+            }
+
+            var n0 = p0.NumerCoeffs();
+            var d0 = p0.DenomCoeffs();
+
+            // n1, d1 : 共役の多項式の係数
+            var n1 = new WWComplex[2];
+            for (int i = 0; i < 2; ++i) {
+                n1[i] = n0[i].ComplexConjugate();
+            }
+
+            var d1 = new WWComplex[2];
+            for (int i = 0; i < 2; ++i) {
+                d1[i] = d0[i].ComplexConjugate();
+            }
+
+            var n = new double[3];
+            n[0] = WWComplex.Mul(n0[0], n1[0]).real;
+            n[1] = WWComplex.Add(WWComplex.Mul(n0[0], n1[1]), WWComplex.Mul(n0[1], n1[0])).real;
+            n[2] = WWComplex.Mul(n0[1], n1[1]).real;
+
+            var d = new double[3];
+            d[0] = WWComplex.Mul(d0[0], d1[0]).real;
+            d[1] = WWComplex.Add(WWComplex.Mul(d0[0], d1[1]), WWComplex.Mul(d0[1], d1[0])).real;
+            d[2] = WWComplex.Mul(d0[1], d1[1]).real;
+
+            return new RealRationalPolynomial(n, d);
         }
 
         /// <summary>
@@ -51,7 +87,7 @@ namespace WWMath {
         /// <summary>
         /// 1次有理多項式 + 1次有理多項式
         /// </summary>
-        public static SecondOrderRationalPolynomial
+        public static SecondOrderComplexRationalPolynomial
         Add(FirstOrderComplexRationalPolynomial L, FirstOrderComplexRationalPolynomial R) {
             /*  nL     nR
              * p+2    p+4
@@ -91,7 +127,7 @@ namespace WWMath {
 
             var d0 = WWComplex.Mul(L.D(0), R.D(0));
 
-            return new SecondOrderRationalPolynomial(n2, n1, n0, d2, d1, d0);
+            return new SecondOrderComplexRationalPolynomial(n2, n1, n0, d2, d1, d0);
         }
 
         public static HighOrderComplexRationalPolynomial
@@ -479,7 +515,7 @@ namespace WWMath {
                 var p = WWPolynomial.PartialFractionDecomposition(numerCoeffs, dRoots);
 
                 for (int i = 0; i < p.Count; ++i) {
-                    Console.WriteLine(p[i].ToString("s", "i"));
+                    Console.WriteLine(p[i].ToString("s"));
                     if (i != p.Count - 1) {
                         Console.WriteLine(" + ");
                     }
@@ -540,7 +576,7 @@ namespace WWMath {
                 var p = WWPolynomial.PartialFractionDecomposition(numerC, denomR);
 
                 for (int i = 0; i < p.Count; ++i) {
-                    Console.WriteLine(p[i].ToString("s", "i"));
+                    Console.WriteLine(p[i].ToString("s"));
                     if (i != p.Count - 1) {
                         Console.WriteLine(" + ");
                     }

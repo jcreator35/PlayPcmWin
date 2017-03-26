@@ -44,7 +44,16 @@ namespace WWMath {
     public class JenkinsTraubRpoly {
         private RealPolynomial mPoly;
         private RealPolynomial mKPoly;
-        private List<WWComplex> mRoots = new List<WWComplex>();
+
+        /// <summary>
+        /// 共役複素数の根のペア。
+        /// </summary>
+        private List<WWComplex> mPairedRoots = new List<WWComplex>();
+
+        /// <summary>
+        /// 実数軸上にある根。
+        /// </summary>
+        private List<WWComplex> mRealRoots = new List<WWComplex>();
         
         enum ConvergenceType {
             NO,
@@ -100,14 +109,18 @@ namespace WWMath {
         private const int kInnerFixedShiftIterations = 5;
 
         public void PrintRoots() {
-            for (int i=0; i < mRoots.Count; ++i) {
-                Console.WriteLine("  p={0}", mRoots[i]);
+            for (int i=0; i < mPairedRoots.Count; ++i) {
+                Console.WriteLine("  pC={0}", mPairedRoots[i]);
             }
-            Console.WriteLine("Total {0} roots", mRoots.Count);
+            for (int i = 0; i < mRealRoots.Count; ++i) {
+                Console.WriteLine("  pR={0}", mRealRoots[i]);
+            }
+            Console.WriteLine("Total {0} roots", mPairedRoots.Count + mRealRoots.Count);
         }
 
         public bool FindRoots(RealPolynomial p) {
-            mRoots.Clear();
+            mPairedRoots.Clear();
+            mRealRoots.Clear();
 
             if (p.Degree < 0) {
                 return false;
@@ -180,20 +193,20 @@ namespace WWMath {
                 var root = new WWComplex(FindLinearPolynomialRoots(mPoly), 0);
                 Console.WriteLine("SolveClosedFormPolynomial found root");
                 Console.WriteLine("  {0}", root);
-                AddRootToOutput(root);
+                AddRealRootToOutput(root);
                 return true;
             }
 
             // Quadratic
             if (degree == 2) {
-                var roots = FindQuadraticPolynomialRoots(mPoly);
-
-                Console.WriteLine("SolveClosedFormPolynomial found roots");
-                Console.WriteLine("  {0}", roots[0]);
-                Console.WriteLine("  {0}", roots[1]);
-
-                AddRootToOutput(roots[0]);
-                AddRootToOutput(roots[1]);
+                var r = SolveQuadraticPolynomialRoots(mPoly);
+                if (r.isReal) {
+                    AddRealRootToOutput(r.root0);
+                    AddRealRootToOutput(r.root1);
+                } else {
+                    AddPairedRootToOutput(r.root0, r.root1);
+                }
+ 
                 return true;
             }
 
@@ -209,15 +222,22 @@ namespace WWMath {
             return -p.C(0) / p.C(1);
         }
 
+        private class QuadraticPolynomialRoots {
+            public WWComplex root0;
+            public WWComplex root1;
+            public bool isReal;
+        };
+
         /// <summary>
         /// 2次多項式の根。有限精度計算で精度よく計算するための工夫が施されている。
         /// see this document: http://people.csail.mit.edu/bkph/articles/Quadratics.pdf
         /// </summary>
-        private WWComplex[] FindQuadraticPolynomialRoots(RealPolynomial poly) {
+        /// 
+        private QuadraticPolynomialRoots SolveQuadraticPolynomialRoots(RealPolynomial poly) {
             // 2次多項式 quadratic poly equation
             System.Diagnostics.Debug.Assert(poly.Degree == 2);
 
-            var result = new WWComplex[2];
+            var result = new QuadraticPolynomialRoots();
 
             double a = poly.C(2);
             double b = poly.C(1);
@@ -236,8 +256,11 @@ namespace WWMath {
                     x2 = (-b + Math.Sqrt(discriminant)) / 2 / a;
                 }
 
-                result[0] = new WWComplex(x1, 0);
-                result[1] = new WWComplex(x2, 0);
+                result.root0 = new WWComplex(x1, 0);
+                result.root1 = new WWComplex(x2, 0);
+                result.isReal = true;
+
+                Console.WriteLine("SolveClosedFormPolynomial found two real roots");
             } else {
                 WWComplex x1;
                 WWComplex x2;
@@ -250,10 +273,12 @@ namespace WWMath {
                     x2 = new WWComplex(-b / 2 / a, Math.Sqrt(-discriminant) / 2 / a);
                 }
 
-                result[0] = x1;
-                result[1] = x2;
-            }
+                result.root0 = x1;
+                result.root1 = x2;
+                result.isReal = false;
 
+                Console.WriteLine("SolveClosedFormPolynomial found complex paired roots");
+            }
             return result;
         }
 
@@ -316,7 +341,7 @@ namespace WWMath {
                     Console.WriteLine("ApplyLinearShiftToKPolynomial found root");
                     Console.WriteLine("  {0}", roots[roots.Count - 1]);
 
-                    AddRootToOutput(new WWComplex(roots[roots.Count-1], 0));
+                    AddRealRootToOutput(new WWComplex(roots[roots.Count-1], 0));
                     mPoly = deflatedPoly;
 
                     Console.WriteLine("polynomial_={0}", mPoly);
@@ -341,7 +366,7 @@ namespace WWMath {
                     Console.WriteLine("ApplyLinearShiftToKPolynomial found root");
                     Console.WriteLine("  {0}", realRoot);
 
-                    AddRootToOutput(new WWComplex(realRoot, 0));
+                    AddRealRootToOutput(new WWComplex(realRoot, 0));
                     mPoly = deflatedPoly;
 
                     Console.WriteLine("polynomial_={0}", mPoly);
@@ -476,8 +501,7 @@ namespace WWMath {
                     Console.WriteLine("  {0}", roots1[roots1.Count-1]);
                     Console.WriteLine("  {0}", roots2[roots2.Count - 1]);
 
-                    AddRootToOutput(roots1[roots1.Count-1]);
-                    AddRootToOutput(roots2[roots2.Count - 1]);
+                    AddPairedRootToOutput(roots1[roots1.Count - 1], roots2[roots2.Count - 1]);
                     mPoly = poly_quotient;
                     //mAttemptedQuadraticShift = true;
                     return true;
@@ -492,11 +516,11 @@ namespace WWMath {
                 // Compute a and b from the above equations.
                 b = poly_remainder.C(1);
                 a = poly_remainder.C(0) - b * sigmaP.C(1);
-                var roots = FindQuadraticPolynomialRoots(sigmaP);
+                var roots = SolveQuadraticPolynomialRoots(sigmaP);
 
                 // Check that the roots are close. If not, then try a linear shift.
-                if (Math.Abs(Math.Abs(roots[0].real) - Math.Abs(roots[1].real)) >
-                        kRootPairTolerance * Math.Abs(roots[1].real)) {
+                if (Math.Abs(Math.Abs(roots.root0.real) - Math.Abs(roots.root1.real)) >
+                        kRootPairTolerance * Math.Abs(roots.root1.real)) {
                     //mAttemptedQuadraticShift = true;
 
                     var polyBackup = mPoly;
@@ -513,13 +537,13 @@ namespace WWMath {
 
                 // If the iteration is stalling at a root pair then apply a few fixed shift
                 // iterations to help convergence.
-                polyAtRoot = Math.Abs(a - roots[0].real * b)
-                           + Math.Abs(roots[0].imaginary * b);
+                polyAtRoot = Math.Abs(a - roots.root0.real * b)
+                           + Math.Abs(roots.root0.imaginary * b);
                 double rel_step = Math.Abs((sigmaP.C(0) - prevV) / sigmaP.C(0));
                 if (!triedFixedShifts && rel_step < kTinyRelativeStep &&
                     prevPolyAtRoot > polyAtRoot) {
                     triedFixedShifts = true;
-                    ApplyFixedShiftToKPolynomial(roots[0], kInnerFixedShiftIterations);
+                    ApplyFixedShiftToKPolynomial(roots.root0, kInnerFixedShiftIterations);
                 }
 
                 {
@@ -547,8 +571,8 @@ namespace WWMath {
                 prevPolyAtRoot = polyAtRoot;
 
                 // Save the roots for convergence testing.
-                roots1.Add(roots[0]);
-                roots2.Add(roots[1]);
+                roots1.Add(roots.root0);
+                roots2.Add(roots.root1);
                 if (roots1.Count > 3) {
                     roots1.RemoveAt(0);
                     roots2.RemoveAt(0);
@@ -656,9 +680,12 @@ namespace WWMath {
             return r;
         }
 
-
-        private void AddRootToOutput(WWComplex root) {
-            mRoots.Add(root);
+        private void AddRealRootToOutput(WWComplex root) {
+            mRealRoots.Add(root);
+        }
+        private void AddPairedRootToOutput(WWComplex root1, WWComplex root2) {
+            mPairedRoots.Add(root1);
+            mPairedRoots.Add(root2);
         }
 
         private ConvergenceType ApplyFixedShiftToKPolynomial(
@@ -992,7 +1019,7 @@ namespace WWMath {
 
             // z==0の根がnZeroRoots個あった。
             for (int i=0; i < nZeroRoots; ++i) {
-                mRoots.Add(WWComplex.Zero());
+                AddRealRootToOutput(WWComplex.Zero());
             }
 
             var c = new double[mPoly.Degree + 1 - nZeroRoots];
@@ -1002,16 +1029,32 @@ namespace WWMath {
             mPoly = new RealPolynomial(c);
         }
 
-        public int NumOfRoots() {
-            return mRoots.Count;
+        public int NumOfRealRoots() {
+            return mRealRoots.Count;
         }
 
-        public WWComplex Root(int nth) {
-            return mRoots[nth];
+        public int NumOfComplexRoots() {
+            return mPairedRoots.Count;
+        }
+
+        public WWComplex RealRoot(int nth) {
+            return mRealRoots[nth];
+        }
+        public WWComplex ComplexRoot(int nth) {
+            return mPairedRoots[nth];
+        }
+
+        public int NumOfRoots() {
+            return NumOfRealRoots() + NumOfComplexRoots();
         }
 
         public WWComplex [] RootArray() {
-            return mRoots.ToArray();
+            var result = new List<WWComplex>();
+
+            result.AddRange(mRealRoots);
+            result.AddRange(mPairedRoots);
+
+            return result.ToArray();
         }
 
         /// <summary>
@@ -1243,11 +1286,11 @@ namespace WWMath {
 
                 EXPECT_EQ(success, true);
                 EXPECT_EQ(rpoly.NumOfRoots(), 2);
-                EXPECT_NEAR(rpoly.Root(0).real, 42.42, kEpsilon);
-                EXPECT_NEAR(rpoly.Root(1).real, 42.42, kEpsilon);
-                EXPECT_NEAR(Math.Abs(rpoly.Root(0).imaginary), 4.2, kEpsilon);
-                EXPECT_NEAR(Math.Abs(rpoly.Root(1).imaginary), 4.2, kEpsilon);
-                EXPECT_NEAR(Math.Abs(rpoly.Root(0).imaginary + rpoly.Root(1).imaginary), 0.0, kEpsilon);
+                EXPECT_NEAR(rpoly.ComplexRoot(0).real, 42.42, kEpsilon);
+                EXPECT_NEAR(rpoly.ComplexRoot(1).real, 42.42, kEpsilon);
+                EXPECT_NEAR(Math.Abs(rpoly.ComplexRoot(0).imaginary), 4.2, kEpsilon);
+                EXPECT_NEAR(Math.Abs(rpoly.ComplexRoot(1).imaginary), 4.2, kEpsilon);
+                EXPECT_NEAR(Math.Abs(rpoly.ComplexRoot(0).imaginary + rpoly.ComplexRoot(1).imaginary), 0.0, kEpsilon);
             }
 
             {

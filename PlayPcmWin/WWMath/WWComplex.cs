@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 
 namespace WWMath {
     public class WWComplex {
@@ -92,9 +93,16 @@ namespace WWMath {
         /// <summary>
         /// returns reciprocal. this instance is not changed.
         /// </summary>
-        /// <returns></returns>
         public WWComplex Reciplocal() {
             return WWComplex.Reciprocal(this);
+        }
+
+        /// <summary>
+        /// returns conjugate reciplocal. this instance is not changed.
+        /// </summary>
+        public WWComplex ConjugateReciprocal() {
+            var r = Reciplocal();
+            return ComplexConjugate(r);
         }
 
         /// <summary>
@@ -147,6 +155,37 @@ namespace WWMath {
             return new WWComplex(real, -imaginary);
         }
 
+        /// <summary>
+        /// ここで複素数に入れる順序とは、
+        /// ①実数成分
+        /// ②虚数成分
+        /// </summary>
+        private class WWComplexComparer : IComparer {
+            int IComparer.Compare(Object x, Object y) {
+                var cL = x as WWComplex;
+                var cR = y as WWComplex;
+                if (cL.real != cR.real) {
+                    return (cR.real < cL.real) ? 1 : -1;
+                }
+                if (cL.imaginary != cR.imaginary) {
+                    return (cR.imaginary < cL.imaginary) ? 1 : -1;
+                }
+                return 0;
+            }
+        }
+
+        /// <summary>
+        /// 複素数の配列をWWComplexComparerでソートする。
+        /// </summary>
+        /// <param name="inp"></param>
+        /// <returns></returns>
+        public static WWComplex[] SortArray(WWComplex[] inp) {
+            var outp = new WWComplex[inp.Length];
+            Array.Copy(inp, outp, inp.Length);
+            Array.Sort(outp, new WWComplexComparer());
+            return outp;
+        }
+        
         public override string ToString() {
             if (Math.Abs(imaginary) < 0.0001) {
                 return string.Format("{0:G4}", real);
