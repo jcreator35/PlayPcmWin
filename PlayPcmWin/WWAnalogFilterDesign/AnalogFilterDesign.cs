@@ -287,7 +287,17 @@ namespace WWAnalogFilterDesign {
                     return InverseLaplaceTransformValue(H_fraction, H_integer, t);
                 };
 
+#if true
+                mH_PFD = new List<FirstOrderComplexRationalPolynomial>();
+                for (int i=0; i < H_fraction.Count; ++i) {
+                    mH_PFD.Add(H_fraction[i]);
+                    if (1 == H_integer.Count && i == H_fraction.Count / 2 - 1) {
+                        mH_PFD.Add(H_integer[0]);
+                    }
+                }
+#else
                 mH_PFD = FirstOrderComplexRationalPolynomial.Add(H_fraction, H_integer);
+#endif
 
                 TimeDomainFunctionTimeScale = 1.0 / filter.CutoffFrequencyHz();
 

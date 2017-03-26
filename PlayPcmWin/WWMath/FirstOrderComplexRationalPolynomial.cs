@@ -62,7 +62,18 @@ namespace WWMath {
         public override WWComplex D(int nth) {
             return denom[nth];
         }
-        
+
+        /// <summary>
+        /// 自分自身は変更しない。
+        /// </summary>
+        public FirstOrderComplexRationalPolynomial Scale(double s) {
+            var n = new WWComplex[numer.Length];
+            for (int i=0; i < n.Length; ++i) {
+                n[i] = WWComplex.Mul(numer[i], s);
+            }
+            return new FirstOrderComplexRationalPolynomial(n[1], n[0], denom[1], denom[0]);
+        }
+
         private static bool AlmostZero(double v) {
             return Math.Abs(v) < 1e-8;
         }

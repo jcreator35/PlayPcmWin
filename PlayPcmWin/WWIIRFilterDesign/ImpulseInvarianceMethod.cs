@@ -121,8 +121,8 @@ namespace WWIIRFilterDesign {
                             p0 = p0.ConjugateReciprocal();
                             p1 = p1.ConjugateReciprocal();
                         }
-                        zeroes[i] = p0;
-                        zeroes[zeroes.Length - 1 - i] = p1;
+                        zeroes[i*2] = p0;
+                        zeroes[i*2+1] = p1;
                     }
                     for (int i = 0; i < rpoly.NumOfRealRoots(); ++i) {
                         var p = rpoly.RealRoot(i);
@@ -130,29 +130,31 @@ namespace WWIIRFilterDesign {
                             // 単位円の外側にゼロがあるのでconjugate reciprocalにする。
                             p = p.ConjugateReciprocal();
                         }
-                        zeroes[i + rpoly.NumOfComplexRoots() / 2] = p;
+                        zeroes[i + rpoly.NumOfComplexRoots()] = p;
                     }
 
                     mComplexHzList.Clear();
 
                     // ポールと零のペアを、係数を実数化出来るように対称に並べる。
+                    // ポールと共役のペアになっていて、ペアは例えばn=5の時
+                    // C0+ C1+ R C1- C0- のように並んでいる。
+                    // 零は共役のペアになっていて、ペアは例えばn=5の時
+                    // C0+ C0- C1+ C1- R のように並んでいる。
+                    // mComplexHzListは C0+ C0- C1+ C1- R のように並べる。
                     for (int i = 0; i < poles.Length / 2; ++i) {
-                        var p = new FirstOrderComplexRationalPolynomial(
-                            WWComplex.Unity(), zeroes[i].Minus(),
+                        var cP = new FirstOrderComplexRationalPolynomial(
+                            WWComplex.Unity(), zeroes[i*2].Minus(),
                             WWComplex.Unity(), poles[i].Minus());
-                        mComplexHzList.Add(p);
+                        mComplexHzList.Add(cP);
+                        var cM = new FirstOrderComplexRationalPolynomial(
+                            WWComplex.Unity(), zeroes[i * 2+1].Minus(),
+                            WWComplex.Unity(), poles[poles.Length-1-i].Minus());
+                        mComplexHzList.Add(cM);
                     }
                     {
                         var p = new FirstOrderComplexRationalPolynomial(
                             WWComplex.Zero(), WWComplex.Unity(),
-                            WWComplex.Unity(), poles[poles.Length -1].Minus());
-                        mComplexHzList.Add(p);
-                    }
-                    for (int i = 0; i < poles.Length / 2; ++i) {
-                        var p = new FirstOrderComplexRationalPolynomial(
-                            WWComplex.Unity(), zeroes[i + poles.Length / 2].Minus(),
-                            WWComplex.Unity(), poles[i + poles.Length / 2].Minus());
-
+                            WWComplex.Unity(), poles[poles.Length/2].Minus());
                         mComplexHzList.Add(p);
                     }
 
@@ -161,10 +163,8 @@ namespace WWIIRFilterDesign {
                     foreach (var p in mComplexHzList) {
                         gain = WWComplex.Mul(gain, p.Evaluate(WWComplex.Unity()));
                     }
-
-                    mComplexHzList[mComplexHzList.Count / 2] = new FirstOrderComplexRationalPolynomial(
-                        WWComplex.Zero(), new WWComplex(1.0/gain.real, 0),
-                        WWComplex.Unity(), poles[poles.Length -1].Minus());
+                    mComplexHzList[mComplexHzList.Count-1] =
+                        mComplexHzList[mComplexHzList.Count-1].Scale(1.0/gain.real);
                     
                     var gainC = WWComplex.Unity();
                     foreach (var p in mComplexHzList) {
@@ -173,15 +173,15 @@ namespace WWIIRFilterDesign {
 
                     //　係数が全て実数のmRealHzListを作成する。
                     mRealHzList.Clear();
-                    mRealHzList.Add(new RealRationalPolynomial(
-                        new double[] {1.0/gain.real},
-                        new double[] { -poles[poles.Length -1].real, 1.0}));
                     for (int i = 0; i < mComplexHzList.Count / 2; ++i) {
-                        var p0 = mComplexHzList[i];
-                        var p1 = mComplexHzList[mComplexHzList.Count-1-i];
+                        var p0 = mComplexHzList[i*2];
+                        var p1 = mComplexHzList[i*2+1];
                         var p = WWPolynomial.Mul(p0, p1).ToRealPolynomial();
                         mRealHzList.Add(p);
                     }
+                    mRealHzList.Add(new RealRationalPolynomial(
+                        new double[] { 1.0 / gain.real },
+                        new double[] { -poles[poles.Length/2].real, 1.0 }));
 
                     var gainR = 1.0;
                     foreach (var p in mRealHzList) {
@@ -210,7 +210,7 @@ namespace WWIIRFilterDesign {
         }
 
         private WWComplex TransferFunctionValue(WWComplex z) {
-#if true
+#if false
             // mComplexHzListは1次有理多項式の積の形になっている。
             var zRecip = WWComplex.Reciprocal(z);
             var result = WWComplex.Unity();
@@ -219,7 +219,7 @@ namespace WWIIRFilterDesign {
             }
             return result;
 #endif
-#if false
+#if true
             // 実係数多項式の積の形
             var zRecip = WWComplex.Reciprocal(z);
             var result = WWComplex.Unity();

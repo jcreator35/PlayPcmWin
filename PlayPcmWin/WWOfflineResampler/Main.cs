@@ -9,19 +9,19 @@ namespace WWOfflineResampler {
     class Main {
         private const double CUTOFF_GAIN_DB = -1.0;
 
-        // -10 : 3次 ◎
-        // -20 : 5次
-        // -30 : 5次 〇
-        // -40 : 7次
-        // -50 : 7次 〇
-        // -60 : 9次 〇
-        // -70 : 9次
-        // -80 : 11次 〇
-        // -90 : 11次
-        // -100 : 13次 〇
-        // -110 : 13次
-        // -120 : 15次 〇
-        private const double STOPBAND_RIPPLE_DB = -10;
+        // -10 : 3次 ◎ (poles 対称)(zeroes 虚数1ペア)
+        // -20 : 5次 (4次) ×
+        // -30 : 5次 ◎ (poles 対称)
+        // -40 : 7次 (6次) ×
+        // -50 : 7次 ◎ (poles 対称) 
+        // -60 : 9次 (8次) ×
+        // -70 : 9次 ◎ (poles 対称)(zeroesすべて実数)
+        // -80 : 11次 (10次) ×
+        // -90 : 11次 ◎ (poles 対称)(zeroes 虚数1ペア)
+        // -100 : 13次 (12次) ×
+        // -110 : 13次 ◎ (poles 対称)(zeroesすべて実数)
+        // -120 : 15次 (14次) ×
+        private const double STOPBAND_RIPPLE_DB = -90;
         private const double CUTOFF_RATIO_OF_NYQUIST = 0.9;
 
         public const int START_PERCENT = 5;
