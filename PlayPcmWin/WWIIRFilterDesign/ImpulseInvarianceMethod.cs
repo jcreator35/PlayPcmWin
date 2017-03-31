@@ -4,6 +4,7 @@ using WWMath;
 
 namespace WWIIRFilterDesign {
     public class ImpulseInvarianceMethod {
+        private bool mMinimumPhase = false;
 
         // y[1] : z^{-2}の項
         // y[1] : z^{-1}の項
@@ -44,9 +45,13 @@ namespace WWIIRFilterDesign {
         /// Design of Discrete-time IIR filters from continuous-time filter using impulse invariance method
         /// A. V. Oppenheim, R. W. Schafer, Discrete-Time Signal Processing, 3rd Ed, Prentice Hall, 2009
         /// pp. 526 - 529
+        /// 
+        /// minimumPhase==true  : 多項式の積の形の伝達関数が出てくる。
+        /// minimumPhase==false : mixed phaseとなり、多項式の和の形の伝達関数が出てくる。
         /// </summary>
         public ImpulseInvarianceMethod(List<FirstOrderComplexRationalPolynomial> H_s,
-                double ωc, double sampleFreq) {
+                double ωc, double sampleFreq, bool minimumPhase) {
+            mMinimumPhase = minimumPhase;
             mSamplingFrequency = sampleFreq;
             /*
              * H_sはノーマライズされているので、戻す。
@@ -91,8 +96,8 @@ namespace WWIIRFilterDesign {
                 mH_z = WWPolynomial.Add(mH_z, mComplexHzList[i]);
             }
 
-            // ミニマムフェーズにする。
-            {
+            if (mMinimumPhase) {
+                // ミニマムフェーズにする。
                 var numerPoly = mH_z.NumerPolynomial();
                 var aCoeffs = new double[numerPoly.Degree + 1];
                 for (int i = 0; i < aCoeffs.Length; ++i) {
@@ -206,47 +211,104 @@ namespace WWIIRFilterDesign {
                 var gain3 = mH_z.Evaluate(WWComplex.Unity());
 
                 Console.WriteLine(mH_z.ToString("z", WWUtil.SymbolOrder.Inverted));
+            } else {
+                // mixed-phase
+
+                // ポールの位置 = mHzListの多項式の分母のリストから判明する。
+                var poles = new WWComplex[mComplexHzList.Count];
+                for (int i = 0; i < mComplexHzList.Count; ++i) {
+                    var p = mComplexHzList[i];
+                    Console.WriteLine(" {0} {1}", i, p);
+                    poles[i] = WWComplex.Div(p.D(0), p.D(1)).Minus();
+                }
+
+                // mComplexHzListは多項式の和の形になっている。
+                
+                // 0Hz (z^-1 == 1)のときのゲインが1になるようにする。
+                WWComplex gain = WWComplex.Zero();
+                foreach (var p in mComplexHzList) {
+                    gain = WWComplex.Add(gain, p.Evaluate(WWComplex.Unity()));
+                }
+                mComplexHzList[mComplexHzList.Count/2] =
+                    mComplexHzList[mComplexHzList.Count/2].Scale(1.0 / gain.real);
+
+                var gainC = WWComplex.Zero();
+                foreach (var p in mComplexHzList) {
+                    gainC = WWComplex.Add(gainC, p.Evaluate(WWComplex.Unity()));
+                }
+
+                //　係数が全て実数のmRealHzListを作成する。
+                // mRealHzListは、多項式の和を表現する。
+                mRealHzList.Clear();
+                for (int i = 0; i < mComplexHzList.Count / 2; ++i) {
+                    var p0 = mComplexHzList[i];
+                    var p1 = mComplexHzList[mComplexHzList.Count-1 -i];
+                    var p = WWPolynomial.Add(p0, p1).ToRealPolynomial();
+                    mRealHzList.Add(p);
+                }
+                {
+                    var p = mComplexHzList[mComplexHzList.Count/2];
+
+                    mRealHzList.Add(new RealRationalPolynomial(
+                        new double[] { p.N(0).real },
+                        new double[] { p.D(0).real, p.D(1).real }));
+                }
+
+                var gainR = 0.0;
+                foreach (var p in mRealHzList) {
+                    gainR += p.Evaluate(1.0);
+                }
+
+                Console.WriteLine("gainR={0}", gainR);
             }
 
             TransferFunction = (WWComplex z) => { return TransferFunctionValue(z); };
         }
 
         private WWComplex TransferFunctionValue(WWComplex z) {
-#if true   // 1次有理多項式の積の形の式で計算。
-            var zRecip = WWComplex.Reciprocal(z);
-            var result = WWComplex.Unity();
-            foreach (var H in mComplexHzList) {
-                result = WWComplex.Mul(result, H.Evaluate(zRecip));
-            }
-            return result;
-#endif
-#if false   // 実係数多項式の積の形の式で計算。
-            var zRecip = WWComplex.Reciprocal(z);
-            var result = WWComplex.Unity();
-            foreach (var H in mRealHzList) {
-                result = WWComplex.Mul(result, H.Evaluate(zRecip));
-            }
-            return result;
-#endif
+            if (mMinimumPhase) {
+# if true       // 1次有理多項式の積の形の式で計算。
+                var zRecip = WWComplex.Reciprocal(z);
+                var result = WWComplex.Unity();
+                foreach (var H in mComplexHzList) {
+                    result = WWComplex.Mul(result, H.Evaluate(zRecip));
+                }
+                return result;
+# endif
+# if false      // 実係数多項式の積の形の式で計算。
+                var zRecip = WWComplex.Reciprocal(z);
+                var result = WWComplex.Unity();
+                foreach (var H in mRealHzList) {
+                    result = WWComplex.Mul(result, H.Evaluate(zRecip));
+                }
+                return result;
+# endif
+# if false      // 1個に合体した有理多項式で計算。
+                var zN = WWComplex.Unity();
+                var numer = WWComplex.Zero();
+                for (int i = 0; i < mH_z.NumerDegree()+1; ++i) {
+                    numer = WWComplex.Add(numer, WWComplex.Mul(mH_z.N(i), zN));
+                    zN = WWComplex.Div(zN, z);
+                }
 
-#if false   // 1個に合体した有理多項式で計算。
-
-            var zN = WWComplex.Unity();
-            var numer = WWComplex.Zero();
-            for (int i = 0; i < mH_z.NumerDegree()+1; ++i) {
-                numer = WWComplex.Add(numer, WWComplex.Mul(mH_z.N(i), zN));
-                zN = WWComplex.Div(zN, z);
+                zN = WWComplex.Unity();
+                var denom = WWComplex.Zero();
+                for (int i = 0; i < mH_z.DenomDegree() + 1; ++i) {
+                    denom = WWComplex.Add(denom, WWComplex.Mul(mH_z.D(i), zN));
+                    zN = WWComplex.Div(zN, z);
+                }
+                return WWComplex.Div(numer, denom);
+# endif
+            } else {
+# if true       // 1次有理多項式の和の形の式で計算。
+                var zRecip = WWComplex.Reciprocal(z);
+                var result = WWComplex.Zero();
+                foreach (var H in mComplexHzList) {
+                    result = WWComplex.Add(result, H.Evaluate(zRecip));
+                }
+                return result;
+# endif
             }
-
-            zN = WWComplex.Unity();
-            var denom = WWComplex.Zero();
-            for (int i = 0; i < mH_z.DenomDegree() + 1; ++i) {
-                denom = WWComplex.Add(denom, WWComplex.Mul(mH_z.D(i), zN));
-                zN = WWComplex.Div(zN, z);
-            }
-            return WWComplex.Div(numer, denom);
-#endif
         }
-
     }
 }

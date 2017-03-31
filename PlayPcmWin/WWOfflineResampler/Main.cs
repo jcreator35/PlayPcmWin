@@ -1,4 +1,16 @@
-﻿using System;
+﻿/// <summary>
+/// true: minimum-phase, false: mixed-phase
+/// </summary>
+#define MINIMUM_PHASE
+
+/// <summary>
+/// true: ZOH
+/// false: インパルストレイン
+/// 比較するとZOHのほうがローノイズ。
+/// </summary>
+#define USE_ZOH_UPSAMPLE
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -8,13 +20,11 @@ using WWMath;
 namespace WWOfflineResampler {
     class Main {
 
-        /// <summary>
-        /// true: ZOH
-        /// false: インパルストレイン
-        /// 比較するとZOHのほうがローノイズ。
-        /// </summary>
-        private const bool USE_ZOH_UPSAMPLE = true;
-
+#if MINIMUM_PHASE
+        private const bool MinimumPhase = true;
+#else
+        private const bool MinimumPhase = false;
+#endif
         private const double CUTOFF_GAIN_DB = -1.0;
 
         // -10 : 3次 ◎ (poles 対称)(zeroes 虚数1ペア)
@@ -207,7 +217,7 @@ namespace WWOfflineResampler {
                     H_s.Add(p);
                 }
 
-                mIIRiim = new ImpulseInvarianceMethod(H_s, fc * 2.0 * Math.PI, lcm);
+                mIIRiim = new ImpulseInvarianceMethod(H_s, fc * 2.0 * Math.PI, lcm, MinimumPhase);
 
                 ReportProgress(CONVERT_START_PERCENT, new BWProgressParam(State.FilterDesigned,
                     string.Format("Read FLAC completed.\nSource sample rate = {0}kHz.\nTarget sample rate = {1}kHz. ratio={2}/{3}\n",
@@ -248,7 +258,11 @@ namespace WWOfflineResampler {
 
                     // ローパスフィルターを作る。
                     // 実数係数版の多項式を使用。
+#if MINIMUM_PHASE
                     var iirFilter = new IIRFilterSerial();
+#else
+                    var iirFilter = new IIRFilterParallel();
+#endif
                     for (int i = 0; i < mIIRiim.RealHzCount(); ++i) {
                         var p = mIIRiim.RealHz(i);
                         Console.WriteLine("{0}", p.ToString("(z)^(-1)"));
