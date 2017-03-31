@@ -55,11 +55,14 @@ namespace WWMath {
         /// </summary>
         private List<WWComplex> mRealRoots = new List<WWComplex>();
         
-        enum ConvergenceType {
+        private enum ConvergenceType {
             NO,
             LINEAR,
             QUADRATIC
         };
+
+        private const double kAbsoluteTolerance = 1e-14;
+        private const double kRelativeTolerance = 1e-10;
 
         private const double kDegToRad = Math.PI / 180.0;
         /// <summary>
@@ -71,7 +74,7 @@ namespace WWMath {
         /// If the fixed shift iterations fail to converge, we restart this many times
         /// before considering the solve attempt as a failure.
         /// </summary>
-        private const int kMaxFixedShiftRestarts = 20;
+        private const int kMaxFixedShiftRestarts = 180;
 
         /// <summary>
         /// The number of fixed shift iterations is computed as
@@ -170,10 +173,14 @@ namespace WWMath {
                     // Rotate the initial root value on the complex plane and try again.
                     phi += 94.0 * kDegToRad;
                 }
+                if (convergence == ConvergenceType.NO) {
+                    Console.WriteLine("Error: ApplyFixedShiftToKPolynomial failed");
+                }
 
                 // Stage 3: Find the root(s) with variable shift iterations on the
                 // K-poly. If this stage was not successful then we return a failure.
                 if (!ApplyVariableShiftToKPolynomial(convergence, root)) {
+                    Console.WriteLine("Error: ApplyVariableShiftToKPolynomial failed");
                     return false;
                 }
             }
@@ -191,8 +198,7 @@ namespace WWMath {
             // Linear
             if (degree == 1) {
                 var root = new WWComplex(FindLinearPolynomialRoots(mPoly), 0);
-                Console.WriteLine("SolveClosedFormPolynomial found root");
-                Console.WriteLine("  {0}", root);
+                Console.WriteLine("SolveClosedFormPolynomial found 1 root {0}", root);
                 AddRealRootToOutput(root);
                 return true;
             }
@@ -260,7 +266,7 @@ namespace WWMath {
                 result.root1 = new WWComplex(x2, 0);
                 result.isReal = true;
 
-                Console.WriteLine("SolveClosedFormPolynomial found two real roots");
+                Console.WriteLine("SolveQuadraticPolynomialRoots found two real roots {0} and {1}", x1, x2);
             } else {
                 WWComplex x1;
                 WWComplex x2;
@@ -277,7 +283,8 @@ namespace WWMath {
                 result.root1 = x2;
                 result.isReal = false;
 
-                Console.WriteLine("SolveClosedFormPolynomial found complex paired roots");
+                Console.WriteLine("SolveQuadraticPolynomialRoots found complex conjugate paired roots {0}, {1}",
+                    x1, x2);
             }
             return result;
         }
@@ -295,6 +302,8 @@ namespace WWMath {
             } else if (conv == ConvergenceType.QUADRATIC) {
                 return ApplyQuadraticShiftToKPolynomial(root, kMaxQuadraticShiftIterations);
             }
+
+            Console.WriteLine("Error: ApplyVariableShiftToKPolynomial NO");
             return false;
         }
 
@@ -362,7 +371,7 @@ namespace WWMath {
 
                 // If the root is exactly the root then end early. Otherwise, the k
                 // poly will be filled with inf or nans.
-                if (polyAtRoot == 0) {
+                if (Math.Abs(polyAtRoot) <= kAbsoluteTolerance) {
                     Console.WriteLine("ApplyLinearShiftToKPolynomial found root");
                     Console.WriteLine("  {0}", realRoot);
 
@@ -529,7 +538,7 @@ namespace WWMath {
                     if (r) {
                         return true;
                     } else {
-                        Console.WriteLine("linear shift tried but failed\n");
+                        Console.WriteLine("ApplyQuadraticShiftToKPolynomial linear shift tried but failed\n");
                         mPoly = polyBackup;
                         mKPoly = kpolyBackup;
                     }
@@ -554,12 +563,12 @@ namespace WWMath {
                 }
                 d = kPoly_remainder.C(1);
                 c = kPoly_remainder.C(0) - d * sigmaP.C(1);
-                
-                Console.WriteLine("i={0} a={1} b={2} c={3} d={4}", i, a, b, c, d);
+
+                Console.WriteLine("ApplyQuadraticShiftToKPolynomial i={0} a={1} b={2} c={3} d={4}", i, a, b, c, d);
 
                 prevV = sigmaP.C(0);
                 sigmaP = ComputeNextSigma(a,b,c,d,sigmaP);
-                Console.WriteLine("next sigma={0}", sigmaP);
+                Console.WriteLine("  next sigma={0}", sigmaP);
 
                 // Compute K_next using the formula above.
                 UpdateKPolynomialWithQuadraticShift(poly_quotient,
@@ -792,9 +801,7 @@ namespace WWMath {
         /// 実数バージョン。
         /// </summary>
         private bool HasRootConverged(List<double> roots) {
-            const double kRootMagnitudeTolerance = 1e-8;
-            const double kAbsoluteTolerance = 1e-14;
-            const double kRelativeTolerance = 1e-10;
+            const double kRootMagnitudeToleranceR = 1e-8;
 
             if (roots.Count != 3) {
                 return false;
@@ -804,7 +811,7 @@ namespace WWMath {
             double e_i_minus_1 = Math.Abs(roots[1] - roots[0]);
             double mag_root = Math.Abs(roots[1]);
             if (e_i <= e_i_minus_1) {
-                if (mag_root < kRootMagnitudeTolerance) {
+                if (mag_root < kRootMagnitudeToleranceR) {
                     return e_i < kAbsoluteTolerance;
                 } else {
                     return e_i / mag_root <= kRelativeTolerance;
@@ -826,9 +833,9 @@ namespace WWMath {
         /// 複素数バージョン。
         /// </summary>
         private bool HasRootConverged(List<WWComplex> roots) {
-            const double kRootMagnitudeTolerance = 1e-8;
-            const double kAbsoluteTolerance = 1e-14;
-            const double kRelativeTolerance = 1e-10;
+            const double kRootMagnitudeToleranceC = 1e-8;
+            const double kAbsoluteToleranceC = 1e-14;
+            const double kRelativeToleranceC = 1e-7;
 
             if (roots.Count != 3) {
                 return false;
@@ -839,15 +846,17 @@ namespace WWMath {
             double mag_root = roots[1].Magnitude();
             bool result = false;
             if (e_i <= e_i_minus_1) {
-                if (mag_root < kRootMagnitudeTolerance) {
-                    result = e_i < kAbsoluteTolerance;
+                if (mag_root < kRootMagnitudeToleranceC) {
+                    result = e_i < kAbsoluteToleranceC;
                 } else {
-                    result = e_i / mag_root <= kRelativeTolerance;
+                    result = e_i / mag_root <= kRelativeToleranceC;
                 }
             }
 
             if (result) {
-                Console.WriteLine("Converged {0} {1} {2}", e_i_minus_1, e_i, mag_root);
+                Console.WriteLine(" HasRootConverged Converged e_i={0} e_i-1={1} mag={2}", e_i, e_i_minus_1, mag_root);
+            } else {
+                Console.WriteLine(" HasRootConverged NOT converged ■ e_i={0} e_i-1={1} mag={2}", e_i, e_i_minus_1, mag_root);
             }
 
             return result;
@@ -1396,12 +1405,11 @@ namespace WWMath {
                     new WWComplex[] { new WWComplex(-1, 0), new WWComplex(-1, 0) }));
             }
 
-            /*
             {
                 int tick = 0;
                 var rand = new Random(tick);
-                for (int k = 0; k < 100000; ++k) {
-                    const int N = 4;
+                for (int k = 0; k < 10000; ++k) {
+                    const int N = 10;
                     var roots = new double[N];
 
                     for (int i = 0; i < N; ++i) {
@@ -1443,7 +1451,7 @@ namespace WWMath {
                 }
                 Console.WriteLine("");
             }
-             * */
+            
         }
 
     }

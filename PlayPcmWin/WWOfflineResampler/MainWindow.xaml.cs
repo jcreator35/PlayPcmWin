@@ -70,10 +70,6 @@ namespace WWOfflineResampler {
             mState = State.Ready;
             Update();
 
-            //JenkinsTraubRpoly.Test();
-            //PolynomialRootFinding.Test();
-            WWPolynomial.Test();
-            NewtonsMethod.Test();
 #if false
             //サンプルレートの比の計算のテスト。
             foreach (int a in mTargetSampleRateList) {
@@ -184,6 +180,7 @@ namespace WWOfflineResampler {
                 mTimeDomainPlot.TimeScale = mMain.Afd().TimeDomainFunctionTimeScale;
                 mTimeDomainPlot.Update();
 
+                mPoleZeroPlotZ.ClearPoleZero();
                 mPoleZeroPlotZ.Mode = WWUserControls.PoleZeroPlot.ModeType.ZPlane;
                 mPoleZeroPlotZ.TransferFunction = mMain.IIRiim().TransferFunction;
 

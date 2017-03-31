@@ -101,117 +101,118 @@ namespace WWIIRFilterDesign {
 
                 var rpoly = new JenkinsTraubRpoly();
                 bool result = rpoly.FindRoots(new RealPolynomial(aCoeffs));
-                if (result) {
-                    // ポールの位置 = mHzListの多項式の分母のリストから判明する。
-                    var poles = new WWComplex[mComplexHzList.Count];
-                    for (int i = 0; i < mComplexHzList.Count; ++i) {
-                        var p = mComplexHzList[i];
-                        Console.WriteLine(" {0} {1}", i, p);
-                        poles[i] = WWComplex.Div(p.D(0), p.D(1)).Minus();
-                    }
-
-                    System.Diagnostics.Debug.Assert(poles.Length == rpoly.NumOfRoots() + 1);
-
-                    var zeroes = new WWComplex[rpoly.NumOfRoots()];
-                    for (int i = 0; i < rpoly.NumOfComplexRoots() / 2; ++i) {
-                        var p0 = rpoly.ComplexRoot(i * 2);
-                        var p1 = rpoly.ComplexRoot(i * 2 + 1);
-                        if (p0.Magnitude() < 1.0) {
-                            // 単位円の外側にゼロがあるのでconjugate reciprocalにする。
-                            p0 = p0.ConjugateReciprocal();
-                            p1 = p1.ConjugateReciprocal();
-                        }
-                        zeroes[i*2] = p0;
-                        zeroes[i*2+1] = p1;
-                    }
-                    for (int i = 0; i < rpoly.NumOfRealRoots(); ++i) {
-                        var p = rpoly.RealRoot(i);
-                        if (p.Magnitude() < 1.0) {
-                            // 単位円の外側にゼロがあるのでconjugate reciprocalにする。
-                            p = p.ConjugateReciprocal();
-                        }
-                        zeroes[i + rpoly.NumOfComplexRoots()] = p;
-                    }
-
-                    mComplexHzList.Clear();
-
-                    // ポールと零のペアを、係数を実数化出来るように対称に並べる。
-                    // ポールと共役のペアになっていて、ペアは例えばn=5の時
-                    // C0+ C1+ R C1- C0- のように並んでいる。
-                    // 零は共役のペアになっていて、ペアは例えばn=5の時
-                    // C0+ C0- C1+ C1- R のように並んでいる。
-                    // mComplexHzListは C0+ C0- C1+ C1- R のように並べる。
-                    for (int i = 0; i < poles.Length / 2; ++i) {
-                        var cP = new FirstOrderComplexRationalPolynomial(
-                            WWComplex.Unity(), zeroes[i*2].Minus(),
-                            WWComplex.Unity(), poles[i].Minus());
-                        mComplexHzList.Add(cP);
-                        var cM = new FirstOrderComplexRationalPolynomial(
-                            WWComplex.Unity(), zeroes[i * 2+1].Minus(),
-                            WWComplex.Unity(), poles[poles.Length-1-i].Minus());
-                        mComplexHzList.Add(cM);
-                    }
-                    {
-                        var p = new FirstOrderComplexRationalPolynomial(
-                            WWComplex.Zero(), WWComplex.Unity(),
-                            WWComplex.Unity(), poles[poles.Length/2].Minus());
-                        mComplexHzList.Add(p);
-                    }
-
-                    // 0Hz (z^-1 == 1)のときのゲインが1になるようにする。
-                    WWComplex gain = WWComplex.Unity();
-                    foreach (var p in mComplexHzList) {
-                        gain = WWComplex.Mul(gain, p.Evaluate(WWComplex.Unity()));
-                    }
-                    mComplexHzList[mComplexHzList.Count-1] =
-                        mComplexHzList[mComplexHzList.Count-1].Scale(1.0/gain.real);
-                    
-                    var gainC = WWComplex.Unity();
-                    foreach (var p in mComplexHzList) {
-                        gainC = WWComplex.Mul(gainC, p.Evaluate(WWComplex.Unity()));
-                    }
-
-                    //　係数が全て実数のmRealHzListを作成する。
-                    mRealHzList.Clear();
-                    for (int i = 0; i < mComplexHzList.Count / 2; ++i) {
-                        var p0 = mComplexHzList[i*2];
-                        var p1 = mComplexHzList[i*2+1];
-                        var p = WWPolynomial.Mul(p0, p1).ToRealPolynomial();
-                        mRealHzList.Add(p);
-                    }
-                    mRealHzList.Add(new RealRationalPolynomial(
-                        new double[] { 1.0 / gain.real },
-                        new double[] { -poles[poles.Length/2].real, 1.0 }));
-
-                    var gainR = 1.0;
-                    foreach (var p in mRealHzList) {
-                        gainR *= p.Evaluate(1.0);
-                    }
-
-                    // mH_zを作り直す。
-                    var newNumerCoeffs = WWPolynomial.RootListToCoeffList(zeroes, WWComplex.Unity());
-
-                    var poleCoeffs = mH_z.DenomPolynomial().ToArray();
-                    mH_z = new HighOrderComplexRationalPolynomial(newNumerCoeffs, poleCoeffs);
-
-                    var gain2 = mH_z.Evaluate(WWComplex.Unity());
-                    for (int i = 0; i < newNumerCoeffs.Length; ++i) {
-                        newNumerCoeffs[i] = WWComplex.Mul(newNumerCoeffs[i], 1.0/gain2.Magnitude());
-                    }
-
-                    mH_z = new HighOrderComplexRationalPolynomial(newNumerCoeffs, poleCoeffs);
-                    var gain3 = mH_z.Evaluate(WWComplex.Unity());
-
-                    Console.WriteLine(mH_z.ToString("z", WWUtil.SymbolOrder.Inverted));
+                if (!result) {
+                    Console.WriteLine("Error: rpoly.FindRoots failed!");
+                    throw new ArgumentException();
                 }
+                // ポールの位置 = mHzListの多項式の分母のリストから判明する。
+                var poles = new WWComplex[mComplexHzList.Count];
+                for (int i = 0; i < mComplexHzList.Count; ++i) {
+                    var p = mComplexHzList[i];
+                    Console.WriteLine(" {0} {1}", i, p);
+                    poles[i] = WWComplex.Div(p.D(0), p.D(1)).Minus();
+                }
+
+                System.Diagnostics.Debug.Assert(poles.Length == rpoly.NumOfRoots() + 1);
+
+                var zeroes = new WWComplex[rpoly.NumOfRoots()];
+                for (int i = 0; i < rpoly.NumOfComplexRoots() / 2; ++i) {
+                    var p0 = rpoly.ComplexRoot(i * 2);
+                    var p1 = rpoly.ComplexRoot(i * 2 + 1);
+                    if (p0.Magnitude() < 1.0) {
+                        // 単位円の外側にゼロがあるのでconjugate reciprocalにする。
+                        p0 = p0.ConjugateReciprocal();
+                        p1 = p1.ConjugateReciprocal();
+                    }
+                    zeroes[i*2] = p0;
+                    zeroes[i*2+1] = p1;
+                }
+                for (int i = 0; i < rpoly.NumOfRealRoots(); ++i) {
+                    var p = rpoly.RealRoot(i);
+                    if (p.Magnitude() < 1.0) {
+                        // 単位円の外側にゼロがあるのでconjugate reciprocalにする。
+                        p = p.ConjugateReciprocal();
+                    }
+                    zeroes[i + rpoly.NumOfComplexRoots()] = p;
+                }
+
+                mComplexHzList.Clear();
+
+                // ポールと零のペアを、係数を実数化出来るように対称に並べる。
+                // ポールと共役のペアになっていて、ペアは例えばn=5の時
+                // C0+ C1+ R C1- C0- のように並んでいる。
+                // 零は共役のペアになっていて、ペアは例えばn=5の時
+                // C0+ C0- C1+ C1- R のように並んでいる。
+                // mComplexHzListは C0+ C0- C1+ C1- R のように並べる。
+                for (int i = 0; i < poles.Length / 2; ++i) {
+                    var cP = new FirstOrderComplexRationalPolynomial(
+                        WWComplex.Unity(), zeroes[i*2].Minus(),
+                        WWComplex.Unity(), poles[i].Minus());
+                    mComplexHzList.Add(cP);
+                    var cM = new FirstOrderComplexRationalPolynomial(
+                        WWComplex.Unity(), zeroes[i * 2+1].Minus(),
+                        WWComplex.Unity(), poles[poles.Length-1-i].Minus());
+                    mComplexHzList.Add(cM);
+                }
+                {
+                    var p = new FirstOrderComplexRationalPolynomial(
+                        WWComplex.Zero(), WWComplex.Unity(),
+                        WWComplex.Unity(), poles[poles.Length/2].Minus());
+                    mComplexHzList.Add(p);
+                }
+
+                // 0Hz (z^-1 == 1)のときのゲインが1になるようにする。
+                WWComplex gain = WWComplex.Unity();
+                foreach (var p in mComplexHzList) {
+                    gain = WWComplex.Mul(gain, p.Evaluate(WWComplex.Unity()));
+                }
+                mComplexHzList[mComplexHzList.Count-1] =
+                    mComplexHzList[mComplexHzList.Count-1].Scale(1.0/gain.real);
+                    
+                var gainC = WWComplex.Unity();
+                foreach (var p in mComplexHzList) {
+                    gainC = WWComplex.Mul(gainC, p.Evaluate(WWComplex.Unity()));
+                }
+
+                //　係数が全て実数のmRealHzListを作成する。
+                mRealHzList.Clear();
+                for (int i = 0; i < mComplexHzList.Count / 2; ++i) {
+                    var p0 = mComplexHzList[i*2];
+                    var p1 = mComplexHzList[i*2+1];
+                    var p = WWPolynomial.Mul(p0, p1).ToRealPolynomial();
+                    mRealHzList.Add(p);
+                }
+                mRealHzList.Add(new RealRationalPolynomial(
+                    new double[] { 1.0 / gain.real },
+                    new double[] { -poles[poles.Length/2].real, 1.0 }));
+
+                var gainR = 1.0;
+                foreach (var p in mRealHzList) {
+                    gainR *= p.Evaluate(1.0);
+                }
+
+                // mH_zを作り直す。
+                var newNumerCoeffs = WWPolynomial.RootListToCoeffList(zeroes, WWComplex.Unity());
+
+                var poleCoeffs = mH_z.DenomPolynomial().ToArray();
+                mH_z = new HighOrderComplexRationalPolynomial(newNumerCoeffs, poleCoeffs);
+
+                var gain2 = mH_z.Evaluate(WWComplex.Unity());
+                for (int i = 0; i < newNumerCoeffs.Length; ++i) {
+                    newNumerCoeffs[i] = WWComplex.Mul(newNumerCoeffs[i], 1.0/gain2.Magnitude());
+                }
+
+                mH_z = new HighOrderComplexRationalPolynomial(newNumerCoeffs, poleCoeffs);
+                var gain3 = mH_z.Evaluate(WWComplex.Unity());
+
+                Console.WriteLine(mH_z.ToString("z", WWUtil.SymbolOrder.Inverted));
             }
 
             TransferFunction = (WWComplex z) => { return TransferFunctionValue(z); };
         }
 
         private WWComplex TransferFunctionValue(WWComplex z) {
-#if false
-            // mComplexHzListは1次有理多項式の積の形になっている。
+#if true   // 1次有理多項式の積の形の式で計算。
             var zRecip = WWComplex.Reciprocal(z);
             var result = WWComplex.Unity();
             foreach (var H in mComplexHzList) {
@@ -219,8 +220,7 @@ namespace WWIIRFilterDesign {
             }
             return result;
 #endif
-#if true
-            // 実係数多項式の積の形
+#if false   // 実係数多項式の積の形の式で計算。
             var zRecip = WWComplex.Reciprocal(z);
             var result = WWComplex.Unity();
             foreach (var H in mRealHzList) {
@@ -229,8 +229,7 @@ namespace WWIIRFilterDesign {
             return result;
 #endif
 
-#if false
-            // mH_zは1個に合体した有理多項式で計算。
+#if false   // 1個に合体した有理多項式で計算。
 
             var zN = WWComplex.Unity();
             var numer = WWComplex.Zero();

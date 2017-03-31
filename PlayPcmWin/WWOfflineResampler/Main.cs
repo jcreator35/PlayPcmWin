@@ -7,6 +7,14 @@ using WWMath;
 
 namespace WWOfflineResampler {
     class Main {
+
+        /// <summary>
+        /// true: ZOH
+        /// false: インパルストレイン
+        /// 比較するとZOHのほうがローノイズ。
+        /// </summary>
+        private const bool USE_ZOH_UPSAMPLE = true;
+
         private const double CUTOFF_GAIN_DB = -1.0;
 
         // -10 : 3次 ◎ (poles 対称)(zeroes 虚数1ペア)
@@ -21,7 +29,7 @@ namespace WWOfflineResampler {
         // -100 : 13次 (12次) ×
         // -110 : 13次 ◎ (poles 対称)(zeroesすべて実数)
         // -120 : 15次 (14次) ×
-        private const double STOPBAND_RIPPLE_DB = -90;
+        private const double STOPBAND_RIPPLE_DB = -50;
         private const double CUTOFF_RATIO_OF_NYQUIST = 0.9;
 
         public const int START_PERCENT = 5;
@@ -233,7 +241,10 @@ namespace WWOfflineResampler {
                 Parallel.For(0, metaR.channels, (int ch) => {
                     var pcmW = new WWUtil.LargeArray<byte>(metaW.totalSamples * metaW.BytesPerSample);
 
+#if USE_ZOH_UPSAMPLE
+                    // 零次ホールドのハイ落ち補償フィルター。
                     var zohCompensation = new WWIIRFilterDesign.ZohNosdacCompensation(33);
+#endif
 
                     // ローパスフィルターを作る。
                     // 実数係数版の多項式を使用。
@@ -247,6 +258,7 @@ namespace WWOfflineResampler {
                     long remainFrom = metaR.totalSamples;
                     long remainTo = metaW.totalSamples;
                     long posY = 0;
+                    // 1秒分のバッファを処理する。
                     // 1単位で処理するサンプル数は、ソースのサンプルレートの倍数にすると
                     // 出力サンプル数がちょうど割り切れる。
                     for (long posX = 0; posX < metaR.totalSamples; posX += metaR.sampleRate) {
@@ -262,19 +274,19 @@ namespace WWOfflineResampler {
                             sizeTo = (int)remainTo;
                         }
 
+#if USE_ZOH_UPSAMPLE
                         if (1 < upsampleScale) {
                             // 零次ホールドでアップサンプルするのでハイ落ちを補償する。
                             x = zohCompensation.Filter(x);
                         }
+#endif
 
                         // ローパスフィルターでエイリアシング雑音を除去しながらリサンプルする。
                         var y = new double[sizeTo];
                         for (long i = 0; i < x.Length * upsampleScale; ++i) {
-#if true
-                            // 零次ホールド。
+#if USE_ZOH_UPSAMPLE        // 零次ホールド。
                             double v = x[i / upsampleScale];
-#else
-                            // インパルストレイン。
+#else                       // インパルストレイン。
                             double v = 0;
                             if ((i % upsampleScale) == 0) {
                                 // インパルストレインアップサンプル時に音量が下がるのでupsampleScale倍する。
