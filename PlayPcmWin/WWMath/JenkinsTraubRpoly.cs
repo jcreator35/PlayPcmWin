@@ -1,4 +1,4 @@
-﻿// JenkinsTraubRPoly.cs (C) yamamoto2002
+﻿// JenkinsTraubRPoly.cs 
 // This code is rough C# port of rpolyplusplus.
 //
 // Following is find_polynomial_roots_jenkins_traub.cc's license:
