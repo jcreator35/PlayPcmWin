@@ -33,11 +33,11 @@ namespace WWOfflineResampler {
         // -40 : 7次 (6次) ×
         // -50 : 7次 ◎ (poles 対称) 
         // -60 : 9次 (8次) ×
-        // -70 : 9次 ◎ (poles 対称)(zeroesすべて実数)
+        // -70 : 9次 〇 (poles 対称)(zeroesすべて実数)
         // -80 : 11次 (10次) ×
-        // -90 : 11次 ◎ (poles 対称)(zeroes 虚数1ペア)
+        // -90 : 11次 〇 (poles 対称)(zeroes 虚数1ペア)
         // -100 : 13次 (12次) ×
-        // -110 : 13次 ◎ (poles 対称)(zeroesすべて実数)
+        // -110 : 13次 〇 (poles 対称)(zeroesすべて実数)
         // -120 : 15次 (14次) ×
         private const double STOPBAND_RIPPLE_DB = -50;
         private const double CUTOFF_RATIO_OF_NYQUIST = 0.9;
