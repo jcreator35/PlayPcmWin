@@ -3,7 +3,7 @@ using WWMath;
 
 namespace WWIIRFilterDesign {
     /// <summary>
-    /// 複素多項式の並列接続
+    /// 実係数rational functionの並列接続
     /// </summary>
     public class IIRFilterParallel {
         private List<IIRFilterBlockReal> mFilterBlockList = new List<IIRFilterBlockReal>();
