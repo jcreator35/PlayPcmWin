@@ -1,5 +1,7 @@
 ﻿// JenkinsTraubRPoly.cs 
-// This code is rough C# port of rpolyplusplus.
+// This code is rough C# port of RpolyPlusPlus.
+// Result may be different from original RpolyPlusPlus.
+// Please contact yamamoto2002@gmail.com when bugs are found.
 //
 // Following is find_polynomial_roots_jenkins_traub.cc's license:
 
