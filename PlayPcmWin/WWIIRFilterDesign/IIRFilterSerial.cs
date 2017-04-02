@@ -12,7 +12,7 @@ namespace WWIIRFilterDesign {
         }
 
         /// <summary>
-        /// 実係数の多項式を足す。
+        /// 多項式pは直列接続される。(p同士を掛けていく感じになる)
         /// </summary>
         public void Add(RealRationalPolynomial p) {
             var b = new IIRFilterBlockReal(p);

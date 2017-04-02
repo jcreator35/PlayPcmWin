@@ -11,6 +11,9 @@ namespace WWIIRFilterDesign {
         public IIRFilterParallel() {
         }
 
+        /// <summary>
+        /// 多項式pは並列接続される。(p同士を足していく感じになる)
+        /// </summary>
         public void Add(RealRationalPolynomial p) {
             var b = new IIRFilterBlockReal(p);
             mFilterBlockList.Add(b);
