@@ -4,12 +4,13 @@ using System.Collections.Generic;
 namespace WWMath {
 
     /// <summary>
-    /// 多項式の根を数値的開放で求める。
+    /// 多項式の根をBairstow's methodで求める。
     /// 精度が良くない。
+    /// https://en.wikipedia.org/wiki/Bairstow%27s_method
     /// </summary>
-    public class PolynomialRootFinding {
+    public class BairstowPolynomialRootFinding {
         public static void Test() {
-            var rf = new PolynomialRootFinding();
+            var rf = new BairstowPolynomialRootFinding();
 
             {
                 var r = rf.FindRoots(new double[] { 2, 3 });

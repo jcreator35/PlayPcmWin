@@ -4,7 +4,8 @@ using WWMath;
 
 namespace WWIIRFilterDesign {
     public class ImpulseInvarianceMethod {
-        private bool mMinimumPhase = false;
+        // ctorで設定。
+        private bool mMinimumPhase;
 
         // y[1] : z^{-2}の項
         // y[1] : z^{-1}の項
@@ -300,13 +301,29 @@ namespace WWIIRFilterDesign {
                 return WWComplex.Div(numer, denom);
 # endif
             } else {
-# if true       // 1次有理多項式の和の形の式で計算。
+# if false       // 1次有理多項式の和の形の式で計算。FIXME: バグっている。
                 var zRecip = WWComplex.Reciprocal(z);
                 var result = WWComplex.Zero();
                 foreach (var H in mComplexHzList) {
                     result = WWComplex.Add(result, H.Evaluate(zRecip));
                 }
                 return result;
+# endif
+# if true       // 1個に合体した有理多項式で計算。
+                var zN = WWComplex.Unity();
+                var numer = WWComplex.Zero();
+                for (int i = 0; i < mH_z.NumerDegree()+1; ++i) {
+                    numer = WWComplex.Add(numer, WWComplex.Mul(mH_z.N(i), zN));
+                    zN = WWComplex.Div(zN, z);
+                }
+
+                zN = WWComplex.Unity();
+                var denom = WWComplex.Zero();
+                for (int i = 0; i < mH_z.DenomDegree() + 1; ++i) {
+                    denom = WWComplex.Add(denom, WWComplex.Mul(mH_z.D(i), zN));
+                    zN = WWComplex.Div(zN, z);
+                }
+                return WWComplex.Div(numer, denom);
 # endif
             }
         }

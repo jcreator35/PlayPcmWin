@@ -72,7 +72,7 @@
     <Compile Include="HighOrderComplexRationalPolynomial.cs" />
     <Compile Include="JenkinsTraubRpoly.cs" />
     <Compile Include="NewtonsMethod.cs" />
-    <Compile Include="PolynomialRootFinding.cs" />
+    <Compile Include="BairstowPolynomialRootFinding.cs" />
     <Compile Include="ComplexRationalPolynomial.cs" />
     <Compile Include="RealPolynomial.cs" />
     <Compile Include="RealRationalPolynomial.cs" />
