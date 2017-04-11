@@ -99,6 +99,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="IIRFilterDesign.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="SampleValueStatistics.cs" />
     <Page Include="MainWindow.xaml">

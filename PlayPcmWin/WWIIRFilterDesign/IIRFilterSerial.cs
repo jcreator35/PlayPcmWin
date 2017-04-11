@@ -5,7 +5,7 @@ namespace WWIIRFilterDesign {
     /// <summary>
     /// 実係数rational functionの直列接続
     /// </summary>
-    public class IIRFilterSerial {
+    public class IIRFilterSerial : IIRFilterGraph {
         private List<IIRFilterBlockReal> mFilterBlockList = new List<IIRFilterBlockReal>();
 
         public IIRFilterSerial() {

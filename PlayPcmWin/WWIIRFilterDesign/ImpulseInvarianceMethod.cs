@@ -40,6 +40,28 @@ namespace WWIIRFilterDesign {
             return mSamplingFrequency;
         }
 
+        private WWComplex[] mPoleArray;
+        private WWComplex[] mZeroArray;
+
+        public int NumOfPoles() {
+            return mPoleArray.Length;
+        }
+
+        public int NumOfZeroes() {
+            return mZeroArray.Length;
+        }
+
+        public WWComplex ZeroNth(int nth) {
+            return mZeroArray[nth];
+        }
+
+        /// <summary>
+        /// H(z)の分母の多項式の根を戻す。
+        /// </summary>
+        public WWComplex PoleNth(int nth) {
+            return mPoleArray[nth];
+        }
+
         public WWMath.Functions.TransferFunctionDelegate TransferFunction;
 
         /// <summary>
@@ -215,14 +237,6 @@ namespace WWIIRFilterDesign {
             } else {
                 // mixed-phase
 
-                // ポールの位置 = mHzListの多項式の分母のリストから判明する。
-                var poles = new WWComplex[mComplexHzList.Count];
-                for (int i = 0; i < mComplexHzList.Count; ++i) {
-                    var p = mComplexHzList[i];
-                    Console.WriteLine(" {0} {1}", i, p);
-                    poles[i] = WWComplex.Div(p.D(0), p.D(1)).Minus();
-                }
-
                 // mComplexHzListは多項式の和の形になっている。
                 
                 // 0Hz (z^-1 == 1)のときのゲインが1になるようにする。
@@ -264,6 +278,39 @@ namespace WWIIRFilterDesign {
             }
 
             TransferFunction = (WWComplex z) => { return TransferFunctionValue(z); };
+
+            // ポールの位置 = mHzListの多項式の分母のリストから判明する。
+            mPoleArray = new WWComplex[mComplexHzList.Count];
+            for (int i = 0; i < mComplexHzList.Count; ++i) {
+                var p = mComplexHzList[i];
+                Console.WriteLine(" {0} {1}", i, p);
+                mPoleArray[i] = WWComplex.Div(p.D(0), p.D(1)).Minus();
+            }
+
+            {
+                // 零の位置を計算する。
+                // 合体したH(z)の分子の実係数多項式の根が零の位置。
+                var poly = mH_z.NumerPolynomial();
+                var coeffs = new double[poly.Degree + 1];
+                for (int i = 0; i < coeffs.Length; ++i) {
+                    coeffs[i] = poly.C(i).real;
+                }
+
+                var rf = new JenkinsTraubRpoly();
+                bool b = rf.FindRoots(new RealPolynomial(coeffs));
+                if (b) {
+                    Console.WriteLine("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■");
+                    Console.WriteLine("polynomial degree = {0}, {1}/{2}", mH_z.Degree(), mH_z.NumerDegree(), mH_z.DenomDegree());
+                    Console.WriteLine("Hz={0}", mH_z.ToString("z^-1"));
+
+                    mZeroArray = rf.RootArray();
+                    foreach (var r in mZeroArray) {
+                        Console.WriteLine("  zero at {0}", WWComplex.Reciprocal(r));
+                    }
+                }
+
+            }
+
         }
 
         private WWComplex TransferFunctionValue(WWComplex z) {

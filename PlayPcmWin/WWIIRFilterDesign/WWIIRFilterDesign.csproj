@@ -69,11 +69,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BilinearDesign.cs" />
     <Compile Include="IIRFilterBlockReal128.cs" />
     <Compile Include="IIRFilterComplex.cs" />
     <Compile Include="DelayReal.cs" />
     <Compile Include="IIRFilterBlockComplex.cs" />
     <Compile Include="DelayComplex.cs" />
+    <Compile Include="IIRFilterGraph.cs" />
     <Compile Include="IIRFilterParallel.cs" />
     <Compile Include="IIRFilterBlockReal.cs" />
     <Compile Include="IIRFilterSerial.cs" />

@@ -1,7 +1,4 @@
-﻿/// <summary>
-/// true: minimum-phase, false: mixed-phase
-/// </summary>
-#define MINIMUM_PHASE
+﻿
 
 /// <summary>
 /// true: ZOH
@@ -19,32 +16,12 @@ using WWMath;
 
 namespace WWOfflineResampler {
     class Main {
-
-#if MINIMUM_PHASE
-        private const bool MinimumPhase = true;
-#else
-        private const bool MinimumPhase = false;
-#endif
-        private const double CUTOFF_GAIN_DB = -1.0;
-
-        // -10 : 3次 ◎ (poles 対称)(zeroes 虚数1ペア)
-        // -20 : 5次 (4次) ×
-        // -30 : 5次 ◎ (poles 対称)
-        // -40 : 7次 (6次) ×
-        // -50 : 7次 ◎ (poles 対称) 
-        // -60 : 9次 (8次) ×
-        // -70 : 9次 〇 (poles 対称)(zeroesすべて実数)
-        // -80 : 11次 (10次) ×
-        // -90 : 11次 〇 (poles 対称)(zeroes 虚数1ペア)
-        // -100 : 13次 (12次) ×
-        // -110 : 13次 〇 (poles 対称)(zeroesすべて実数)
-        // -120 : 15次 (14次) ×
-        private const double STOPBAND_RIPPLE_DB = -50;
         private const double CUTOFF_RATIO_OF_NYQUIST = 0.9;
 
         public const int START_PERCENT = 5;
         public const int CONVERT_START_PERCENT = 10;
         public const int WRITE_START_PERCENT = 90;
+        public const double STOPBAND_FREQ_RATIO = 22000.0 / 22050.0;
 
         private Stopwatch mSw = new Stopwatch();
 
@@ -59,25 +36,32 @@ namespace WWOfflineResampler {
 
         public delegate void ProgressReportDelegate(int percent, BWProgressParam p);
 
-        private WWAnalogFilterDesign.AnalogFilterDesign mAfd;
-        private WWIIRFilterDesign.ImpulseInvarianceMethod mIIRiim;
+        private IIRFilterDesign mIIRFilterDesign;
 
         public WWAnalogFilterDesign.AnalogFilterDesign Afd() {
-            return mAfd;
+            return mIIRFilterDesign.Afd();
         }
+        /*
         public WWIIRFilterDesign.ImpulseInvarianceMethod IIRiim() {
-            return mIIRiim;
+            return mIIRFilterDesign.IIRiim();
+        }
+        */
+
+        public IIRFilterDesign IIRFilterDesign() {
+            return mIIRFilterDesign;
         }
 
         public class BWStartParams {
             public readonly string inputFile;
             public readonly int targetSampleRate;
             public readonly string outputFile;
+            public IIRFilterDesign.Method method;
 
-            public BWStartParams(string aInputFile, int aTargetSampleRate, string aOutputFile) {
+            public BWStartParams(string aInputFile, int aTargetSampleRate, string aOutputFile, IIRFilterDesign.Method aMethod) {
                 inputFile = aInputFile;
                 targetSampleRate = aTargetSampleRate;
                 outputFile = aOutputFile;
+                method = aMethod;
             }
         };
 
@@ -197,27 +181,17 @@ namespace WWOfflineResampler {
 
                 // IIRフィルターを設計。
 
-                // ストップバンド最小周波数。
-                double fs = metaR.sampleRate / 2;
-                if (param.targetSampleRate / 2 < fs) {
-                    fs = param.targetSampleRate / 2;
+                // ストップバンド最小周波数fs。
+                double fs = metaR.sampleRate / 2 * STOPBAND_FREQ_RATIO;
+                if (param.targetSampleRate / 2 * STOPBAND_FREQ_RATIO < fs) {
+                    fs = param.targetSampleRate / 2 * STOPBAND_FREQ_RATIO;
                 }
+
+                // カットオフ周波数fc。
                 double fc = fs * CUTOFF_RATIO_OF_NYQUIST;
 
-                mAfd = new WWAnalogFilterDesign.AnalogFilterDesign();
-                mAfd.DesignLowpass(0, CUTOFF_GAIN_DB, STOPBAND_RIPPLE_DB,
-                    fc,
-                    fs,
-                    WWAnalogFilterDesign.AnalogFilterDesign.FilterType.Cauer,
-                    WWAnalogFilterDesign.ApproximationBase.BetaType.BetaMax);
-
-                var H_s = new List<FirstOrderComplexRationalPolynomial>();
-                for (int i = 0; i < mAfd.HPfdCount(); ++i) {
-                    var p = mAfd.HPfdNth(i);
-                    H_s.Add(p);
-                }
-
-                mIIRiim = new ImpulseInvarianceMethod(H_s, fc * 2.0 * Math.PI, lcm, MinimumPhase);
+                mIIRFilterDesign = new IIRFilterDesign();
+                mIIRFilterDesign.Design(fc, fs, lcm, param.method);
 
                 ReportProgress(CONVERT_START_PERCENT, new BWProgressParam(State.FilterDesigned,
                     string.Format("Read FLAC completed.\nSource sample rate = {0}kHz.\nTarget sample rate = {1}kHz. ratio={2}/{3}\n",
@@ -256,18 +230,7 @@ namespace WWOfflineResampler {
                     var zohCompensation = new WWIIRFilterDesign.ZohNosdacCompensation(33);
 #endif
 
-                    // ローパスフィルターを作る。
-                    // 実数係数版の多項式を使用。
-#if MINIMUM_PHASE
-                    var iirFilter = new IIRFilterSerial();
-#else
-                    var iirFilter = new IIRFilterParallel();
-#endif
-                    for (int i = 0; i < mIIRiim.RealHzCount(); ++i) {
-                        var p = mIIRiim.RealHz(i);
-                        Console.WriteLine("{0}", p.ToString("(z)^(-1)"));
-                        iirFilter.Add(p);
-                    }
+                    var iirFilter = mIIRFilterDesign.CreateIIRFilterGraph();
 
                     long remainFrom = metaR.totalSamples;
                     long remainTo = metaW.totalSamples;
@@ -388,9 +351,9 @@ namespace WWOfflineResampler {
                 return false;
             }
 
-            Trace.WriteLine(string.Format("target samplerate={0}kHz.\nProcessing...\n", targetSR * 0.001));
+            Trace.WriteLine(string.Format("target samplerate={0}kHz. Bilinear transform.\nProcessing...\n", targetSR * 0.001));
 
-            var param = new BWStartParams(inputFile, targetSR, outputFile);
+            var param = new BWStartParams(inputFile, targetSR, outputFile, WWOfflineResampler.IIRFilterDesign.Method.Bilinear);
             var result = DoWork(param, (int percent, BWProgressParam p) => {
                 Trace.WriteLine(string.Format("{0}% {1}", percent, p.message)); });
 

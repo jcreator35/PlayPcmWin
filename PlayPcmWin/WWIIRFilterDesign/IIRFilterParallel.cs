@@ -5,7 +5,7 @@ namespace WWIIRFilterDesign {
     /// <summary>
     /// 実係数rational functionの並列接続
     /// </summary>
-    public class IIRFilterParallel {
+    public class IIRFilterParallel : IIRFilterGraph {
         private List<IIRFilterBlockReal> mFilterBlockList = new List<IIRFilterBlockReal>();
 
         public IIRFilterParallel() {

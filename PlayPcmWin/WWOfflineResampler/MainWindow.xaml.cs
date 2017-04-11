@@ -182,50 +182,22 @@ namespace WWOfflineResampler {
 
                 mPoleZeroPlotZ.ClearPoleZero();
                 mPoleZeroPlotZ.Mode = WWUserControls.PoleZeroPlot.ModeType.ZPlane;
-                mPoleZeroPlotZ.TransferFunction = mMain.IIRiim().TransferFunction;
+                mPoleZeroPlotZ.TransferFunction = mMain.IIRFilterDesign().TransferFunction();
 
-                Console.WriteLine("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■");
-                for (int i = 0; i < mMain.IIRiim().ComplexHzCount(); ++i) {
-                    var p = mMain.IIRiim().ComplexHz(i);
-
-                    Console.WriteLine("pole{0} = {1}", i, p.ToString("z^-1"));
-                    if (p.DenomDegree() == 1) {
-                        // ポールの位置。
-                        mPoleZeroPlotZ.AddPole(WWComplex.Minus(WWComplex.Div(p.D(1), p.D(0))));
-                    }
+                for (int i = 0; i < mMain.IIRFilterDesign().NumOfPoles(); ++i) {
+                    var p = mMain.IIRFilterDesign().PoleNth(i);
+                    mPoleZeroPlotZ.AddPole(p.Reciplocal());
                 }
-
-                {
-                    // 零の位置を計算する。
-                    // 合体したH(z)の分子の実係数多項式の根が零の位置。
-                    HighOrderComplexRationalPolynomial HzCombined = mMain.IIRiim().HzCombined();
-                    var poly = HzCombined.NumerPolynomial();
-                    var coeffs = new double[poly.Degree + 1];
-                    for (int i = 0; i < coeffs.Length; ++i) {
-                        coeffs[i] = poly.C(i).real;
-                    }
-
-                    var rf = new JenkinsTraubRpoly();
-                    bool b = rf.FindRoots(new RealPolynomial(coeffs));
-                    if (b) {
-                        Console.WriteLine("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■");
-                        Console.WriteLine("polynomial degree = {0}, {1}/{2}", HzCombined.Degree(), HzCombined.NumerDegree(), HzCombined.DenomDegree());
-                        Console.WriteLine("Hz={0}", HzCombined.ToString("z^-1"));
-
-                        var roots = rf.RootArray();
-                        foreach (var r in roots) {
-                            Console.WriteLine("  zero at {0}", WWComplex.Reciprocal(r));
-                            mPoleZeroPlotZ.AddZero(WWComplex.Reciprocal(r));
-                        }
-                    }
-
+                for (int i=0; i<mMain.IIRFilterDesign().NumOfZeroes(); ++i) {
+                    var p = mMain.IIRFilterDesign().ZeroNth(i);
+                    mPoleZeroPlotZ.AddZero(p.Reciplocal());
                 }
 
                 mPoleZeroPlotZ.Update();
 
                 mFrequencyResponseZ.Mode = WWUserControls.FrequencyResponse.ModeType.ZPlane;
-                mFrequencyResponseZ.SamplingFrequency = mMain.IIRiim().SamplingFrequency();
-                mFrequencyResponseZ.TransferFunction = mMain.IIRiim().TransferFunction;
+                mFrequencyResponseZ.SamplingFrequency = mMain.IIRFilterDesign().SamplingFrequency;
+                mFrequencyResponseZ.TransferFunction = mMain.IIRFilterDesign().TransferFunction();
                 mFrequencyResponseZ.Update();
             }
 
@@ -250,6 +222,19 @@ namespace WWOfflineResampler {
         private void buttonStart_Click(object sender, RoutedEventArgs e) {
             int targetSampleRate = mTargetSampleRateList[comboBoxTargetSampleRate.SelectedIndex];
 
+            IIRFilterDesign.Method method = IIRFilterDesign.Method.ImpulseInvarianceMixedPhase;
+            switch (comboBoxResamplingMethod.SelectedIndex) {
+            case 0:
+                method = IIRFilterDesign.Method.ImpulseInvarianceMixedPhase;
+                break;
+            case 1:
+                method = IIRFilterDesign.Method.ImpulseInvarianceMinimumPhase;
+                break;
+            case 2:
+                method = IIRFilterDesign.Method.Bilinear;
+                break;
+            }
+
             mState = State.ReadFile;
             Update();
 
@@ -258,7 +243,7 @@ namespace WWOfflineResampler {
             mStopwatch.Reset();
             mStopwatch.Start();
 
-            mBw.RunWorkerAsync(new Main.BWStartParams(textBoxInputFile.Text, targetSampleRate, textBoxOutputFile.Text));
+            mBw.RunWorkerAsync(new Main.BWStartParams(textBoxInputFile.Text, targetSampleRate, textBoxOutputFile.Text, method));
         }
 
         private void Window_DragEnter(object sender, DragEventArgs e) {
