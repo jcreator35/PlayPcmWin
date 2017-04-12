@@ -129,8 +129,8 @@ namespace WWOfflineResampler {
         private bool DesignBilinear(double fc, double fs, long samplingFreq) {
             mIIRBilinear = new BilinearDesign();
 
-            double fc_s = mIIRBilinear.PrewarpωtoΩ(2.0 * Math.PI * fc / samplingFreq);
-            double fs_s = mIIRBilinear.PrewarpωtoΩ(2.0 * Math.PI * fs / samplingFreq);
+            double fc_s = mIIRBilinear.PrewarpωtoΩ(2.0 * Math.PI * fc / (samplingFreq)) / (2.0 * Math.PI);
+            double fs_s = mIIRBilinear.PrewarpωtoΩ(2.0 * Math.PI * fs / (samplingFreq)) / (2.0 * Math.PI);
 
             mAfd = new WWAnalogFilterDesign.AnalogFilterDesign();
             mAfd.DesignLowpass(0, CUTOFF_GAIN_DB, StopbandRippleDb(),

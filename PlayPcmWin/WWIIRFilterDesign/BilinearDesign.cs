@@ -144,11 +144,11 @@ namespace WWIIRFilterDesign {
                 var p = WWPolynomial.Add(p0, p1).ToRealPolynomial();
                 mRealHzList.Add(p);
             }
-            {
+            if ((mComplexHzList.Count & 1) == 1) {
                 var p = mComplexHzList[mComplexHzList.Count / 2];
 
                 mRealHzList.Add(new RealRationalPolynomial(
-                    new double[] { p.N(0).real },
+                    new double[] { p.N(0).real, p.N(1).real },
                     new double[] { p.D(0).real, p.D(1).real }));
             }
 
