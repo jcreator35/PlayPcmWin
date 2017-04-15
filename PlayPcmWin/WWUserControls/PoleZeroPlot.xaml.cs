@@ -438,21 +438,6 @@ namespace WWUserControls {
             canvasPoleZero.Children.Add(im);
             Canvas.SetZIndex(im, -1);
             mImage = im;
-
-            /*
-            // 単位円描画。
-            if (mUnitCircle != null) {
-                canvasPoleZero.Children.Add(mUnitCircle);
-            }
-            double circleRadius = 128.0 / scale;
-            Ellipse unitCircle = new Ellipse { Width = circleRadius * 2, Height = circleRadius * 2, Stroke = new SolidColorBrush { Color = Colors.Black } };
-            unitCircle.Width = circleRadius * 2;
-            unitCircle.Height = circleRadius * 2;
-            Canvas.SetLeft(unitCircle, 128.0 - circleRadius);
-            Canvas.SetTop(unitCircle, 128.0 - circleRadius);
-            Canvas.SetZIndex(unitCircle, 1);
-            mUnitCircle = unitCircle;
-            */
         }
 
         //private Ellipse mUnitCircle = null;

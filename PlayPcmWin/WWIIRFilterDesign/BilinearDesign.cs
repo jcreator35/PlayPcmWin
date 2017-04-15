@@ -4,7 +4,6 @@ using WWMath;
 
 namespace WWIIRFilterDesign {
     public class BilinearDesign {
-        private double mTd;
         private List<RealRationalPolynomial> mRealHzList = new List<RealRationalPolynomial>();
 
         public int RealHzCount() {
@@ -15,12 +14,18 @@ namespace WWIIRFilterDesign {
             return mRealHzList[nth];
         }
 
+        private double mTd;
+        private double mMatchFreq;
+        private double mSampleFreq;
+
         public double Td {
             get { return mTd; }
         }
 
-        public BilinearDesign(double td = 1.0) {
+        public BilinearDesign(double td, double matchFreq, double sampleFreq) {
             mTd = td;
+            mMatchFreq = matchFreq;
+            mSampleFreq = sampleFreq;
         }
 
         private List<FirstOrderComplexRationalPolynomial> mH_s = new List<FirstOrderComplexRationalPolynomial>();
@@ -47,32 +52,28 @@ namespace WWIIRFilterDesign {
         /// <summary>
         /// 離散時間角周波数ωを連続時間角周波数Ωにprewarpする。
         /// Discrete-time signal processing 3rd ed. pp.534, eq 7.26
+        /// 三谷政昭, ディジタル・フィルタ理論&設計入門 pp.193
         /// </summary>
         /// <param name="ω">離散時間角周波数ω (π==ナイキスト周波数)</param>
         /// <param name="Td">1.0で良い。</param>
         /// <returns>Ω</returns>
         public double PrewarpωtoΩ(double ω) {
-            double Ω = 2.0 / Td * Math.Tan(ω / 2.0);
+            double Ω = 2.0 / Td * Math.Tan(ω * Td / 2.0);
             return Ω;
         }
 
         /// <summary>
-        /// 連続時間(s平面)の零の座標(0,Ω)は、
-        /// 離散時間(z平面)のe^{jω}に移動する。
-        /// Discrete-time signal processing 3rd ed. pp534 eq7.27
-        /// </summary>
-        public double WarpΩtoω(double Ω) {
-            double ω = 2.0 * Math.Atan(Ω * Td / 2.0);
-            return ω;
-        }
-
-        /// <summary>
-        /// Discrete-time signal processing 3rd ed. pp534 eq7.27
+        /// Discrete-time signal processing 3rd ed. pp534 eq7.21
+        /// 三谷政昭, ディジタル・フィルタ理論&設計入門 pp.193
         /// </summary>
         public WWComplex StoZ(WWComplex s) {
+            // アナログフィルターのs'は、s' == s / ωcとしたs'についての式になっている
+
+            double ωc = 2.0 * Math.PI * mMatchFreq;
+            WWComplex s2 = s.Scale(ωc * Td/2.0);
             return WWComplex.Div(
-                new WWComplex(1.0 + s.real*Td/2, s.imaginary*Td/2),
-                new WWComplex(1.0 - s.real*Td/2, -s.imaginary*Td/2)
+                new WWComplex(1.0 + s2.real, s2.imaginary),
+                new WWComplex(1.0 - s2.real, -s2.imaginary)
                 );
         }
 
@@ -80,6 +81,7 @@ namespace WWIIRFilterDesign {
         /// 連続時間フィルターの伝達関数を離散時間フィルターの伝達関数にBilinear transformする。
         /// Discrete-time signal processing 3rd ed. pp.533
         /// Benoit Boulet, 信号処理とシステムの基礎 pp.681-682
+        /// 三谷政昭, ディジタル・フィルタ理論&設計入門 pp.193
         /// </summary>
         /// <param name="ps">連続時間フィルターの伝達関数</param>
         /// <returns>離散時間フィルターの伝達関数</returns>
@@ -112,10 +114,14 @@ namespace WWIIRFilterDesign {
              
              */
 
+            // アナログフィルターのpsは、s' == s / ωcとしたs'についての式になっている
+
+            double ωc = 2.0 * Math.PI * mMatchFreq;
+            double k = (1.0/ωc) * (2.0 / Td);
             var n0  = ps.N(0);
-            var n1k = WWComplex.Mul(ps.N(1), 2.0 / Td);
+            var n1k = WWComplex.Mul(ps.N(1), k);
             var d0  = ps.D(0);
-            var d1k = WWComplex.Mul(ps.D(1), 2.0 / Td);
+            var d1k = WWComplex.Mul(ps.D(1), k);
 
             var pz = new FirstOrderComplexRationalPolynomial(
                 WWComplex.Sub(n0, n1k), WWComplex.Add(n0, n1k),
@@ -162,13 +168,32 @@ namespace WWIIRFilterDesign {
         }
 
         private WWComplex TransferFunctionValue(WWComplex z) {
-            // 1次有理多項式の和の形の式で計算。
             var zRecip = WWComplex.Reciprocal(z);
+#if false
+            // 1次有理多項式の和の形の式で計算。
             var result = WWComplex.Zero();
             foreach (var H in mComplexHzList) {
                 result = WWComplex.Add(result, H.Evaluate(zRecip));
             }
             return result;
+#endif
+#if true
+            // 2次有理多項式の和の形の式で計算。
+            var result = WWComplex.Zero();
+            foreach (var H in mRealHzList) {
+                result = WWComplex.Add(result, H.Evaluate(zRecip));
+            }
+            return result;
+#endif
+#if false
+            // アナログフィルターの伝達関数を使用。
+            var s = ZtoS(z);
+            var result = WWComplex.Zero();
+            foreach (var H in mH_s) {
+                result = WWComplex.Add(result, H.Evaluate(s));
+            }
+            return result;
+#endif
         }
     }
 }

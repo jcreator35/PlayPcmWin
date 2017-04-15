@@ -48,10 +48,7 @@ namespace WWOfflineResampler {
         public MainWindow() {
             InitializeComponent();
 
-            if (mMain.ParseCommandLine()) {
-                Application.Current.Shutdown();
-                return;
-            }
+            //var args = Environment.GetCommandLineArgs();
 
             mPoleZeroPlotZ.Mode = WWUserControls.PoleZeroPlot.ModeType.ZPlane;
             mPoleZeroPlotZ.Update();

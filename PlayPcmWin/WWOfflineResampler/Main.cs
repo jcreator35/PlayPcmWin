@@ -328,26 +328,25 @@ namespace WWOfflineResampler {
 
         private static readonly string COMMAND_TARGETSR = "-targetSR";
 
-        private void PrintUsage(string programName) {
+        private void PrintUsage() {
+            var programName = "WWOfflineResampler";
             Trace.WriteLine(string.Format("Commandline Usage: {0} -targetSR [samplerate] inputAudioFile outputAudioFile", programName));
         }
 
-        public bool ParseCommandLine() {
-            var argDictionary = new Dictionary<string, string>();
+        public bool ParseCommandLine(string [] args) {
 
-            var args = Environment.GetCommandLineArgs();
-            if (5 != args.Length || !COMMAND_TARGETSR.Equals(args[1])) {
-                PrintUsage(args[0]);
+            if (4 != args.Length || !COMMAND_TARGETSR.Equals(args[0])) {
+                PrintUsage();
                 return false;
             }
 
-            string targetSRString = args[2];
-            string inputFile = args[3];
-            string outputFile = args[4];
+            string targetSRString = args[1];
+            string inputFile = args[2];
+            string outputFile = args[3];
 
             int targetSR = 0;
             if (!int.TryParse(targetSRString, out targetSR) || targetSR <= 0) {
-                PrintUsage(args[0]);
+                PrintUsage();
                 return false;
             }
 

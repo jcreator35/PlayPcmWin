@@ -59,14 +59,14 @@ namespace WWAnalogFilterDesign {
         private List<FirstOrderComplexRationalPolynomial> mH_PFD = new List<FirstOrderComplexRationalPolynomial>();
 
         /// <summary>
-        /// poly count of partial fraction decomposition-ed transfer function
+        /// polynomial count of partial fraction decomposition-ed transfer function
         /// </summary>
         public int HPfdCount() {
             return mH_PFD.Count();
         }
 
         /// <summary>
-        /// partial fraction decomposition-ed transfer function
+        /// partial fraction decomposition-ed transfer function. s is normalized
         /// </summary>
         public FirstOrderComplexRationalPolynomial HPfdNth(int n) {
             return mH_PFD[n];

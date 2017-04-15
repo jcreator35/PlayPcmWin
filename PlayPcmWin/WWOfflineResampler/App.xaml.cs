@@ -12,6 +12,12 @@ namespace WWOfflineResampler {
             //PolynomialRootFinding.Test();
             //WWPolynomial.Test();
             //NewtonsMethod.Test();
+            var main = new Main();
+
+            if (main.ParseCommandLine(e.Args)) {
+                Application.Current.Shutdown();
+                return;
+            }
         }
     }
 }
