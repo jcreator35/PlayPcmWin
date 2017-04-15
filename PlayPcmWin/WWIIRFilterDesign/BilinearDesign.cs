@@ -55,8 +55,7 @@ namespace WWIIRFilterDesign {
         /// 三谷政昭, ディジタル・フィルタ理論&設計入門 pp.193
         /// </summary>
         /// <param name="ω">離散時間角周波数ω (π==ナイキスト周波数)</param>
-        /// <param name="Td">1.0で良い。</param>
-        /// <returns>Ω</returns>
+        /// <returns>Ω (rad/s)</returns>
         public double PrewarpωtoΩ(double ω) {
             double Ω = 2.0 / Td * Math.Tan(ω * Td / 2.0);
             return Ω;
@@ -130,6 +129,9 @@ namespace WWIIRFilterDesign {
             return pz;
         }
 
+        /// <summary>
+        /// アナログフィルターの伝達関数psをBilinear変換器に投入する。
+        /// </summary>
         public void Add(FirstOrderComplexRationalPolynomial ps) {
             mH_s.Add(ps);
             mComplexHzList.Add(StoZ(ps));

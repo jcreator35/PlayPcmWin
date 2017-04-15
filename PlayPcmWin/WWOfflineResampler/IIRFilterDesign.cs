@@ -79,18 +79,22 @@ namespace WWOfflineResampler {
                 break;
             }
 
-            if (mMethod == Method.Bilinear) {
+            switch (mMethod) {
+            case Method.Bilinear:
                 for (int i = 0; i < mIIRBilinear.RealHzCount(); ++i) {
                     RealRationalPolynomial p = mIIRBilinear.RealHz(i);
                     Console.WriteLine("{0}", p.ToString("(z)^(-1)"));
                     iirFilter.Add(p);
                 }
-            } else {
+                break;
+            case Method.ImpulseInvarianceMinimumPhase:
+            case Method.ImpulseInvarianceMixedPhase:
                 for (int i = 0; i < mIIRiim.RealHzCount(); ++i) {
                     RealRationalPolynomial p = mIIRiim.RealHz(i);
                     Console.WriteLine("{0}", p.ToString("(z)^(-1)"));
                     iirFilter.Add(p);
                 }
+                break;
             }
             return iirFilter;
         }
@@ -101,7 +105,7 @@ namespace WWOfflineResampler {
 
             switch (method) {
             case Method.Bilinear:
-                return DesignBilinear(fc,fs,samplingFreq);
+                return DesignBilinear(fc, fs, samplingFreq);
             default:
                 return DesignImpulseInvariance(fc, fs, samplingFreq);
             }
