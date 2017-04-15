@@ -113,7 +113,8 @@ namespace WWIIRFilterDesign {
              
              */
 
-            // アナログフィルターのpsは、s' == s / ωcとしたs'についての式になっている
+            // 都合により、投入されるアナログフィルターの伝達関数psは、
+            // s' == s / ωcとしたs'についての式であることに注意!!
 
             double ωc = 2.0 * Math.PI * mMatchFreq;
             double k = (1.0/ωc) * (2.0 / Td);
