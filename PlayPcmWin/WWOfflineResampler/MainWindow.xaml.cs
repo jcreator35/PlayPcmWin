@@ -266,5 +266,25 @@ namespace WWOfflineResampler {
             textBoxInputFile.Text = paths[0];
             InputFormUpdated();
         }
+
+        private void textBox_PreviewDragOver(object sender, DragEventArgs e) {
+            e.Handled = true;
+        }
+
+        private void TextBoxOutputFile_Drop(object sender, DragEventArgs e) {
+            var paths = e.Data.GetData(DataFormats.FileDrop) as string[];
+            if (null == paths) {
+                var sb = new StringBuilder(Properties.Resources.DroppedDataIsNotFile);
+
+                var formats = e.Data.GetFormats(false);
+                foreach (var format in formats) {
+                    sb.Append(string.Format(CultureInfo.InvariantCulture, "{1}    {0}", format, Environment.NewLine));
+                }
+                MessageBox.Show(sb.ToString());
+                return;
+            }
+            textBoxOutputFile.Text = paths[0];
+            InputFormUpdated();
+        }
     }
 }

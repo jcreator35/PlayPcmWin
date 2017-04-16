@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:wwuc="clr-namespace:WWUserControls;assembly=WWUserControls"
-        Title="WWOfflineResampler" Height="600" Width="1000" Loaded="Window_Loaded" DragEnter="Window_DragEnter" Drop="Window_Drop" AllowDrop="True">
+        Title="WWOfflineResampler" Height="600" Width="1000" Loaded="Window_Loaded" AllowDrop="True">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="1*" />
@@ -24,7 +24,7 @@
                         <RowDefinition Height="1*" />
                     </Grid.RowDefinitions>
                     <Label Content="Input FLAC file name:" HorizontalAlignment="Right" Name="labelInputFileName" VerticalAlignment="Center" />
-                    <TextBox Grid.Column="1" Text="C:\audio\input.flac" Name="textBoxInputFile" VerticalAlignment="Center" Margin="0" Width="Auto" MinWidth="100" />
+                    <TextBox Grid.Column="1" Text="C:\audio\input.flac" Name="textBoxInputFile" VerticalAlignment="Center" Margin="0" Width="Auto" MinWidth="100" DragEnter="Window_DragEnter" Drop="Window_Drop" PreviewDragOver="textBox_PreviewDragOver" />
                     <Button Content="_Browse..." Grid.Column="2" Margin="6,0,6,0" Name="buttonBrowseInput" VerticalAlignment="Center" Click="buttonBrowseInputFile_Click" />
                     <Label Content="Resampling Method:" Grid.Row="1" HorizontalAlignment="Right" Name="labelResamplingMethod" VerticalAlignment="Center" />
                     <ComboBox Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" HorizontalAlignment="Left" Margin="0,0,0,0" Name="comboBoxResamplingMethod" VerticalAlignment="Center" HorizontalContentAlignment="Center">
@@ -47,7 +47,7 @@
                         <ComboBoxItem Content="384 kHz" />
                     </ComboBox>
                     <Label Grid.Row="3" Content="Output FLAC file name:" HorizontalAlignment="Right" Name="labelOutputFileName" VerticalAlignment="Center" />
-                    <TextBox Grid.Row="3" Grid.Column="1" Name="textBoxOutputFile" VerticalAlignment="Center" Margin="0" Width="Auto" MinWidth="100" Text="C:\audio\output.flac" />
+                    <TextBox Grid.Row="3" Grid.Column="1" Name="textBoxOutputFile" VerticalAlignment="Center" Margin="0" Width="Auto" MinWidth="100" Text="C:\audio\output.flac" PreviewDragOver="textBox_PreviewDragOver" Drop="TextBoxOutputFile_Drop" DragEnter="Window_DragEnter" />
                     <Button Grid.Row="3" Content="B_rowse..." Grid.Column="2" Margin="6,0,6,0" Name="buttonBrowseOutput" VerticalAlignment="Center" Click="buttonBrowseOutputFile_Click" />
                 </Grid>
             </GroupBox>
