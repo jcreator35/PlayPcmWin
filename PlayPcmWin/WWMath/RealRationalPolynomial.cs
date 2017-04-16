@@ -28,6 +28,24 @@ namespace WWMath {
             }
         }
 
+        /// <summary>
+        /// 分子と分母を定数倍したrational functionを戻す。
+        /// </summary>
+        public RealRationalPolynomial ConstantScale(double c) {
+            var nS = new double[numer.Length];
+            for (int i = 0; i < nS.Length; ++i) {
+                nS[i] = numer[i] * c;
+            }
+
+            var dS = new double[denom.Length];
+            for (int i = 0; i < dS.Length; ++i) {
+                dS[i] = denom[i] * c;
+            }
+
+            return new RealRationalPolynomial(
+                nS, dS);
+        }
+
         public double Evaluate(double x) {
             double n = 0;
             double xN = 1.0;

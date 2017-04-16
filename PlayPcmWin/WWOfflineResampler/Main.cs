@@ -16,12 +16,11 @@ using WWMath;
 
 namespace WWOfflineResampler {
     class Main {
-        private const double CUTOFF_RATIO_OF_NYQUIST = 0.9;
-
         public const int START_PERCENT = 5;
         public const int CONVERT_START_PERCENT = 10;
         public const int WRITE_START_PERCENT = 90;
         public const double STOPBAND_FREQ_RATIO = 22000.0 / 22050.0;
+        public const double CUTOFF_STOPBAND_RATIO = 20000.0 / 22000.0;
 
         private Stopwatch mSw = new Stopwatch();
 
@@ -188,7 +187,7 @@ namespace WWOfflineResampler {
                 }
 
                 // カットオフ周波数fc。
-                double fc = fs * CUTOFF_RATIO_OF_NYQUIST;
+                double fc = CUTOFF_STOPBAND_RATIO * fs;
 
                 mIIRFilterDesign = new IIRFilterDesign();
                 mIIRFilterDesign.Design(fc, fs, lcm, param.method);

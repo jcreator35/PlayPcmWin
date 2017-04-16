@@ -27,6 +27,15 @@ namespace WWMath {
                 denom[0] = d0;
         }
 
+        /// <summary>
+        /// 分子と分母を定数倍したrational functionを戻す。
+        /// </summary>
+        public FirstOrderComplexRationalPolynomial ConstantScale(double c) {
+            return new FirstOrderComplexRationalPolynomial(
+                numer[1].Scale(c), numer[0].Scale(c),
+                denom[1].Scale(c), denom[0].Scale(c));
+        }
+
         public override int Degree() { return 1; }
 
         public override int NumerDegree() {

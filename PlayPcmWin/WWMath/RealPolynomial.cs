@@ -29,6 +29,10 @@ namespace WWMath {
             }
         }
 
+        public double[] Coeffs() {
+            return mCoeff;
+        }
+
         /// <summary>
         /// 最大次数の項が1になるように係数をスケールした多項式を戻す。
         /// 自分自身を変更しない。

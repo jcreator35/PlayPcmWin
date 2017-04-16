@@ -84,6 +84,19 @@ namespace WWMath {
             return new RealPolynomial(c);
         }
 
+        public static RealRationalPolynomial
+        Mul(RealRationalPolynomial lhs, RealRationalPolynomial rhs) {
+            var nl = lhs.NumerPolynomial();
+            var nr = rhs.NumerPolynomial();
+            var n = Mul(nl, nr);
+
+            var dl = lhs.DenomPolynomial();
+            var dr = rhs.DenomPolynomial();
+            var d = Mul(dl, dr);
+
+            return new RealRationalPolynomial(n.Coeffs(), d.Coeffs());
+        }
+
         /// <summary>
         /// 1次有理多項式 + 1次有理多項式
         /// </summary>
