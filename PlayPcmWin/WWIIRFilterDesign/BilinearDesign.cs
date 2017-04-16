@@ -4,7 +4,21 @@ using WWMath;
 
 namespace WWIIRFilterDesign {
     public class BilinearDesign {
+        private List<FirstOrderComplexRationalPolynomial> mH_s = new List<FirstOrderComplexRationalPolynomial>();
+        private List<FirstOrderComplexRationalPolynomial> mComplexHzList = new List<FirstOrderComplexRationalPolynomial>();
         private List<RealRationalPolynomial> mRealHzList = new List<RealRationalPolynomial>();
+        private double mMatchFreq;
+        private double mSampleFreq;
+
+        /// <summary>
+        /// バイリニア変換でIIRフィルターを設計する。
+        /// </summary>
+        /// <param name="matchFreq">アナログフィルターとデジタルフィルターのゲインが一致する周波数(Hz)</param>
+        /// <param name="sampleFreq">サンプリング周波数 (Hz)</param>
+        public BilinearDesign(double matchFreq, double sampleFreq) {
+            mMatchFreq = matchFreq;
+            mSampleFreq = sampleFreq;
+        }
 
         public int RealHzCount() {
             return mRealHzList.Count;
@@ -14,22 +28,9 @@ namespace WWIIRFilterDesign {
             return mRealHzList[nth];
         }
 
-        private double mTd;
-        private double mMatchFreq;
-        private double mSampleFreq;
-
         public double Td {
-            get { return mTd; }
+            get { return 1.0 / mSampleFreq; }
         }
-
-        public BilinearDesign(double td, double matchFreq, double sampleFreq) {
-            mTd = td;
-            mMatchFreq = matchFreq;
-            mSampleFreq = sampleFreq;
-        }
-
-        private List<FirstOrderComplexRationalPolynomial> mH_s = new List<FirstOrderComplexRationalPolynomial>();
-        private List<FirstOrderComplexRationalPolynomial> mComplexHzList = new List<FirstOrderComplexRationalPolynomial>();
 
         public int HsNum() {
             return mH_s.Count;

@@ -133,7 +133,7 @@ namespace WWOfflineResampler {
         private bool DesignBilinear(double fc, double fs, long sampleFreq) {
             double twoπ = 2.0 * Math.PI;
 
-            mIIRBilinear = new BilinearDesign(1.0/sampleFreq, fc, sampleFreq);
+            mIIRBilinear = new BilinearDesign(fc, sampleFreq);
 
             double fc_pw = mIIRBilinear.PrewarpωtoΩ(twoπ * fc) / twoπ;
             double fs_pw = mIIRBilinear.PrewarpωtoΩ(twoπ * fs) / twoπ;
