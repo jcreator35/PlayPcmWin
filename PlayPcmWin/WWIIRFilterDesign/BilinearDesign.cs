@@ -69,7 +69,9 @@ namespace WWIIRFilterDesign {
         public WWComplex StoZ(WWComplex s) {
             // アナログフィルターのs'は、s' == s / ωcとしたs'についての式になっている
 
-            double ωc = 2.0 * Math.PI * mMatchFreq;
+            double twoπ = 2.0 * Math.PI;
+            double ωc = PrewarpωtoΩ(mMatchFreq * twoπ);
+
             WWComplex s2 = s.Scale(ωc * Td/2.0);
             return WWComplex.Div(
                 new WWComplex(1.0 + s2.real, s2.imaginary),

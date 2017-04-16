@@ -180,7 +180,7 @@ namespace WWOfflineResampler {
         public WWComplex ZeroNth(int nth) {
             switch (mMethod) {
             case Method.Bilinear:
-                if (mAfd.NumOfZeroes() < nth) {
+                if (nth < mAfd.NumOfZeroes()) {
                     return mIIRBilinear.StoZ(mAfd.ZeroNth(nth)).Reciplocal();
                 } else {
                     // 零は z==-1にある。
