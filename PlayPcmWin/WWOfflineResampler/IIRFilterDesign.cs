@@ -170,7 +170,8 @@ namespace WWOfflineResampler {
         public int NumOfZeroes() {
             switch (mMethod) {
             case Method.Bilinear:
-                return mAfd.NumOfZeroes();
+                // バイリニア変換すると、零の数はポールの数と同じになる。
+                return mAfd.NumOfPoles();
             default:
                 return mIIRiim.NumOfZeroes();
             }
@@ -179,7 +180,12 @@ namespace WWOfflineResampler {
         public WWComplex ZeroNth(int nth) {
             switch (mMethod) {
             case Method.Bilinear:
-                return mIIRBilinear.StoZ(mAfd.ZeroNth(nth)).Reciplocal();
+                if (mAfd.NumOfZeroes() < nth) {
+                    return mIIRBilinear.StoZ(mAfd.ZeroNth(nth)).Reciplocal();
+                } else {
+                    // 零は z==-1にある。
+                    return new WWComplex(-1, 0);
+                }
             default:
                 return mIIRiim.ZeroNth(nth);
             }
