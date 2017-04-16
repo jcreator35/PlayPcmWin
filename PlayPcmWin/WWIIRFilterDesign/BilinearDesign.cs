@@ -117,8 +117,10 @@ namespace WWIIRFilterDesign {
             // 都合により、投入されるアナログフィルターの伝達関数psは、
             // s' == s / ωcとしたs'についての式であることに注意!!
 
-            double ωc = 2.0 * Math.PI * mMatchFreq;
-            double k = (1.0/ωc) * (2.0 / Td);
+            double twoπ = 2.0 * Math.PI;
+            double ωc = PrewarpωtoΩ(mMatchFreq * twoπ);
+            double k = (1.0 / ωc) * (2.0 * mSampleFreq);
+
             var n0  = ps.N(0);
             var n1k = WWComplex.Mul(ps.N(1), k);
             var d0  = ps.D(0);
