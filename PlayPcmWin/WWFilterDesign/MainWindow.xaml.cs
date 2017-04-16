@@ -168,7 +168,6 @@ namespace WWAudioFilter {
         BackgroundWorker mBw = new BackgroundWorker();
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
-            WWMath.PolynomialRootFinding.Test();
             //WWPolynomial.Test();
             //ChebyshevDesign.Test();
             //Functions.Test();
@@ -227,7 +226,7 @@ namespace WWAudioFilter {
 
             AddLog(string.Format("Transfer function with real coefficients H(s) = "));
             for (int i = 0; i < mAfd.RealPolynomialCount(); ++i) {
-                AddLog(mAfd.RealPolynomialNth(i).ToString("(s/ωc)", "i"));
+                AddLog(mAfd.RealPolynomialNth(i).ToString("(s/ωc)"));
                 if (i != mAfd.RealPolynomialCount() - 1) {
                     AddLog(" + ");
                 }
