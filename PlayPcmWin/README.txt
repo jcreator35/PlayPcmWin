@@ -23,13 +23,13 @@ Open Visual Studio x64 Win64 command prompt and enter following commands to crea
  sn -k WWOfflineResampler\WWOfflineResampler.snk
  sn -k WWUserControls\WWUserControls.snk
 
-Open PlayPcmWin\PlayPcmWin.sln to build/run PlayPcmWin
+Open PlayPcmWin\PlayPcmWin.sln to build/run PlayPcmWin (choose Release x64 build target)
 
-Open PlayPcmWinAlbum\PPWA.sln to build/run PlayPcmWinAlbum
+Open PlayPcmWinAlbum\PPWA.sln to build/run PlayPcmWinAlbum (choose Release x64 build target)
 
 Open RecPcmWin\RecPcmWin.sln to build/run RecPcmWin
 
-Open WWAudioFilter\WWAudioFiltervs2010.sln to build/run WWAudioFilter (choose x64 build target)
+Open WWAudioFilter\WWAudioFiltervs2010.sln to build/run WWAudioFilter (choose Release x64 build target)
 
-Open WWOfflineResampler\WWOfflineResampler.sln to build/run WWOfflineResampler (choose x64 build target)
+Open WWOfflineResampler\WWOfflineResampler.sln to build/run WWOfflineResampler (choose Release x64 build target)
 
