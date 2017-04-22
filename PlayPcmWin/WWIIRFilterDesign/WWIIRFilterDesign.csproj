@@ -81,6 +81,7 @@
     <Compile Include="IIRFilterSerial.cs" />
     <Compile Include="ImpulseInvarianceMethod.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Transformations.cs" />
     <Compile Include="ZohNosdacCompensation.cs" />
   </ItemGroup>
   <ItemGroup>

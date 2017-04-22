@@ -67,7 +67,7 @@ namespace WWOfflineResampler {
         public IIRFilterGraph CreateIIRFilterGraph() {
             IIRFilterGraph iirFilter = null;
 
-            // ローパスフィルターを作る。
+            // フィルターを作る。
             // 実数係数版の多項式を使用。
             switch (mMethod) {
             case Method.ImpulseInvarianceMinimumPhase:

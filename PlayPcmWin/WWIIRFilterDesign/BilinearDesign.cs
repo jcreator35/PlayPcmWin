@@ -147,7 +147,15 @@ namespace WWIIRFilterDesign {
         /// Addし終わったら呼ぶ。
         /// </summary>
         public void Calc() {
-            // mH_zに1次の関数が入っている。
+            // mComplexHzListに1次の関数が入っている。
+
+            /* ローパスハイパス変換のテスト 
+            for (int i = 0; i < mComplexHzList.Count; ++i) {
+                var p = mComplexHzList[i];
+                var r = Transformations.LowpassToHighpass(p);
+                mComplexHzList[i] = r;
+            }
+            */
 
             //　係数が全て実数のmRealHzListを作成する。
             // mRealHzListは、多項式の和を表現する。
@@ -166,11 +174,11 @@ namespace WWIIRFilterDesign {
                     new double[] { p.D(0).real, p.D(1).real }));
             }
 
-            var gainR = 0.0;
+            var gainDC = WWComplex.Zero();
             foreach (var p in mRealHzList) {
-                gainR += p.Evaluate(1.0);
+                gainDC = WWComplex.Add(gainDC, p.Evaluate(WWComplex.Unity()));
             }
-            Console.WriteLine("gainR={0}", gainR);
+            Console.WriteLine("DC gain={0}", gainDC);
 
             TransferFunction = (WWComplex z) => { return TransferFunctionValue(z); };
         }

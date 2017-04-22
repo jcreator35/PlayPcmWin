@@ -1,9 +1,8 @@
 ﻿
 
 /// <summary>
-/// true: ZOH
-/// false: インパルストレイン
-/// 比較するとZOHのほうがローノイズ。
+/// def  : ZOH
+/// undef: インパルストレイン
 /// </summary>
 #define USE_ZOH_UPSAMPLE
 
@@ -212,7 +211,7 @@ namespace WWOfflineResampler {
                     flacW.EncodeSetPicture(picture);
                 }
 
-                var svs = new SampleValueStatistics();
+                var stat = new SampleValueStatistics();
                 long totalSamplesOfAllChannels = metaR.totalSamples * metaR.channels;
                 long processedSamples = 0;
 
@@ -270,7 +269,7 @@ namespace WWOfflineResampler {
                             }
 #endif
                             v = iirFilter.Filter(v);
-                            svs.Add(v);
+                            stat.Add(v);
                             if ((i % downsampleScale) == 0) {
                                 int posTo = (int)(i / downsampleScale);
                                 if (posTo < y.Length) {
@@ -293,8 +292,8 @@ namespace WWOfflineResampler {
                             * ((double)processedSamples / totalSamplesOfAllChannels));
 
                         if (1000 < mSw.ElapsedMilliseconds) {
-                            ReportProgress(percentage, new BWProgressParam(State.Converting, ""));
                             mSw.Restart();
+                            ReportProgress(percentage, new BWProgressParam(State.Converting, ""));
                         }
                     }
 
@@ -302,7 +301,7 @@ namespace WWOfflineResampler {
                     System.Diagnostics.Debug.Assert(0 <= rv);
                 });
 
-                double maxMagnitudeDb = FieldQuantityToDecibel(svs.MaxAbsValue());
+                double maxMagnitudeDb = FieldQuantityToDecibel(stat.MaxAbsValue());
                 string clippedMsg = "";
                 if (0 <= maxMagnitudeDb) {
                     clippedMsg = "★★★ CLIPPED! ★★★";
