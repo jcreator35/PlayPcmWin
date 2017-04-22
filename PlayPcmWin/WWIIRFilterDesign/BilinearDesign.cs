@@ -166,7 +166,9 @@ namespace WWIIRFilterDesign {
                 var p = WWPolynomial.Add(p0, p1).ToRealPolynomial();
                 mRealHzList.Add(p);
             }
+
             if ((mComplexHzList.Count & 1) == 1) {
+                // 1次の項。
                 var p = mComplexHzList[mComplexHzList.Count / 2];
                 mRealHzList.Add(new RealRationalPolynomial(
                     new double[] { p.N(0).real, p.N(1).real },
@@ -174,6 +176,17 @@ namespace WWIIRFilterDesign {
             }
 
             var gainDC = WWComplex.Zero();
+            foreach (var p in mRealHzList) {
+                gainDC = WWComplex.Add(gainDC, p.Evaluate(WWComplex.Unity()));
+            }
+
+            // DCゲインが1になるようにHzをスケールする。
+            for (int i=0; i<mRealHzList.Count; ++i) {
+                var p = mRealHzList[i];
+                mRealHzList[i] = p.ScaleNumerCoeffs(1.0 / gainDC.real);
+            }
+
+            gainDC = WWComplex.Zero();
             foreach (var p in mRealHzList) {
                 gainDC = WWComplex.Add(gainDC, p.Evaluate(WWComplex.Unity()));
             }

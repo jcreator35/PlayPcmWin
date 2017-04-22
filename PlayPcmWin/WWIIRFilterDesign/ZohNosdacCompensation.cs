@@ -16,6 +16,7 @@
  */
 
 
+using System;
 namespace WWIIRFilterDesign {
 
     public class ZohNosdacCompensation {
@@ -37,25 +38,35 @@ namespace WWIIRFilterDesign {
         0.756880242,-0.069297152,0.022220703,-0.010520534,0.006022133,-0.00384863,0.002638312,-0.001895252,
         0.001404865,-0.001062254,0.000811212,-0.000619343,0.0004668,-0.000340729,0.000232335,-0.000135225,4.44017E-05};
 
-        private readonly double[] mCoeffs;
+        private double[] mCoeffs;
         private DelayReal mDelay;
 
-        public ZohNosdacCompensation(int taps) {
-            Taps = taps;
-            switch (taps) {
+        public ZohNosdacCompensation(int length) {
+            Taps = length;
+            switch (length) {
             case 9:
-                mCoeffs = mCoeffs9;
+                mCoeffs = new double[9];
+                Array.Copy(mCoeffs9, mCoeffs, mCoeffs9.Length);
                 break;
             case 17:
+                mCoeffs = new double[17];
+                Array.Copy(mCoeffs17, mCoeffs, mCoeffs17.Length);
                 mCoeffs = mCoeffs17;
                 break;
             case 33:
-                mCoeffs = mCoeffs33;
+                mCoeffs = new double[33];
+                Array.Copy(mCoeffs33, mCoeffs, mCoeffs33.Length);
+                /* フィルター係数が、DCゲインが1.0になるようにスケールする。
+                 * */
+                for (int i = 0; i < mCoeffs.Length; ++i) {
+                    mCoeffs[i] *= 1.5405388308838;
+                }
                 break;
             default:
-                throw new System.ArgumentException("taps");
+                throw new System.ArgumentException("length");
             }
-            mDelay = new DelayReal(taps);
+
+            mDelay = new DelayReal(length);
             mDelay.FillZeroes();
         }
 

@@ -47,6 +47,22 @@ namespace WWMath {
                 nS, dS);
         }
 
+        /// <summary>
+        /// 分子の係数を定数倍したrational functionを戻す。
+        /// 式の評価値はc倍にスケールされる。
+        /// </summary>
+        /// <param name="c"></param>
+        /// <returns></returns>
+        public RealRationalPolynomial ScaleNumerCoeffs(double c) {
+            var nS = new double[numer.Length];
+            for (int i = 0; i < nS.Length; ++i) {
+                nS[i] = numer[i] * c;
+            }
+
+            return new RealRationalPolynomial(
+                nS, denom);
+        }
+
         public double Evaluate(double x) {
             double n = 0;
             double xN = 1.0;

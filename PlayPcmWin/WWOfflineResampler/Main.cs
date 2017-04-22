@@ -244,6 +244,13 @@ namespace WWOfflineResampler {
 
                         // 入力サンプル列x
                         var x = GetSamples(flacR, metaR, ch, posX, sizeFrom);
+#if false
+                        // DCゲインのテスト。
+                        x = new double[sizeFrom];
+                        for (int i = 0; i < sizeFrom; ++i) {
+                            x[i] = 0.5;
+                        }
+#endif
                         int sizeTo = (int)((long)x.Length * upsampleScale / downsampleScale);
                         if (remainTo < sizeTo) {
                             sizeTo = (int)remainTo;
