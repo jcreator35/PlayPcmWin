@@ -45,15 +45,15 @@
                         <ComboBoxItem Content="192 kHz" />
                         <ComboBoxItem Content="352.8 kHz" />
                         <ComboBoxItem Content="384 kHz" />
-                        <ComboBoxItem Content="2.8224 MHz" />
-                        <ComboBoxItem Content="5.6448 MHz" />
+                        <ComboBoxItem Content="2.8224 MHz" IsEnabled="False" />
+                        <ComboBoxItem Content="5.6448 MHz" IsEnabled="False" />
                     </ComboBox>
                     <Label Grid.Row="3" Content="Output FLAC file name:" HorizontalAlignment="Right" Name="labelOutputFileName" VerticalAlignment="Center" />
                     <TextBox Grid.Row="3" Grid.Column="1" Name="textBoxOutputFile" VerticalAlignment="Center" Margin="0" Width="Auto" MinWidth="100" Text="C:\audio\output.flac" PreviewDragOver="textBox_PreviewDragOver" Drop="TextBoxOutputFile_Drop" DragEnter="Window_DragEnter" />
                     <Button Grid.Row="3" Content="B_rowse..." Grid.Column="2" Margin="6,0,6,0" Name="buttonBrowseOutput" VerticalAlignment="Center" Click="buttonBrowseOutputFile_Click" />
                 </Grid>
             </GroupBox>
-            <Button Content="Start" Name="buttonStartConversion" Margin="6" DockPanel.Dock="Top" Click="buttonStart_Click" />
+            <Button Content="Start" Name="buttonStartConversion" Margin="6" DockPanel.Dock="Top" Click="buttonStart_Click" IsDefault="True" />
             <ScrollViewer DockPanel.Dock="Top" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
                 <StackPanel Orientation="Vertical" Margin="4">
                     <StackPanel Orientation="Horizontal">
