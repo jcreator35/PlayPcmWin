@@ -41,6 +41,8 @@ namespace WWOfflineResampler {
             192000,
             352800,
             384000,
+            2822400,
+            5644800,
         };
         
         Main mMain = new Main();

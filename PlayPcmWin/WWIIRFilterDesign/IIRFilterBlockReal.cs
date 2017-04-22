@@ -28,7 +28,14 @@ namespace WWIIRFilterDesign {
             return mH.ToString();
         }
 
+        private bool AlmostEquals(double a, double b) {
+            return ( Math.Abs(a - b) < 1e-8 );
+        }
+
         public IIRFilterBlockReal(RealRationalPolynomial p) {
+            // 分母の定数項が1.0になるようにスケールする
+            p = p.ScaleAllCoeffs(1.0f / p.D(0));
+
             mH = p;
             mMaxOrder = p.NumerDegree();
             if (mMaxOrder < p.DenomDegree()) {
@@ -46,15 +53,6 @@ namespace WWIIRFilterDesign {
             mA[0] = p.D(0);
             for (int i = 1; i < mA.Length; ++i) {
                 mA[i] = -p.D(i);
-            }
-
-            // mA[0]が 1.0になるようにスケールする
-            for (int i = 0; i <= p.NumerDegree(); ++i) {
-                mB[i] /= mA[0];
-            }
-            // mA[0]が最後まで残るように逆順でループする
-            for (int i = mA.Length - 1; 0 <= i; --i) {
-                mA[i] /= mA[0];
             }
         }
 

@@ -40,8 +40,8 @@ namespace WWIIRFilterDesign {
             return mSamplingFrequency;
         }
 
-        private WWComplex[] mPoleArray;
-        private WWComplex[] mZeroArray;
+        private WWComplex[] mPoleArray = new WWComplex[0];
+        private WWComplex[] mZeroArray = new WWComplex[0];
 
         public int NumOfPoles() {
             return mPoleArray.Length;
@@ -195,7 +195,7 @@ namespace WWIIRFilterDesign {
                     gain = WWComplex.Mul(gain, p.Evaluate(WWComplex.Unity()));
                 }
                 mComplexHzList[mComplexHzList.Count-1] =
-                    mComplexHzList[mComplexHzList.Count-1].Scale(1.0/gain.real);
+                    mComplexHzList[mComplexHzList.Count-1].ScaleNumeratorCoeffs(1.0/gain.real);
                     
                 var gainC = WWComplex.Unity();
                 foreach (var p in mComplexHzList) {
@@ -245,7 +245,7 @@ namespace WWIIRFilterDesign {
                     gain = WWComplex.Add(gain, p.Evaluate(WWComplex.Unity()));
                 }
                 mComplexHzList[mComplexHzList.Count/2] =
-                    mComplexHzList[mComplexHzList.Count/2].Scale(1.0 / gain.real);
+                    mComplexHzList[mComplexHzList.Count/2].ScaleNumeratorCoeffs(1.0 / gain.real);
 
                 var gainC = WWComplex.Zero();
                 foreach (var p in mComplexHzList) {

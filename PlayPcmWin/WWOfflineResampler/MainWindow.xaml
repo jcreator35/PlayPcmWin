@@ -28,8 +28,8 @@
                     <Button Content="_Browse..." Grid.Column="2" Margin="6,0,6,0" Name="buttonBrowseInput" VerticalAlignment="Center" Click="buttonBrowseInputFile_Click" />
                     <Label Content="Resampling Method:" Grid.Row="1" HorizontalAlignment="Right" Name="labelResamplingMethod" VerticalAlignment="Center" />
                     <ComboBox Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" HorizontalAlignment="Left" Margin="0,0,0,0" Name="comboBoxResamplingMethod" VerticalAlignment="Center" HorizontalContentAlignment="Center">
-                        <ComboBoxItem Content="IIR lowpass filter converted from Cauer elliptic analog filter using Impuluse invariance method, Mixed-phase filter" />
-                        <ComboBoxItem Content="IIR lowpass filter converted from Cauer elliptic analog filter using Impuluse invariance method, Minimum-phase filter" />
+                        <ComboBoxItem Content="IIR lowpass filter converted from Cauer elliptic analog filter using Impulse invariance method, Mixed-phase filter" />
+                        <ComboBoxItem Content="IIR lowpass filter converted from Cauer elliptic analog filter using Impulse invariance method, Minimum-phase filter" />
                         <ComboBoxItem Content="IIR lowpass filter converted from Cauer elliptic analog filter using Bilinear method, Mixed-phase filter" IsSelected="True"/>
                     </ComboBox>
                     <Label Content="Target sample rate:" Grid.Row="2" HorizontalAlignment="Right" Name="labelTargetSampleRate" VerticalAlignment="Center" />
@@ -45,6 +45,8 @@
                         <ComboBoxItem Content="192 kHz" />
                         <ComboBoxItem Content="352.8 kHz" />
                         <ComboBoxItem Content="384 kHz" />
+                        <ComboBoxItem Content="2.8224 MHz" />
+                        <ComboBoxItem Content="5.6448 MHz" />
                     </ComboBox>
                     <Label Grid.Row="3" Content="Output FLAC file name:" HorizontalAlignment="Right" Name="labelOutputFileName" VerticalAlignment="Center" />
                     <TextBox Grid.Row="3" Grid.Column="1" Name="textBoxOutputFile" VerticalAlignment="Center" Margin="0" Width="Auto" MinWidth="100" Text="C:\audio\output.flac" PreviewDragOver="textBox_PreviewDragOver" Drop="TextBoxOutputFile_Drop" DragEnter="Window_DragEnter" />

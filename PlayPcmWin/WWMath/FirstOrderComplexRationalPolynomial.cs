@@ -29,11 +29,33 @@ namespace WWMath {
 
         /// <summary>
         /// 分子と分母を定数倍したrational functionを戻す。
+        /// 式の内容は変わらない。
         /// </summary>
-        public FirstOrderComplexRationalPolynomial ConstantScale(double c) {
+        public FirstOrderComplexRationalPolynomial ScaleAllCoeffs(double c) {
             return new FirstOrderComplexRationalPolynomial(
                 numer[1].Scale(c), numer[0].Scale(c),
                 denom[1].Scale(c), denom[0].Scale(c));
+        }
+
+        /// <summary>
+        /// 分子と分母を定数倍したrational functionを戻す。
+        /// 式の内容は変わらない。
+        /// </summary>
+        public FirstOrderComplexRationalPolynomial ScaleAllCoeffs(WWComplex c) {
+            return new FirstOrderComplexRationalPolynomial(
+                WWComplex.Mul(numer[1], c), WWComplex.Mul(numer[0], c),
+                WWComplex.Mul(denom[1], c), WWComplex.Mul(denom[0], c));
+        }
+
+        /// <summary>
+        /// 分子だけを定数倍したrational functionを戻す。
+        /// </summary>
+        public FirstOrderComplexRationalPolynomial ScaleNumeratorCoeffs(double s) {
+            var n = new WWComplex[numer.Length];
+            for (int i=0; i < n.Length; ++i) {
+                n[i] = WWComplex.Mul(numer[i], s);
+            }
+            return new FirstOrderComplexRationalPolynomial(n[1], n[0], denom[1], denom[0]);
         }
 
         public override int Degree() { return 1; }
@@ -70,17 +92,6 @@ namespace WWMath {
 
         public override WWComplex D(int nth) {
             return denom[nth];
-        }
-
-        /// <summary>
-        /// 自分自身は変更しない。
-        /// </summary>
-        public FirstOrderComplexRationalPolynomial Scale(double s) {
-            var n = new WWComplex[numer.Length];
-            for (int i=0; i < n.Length; ++i) {
-                n[i] = WWComplex.Mul(numer[i], s);
-            }
-            return new FirstOrderComplexRationalPolynomial(n[1], n[0], denom[1], denom[0]);
         }
 
         private static bool AlmostZero(double v) {

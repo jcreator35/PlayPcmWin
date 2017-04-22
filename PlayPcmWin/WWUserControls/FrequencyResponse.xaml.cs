@@ -143,7 +143,7 @@ namespace WWUserControls {
         }
 
         /// <summary>
-        /// Magnitude Scale(対数軸)の8乗根を戻す。目盛が8つあるので。
+        /// Magnitude ScaleNumeratorCoeffs(対数軸)の8乗根を戻す。目盛が8つあるので。
         /// </summary>
         private double MagnitudeRangeValue() {
             double[] mRange = new double[] {

@@ -279,7 +279,7 @@ namespace WWOfflineResampler {
                         }
 
                         // 出力する。
-                        byte[] yPcm = ConvertToIntegerPcm(y, metaW.BytesPerSample);
+                        var yPcm = ConvertToIntegerPcm(y, metaW.BytesPerSample);
                         pcmW.CopyFrom(yPcm, 0, posY, yPcm.Length);
                         posY += yPcm.Length;
 

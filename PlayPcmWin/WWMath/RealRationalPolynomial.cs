@@ -30,8 +30,9 @@ namespace WWMath {
 
         /// <summary>
         /// 分子と分母を定数倍したrational functionを戻す。
+        /// 式の内容は変わらない。
         /// </summary>
-        public RealRationalPolynomial ConstantScale(double c) {
+        public RealRationalPolynomial ScaleAllCoeffs(double c) {
             var nS = new double[numer.Length];
             for (int i = 0; i < nS.Length; ++i) {
                 nS[i] = numer[i] * c;
