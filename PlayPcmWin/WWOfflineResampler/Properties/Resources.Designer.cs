@@ -79,11 +79,29 @@ namespace WWOfflineResampler.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to FLAC files(*.flac)|*.flac.
+        ///   Looks up a localized string similar to FLAC files(*.flac)|*.flac|DSF files(*.dsf)|*.dsf.
         /// </summary>
         internal static string FilterWriteAudioFiles {
             get {
                 return ResourceManager.GetString("FilterWriteAudioFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to DSF files(*.dsf)|*.dsf.
+        /// </summary>
+        internal static string FilterWriteDsfAudioFiles {
+            get {
+                return ResourceManager.GetString("FilterWriteDsfAudioFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to FLAC files(*.flac)|*.flac.
+        /// </summary>
+        internal static string FilterWriteFlacAudioFiles {
+            get {
+                return ResourceManager.GetString("FilterWriteFlacAudioFiles", resourceCulture);
             }
         }
     }

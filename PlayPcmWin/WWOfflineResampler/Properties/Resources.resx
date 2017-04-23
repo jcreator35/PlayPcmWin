@@ -124,6 +124,12 @@
     <value>FLAC files(*.flac)|*.flac</value>
   </data>
   <data name="FilterWriteAudioFiles" xml:space="preserve">
+    <value>FLAC files(*.flac)|*.flac|DSF files(*.dsf)|*.dsf</value>
+  </data>
+  <data name="FilterWriteDsfAudioFiles" xml:space="preserve">
+    <value>DSF files(*.dsf)|*.dsf</value>
+  </data>
+  <data name="FilterWriteFlacAudioFiles" xml:space="preserve">
     <value>FLAC files(*.flac)|*.flac</value>
   </data>
 </root>

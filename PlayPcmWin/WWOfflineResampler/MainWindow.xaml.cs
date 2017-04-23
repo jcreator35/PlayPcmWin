@@ -29,20 +29,32 @@ namespace WWOfflineResampler {
         private bool mInitialized = false;
         private BackgroundWorker mBw = new BackgroundWorker();
 
-        private static int [] mTargetSampleRateList = {
-            32000,
-            44100,
-            48000,
-            64000,
-            88200,
-            96000,
-            128000,
-            176400,
-            192000,
-            352800,
-            384000,
-            2822400,
-            5644800,
+        struct TargetSampleRateProperty {
+            public int sampleRate;
+            public bool isPcm;
+            public TargetSampleRateProperty(int sr, bool pcm) {
+                sampleRate = sr;
+                isPcm = pcm;
+            }
+        };
+
+
+        private static TargetSampleRateProperty[] mTargetSampleRateList = {
+            new TargetSampleRateProperty( 32000, true ),
+            new TargetSampleRateProperty( 44100, true ),
+            new TargetSampleRateProperty( 48000, true ),
+            new TargetSampleRateProperty( 64000, true ),
+            new TargetSampleRateProperty( 88200, true ),
+
+            new TargetSampleRateProperty( 96000, true ),
+            new TargetSampleRateProperty( 128000, true ),
+            new TargetSampleRateProperty( 176400, true ),
+            new TargetSampleRateProperty( 192000, true ),
+            new TargetSampleRateProperty( 352800, true ),
+
+            new TargetSampleRateProperty( 384000, true ),
+            new TargetSampleRateProperty( 2822400, false ),
+            new TargetSampleRateProperty( 5644800, false )
         };
         
         Main mMain = new Main();
@@ -95,8 +107,15 @@ namespace WWOfflineResampler {
         }
 
         private void buttonBrowseOutputFile_Click(object sender, RoutedEventArgs e) {
+            var targetSR = mTargetSampleRateList[comboBoxTargetSampleRate.SelectedIndex];
+
             var dlg = new Microsoft.Win32.SaveFileDialog();
-            dlg.Filter = Properties.Resources.FilterWriteAudioFiles;
+
+            if (targetSR.isPcm) {
+                dlg.Filter = Properties.Resources.FilterWriteFlacAudioFiles;
+            } else {
+                dlg.Filter = Properties.Resources.FilterWriteDsfAudioFiles;
+            }
             dlg.ValidateNames = true;
 
             var result = dlg.ShowDialog();
@@ -219,7 +238,7 @@ namespace WWOfflineResampler {
         Stopwatch mStopwatch = new Stopwatch();
 
         private void buttonStart_Click(object sender, RoutedEventArgs e) {
-            int targetSampleRate = mTargetSampleRateList[comboBoxTargetSampleRate.SelectedIndex];
+            int targetSampleRate = mTargetSampleRateList[comboBoxTargetSampleRate.SelectedIndex].sampleRate;
 
             IIRFilterDesign.Method method = IIRFilterDesign.Method.ImpulseInvarianceMixedPhase;
             switch (comboBoxResamplingMethod.SelectedIndex) {
@@ -286,7 +305,32 @@ namespace WWOfflineResampler {
                 return;
             }
             textBoxOutputFile.Text = paths[0];
+            UpdateOutputFileExt();
             InputFormUpdated();
+        }
+
+        private void UpdateOutputFileExt() {
+            string s = textBoxOutputFile.Text;
+            string ext = System.IO.Path.GetExtension(s);
+            s = s.Substring(0, s.Length - ext.Length);
+
+            var targetSR = mTargetSampleRateList[comboBoxTargetSampleRate.SelectedIndex];
+            if (targetSR.isPcm) {
+                ext = ".flac";
+            } else {
+                ext = ".dsf";
+            }
+
+            s = s + ext;
+            textBoxOutputFile.Text = s;
+        }
+
+        private void comboBoxTargetSampleRate_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            }
+
+            UpdateOutputFileExt();
         }
     }
 }

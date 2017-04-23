@@ -145,9 +145,17 @@
       <Project>{7AF36E7B-839D-4C2F-AAFD-6D8319714D66}</Project>
       <Name>PcmDataLib</Name>
     </ProjectReference>
+    <ProjectReference Include="..\WavRWLib2\WavRWLib2.csproj">
+      <Project>{77005090-E2C5-4063-9681-0D0EED33A2B2}</Project>
+      <Name>WavRWLib2</Name>
+    </ProjectReference>
     <ProjectReference Include="..\WWAnalogFilterDesign\WWAnalogFilterDesign.csproj">
       <Project>{1E839CF4-3899-48BE-A4B2-047CA45BFBC2}</Project>
       <Name>WWAnalogFilterDesign</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WWDsfRW\WWDsfRW.csproj">
+      <Project>{385ADACB-85D6-430A-9691-3A75C639C2AA}</Project>
+      <Name>WWDsfRW</Name>
     </ProjectReference>
     <ProjectReference Include="..\WWFlacRWCS\WWFlacRWCS.csproj">
       <Project>{DA071B6A-B2E2-4567-84D1-5A9122DAB75C}</Project>

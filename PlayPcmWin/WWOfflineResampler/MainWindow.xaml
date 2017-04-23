@@ -32,23 +32,23 @@
                         <ComboBoxItem Content="IIR lowpass filter converted from Cauer elliptic analog filter using Impulse invariance method, Minimum-phase filter" />
                         <ComboBoxItem Content="IIR lowpass filter converted from Cauer elliptic analog filter using Bilinear method, Mixed-phase filter" IsSelected="True"/>
                     </ComboBox>
-                    <Label Content="Target sample rate:" Grid.Row="2" HorizontalAlignment="Right" Name="labelTargetSampleRate" VerticalAlignment="Center" />
-                    <ComboBox Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="2" HorizontalAlignment="Left" Margin="0,0,0,0" Name="comboBoxTargetSampleRate" VerticalAlignment="Center" HorizontalContentAlignment="Center">
-                        <ComboBoxItem Content="32 kHz" />
-                        <ComboBoxItem Content="44.1 kHz"  IsSelected="True" />
-                        <ComboBoxItem Content="48 kHz" />
-                        <ComboBoxItem Content="64 kHz" />
-                        <ComboBoxItem Content="88.2 kHz" />
-                        <ComboBoxItem Content="96 kHz" />
-                        <ComboBoxItem Content="128 kHz" />
-                        <ComboBoxItem Content="176.4 kHz" />
-                        <ComboBoxItem Content="192 kHz" />
-                        <ComboBoxItem Content="352.8 kHz" />
-                        <ComboBoxItem Content="384 kHz" />
-                        <ComboBoxItem Content="2.8224 MHz" IsEnabled="False" />
-                        <ComboBoxItem Content="5.6448 MHz" IsEnabled="False" />
+                    <Label Content="Target sample format:" Grid.Row="2" HorizontalAlignment="Right" Name="labelTargetSampleRate" VerticalAlignment="Center" />
+                    <ComboBox Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="2" HorizontalAlignment="Left" Margin="0,0,0,0" Name="comboBoxTargetSampleRate" VerticalAlignment="Center" HorizontalContentAlignment="Center" SelectionChanged="comboBoxTargetSampleRate_SelectionChanged">
+                        <ComboBoxItem Content="32 kHz 24bit PCM" />
+                        <ComboBoxItem Content="44.1 kHz 24bit PCM"  IsSelected="True" />
+                        <ComboBoxItem Content="48 kHz 24bit PCM" />
+                        <ComboBoxItem Content="64 kHz 24bit PCM" />
+                        <ComboBoxItem Content="88.2 kHz 24bit PCM" />
+                        <ComboBoxItem Content="96 kHz 24bit PCM" />
+                        <ComboBoxItem Content="128 kHz 24bit PCM" />
+                        <ComboBoxItem Content="176.4 kHz 24bit PCM" />
+                        <ComboBoxItem Content="192 kHz 24bit PCM" />
+                        <ComboBoxItem Content="352.8 kHz 24bit PCM" />
+                        <ComboBoxItem Content="384 kHz 24bit PCM" />
+                        <ComboBoxItem Content="2.8224 MHz 1bit SDM" />
+                        <ComboBoxItem Content="5.6448 MHz 1bit SDM" />
                     </ComboBox>
-                    <Label Grid.Row="3" Content="Output FLAC file name:" HorizontalAlignment="Right" Name="labelOutputFileName" VerticalAlignment="Center" />
+                    <Label Grid.Row="3" Content="Output FLAC/DSF file name:" HorizontalAlignment="Right" Name="labelOutputFileName" VerticalAlignment="Center" />
                     <TextBox Grid.Row="3" Grid.Column="1" Name="textBoxOutputFile" VerticalAlignment="Center" Margin="0" Width="Auto" MinWidth="100" Text="C:\audio\output.flac" PreviewDragOver="textBox_PreviewDragOver" Drop="TextBoxOutputFile_Drop" DragEnter="Window_DragEnter" />
                     <Button Grid.Row="3" Content="B_rowse..." Grid.Column="2" Margin="6,0,6,0" Name="buttonBrowseOutput" VerticalAlignment="Center" Click="buttonBrowseOutputFile_Click" />
                 </Grid>
