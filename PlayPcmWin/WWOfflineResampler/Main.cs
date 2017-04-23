@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using WWIIRFilterDesign;
 using WWMath;
+using WWUtil;
 
 namespace WWOfflineResampler {
     class Main {
@@ -82,7 +83,7 @@ namespace WWOfflineResampler {
         }
 
         // FLACからPCMのバイト列を取得し、最大値1のdouble型のサンプル値の配列を作る。
-        private double[] GetSamples(WWFlacRWCS.FlacRW flacR, WWFlacRWCS.Metadata meta,
+        private double[] InputSamples(WWFlacRWCS.FlacRW flacR, WWFlacRWCS.Metadata meta,
                 int ch, long posSamples, int nSamples) {
             int nBytes = nSamples * meta.bitsPerSample / 8;
             byte[] pcm;
@@ -110,6 +111,13 @@ namespace WWOfflineResampler {
                 throw new NotSupportedException();
             }
             return result;
+        }
+
+        private long OutputToFlacBuffer(double [] y, WWFlacRWCS.Metadata metaW, LargeArray<byte> pcmW, long posY) {
+            var yPcm = ConvertToIntegerPcm(y, metaW.BytesPerSample);
+            pcmW.CopyFrom(yPcm, 0, posY, yPcm.Length);
+            posY += yPcm.Length;
+            return posY;
         }
 
         private byte[] ConvertTo24bitInt(double[] from) {
@@ -243,9 +251,8 @@ namespace WWOfflineResampler {
                         }
 
                         // 入力サンプル列x
-                        var x = GetSamples(flacR, metaR, ch, posX, sizeFrom);
-#if false
-                        // DCゲインのテスト。
+                        var x = InputSamples(flacR, metaR, ch, posX, sizeFrom);
+#if false               // DCゲインのテスト。
                         x = new double[sizeFrom];
                         for (int i = 0; i < sizeFrom; ++i) {
                             x[i] = 0.5;
@@ -286,9 +293,7 @@ namespace WWOfflineResampler {
                         }
 
                         // 出力する。
-                        var yPcm = ConvertToIntegerPcm(y, metaW.BytesPerSample);
-                        pcmW.CopyFrom(yPcm, 0, posY, yPcm.Length);
-                        posY += yPcm.Length;
+                        posY = OutputToFlacBuffer(y, metaW, pcmW, posY);
 
                         remainFrom -= sizeFrom;
                         remainTo   -= sizeTo;
