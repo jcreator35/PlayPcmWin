@@ -238,7 +238,7 @@ namespace WWOfflineResampler {
         Stopwatch mStopwatch = new Stopwatch();
 
         private void buttonStart_Click(object sender, RoutedEventArgs e) {
-            int targetSampleRate = mTargetSampleRateList[comboBoxTargetSampleRate.SelectedIndex].sampleRate;
+            var targetSF = mTargetSampleRateList[comboBoxTargetSampleRate.SelectedIndex];
 
             IIRFilterDesign.Method method = IIRFilterDesign.Method.ImpulseInvarianceMixedPhase;
             switch (comboBoxResamplingMethod.SelectedIndex) {
@@ -261,7 +261,7 @@ namespace WWOfflineResampler {
             mStopwatch.Reset();
             mStopwatch.Start();
 
-            mBw.RunWorkerAsync(new Main.BWStartParams(textBoxInputFile.Text, targetSampleRate, textBoxOutputFile.Text, method));
+            mBw.RunWorkerAsync(new Main.BWStartParams(textBoxInputFile.Text, targetSF.sampleRate, targetSF.isPcm, textBoxOutputFile.Text, method));
         }
 
         private void Window_DragEnter(object sender, DragEventArgs e) {
@@ -314,8 +314,8 @@ namespace WWOfflineResampler {
             string ext = System.IO.Path.GetExtension(s);
             s = s.Substring(0, s.Length - ext.Length);
 
-            var targetSR = mTargetSampleRateList[comboBoxTargetSampleRate.SelectedIndex];
-            if (targetSR.isPcm) {
+            var targetSF = mTargetSampleRateList[comboBoxTargetSampleRate.SelectedIndex];
+            if (targetSF.isPcm) {
                 ext = ".flac";
             } else {
                 ext = ".dsf";

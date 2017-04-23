@@ -53,12 +53,14 @@ namespace WWOfflineResampler {
         public class BWStartParams {
             public readonly string inputFile;
             public readonly int targetSampleRate;
+            public readonly bool isTargetPcm;
             public readonly string outputFile;
             public IIRFilterDesign.Method method;
 
-            public BWStartParams(string aInputFile, int aTargetSampleRate, string aOutputFile, IIRFilterDesign.Method aMethod) {
+            public BWStartParams(string aInputFile, int aTargetSampleRate, bool aIsTargetPcm, string aOutputFile, IIRFilterDesign.Method aMethod) {
                 inputFile = aInputFile;
                 targetSampleRate = aTargetSampleRate;
+                isTargetPcm = aIsTargetPcm;
                 outputFile = aOutputFile;
                 method = aMethod;
             }
@@ -113,7 +115,7 @@ namespace WWOfflineResampler {
             return result;
         }
 
-        private long OutputToFlacBuffer(double [] y, WWFlacRWCS.Metadata metaW, LargeArray<byte> pcmW, long posY) {
+        private long FlacWriteConvertTo24bitPcm(double [] y, WWFlacRWCS.Metadata metaW, LargeArray<byte> pcmW, long posY) {
             var yPcm = ConvertToIntegerPcm(y, metaW.BytesPerSample);
             pcmW.CopyFrom(yPcm, 0, posY, yPcm.Length);
             posY += yPcm.Length;
@@ -158,6 +160,9 @@ namespace WWOfflineResampler {
         private static double FieldQuantityToDecibel(double v) {
             return 20.0 * Math.Log10(v);
         }
+
+        private FlacWrite mFlacWrite;
+        private DsfWrite mDsfWrite;
 
         public BWCompletedParam DoWork(BWStartParams param, ProgressReportDelegate ReportProgress) {
             int rv = 0;
@@ -213,10 +218,12 @@ namespace WWOfflineResampler {
                 metaW.bitsPerSample = 24;
                 metaW.totalSamples = metaR.totalSamples * upsampleScale / downsampleScale;
 
-                var flacW = new WWFlacRWCS.FlacRW();
-                flacW.EncodeInit(metaW);
-                if (picture != null) {
-                    flacW.EncodeSetPicture(picture);
+                if (param.isTargetPcm) {
+                    mFlacWrite = new FlacWrite();
+                    mFlacWrite.Setup(metaW, picture);
+                } else {
+                    mDsfWrite = new DsfWrite();
+                    mDsfWrite.Setup(metaW, picture);
                 }
 
                 var stat = new SampleValueStatistics();
@@ -292,8 +299,13 @@ namespace WWOfflineResampler {
                             }
                         }
 
-                        // 出力する。
-                        posY = OutputToFlacBuffer(y, metaW, pcmW, posY);
+
+                        if (param.isTargetPcm) {
+                            // yを24bit PCMに変換する。
+                            posY = FlacWriteConvertTo24bitPcm(y, metaW, pcmW, posY);
+                        } else {
+                            rv = mDsfWrite.AddSampleArray(ch, y);
+                        }
 
                         remainFrom -= sizeFrom;
                         remainTo   -= sizeTo;
@@ -309,7 +321,10 @@ namespace WWOfflineResampler {
                         }
                     }
 
-                    rv = flacW.EncodeAddPcm(ch, pcmW);
+                    if (param.isTargetPcm) {
+                        rv = mFlacWrite.AddPcm(ch, pcmW);
+                    }
+
                     System.Diagnostics.Debug.Assert(0 <= rv);
                 });
 
@@ -321,12 +336,15 @@ namespace WWOfflineResampler {
                 ReportProgress(WRITE_START_PERCENT, new BWProgressParam(State.WriteFile,
                     string.Format("Maximum magnitude={0:G3}dBFS. {1}\nNow writing FLAC file {2}...\n",
                     maxMagnitudeDb, clippedMsg, param.outputFile)));
-                rv = flacW.EncodeRun(param.outputFile);
+
+                if (param.isTargetPcm) {
+                    rv = mFlacWrite.OutputFile(param.outputFile);
+                } else {
+                    rv = mDsfWrite.OutputFile(param.outputFile);
+                }
                 if (rv < 0) {
                     break;
                 }
-
-                flacW.EncodeEnd();
             } while (false);
 
             var cp = new BWCompletedParam(0, "");
@@ -362,7 +380,12 @@ namespace WWOfflineResampler {
 
             Trace.WriteLine(string.Format("target samplerate={0}kHz. Bilinear transform.\nProcessing...\n", targetSR * 0.001));
 
-            var param = new BWStartParams(inputFile, targetSR, outputFile, WWOfflineResampler.IIRFilterDesign.Method.Bilinear);
+            bool isPcm = true;
+            if (655350 < targetSR) {
+                isPcm = false;
+            }
+
+            var param = new BWStartParams(inputFile, targetSR, isPcm, outputFile, WWOfflineResampler.IIRFilterDesign.Method.Bilinear);
             var result = DoWork(param, (int percent, BWProgressParam p) => {
                 Trace.WriteLine(string.Format("{0}% {1}", percent, p.message)); });
 

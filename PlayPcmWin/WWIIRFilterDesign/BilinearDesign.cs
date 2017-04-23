@@ -144,18 +144,22 @@ namespace WWIIRFilterDesign {
         }
 
         /// <summary>
-        /// Addし終わったら呼ぶ。
+        /// ローパス→ハイパス変換。
+        /// 全てAdd()後、Calc()の前に呼ぶ。
         /// </summary>
-        public void Calc() {
-            // mComplexHzListに1次の関数が入っている。
-
-            /* ローパスハイパス変換のテスト 
+        public void LowpassToHighpass() {
             for (int i = 0; i < mComplexHzList.Count; ++i) {
                 var p = mComplexHzList[i];
                 var r = Transformations.LowpassToHighpass(p);
                 mComplexHzList[i] = r;
             }
-            */
+        }
+
+        /// <summary>
+        /// Addし終わったら呼ぶ。
+        /// </summary>
+        public void Calc() {
+            // mComplexHzListに1次の関数が入っている。
 
             //　係数が全て実数のmRealHzListを作成する。
             // mRealHzListは、多項式の和を表現する。

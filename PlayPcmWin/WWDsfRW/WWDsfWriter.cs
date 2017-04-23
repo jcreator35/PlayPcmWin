@@ -8,16 +8,25 @@ namespace WWDsfRW {
     public class WWDsfWriter {
         private WWFlacRWCS.Metadata mMeta;
         private byte [] mPictureData;
-        private List<WWUtil.LargeArray<byte>> mDsdData;
+        private List<WWUtil.LargeArray<byte>> mSdmData;
+
+        /// <summary>
+        /// stream data offset from the start of the file
+        /// </summary>
+        private const int STREAM_DATA_OFFSET = 92;
+
+        public int NumChannels {
+            get { return mMeta.channels; }
+        }
 
         public int EncodeInit(WWFlacRWCS.Metadata meta) {
             mMeta = meta;
-            mDsdData = new List<WWUtil.LargeArray<byte>>();
+            mSdmData = new List<WWUtil.LargeArray<byte>>();
             return 0;
         }
 
         public void EncodeEnd() {
-            mDsdData = null;
+            mSdmData = null;
             mPictureData = null;
             mMeta = null;
         }
@@ -27,9 +36,8 @@ namespace WWDsfRW {
             return 0;
         }
 
-        public int EncodeAddPcm(int channel, WWUtil.LargeArray<byte> pcmData) {
-            mDsdData.Add(pcmData);
-            return 0;
+        public void EncodeAddPcm(int channel, WWUtil.LargeArray<byte> pcmData) {
+            mSdmData.Add(pcmData);
         }
 
         // ID3チャンクの数字はビッグエンディアンバイトオーダー
@@ -192,11 +200,6 @@ namespace WWDsfRW {
             return rv;
         }
 
-        /// <summary>
-        /// stream data offset from the start of the file
-        /// </summary>
-        private const int STREAM_DATA_OFFSET = 92;
-
         private int WriteDsdChunk(int id3ChunkLength, BinaryWriter bw) {
             /*
              * DSDチャンク 28bytes
@@ -226,7 +229,7 @@ namespace WWDsfRW {
              * METADATA chunk size is id3ChunkLength
              * */
 
-            long sampleDataPerChannelBytes = (mDsdData[0].LongLength + 4095) & (~4095L);
+            long sampleDataPerChannelBytes = (mSdmData[0].LongLength + 4095) & (~4095L);
 
             ulong totalFileSize  = (ulong)(92 + sampleDataPerChannelBytes * mMeta.channels + id3ChunkLength);
             ulong metaDataOffset = (ulong)(92 + sampleDataPerChannelBytes * mMeta.channels);
@@ -298,7 +301,7 @@ namespace WWDsfRW {
             BwWriteLE4(bw, channelNum);
             BwWriteLE4(bw, (uint)mMeta.sampleRate);
             BwWriteLE4(bw, 1);
-            BwWriteLE8(bw, (ulong)(mDsdData[0].LongLength * 8));
+            BwWriteLE8(bw, (ulong)(mSdmData[0].LongLength * 8));
             BwWriteLE4(bw, 4096);
             BwWriteLE4(bw, 0);
 
@@ -315,7 +318,7 @@ namespace WWDsfRW {
 
             bw.Write(0x61746164); //< "data"
 
-            long sampleDataPerChannelBytes = (mDsdData[0].LongLength + 4095) & (~4095L);
+            long sampleDataPerChannelBytes = (mSdmData[0].LongLength + 4095) & (~4095L);
             BwWriteLE8(bw, (ulong)(sampleDataPerChannelBytes * mMeta.channels));
 
             long pos = 0;
@@ -324,12 +327,12 @@ namespace WWDsfRW {
                     byte [] data = new byte[4096];
 
                     int copyBytes = 4096;
-                    if (mDsdData[ch].LongLength < pos + 4096) {
-                        copyBytes = (int)(mDsdData[ch].LongLength - pos);
+                    if (mSdmData[ch].LongLength < pos + 4096) {
+                        copyBytes = (int)(mSdmData[ch].LongLength - pos);
                     }
                     
                     for (int j=0; j<copyBytes; ++j) {
-                        data[j] = mDsdData[ch].At(pos+j);
+                        data[j] = mSdmData[ch].At(pos+j);
                     }
                     for (int j=copyBytes; j < data.Length; ++j) {
                         data[j] = 0x69;

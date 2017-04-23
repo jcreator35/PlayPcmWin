@@ -99,6 +99,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="DsfWrite.cs" />
+    <Compile Include="FlacWrite.cs" />
     <Compile Include="IIRFilterDesign.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="SampleValueStatistics.cs" />
