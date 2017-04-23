@@ -4,9 +4,9 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace WWAudioFilter {
+namespace WWDsfRW {
 
-    class WWDsfReader {
+    public class WWDsfReader {
         public enum ResultType {
             Success,
             NotDsf,

@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text;
 using System.IO;
 
-namespace WWAudioFilter {
-    class WWDsfWriter {
+namespace WWDsfRW {
+    public class WWDsfWriter {
         private WWFlacRWCS.Metadata mMeta;
         private byte [] mPictureData;
         private List<WWUtil.LargeArray<byte>> mDsdData;

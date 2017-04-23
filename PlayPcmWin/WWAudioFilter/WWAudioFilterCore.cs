@@ -183,16 +183,16 @@ namespace WWAudioFilter {
                 ad.meta.channels = reader.NumChannels;
                 ad.meta.sampleRate = reader.SampleRate;
 
-                var interleaved = reader.GetSampleArray();
+                var interleaved = reader.GetSampleLargeArray();
                 int bytesPerSample = reader.BitsPerSample / 8;
 
                 ad.pcm = new List<AudioDataPerChannel>();
                 for (int ch = 0; ch < reader.NumChannels; ++ch) {
                     var pcmOneChannel = new WWUtil.LargeArray<byte>(reader.NumFrames * bytesPerSample);
-                    for (int i = 0; i < reader.NumFrames; ++i) {
+                    for (long i = 0; i < reader.NumFrames; ++i) {
                         for (int b = 0; b < reader.BitsPerSample / 8; ++b) {
                             pcmOneChannel.Set(bytesPerSample * i + b,
-                                interleaved[bytesPerSample * (reader.NumChannels * i + ch) + b]);
+                                interleaved.At(bytesPerSample * (reader.NumChannels * i + ch) + b));
                         }
                     }
 
@@ -218,11 +218,11 @@ namespace WWAudioFilter {
             ad = new AudioData();
 
             using (var br = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))) {
-                var reader = new WWDsfReader();
+                var reader = new WWDsfRW.WWDsfReader();
 
                 PcmDataLib.PcmData header;
                 var readResult = reader.ReadHeader(br, out header);
-                if (readResult != WWDsfReader.ResultType.Success) {
+                if (readResult != WWDsfRW.WWDsfReader.ResultType.Success) {
                     MessageBox.Show(string.Format("Error: Failed to read DSF file: {0} {1}", path, readResult));
                     return -1;
                 }
@@ -240,7 +240,7 @@ namespace WWAudioFilter {
             }
 
             using (var br = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))) {
-                var reader = new WWDsfReader();
+                var reader = new WWDsfRW.WWDsfReader();
 
                 PcmDataLib.PcmData pcm;
                 reader.ReadStreamBegin(br, out pcm);
@@ -450,7 +450,7 @@ namespace WWAudioFilter {
 
         private static int WriteDsfFile(ref AudioData ad, string path) {
             int rv;
-            var dsf = new WWDsfWriter();
+            var dsf = new WWDsfRW.WWDsfWriter();
 
             rv = dsf.EncodeInit(ad.meta);
             if (rv < 0) {
