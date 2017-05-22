@@ -102,6 +102,7 @@
     <Compile Include="DsfWrite.cs" />
     <Compile Include="FlacWrite.cs" />
     <Compile Include="IIRFilterDesign.cs" />
+    <Compile Include="LoopFilterCRFB.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="SampleValueStatistics.cs" />
     <Page Include="MainWindow.xaml">

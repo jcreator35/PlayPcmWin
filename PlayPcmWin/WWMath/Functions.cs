@@ -202,13 +202,16 @@ namespace WWMath {
             return r;
         }
 
+        /// <summary>
+        /// 階乗 n!
+        /// </summary>
         public static long Factorial(int n) {
-            if (n < 0 || 21 < n) {
+            if (n < 0 || 20 < n) {
                 throw new ArgumentOutOfRangeException("n");
             }
 
             long rv = 1;
-            for (int i = 2; i < n; ++i) {
+            for (int i = 2; i <= n; ++i) {
                 rv = rv * i;
             }
 
@@ -243,6 +246,17 @@ namespace WWMath {
                 b = tmp;
             }
             return a;
+        }
+
+        /// <summary>
+        /// 2項係数
+        /// </summary>
+        public static int BinomialCoeff(int n, int b) {
+            if (n <= 0 || b < 0 || n < b) {
+                throw new ArgumentOutOfRangeException();
+            }
+
+            return (int)(Factorial(n) / Factorial(n - b) / Factorial(b));
         }
 
         public delegate WWComplex TransferFunctionDelegate(WWComplex s);

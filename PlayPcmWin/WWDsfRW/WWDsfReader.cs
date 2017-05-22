@@ -372,9 +372,9 @@ namespace WWDsfRW {
 
             int writePos = 0;
             for (int block = 0; block < blockNum; ++block) {
-                // data is stored in following order:
+                // data is stored in a following order:
                 // L channel 4096bytes consecutive data, R channel 4096bytes consecutive data, L channel 4096bytes consecutive data, ...
-                //
+                // little endian bit order
                 // read 4096 x numChannels bytes.
                 byte [] blockData = br.ReadBytes(blockBytes);
                 mPosFrame += blockData.Length / 2 / NumChannels;

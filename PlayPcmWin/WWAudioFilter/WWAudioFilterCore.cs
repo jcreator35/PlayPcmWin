@@ -464,11 +464,7 @@ namespace WWAudioFilter {
             }
 
             for (int ch = 0; ch < ad.meta.channels; ++ch) {
-                long lrv = dsf.EncodeAddPcm(ch, ad.pcm[ch].mData);
-                if (lrv < 0) {
-                    dsf.EncodeEnd();
-                    return (int)lrv;
-                }
+                dsf.EncodeAddPcm(ch, ad.pcm[ch].mData);
             }
 
             rv = dsf.EncodeRun(path);

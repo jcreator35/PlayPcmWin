@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using WWUtil;
 using WWIIRFilterDesign;
+using WWUtil;
+using WWMath;
 
 namespace WWOfflineResampler {
     class DsfWrite {
         private WWDsfRW.WWDsfWriter mDsfW;
 
-        private IIRFilterGraph [] mIIRFilters;
+        private LoopFilterCRFB [] mLoopFilters;
 
         class SampleData1ch {
             public LargeArray<byte> sdmData;
@@ -25,9 +23,7 @@ namespace WWOfflineResampler {
             }
         };
 
-        private SampleData1ch[] mSampleDataOfAllChannels;
-
-        private double[] mDelay;
+        private SampleData1ch[] mSampleData;
 
         public void Setup(WWFlacRWCS.Metadata metaW, byte[] picture) {
             mDsfW = new WWDsfRW.WWDsfWriter();
@@ -37,18 +33,19 @@ namespace WWOfflineResampler {
             }
 
             // サンプルデータ置き場。
-            mSampleDataOfAllChannels = new SampleData1ch[metaW.channels];
+            mSampleData = new SampleData1ch[metaW.channels];
             for (int ch = 0; ch < metaW.channels; ++ch) {
-                mSampleDataOfAllChannels[ch] = new SampleData1ch((metaW.totalSamples + 7) / 8);
+                mSampleData[ch] = new SampleData1ch((metaW.totalSamples + 7) / 8);
             }
 
             // ノイズシェイピングフィルターを設計する。
             // サンプルレート2.8MHz、20kHz以下を遮断し、100kHz以上を通過するハイパスフィルター。
+            // オールポールフィルター。
             int sampleFreq = 44100 * 64;
             int nyquistFreq = sampleFreq/2;
             double fs = 20 * 1000;
             double fc = 100 * 1000;
-            double stopBandRippleDb = -120;
+            double stopBandRippleDb = -20;
             double cutoffGain = -3;
 
             double twoπ = 2.0 * Math.PI;
@@ -61,7 +58,7 @@ namespace WWOfflineResampler {
             var afd = new WWAnalogFilterDesign.AnalogFilterDesign();
             afd.DesignLowpass(0, cutoffGain, stopBandRippleDb,
                 fc_pw, fs_pw,
-                WWAnalogFilterDesign.AnalogFilterDesign.FilterType.InverseChebyshev,
+                WWAnalogFilterDesign.AnalogFilterDesign.FilterType.Butterworth,
                 WWAnalogFilterDesign.ApproximationBase.BetaType.BetaMax);
 
             // 連続時間伝達関数を離散時間伝達関数に変換。
@@ -73,30 +70,64 @@ namespace WWOfflineResampler {
             bilinear.LowpassToHighpass();
             bilinear.Calc();
 
-            // ノイズシェイピング IIRフィルターを作る。
-            mIIRFilters = new IIRFilterParallel[metaW.channels];
-            for (int ch = 0; ch < metaW.channels; ++ch) {
-                mIIRFilters[ch] = new IIRFilterParallel();
-                for (int i = 0; i < bilinear.RealHzCount(); ++i) {
-                    var p = bilinear.RealHz(i);
-                    Console.WriteLine("{0}", p.ToString("(z)^(-1)"));
-                    mIIRFilters[ch].Add(p);
-                }
+            // CIFB構造のノイズシェイピングフィルターの係数a[]。
+            // R. Schreier and G. Temes, ΔΣ型アナログ/デジタル変換器入門,丸善,2007, pp.95,96
+            var hz = bilinear.HzCombined();
+            int degree = hz.DenomDegree();
+
+            // フィードバック係数g。Hzの分子の ω → g = 2 - 2cos(ω)
+            var g = new double[degree / 2];
+            for (int i = 0; i < g.Length; ++i) {
+                var r = WWComplex.Div(bilinear.HzNth(i).N(0).Minus(), bilinear.HzNth(i).N(1));
+                var cosω = r.real;
+                g[i] = 2.0 - 2.0 * cosω;
             }
 
+            var a = new double[degree];
+
+            switch (degree) {
+            case 2:
+                a[0] = hz.D(1) + hz.D(2) - g[0] + 1;
+                a[1] = 1 - hz.D(2);
+                break;
+            default:
+                throw new NotImplementedException();
+            }
+
+            var b = new double[degree+1];
+            for (int i = 0; i < degree; ++i) {
+                b[i] = a[i];
+            }
+            b[degree] = 1.0;
+
+            mLoopFilters = new LoopFilterCRFB[metaW.channels];
+            for (int ch=0; ch < metaW.channels; ++ch) {
+                mLoopFilters[ch] = new LoopFilterCRFB(a, b, g);
+            }
         }
 
-
-
         public int AddSampleArray(int ch, double [] sampleArray) {
-
-
             int rv = 0;
 
-            for (int i = 0; i < sampleArray.Length; ++i) {
-                // 入力を0.5倍する。
+            // 8で割り切れる。
+            System.Diagnostics.Debug.Assert((sampleArray.Length & 7) == 0);
 
+            for (int i = 0; i < sampleArray.Length/8; ++i) {
+                byte sdm = 0;
+
+                for (int j = 0; j < 8; ++j) {
+                    // 入力を0.5倍して投入する。
+                    int b = mLoopFilters[ch].Filter(0.5 * sampleArray[i*8+j]);
+                    if (0 < b) {
+                        sdm += (byte)(1 << j);
+                    }
+                }
+
+                long pos = mSampleData[ch].pos;
+                mSampleData[ch].sdmData.Set(pos + i, sdm);
             }
+
+            mSampleData[ch].pos += sampleArray.Length / 8;
 
             return rv;
         }
@@ -105,7 +136,7 @@ namespace WWOfflineResampler {
             int rv;
 
             for (int ch=0; ch<mDsfW.NumChannels; ++ch) {
-                mDsfW.EncodeAddPcm(ch, mSampleDataOfAllChannels[ch].sdmData);
+                mDsfW.EncodeAddPcm(ch, mSampleData[ch].sdmData);
             }
 
             rv = mDsfW.EncodeRun(path);

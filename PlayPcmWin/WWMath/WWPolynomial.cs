@@ -61,7 +61,7 @@ namespace WWMath {
         }
 
         /// <summary>
-        /// n次実多項式 p m次実多項式
+        /// n次実多項式 × m次実多項式
         /// </summary>
         /// <returns>n+m次実多項式</returns>
         public static RealPolynomial
@@ -215,6 +215,37 @@ namespace WWMath {
             }
 
             return new HighOrderComplexRationalPolynomial(numerResult.ToArray(), denomResult.ToArray());
+        }
+
+        public static RealRationalPolynomial
+        Add(RealRationalPolynomial lhs, RealRationalPolynomial rhs) {
+            /*  nL          nR
+             * p^2+2p+2    p^2+5p+6
+             * ───────── + ────────
+             * p^2+ p+1    p^2+3p+4
+             *  dL          dR
+             *  
+             *          dL       dR
+             * 分母 = (p^2+p+1) (p^2+3p+4)
+             * 分母の次数 = degree(dL) + degree(dR) + 1
+             * 
+             *          nL       dR           nR        dL
+             * 分子 = (p^2+2p+2)(p^2+3p+4) + (p^2+5p+4)(p^2+p+1)
+             * 分子の次数 = degree(nL) + degree(dR) + 1 か degree(nR) * degree(dL) + 1の大きいほう
+             */
+
+            var denomL = lhs.DenomPolynomial();
+            var numerL = lhs.NumerPolynomial();
+            var denomR = rhs.DenomPolynomial();
+            var numerR = rhs.NumerPolynomial();
+
+            // 分母の項
+            var denom = Mul(denomL, denomR);
+
+            // 分子の項
+            var numer = Add(Mul(numerL, denomR), Mul(numerR, denomL));
+
+            return new RealRationalPolynomial(numer, denom);
         }
 
         public static RealPolynomial Add(RealPolynomial l, RealPolynomial r) {

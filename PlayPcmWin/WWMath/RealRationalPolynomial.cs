@@ -28,6 +28,10 @@ namespace WWMath {
             }
         }
 
+        public RealRationalPolynomial(RealRationalPolynomial from) :
+            this(from.NumerCoeffs(), from.DenomCoeffs()) {
+        }
+
         /// <summary>
         /// 分子と分母を定数倍したrational functionを戻す。
         /// 式の内容は変わらない。

@@ -7,8 +7,16 @@ namespace WWIIRFilterDesign {
         private List<FirstOrderComplexRationalPolynomial> mH_s = new List<FirstOrderComplexRationalPolynomial>();
         private List<FirstOrderComplexRationalPolynomial> mComplexHzList = new List<FirstOrderComplexRationalPolynomial>();
         private List<RealRationalPolynomial> mRealHzList = new List<RealRationalPolynomial>();
+        private RealRationalPolynomial mHzCombined;
         private double mMatchFreq;
         private double mSampleFreq;
+
+        public enum FilterType {
+            Lowpass,
+            Highpass,
+        };
+
+        private FilterType mFilterType = FilterType.Lowpass;
 
         /// <summary>
         /// バイリニア変換でIIRフィルターを設計する。
@@ -40,12 +48,22 @@ namespace WWIIRFilterDesign {
             return mH_s[nth];
         }
 
+        /// <summary>
+        /// 伝達関数を構成する1次複素分数関数の数を戻す。伝達関数はこの分数関数の和。
+        /// </summary>
         public int HzNum() {
             return mComplexHzList.Count;
         }
 
         public FirstOrderComplexRationalPolynomial HzNth(int nth) {
             return mComplexHzList[nth];
+        }
+
+        /// <summary>
+        /// 伝達関数を1個の分数関数に合体したものを戻す。
+        /// </summary>
+        public RealRationalPolynomial HzCombined() {
+            return mHzCombined;
         }
 
         public WWMath.Functions.TransferFunctionDelegate TransferFunction;
@@ -146,12 +164,19 @@ namespace WWIIRFilterDesign {
         /// <summary>
         /// ローパス→ハイパス変換。
         /// 全てAdd()後、Calc()の前に呼ぶ。
+        /// mComplexHzList[]がハイパスに変換される。
         /// </summary>
         public void LowpassToHighpass() {
             for (int i = 0; i < mComplexHzList.Count; ++i) {
                 var p = mComplexHzList[i];
                 var r = Transformations.LowpassToHighpass(p);
                 mComplexHzList[i] = r;
+            }
+
+            if (mFilterType == FilterType.Lowpass) {
+                mFilterType = FilterType.Highpass;
+            } else {
+                mFilterType = FilterType.Lowpass;
             }
         }
 
@@ -179,24 +204,38 @@ namespace WWIIRFilterDesign {
                     new double[] { p.D(0).real, p.D(1).real }));
             }
 
-            var gainDC = WWComplex.Zero();
-            foreach (var p in mRealHzList) {
-                gainDC = WWComplex.Add(gainDC, p.Evaluate(WWComplex.Unity()));
+            var stopbandGain = WWComplex.Zero();
+
+            if (mFilterType == FilterType.Lowpass) {
+                foreach (var p in mRealHzList) {
+                    stopbandGain = WWComplex.Add(stopbandGain, p.Evaluate(WWComplex.Unity()));
+                }
+            } else {
+                foreach (var p in mRealHzList) {
+                    stopbandGain = WWComplex.Add(stopbandGain, p.Evaluate(new WWComplex(-1, 0)));
+                }
             }
 
             // DCゲインが1になるようにHzをスケールする。
             for (int i=0; i<mRealHzList.Count; ++i) {
                 var p = mRealHzList[i];
-                mRealHzList[i] = p.ScaleNumerCoeffs(1.0 / gainDC.real);
+                mRealHzList[i] = p.ScaleNumerCoeffs(1.0 / stopbandGain.real);
             }
 
-            gainDC = WWComplex.Zero();
+            stopbandGain = WWComplex.Zero();
             foreach (var p in mRealHzList) {
-                gainDC = WWComplex.Add(gainDC, p.Evaluate(WWComplex.Unity()));
+                stopbandGain = WWComplex.Add(stopbandGain, p.Evaluate(WWComplex.Unity()));
             }
-            Console.WriteLine("DC gain={0}", gainDC);
+            Console.WriteLine("DC gain={0}", stopbandGain);
 
             TransferFunction = (WWComplex z) => { return TransferFunctionValue(z); };
+
+            mHzCombined = new RealRationalPolynomial(mRealHzList[0]);
+            for (int i = 1; i < mRealHzList.Count; ++i) {
+                var p = mRealHzList[i];
+                mHzCombined = WWPolynomial.Add(mHzCombined, p);
+            }
+            mHzCombined = mHzCombined.ScaleAllCoeffs(1.0 / mHzCombined.D(0));
         }
 
         private WWComplex TransferFunctionValue(WWComplex z) {
