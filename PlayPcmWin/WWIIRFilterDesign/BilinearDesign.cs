@@ -81,16 +81,28 @@ namespace WWIIRFilterDesign {
         }
 
         /// <summary>
+        /// アナログフィルターの零や極の座標をバイリニア変換する。
         /// Discrete-time signal processing 3rd ed. pp534 eq7.21
         /// 三谷政昭, ディジタル・フィルタ理論&設計入門 pp.193
         /// </summary>
+        /// <param name="s">s平面上の座標s'。アナログフィルターのs'は、s' == s / ωcとしたs'についての式になっている</param>
+        /// <returns>IIRフィルターのZ平面上の座標</returns>
         public WWComplex StoZ(WWComplex s) {
-            // アナログフィルターのs'は、s' == s / ωcとしたs'についての式になっている
-
             double twoπ = 2.0 * Math.PI;
             double ωc = PrewarpωtoΩ(mMatchFreq * twoπ);
+            return StoZ(s, ωc);
+        }
 
-            WWComplex s2 = s.Scale(ωc * Td/2.0);
+        /// <summary>
+        /// アナログフィルターの零や極の座標をバイリニア変換する。
+        /// Discrete-time signal processing 3rd ed. pp534 eq7.21
+        /// 三谷政昭, ディジタル・フィルタ理論&設計入門 pp.193
+        /// </summary>
+        /// <param name="s">s平面上の座標s'。アナログフィルターのs'は、s' == s / ωcとしたs'についての式になっている</param>
+        /// <param name="ωc">マッチ周波数(rad)。アナログフィルターとIIRフィルターの特性が一致する周波数。</param>
+        /// <returns>IIRフィルターのZ平面上の座標</returns>
+        public WWComplex StoZ(WWComplex s, double ωc) {
+            WWComplex s2 = s.Scale(ωc * Td / 2.0);
             return WWComplex.Div(
                 new WWComplex(1.0 + s2.real, s2.imaginary),
                 new WWComplex(1.0 - s2.real, -s2.imaginary)

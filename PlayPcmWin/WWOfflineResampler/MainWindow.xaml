@@ -45,8 +45,8 @@
                         <ComboBoxItem Content="192 kHz 24bit PCM" />
                         <ComboBoxItem Content="352.8 kHz 24bit PCM" />
                         <ComboBoxItem Content="384 kHz 24bit PCM" />
-                        <ComboBoxItem Content="2.8224 MHz 1bit SDM" />
-                        <ComboBoxItem Content="5.6448 MHz 1bit SDM" />
+                        <ComboBoxItem Content="2.8224 MHz 1bit SDM (experimental, from 44.1kHz PCM)" />
+                        <ComboBoxItem Content="5.6448 MHz 1bit SDM (experimental, from 44.1kHz PCM)" />
                     </ComboBox>
                     <Label Grid.Row="3" Content="Output FLAC/DSF file name:" HorizontalAlignment="Right" Name="labelOutputFileName" VerticalAlignment="Center" />
                     <TextBox Grid.Row="3" Grid.Column="1" Name="textBoxOutputFile" VerticalAlignment="Center" Margin="0" Width="Auto" MinWidth="100" Text="C:\audio\output.flac" PreviewDragOver="textBox_PreviewDragOver" Drop="TextBoxOutputFile_Drop" DragEnter="Window_DragEnter" />

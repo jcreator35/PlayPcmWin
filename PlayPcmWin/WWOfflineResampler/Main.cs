@@ -308,7 +308,7 @@ namespace WWOfflineResampler {
                         }
 
                         remainFrom -= sizeFrom;
-                        remainTo   -= sizeTo;
+                        remainTo -= sizeTo;
                         processedSamples += sizeFrom;
 
                         int percentage = (int)(CONVERT_START_PERCENT
@@ -362,7 +362,14 @@ namespace WWOfflineResampler {
         }
 
         public bool ParseCommandLine(string [] args) {
-
+#if true
+            args = new string[] {
+                "-targetSR",
+                "2822400",
+                "C:/audio/input.flac",
+                "c:/audio/output.dsf"
+            };
+#endif
             if (4 != args.Length || !COMMAND_TARGETSR.Equals(args[0])) {
                 PrintUsage();
                 return false;

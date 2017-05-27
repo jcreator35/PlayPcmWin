@@ -38,70 +38,85 @@ namespace WWOfflineResampler {
                 mSampleData[ch] = new SampleData1ch((metaW.totalSamples + 7) / 8);
             }
 
-            // ノイズシェイピングフィルターを設計する。
-            // サンプルレート2.8MHz、20kHz以下を遮断し、100kHz以上を通過するハイパスフィルター。
-            // オールポールフィルター。
-            int sampleFreq = 44100 * 64;
-            int nyquistFreq = sampleFreq/2;
-            double fs = 20 * 1000;
-            double fc = 100 * 1000;
-            double stopBandRippleDb = -20;
-            double cutoffGain = -3;
+            // ノイズシェイピングフィルターmLoopFiltersを作る。
+            DesignLoopFilter(3, metaW.channels);
+        }
 
-            double twoπ = 2.0 * Math.PI;
+        /// <summary>
+        /// mLoopFiltersを設計する。
+        /// </summary>
+        /// <param name="order">フィルターの次数(3,5,7)。</param>
+        /// <param name="numChannels">音声のチャンネル数。</param>
+        private void DesignLoopFilter(int order, int numChannels) {
+            //var twoπ = 2.0 * Math.PI;
+            var ntfHz = new NTFHzcoeffs(order);
 
-            var bilinear = new BilinearDesign(fc, sampleFreq);
-
-            double fc_pw = bilinear.PrewarpωtoΩ(twoπ * (nyquistFreq - fc)) / twoπ;
-            double fs_pw = bilinear.PrewarpωtoΩ(twoπ * (nyquistFreq - fs)) / twoπ;
-
-            var afd = new WWAnalogFilterDesign.AnalogFilterDesign();
-            afd.DesignLowpass(0, cutoffGain, stopBandRippleDb,
-                fc_pw, fs_pw,
-                WWAnalogFilterDesign.AnalogFilterDesign.FilterType.Butterworth,
-                WWAnalogFilterDesign.ApproximationBase.BetaType.BetaMax);
-
-            // 連続時間伝達関数を離散時間伝達関数に変換。
-            for (int i = 0; i < afd.HPfdCount(); ++i) {
-                var s = afd.HPfdNth(i);
-                bilinear.Add(s);
-            }
-            // ローパス→ハイパス変換
-            bilinear.LowpassToHighpass();
-            bilinear.Calc();
-
-            // CIFB構造のノイズシェイピングフィルターの係数a[]。
-            // R. Schreier and G. Temes, ΔΣ型アナログ/デジタル変換器入門,丸善,2007, pp.95,96
-            var hz = bilinear.HzCombined();
-            int degree = hz.DenomDegree();
-
-            // フィードバック係数g。Hzの分子の ω → g = 2 - 2cos(ω)
-            var g = new double[degree / 2];
+            // フィードバック係数g。Hzの分子の零(単位円上)のz=1からの角度 ω → g = 2 - 2cos(ω)
+            var g = new double[order / 2];
             for (int i = 0; i < g.Length; ++i) {
-                var r = WWComplex.Div(bilinear.HzNth(i).N(0).Minus(), bilinear.HzNth(i).N(1));
+                // Hzの分子の零の位置r。
+                var r = ntfHz.ZeroNth(i);
                 var cosω = r.real;
                 g[i] = 2.0 - 2.0 * cosω;
             }
 
-            var a = new double[degree];
+            var d = new double[order+1];
+            for (int i=0; i<d.Length;++i) {
+                d[i] = ntfHz.D(i);
+            }
 
-            switch (degree) {
-            case 2:
-                a[0] = hz.D(1) + hz.D(2) - g[0] + 1;
-                a[1] = 1 - hz.D(2);
+            // CRFB構造のノイズシェイピングフィルターの係数a[]。
+            // R. Schreier and G. Temes, ΔΣ型アナログ/デジタル変換器入門,丸善,2007, pp.95,96
+            var a = new double[order];
+            switch (order) {
+            case 3:
+                a[0] = d[1] + d[2] + d[3] + 1;
+                a[1] = d[1] - d[3] - g[0] + 2;
+                a[2] = d[3] + 1;
+                break;
+            case 4:
+                a[0] = 1 + d[1] + d[2] + d[3] + d[4] - 3 *g[0] - d[1]* g[0] - d[4] * g[0] + g[0]*g[0];
+                a[1] = 2 + d[1] - d[3] - 2 *d[4] - g[0] + d[4] *g[0];
+                a[2] = 3 + d[1] + d[4] - g[0] - g[1];
+                a[3] = 1 - d[4];
+                break;
+            case 5:
+                a[0] = d[1] + d[2] + d[3] + d[4] + d[5] + 1;
+                a[1] = 3 - 4 * g[0] + g[0] * g[0] - 2 * d[5] + d[5] * g[0] - d[4] + d[2] + 2 * d[1] - d[1] * g[0];
+                a[2] = d[1] + d[4] - d[5] * g[0] + 3 * d[5] - g[0] + 3;
+                a[3] = d[1] - d[5] - g[0] - g[1] + 4;
+                a[4] = d[5] + 1;
+                break;
+            case 6:
+                a[0] = 1 + d[1] + d[2] + d[3] + d[4] + d[5] + d[6] - 6* g[0] - 3* d[1]* g[0] - d[2]* g[0] - d[5]* g[0] - 3* d[6]* g[0] + 5* g[0]*g[0] + d[1]* g[0]*g[0] + d[6]* g[0]*g[0] - g[0]*g[0]*g[0];
+                a[1] = 3 + 2* d[1] + d[2] - d[4] - 2* d[5] - 3* d[6] - 4* g[0] - d[1]* g[0] + d[5]* g[0] + 4* d[6]* g[0] + g[0]*g[0] - d[6]* g[0]*g[0];
+                a[2] = 6 + 3* d[1] + d[2] + d[5] + 3* d[6] - 5* g[0] - d[1]* g[0] - d[6]* g[0] + g[0]*g[0] - 5* g[1] -  d[1]* g[1] - d[6]* g[1] + g[0]* g[1] + g[1]*g[1];
+                a[3] = 4 + d[1] - d[5] - 4* d[6] - g[0] + d[6]* g[0] - g[1] + d[6]* g[1];
+                a[4] = 5 + d[1] + d[6] - g[0] - g[1] - g[2];
+                a[5] = 1 - d[6];
+                break;
+            case 7:
+                a[0] = 1 + d[1] + d[2] + d[3] + d[4] + d[5] + d[6] + d[7];
+                a[1] = 4 + 3 * d[1] + 2 * d[2] + d[3] - d[5] - 2 * d[6] - 3 * d[7] - 10 * g[0] - 4 * d[1] * g[0] - d[2] * g[0] + d[6] * g[0] + 4 * d[7] * g[0] + 6 * g[0] * g[0] + d[1] * g[0] * g[0] - d[7] * g[0] * g[0] - g[0] * g[0] * g[0];
+                a[2] = 6 + 3 *d[1] + d[2] + d[5] + 3* d[6] + 6 *d[7] - 5 *g[0] - d[1]* g[0] - d[6]* g[0] -  5 *d[7]* g[0] + g[0]* g[0] + d[7]*g[0]*g[0];
+                a[3] = 10 + 4 *d[1] + d[2] - d[6] - 4 *d[7] - 6 *g[0] - d[1]* g[0] + d[7]* g[0] + g[0]*g[0] - 6* g[1] -  d[1] *g[1] + d[7]* g[1] + g[0]* g[1] + g[1]*g[1];
+                a[4] = 5 + d[1] + d[6] + 5 *d[7] - g[0] - d[7]* g[0] - g[1] - d[7]* g[1];
+                a[5] = 6 + d[1] - d[7] - g[0] - g[1] - g[2];
+                a[6] = 1 + d[7];
                 break;
             default:
                 throw new NotImplementedException();
             }
 
-            var b = new double[degree+1];
-            for (int i = 0; i < degree; ++i) {
+            // CRFBでSTF==1になるようなb[]の係数。
+            var b = new double[order+1];
+            for (int i = 0; i < order; ++i) {
                 b[i] = a[i];
             }
-            b[degree] = 1.0;
+            b[order] = 1.0;
 
-            mLoopFilters = new LoopFilterCRFB[metaW.channels];
-            for (int ch=0; ch < metaW.channels; ++ch) {
+            mLoopFilters = new LoopFilterCRFB[numChannels];
+            for (int ch = 0; ch < numChannels; ++ch) {
                 mLoopFilters[ch] = new LoopFilterCRFB(a, b, g);
             }
         }
@@ -116,7 +131,7 @@ namespace WWOfflineResampler {
                 byte sdm = 0;
 
                 for (int j = 0; j < 8; ++j) {
-                    // 入力を0.5倍して投入する。
+                    // 入力を0.5倍して投入(ループフィルターに大体0.5よりも大きいサンプル値を入れると不安定になるので)。
                     int b = mLoopFilters[ch].Filter(0.5 * sampleArray[i*8+j]);
                     if (0 < b) {
                         sdm += (byte)(1 << j);

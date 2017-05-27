@@ -104,6 +104,7 @@
     <Compile Include="IIRFilterDesign.cs" />
     <Compile Include="LoopFilterCRFB.cs" />
     <Compile Include="Main.cs" />
+    <Compile Include="NTFHzcoeffs.cs" />
     <Compile Include="SampleValueStatistics.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

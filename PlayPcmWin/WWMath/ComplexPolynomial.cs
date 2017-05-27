@@ -21,6 +21,10 @@ namespace WWMath {
             return r;
         }
 
+        public WWComplex[] Coeffs() {
+            return mCoeff;
+        }
+
         /// <summary>
         /// 2つの多項式の和を戻す。
         /// </summary>

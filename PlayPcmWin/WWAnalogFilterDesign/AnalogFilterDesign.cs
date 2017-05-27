@@ -66,10 +66,57 @@ namespace WWAnalogFilterDesign {
         }
 
         /// <summary>
-        /// partial fraction decomposition-ed transfer function. s is normalized
+        /// partial fraction decomposition-ed transfer function. s is normalized.
+        /// HPfdNth()を全て足し合わせるとHsが出来る。
         /// </summary>
+        /// <param name="n">0 &lt;= n &lt; HPfdCount()</param>
+        /// <returns>1次のrational function</returns>
         public FirstOrderComplexRationalPolynomial HPfdNth(int n) {
             return mH_PFD[n];
+        }
+
+        /// <summary>
+        /// Hsを構成する1次のrational functionを戻す。
+        /// HsNth()を全て掛け合わせるとHsが出来る。
+        /// </summary>
+        /// <param name="n">0 &lt;= n &lt; Order()</param>
+        /// <returns>1次のrational function</returns>
+        public FirstOrderComplexRationalPolynomial HsNth(int n) {
+            if (Order() <= n) {
+                throw new ArgumentOutOfRangeException("n");
+            }
+
+
+            WWComplex n1 = WWComplex.Zero();
+            WWComplex n0 = WWComplex.Unity();
+            var d1 = WWComplex.Unity();
+            var d0 = PoleNth(n).Minus();
+
+            if (NumOfZeroes() + 1 == NumOfPoles()) {
+                // 分母が5次で分子が4次とか、分子の次数が1少ないとき。
+                // 係数はantisymmetricに並んでいる。
+
+                if (n < NumOfZeroes()/2) {
+                    n1 = WWComplex.Unity();
+                    n0 = ZeroNth(n).Minus();
+                } else if (NumOfZeroes()/2 < n) {
+                    n1 = WWComplex.Unity();
+                    n0 = ZeroNth(n-1).Minus();
+                } else {
+                    // n1 == 0, n0 == 1
+                }
+            } else if (NumOfZeroes() == NumOfPoles()) {
+                // 分母と分子の要素数が同じ。
+                n1 = WWComplex.Unity();
+                n0 = ZeroNth(n).Minus();
+            } else if (NumOfZeroes() == 0) {
+                // オールポールフィルター。
+                // n1 == 0, n0 == 1
+            } else {
+                throw new NotImplementedException();
+            }
+
+            return new FirstOrderComplexRationalPolynomial(n1, n0, d1, d0);
         }
 
         public enum FilterType {

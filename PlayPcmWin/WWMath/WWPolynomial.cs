@@ -61,6 +61,30 @@ namespace WWMath {
         }
 
         /// <summary>
+        /// 1次多項式p0と、共役の多項式を乗算して実係数多項式を得る
+        /// </summary>
+        public static RealPolynomial
+        MulComplexConjugatePair(ComplexPolynomial p0) {
+            if (p0.Degree != 1) {
+                throw new ArgumentException("p0");
+            }
+
+            var n0 = p0.Coeffs();
+
+            // n1: 共役の多項式の係数
+            var n1 = new WWComplex[2];
+            for (int i = 0; i < 2; ++i) {
+                n1[i] = n0[i].ComplexConjugate();
+            }
+
+            var n = new double[3];
+            n[0] = WWComplex.Mul(n0[0], n1[0]).real;
+            n[1] = WWComplex.Add(WWComplex.Mul(n0[0], n1[1]), WWComplex.Mul(n0[1], n1[0])).real;
+            n[2] = WWComplex.Mul(n0[1], n1[1]).real;
+
+            return new RealPolynomial(n);
+        }
+        /// <summary>
         /// n次実多項式 × m次実多項式
         /// </summary>
         /// <returns>n+m次実多項式</returns>
