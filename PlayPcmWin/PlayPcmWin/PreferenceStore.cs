@@ -76,6 +76,7 @@ namespace PlayPcmWin {
         public bool SettingsIsExpanded { get; set; }
         public bool StorePlaylistContent { get; set; }
         public bool DispCoverart { get; set; }
+        public bool ReduceVolume { get; set; }
         public bool RefrainRedraw { get; set; }
         public bool Shuffle { get; set; }
         public int ZeroFlushMillisec { get; set; }
@@ -172,6 +173,7 @@ namespace PlayPcmWin {
             SettingsIsExpanded = true;
             StorePlaylistContent = true;
             DispCoverart = true;
+            ReduceVolume = false;
             RefrainRedraw = false;
             ZeroFlushMillisec = 500;
             TimePeriodHundredNanosec = TIME_PERIOD_ONE_MILLISEC;

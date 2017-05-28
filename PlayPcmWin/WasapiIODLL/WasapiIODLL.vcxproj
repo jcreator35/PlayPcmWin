@@ -193,7 +193,9 @@
     <ClCompile Include="WWAudioFilterZohNosdacCompensation.cpp" />
     <ClCompile Include="WWMFResampler.cpp" />
     <ClCompile Include="WWMMNotificationClient.cpp" />
-    <ClCompile Include="WWPcmData.cpp" />
+    <ClCompile Include="WWPcmData.cpp">
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Level4</WarningLevel>
+    </ClCompile>
     <ClCompile Include="WWPcmDelay.cpp" />
     <ClCompile Include="WWPcmSampleManipulator.cpp" />
     <ClCompile Include="WWPcmStream.cpp" />

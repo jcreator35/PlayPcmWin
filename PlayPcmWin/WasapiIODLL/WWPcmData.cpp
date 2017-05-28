@@ -613,15 +613,32 @@ WWPcmData::FindSampleValueMinMax(float *minValue_return, float *maxValue_return)
     *maxValue_return = maxValue;
 }
 
-void
+bool
 WWPcmData::ScaleSampleValue(float scale)
 {
-    assert(mSampleFormat == WWPcmDataSampleFormatSfloat);
-
-    float *p = (float *)mStream;
-    for (int i=0; i<mFrames * mChannels; ++i) {
-        p[i] = p[i] * scale;
+    if (mStreamType == WWStreamDop) {
+        // 未対応: DoPの音量をこのアルゴリズムで変えたら再生が出来なくなる。
+        return false;
     }
+
+    if (mSampleFormat == WWPcmDataSampleFormatSfloat) {
+        // floatの場合。
+
+        float *p = (float *)mStream;
+        for (int64_t i=0; i<mFrames * mChannels; ++i) {
+            p[i] = p[i] * scale;
+        }
+        return true;
+    }
+
+    // 整数の場合。
+    for (int64_t pos=0; pos<mFrames; ++pos) {
+        for (int ch=0; ch<mChannels; ++ch) {
+            double v = GetSampleValueInt(ch,pos);
+            SetSampleValueInt(ch, pos, (int)(v*scale));
+        }
+    }
+    return true;
 }
 
 void

@@ -80,7 +80,7 @@ namespace PlayPcmWin {
 
             checkBoxCoverart.Content = Properties.Resources.SettingsCheckBoxCoverart;
             checkBoxManuallySetMainWindowDimension.Content = Properties.Resources.SettingsCheckBoxManuallySetMainWindowDimension;
-            checkBoxParallelRead.Content = Properties.Resources.SettingsCheckBoxParallelRead;
+            checkBoxReduceVolume.Content = Properties.Resources.SettingsCheckBoxReduceVolume;
             checkBoxPlaceKokomadeAfterIndex00.Content = Properties.Resources.SettingsCheckBoxPlaceKokomadeAterIndex00;
 
             checkBoxPlayingTimeBold.Content = Properties.Resources.SettingsCheckBoxPlayingTimeBold;
@@ -163,8 +163,8 @@ namespace PlayPcmWin {
             checkBoxCoverart.IsChecked =
                 preference.DispCoverart;
 
-            checkBoxParallelRead.IsChecked =
-                preference.ParallelRead;
+            checkBoxReduceVolume.IsChecked =
+                preference.ReduceVolume;
 
             if (10000 == preference.TimePeriodHundredNanosec) {
                 comboBoxTimePeriod.SelectedItem = cbItemTimerResolution1Millisec;
@@ -358,8 +358,8 @@ namespace PlayPcmWin {
             m_preference.DispCoverart
                 = checkBoxCoverart.IsChecked == true;
 
-            m_preference.ParallelRead
-                = checkBoxParallelRead.IsChecked == true;
+            m_preference.ReduceVolume
+                = checkBoxReduceVolume.IsChecked == true;
             
             if (comboBoxTimePeriod.SelectedItem == cbItemTimerResolution1Millisec) {
                 m_preference.TimePeriodHundredNanosec = 10000;
@@ -598,15 +598,6 @@ namespace PlayPcmWin {
 
         private void rectangleColor_MouseUp(object sender, MouseButtonEventArgs e) {
             buttonChangeColor_Click(sender, e);
-        }
-
-        private void checkBoxParallelRead_Checked(object sender, RoutedEventArgs e) {
-            checkBoxVerifyFlacMD5Sum.IsChecked = false;
-            checkBoxVerifyFlacMD5Sum.IsEnabled = false;
-        }
-
-        private void checkBoxParallelRead_Unchecked(object sender, RoutedEventArgs e) {
-            checkBoxVerifyFlacMD5Sum.IsEnabled = true;
         }
 
         private void comboBoxRenderThreadTaskType_SelectionChanged(object sender, SelectionChangedEventArgs e) {

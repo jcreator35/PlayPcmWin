@@ -709,4 +709,7 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
   <data name="MainDataGridColumnComposer" xml:space="preserve">
     <value>作曲者</value>
   </data>
+  <data name="SettingsCheckBoxReduceVolume" xml:space="preserve">
+    <value>PCMの音量を6dB下げる</value>
+  </data>
 </root>

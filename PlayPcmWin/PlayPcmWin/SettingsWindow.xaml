@@ -147,12 +147,13 @@
                     </GroupBox>
                     <GroupBox x:Uid="groupBoxFileSettings" Header="File read settings" Margin="4" Name="groupBoxFileSettings" >
                         <StackPanel>
-                            <CheckBox Content="Parallelize file read"  Margin="6,6,6,0" Name="checkBoxParallelRead" VerticalAlignment="Top" IsChecked="False" HorizontalAlignment="Left" Checked="checkBoxParallelRead_Checked" Unchecked="checkBoxParallelRead_Unchecked" IsEnabled="False" />                            <CheckBox Content="Restore the playlist on program startup"  Margin="6,6,6,0" Name="checkBoxStorePlaylistContent" VerticalAlignment="Top" HorizontalAlignment="Left" />
+                            <CheckBox Content="Restore the playlist on program startup"  Margin="6,6,6,0" Name="checkBoxStorePlaylistContent" VerticalAlignment="Top" HorizontalAlignment="Left" />
                             <CheckBox Content="Sort dropped folder items" HorizontalAlignment="Left" IsChecked="False" Margin="6,6,6,0" Name="checkBoxSortDropFolder" VerticalAlignment="Top" />
                             <CheckBox Content="Sort dropped files" HorizontalAlignment="Left" IsChecked="False" Margin="6,6,6,0" Name="checkBoxSortDroppedFiles" VerticalAlignment="Top" />
                             <CheckBox Content="Set [Batch read endpoint] on file drop" HorizontalAlignment="Left" IsChecked="False" Margin="6,6,6,0" Name="checkBoxBatchReadEndpointToEveryTrack" VerticalAlignment="Top" />
                             <CheckBox Content="Verify FLAC MD5sum on file read" HorizontalAlignment="Left" IsChecked="False" Margin="6,6,6,0" Name="checkBoxVerifyFlacMD5Sum" VerticalAlignment="Top" />
                             <CheckBox Content="Add silent channel for ch. count to be even" HorizontalAlignment="Left" IsChecked="False" Margin="6,6,6,0" Name="checkBoxChannelCountEven" VerticalAlignment="Top" />
+                            <CheckBox Content="Reduce PCM volume by 6dB"  Margin="6,6,6,0" Name="checkBoxReduceVolume" VerticalAlignment="Top" IsChecked="False" HorizontalAlignment="Left" />
                         </StackPanel>
                     </GroupBox>
                 </WrapPanel>

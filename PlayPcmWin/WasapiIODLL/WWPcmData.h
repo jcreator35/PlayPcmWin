@@ -153,7 +153,7 @@ public:
 
     /// get float sample min/max for volume correction
     void FindSampleValueMinMax(float *minValue_return, float *maxValue_return);
-    void ScaleSampleValue(float scale);
+    bool ScaleSampleValue(float scale);
 
     void SetStreamType(WWStreamType t) {
         mStreamType = t;

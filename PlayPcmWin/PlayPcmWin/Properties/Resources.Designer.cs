@@ -1326,6 +1326,15 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Reduce PCM volume by 6dB.
+        /// </summary>
+        internal static string SettingsCheckBoxReduceVolume {
+            get {
+                return ResourceManager.GetString("SettingsCheckBoxReduceVolume", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Minimize GUI redraw when playing.
         /// </summary>
         internal static string SettingsCheckBoxRefrainRedraw {

@@ -1906,7 +1906,11 @@ namespace PlayPcmWin
                     return;
                 }
 
-                if (m_preference.WasapiSharedOrExclusive == WasapiSharedOrExclusiveType.Shared
+                if (m_preference.ReduceVolume) {
+                    // PCMの音量を6dB下げる。
+                    // もしもDSDの時は下げない。
+                    wasapi.ScalePcmAmplitude(0.5);
+                } else if (m_preference.WasapiSharedOrExclusive == WasapiSharedOrExclusiveType.Shared
                         && m_preference.SootheLimiterApo) {
                     // Limiter APO対策の音量制限。
                     double maxAmplitude = wasapi.ScanPcmMaxAbsAmplitude();
