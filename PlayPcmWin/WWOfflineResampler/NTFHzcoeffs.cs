@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using WWMath;
 
 namespace WWOfflineResampler {
@@ -12,6 +9,14 @@ namespace WWOfflineResampler {
     ///                 k-1   z - ZeroNth(i)
     /// k次のNTFのH(z) =  Π  ─────────────────
     ///                 i=0   z - PoleNth(i)
+    ///
+    ///                  k-1
+    ///                    Σ N(i)z^i
+    ///                  i=0
+    ///               = ───────────────
+    ///                  k-1
+    ///                    Σ D(i)z^i
+    ///                  i=0
     /// </summary>
     public class NTFHzcoeffs {
         private int mOrder;
@@ -24,16 +29,7 @@ namespace WWOfflineResampler {
         }
 
         public NTFHzcoeffs(int order) {
-            switch (order) {
-            case 3:
-            case 4:
-            case 5:
-            case 6:
-            case 7:
-            case 8:
-            case 9:
-                break;
-            default:
+            if (order < 2 || 9 < order) {
                 throw new ArgumentOutOfRangeException("order");
             }
 
@@ -75,6 +71,8 @@ namespace WWOfflineResampler {
 
         public WWComplex ZeroNth(int n) {
             switch (mOrder) {
+            case 2:
+                return mZero2[n];
             case 3:
                 return mZero3[n];
             case 4:
@@ -96,6 +94,8 @@ namespace WWOfflineResampler {
 
         public WWComplex PoleNth(int n) {
             switch (mOrder) {
+            case 2:
+                return mPole2[n];
             case 3:
                 return mPole3[n];
             case 4:
@@ -114,6 +114,16 @@ namespace WWOfflineResampler {
                 throw new ArgumentOutOfRangeException("n");
             }
         }
+
+        private readonly static WWComplex[] mZero2 = new WWComplex[] {
+            new WWComplex(0.99959843164790452,-0.028336821399895074),
+            new WWComplex(0.99959843164790452,+0.028336821399895074),
+        };
+
+        private readonly static WWComplex[] mPole2 = new WWComplex[] {
+            new WWComplex(0.61239792049008979,-0.25749599646682375),
+            new WWComplex(0.61239792049008979,+0.25749599646682375),
+        };
 
         private readonly static WWComplex[] mZero3 = new WWComplex[] {
             new WWComplex(0.99927721567022176,-0.038013763854283067),

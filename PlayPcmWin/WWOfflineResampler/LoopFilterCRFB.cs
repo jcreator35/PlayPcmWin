@@ -1,5 +1,5 @@
-﻿
-using System;
+﻿using System;
+
 namespace WWOfflineResampler {
     public class LoopFilterCRFB {
         private readonly double[] mA;
@@ -36,38 +36,48 @@ namespace WWOfflineResampler {
         /// <summary>
         /// ループフィルターに1個データを入力し、1個データを出力する。
         /// </summary>
-        /// <param name="x">入力値x。</param>
+        /// <param name="u">入力値x。</param>
         /// <returns>出力値y。+1か-1が出る。</returns>
-        public int Filter(double x) {
-            var X = new double[Order];
+        public int Filter(double u) {
             int odd = (Order & 1) == 1 ? 1 : 0;
 
             // CRFB構造。
             // R. Schreier and G. Temes, ΔΣ型アナログ/デジタル変換器入門,丸善,2007, pp.97
 
-            // 最終出力mY
-            X[X.Length - 1] = mZ[mZ.Length - 1];
-            double v = X[X.Length - 1] + mB[mB.Length - 1] * x;
-            int y = (0 <= v) ? 1 : -1;
-
-            for (int i = mA.Length-2; odd <= i; i -= 2) {
-                X[i+1] = mZ[i+1];
-                X[i] = mZ[i] + -mG[i / 2] * X[i + 1] + mB[i] * x - mA[i] * y;
-
-                mZ[i] = X[i];
-                mZ[i + 1] += X[i] + mB[i+1] * x - mA[i+1] * y;
-            }
+            // 最終出力v。
+            double y = mZ[mOrder-1] + mB[mB.Length - 1] * u;
+            int v = (0 <= y) ? 1 : -1;
 
             if (odd == 1) {
-                // 奇数次の時最初に遅延積分器がある。
-                X[0] = mZ[0];
+                // 奇数次のCRFB。
 
-                mZ[0] += mB[0] * x - mA[0] * y;
+                for (int i = mOrder - 2; 1 <= i; i -= 2) {
+                    // 無遅延積分器のディレイmZ[i]
+                    mZ[i    ] += mZ[i - 1] + mB[i    ] * u - mA[i    ] * v - mG[i / 2] * mZ[i + 1];
+                    // 遅延積分器のディレイmZ[i+1]
+                    mZ[i + 1] += mZ[i    ] + mB[i + 1] * u - mA[i + 1] * v;
+                }
+
+                // 奇数次の時最初に遅延積分器がある。mZ[0]の値を更新する。
+                mZ[0] += mB[0] * u - mA[0] * v;
+            } else {
+                // 偶数次のCRFB。
+
+                for (int i = mOrder - 2; 2 <= i; i -= 2) {
+                    // 無遅延積分器のディレイmZ[i]
+                    mZ[i] += mZ[i - 1] + mB[i] * u - mA[i] * v - mG[i / 2] * mZ[i + 1];
+                    // 遅延積分器のディレイmZ[i+1]
+                    mZ[i + 1] += mZ[i] + mB[i + 1] * u - mA[i + 1] * v;
+                }
+
+                // 0番の共振器は1個前の共振器からの入力mZ[-1]が無い。
+                // 無遅延積分器のディレイmZ[0]
+                mZ[0] += mB[0] * u - mA[0] * v - mG[0] * mZ[1];
+                // 遅延積分器のディレイmZ[1]
+                mZ[1] += mZ[0] + mB[1] * u - mA[1] * v;
             }
 
-            X = null;
-
-            return y;
+            return v;
         }
     }
 }

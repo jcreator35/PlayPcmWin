@@ -362,7 +362,7 @@ namespace WWOfflineResampler {
         }
 
         public bool ParseCommandLine(string [] args) {
-#if true
+#if false
             args = new string[] {
                 "-targetSR",
                 "2822400",
