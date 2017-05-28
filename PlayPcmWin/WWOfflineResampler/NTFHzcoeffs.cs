@@ -9,7 +9,7 @@ namespace WWOfflineResampler {
     ///                 k-1   z - ZeroNth(i)
     /// k次のNTFのH(z) =  Π  ─────────────────
     ///                 i=0   z - PoleNth(i)
-    ///
+    ///                 
     ///                  k-1
     ///                    Σ N(i)z^i
     ///                  i=0
@@ -17,6 +17,11 @@ namespace WWOfflineResampler {
     ///                  k-1
     ///                    Σ D(i)z^i
     ///                  i=0
+    ///
+    ///   k-1   z^-1 - ZeroNth(i)
+    ///     Π  ───────────────────    ではなく、zについての式である！
+    ///   i=0   z^-1 - PoleNth(i)
+    ///
     /// </summary>
     public class NTFHzcoeffs {
         private int mOrder;
