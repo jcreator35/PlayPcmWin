@@ -48,7 +48,6 @@ namespace WWOfflineResampler {
         /// <param name="order">フィルターの次数(3,5,7)。</param>
         /// <param name="numChannels">音声のチャンネル数。</param>
         private void DesignLoopFilter(int order, int numChannels) {
-            //var twoπ = 2.0 * Math.PI;
             var ntfHz = new NTFHzcoeffs(order);
 
             // フィードバック係数g。Hzの分子の零(単位円上)のz=1からの角度 ω → g = 2 - 2cos(ω)
