@@ -39,7 +39,7 @@ namespace WWOfflineResampler {
         /// <param name="u">入力値x。</param>
         /// <returns>出力値y。+1か-1が出る。</returns>
         public int Filter(double u) {
-            int odd = (Order & 1) == 1 ? 1 : 0;
+            int odd = (mOrder & 1) == 1 ? 1 : 0;
 
             // CRFB構造。
             // R. Schreier and G. Temes, ΔΣ型アナログ/デジタル変換器入門,丸善,2007, pp.97
