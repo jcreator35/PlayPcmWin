@@ -26,6 +26,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WavRWLib2", "..\WavRWLib2\W
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WWDsfRW", "..\WWDsfRW\WWDsfRW.csproj", "{385ADACB-85D6-430A-9691-3A75C639C2AA}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WWFilterCppvs2010", "..\WWFilterCpp\WWFilterCpp.vcxproj", "{1CB7137C-49A4-4BF6-B5F3-B9271C8885CB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WWFilterCppCs", "..\WWFilterCppCs\WWFilterCppCs.csproj", "{1D2FED4A-D40F-4A8F-A963-4C733B8EDD04}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1CB7137C-49A4-4BF6-B5F3-B9271C8885CB} = {1CB7137C-49A4-4BF6-B5F3-B9271C8885CB}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -122,6 +129,22 @@ Global
 		{385ADACB-85D6-430A-9691-3A75C639C2AA}.Release|x64.Build.0 = Release|x64
 		{385ADACB-85D6-430A-9691-3A75C639C2AA}.Release|x86 (not supported).ActiveCfg = Release|x86
 		{385ADACB-85D6-430A-9691-3A75C639C2AA}.Release|x86 (not supported).Build.0 = Release|x86
+		{1CB7137C-49A4-4BF6-B5F3-B9271C8885CB}.Debug|x64.ActiveCfg = Debug|x64
+		{1CB7137C-49A4-4BF6-B5F3-B9271C8885CB}.Debug|x64.Build.0 = Debug|x64
+		{1CB7137C-49A4-4BF6-B5F3-B9271C8885CB}.Debug|x86 (not supported).ActiveCfg = Debug|Win32
+		{1CB7137C-49A4-4BF6-B5F3-B9271C8885CB}.Debug|x86 (not supported).Build.0 = Debug|Win32
+		{1CB7137C-49A4-4BF6-B5F3-B9271C8885CB}.Release|x64.ActiveCfg = Release|x64
+		{1CB7137C-49A4-4BF6-B5F3-B9271C8885CB}.Release|x64.Build.0 = Release|x64
+		{1CB7137C-49A4-4BF6-B5F3-B9271C8885CB}.Release|x86 (not supported).ActiveCfg = Release|Win32
+		{1CB7137C-49A4-4BF6-B5F3-B9271C8885CB}.Release|x86 (not supported).Build.0 = Release|Win32
+		{1D2FED4A-D40F-4A8F-A963-4C733B8EDD04}.Debug|x64.ActiveCfg = Debug|x64
+		{1D2FED4A-D40F-4A8F-A963-4C733B8EDD04}.Debug|x64.Build.0 = Debug|x64
+		{1D2FED4A-D40F-4A8F-A963-4C733B8EDD04}.Debug|x86 (not supported).ActiveCfg = Debug|x86
+		{1D2FED4A-D40F-4A8F-A963-4C733B8EDD04}.Debug|x86 (not supported).Build.0 = Debug|x86
+		{1D2FED4A-D40F-4A8F-A963-4C733B8EDD04}.Release|x64.ActiveCfg = Release|x64
+		{1D2FED4A-D40F-4A8F-A963-4C733B8EDD04}.Release|x64.Build.0 = Release|x64
+		{1D2FED4A-D40F-4A8F-A963-4C733B8EDD04}.Release|x86 (not supported).ActiveCfg = Release|x86
+		{1D2FED4A-D40F-4A8F-A963-4C733B8EDD04}.Release|x86 (not supported).Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

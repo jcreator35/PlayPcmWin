@@ -2,12 +2,16 @@
 using WWIIRFilterDesign;
 using WWUtil;
 using WWMath;
+using WWFilterCppCs;
 
 namespace WWOfflineResampler {
     class DsfWrite {
+        private const int FILTER_ORDER = 5;
+
         private WWDsfRW.WWDsfWriter mDsfW;
 
         private LoopFilterCRFB [] mLoopFilters;
+        private WWFilterCpp[] mLoopFiltersCpp;
 
         class SampleData1ch {
             public LargeArray<byte> sdmData;
@@ -39,7 +43,7 @@ namespace WWOfflineResampler {
             }
 
             // ノイズシェイピングフィルターmLoopFiltersを作る。
-            DesignLoopFilter(5, metaW.channels);
+            DesignLoopFilter(FILTER_ORDER, metaW.channels);
         }
 
         /// <summary>
@@ -122,6 +126,13 @@ namespace WWOfflineResampler {
             for (int ch = 0; ch < numChannels; ++ch) {
                 mLoopFilters[ch] = new LoopFilterCRFB(a, b, g);
             }
+
+            mLoopFiltersCpp = new WWFilterCpp[numChannels];
+            for (int ch = 0; ch < numChannels; ++ch) {
+                var p = new WWFilterCpp();
+                p.BuildCrfb(order, a, b, g, 0.5);
+                mLoopFiltersCpp[ch] = p;
+            }
         }
 
         public int AddSampleArray(int ch, double [] sampleArray) {
@@ -130,6 +141,11 @@ namespace WWOfflineResampler {
             // 8で割り切れる。
             System.Diagnostics.Debug.Assert((sampleArray.Length & 7) == 0);
 
+#if true
+            var buffOut = new byte[sampleArray.Length/8];
+            mLoopFiltersCpp[ch].FilterCrfb(sampleArray.Length, sampleArray, buffOut);
+            mSampleData[ch].sdmData.CopyFrom(buffOut, 0, mSampleData[ch].pos, buffOut.Length);
+#else
             for (int i = 0; i < sampleArray.Length/8; ++i) {
                 byte sdm = 0;
 
@@ -144,7 +160,7 @@ namespace WWOfflineResampler {
                 long pos = mSampleData[ch].pos;
                 mSampleData[ch].sdmData.Set(pos + i, sdm);
             }
-
+#endif
             mSampleData[ch].pos += sampleArray.Length / 8;
 
             return rv;

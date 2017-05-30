@@ -161,6 +161,10 @@
       <Project>{385ADACB-85D6-430A-9691-3A75C639C2AA}</Project>
       <Name>WWDsfRW</Name>
     </ProjectReference>
+    <ProjectReference Include="..\WWFilterCppCs\WWFilterCppCs.csproj">
+      <Project>{1D2FED4A-D40F-4A8F-A963-4C733B8EDD04}</Project>
+      <Name>WWFilterCppCs</Name>
+    </ProjectReference>
     <ProjectReference Include="..\WWFlacRWCS\WWFlacRWCS.csproj">
       <Project>{DA071B6A-B2E2-4567-84D1-5A9122DAB75C}</Project>
       <Name>WWFlacRWCS</Name>

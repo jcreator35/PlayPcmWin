@@ -22,6 +22,7 @@ Open Visual Studio x64 Win64 command prompt and enter following commands to crea
  sn -k WWMath\WWMath.snk
  sn -k WWOfflineResampler\WWOfflineResampler.snk
  sn -k WWUserControls\WWUserControls.snk
+ sn -k WWFilterCppCs\WWFilterCppCs.snk
 
 Open PlayPcmWin\PlayPcmWin.sln to build/run PlayPcmWin (choose Release x64 build target)
 

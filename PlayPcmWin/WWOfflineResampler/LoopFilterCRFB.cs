@@ -44,9 +44,9 @@ namespace WWOfflineResampler {
             // CRFB構造。
             // R. Schreier and G. Temes, ΔΣ型アナログ/デジタル変換器入門,丸善,2007, pp.97
 
-            // 最終出力v。
+            // 最終出力vを計算する。
             double y = mZ[mOrder-1] + mB[mB.Length - 1] * u;
-            int v = (0 <= y) ? 1 : -1;
+            int v = (0 <= y) ? 1 : -1; //< 1ビット量子化処理。
 
             if (odd == 1) {
                 // 奇数次のCRFB。
