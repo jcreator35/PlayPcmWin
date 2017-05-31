@@ -6,6 +6,8 @@
 /// </summary>
 #define USE_ZOH_UPSAMPLE
 
+#define USE_CPP
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,6 +15,7 @@ using System.Threading.Tasks;
 using WWIIRFilterDesign;
 using WWMath;
 using WWUtil;
+using WWFilterCppCs;
 
 namespace WWOfflineResampler {
     class Main {
@@ -240,7 +243,12 @@ namespace WWOfflineResampler {
 
 #if USE_ZOH_UPSAMPLE
                     // 零次ホールドのハイ落ち補償フィルター。
+# if USE_CPP
+                    var zohCompensation = new WWFilterCpp();
+                    zohCompensation.BuildZohCompensation();
+# else
                     var zohCompensation = new WWIIRFilterDesign.ZohNosdacCompensation(33);
+# endif
 #endif
 
                     var iirFilter = mIIRFilterDesign.CreateIIRFilterGraph();
@@ -273,7 +281,11 @@ namespace WWOfflineResampler {
 #if USE_ZOH_UPSAMPLE
                         if (1 < upsampleScale) {
                             // 零次ホールドでアップサンプルするのでハイ落ちを補償する。
+# if USE_CPP
+                            x = zohCompensation.FilterZohCompensation(x);
+# else
                             x = zohCompensation.Filter(x);
+# endif
                         }
 #endif
 
@@ -324,8 +336,11 @@ namespace WWOfflineResampler {
                     if (param.isTargetPcm) {
                         rv = mFlacWrite.AddPcm(ch, pcmW);
                     }
-
                     System.Diagnostics.Debug.Assert(0 <= rv);
+
+#if USE_CPP
+                    zohCompensation.Dispose();
+#endif
                 });
 
                 double maxMagnitudeDb = FieldQuantityToDecibel(stat.MaxAbsValue());

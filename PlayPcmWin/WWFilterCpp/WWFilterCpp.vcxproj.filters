@@ -5,11 +5,14 @@
     <ClInclude Include="targetver.h" />
     <ClInclude Include="WWFilterCpp.h" />
     <ClInclude Include="WWLoopFilterCRFB.h" />
+    <ClInclude Include="WWDelay.h" />
+    <ClInclude Include="WWZohCompensation.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WWFilterCpp.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="WWLoopFilterCRFB.cpp" />
+    <ClCompile Include="WWZohCompensation.cpp" />
   </ItemGroup>
 </Project>

@@ -3,6 +3,13 @@ using System.Runtime.InteropServices;
 
 namespace WWFilterCppCs {
     public class WWFilterCpp : IDisposable {
+        private enum FilterType {
+            Crfb,
+            ZohCompensation,
+        }
+
+        private FilterType mFilterType;
+        private int mIdx;
 
         public void BuildCrfb(int order, double[] a,
                 double[] b, double[] g, double gain) {
@@ -26,12 +33,47 @@ namespace WWFilterCppCs {
             return WWFilterCpp_Crfb_Filter(mIdx, n, buffIn, buffOut);
         }
 
-        private enum FilterType {
-            Crfb,
-        }
-        private FilterType mFilterType;
+        public void BuildZohCompensation() {
+            if (0 < mIdx) {
+                throw new InvalidOperationException();
+            }
 
-        private int mIdx;
+            mIdx = WWFilterCpp_ZohCompensation_Build();
+            if (mIdx <= 0) {
+                // こんな事は起こらないと思う。
+                throw new NotImplementedException();
+            }
+
+            mFilterType = FilterType.ZohCompensation;
+        }
+
+        public double [] FilterZohCompensation(double[] buffIn) {
+            if (mIdx <= 0 || mFilterType != FilterType.ZohCompensation) {
+                throw new InvalidOperationException();
+            }
+
+            var buffOut = new double[buffIn.Length];
+            WWFilterCpp_ZohCompensation_Filter(mIdx, buffIn.Length, buffIn, buffOut);
+            return buffOut;
+        }
+
+        public void Dispose() {
+            if (mIdx <= 0) {
+                return;
+            }
+
+            switch (mFilterType) {
+            case FilterType.Crfb:
+                WWFilterCpp_Crfb_Destroy(mIdx);
+                break;
+            case FilterType.ZohCompensation:
+                WWFilterCpp_ZohCompensation_Destroy(mIdx);
+                break;
+            default:
+                throw new NotImplementedException();
+            }
+            mIdx = 0;
+        }
 
         [DllImport("WWFilterCpp.dll", CharSet = CharSet.Unicode)]
         internal extern static
@@ -46,18 +88,17 @@ namespace WWFilterCppCs {
         internal extern static
         int WWFilterCpp_Crfb_Filter(int idx, int n, double []buffIn, byte []buffOut);
 
-        public void Dispose() {
-            if (mIdx <= 0) {
-                return;
-            }
+        [DllImport("WWFilterCpp.dll", CharSet = CharSet.Unicode)]
+        internal extern static
+        int WWFilterCpp_ZohCompensation_Build();
 
-            if (mFilterType == FilterType.Crfb) {
-                WWFilterCpp_Crfb_Destroy(mIdx);
-                mIdx = 0;
-            }
+        [DllImport("WWFilterCpp.dll", CharSet = CharSet.Unicode)]
+        internal extern static
+        void WWFilterCpp_ZohCompensation_Destroy(int idx);
 
-            throw new NotImplementedException();
-        }
+        [DllImport("WWFilterCpp.dll", CharSet = CharSet.Unicode)]
+        internal extern static
+        int WWFilterCpp_ZohCompensation_Filter(int idx, int n, double[] buffIn, double[] buffOut);
     }
 }
 
