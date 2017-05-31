@@ -7,12 +7,13 @@ namespace WWFilterCppCs {
         public void BuildCrfb(int order, double[] a,
                 double[] b, double[] g, double gain) {
             if (0<mIdx) {
-                throw new ArgumentException(); // fixme
+                throw new InvalidOperationException();
             }
 
             mIdx = WWFilterCpp_Crfb_Build(order, a, b, g, gain);
             if (mIdx<=0) {
-                throw new ArgumentException(); // fixme
+                // こんな事は起こらないと思う。
+                throw new NotImplementedException();
             }
 
             mFilterType = FilterType.Crfb;
@@ -20,7 +21,7 @@ namespace WWFilterCppCs {
 
         public int FilterCrfb(int n, double []buffIn, byte []buffOut) {
             if (mIdx <= 0 || mFilterType!=FilterType.Crfb) {
-                throw new ArgumentException(); // fixme
+                throw new InvalidOperationException();
             }
             return WWFilterCpp_Crfb_Filter(mIdx, n, buffIn, buffOut);
         }
@@ -55,7 +56,7 @@ namespace WWFilterCppCs {
                 mIdx = 0;
             }
 
-            throw new ArgumentException(); // fixme
+            throw new NotImplementedException();
         }
     }
 }

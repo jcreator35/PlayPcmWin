@@ -30,6 +30,5 @@ private:
     double *mZ;
     double mGain;
 
-    int Filter5(double u);
     int FilterN(double u);
 };

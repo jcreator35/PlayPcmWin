@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define USE_CPP
+
+using System;
 using WWIIRFilterDesign;
 using WWUtil;
 using WWMath;
@@ -9,9 +11,11 @@ namespace WWOfflineResampler {
         private const int FILTER_ORDER = 5;
 
         private WWDsfRW.WWDsfWriter mDsfW;
-
-        private LoopFilterCRFB [] mLoopFilters;
+#if USE_CPP
         private WWFilterCpp[] mLoopFiltersCpp;
+#else
+        private LoopFilterCRFB [] mLoopFilters;
+#endif
 
         class SampleData1ch {
             public LargeArray<byte> sdmData;
@@ -122,17 +126,20 @@ namespace WWOfflineResampler {
             }
             b[order] = 1.0;
 
-            mLoopFilters = new LoopFilterCRFB[numChannels];
-            for (int ch = 0; ch < numChannels; ++ch) {
-                mLoopFilters[ch] = new LoopFilterCRFB(a, b, g);
-            }
-
+#if USE_CPP
             mLoopFiltersCpp = new WWFilterCpp[numChannels];
             for (int ch = 0; ch < numChannels; ++ch) {
                 var p = new WWFilterCpp();
                 p.BuildCrfb(order, a, b, g, 0.5);
                 mLoopFiltersCpp[ch] = p;
             }
+#else
+            mLoopFilters = new LoopFilterCRFB[numChannels];
+            for (int ch = 0; ch < numChannels; ++ch) {
+                mLoopFilters[ch] = new LoopFilterCRFB(a, b, g);
+            }
+
+#endif
         }
 
         public int AddSampleArray(int ch, double [] sampleArray) {
@@ -141,7 +148,7 @@ namespace WWOfflineResampler {
             // 8で割り切れる。
             System.Diagnostics.Debug.Assert((sampleArray.Length & 7) == 0);
 
-#if true
+#if USE_CPP
             var buffOut = new byte[sampleArray.Length/8];
             mLoopFiltersCpp[ch].FilterCrfb(sampleArray.Length, sampleArray, buffOut);
             mSampleData[ch].sdmData.CopyFrom(buffOut, 0, mSampleData[ch].pos, buffOut.Length);
@@ -174,7 +181,18 @@ namespace WWOfflineResampler {
             }
 
             rv = mDsfW.EncodeRun(path);
+
+            // 修了処理。
+
             mDsfW.EncodeEnd();
+
+#if USE_CPP
+            for (int ch = 0; ch < mLoopFiltersCpp.Length; ++ch) {
+                mLoopFiltersCpp[ch].Dispose();
+            }
+            mLoopFiltersCpp = null;
+#endif
+
             return rv;
         }
     }

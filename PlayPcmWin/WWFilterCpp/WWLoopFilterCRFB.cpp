@@ -103,26 +103,6 @@ WWLoopFilterCRFB::FilterN(double u)
     return v;
 }
 
-int
-WWLoopFilterCRFB::Filter5(double u)
-{
-    assert(mOrder==5);
-    u *= mGain;
-
-    double y = mZ[4] + mB[5] * u;
-    int v = (0 <= y) ? 1 : -1;
-
-    mZ[3] += mZ[2] + mB[3] * u - mA[3] * v - mG[1] * mZ[4];
-    mZ[4] += mZ[3] + mB[4] * u - mA[4] * v;
-
-    mZ[1] += mZ[0] + mB[1] * u - mA[1] * v - mG[0] * mZ[2];
-    mZ[2] += mZ[1] + mB[2] * u - mA[2] * v;
-
-    mZ[0] += mB[0] * u - mA[0] * v;
-
-    return v;
-}
-
 void
 WWLoopFilterCRFB::Filter(int n, const double *buffIn, uint8_t *buffOut)
 {
@@ -135,13 +115,29 @@ WWLoopFilterCRFB::Filter(int n, const double *buffIn, uint8_t *buffOut)
             uint8_t sdm = 0;
 
             for (int j = 0; j < 8; ++j) {
-                int b = Filter5(buffIn[readPos++]);
-                sdm += ((0<b) << j);
+                double u = buffIn[readPos++];
+
+                u *= mGain;
+
+                double y = mZ[4] + mB[5] * u;
+                int v = (0 <= y) ? 1 : -1;
+
+                mZ[3] += mZ[2] + mB[3] * u - mA[3] * v - mG[1] * mZ[4];
+                mZ[4] += mZ[3] + mB[4] * u - mA[4] * v;
+
+                mZ[1] += mZ[0] + mB[1] * u - mA[1] * v - mG[0] * mZ[2];
+                mZ[2] += mZ[1] + mB[2] * u - mA[2] * v;
+
+                mZ[0] += mB[0] * u - mA[0] * v;
+
+                sdm += ((0<v) << j);
             }
 
             buffOut[writePos++]=sdm;
         }
     } else {
+        // 5ŽŸˆÈŠO‚Ìê‡B
+
         for (int i=0; i<n; i+=8) {
             uint8_t sdm = 0;
 
