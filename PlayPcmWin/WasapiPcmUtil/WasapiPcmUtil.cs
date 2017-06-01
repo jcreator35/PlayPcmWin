@@ -45,11 +45,14 @@ namespace WasapiPcmUtil {
             mTryFormat16 = new WasapiCS.SampleFormatType [] {
                 WasapiCS.SampleFormatType.Sint16,
                 WasapiCS.SampleFormatType.Sint24,
+                WasapiCS.SampleFormatType.Sint32V24,
+                WasapiCS.SampleFormatType.Sint32,
             };
  
             mTryFormat24 = new WasapiCS.SampleFormatType [] {
                 WasapiCS.SampleFormatType.Sint24,
                 WasapiCS.SampleFormatType.Sint32V24,
+                WasapiCS.SampleFormatType.Sint32,
                 WasapiCS.SampleFormatType.Sint16,
             };
 
