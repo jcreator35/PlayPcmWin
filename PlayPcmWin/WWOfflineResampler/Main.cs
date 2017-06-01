@@ -251,7 +251,11 @@ namespace WWOfflineResampler {
 # endif
 #endif
 
+#if USE_CPP
+                    var iirFilterCpp = mIIRFilterDesign.CreateIIRFilterCpp(upsampleScale);
+#else
                     var iirFilter = mIIRFilterDesign.CreateIIRFilterGraph();
+#endif
 
                     long remainFrom = metaR.totalSamples;
                     long remainTo = metaW.totalSamples;
@@ -291,16 +295,25 @@ namespace WWOfflineResampler {
 
                         // ローパスフィルターでエイリアシング雑音を除去しながらリサンプルする。
                         var y = new double[sizeTo];
-                        for (long i = 0; i < x.Length * upsampleScale; ++i) {
-#if USE_ZOH_UPSAMPLE        // 零次ホールド。
+#if USE_CPP
+                        var yTmp = iirFilterCpp.FilterIIR(x, upsampleScale);
+                        Array.Copy(yTmp, y, sizeTo);
+                        for (int i = 0; i < x.Length * upsampleScale; ++i) {
+                            if (i < y.Length) {
+                                stat.Add(y[i]);
+                            }
+                        }
+#else
+                        for (int i = 0; i < x.Length * upsampleScale; ++i) {
+# if USE_ZOH_UPSAMPLE        // 零次ホールド。
                             double v = x[i / upsampleScale];
-#else                       // インパルストレイン。
+# else                       // インパルストレイン。
                             double v = 0;
                             if ((i % upsampleScale) == 0) {
                                 // インパルストレインアップサンプル時に音量が下がるのでupsampleScale倍する。
                                 v = upsampleScale * x[i / upsampleScale];
                             }
-#endif
+# endif
                             v = iirFilter.Filter(v);
                             stat.Add(v);
                             if ((i % downsampleScale) == 0) {
@@ -310,7 +323,7 @@ namespace WWOfflineResampler {
                                 }
                             }
                         }
-
+#endif
 
                         if (param.isTargetPcm) {
                             // yを24bit PCMに変換する。
@@ -337,9 +350,11 @@ namespace WWOfflineResampler {
                         rv = mFlacWrite.AddPcm(ch, pcmW);
                     }
                     System.Diagnostics.Debug.Assert(0 <= rv);
-
-#if USE_CPP
+#if USE_ZOH_UPSAMPLE
+# if USE_CPP
+                    iirFilterCpp.Dispose();
                     zohCompensation.Dispose();
+# endif
 #endif
                 });
 

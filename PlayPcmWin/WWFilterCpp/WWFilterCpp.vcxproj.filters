@@ -7,6 +7,10 @@
     <ClInclude Include="WWLoopFilterCRFB.h" />
     <ClInclude Include="WWDelay.h" />
     <ClInclude Include="WWZohCompensation.h" />
+    <ClInclude Include="WWIIRFilterBlock.h" />
+    <ClInclude Include="WWIIRFilterSerial.h" />
+    <ClInclude Include="WWIIRFilterParallel.h" />
+    <ClInclude Include="WWIIRFilterGraph.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WWFilterCpp.cpp" />
@@ -14,5 +18,7 @@
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="WWLoopFilterCRFB.cpp" />
     <ClCompile Include="WWZohCompensation.cpp" />
+    <ClCompile Include="WWIIRFilterBlock.cpp" />
+    <ClCompile Include="WWIIRFilterGraph.cpp" />
   </ItemGroup>
 </Project>

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using WWIIRFilterDesign;
 using WWMath;
+using WWFilterCppCs;
 
 namespace WWOfflineResampler {
     public class IIRFilterDesign {
@@ -97,6 +98,31 @@ namespace WWOfflineResampler {
                 break;
             }
             return iirFilter;
+        }
+
+        public WWFilterCpp CreateIIRFilterCpp(int osr) {
+            var fg = CreateIIRFilterGraph();
+
+            var fgSerial = fg as IIRFilterSerial;
+            var fgParallel = fg as IIRFilterParallel;
+
+            var r = new WWFilterCpp();
+            if (fgSerial != null) {
+                r.BuildIIRSerial(fg.BlockCount());
+            } else {
+                r.BuildIIRParallel(fg.BlockCount());
+            }
+
+            for (int i = 0; i < fg.BlockCount(); ++i) {
+                var block = fg.GetNthBlock(i);
+                var a = block.A();
+                var b = block.B();
+                r.AddIIRBlock(a.Length, a, b.Length, b);
+            }
+
+            r.SetParam(osr);
+
+            return r;
         }
 
         public bool Design(double fc, double fs, long samplingFreq, Method method) {

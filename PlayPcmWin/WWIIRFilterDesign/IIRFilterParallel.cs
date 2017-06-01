@@ -29,5 +29,11 @@ namespace WWIIRFilterDesign {
 
             return y;
         }
+
+        public int BlockCount() { return mFilterBlockList.Count; }
+
+        public IIRFilterBlockReal GetNthBlock(int nth) {
+            return mFilterBlockList[nth];
+        }
     }
 }

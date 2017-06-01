@@ -5,7 +5,7 @@ namespace WWIIRFilterDesign {
     /// <summary>
     /// Building block of IIR filter. used by IIRFilter class
     /// </summary>
-    class IIRFilterBlockReal {
+    public class IIRFilterBlockReal {
         private RealRationalPolynomial mH;
         /// <summary>
         /// フィードバックの係数
@@ -21,6 +21,9 @@ namespace WWIIRFilterDesign {
         /// ディレイ
         /// </summary>
         private double[] mV;
+
+        public double[] A() { return mA; }
+        public double[] B() { return mB; }
 
         private int mMaxOrder;
         

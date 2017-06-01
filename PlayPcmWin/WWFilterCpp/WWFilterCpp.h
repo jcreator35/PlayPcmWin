@@ -1,8 +1,12 @@
+#pragma once
+
 #ifdef WWFILTERCPP_EXPORTS
 #define WWFILTERCPP_API __declspec(dllexport)
 #else
 #define WWFILTERCPP_API __declspec(dllimport)
 #endif
+
+// crfb Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°
 
 /// @return idx of built instance
 extern "C" WWFILTERCPP_API
@@ -18,7 +22,7 @@ extern "C" WWFILTERCPP_API
 int __stdcall
 WWFilterCpp_Crfb_Filter(int idx, int n, const double *buffIn, unsigned char *buffOut);
 
-// zoh nosdac compensation
+// zoh nosdac compensation Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°
 
 extern "C" WWFILTERCPP_API
 int __stdcall
@@ -32,3 +36,44 @@ extern "C" WWFILTERCPP_API
 int __stdcall
 WWFilterCpp_ZohCompensation_Filter(int idx, int n, const double *buffIn, double *buffOut);
 
+// IIR Filter Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°
+
+extern "C" WWFILTERCPP_API
+int __stdcall
+WWFilterCpp_IIRSerial_Build(int nBlocks);
+
+extern "C" WWFILTERCPP_API
+int __stdcall
+WWFilterCpp_IIRParallel_Build(int nBlocks);
+
+extern "C" WWFILTERCPP_API
+void __stdcall
+WWFilterCpp_IIRSerial_Destroy(int idx);
+
+extern "C" WWFILTERCPP_API
+void __stdcall
+WWFilterCpp_IIRParallel_Destroy(int idx);
+
+extern "C" WWFILTERCPP_API
+int __stdcall
+WWFilterCpp_IIRSerial_Add(int idx, int aCount, const double *a, int bCount, const double *b);
+
+extern "C" WWFILTERCPP_API
+int __stdcall
+WWFilterCpp_IIRParallel_Add(int idx, int aCount, const double *a, int bCount, const double *b);
+
+extern "C" WWFILTERCPP_API
+int __stdcall
+WWFilterCpp_IIRSerial_Filter(int idx, int n, const double *buffIn, double *buffOut);
+
+extern "C" WWFILTERCPP_API
+int __stdcall
+WWFilterCpp_IIRParallel_Filter(int idx, int n, const double *buffIn, double *buffOut);
+
+extern "C" WWFILTERCPP_API
+int __stdcall
+WWFilterCpp_IIRSerial_SetParam(int idx, int osr);
+
+extern "C" WWFILTERCPP_API
+int __stdcall
+WWFilterCpp_IIRParallel_SetParam(int idx, int osr);

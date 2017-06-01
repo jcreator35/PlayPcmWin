@@ -1,7 +1,7 @@
 ﻿using System;
 
-namespace WWOfflineResampler {
-    class SampleValueStatistics {
+namespace WWIIRFilterDesign {
+    public class SampleValueStatistics {
         public double MaxValue;
         public double MinValue;
         public long TotalSamples;
