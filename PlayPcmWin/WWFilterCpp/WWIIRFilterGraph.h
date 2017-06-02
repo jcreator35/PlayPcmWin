@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "WWIIRFilterBlock.h"
 #include <assert.h>
@@ -18,7 +18,7 @@ public:
     virtual ~WWIIRFilterGraph(void);
 
     /// <summary>
-    /// ‘½€®p‚Í’¼—ñÚ‘±‚³‚ê‚éB(p“¯m‚ğŠ|‚¯‚Ä‚¢‚­Š´‚¶‚É‚È‚é)
+    /// å¤šé …å¼pã¯ç›´åˆ—æ¥ç¶šã•ã‚Œã‚‹ã€‚(påŒå£«ã‚’æ›ã‘ã¦ã„ãæ„Ÿã˜ã«ãªã‚‹)
     /// </summary>
     virtual void Add(int aCount, const double *a, int bCount, const double *b);
 

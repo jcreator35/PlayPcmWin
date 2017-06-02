@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "WWIIRFilterGraph.h"
 
@@ -8,8 +8,8 @@ public:
         : WWIIRFilterGraph(nBlocks) {
     }
 
-    // “ü—Í’lx‚ğó‚¯æ‚é‚ÆAo—Íy‚ªo‚Ä‚­‚éB
-    // mOsr”{ZOHƒI[ƒo[ƒTƒ“ƒvƒ‹‚·‚éB
+    // å…¥åŠ›å€¤xã‚’å—ã‘å–ã‚‹ã¨ã€å‡ºåŠ›yãŒå‡ºã¦ãã‚‹ã€‚
+    // mOsrå€ZOHã‚ªãƒ¼ãƒãƒ¼ã‚µãƒ³ãƒ—ãƒ«ã™ã‚‹ã€‚
     void Filter(int nIn, const double *buffIn, int nOut, double *buffOut) {
         int sampleCounter = 0;
         int writePos = 0;

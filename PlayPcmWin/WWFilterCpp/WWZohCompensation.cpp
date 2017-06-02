@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "WWZohCompensation.h"
 
 static const int COEFF_LENGTH = 33;
@@ -24,7 +24,7 @@ double
 WWZohCompensation::Convolution(void)
 {
     double v = 0.0;
-    // FIRƒtƒBƒ‹ƒ^[ŒW”‚ª¶‰E‘ÎÌ‚È‚Ì‚ÅQl•¶Œ£[3]‚Ì•û–@‚ÅæZ‰ñ”‚ğ”¼•ª‚ÉíŒ¸‚Å‚«‚éB
+    // FIRãƒ•ã‚£ãƒ«ã‚¿ãƒ¼ä¿‚æ•°ãŒå·¦å³å¯¾ç§°ãªã®ã§å‚è€ƒæ–‡çŒ®[3]ã®æ–¹æ³•ã§ä¹—ç®—å›æ•°ã‚’åŠåˆ†ã«å‰Šæ¸›ã§ãã‚‹ã€‚
     int center = COEFF_LENGTH / 2;
     for (int i = 0; i < center; ++i) {
         v += gCoeffs[i] * (

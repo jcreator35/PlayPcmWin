@@ -1,4 +1,4 @@
-#pragma once 
+ï»¿#pragma once 
 
 #include <stdexcept>
 #include <assert.h>
@@ -33,8 +33,8 @@ public:
     int DelaySamples(void) const { return mDelayLength; }
 
     T Filter(T x) {
-        // Œ³XmDelay[mPos]‚É“ü‚Á‚Ä‚¢‚½’l‚ðy‚É•¡»‚µ‚Ä‚©‚çx‚Åã‘‚«‚·‚éB
-        // ‚±‚Ì2s‚Í‡”Ô‚ªd—v‚¾
+        // å…ƒã€…mDelay[mPos]ã«å…¥ã£ã¦ã„ãŸå€¤ã‚’yã«è¤‡è£½ã—ã¦ã‹ã‚‰xã§ä¸Šæ›¸ãã™ã‚‹ã€‚
+        // ã“ã®2è¡Œã¯é †ç•ªãŒé‡è¦ã 
         T y = mDelay[mPos];
         mDelay[mPos] = x;
 
@@ -48,9 +48,9 @@ public:
     }
 
     /// <summary>
-    /// nthƒTƒ“ƒvƒ‹‰ß‹Ž‚ÌƒTƒ“ƒvƒ‹’l‚ð–ß‚·B
+    /// nthã‚µãƒ³ãƒ—ãƒ«éŽåŽ»ã®ã‚µãƒ³ãƒ—ãƒ«å€¤ã‚’æˆ»ã™ã€‚
     /// </summary>
-    /// <param name="nth">0: ÅV‚ÌƒTƒ“ƒvƒ‹A1: 1ƒTƒ“ƒvƒ‹‰ß‹Ž‚ÌƒTƒ“ƒvƒ‹B</param>
+    /// <param name="nth">0: æœ€æ–°ã®ã‚µãƒ³ãƒ—ãƒ«ã€1: 1ã‚µãƒ³ãƒ—ãƒ«éŽåŽ»ã®ã‚µãƒ³ãƒ—ãƒ«ã€‚</param>
     T GetNth(int nth) {
         int pos = mPos - 1 - nth;
 

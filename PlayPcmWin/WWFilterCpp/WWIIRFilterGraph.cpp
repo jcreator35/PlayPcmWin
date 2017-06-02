@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "WWIIRFilterGraph.h"
 
 WWIIRFilterGraph::WWIIRFilterGraph(int nBlocks)
@@ -21,7 +21,7 @@ WWIIRFilterGraph::~WWIIRFilterGraph(void)
 }
 
 /// <summary>
-/// ‘½€®p‚Í’¼—ñÚ‘±‚³‚ê‚éB(p“¯m‚ğŠ|‚¯‚Ä‚¢‚­Š´‚¶‚É‚È‚é)
+/// å¤šé …å¼pã¯ç›´åˆ—æ¥ç¶šã•ã‚Œã‚‹ã€‚(påŒå£«ã‚’æ›ã‘ã¦ã„ãæ„Ÿã˜ã«ãªã‚‹)
 /// </summary>
 void
 WWIIRFilterGraph::Add(int aCount, const double *a, int bCount, const double *b)

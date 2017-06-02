@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "WWLoopFilterCRFB.h"
 #include <stdlib.h>
 #include <assert.h>
@@ -31,7 +31,7 @@ WWLoopFilterCRFB::WWLoopFilterCRFB(int order, const double * a,
         mG[i] = b[i];
     }
 
-    // ƒfƒBƒŒƒCmZ‚Í—v‘f‚Ì’l‚ğ—ë‰Šú‰»‚·‚éB
+    // ãƒ‡ã‚£ãƒ¬ã‚¤mZã¯è¦ç´ ã®å€¤ã‚’é›¶åˆæœŸåŒ–ã™ã‚‹ã€‚
     mZ = new double[order]();
 
     mGain = gain;
@@ -64,39 +64,39 @@ WWLoopFilterCRFB::FilterN(double u)
     u *= mGain;
 
     int odd = (mOrder & 1) == 1 ? 1 : 0;
-    // CRFB\‘¢B
-    // R. Schreier and G. Temes, ƒ¢ƒ°Œ^ƒAƒiƒƒO/ƒfƒWƒ^ƒ‹•ÏŠ·Ší“ü–å,ŠÛ‘P,2007, pp.97
+    // CRFBæ§‹é€ ã€‚
+    // R. Schreier and G. Temes, Î”Î£å‹ã‚¢ãƒŠãƒ­ã‚°/ãƒ‡ã‚¸ã‚¿ãƒ«å¤‰æ›å™¨å…¥é–€,ä¸¸å–„,2007, pp.97
 
-    // ÅIo—ÍvB
+    // æœ€çµ‚å‡ºåŠ›vã€‚
     double y = mZ[mOrder-1] + mB[mOrder] * u;
     int v = (0 <= y) ? 1 : -1;
 
     if (odd == 1) {
-        // Šï”Ÿ‚ÌCRFBB
+        // å¥‡æ•°æ¬¡ã®CRFBã€‚
 
         for (int i = mOrder - 2; 1 <= i; i -= 2) {
-            // –³’x‰„Ï•ªŠí‚ÌƒfƒBƒŒƒCmZ[i]
+            // ç„¡é…å»¶ç©åˆ†å™¨ã®ãƒ‡ã‚£ãƒ¬ã‚¤mZ[i]
             mZ[i    ] += mZ[i - 1] + mB[i    ] * u - mA[i    ] * v - mG[i / 2] * mZ[i + 1];
-            // ’x‰„Ï•ªŠí‚ÌƒfƒBƒŒƒCmZ[i+1]
+            // é…å»¶ç©åˆ†å™¨ã®ãƒ‡ã‚£ãƒ¬ã‚¤mZ[i+1]
             mZ[i + 1] += mZ[i    ] + mB[i + 1] * u - mA[i + 1] * v;
         }
 
-        // Šï”Ÿ‚ÌÅ‰‚É’x‰„Ï•ªŠí‚ª‚ ‚éBmZ[0]‚Ì’l‚ğXV‚·‚éB
+        // å¥‡æ•°æ¬¡ã®æ™‚æœ€åˆã«é…å»¶ç©åˆ†å™¨ãŒã‚ã‚‹ã€‚mZ[0]ã®å€¤ã‚’æ›´æ–°ã™ã‚‹ã€‚
         mZ[0] += mB[0] * u - mA[0] * v;
     } else {
-        // ‹ô”Ÿ‚ÌCRFBB
+        // å¶æ•°æ¬¡ã®CRFBã€‚
 
         for (int i = mOrder - 2; 2 <= i; i -= 2) {
-            // –³’x‰„Ï•ªŠí‚ÌƒfƒBƒŒƒCmZ[i]
+            // ç„¡é…å»¶ç©åˆ†å™¨ã®ãƒ‡ã‚£ãƒ¬ã‚¤mZ[i]
             mZ[i] += mZ[i - 1] + mB[i] * u - mA[i] * v - mG[i / 2] * mZ[i + 1];
-            // ’x‰„Ï•ªŠí‚ÌƒfƒBƒŒƒCmZ[i+1]
+            // é…å»¶ç©åˆ†å™¨ã®ãƒ‡ã‚£ãƒ¬ã‚¤mZ[i+1]
             mZ[i + 1] += mZ[i] + mB[i + 1] * u - mA[i + 1] * v;
         }
 
-        // 0”Ô‚Ì‹¤UŠí‚Í1ŒÂ‘O‚Ì‹¤UŠí‚©‚ç‚Ì“ü—ÍmZ[-1]‚ª–³‚¢B
-        // –³’x‰„Ï•ªŠí‚ÌƒfƒBƒŒƒCmZ[0]
+        // 0ç•ªã®å…±æŒ¯å™¨ã¯1å€‹å‰ã®å…±æŒ¯å™¨ã‹ã‚‰ã®å…¥åŠ›mZ[-1]ãŒç„¡ã„ã€‚
+        // ç„¡é…å»¶ç©åˆ†å™¨ã®ãƒ‡ã‚£ãƒ¬ã‚¤mZ[0]
         mZ[0] += mB[0] * u - mA[0] * v - mG[0] * mZ[1];
-        // ’x‰„Ï•ªŠí‚ÌƒfƒBƒŒƒCmZ[1]
+        // é…å»¶ç©åˆ†å™¨ã®ãƒ‡ã‚£ãƒ¬ã‚¤mZ[1]
         mZ[1] += mZ[0] + mB[1] * u - mA[1] * v;
     }
 
@@ -110,7 +110,7 @@ WWLoopFilterCRFB::Filter(int n, const double *buffIn, uint8_t *buffOut)
     int writePos = 0;
 
     if (mOrder==5) {
-        // 5Ÿ‚Ìê‡‚¾‚¯­‚µ‚¾‚¯Å“K‰»‚µ‚½B
+        // 5æ¬¡ã®å ´åˆã ã‘å°‘ã—ã ã‘æœ€é©åŒ–ã—ãŸã€‚
         for (int i=0; i<n; i+=8) {
             uint8_t sdm = 0;
 
@@ -136,7 +136,7 @@ WWLoopFilterCRFB::Filter(int n, const double *buffIn, uint8_t *buffOut)
             buffOut[writePos++]=sdm;
         }
     } else {
-        // 5ŸˆÈŠO‚Ìê‡B
+        // 5æ¬¡ä»¥å¤–ã®å ´åˆã€‚
 
         for (int i=0; i<n; i+=8) {
             uint8_t sdm = 0;

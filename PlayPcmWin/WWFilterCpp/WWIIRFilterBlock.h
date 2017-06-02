@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include <stdexcept>
 #include <string.h>
@@ -9,17 +9,17 @@
 class WWIIRFilterBlock {
 private:
     /// <summary>
-    /// ƒtƒB[ƒhƒoƒbƒN‚ÌŒW”
+    /// ãƒ•ã‚£ãƒ¼ãƒ‰ãƒãƒƒã‚¯ã®ä¿‚æ•°
     /// </summary>
     double mA[3];
 
     /// <summary>
-    /// ƒtƒB[ƒhƒtƒHƒ[ƒh‚ÌŒW” (“`’BŠÖ”‚Ì•ªqB)
+    /// ãƒ•ã‚£ãƒ¼ãƒ‰ãƒ•ã‚©ãƒ¯ãƒ¼ãƒ‰ã®ä¿‚æ•° (ä¼é”é–¢æ•°ã®åˆ†å­ã€‚)
     /// </summary>
     double mB[3];
 
     /// <summary>
-    /// ƒfƒBƒŒƒC
+    /// ãƒ‡ã‚£ãƒ¬ã‚¤
     /// </summary>
     double mV[3];
 

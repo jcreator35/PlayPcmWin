@@ -1,13 +1,13 @@
-#pragma once
+ï»¿#pragma once
 
 #include <stdint.h>
 
 class WWLoopFilterCRFB {
 public:
-    /// @param order CRFBƒtƒBƒ‹ƒ^[‚ÌŸ”
-    /// @param a ŒW”a —v‘f”‚ÍorderŒÂB
-    /// @param b ŒW”b —v‘f”‚Íorder+1ŒÂB
-    /// @param g ŒW”g —v‘f”‚Íorder/2ŒÂB
+    /// @param order CRFBãƒ•ã‚£ãƒ«ã‚¿ãƒ¼ã®æ¬¡æ•°
+    /// @param a ä¿‚æ•°a è¦ç´ æ•°ã¯orderå€‹ã€‚
+    /// @param b ä¿‚æ•°b è¦ç´ æ•°ã¯order+1å€‹ã€‚
+    /// @param g ä¿‚æ•°g è¦ç´ æ•°ã¯order/2å€‹ã€‚
     WWLoopFilterCRFB(int order, const double * a, const double * b,
             const double *g, double gain);
 
@@ -15,9 +15,9 @@ public:
 
     void Reset(void);
 
-    /// ƒXƒgƒŠ[ƒ€ buffIn‚ğ“ü—Í‚µAƒtƒBƒ‹ƒ^[ˆ—A—Êq‰»‚µ‚Ä1bit‚ÌbuffOut‚ğo—Í‚·‚éB
-    /// 1ƒrƒbƒgƒf[ƒ^‚ÌƒoƒCƒg“à‚Ì•À‚Ñ‡‚ÍƒŠƒgƒ‹ƒGƒ“ƒfƒBƒAƒ“ƒrƒbƒgƒI[ƒ_[B
-    /// @param n buffIn‚Ì—v‘f”(o—Íƒrƒbƒg”BbuffOut‚ÌƒoƒCƒg”‚Ín/8‚É‚È‚é)B
+    /// ã‚¹ãƒˆãƒªãƒ¼ãƒ  buffInã‚’å…¥åŠ›ã—ã€ãƒ•ã‚£ãƒ«ã‚¿ãƒ¼å‡¦ç†ã€é‡å­åŒ–ã—ã¦1bitã®buffOutã‚’å‡ºåŠ›ã™ã‚‹ã€‚
+    /// 1ãƒ“ãƒƒãƒˆãƒ‡ãƒ¼ã‚¿ã®ãƒã‚¤ãƒˆå†…ã®ä¸¦ã³é †ã¯ãƒªãƒˆãƒ«ã‚¨ãƒ³ãƒ‡ã‚£ã‚¢ãƒ³ãƒ“ãƒƒãƒˆã‚ªãƒ¼ãƒ€ãƒ¼ã€‚
+    /// @param n buffInã®è¦ç´ æ•°(å‡ºåŠ›ãƒ“ãƒƒãƒˆæ•°ã€‚buffOutã®ãƒã‚¤ãƒˆæ•°ã¯n/8ã«ãªã‚‹)ã€‚
     void Filter(int n, const double *buffIn, uint8_t *buffOut);
 
     int Order(void) const { return mOrder; }
