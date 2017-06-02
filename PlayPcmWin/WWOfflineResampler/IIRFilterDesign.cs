@@ -100,7 +100,7 @@ namespace WWOfflineResampler {
             return iirFilter;
         }
 
-        public WWFilterCpp CreateIIRFilterCpp(int osr) {
+        public WWFilterCpp CreateIIRFilterCpp(int osr, int decimation) {
             var fg = CreateIIRFilterGraph();
 
             var fgSerial = fg as IIRFilterSerial;
@@ -120,7 +120,7 @@ namespace WWOfflineResampler {
                 r.AddIIRBlock(a.Length, a, b.Length, b);
             }
 
-            r.SetParam(osr);
+            r.SetParam(osr,decimation);
 
             return r;
         }

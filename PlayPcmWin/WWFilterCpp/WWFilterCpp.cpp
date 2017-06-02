@@ -120,21 +120,22 @@ WWFilterCpp_IIRSerial_Add(int idx, int aCount, const double *a, int bCount, cons
 
 extern "C" WWFILTERCPP_API
 int __stdcall
-WWFilterCpp_IIRSerial_Filter(int idx, int n, const double *buffIn, double *buffOut)
+WWFilterCpp_IIRSerial_Filter(int idx, int nIn, const double *buffIn, int nOut, double *buffOut)
 {
     FIND(idx, gIdxIIRSerialMap);
 
-    p->Filter(n, buffIn, buffOut);
+    p->Filter(nIn, buffIn, nOut, buffOut);
     return 0;
 }
 
 extern "C" WWFILTERCPP_API
 int __stdcall
-WWFilterCpp_IIRSerial_SetParam(int idx, int osr)
+WWFilterCpp_IIRSerial_SetParam(int idx, int osr, int decimation)
 {
     FIND(idx, gIdxIIRSerialMap);
 
     p->SetOSR(osr);
+    p->SetDecimation(decimation);
 
     return 0;
 }
@@ -169,21 +170,22 @@ WWFilterCpp_IIRParallel_Add(int idx, int aCount, const double *a, int bCount, co
 
 extern "C" WWFILTERCPP_API
 int __stdcall
-WWFilterCpp_IIRParallel_Filter(int idx, int n, const double *buffIn, double *buffOut)
+WWFilterCpp_IIRParallel_Filter(int idx, int nIn, const double *buffIn, int nOut, double *buffOut)
 {
     FIND(idx, gIdxIIRParallelMap);
 
-    p->Filter(n, buffIn, buffOut);
+    p->Filter(nIn, buffIn, nOut, buffOut);
     return 0;
 }
 
 extern "C" WWFILTERCPP_API
 int __stdcall
-WWFilterCpp_IIRParallel_SetParam(int idx, int osr)
+WWFilterCpp_IIRParallel_SetParam(int idx, int osr, int decimation)
 {
     FIND(idx, gIdxIIRParallelMap);
 
     p->SetOSR(osr);
+    p->SetDecimation(decimation);
 
     return 0;
 }

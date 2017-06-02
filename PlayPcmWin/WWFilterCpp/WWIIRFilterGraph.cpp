@@ -7,6 +7,7 @@ WWIIRFilterGraph::WWIIRFilterGraph(int nBlocks)
     mCount = 0;
     mCapacity = nBlocks;
     mOsr = 1;
+    mDecimation = 1;
 }
 
 WWIIRFilterGraph::~WWIIRFilterGraph(void)

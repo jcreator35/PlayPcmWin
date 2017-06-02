@@ -64,16 +64,16 @@ WWFilterCpp_IIRParallel_Add(int idx, int aCount, const double *a, int bCount, co
 
 extern "C" WWFILTERCPP_API
 int __stdcall
-WWFilterCpp_IIRSerial_Filter(int idx, int n, const double *buffIn, double *buffOut);
+WWFilterCpp_IIRSerial_Filter(int idx, int nIn, const double *buffIn, int nOut, double *buffOut);
 
 extern "C" WWFILTERCPP_API
 int __stdcall
-WWFilterCpp_IIRParallel_Filter(int idx, int n, const double *buffIn, double *buffOut);
+WWFilterCpp_IIRParallel_Filter(int idx, int nIn, const double *buffIn, int nOut, double *buffOut);
 
 extern "C" WWFILTERCPP_API
 int __stdcall
-WWFilterCpp_IIRSerial_SetParam(int idx, int osr);
+WWFilterCpp_IIRSerial_SetParam(int idx, int osr, int decimation);
 
 extern "C" WWFILTERCPP_API
 int __stdcall
-WWFilterCpp_IIRParallel_SetParam(int idx, int osr);
+WWFilterCpp_IIRParallel_SetParam(int idx, int osr, int decimation);

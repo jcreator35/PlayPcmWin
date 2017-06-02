@@ -252,7 +252,7 @@ namespace WWOfflineResampler {
 #endif
 
 #if USE_CPP
-                    var iirFilterCpp = mIIRFilterDesign.CreateIIRFilterCpp(upsampleScale);
+                    var iirFilterCpp = mIIRFilterDesign.CreateIIRFilterCpp(upsampleScale, downsampleScale);
 #else
                     var iirFilter = mIIRFilterDesign.CreateIIRFilterGraph();
 #endif
@@ -296,12 +296,9 @@ namespace WWOfflineResampler {
                         // ローパスフィルターでエイリアシング雑音を除去しながらリサンプルする。
                         var y = new double[sizeTo];
 #if USE_CPP
-                        var yTmp = iirFilterCpp.FilterIIR(x, upsampleScale);
-                        Array.Copy(yTmp, y, sizeTo);
-                        for (int i = 0; i < x.Length * upsampleScale; ++i) {
-                            if (i < y.Length) {
-                                stat.Add(y[i]);
-                            }
+                        iirFilterCpp.FilterIIR(x, y);
+                        for (int i = 0; i < y.Length; ++i) {
+                            stat.Add(y[i]);
                         }
 #else
                         for (int i = 0; i < x.Length * upsampleScale; ++i) {

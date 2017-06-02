@@ -103,18 +103,17 @@ namespace WWFilterCppCs {
             }
         }
 
-        public double[] FilterIIR(double[] buffIn, int osr) {
+        public double[] FilterIIR(double[] buffIn, double [] buffOut) {
             if (mIdx <= 0) {
                 throw new InvalidOperationException();
             }
 
-            var buffOut = new double[buffIn.Length * osr];
             switch (mFilterType) {
             case FilterType.IIRParallel:
-                WWFilterCpp_IIRParallel_Filter(mIdx, buffIn.Length, buffIn, buffOut);
+                WWFilterCpp_IIRParallel_Filter(mIdx, buffIn.Length, buffIn, buffOut.Length, buffOut);
                 break;
             case FilterType.IIRSerial:
-                WWFilterCpp_IIRSerial_Filter(mIdx, buffIn.Length, buffIn, buffOut);
+                WWFilterCpp_IIRSerial_Filter(mIdx, buffIn.Length, buffIn, buffOut.Length, buffOut);
                 break;
             default:
                 throw new InvalidOperationException();
@@ -122,13 +121,13 @@ namespace WWFilterCppCs {
             return buffOut;
         }
 
-        public void SetParam(int osr) {
+        public void SetParam(int osr, int decimation) {
             switch (mFilterType) {
             case FilterType.IIRParallel:
-                WWFilterCpp_IIRParallel_SetParam(mIdx, osr);
+                WWFilterCpp_IIRParallel_SetParam(mIdx, osr, decimation);
                 break;
             case FilterType.IIRSerial:
-                WWFilterCpp_IIRSerial_SetParam(mIdx, osr);
+                WWFilterCpp_IIRSerial_SetParam(mIdx, osr, decimation);
                 break;
             default:
                 throw new InvalidOperationException();
@@ -201,11 +200,11 @@ namespace WWFilterCppCs {
 
         [DllImport("WWFilterCpp.dll", CharSet = CharSet.Unicode)]
         internal extern static
-        int WWFilterCpp_IIRSerial_Filter(int idx, int n, double[] buffIn, double[] buffOut);
+        int WWFilterCpp_IIRSerial_Filter(int idx, int nIn, double[] buffIn, int nOut, double[] buffOut);
 
         [DllImport("WWFilterCpp.dll", CharSet = CharSet.Unicode)]
         internal extern static
-        int WWFilterCpp_IIRSerial_SetParam(int idx, int osr);
+        int WWFilterCpp_IIRSerial_SetParam(int idx, int osr, int decimation);
 
 
         [DllImport("WWFilterCpp.dll", CharSet = CharSet.Unicode)]
@@ -222,11 +221,11 @@ namespace WWFilterCppCs {
 
         [DllImport("WWFilterCpp.dll", CharSet = CharSet.Unicode)]
         internal extern static
-        int WWFilterCpp_IIRParallel_Filter(int idx, int n, double[] buffIn, double[] buffOut);
+        int WWFilterCpp_IIRParallel_Filter(int idx, int nIn, double[] buffIn, int nOut, double[] buffOut);
 
         [DllImport("WWFilterCpp.dll", CharSet = CharSet.Unicode)]
         internal extern static
-        int WWFilterCpp_IIRParallel_SetParam(int idx, int osr);
+        int WWFilterCpp_IIRParallel_SetParam(int idx, int osr, int decimation);
 
     }
 }
