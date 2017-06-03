@@ -23,7 +23,7 @@ for order=2:1:9  % 2,3,4,5,6,7,8,9
 %   figure('Name', num2str(order), 'NumberTitle', 'off');
 %   plotPZ(H);
     
-    f=logspace(-6, log10(0.5), 1000); % 10^-5から0.5まで対数軸で等間隔の値の1000個のベクトル。
+    f=logspace(log10(10/(originalSR*osr)), log10(0.5), 1000); % 10Hzから2.8MHz/2まで対数軸で等間隔の値の1000個のベクトル。
     z=exp(2i*pi*f);
     
     tf=evalTF(H, z);
