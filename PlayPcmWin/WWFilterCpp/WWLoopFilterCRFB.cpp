@@ -106,6 +106,10 @@ WWLoopFilterCRFB::FilterN(double u)
 void
 WWLoopFilterCRFB::Filter(int n, const double *buffIn, uint8_t *buffOut)
 {
+    // 出力が1ビットデータで、8個集まらないとuint8が出来ないので
+    // 入力データの個数は8の倍数である必要がある。
+    assert((n%8)==0);
+
     int readPos = 0;
     int writePos = 0;
 
