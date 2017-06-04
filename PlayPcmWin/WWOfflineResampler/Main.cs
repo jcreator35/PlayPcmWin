@@ -361,7 +361,7 @@ namespace WWOfflineResampler {
                     clippedMsg = "★★★ CLIPPED! ★★★";
                 }
                 ReportProgress(WRITE_START_PERCENT, new BWProgressParam(State.WriteFile,
-                    string.Format("Maximum magnitude={0:G3}dBFS. {1}\nNow writing FLAC file {2}...\n",
+                    string.Format("Maximum magnitude={0:G3}dBFS. {1}\nNow writing file {2}...\n",
                     maxMagnitudeDb, clippedMsg, param.outputFile)));
 
                 if (param.isTargetPcm) {

@@ -14,7 +14,7 @@ namespace WWOfflineResampler {
 
         private Method mMethod;
 
-        private const double CUTOFF_GAIN_DB = -1.0;
+        private const double CUTOFF_GAIN_DB = -0.1;
 
         public long SamplingFrequency { get; set; }
 
