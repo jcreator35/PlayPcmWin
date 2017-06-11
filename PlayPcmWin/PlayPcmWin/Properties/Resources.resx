@@ -715,4 +715,7 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   <data name="SettingsCheckBoxReduceVolume" xml:space="preserve">
     <value>Reduce PCM volume by 6dB</value>
   </data>
+  <data name="SettingsCheckBoxIsFormatSupportedCall" xml:space="preserve">
+    <value>Call IsFormatSupported on playback</value>
+  </data>
 </root>

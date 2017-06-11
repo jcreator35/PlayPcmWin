@@ -76,6 +76,7 @@ namespace Wasapi {
             public int latencyMillisec;
             public int timePeriodHandledNanosec;
             public int zeroFlushMillisec;
+            public int isFormatSupportedCall;
         };
 
         [DllImport("WasapiIODLL.dll")]
@@ -572,7 +573,8 @@ namespace Wasapi {
                 int dwChannelMask,
                 MMCSSCallType mmcssCall, MMThreadPriorityType threadPriority,
                 SchedulerTaskType schedulerTask, ShareMode shareMode, DataFeedMode dataFeedMode,
-                int latencyMillisec, int zeroFlushMillisec, int timePeriodHandredNanosec) {
+                int latencyMillisec, int zeroFlushMillisec, int timePeriodHandredNanosec,
+                bool isFormatSupportedCall) {
             var args = new SetupArgs();
             args.deviceType = (int)t;
             args.streamType = (int)streamType;
@@ -588,6 +590,7 @@ namespace Wasapi {
             args.latencyMillisec = latencyMillisec;
             args.timePeriodHandledNanosec = timePeriodHandredNanosec;
             args.zeroFlushMillisec = zeroFlushMillisec;
+            args.isFormatSupportedCall = isFormatSupportedCall ? 1 : 0;
             return WasapiIO_Setup(mId, deviceId, ref args);
         }
 

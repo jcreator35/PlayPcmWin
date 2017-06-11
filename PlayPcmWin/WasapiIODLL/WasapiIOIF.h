@@ -87,6 +87,7 @@ struct WasapiIoSetupArgs {
     int latencyMillisec;
     int timePeriodHandledNanosec;
     int zeroFlushMillisec;
+    int isFormatSupportedCall;
 };
 #pragma pack(pop)
 

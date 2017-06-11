@@ -1290,6 +1290,15 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Call IsFormatSupported on playback.
+        /// </summary>
+        internal static string SettingsCheckBoxIsFormatSupportedCall {
+            get {
+                return ResourceManager.GetString("SettingsCheckBoxIsFormatSupportedCall", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Remember Window position and size.
         /// </summary>
         internal static string SettingsCheckBoxManuallySetMainWindowDimension {

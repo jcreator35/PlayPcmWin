@@ -113,6 +113,8 @@ namespace PlayPcmWin {
 
         public bool AddSilentForEvenChannel { get; set; }
 
+        public bool IsFormatSupportedCall { get; set; }
+
         // deprecated (because it has wrong default value) ChannelCount2 is now used
         //public int ChannelCount { get; set; }
 
@@ -207,6 +209,8 @@ namespace PlayPcmWin {
             AddSilentForEvenChannel = true;
 
             ChannelCount2 = ChannelCount2Type.MixFormatChannelCount;
+
+            IsFormatSupportedCall = true;
         }
 
         /// <summary>

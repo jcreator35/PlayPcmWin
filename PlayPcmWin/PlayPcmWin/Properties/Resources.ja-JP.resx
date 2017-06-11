@@ -712,4 +712,7 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
   <data name="SettingsCheckBoxReduceVolume" xml:space="preserve">
     <value>PCMの音量を6dB下げる</value>
   </data>
+  <data name="SettingsCheckBoxIsFormatSupportedCall" xml:space="preserve">
+    <value>再生前にIsFormatSupportedを呼ぶ</value>
+  </data>
 </root>

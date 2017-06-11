@@ -281,7 +281,8 @@ end:
 }
 
 HRESULT
-WasapiUser::Setup(IMMDevice *device, WWDeviceType deviceType, const WWPcmFormat &pcmFormat, WWShareMode sm, WWDataFeedMode dfm, int latencyMillisec)
+WasapiUser::Setup(IMMDevice *device, WWDeviceType deviceType, const WWPcmFormat &pcmFormat,
+        WWShareMode sm, WWDataFeedMode dfm, int latencyMillisec, bool isFormatSupportedCall)
 {
     HRESULT      hr          = 0;
     WAVEFORMATEX *waveFormat = nullptr;
@@ -330,15 +331,17 @@ WasapiUser::Setup(IMMDevice *device, WWDeviceType deviceType, const WWPcmFormat 
         WWWaveFormatDebug(waveFormat);
         WWWFEXDebug(wfex);
 
-        // 20150907:
-        // On iFi nano iDSD, IAudioClient::IsFormatSupported(705600Hz) returns false
-        // but IAudioClient::Initialize(705600Hz) succeeds and play 705600Hz PCM smoothly
-        // therefore following line is commented out.
-        // 20160811:
-        // Some realtek HD Audio device driver accepts IAudioClient::Initialize(24bit) but
-        // IAudioClient::IsFormatSupported(24bit) returns false
-        // when playing 24bit, it produces large static noise so I think the following line is necessary
-        HRG(m_audioClient->IsFormatSupported(audClientSm, waveFormat,nullptr));
+        if (isFormatSupportedCall) {
+            // 20150907:
+            // On iFi nano iDSD, IAudioClient::IsFormatSupported(705600Hz) returns false
+            // but IAudioClient::Initialize(705600Hz) succeeds and play 705600Hz PCM smoothly
+            // therefore following line is commented out.
+            // 20160811:
+            // Some realtek HD Audio device driver accepts IAudioClient::Initialize(24bit) but
+            // IAudioClient::IsFormatSupported(24bit) returns false
+            // when playing 24bit, it produces large static noise so I think the following line is necessary
+            HRG(m_audioClient->IsFormatSupported(audClientSm, waveFormat,nullptr));
+        }
     } else {
         // shared mode specific task
         // on shared mode, wBitsPerSample, nSamplesPerSec, wValidBitsPerSample and subFormat are fixed.

@@ -120,6 +120,8 @@ namespace PlayPcmWin {
             cbItemChannelCount26.Content = Properties.Resources.SettingsCbItemChannelCount26;
             cbItemChannelCount32.Content = Properties.Resources.SettingsCbItemChannelCount32;
             cbItemChannelCountMixFormat.Content = Properties.Resources.SettingsCbItemChannelCountMixFormat;
+
+            checkBoxIsFormatSupported.Content = Properties.Resources.SettingsCheckBoxIsFormatSupportedCall;
         }
 
         public void SetPreference(Preference preference) {
@@ -165,6 +167,8 @@ namespace PlayPcmWin {
 
             checkBoxReduceVolume.IsChecked =
                 preference.ReduceVolume;
+
+            checkBoxIsFormatSupported.IsChecked = preference.IsFormatSupportedCall;
 
             if (10000 == preference.TimePeriodHundredNanosec) {
                 comboBoxTimePeriod.SelectedItem = cbItemTimerResolution1Millisec;
@@ -360,6 +364,9 @@ namespace PlayPcmWin {
 
             m_preference.ReduceVolume
                 = checkBoxReduceVolume.IsChecked == true;
+
+            m_preference.IsFormatSupportedCall
+                = checkBoxIsFormatSupported.IsChecked == true;
             
             if (comboBoxTimePeriod.SelectedItem == cbItemTimerResolution1Millisec) {
                 m_preference.TimePeriodHundredNanosec = 10000;

@@ -1295,7 +1295,8 @@ namespace PlayPcmWin
                         GetMMCSSCallType(), m_preference.MMThreadPriority,
                         PreferenceSchedulerTaskTypeToWasapiCSSchedulerTaskType(m_deviceSetupParams.ThreadTaskType),
                         PreferenceShareModeToWasapiCSShareMode(m_deviceSetupParams.SharedOrExclusive), PreferenceDataFeedModeToWasapiCS(m_deviceSetupParams.DataFeedMode),
-                        m_deviceSetupParams.LatencyMillisec, m_deviceSetupParams.ZeroFlushMillisec, m_preference.TimePeriodHundredNanosec);
+                        m_deviceSetupParams.LatencyMillisec, m_deviceSetupParams.ZeroFlushMillisec, m_preference.TimePeriodHundredNanosec,
+                        m_preference.IsFormatSupportedCall);
                 AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.Setup({0} {1}kHz {2} {3}ch {4} {5} {6} latency={7}ms zeroFlush={8}ms timePeriod={9}ms mmThreadPriority={10}) channelMask=0x{11:X8} {12:X8}{13}",
                         m_deviceSetupParams.StreamType, m_deviceSetupParams.SampleRate * 0.001, m_deviceSetupParams.SampleFormat,
                         m_deviceSetupParams.NumChannels, m_deviceSetupParams.ThreadTaskType, 
