@@ -151,7 +151,7 @@ namespace PlayPcmWinAlbum {
                     format.SampleRate, sampleFormatCandidates[i], mixFormat.numChannels,
                     mixFormat.dwChannelMask, WasapiCS.MMCSSCallType.Enable,
                     WasapiCS.MMThreadPriorityType.High, WasapiCS.SchedulerTaskType.ProAudio,
-                    WasapiCS.ShareMode.Exclusive, mDataFeedMode, mBufferSizeMillisec, mZeroFlushMillisec, 10000);
+                    WasapiCS.ShareMode.Exclusive, mDataFeedMode, mBufferSizeMillisec, mZeroFlushMillisec, 10000, true);
                 if (ercd < 0) {
                     Console.WriteLine("Wasapi.Setup({0} {1}) failed", format.SampleRate, sampleFormatCandidates[i]);
                     mWasapi.Unsetup();

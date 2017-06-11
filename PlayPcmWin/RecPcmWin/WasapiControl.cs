@@ -150,7 +150,7 @@ namespace RecPcmWin {
             int hr = mWasapi.Setup(deviceIdx, WasapiCS.DeviceType.Rec,
                 WasapiCS.StreamType.PCM, sampleRate, sampleFormatType, numChannels, dwChannelMask,
                 WasapiCS.MMCSSCallType.Enable, WasapiCS.MMThreadPriorityType.None,
-                WasapiCS.SchedulerTaskType.ProAudio, WasapiCS.ShareMode.Exclusive, dfm, wasapiBufferSize, 0, 10000);
+                WasapiCS.SchedulerTaskType.ProAudio, WasapiCS.ShareMode.Exclusive, dfm, wasapiBufferSize, 0, 10000, true);
             mSampleFormat = sampleFormatType;
             mSampleRate = sampleRate;
             mNumChannels = numChannels;

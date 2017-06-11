@@ -126,6 +126,38 @@ namespace WWOfflineResampler {
             }
             b[order] = 1.0;
 
+            /*
+            Console.Write("double [] g = {");
+            for (int i = 0; i < g.Length; ++i) {
+                Console.Write("{0:R}, ", g[i]);
+            }
+            Console.WriteLine("};");
+
+            Console.Write("double [] a = {");
+            for (int i = 0; i < a.Length; ++i) {
+                Console.Write("{0:R}, ", a[i]);
+            }
+            Console.WriteLine("};");
+
+            Console.Write("double [] b = {");
+            for (int i = 0; i < b.Length; ++i) {
+                Console.Write("{0:R}, ", b[i]);
+            }
+            Console.WriteLine("};");
+
+            Console.Write("double [] n = {");
+            for (int i = 0; i < order+1; ++i) {
+                Console.Write("{0:R}, ", ntfHz.N(i));
+            }
+            Console.WriteLine("};");
+
+            Console.Write("double [] d = {");
+            for (int i = 0; i < d.Length; ++i) {
+                Console.Write("{0:R}, ", d[i]);
+            }
+            Console.WriteLine("};");
+            */
+
 #if USE_CPP
             mLoopFiltersCpp = new WWFilterCpp[numChannels];
             for (int ch = 0; ch < numChannels; ++ch) {
