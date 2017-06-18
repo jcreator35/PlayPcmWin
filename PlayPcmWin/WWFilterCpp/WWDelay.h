@@ -2,6 +2,7 @@
 
 #include <stdexcept>
 #include <assert.h>
+#include <stdlib.h>
 
 template <typename T>
 class WWDelay {
@@ -23,6 +24,7 @@ public:
         mPos = 0;
         mDelayLength = n;
         mDelay = new T[n];
+        memset(mDelay, 0, sizeof(T)*n);
     }
 
     ~WWDelay(void) {
