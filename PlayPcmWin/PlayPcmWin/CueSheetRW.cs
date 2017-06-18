@@ -426,7 +426,21 @@ namespace PlayPcmWin {
                     mCurrentTrackInfo.path = tokenList[1];
                 } else {
                     // 相対パス。
-                    mCurrentTrackInfo.path = mDirPath + tokenList[1];
+                    string fileName = tokenList[1];
+                    mCurrentTrackInfo.path = mDirPath + fileName;
+                }
+
+                {
+                    string dirName = Path.GetDirectoryName(mCurrentTrackInfo.path);
+                    string fileName = Path.GetFileName(mCurrentTrackInfo.path);
+                    if (fileName.Contains('?')) {
+                        // ファイル名に'?'
+                        // search matched file
+                        var paths = Directory.GetFiles(dirName, fileName, SearchOption.TopDirectoryOnly);
+                        if (paths != null && 0 < paths.Length) {
+                            mCurrentTrackInfo.path = paths[0];
+                        }
+                    }
                 }
 
                 // file tag has come; End album info.
