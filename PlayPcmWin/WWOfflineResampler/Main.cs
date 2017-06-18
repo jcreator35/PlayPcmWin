@@ -6,7 +6,7 @@
 /// </summary>
 #define USE_ZOH_UPSAMPLE
 
-#define USE_CPP
+//#define USE_CPP
 
 using System;
 using System.Collections.Generic;
