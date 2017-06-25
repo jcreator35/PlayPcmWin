@@ -2,26 +2,24 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using Wasapi;
-using WavRWLib2;
-using System.IO;
-using System.ComponentModel;
 using PcmDataLib;
+using Wasapi;
 using WasapiPcmUtil;
-using System.Collections.ObjectModel;
-using System.Security.Cryptography;
-using System.Threading;
-using System.Windows.Controls.Primitives;
-using System.Globalization;
-using System.Windows.Interop;
-using System.Runtime.InteropServices;
 using WWUtil;
 
 namespace PlayPcmWin
@@ -76,6 +74,7 @@ namespace PlayPcmWin
             new PlayListColumnInfo("TrackNr", DataGridLength.SizeToCells),
 
             new PlayListColumnInfo("IndexNr", DataGridLength.SizeToCells),
+            new PlayListColumnInfo("FileExtension", DataGridLength.Auto),
             new PlayListColumnInfo("ReadSeparaterAfter", DataGridLength.SizeToCells)
         };
 
@@ -525,6 +524,7 @@ namespace PlayPcmWin
             dataGridColumnReadSeparaterAfter.Header = Properties.Resources.MainDataGridColumnReadSeparaterAfter;
             dataGridColumnSampleRate.Header = Properties.Resources.MainDataGridColumnSampleRate;
             dataGridColumnTitle.Header = Properties.Resources.MainDataGridColumnTitle;
+            dataGridColumnFileExtension.Header = Properties.Resources.MainDataGridColumnFileExtension;
 
             labelLoadingPlaylist.Content = Properties.Resources.MainStatusReadingPlaylist;
 

@@ -531,6 +531,15 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to File Extension.
+        /// </summary>
+        internal static string MainDataGridColumnFileExtension {
+            get {
+                return ResourceManager.GetString("MainDataGridColumnFileExtension", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Index.
         /// </summary>
         internal static string MainDataGridColumnIndexNr {

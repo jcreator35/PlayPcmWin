@@ -56,8 +56,8 @@ namespace PlayPcmWin {
             get { return Util.SecondsToMSString(mPcmData.DurationSeconds); }
         }
 
-        public int NumChannels {
-            get { return mPcmData.NumChannels; }
+        public string NumChannels {
+            get { return string.Format(CultureInfo.CurrentCulture, "{0}ch", mPcmData.NumChannels); }
         }
 
         public int TrackNr {
@@ -112,6 +112,10 @@ namespace PlayPcmWin {
         public PlayListItemInfo(PcmDataLib.PcmData pcmData) {
             mPcmData = pcmData;
             mRowId = mNextRowId++;
+        }
+
+        public string FileExtension {
+            get { return System.IO.Path.GetExtension(mPcmData.FileName); }
         }
 
         #region INotifyPropertyChanged members

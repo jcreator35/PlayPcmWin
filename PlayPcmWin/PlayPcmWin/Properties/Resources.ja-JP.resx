@@ -715,4 +715,7 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
   <data name="SettingsCheckBoxIsFormatSupportedCall" xml:space="preserve">
     <value>再生前にIsFormatSupportedを呼ぶ</value>
   </data>
+  <data name="MainDataGridColumnFileExtension" xml:space="preserve">
+    <value>ファイル拡張子</value>
+  </data>
 </root>

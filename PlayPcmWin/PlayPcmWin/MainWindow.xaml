@@ -94,12 +94,15 @@
                         <DataGridTextColumn x:Name="dataGridColumnArtist" Width="Auto" Binding="{Binding Path=ArtistName}" Header="Artists"/>
                         <DataGridTextColumn x:Name="dataGridColumnAlbumTitle" Width="Auto" Binding="{Binding Path=AlbumTitle}" Header="Album name"/>
                         <DataGridTextColumn x:Name="dataGridColumnComposerName" Width="Auto" Binding="{Binding Path=ComposerName}" Header="Composer"/>
+                        
                         <DataGridTextColumn x:Name="dataGridColumnSampleRate" Width="Auto" Binding="{Binding Path=SampleRate}" Header="Sample rate"/>
                         <DataGridTextColumn x:Name="dataGridColumnQuantizationBitRate" Width="Auto" Binding="{Binding Path=QuantizationBitRate}" Header="Quantization bit rate"/>
                         <DataGridTextColumn x:Name="dataGridColumnNumChannels" Width="SizeToCells"  Binding="{Binding Path=NumChannels}" Header="Num of channels"/>
                         <DataGridTextColumn x:Name="dataGridColumnBitRate" Width="Auto" Binding="{Binding Path=BitRate}" Header="Bitrate"/>
                         <DataGridTextColumn x:Name="dataGridColumnTrackNr" Width="SizeToCells" Binding="{Binding Path=TrackNr}" Header="Track"/>
+                        
                         <DataGridTextColumn x:Name="dataGridColumnIndexNr" Width="SizeToCells" Binding="{Binding Path=IndexNr}" Header="Index"/>
+                        <DataGridTextColumn x:Name="dataGridColumnFileExtension" Width="SizeToCells" Binding="{Binding Path=FileExtension}" Header="FileExtension"/>
                         <DataGridCheckBoxColumn x:Name="dataGridColumnReadSeparaterAfter" Width="SizeToCells" Binding="{Binding Path=ReadSeparaterAfter}" Header="Batch read endpoint"/>
                     </DataGrid.Columns>
 

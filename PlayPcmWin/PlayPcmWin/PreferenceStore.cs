@@ -141,6 +141,7 @@ namespace PlayPcmWin {
             pl.Add("TrackNr");
 
             pl.Add("IndexNr");
+            pl.Add("FileExtension");
             pl.Add("ReadSeparaterAfter");
         }
 
@@ -235,21 +236,26 @@ namespace PlayPcmWin {
         public static Preference Load() {
             var xmlRW = new WWXmlRW.XmlRW<Preference>(m_fileName);
 
+            int nColumnCount = 13;
+
             Preference p = xmlRW.Load();
 
             // postprocess playlist columns order info...
-            // column count must be 12
-            if (p.PlayListColumnsOrder.Count == 12) {
-                // OK: older format. no playlist column info in preference file.
-            } else if (p.PlayListColumnsOrder.Count == 22) {
-                // OK: loaded old format. delete latter 10 items inserted by file load.
-                p.PlayListColumnsOrderRemoveRange(12, 10);
-            } else if (p.PlayListColumnsOrder.Count == 23) {
-                // PlayPcmWin 4.0.98 format. delete latter 11 items inserted by Reset()
-                p.PlayListColumnsOrderRemoveRange(12, 11);
-            } else if (p.PlayListColumnsOrder.Count == 24) {
-                // PlayPcmWin 5.0.16 format. delete former 12 items inserted by Reset()
-                p.PlayListColumnsOrderRemoveRange(0, 12);
+            // at this point, column count must be nColumnCount * 2 
+            if (p.PlayListColumnsOrder.Count == nColumnCount) {
+                // very old format. no playlist column info in preference file.
+            } else if (p.PlayListColumnsOrder.Count == nColumnCount + 10) {
+                // old format. delete latter 10 items inserted by file load.
+                p.PlayListColumnsOrderRemoveRange(nColumnCount, 10);
+            } else if (p.PlayListColumnsOrder.Count == nColumnCount + 11) {
+                // PlayPcmWin 4.0.98 format. delete latter 11 items inserted by file load.
+                p.PlayListColumnsOrderRemoveRange(nColumnCount, 11);
+            } else if (p.PlayListColumnsOrder.Count == nColumnCount + 12) {
+                // PlayPcmWin 5.0.16 format. delete latter 12 items inserted by file load.
+                p.PlayListColumnsOrderRemoveRange(nColumnCount, 12);
+            } else if (p.PlayListColumnsOrder.Count == nColumnCount * 2) {
+                // Latest PlayPcmWin 5.0.32 format. saved data is okay. delete former 13 items inserted by Reset()
+                p.PlayListColumnsOrderRemoveRange(0, 13);
             } else {
                 System.Console.WriteLine("E: Preference PlayListColumnOrder item count {0}", p.PlayListColumnsOrder.Count);
                 System.Diagnostics.Debug.Assert(false);

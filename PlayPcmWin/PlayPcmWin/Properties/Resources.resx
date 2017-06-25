@@ -718,4 +718,7 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   <data name="SettingsCheckBoxIsFormatSupportedCall" xml:space="preserve">
     <value>Call IsFormatSupported on playback</value>
   </data>
+  <data name="MainDataGridColumnFileExtension" xml:space="preserve">
+    <value>File Extension</value>
+  </data>
 </root>
