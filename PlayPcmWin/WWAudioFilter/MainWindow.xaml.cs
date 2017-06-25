@@ -336,7 +336,7 @@ namespace WWAudioFilter {
             Update();
         }
 
-        private void InputFormUpdated() {
+        private void FilenameTextBoxUpdated() {
             if (0 < textBoxInputFile.Text.Length &&
                     0 < textBoxOutputFile.Text.Length) {
                 mState = State.Ready;
@@ -358,7 +358,7 @@ namespace WWAudioFilter {
             }
 
             textBoxInputFile.Text = dlg.FileName;
-            InputFormUpdated();
+            FilenameTextBoxUpdated();
         }
 
         private void buttonBrowseOutputFile_Click(object sender, RoutedEventArgs e) {
@@ -372,7 +372,7 @@ namespace WWAudioFilter {
             }
 
             textBoxOutputFile.Text = dlg.FileName;
-            InputFormUpdated();
+            FilenameTextBoxUpdated();
         }
 
         private void buttonStartConversion_Click(object sender, RoutedEventArgs e) {
@@ -401,7 +401,11 @@ namespace WWAudioFilter {
             mBackgroundWorker.RunWorkerAsync(new RunWorkerArgs(textBoxInputFile.Text, textBoxOutputFile.Text));
         }
 
-        private void Window_DragEnter(object sender, DragEventArgs e) {
+        private void textBoxFile_PreviewDragOver(object sender, DragEventArgs e) {
+            e.Handled = true;
+        }
+
+        private void textBoxFile_DragEnter(object sender, DragEventArgs e) {
             if (e.Data.GetDataPresent(DataFormats.FileDrop)) {
                 e.Effects = DragDropEffects.Copy;
             } else {
@@ -409,7 +413,7 @@ namespace WWAudioFilter {
             }
         }
 
-        private void Window_Drop(object sender, DragEventArgs e) {
+        private void textBoxInputFile_Drop(object sender, DragEventArgs e) {
             var paths = e.Data.GetData(DataFormats.FileDrop) as string[];
             if (null == paths) {
                 var sb = new StringBuilder(Properties.Resources.DroppedDataIsNotFile);
@@ -422,7 +426,23 @@ namespace WWAudioFilter {
                 return;
             }
             textBoxInputFile.Text = paths[0];
-            InputFormUpdated();
+            FilenameTextBoxUpdated();
+        }
+
+        private void textBoxOutputFile_Drop(object sender, DragEventArgs e) {
+            var paths = e.Data.GetData(DataFormats.FileDrop) as string[];
+            if (null == paths) {
+                var sb = new StringBuilder(Properties.Resources.DroppedDataIsNotFile);
+
+                var formats = e.Data.GetFormats(false);
+                foreach (var format in formats) {
+                    sb.Append(string.Format(CultureInfo.InvariantCulture, "{1}    {0}", format, Environment.NewLine));
+                }
+                MessageBox.Show(sb.ToString());
+                return;
+            }
+            textBoxOutputFile.Text = paths[0];
+            FilenameTextBoxUpdated();
         }
     }
 }

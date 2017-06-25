@@ -4,31 +4,32 @@ using System.Globalization;
 
 namespace WWAudioFilter {
     public class NormalizeFilter : FilterBase {
-        public double Amplitude { get; set; }
+        public double Magnitude { get; set; }
 
         private long mNumSamples;
-        private List<double[]> mSampleList = new List<double[]>();
+        private WWUtil.LargeArray<double>[] mPcmAllChannels;
+        private int mChannelId;
 
-        public NormalizeFilter(double amplitude)
+        public NormalizeFilter(double magnitude)
             : base(FilterType.Normalize) {
-            if (amplitude < 0) {
+            if (magnitude < 0) {
                 throw new ArgumentOutOfRangeException("amplitude");
             }
 
-            Amplitude = amplitude;
+            Magnitude = magnitude;
         }
 
         public override FilterBase CreateCopy() {
-            return new NormalizeFilter(Amplitude);
+            return new NormalizeFilter(Magnitude);
         }
 
         public override string ToDescriptionText() {
             return string.Format(CultureInfo.CurrentCulture, Properties.Resources.FilterNormalizeDesc,
-                20.0 * Math.Log10(Amplitude));
+                20.0 * Math.Log10(Magnitude));
         }
 
         public override string ToSaveText() {
-            return string.Format(CultureInfo.InvariantCulture, "{0}", Amplitude);
+            return string.Format(CultureInfo.InvariantCulture, "{0}", Magnitude);
         }
 
         public static FilterBase Restore(string[] tokens) {
@@ -36,33 +37,32 @@ namespace WWAudioFilter {
                 return null;
             }
 
-            double amplitude;
-            if (!Double.TryParse(tokens[1], out amplitude) || amplitude <= Double.Epsilon) {
+            double magnitude;
+            if (!Double.TryParse(tokens[1], out magnitude) || magnitude <= Double.Epsilon) {
                 return null;
             }
 
-            return new NormalizeFilter(amplitude);
+            return new NormalizeFilter(magnitude);
         }
 
         public override PcmFormat Setup(PcmFormat inputFormat) {
             mNumSamples = inputFormat.NumSamples;
+
+            mPcmAllChannels = new WWUtil.LargeArray<double>[inputFormat.NumChannels];
+            mChannelId = inputFormat.ChannelId;
+
             return new PcmFormat(inputFormat);
         }
 
-        private long StoredSamples() {
-            long n = 0;
-            foreach (var s in mSampleList) {
-                n += s.LongLength;
-            }
-
-            return n;
+        public override bool WaitUntilAllChannelDataAvailable() {
+            return true;
         }
 
         private double SearchMaxMagnitude() {
             double maxMagnitude = 0.0;
-            foreach (var s in mSampleList) {
-                for (int i = 0; i < s.Length; ++i) {
-                    double level = Math.Abs(s[i]);
+            foreach (var s in mPcmAllChannels) {
+                for (long i = 0; i < s.LongLength; ++i) {
+                    double level = Math.Abs(s.At(i));
                     if (maxMagnitude < level) {
                         maxMagnitude = level;
                     }
@@ -76,43 +76,29 @@ namespace WWAudioFilter {
             return maxMagnitude;
         }
 
-        public override void FilterStart() {
-            base.FilterStart();
-            mSampleList.Clear();
+        public override void SetChannelPcm(int ch, WWUtil.LargeArray<double> inPcm) {
+            mPcmAllChannels[ch] = inPcm;
         }
 
-        public override void FilterEnd() {
-            base.FilterEnd();
-            mSampleList.Clear();
-        }
+        public override WWUtil.LargeArray<double> FilterDo(WWUtil.LargeArray<double> inPcm) {
+            // この処理で出力するチャンネルはmChannelId
+            // inPcmは使用しない。
 
-        public override WWUtil.LargeArray<double> FilterDo(WWUtil.LargeArray<double> inPcmLA) {
-            var inPcm = inPcmLA.ToArray();
-            mSampleList.Add(inPcm);
+            double maxMagnitude = SearchMaxMagnitude();
+            double gain = Magnitude / maxMagnitude;
 
-            if (mNumSamples <= StoredSamples()) {
-                double maxMagnitude = SearchMaxMagnitude();
+            var s = mPcmAllChannels[mChannelId];
 
-                double gain = Amplitude / maxMagnitude;
-
-                var result = new WWUtil.LargeArray<double>(mNumSamples);
-                long pos = 0;
-                foreach (var s in mSampleList) {
-                    for (int i = 0; i < s.Length; ++i) {
-                        result.Set(pos++, s[i] * gain);
-                        if (mNumSamples <= pos) {
-                            break;
-                        }
-                    }
-                    if (mNumSamples <= pos) {
-                        break;
-                    }
+            var result = new WWUtil.LargeArray<double>(mNumSamples);
+            long pos = 0;
+            for (long i = 0; i < mNumSamples; ++i) {
+                result.Set(pos++, s.At(i) * gain);
+                if (mNumSamples <= pos) {
+                    break;
                 }
-
-                return result;
-            } else {
-                return new WWUtil.LargeArray<double>(0);
             }
+
+            return result;
         }
     }
 }
