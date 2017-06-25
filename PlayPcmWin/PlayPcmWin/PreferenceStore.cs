@@ -254,8 +254,8 @@ namespace PlayPcmWin {
                 // PlayPcmWin 5.0.16 format. delete latter 12 items inserted by file load.
                 p.PlayListColumnsOrderRemoveRange(nColumnCount, 12);
             } else if (p.PlayListColumnsOrder.Count == nColumnCount * 2) {
-                // Latest PlayPcmWin 5.0.32 format. saved data is okay. delete former 13 items inserted by Reset()
-                p.PlayListColumnsOrderRemoveRange(0, 13);
+                // Latest PlayPcmWin 5.0.32 format. saved data is okay. delete former nColumnCount items inserted by Reset()
+                p.PlayListColumnsOrderRemoveRange(0, nColumnCount);
             } else {
                 System.Console.WriteLine("E: Preference PlayListColumnOrder item count {0}", p.PlayListColumnsOrder.Count);
                 System.Diagnostics.Debug.Assert(false);

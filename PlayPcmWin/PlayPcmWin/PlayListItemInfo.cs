@@ -92,10 +92,12 @@ namespace PlayPcmWin {
 
         public string BitRate {
             get {
+                long kbps = (long)mPcmData.ValidBitsPerSample * mPcmData.SampleRate * mPcmData.NumChannels / 1000;
                 if (mPcmData.SampleDataType == PcmDataLib.PcmData.DataType.DoP) {
-                    return (mPcmData.SampleRate * 16 * mPcmData.NumChannels / 1000).ToString(CultureInfo.CurrentCulture) + " kbps";
+                    kbps = (long)mPcmData.SampleRate * 16 * mPcmData.NumChannels / 1000;
                 }
-                return ((long)mPcmData.ValidBitsPerSample * mPcmData.SampleRate * mPcmData.NumChannels / 1000).ToString(CultureInfo.CurrentCulture) + " kbps";
+
+                return string.Format(CultureInfo.CurrentCulture, "{0}Mbps", kbps * 0.001);
             }
         }
 
