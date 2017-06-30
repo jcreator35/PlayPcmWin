@@ -9,7 +9,7 @@
             <RowDefinition Height="1*" />
             <RowDefinition Height="24" />
         </Grid.RowDefinitions>
-        <Button Content="_Start" Grid.Row="1" Name="buttonStart" VerticalAlignment="Center" Margin="6,6" Click="buttonStart_Click" />
+        <Button Content="_Start" Grid.Row="1" Name="buttonStart" VerticalAlignment="Center" Margin="6,6" Click="buttonStart_Click" IsDefault="True" />
         <GroupBox Header="Settings" Name="groupBoxSettings" >
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -22,7 +22,7 @@
                     <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
                 <Label HorizontalAlignment="Right" Name="labelFolder" VerticalAlignment="Center" Content="Folder contains FLAC files:"/>
-                <TextBox Text="C:\audio" Grid.Column="1" Name="textBoxFolder" VerticalAlignment="Center" Margin="6,0,6,0" />
+                <TextBox Text="C:\audio" Grid.Column="1" Name="textBoxFolder" VerticalAlignment="Center" Margin="6,0,6,0" PreviewDragOver="textBoxFolder_PreviewDragOver" Drop="textBoxFolder_Drop" />
                 <Button Content="_Browse..." Grid.Column="2" Name="buttonBrowse" VerticalAlignment="Center" Margin="6,6" Click="buttonBrowse_Click" />
                 <GroupBox Grid.ColumnSpan="2" Grid.Row="1" Header="Drive type" HorizontalAlignment="Left" Margin="6,0,0,6" Name="groupBoxDriveType" Width="281">
                     <Grid>

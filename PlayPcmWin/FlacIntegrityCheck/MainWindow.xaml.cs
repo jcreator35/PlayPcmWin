@@ -225,5 +225,17 @@ namespace FlacIntegrityCheck {
 
             textBoxFolder.Text = dialog.SelectedPath;
         }
+
+        private void textBoxFolder_PreviewDragOver(object sender, DragEventArgs e) {
+            e.Handled = true;
+        }
+
+        private void textBoxFolder_Drop(object sender, DragEventArgs e) {
+            var paths = e.Data.GetData(DataFormats.FileDrop) as string[];
+            if (null == paths) {
+                return;
+            }
+            textBoxFolder.Text = paths[0];
+        }
     }
 }
