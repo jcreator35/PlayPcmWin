@@ -104,8 +104,9 @@ struct FlacDecodeInfo {
 
     uint8_t md5sum[WWFLAC_MD5SUM_BYTES];
 
-    int               pictureBytes;
-    uint8_t           *pictureData;
+    int     pictureBytes;
+    uint8_t *pictureData;
+    FILE    *fp;
 
     std::vector<FlacCuesheetTrackInfo> cueSheetTracks;
 
@@ -158,6 +159,9 @@ struct FlacDecodeInfo {
 
         pictureBytes = 0;
         pictureData = nullptr;
+
+        fp = nullptr;
+
         cueSheetTracks.clear();
     }
    
@@ -170,6 +174,8 @@ struct FlacDecodeInfo {
             delete [] buffPerChannel;
             buffPerChannel = nullptr;
         }
+
+        assert(!fp);
 
         delete [] pictureData;
         pictureData = nullptr;
@@ -228,6 +234,71 @@ FlacTInfoFindById(std::map<int, T*> &storage, int id)
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
+/// converts FLAC__stream_decoder_get_state() result to FlacRWResultType
+static FlacRWResultType
+FlacStreamDecoderStateToWWError(int s)
+{
+    switch (s) {
+    case FLAC__STREAM_DECODER_END_OF_STREAM:
+    case FLAC__STREAM_DECODER_ABORTED:
+        return FRT_DecorderProcessFailed;
+
+    case FLAC__STREAM_DECODER_SEARCH_FOR_METADATA:
+    case FLAC__STREAM_DECODER_READ_METADATA:
+    case FLAC__STREAM_DECODER_SEARCH_FOR_FRAME_SYNC:
+    case FLAC__STREAM_DECODER_READ_FRAME:
+    case FLAC__STREAM_DECODER_UNINITIALIZED:
+    default:
+        return FRT_OtherError;
+
+    case FLAC__STREAM_DECODER_OGG_ERROR:
+        return FRT_BadHeader;
+
+    case FLAC__STREAM_DECODER_SEEK_ERROR:
+        return FRT_LostSync;
+
+    case FLAC__STREAM_DECODER_MEMORY_ALLOCATION_ERROR:
+        return FRT_MemoryExhausted;
+    }
+}
+
+// converts FLAC__StreamDecoderErrorStatus to FlacRWResultType
+static FlacRWResultType
+FlacStreamDecoderErrorStatusToWWError(int errorStatus)
+{
+    switch (errorStatus) {
+    case FLAC__STREAM_DECODER_ERROR_STATUS_LOST_SYNC:
+        return FRT_LostSync;
+    case FLAC__STREAM_DECODER_ERROR_STATUS_BAD_HEADER:
+        return FRT_BadHeader;
+    case FLAC__STREAM_DECODER_ERROR_STATUS_FRAME_CRC_MISMATCH:
+        return FRT_FrameCrcMismatch;
+    case FLAC__STREAM_DECODER_ERROR_STATUS_UNPARSEABLE_STREAM:
+        return FRT_Unparseable;
+    default:
+        return FRT_OtherError;
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+static void
+ErrorCallback(const FLAC__StreamDecoder *decoder,
+        FLAC__StreamDecoderErrorStatus status, void *clientData)
+{
+    FlacDecodeInfo *fdi = (FlacDecodeInfo*)clientData;
+
+    (void)decoder;
+
+    dprintf("%s status=%d\n", __FUNCTION__, status);
+
+    fdi->errorCode = FlacStreamDecoderErrorStatusToWWError(status);
+
+    if (fdi->errorCode != FRT_Success) {
+        /* エラーが起きた。 */
+    }
+};
+
 /// 少しずつ受け取るDecodeOne用のコールバック。
 FLAC__StreamDecoderWriteStatus
 WriteOneCallback(const FLAC__StreamDecoder *decoder,
@@ -281,7 +352,7 @@ WriteOneCallback(const FLAC__StreamDecoder *decoder,
     return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;
 }
 
-// 全部いっぺんに受け取るDecodeAll用のコールバック。
+// 全部いっぺんに受け取るコールバック。
 static FLAC__StreamDecoderWriteStatus
 WriteAllCallback(const FLAC__StreamDecoder *decoder,
         const FLAC__Frame *frame, const FLAC__int32 * const buffer[],
@@ -497,39 +568,6 @@ MetadataCallback(const FLAC__StreamDecoder *decoder,
     }
 }
 
-static void
-ErrorCallback(const FLAC__StreamDecoder *decoder,
-        FLAC__StreamDecoderErrorStatus status, void *clientData)
-{
-    FlacDecodeInfo *fdi = (FlacDecodeInfo*)clientData;
-
-    (void)decoder;
-
-    dprintf("%s status=%d\n", __FUNCTION__, status);
-
-    switch (status) {
-    case FLAC__STREAM_DECODER_ERROR_STATUS_LOST_SYNC:
-        fdi->errorCode = FRT_LostSync;
-        break;
-    case FLAC__STREAM_DECODER_ERROR_STATUS_BAD_HEADER:
-        fdi->errorCode = FRT_BadHeader;
-        break;
-    case FLAC__STREAM_DECODER_ERROR_STATUS_FRAME_CRC_MISMATCH:
-        fdi->errorCode = FRT_FrameCrcMismatch;
-        break;
-    case FLAC__STREAM_DECODER_ERROR_STATUS_UNPARSEABLE_STREAM:
-        fdi->errorCode = FRT_Unparseable;
-        break;
-    default:
-        fdi->errorCode = FRT_OtherError;
-        break;
-    }
-
-    if (fdi->errorCode != FRT_Success) {
-        /* エラーが起きた。 */
-    }
-};
-
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 extern "C" __declspec(dllexport)
@@ -537,7 +575,6 @@ int __stdcall
 WWFlacRW_Decode(int frdt, const wchar_t *path)
 {
     FLAC__bool ok = true;
-    FILE *fp = nullptr;
     errno_t ercd;
     FLAC__StreamDecoderInitStatus initStatus = FLAC__STREAM_DECODER_INIT_STATUS_ERROR_OPENING_FILE;
 
@@ -566,18 +603,18 @@ WWFlacRW_Decode(int frdt, const wchar_t *path)
     FLAC__stream_decoder_set_metadata_respond(fdi->decoder, FLAC__METADATA_TYPE_CUESHEET);
 
     // Windowsでは、この方法でファイルを開かなければならぬ。
-    ercd = _wfopen_s(&fp, fdi->path, L"rb");
-    if (ercd != 0 || nullptr == fp) {
+    ercd = _wfopen_s(&fdi->fp, fdi->path, L"rb");
+    if (ercd != 0 || nullptr == fdi->fp) {
         fdi->errorCode = FRT_FileOpenError;
         goto end;
     }
 
     if (frdt == FRDT_One) {
         initStatus = FLAC__stream_decoder_init_FILE(
-                fdi->decoder, fp, WriteOneCallback, MetadataCallback, ErrorCallback, fdi);
+                fdi->decoder, fdi->fp, WriteOneCallback, MetadataCallback, ErrorCallback, fdi);
     } else {
         initStatus = FLAC__stream_decoder_init_FILE(
-                fdi->decoder, fp, WriteAllCallback, MetadataCallback, ErrorCallback, fdi);
+                fdi->decoder, fdi->fp, WriteAllCallback, MetadataCallback, ErrorCallback, fdi);
     }
 
     if(initStatus != FLAC__STREAM_DECODER_INIT_STATUS_OK) {
@@ -586,9 +623,6 @@ WWFlacRW_Decode(int frdt, const wchar_t *path)
                 __FUNCTION__, fdi->errorCode);
         goto end;
     }
-
-    // FLAC__stream_decoder_finish()がfcloseしてくれるので、忘れる。
-    fp = nullptr;
 
     fdi->errorCode = FRT_Success;
     ok = FLAC__stream_decoder_process_until_end_of_metadata(fdi->decoder);
@@ -602,8 +636,9 @@ WWFlacRW_Decode(int frdt, const wchar_t *path)
     }
 
     if (frdt == FRDT_Header) {
-        // ヘッダーのみデコードするモードの時、ここで終了。
-        fdi->errorCode = FRT_Completed;
+        // ヘッダーのみデコードするモードの時。
+        // ストリームが頭出しされた状態になる。
+        fdi->errorCode = FRT_Success;
         goto end;
     }
 
@@ -629,13 +664,18 @@ WWFlacRW_Decode(int frdt, const wchar_t *path)
     fdi->errorCode = FRT_Completed;
 
 end:
-    if (fdi->errorCode < 0) {
+    if (fdi->errorCode < 0 || fdi->errorCode == FRT_Completed) {
         if (nullptr != fdi->decoder) {
             if (initStatus == FLAC__STREAM_DECODER_INIT_STATUS_OK) {
                 FLAC__stream_decoder_finish(fdi->decoder);
             }
             FLAC__stream_decoder_delete(fdi->decoder);
             fdi->decoder = nullptr;
+        }
+
+        if (fdi->fp != nullptr) {
+            fclose(fdi->fp);
+            fdi->fp = nullptr;
         }
 
         int result = fdi->errorCode;
@@ -929,6 +969,11 @@ WWFlacRW_DecodeEnd(int id)
     fdi->rawPcmData = nullptr;
     fdi->rawPcmDataBytes = 0;
 
+    if (fdi->fp != nullptr) {
+        fclose(fdi->fp);
+        fdi->fp = nullptr;
+    }
+
     int ercd = fdi->errorCode;
     FlacTInfoDelete<FlacDecodeInfo>(g_flacDecodeInfoMap, fdi);
     fdi = nullptr;
@@ -977,8 +1022,10 @@ struct FlacEncodeInfo {
 
     char pictureDescriptionStr[WWFLAC_TEXT_STRSZ];
 
-    int               pictureBytes;
-    uint8_t           *pictureData;
+    int     pictureBytes;
+    uint8_t *pictureData;
+
+    FILE    *fp;
 
     std::vector<FlacCuesheetTrackInfo> cueSheetTracks;
 
@@ -995,6 +1042,8 @@ struct FlacEncodeInfo {
         for (int i=0; i<FMT_NUM; ++i) {
             flacMetaArray[i] = nullptr;
         }
+
+        flacMetaCount = 0;
 
         id = -1;
         sampleRate = 0;
@@ -1023,7 +1072,7 @@ struct FlacEncodeInfo {
         pictureBytes = 0;
         pictureData = nullptr;
 
-        flacMetaCount = 0;
+        fp = nullptr;
 
         cueSheetTracks.clear();
     }
@@ -1040,6 +1089,8 @@ struct FlacEncodeInfo {
 
         delete [] pictureData;
         pictureData = nullptr;
+
+        assert(!fp);
     }
 
     static int nextId;
@@ -1297,7 +1348,6 @@ extern "C" __declspec(dllexport)
 int __stdcall
 WWFlacRW_EncodeRun(int id, const wchar_t *path)
 {
-    FILE *fp = nullptr;
     errno_t ercd;
     int64_t left;
     int64_t readPos;
@@ -1348,13 +1398,13 @@ WWFlacRW_EncodeRun(int id, const wchar_t *path)
 
     // Windowsでは、この方法でファイルを開かなければならぬ。
     wcsncpy_s(fei->path, path, (sizeof fei->path)/2-1);
-    ercd = _wfopen_s(&fp, fei->path, L"wb");
-    if (ercd != 0 || nullptr == fp) {
+    ercd = _wfopen_s(&fei->fp, fei->path, L"wb");
+    if (ercd != 0 || nullptr == fei->fp) {
         fei->errorCode = FRT_FileOpenError;
         goto end;
     }
 
-    initStatus = FLAC__stream_encoder_init_FILE(fei->encoder, fp, ProgressCallback, fei);
+    initStatus = FLAC__stream_encoder_init_FILE(fei->encoder, fei->fp, ProgressCallback, fei);
     if(initStatus != FLAC__STREAM_ENCODER_INIT_STATUS_OK) {
         dprintf("FLAC__stream_encoder_init_FILE failed %s\n", FLAC__StreamEncoderInitStatusString[initStatus]);
         switch (initStatus) {
@@ -1390,7 +1440,6 @@ WWFlacRW_EncodeRun(int id, const wchar_t *path)
             goto end;
         }
     }
-    fp = nullptr;
 
     readPos = 0;
     left = fei->totalSamples;
@@ -1439,9 +1488,9 @@ end:
     delete [] pcm;
     pcm = nullptr;
 
-    if (nullptr != fp) {
-        fclose(fp);
-        fp = nullptr;
+    if (nullptr != fei->fp) {
+        fclose(fei->fp);
+        fei->fp = nullptr;
     }
 
     if (nullptr != fei->encoder) {
@@ -1543,25 +1592,8 @@ IntegrityCheck_ErrorCallback(const FLAC__StreamDecoder *decoder,
         return;
     }
 
-    switch (status) {
-    case FLAC__STREAM_DECODER_ERROR_STATUS_LOST_SYNC:
-        *errorCode = FRT_LostSync;
-        break;
-    case FLAC__STREAM_DECODER_ERROR_STATUS_BAD_HEADER:
-        *errorCode = FRT_BadHeader;
-        break;
-    case FLAC__STREAM_DECODER_ERROR_STATUS_FRAME_CRC_MISMATCH:
-        *errorCode = FRT_FrameCrcMismatch;
-        break;
-    case FLAC__STREAM_DECODER_ERROR_STATUS_UNPARSEABLE_STREAM:
-        *errorCode = FRT_Unparseable;
-        break;
-    default:
-        *errorCode = FRT_OtherError;
-        break;
-    }
+    *errorCode = FlacStreamDecoderErrorStatusToWWError(status);
 };
-
 
 extern "C" __declspec(dllexport)
 int __stdcall
@@ -1604,13 +1636,13 @@ WWFlacRW_CheckIntegrity(const wchar_t *path)
         goto end;
     }
     
-    // FLAC__stream_decoder_finish()がfcloseしてくれるので、忘れる。
-    fp = nullptr;
-
     ok = FLAC__stream_decoder_process_until_end_of_metadata(decoder);
     if (!ok) {
         if (StatusIsSuccess(result)) {
-            result = FRT_DecorderProcessFailed;
+            result = FlacStreamDecoderStateToWWError(FLAC__stream_decoder_get_state(decoder));
+            if (StatusIsSuccess(result)) {
+                result = FRT_DecorderProcessFailed;
+            }
         }
         dprintf("%s Flac metadata process error %d\n",
                 __FUNCTION__, result);
@@ -1620,7 +1652,10 @@ WWFlacRW_CheckIntegrity(const wchar_t *path)
     ok = FLAC__stream_decoder_process_until_end_of_stream(decoder);
     if (!ok) {
         if (StatusIsSuccess(result)) {
-            result = FRT_DecorderProcessFailed;
+            result = FlacStreamDecoderStateToWWError(FLAC__stream_decoder_get_state(decoder));
+            if (StatusIsSuccess(result)) {
+                result = FRT_DecorderProcessFailed;
+            }
         }
         dprintf("%s Flac decode error fdi->errorCode=%d\n",
                 __FUNCTION__, result);
@@ -1639,8 +1674,14 @@ end:
                 }
             }
         }
+
         FLAC__stream_decoder_delete(decoder);
         decoder = nullptr;
+
+        if (fp != nullptr) {
+            fclose(fp);
+            fp = nullptr;
+        }
     }
 
     return result;

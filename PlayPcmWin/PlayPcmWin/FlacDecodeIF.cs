@@ -90,6 +90,7 @@ namespace PlayPcmWin {
             flacRW.GetDecodedCuesheet(out cueSheet_return);
 
             CreatePcmData(flacFilePath, flacRW, out pcmData_return);
+            flacRW.DecodeEnd();
 
             mBytesPerFrame = pcmData_return.BitsPerFrame / 8;
             mNumFrames = pcmData_return.NumFrames;
