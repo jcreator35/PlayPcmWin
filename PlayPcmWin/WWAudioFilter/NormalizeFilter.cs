@@ -54,6 +54,10 @@ namespace WWAudioFilter {
             return new PcmFormat(inputFormat);
         }
 
+        public override long NumOfSamplesNeeded() {
+            return mNumSamples;
+        }
+
         public override bool WaitUntilAllChannelDataAvailable() {
             return true;
         }
@@ -90,12 +94,8 @@ namespace WWAudioFilter {
             var s = mPcmAllChannels[mChannelId];
 
             var result = new WWUtil.LargeArray<double>(mNumSamples);
-            long pos = 0;
             for (long i = 0; i < mNumSamples; ++i) {
-                result.Set(pos++, s.At(i) * gain);
-                if (mNumSamples <= pos) {
-                    break;
-                }
+                result.Set(i, s.At(i) * gain);
             }
 
             return result;
