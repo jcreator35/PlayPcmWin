@@ -301,7 +301,7 @@ ErrorCallback(const FLAC__StreamDecoder *decoder,
 
 /// 少しずつ受け取るDecodeOne用のコールバック。
 FLAC__StreamDecoderWriteStatus
-WriteOneCallback(const FLAC__StreamDecoder *decoder,
+RecvDecodedDataOneCallback(const FLAC__StreamDecoder *decoder,
         const FLAC__Frame *frame, const FLAC__int32 * const buffer[],
         void *clientData)
 {
@@ -354,7 +354,7 @@ WriteOneCallback(const FLAC__StreamDecoder *decoder,
 
 // 全部いっぺんに受け取るコールバック。
 static FLAC__StreamDecoderWriteStatus
-WriteAllCallback(const FLAC__StreamDecoder *decoder,
+RecvDecodedDataAllCallback(const FLAC__StreamDecoder *decoder,
         const FLAC__Frame *frame, const FLAC__int32 * const buffer[],
         void *clientData)
 {
@@ -611,10 +611,10 @@ WWFlacRW_Decode(int frdt, const wchar_t *path)
 
     if (frdt == FRDT_One) {
         initStatus = FLAC__stream_decoder_init_FILE(
-                fdi->decoder, fdi->fp, WriteOneCallback, MetadataCallback, ErrorCallback, fdi);
+                fdi->decoder, fdi->fp, RecvDecodedDataOneCallback, MetadataCallback, ErrorCallback, fdi);
     } else {
         initStatus = FLAC__stream_decoder_init_FILE(
-                fdi->decoder, fdi->fp, WriteAllCallback, MetadataCallback, ErrorCallback, fdi);
+                fdi->decoder, fdi->fp, RecvDecodedDataAllCallback, MetadataCallback, ErrorCallback, fdi);
     }
 
     if(initStatus != FLAC__STREAM_DECODER_INIT_STATUS_OK) {

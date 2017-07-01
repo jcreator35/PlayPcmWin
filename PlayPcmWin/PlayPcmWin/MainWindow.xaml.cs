@@ -2090,7 +2090,6 @@ namespace PlayPcmWin
             {
                 // このトラックのWasapi PCMデータ領域を確保する。
                 long allocBytes = wantFramesTotal * m_deviceSetupParams.UseBytesPerFrame;
-                Console.WriteLine("wasapi.AddPlayPcmDataAllocateMemory({0}, {1})", pd.Id, allocBytes);
                 if (!wasapi.AddPlayPcmDataAllocateMemory(pd.Id, allocBytes)) {
                     //ClearPlayList(PlayListClearMode.ClearWithoutUpdateUI); //< メモリを空ける：効果があるか怪しい
                     r.message = string.Format(CultureInfo.InvariantCulture, Properties.Resources.MemoryExhausted);
@@ -3065,7 +3064,7 @@ namespace PlayPcmWin
         /// </summary>
         /// <param name="s">追加するログ。行末に\r\nを入れる必要あり。</param>
         private void AddLogText(string s) {
-            Console.Write(s);
+            // Console.Write(s);
 
             // ログを適当なエントリ数で流れるようにする。
             // sは複数行の文字列が入っていたり、改行が入っていなかったりするので、行数制限にはなっていない。

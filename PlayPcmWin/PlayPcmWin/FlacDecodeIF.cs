@@ -109,7 +109,10 @@ namespace PlayPcmWin {
                 out PcmDataLib.PcmData pcmData_return) {
             pcmData_return = new PcmDataLib.PcmData();
             mFlacRW = new WWFlacRWCS.FlacRW();
-            int ercd = mFlacRW.DecodeHeader(flacFilePath);
+
+            // ここでファイルをオープンし、メタデータ部分を読み込んで
+            // ストリームデータの頭のところでFLACデコードを止める。
+            int ercd = mFlacRW.DecodeStreamStart(flacFilePath);
             if (ercd < 0) {
                 return ercd;
             }
@@ -119,7 +122,7 @@ namespace PlayPcmWin {
             mNumFrames = pcmData_return.NumFrames;
             mBytesPerFrame = pcmData_return.BitsPerFrame / 8;
 
-            mFlacRW.DecodeStreamStart(flacFilePath);
+            // ストリームデータを頭出しする。
             if (0 < skipFrames) {
                 mFlacRW.DecodeStreamSkip(skipFrames);
             }
