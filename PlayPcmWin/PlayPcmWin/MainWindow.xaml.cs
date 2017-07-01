@@ -2099,6 +2099,8 @@ namespace PlayPcmWin
                 }
             }
 
+            GC.Collect();
+
             bool result = true;
             if (m_preference.ParallelRead && PcmReader.IsTheFormatCompressed(PcmReader.GuessFileFormatFromFilePath(pd.FullPath))
                     && ((m_preference.BpsConvNoiseShaping == NoiseShapingType.None) || !mPcmUtil.IsNoiseShapingOrDitherCapable(pd, m_deviceSetupParams.SampleFormat))) {
@@ -2852,6 +2854,8 @@ namespace PlayPcmWin
                 UpdateDeviceList();
                 m_deviceListUpdatePending = false;
             }
+
+            GC.Collect();
         }
 
         /// <summary>
