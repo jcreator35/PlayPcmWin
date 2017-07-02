@@ -160,7 +160,7 @@
     <value>Error: FLAC sample rate is out of range (must be smaller than or equal to 655,350Hz)</value>
   </data>
   <data name="FlacErrorLostSync" xml:space="preserve">
-    <value>Error: FLAC lost sync error</value>
+    <value>Error: FLAC lost sync error. Or this is not FLAC file.</value>
   </data>
   <data name="FlacErrorMD5SignatureDoesNotMatch" xml:space="preserve">
     <value>Error: FLAC MD5 Signature does not match. File corrupted</value>

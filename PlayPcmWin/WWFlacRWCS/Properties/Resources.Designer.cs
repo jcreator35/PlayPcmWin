@@ -187,7 +187,7 @@ namespace WWFlacRWCS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Error: FLAC lost sync error.
+        ///   Looks up a localized string similar to Error: FLAC lost sync error. Or this is not FLAC file..
         /// </summary>
         internal static string FlacErrorLostSync {
             get {

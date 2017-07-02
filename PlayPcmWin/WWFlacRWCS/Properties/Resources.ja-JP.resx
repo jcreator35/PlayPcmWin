@@ -160,7 +160,7 @@
     <value>Error: FLACサンプルレートが範囲外(655,350Hz以下である必要あり)</value>
   </data>
   <data name="FlacErrorLostSync" xml:space="preserve">
-    <value>Error: FLAC SYNCを見失いました。ファイルが壊れています。</value>
+    <value>Error: FLAC SYNCを見失いました。ファイルが壊れています。またはFLACではない形式のファイル。</value>
   </data>
   <data name="FlacErrorMD5SignatureDoesNotMatch" xml:space="preserve">
     <value>Error: FLACから抽出したPCMについて算出したMD5値がヘッダに入っている値と異なります。ファイルが壊れています</value>

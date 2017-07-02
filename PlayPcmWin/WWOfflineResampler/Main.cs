@@ -170,12 +170,13 @@ namespace WWOfflineResampler {
         public BWCompletedParam DoWork(BWStartParams param, ProgressReportDelegate ReportProgress) {
             int rv = 0;
 
+            var flacR = new WWFlacRWCS.FlacRW();
             do {
                 // FLACファイルからメタデータ、画像、音声を取り出す。
                 WWFlacRWCS.Metadata metaR;
-                var flacR = new WWFlacRWCS.FlacRW();
                 rv = flacR.DecodeAll(param.inputFile);
                 if (rv < 0) {
+                    // do-whileを抜けたところでflacR.DecodeEndする。
                     break;
                 }
 
@@ -185,9 +186,12 @@ namespace WWOfflineResampler {
                 if (0 < metaR.pictureBytes) {
                     rv = flacR.GetDecodedPicture(out picture, metaR.pictureBytes);
                     if (rv < 0) {
+                        // do-whileを抜けたところでflacR.DecodeEndする。
                         break;
                     }
                 }
+
+                // flacRはまだ使用するのでここではDecodeEndしない。
 
                 long lcm = WWMath.Functions.LCM(metaR.sampleRate, param.targetSampleRate);
                 int upsampleScale = (int)(lcm / metaR.sampleRate);
@@ -237,8 +241,8 @@ namespace WWOfflineResampler {
                 WWComplex.imaginaryUnit = "I";
 
                 // 変換する
-                //for (int ch=0; ch<metaR.channels;++ch){
-                Parallel.For(0, metaR.channels, (int ch) => {
+                for (int ch=0; ch<metaR.channels;++ch){
+                //Parallel.For(0, metaR.channels, (int ch) => {
                     var pcmW = new WWUtil.LargeArray<byte>(metaW.totalSamples * metaW.BytesPerSample);
 
 #if USE_ZOH_UPSAMPLE
@@ -353,7 +357,7 @@ namespace WWOfflineResampler {
                     zohCompensation.Dispose();
 # endif
 #endif
-                });
+                }
 
                 double maxMagnitudeDb = FieldQuantityToDecibel(stat.MaxAbsValue());
                 string clippedMsg = "";
@@ -373,6 +377,8 @@ namespace WWOfflineResampler {
                     break;
                 }
             } while (false);
+
+            flacR.DecodeEnd();
 
             var cp = new BWCompletedParam(0, "");
             if (rv < 0) {

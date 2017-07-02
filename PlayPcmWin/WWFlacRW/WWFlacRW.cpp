@@ -626,7 +626,7 @@ WWFlacRW_Decode(int frdt, const wchar_t *path)
 
     fdi->errorCode = FRT_Success;
     ok = FLAC__stream_decoder_process_until_end_of_metadata(fdi->decoder);
-    if (!ok) {
+    if (!ok || fdi->errorCode < 0) {
         if (fdi->errorCode == FRT_Success) {
             fdi->errorCode = FRT_DecorderProcessFailed;
         }
@@ -652,7 +652,7 @@ WWFlacRW_Decode(int frdt, const wchar_t *path)
     // ストリームを取り出す。
 
     ok = FLAC__stream_decoder_process_until_end_of_stream(fdi->decoder);
-    if (!ok) {
+    if (!ok || fdi->errorCode < 0) {
         if (fdi->errorCode == FRT_Success) {
                 fdi->errorCode = FRT_DecorderProcessFailed;
         }
@@ -664,7 +664,7 @@ WWFlacRW_Decode(int frdt, const wchar_t *path)
     fdi->errorCode = FRT_Completed;
 
 end:
-    if (fdi->errorCode < 0 || fdi->errorCode == FRT_Completed) {
+    if (fdi->errorCode < 0) {
         if (nullptr != fdi->decoder) {
             if (initStatus == FLAC__STREAM_DECODER_INIT_STATUS_OK) {
                 FLAC__stream_decoder_finish(fdi->decoder);
@@ -1488,11 +1488,6 @@ end:
     delete [] pcm;
     pcm = nullptr;
 
-    if (nullptr != fei->fp) {
-        fclose(fei->fp);
-        fei->fp = nullptr;
-    }
-
     if (nullptr != fei->encoder) {
         if (initStatus == FLAC__STREAM_ENCODER_INIT_STATUS_OK) {
             FLAC__stream_encoder_finish(fei->encoder);
@@ -1502,6 +1497,11 @@ end:
 
         FLAC__stream_encoder_delete(fei->encoder);
         fei->encoder = nullptr;
+    }
+
+    if (nullptr != fei->fp) {
+        fclose(fei->fp);
+        fei->fp = nullptr;
     }
 
     if (fei->errorCode < 0) {
