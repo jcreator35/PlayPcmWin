@@ -590,7 +590,7 @@ namespace WasapiBitmatchChecker {
                         mSampleRate, mPlaySampleFormat, NUM_CHANNELS, playDwChannelMask,
                         WasapiCS.MMCSSCallType.Enable, WasapiCS.MMThreadPriorityType.None,
                         WasapiCS.SchedulerTaskType.ProAudio, WasapiCS.ShareMode.Exclusive,
-                        mPlayDataFeedMode, mPlayBufferMillisec, ZERO_FLUSH_MILLISEC, TIME_PERIOD);
+                        mPlayDataFeedMode, mPlayBufferMillisec, ZERO_FLUSH_MILLISEC, TIME_PERIOD, true);
                 if (hr < 0) {
                     mWasapiPlay.Unsetup();
                     r.result = false;
@@ -639,7 +639,7 @@ namespace WasapiBitmatchChecker {
                         mSampleRate, mRecSampleFormat, NUM_CHANNELS, mRecDwChannelMask,
                         WasapiCS.MMCSSCallType.Enable, WasapiCS.MMThreadPriorityType.None,
                         WasapiCS.SchedulerTaskType.ProAudio, WasapiCS.ShareMode.Exclusive,
-                        mRecDataFeedMode, mRecBufferMillisec, ZERO_FLUSH_MILLISEC, TIME_PERIOD);
+                        mRecDataFeedMode, mRecBufferMillisec, ZERO_FLUSH_MILLISEC, TIME_PERIOD, true);
                 if (hr < 0) {
                     r.result = false;
                     r.text = string.Format(Properties.Resources.msgRecSetupError,
@@ -1003,11 +1003,11 @@ namespace WasapiBitmatchChecker {
                     var reader = new WavRWLib2.WavReader();
                     if (reader.ReadHeaderAndSamples(br, 0, -1)
                         && reader.NumChannels == NUM_CHANNELS) {
-                        var b = reader.GetSampleArray();
+                        var b = reader.GetSampleLargeArray();
                         r.pcmData = new PcmDataLib.PcmData();
                         r.pcmData.SetFormat(NUM_CHANNELS, reader.BitsPerSample, reader.ValidBitsPerSample,
                             reader.SampleRate, reader.SampleValueRepresentationType, reader.NumFrames);
-                        r.pcmData.SetSampleLargeArray(new LargeArray<byte>(b));
+                        r.pcmData.SetSampleLargeArray(b);
                     }
                 }
             } catch (Exception ex) {
@@ -1040,6 +1040,7 @@ namespace WasapiBitmatchChecker {
                             r.pcmData.SetSampleLargeArray(pcmBytes);
                         }
                     }
+                    flacRW.DecodeEnd();
                 } catch (Exception ex) {
                     Console.WriteLine(ex);
                     r.pcmData = null;
