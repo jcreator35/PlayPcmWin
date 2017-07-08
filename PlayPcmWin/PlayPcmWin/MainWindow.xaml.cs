@@ -1312,7 +1312,7 @@ namespace PlayPcmWin
                 // 失敗
                 UnsetupDevice();
                 if (i == (candidateNum - 1)) {
-                    string s = string.Format(CultureInfo.InvariantCulture, "{0}: wasapi.Setup({1} {2}kHz {3} {4}ch {5} {6}ms {7} {8}) {9} {10:X8}{12}{12}{11}",
+                    string s = string.Format(CultureInfo.InvariantCulture, "{0}: wasapi.Setup({1} {2}kHz {3} {4}ch {5} {6}ms {7} {8}) {9} {10:X8} {11}{13}{13}{12}",
                             Properties.Resources.Error,
                             m_deviceSetupParams.StreamType,
                             startPcmData.SampleRate * 0.001,
@@ -1324,6 +1324,7 @@ namespace PlayPcmWin
                             ShareModeToStr(m_preference.WasapiSharedOrExclusive),
                             Properties.Resources.Failed,
                             hr,
+                            wasapi.GetErrorMessage(hr),
                             Properties.Resources.SetupFailAdvice,
                             Environment.NewLine);
                     MessageBox.Show(s);

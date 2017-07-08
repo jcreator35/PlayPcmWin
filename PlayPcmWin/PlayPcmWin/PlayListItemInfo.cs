@@ -120,6 +120,10 @@ namespace PlayPcmWin {
             get { return System.IO.Path.GetExtension(mPcmData.FileName); }
         }
 
+        public string Path {
+            get { return mPcmData.FullPath; }
+        }
+
         #region INotifyPropertyChanged members
 
         public event PropertyChangedEventHandler PropertyChanged;

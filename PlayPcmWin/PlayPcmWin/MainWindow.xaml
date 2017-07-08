@@ -75,6 +75,12 @@
                             <Setter x:Uid="Setter_1" Property="Content" Value="{Binding RowId}"/>
                         </Style>
                     </DataGrid.RowHeaderStyle>
+                    
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <Setter Property="ToolTip" Value="{Binding Path=Path}" />
+                        </Style>
+                    </DataGrid.RowStyle>
 
                     <!--
                     <DataGrid.ItemContainerStyle>
@@ -87,9 +93,15 @@
                         -->
 
                     <DataGrid.Columns>
-                        <!-- <DataGridTextColumn x:Name="IdColumn" Width="Auto" Binding="{Binding Path=Id}" Header="Id" />
-                        -->
-                        <DataGridTextColumn x:Name="dataGridColumnTitle" Width="Auto" Binding="{Binding Path=Title}" Header="Title" />
+                        <DataGridTextColumn x:Name="dataGridColumnTitle" Width="Auto" Binding="{Binding Path=Title}" Header="Title" >
+                            <!--
+                            <DataGridTextColumn.CellStyle>
+                                <Style TargetType="DataGridCell">
+                                    <Setter Property="ToolTip" Value="{Binding Path=Path}" />
+                                </Style>
+                            </DataGridTextColumn.CellStyle>
+                            -->
+                        </DataGridTextColumn>
                         <DataGridTextColumn x:Name="dataGridColumnDuration" Width="Auto" Binding="{Binding Path=Duration}" Header="Duration"/>
                         <DataGridTextColumn x:Name="dataGridColumnArtist" Width="Auto" Binding="{Binding Path=ArtistName}" Header="Artists"/>
                         <DataGridTextColumn x:Name="dataGridColumnAlbumTitle" Width="Auto" Binding="{Binding Path=AlbumTitle}" Header="Album name"/>

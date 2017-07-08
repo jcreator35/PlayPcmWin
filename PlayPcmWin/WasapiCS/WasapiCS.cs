@@ -4,6 +4,8 @@ using System;
 
 namespace Wasapi {
     public class WasapiCS {
+
+#region native methods
         [DllImport("WasapiIODLL.dll")]
         private extern static int
         WasapiIO_Init(ref int instanceIdReturn);
@@ -253,6 +255,8 @@ namespace Wasapi {
         [DllImport("WasapiIODLL.dll")]
         private extern static int
         WasapiIO_SetMasterVolumeInDb(int instanceId, float db);
+
+#endregion
 
         public enum MMCSSCallType {
             Disable,
@@ -830,10 +834,47 @@ namespace Wasapi {
         };
 
         public int GetVolumeParams(out VolumeParams volumeParams) {
-            WasapiIoVolumeParams vp = new WasapiIoVolumeParams();
+            var vp = new WasapiIoVolumeParams();
             int hr = WasapiIO_GetVolumeParams(mId, out vp);
             volumeParams = new VolumeParams(vp.levelMinDB, vp.levelMaxDB, vp.volumeIncrementDB, vp.defaultLevel, vp.hardwareSupport);
             return hr;
+        }
+
+        public string GetErrorMessage(int ercd) {
+            switch ((uint)ercd) {
+            case 0x88890001: return "AUDCLNT_E_NOT_INITIALIZED";
+            case 0x88890002: return "AUDCLNT_E_ALREADY_INITIALIZED";
+            case 0x88890003: return "AUDCLNT_E_WRONG_ENDPOINT_TYPE";
+            case 0x88890004: return "AUDCLNT_E_DEVICE_INVALIDATED";
+            case 0x88890005: return "AUDCLNT_E_NOT_STOPPED";
+
+            case 0x88890006: return "AUDCLNT_E_BUFFER_TOO_LARGE";
+            case 0x88890007: return "AUDCLNT_E_OUT_OF_ORDER";
+            case 0x88890008: return "AUDCLNT_E_UNSUPPORTED_FORMAT";
+            case 0x88890009: return "AUDCLNT_E_INVALID_SIZE";
+            case 0x8889000a: return "AUDCLNT_E_DEVICE_IN_USE";
+
+            case 0x8889000b: return "AUDCLNT_E_BUFFER_OPERATION_PENDING";
+            case 0x8889000c: return "AUDCLNT_E_THREAD_NOT_REGISTERED";
+            case 0x8889000e: return "AUDCLNT_E_EXCLUSIVE_MODE_NOT_ALLOWED";
+            case 0x8889000f: return "AUDCLNT_E_ENDPOINT_CREATE_FAILED";
+            case 0x88890010: return "AUDCLNT_E_SERVICE_NOT_RUNNING";
+
+            case 0x88890011: return "AUDCLNT_E_EVENTHANDLE_NOT_EXPECTED";
+            case 0x88890012: return "AUDCLNT_E_EXCLUSIVE_MODE_ONLY";
+            case 0x88890013: return "AUDCLNT_E_BUFDURATION_PERIOD_NOT_EQUAL";
+            case 0x88890014: return "AUDCLNT_E_EVENTHANDLE_NOT_SET";
+            case 0x88890015: return "AUDCLNT_E_INCORRECT_BUFFER_SIZE";
+
+            case 0x88890016: return "AUDCLNT_E_BUFFER_SIZE_ERROR";
+            case 0x88890017: return "AUDCLNT_E_CPUUSAGE_EXCEEDED";
+            case 0x88890018: return "AUDCLNT_E_BUFFER_ERROR";
+            case 0x88890019: return "AUDCLNT_E_BUFFER_SIZE_NOT_ALIGNED";
+            case 0x88890020: return "AUDCLNT_E_INVALID_DEVICE_PERIOD";
+
+            default:
+                return "";
+            }
         }
     }
 }

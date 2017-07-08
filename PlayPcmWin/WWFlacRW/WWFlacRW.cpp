@@ -111,10 +111,6 @@ struct FlacDecodeInfo {
     std::vector<FlacCuesheetTrackInfo> cueSheetTracks;
 
     FlacDecodeInfo(void) {
-        Clear();
-    }
-
-    void Clear(void) {
         memset(path, 0, sizeof path);
 
         errorCode = FRT_OtherError;
@@ -1030,10 +1026,6 @@ struct FlacEncodeInfo {
     std::vector<FlacCuesheetTrackInfo> cueSheetTracks;
 
     FlacEncodeInfo(void) {
-        Clear();
-    }
-
-    void Clear(void) {
         memset(path, 0, sizeof path);
 
         errorCode = FRT_OtherError;
