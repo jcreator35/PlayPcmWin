@@ -26,7 +26,7 @@ namespace PlayPcmWin {
         public NextTask() {
             Type = NextTaskType.None;
             GroupId = -1;
-            WavDataId = -1;
+            PcmDataId = -1;
         }
 
         public NextTask(NextTaskType type) {
@@ -46,12 +46,12 @@ namespace PlayPcmWin {
         public void Set(NextTaskType type, int groupId, int wavDataId) {
             Type = type;
             GroupId = groupId;
-            WavDataId = wavDataId;
+            PcmDataId = wavDataId;
         }
 
         public NextTaskType Type { get; set; }
         public int GroupId { get; set; }
-        public int WavDataId { get; set; }
+        public int PcmDataId { get; set; }
     };
 
 }

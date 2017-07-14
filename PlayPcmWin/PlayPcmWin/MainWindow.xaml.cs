@@ -2305,7 +2305,7 @@ namespace PlayPcmWin
                 // ファイル読み込み完了後、再生を開始する。
                 // 再生するファイルは、タスクで指定されたファイル。
                 // このwavDataIdは、再生開始ボタンが押された時点で選択されていたファイル。
-                int wavDataId = m_taskAfterStop.WavDataId;
+                int wavDataId = m_taskAfterStop.PcmDataId;
 
                 if (null != m_pliUpdatedByUserSelectWhileLoading) {
                     // (Issue 6)再生リストで選択されている曲が違う曲の場合、
@@ -2829,7 +2829,14 @@ namespace PlayPcmWin
 
                 if (IsPlayModeOneTrack()) {
                     // 1曲再生モードの時、再生リストを作りなおす。
-                    CreateOneTrackPlayList(m_taskAfterStop.WavDataId);
+                    CreateOneTrackPlayList(m_taskAfterStop.PcmDataId);
+                }
+
+                if (null == m_pliUpdatedByUserSelectWhileLoading) {
+                    // 次に再生する曲を選択状態にする。
+                    dataGridPlayList.SelectedIndex =
+                        GetPlayListIndexOfPcmDataId(m_taskAfterStop.PcmDataId);
+                    UpdateUIStatus();
                 }
 
                 if (SetupDevice(m_taskAfterStop.GroupId)) {
