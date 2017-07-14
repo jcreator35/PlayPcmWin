@@ -11,7 +11,11 @@
 #include "FLAC/stream_decoder.h"
 #include "FLAC/stream_encoder.h"
 
-#define dprintf(x, ...) printf(x, __VA_ARGS__)
+#if NDEBUG
+# define dprintf(x, ...)
+#else
+# define dprintf(x, ...) printf(x, __VA_ARGS__)
+#endif
 
 /// wchar_tの文字数
 #define FLACDECODE_MAX_STRSZ (256)
@@ -26,6 +30,28 @@
 #define FLACDECODE_COMMENT_MAX (1024)
 
 #define FLACENCODE_READFRAMES (4096)
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+static HANDLE g_mutex = nullptr;
+
+class StaticInitializer {
+public:
+    StaticInitializer(void) {
+        assert(g_mutex == nullptr);
+        g_mutex = CreateMutex(nullptr, FALSE, nullptr);
+    }
+
+    ~StaticInitializer(void) {
+        assert(g_mutex);
+        ReleaseMutex(g_mutex);
+        g_mutex = nullptr;
+    }
+};
+
+static StaticInitializer gStaticInitializer;
+
+/////////////////////////////////////////////////////////////////////////////////////////////
 
 static bool StatusIsSuccess(int errorCode)
 {
@@ -177,10 +203,10 @@ struct FlacDecodeInfo {
         pictureData = nullptr;
     }
 
-    static int nextId;
+    volatile static int nextId;
 };
 
-int FlacDecodeInfo::nextId;
+volatile int FlacDecodeInfo::nextId;
 
 /// 物置の実体。グローバル変数。
 static std::map<int, FlacDecodeInfo*> g_flacDecodeInfoMap;
@@ -191,15 +217,20 @@ template <typename T>
 static T *
 FlacTInfoNew(std::map<int, T*> &storage)
 {
+    assert(g_mutex);
+    WaitForSingleObject(g_mutex, INFINITE);
+
     T * fdi = new T();
     if (nullptr == fdi) {
+        ReleaseMutex(g_mutex);
         return nullptr;
     }
 
     fdi->id = T::nextId;
-    storage[T::nextId] = fdi;
+    storage[fdi->id] = fdi;
     ++T::nextId;
 
+    ReleaseMutex(g_mutex);
     return fdi;
 }
 
@@ -207,24 +238,35 @@ template <typename T>
 static void
 FlacTInfoDelete(std::map<int, T*> &storage, T *fdi)
 {
+    assert(g_mutex);
     if (nullptr == fdi) {
         return;
     }
 
+    WaitForSingleObject(g_mutex, INFINITE);
+
     storage.erase(fdi->id);
     delete fdi;
     fdi = nullptr; // あんまり意味ないが、一応
+
+    ReleaseMutex(g_mutex);
 }
 
 template <typename T>
 static T *
 FlacTInfoFindById(std::map<int, T*> &storage, int id)
 {
+    assert(g_mutex);
+    WaitForSingleObject(g_mutex, INFINITE);
+
     std::map<int, T*>::iterator ite
         = storage.find(id);
     if (ite == storage.end()) {
+        ReleaseMutex(g_mutex);
         return nullptr;
     }
+
+    ReleaseMutex(g_mutex);
     return ite->second;
 }
 
@@ -1085,10 +1127,10 @@ struct FlacEncodeInfo {
         assert(!fp);
     }
 
-    static int nextId;
+    volatile static int nextId;
 };
 
-int FlacEncodeInfo::nextId = 0x40000000;
+volatile int FlacEncodeInfo::nextId = 0x40000000;
 
 /// 物置の実体。グローバル変数。
 static std::map<int, FlacEncodeInfo*> g_flacEncodeInfoMap;
