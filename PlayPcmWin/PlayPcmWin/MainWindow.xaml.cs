@@ -2063,22 +2063,26 @@ namespace PlayPcmWin
         }
 
         private bool ReadOnePcmFile(BackgroundWorker bw, PcmDataLib.PcmData pd, long startFrame, long endFrame, ref ReadFileRunWorkerCompletedArgs r) {
-            {
-                // endFrameの位置を確定する。
-                // すると、rpi.ReadFramesも確定する。
-                PcmReader pr = new PcmReader();
-                
-                int ercd = pr.StreamBegin(pd.FullPath, 0, 0, TYPICAL_READ_FRAMES);
-                pr.StreamEnd();
-                if (ercd < 0) {
-                    r.hr = ercd;
-                    r.message = string.Format(CultureInfo.InvariantCulture, "{0}! {1}{5}{2}{5}{3}: {4} (0x{4:X8})",
-                            Properties.Resources.ReadError, pd.FullPath, FlacDecodeIF.ErrorCodeToStr(ercd), Properties.Resources.ErrorCode, ercd, Environment.NewLine);
-                    Console.WriteLine("D: ReadFileSingleDoWork() !readSuccess");
-                    return false;
-                }
-                if (endFrame < 0 || pr.NumFrames < endFrame) {
-                    endFrame = pr.NumFrames;
+            if (endFrame < 0) {
+                if (0 < pd.NumFrames) {
+                    endFrame = pd.NumFrames;
+                } else {
+                    // endFrameの位置を確定する。
+                    // すると、rpi.ReadFramesも確定する。
+                    PcmReader pr = new PcmReader();
+
+                    int ercd = pr.StreamBegin(pd.FullPath, 0, 0, TYPICAL_READ_FRAMES);
+                    pr.StreamEnd();
+                    if (ercd < 0) {
+                        r.hr = ercd;
+                        r.message = string.Format(CultureInfo.InvariantCulture, "{0}! {1}{5}{2}{5}{3}: {4} (0x{4:X8})",
+                                Properties.Resources.ReadError, pd.FullPath, FlacDecodeIF.ErrorCodeToStr(ercd), Properties.Resources.ErrorCode, ercd, Environment.NewLine);
+                        Console.WriteLine("D: ReadFileSingleDoWork() !readSuccess");
+                        return false;
+                    }
+                    if (pr.NumFrames < endFrame) {
+                        endFrame = pr.NumFrames;
+                    }
                 }
             }
 
@@ -3451,7 +3455,7 @@ namespace PlayPcmWin
         /// デバイスが突然消えたとか、突然増えたとかのイベント。
         /// </summary>
         private void WasapiStatusChanged(StringBuilder idStr) {
-            Console.WriteLine("WasapiStatusChanged {0}", idStr);
+            //Console.WriteLine("WasapiStatusChanged {0}", idStr);
             Dispatcher.BeginInvoke(new Action(delegate() {
                 // AddLogText(string.Format(CultureInfo.InvariantCulture, Properties.Resources.DeviceStateChanged + Environment.NewLine, idStr));
                 switch (m_state)
