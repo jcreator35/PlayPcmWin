@@ -488,7 +488,7 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
     <value>ウィンドウの位置とサイズを記憶</value>
   </data>
   <data name="SettingsCheckBoxParallelRead" xml:space="preserve">
-    <value>ファイル読込並列化</value>
+    <value>ファイル読込並列化 (Solid State Drive用)</value>
   </data>
   <data name="SettingsCheckBoxPlaceKokomadeAterIndex00" xml:space="preserve">
     <value>INDEX00の後に[ここまで一括読み込み]を付ける</value>

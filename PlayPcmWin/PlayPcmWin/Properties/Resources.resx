@@ -488,7 +488,7 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
     <value>Remember Window position and size</value>
   </data>
   <data name="SettingsCheckBoxParallelRead" xml:space="preserve">
-    <value>Parallelize file read</value>
+    <value>Parallelize file read (for Solid State Drives)</value>
   </data>
   <data name="SettingsCheckBoxPlaceKokomadeAterIndex00" xml:space="preserve">
     <value>Set [Batch read endpoint] flag after INDEX00</value>

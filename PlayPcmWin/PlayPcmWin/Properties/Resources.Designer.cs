@@ -1317,7 +1317,7 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Parallelize file read.
+        ///   Looks up a localized string similar to Parallelize file read (for Solid State Drives).
         /// </summary>
         internal static string SettingsCheckBoxParallelRead {
             get {
