@@ -68,9 +68,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ComplexPolynomial.cs" />
+    <Compile Include="CrossCorrelation.cs" />
     <Compile Include="Functions.cs" />
     <Compile Include="HighOrderComplexRationalPolynomial.cs" />
     <Compile Include="JenkinsTraubRpoly.cs" />
+    <Compile Include="MaximumLengthSequence.cs" />
     <Compile Include="NewtonsMethod.cs" />
     <Compile Include="BairstowPolynomialRootFinding.cs" />
     <Compile Include="ComplexRationalPolynomial.cs" />
