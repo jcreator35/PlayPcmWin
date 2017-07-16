@@ -416,7 +416,7 @@ namespace PlayPcmWin {
                     {
                         const int workUnit = 256 * 1024;
                         int sampleUnits = (int)(readFrames * NumChannels / workUnit);
-                        Parallel.For(0, sampleUnits, delegate(int m) {
+                        Parallel.For(0, sampleUnits, m => {
                             int pos = m * workUnit * 3;
                             for (int i = 0; i < workUnit; ++i) {
                                 byte v0 = sampleArray[pos + 0];
