@@ -1,0 +1,198 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="msgCompareCaptureTooSmall" xml:space="preserve">
+    <value>Error. Captured data size was not sufficient to analyze.
+</value>
+  </data>
+  <data name="msgCompareDifferent" xml:space="preserve">
+    <value>Captured data was different from rendered data!
+  PCM size played = {0:F3} MiB ({1:F3} Mbit). Tested PCM Duration = {2:F1} seconds.
+  different bytes = {3}, capture glitch = {4}
+</value>
+  </data>
+  <data name="msgCompareIdentical" xml:space="preserve">
+    <value>Test succeeded! Captured data was exactly the same as rendered data.
+  PCM size played = {0:F3} MiB ({1:F3} Mbit). Tested PCM Duration = {2:F1} seconds
+</value>
+  </data>
+  <data name="msgCompareStarted" xml:space="preserve">
+    <value>PCM data received. Now comparing recorded PCM with sent PCM...
+</value>
+  </data>
+  <data name="msgCompareStartNotFound" xml:space="preserve">
+    <value>Error. Test start marker was not found in recorded PCM
+</value>
+  </data>
+  <data name="msgPcmSizeError" xml:space="preserve">
+    <value>PCM size must be greater than or equals to 1</value>
+  </data>
+  <data name="msgPcmSizeTooLarge" xml:space="preserve">
+    <value>PCM size must be smaller than or equal to {0}</value>
+  </data>
+  <data name="msgPlayBufferSizeError" xml:space="preserve">
+    <value>Playback buffer size parse error</value>
+  </data>
+  <data name="msgPlayBufferSizeTooLarge" xml:space="preserve">
+    <value>Playback buffer size must be smaller than 1000 ms</value>
+  </data>
+  <data name="msgPlayDeviceSelectError" xml:space="preserve">
+    <value>Error. Playback device select failed</value>
+  </data>
+  <data name="msgPlayDeviceStateChanged" xml:space="preserve">
+    <value>Playing device state is changed: {0} 
+Exiting program...</value>
+  </data>
+  <data name="msgPlaySettings" xml:space="preserve">
+    <value>  Playback:  {0}, buffer size={1}ms, {2}, {3}
+</value>
+  </data>
+  <data name="msgPlaySetupError" xml:space="preserve">
+    <value>Playback Setup error. {0}Hz {1} {2}ch ProAudio Exclusive {3} {4}ms</value>
+  </data>
+  <data name="msgRecBufferSizeError" xml:space="preserve">
+    <value>Recording buffer size parse error</value>
+  </data>
+  <data name="msgRecBufferSizeTooLarge" xml:space="preserve">
+    <value>Recording buffer size must be smaller than 1000 ms</value>
+  </data>
+  <data name="msgRecDeviceSelectError" xml:space="preserve">
+    <value>Error. Recording device select failed</value>
+  </data>
+  <data name="msgRecDeviceStateChanged" xml:space="preserve">
+    <value>Recording device state is changed: {0} 
+Exiting program...</value>
+  </data>
+  <data name="msgRecSettings" xml:space="preserve">
+    <value>  Recording: {0}, buffer size={1}ms, {2}, {3}
+</value>
+  </data>
+  <data name="msgRecSetupError" xml:space="preserve">
+    <value>Recording Setup error. {0}Hz {1} {2}ch ProAudio Exclusive {3} {4}ms {5}
+</value>
+  </data>
+  <data name="msgSyncError" xml:space="preserve">
+    <value>Error. Could not receive Sync signal. Check your S/PDIF cabling.
+</value>
+  </data>
+  <data name="msgTestStarted" xml:space="preserve">
+    <value>Test started. SampleRate={0}Hz, PCM data duration={1:F1} seconds, , {2:F3} M frames.
+</value>
+  </data>
+</root>

@@ -926,5 +926,68 @@ namespace PcmDataLib {
 
             return newPcmData;
         }
+
+        public WWUtil.LargeArray<double> GetDoubleArray(int ch) {
+            var r = new WWUtil.LargeArray<double>(NumFrames);
+
+            if (SampleValueRepresentationType == ValueRepresentationType.SFloat) {
+                switch (BitsPerSample) {
+                case 32:
+                    for (long i = 0; i < NumFrames; ++i) {
+                        float v = GetSampleValueInFloat(ch, i);
+                        r.Set(i, v);
+                    }
+                    break;
+                case 64:
+                    for (long i = 0; i < NumFrames; ++i) {
+                        double v = GetSampleValueInDouble(ch, i);
+                        r.Set(i, v);
+                    }
+                    break;
+                }
+            } else {
+                var f = GetSampleLargeArray();
+                long readPos = 0;
+                long writePos = 0;
+
+                switch (BitsPerSample) {
+                case 16:
+                    for (int i = 0; i < NumFrames; ++i) {
+                        for (int c = 0; c < NumChannels; ++c) {
+                            if (c == ch) {
+                                short v = (short)(f.At(readPos) + f.At(readPos + 1) << 8);
+                                r.Set(writePos++, v / 32768.0);
+                            }
+                            readPos += 2;
+                        }
+                    }
+                    break;
+                case 24:
+                    for (int i = 0; i < NumFrames; ++i) {
+                        for (int c = 0; c < NumChannels; ++c) {
+                            if (c == ch) {
+                                int v = (int)((f.At(readPos) << 8) + (f.At(readPos + 1) << 16) + (f.At(readPos + 2) << 24));
+                                r.Set(writePos++, v / 2147483648.0);
+                            }
+                            readPos += 3;
+                        }
+                    }
+                    break;
+                case 32:
+                    for (int i = 0; i < NumFrames; ++i) {
+                        for (int c = 0; c < NumChannels; ++c) {
+                            if (c == ch) {
+                                int v = (int)((f.At(readPos) << 0) + (f.At(readPos + 1) << 8) + (f.At(readPos + 2) << 16) + (f.At(readPos + 3) << 24));
+                                r.Set(writePos++, v / 2147483648.0);
+                            }
+                            readPos += 4;
+                        }
+                    }
+                    break;
+                }
+            }
+
+            return r;
+        }
     }
 }

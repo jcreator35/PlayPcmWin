@@ -1,7 +1,7 @@
 ﻿using System;
 
 namespace WWMath {
-    class MaximumLengthSequence {
+    public class MaximumLengthSequence {
         /// <summary>
         /// Maximum Length Sequenceを生成する。
         /// 値は1か0、(2^order)-1要素の配列が出る。

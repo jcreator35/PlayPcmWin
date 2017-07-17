@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace WWMath {
-    class CrossCorrelation {
+    public class CrossCorrelation {
 
         /// <summary>
         /// Cross-correlation.
