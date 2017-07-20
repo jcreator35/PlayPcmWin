@@ -567,10 +567,10 @@ namespace RecPcmWin {
                 mPref.SampleRate, mPref.SampleFormat, mPref.NumOfChannels, dwChannelMask);
             {
                 if (hr < 0) {
-                    string s = string.Format("Error: wasapi.Setup({0}Hz, {1}, {2}ms, {3}, {4}ch, dwChannelMask={5})\r\nError code = {6:X8}\r\n",
+                    string s = string.Format("Error: wasapi.Setup({0}Hz, {1}, {2}ms, {3}, {4}ch, dwChannelMask={5})\r\nError code = {6:X8} {7}\r\n",
                             mPref.SampleRate, mPref.SampleFormat,
                             mPref.WasapiBufferSizeMS, mPref.WasapiDataFeedMode,
-                            mPref.NumOfChannels, dwChannelMask, hr);
+                            mPref.NumOfChannels, dwChannelMask, hr, mWasapiCtrl.ErrorCodeToStr(hr));
                     MessageBox.Show(s);
                     AddLog(s);
 

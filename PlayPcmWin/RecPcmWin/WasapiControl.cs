@@ -227,5 +227,9 @@ namespace RecPcmWin {
         public int SetEndpointMasterVolume(float db) {
             return mWasapi.SetMasterVolumeInDb(db);
         }
+
+        public string ErrorCodeToStr(int ercd) {
+            return mWasapi.GetErrorMessage(ercd);
+        }
     }
 }

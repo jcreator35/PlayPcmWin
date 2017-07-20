@@ -340,7 +340,7 @@ WasapiUser::Setup(IMMDevice *device, WWDeviceType deviceType, const WWPcmFormat 
             // Some realtek HD Audio device driver accepts IAudioClient::Initialize(24bit) but
             // IAudioClient::IsFormatSupported(24bit) returns false
             // when playing 24bit, it produces large static noise so I think the following line is necessary
-            HRG(m_audioClient->IsFormatSupported(audClientSm, waveFormat,nullptr));
+            HRG(m_audioClient->IsFormatSupported(audClientSm, waveFormat, nullptr));
         }
     } else {
         // shared mode specific task
