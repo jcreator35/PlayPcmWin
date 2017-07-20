@@ -37,7 +37,7 @@ namespace WWImpulseResponse {
 
         private Wasapi.WasapiCS.CaptureCallback mCaptureDataArrivedDelegate;
 
-        private static int NUM_CHANNELS = 8;
+        private static int NUM_CHANNELS = 2;
         private int mSampleRate;
         private WasapiCS.SampleFormatType mPlaySampleFormat;
         private WasapiCS.SampleFormatType mRecSampleFormat;
@@ -51,7 +51,7 @@ namespace WWImpulseResponse {
         private int ZERO_FLUSH_MILLISEC = 1000;
         private int TIME_PERIOD = 10000;
 
-        private int MLS_ORDER = 19;
+        private int MLS_ORDER = 16;
         private int TEST_CH = 0;
 
         private State mState = State.Init;
@@ -393,7 +393,8 @@ namespace WWImpulseResponse {
         }
 
         private void PreparePcmData() {
-            var mls = WWMath.MaximumLengthSequence.Create(MLS_ORDER);
+            var mls = new WWMath.MaximumLengthSequence(MLS_ORDER);
+            var seq = mls.Sequence();
 
             // mPcmTest : テストデータ。このPCMデータを再生し、インパルス応答特性を調べる。
             mPcmPlay = new PcmDataLib.PcmData();
@@ -401,12 +402,12 @@ namespace WWImpulseResponse {
                 WasapiCS.SampleFormatTypeToUseBitsPerSample(mPlaySampleFormat),
                 WasapiCS.SampleFormatTypeToValidBitsPerSample(mPlaySampleFormat),
                 mSampleRate,
-                PcmDataLib.PcmData.ValueRepresentationType.SInt, mls.Length);
-            mPcmPlay.SetSampleLargeArray(CreatePcmData(mls, mPlaySampleFormat, NUM_CHANNELS));
+                PcmDataLib.PcmData.ValueRepresentationType.SInt, seq.Length);
+            mPcmPlay.SetSampleLargeArray(CreatePcmData(seq, mPlaySampleFormat, NUM_CHANNELS));
 
             // 録音データ置き場。
             int recBytesPerSample = WasapiCS.SampleFormatTypeToUseBitsPerSample(mRecSampleFormat) / 8;
-            mCapturedPcmData = new LargeArray<byte>((long)recBytesPerSample * NUM_CHANNELS * mls.Length);
+            mCapturedPcmData = new LargeArray<byte>((long)recBytesPerSample * NUM_CHANNELS * seq.Length);
         }
 
         private void BwStartTesting_DoWork(object sender, DoWorkEventArgs e) {
@@ -548,7 +549,6 @@ namespace WWImpulseResponse {
         /// </summary>
         private void PlayRunWorkerCompleted(object o, RunWorkerCompletedEventArgs args) {
             mWasapiPlay.Unsetup();
-            // このあと録音も程なく終わる。
         }
 
         private void RecDoWork(object o, DoWorkEventArgs args) {
@@ -574,31 +574,12 @@ namespace WWImpulseResponse {
             // 再生停止する。
             mWasapiPlay.Stop();
 
-            ProcessCapturedData();
-        }
-
-        private void RecRunWorkerCompleted(object o, RunWorkerCompletedEventArgs args) {
-            //Console.WriteLine("RecRunWorkerCompleted()");
-
             lock (mLock) {
                 mWasapiRec.Stop();
                 mWasapiRec.Unsetup();
-
-                // 完了。UIの状態を戻す。
-                UpdateButtonStartStop(ButtonStartStopState.StartEnable);
-
-                groupBoxPcmDataSettings.IsEnabled = true;
-                groupBoxPlayback.IsEnabled = true;
-                groupBoxRecording.IsEnabled = true;
-
-                progressBar1.Value = 0;
-
-                mState = State.Init;
             }
 
-            textBoxLog.Text += "Finished\n";
-            textBoxLog.ScrollToEnd();
-
+            ProcessCapturedData();
         }
 
         private void ProcessCapturedData() {
@@ -622,6 +603,27 @@ namespace WWImpulseResponse {
                     sw.WriteLine("{0}", c[i]);
                 }
             }
+        }
+
+        private void RecRunWorkerCompleted(object o, RunWorkerCompletedEventArgs args) {
+            //Console.WriteLine("RecRunWorkerCompleted()");
+
+            lock (mLock) {
+                // 完了。UIの状態を戻す。
+                UpdateButtonStartStop(ButtonStartStopState.StartEnable);
+
+                groupBoxPcmDataSettings.IsEnabled = true;
+                groupBoxPlayback.IsEnabled = true;
+                groupBoxRecording.IsEnabled = true;
+
+                progressBar1.Value = 0;
+
+                mState = State.Init;
+            }
+
+            textBoxLog.Text += "Finished\n";
+            textBoxLog.ScrollToEnd();
+
         }
 
         private void StopUnsetup() {

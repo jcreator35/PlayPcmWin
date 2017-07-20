@@ -2,6 +2,9 @@
 
 namespace WWMath {
     public class MaximumLengthSequence {
+        private int mOrder;
+        private byte[] mSequence;
+
         /// <summary>
         /// Maximum Length Sequenceを生成する。
         /// 値は1か0、(2^order)-1要素の配列が出る。
@@ -9,31 +12,40 @@ namespace WWMath {
         /// 
         /// https://en.wikipedia.org/wiki/Maximum_length_sequence
         /// </summary>
-        public static byte[] Create(int order) {
-            System.Diagnostics.Debug.Assert(4 <= order);
-            System.Diagnostics.Debug.Assert(order <= 30);
-
-            int count = (int)(Math.Pow(2, order) - 1);
-            var b = new byte[count];
-            var a = new byte[2][];
-            a[0] = new byte[order];
-            a[1] = new byte[order];
-
-            a[0][0] = 1;
-
-            int cur = 0;
-            int next = 1;
-            for (int pos = 0; pos < count; ++pos) {
-                a[next][order - 1] = (byte)((a[cur][0] + a[cur][1]) % 2);
-                for (int i = order - 2; 0 <= i; --i) {
-                    a[next][i] = a[cur][i + 1];
-                }
-
-                b[pos] = a[next][0];
-
-                cur = cur == 0 ? 1 : 0;
-                next = next == 0 ? 1 : 0;
+        public MaximumLengthSequence(int order) {
+            mOrder = order;
+            switch (order) {
+            case 16:
+                mSequence = Create16();
+                break;
+            default:
+                throw new ArgumentException("order");
             }
+        }
+
+        public byte[] Sequence() {
+            return mSequence;
+        }
+
+        /// <summary>
+        /// 
+        /// https://en.wikipedia.org/wiki/Linear-feedback_shift_register
+        /// </summary>
+        private byte[] Create16() {
+            int order = 16;
+            var b = new byte[(int)Math.Pow(2, order) - 1];
+
+            ushort start_state = 1;
+            ushort lfsr = start_state;
+            ushort bit;
+            uint period = 0;
+
+            do {
+                bit = (ushort)(((lfsr >> 0) ^ (lfsr >> 2) ^ (lfsr >> 3) ^ (lfsr >> 5)) & 1);
+                lfsr = (ushort)((lfsr >> 1) | (bit << 15));
+                ++period;
+            } while (lfsr != start_state);
+
 
             return b;
         }

@@ -164,7 +164,7 @@
                         </Grid.RowDefinitions>
                         <RadioButton Content="Maximum Length Sequence" HorizontalAlignment="Left" IsChecked="True" Margin="6,0,0,0" Name="radioButtonPcmRandom" VerticalAlignment="Center" />
                         <ComboBox Grid.Column="1" HorizontalAlignment="Left" Margin="0" Name="comboBoxMLSOrder" VerticalAlignment="Center">
-                            <ComboBoxItem Content="order=19, 524287 samples" IsSelected="True" />
+                            <ComboBoxItem Content="order=16, 65535 samples" IsSelected="True" />
                         </ComboBox>
                     </Grid>
                 </GroupBox>
