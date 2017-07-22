@@ -37,9 +37,6 @@ namespace WWImpulseResponse {
 
         private Wasapi.WasapiCS.CaptureCallback mCaptureDataArrivedDelegate;
 
-        private static int NUM_CHANNELS = 2;
-        private int TEST_CHANNEL = 0;
-
         private int mSampleRate;
         private WasapiCS.SampleFormatType mPlaySampleFormat;
         private WasapiCS.SampleFormatType mRecSampleFormat;
@@ -47,12 +44,10 @@ namespace WWImpulseResponse {
         private WasapiCS.DataFeedMode mRecDataFeedMode;
         private int mPlayBufferMillisec;
         private int mRecBufferMillisec;
-        private int mRecDwChannelMask;
         private int mPlayDeviceIdx = -1;
         private int mRecDeviceIdx = -1;
         private int ZERO_FLUSH_MILLISEC = 1000;
         private int TIME_PERIOD = 10000;
-
 
         private State mState = State.Init;
 
@@ -90,6 +85,12 @@ namespace WWImpulseResponse {
             18,
             19,
             20
+        };
+        
+        private readonly int[] NUM_CH = new int[] {
+            2,
+            6,
+            8
         };
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
@@ -331,11 +332,6 @@ namespace WWImpulseResponse {
                 MessageBox.Show(Properties.Resources.msgRecBufferSizeTooLarge);
             }
 
-            mRecDwChannelMask = 0;
-            if (checkBoxRecSetDwChannelMask.IsChecked == true) {
-                mRecDwChannelMask = WasapiCS.GetTypicalChannelMask(NUM_CHANNELS);
-            }
-
             return true;
         }
 
@@ -343,11 +339,21 @@ namespace WWImpulseResponse {
 
         class StartTestingArgs {
             public int order;
+            public int numChannels;
+            public int testChannel;
+            public int playDwChannelMask;
+            public int recDwChannelMask;
 
-            public StartTestingArgs(int aOrder) {
+            public StartTestingArgs(int aOrder, int numCh, int testCh, int playDwChMask, int recDwChMask) {
                 order = aOrder;
+                numChannels = numCh;
+                testChannel = testCh;
+                playDwChannelMask = playDwChMask;
+                recDwChannelMask = recDwChMask;
             }
         };
+
+        private StartTestingArgs mStartTestingArgs;
 
         // 開始ボタンを押すと以下の順に実行される。
         //                BwStartTesting_DoWork()
@@ -378,7 +384,22 @@ namespace WWImpulseResponse {
             textBoxLog.Text += "Preparing data.\n";
             textBoxLog.ScrollToEnd();
 
-            mBwStartTesting.RunWorkerAsync(new StartTestingArgs(MLS_ORDERS[comboBoxMLSOrder.SelectedIndex]));
+            int numCh = NUM_CH[comboBoxNumChannels.SelectedIndex];
+
+            int playDwChMask = WasapiCS.GetTypicalChannelMask(numCh);
+
+            int recDwChMask = 0;
+            if (checkBoxRecSetDwChannelMask.IsChecked == true) {
+                recDwChMask = WasapiCS.GetTypicalChannelMask(numCh);
+            }
+
+            int testCh = 0;
+            if (!Int32.TryParse(textBoxTestChannel.Text, out testCh) || testCh < 0 || numCh <= testCh) {
+                MessageBox.Show("Error: test channel number is out of range");
+                return;
+            }
+            mStartTestingArgs = new StartTestingArgs(MLS_ORDERS[comboBoxMLSOrder.SelectedIndex], numCh, testCh, playDwChMask, recDwChMask);
+            mBwStartTesting.RunWorkerAsync(mStartTestingArgs);
         }
 
         private LargeArray<byte> CreatePcmData(byte[] mls, WasapiCS.SampleFormatType sft, int numCh) {
@@ -414,16 +435,16 @@ namespace WWImpulseResponse {
 
             // mPcmTest : テストデータ。このPCMデータを再生し、インパルス応答特性を調べる。
             mPcmPlay = new PcmDataLib.PcmData();
-            mPcmPlay.SetFormat(NUM_CHANNELS,
+            mPcmPlay.SetFormat(args.numChannels,
                 WasapiCS.SampleFormatTypeToUseBitsPerSample(mPlaySampleFormat),
                 WasapiCS.SampleFormatTypeToValidBitsPerSample(mPlaySampleFormat),
                 mSampleRate,
                 PcmDataLib.PcmData.ValueRepresentationType.SInt, seq.Length);
-            mPcmPlay.SetSampleLargeArray(CreatePcmData(seq, mPlaySampleFormat, NUM_CHANNELS));
+            mPcmPlay.SetSampleLargeArray(CreatePcmData(seq, mPlaySampleFormat, args.numChannels));
 
             // 録音データ置き場。
             int recBytesPerSample = WasapiCS.SampleFormatTypeToUseBitsPerSample(mRecSampleFormat) / 8;
-            mCapturedPcmData = new LargeArray<byte>((long)recBytesPerSample * NUM_CHANNELS * seq.Length);
+            mCapturedPcmData = new LargeArray<byte>((long)recBytesPerSample * args.numChannels * seq.Length);
         }
 
         private void BwStartTesting_DoWork(object sender, DoWorkEventArgs e) {
@@ -433,6 +454,8 @@ namespace WWImpulseResponse {
             r.result = false;
             r.text = "StartTesting failed!\n";
             e.Result = r;
+
+
 
             PreparePcmData(args);
 
@@ -447,14 +470,14 @@ namespace WWImpulseResponse {
 
                 hr = mWasapiRec.Setup(mRecDeviceIdx,
                         WasapiCS.DeviceType.Rec, WasapiCS.StreamType.PCM,
-                        mSampleRate, mRecSampleFormat, NUM_CHANNELS, mRecDwChannelMask,
+                        mSampleRate, mRecSampleFormat, args.numChannels, args.recDwChannelMask,
                         WasapiCS.MMCSSCallType.Enable, WasapiCS.MMThreadPriorityType.None,
                         WasapiCS.SchedulerTaskType.ProAudio, WasapiCS.ShareMode.Exclusive,
                         mRecDataFeedMode, mRecBufferMillisec, ZERO_FLUSH_MILLISEC, TIME_PERIOD, true);
                 if (hr < 0) {
                     r.result = false;
                     r.text = string.Format(Properties.Resources.msgRecSetupError,
-                            mSampleRate, mRecSampleFormat, NUM_CHANNELS, mRecDataFeedMode,
+                            mSampleRate, mRecSampleFormat, args.numChannels, mRecDataFeedMode,
                             mRecBufferMillisec, mWasapiRec.GetErrorMessage(hr)) + "\n";
                     e.Result = r;
                     StopUnsetup();
@@ -463,10 +486,9 @@ namespace WWImpulseResponse {
 
                 // 再生
 
-                int playDwChannelMask = WasapiCS.GetTypicalChannelMask(NUM_CHANNELS);
                 hr = mWasapiPlay.Setup(mPlayDeviceIdx,
                         WasapiCS.DeviceType.Play, WasapiCS.StreamType.PCM,
-                        mSampleRate, mPlaySampleFormat, NUM_CHANNELS, playDwChannelMask,
+                        mSampleRate, mPlaySampleFormat, args.numChannels, args.playDwChannelMask,
                         WasapiCS.MMCSSCallType.Enable, WasapiCS.MMThreadPriorityType.None,
                         WasapiCS.SchedulerTaskType.ProAudio, WasapiCS.ShareMode.Exclusive,
                         mPlayDataFeedMode, mPlayBufferMillisec, ZERO_FLUSH_MILLISEC, TIME_PERIOD, true);
@@ -474,7 +496,7 @@ namespace WWImpulseResponse {
                     mWasapiPlay.Unsetup();
                     r.result = false;
                     r.text = string.Format(Properties.Resources.msgPlaySetupError,
-                            mSampleRate, mPlaySampleFormat, NUM_CHANNELS, mPlayDataFeedMode, mPlayBufferMillisec) + "\n";
+                            mSampleRate, mPlaySampleFormat, args.numChannels, mPlayDataFeedMode, mPlayBufferMillisec) + "\n";
                     e.Result = r;
                     return;
                 }
@@ -602,15 +624,15 @@ namespace WWImpulseResponse {
         private void ProcessCapturedData() {
             // 録音したデータをrecPcmDataに入れる。
             var recPcmData = new PcmDataLib.PcmData();
-            recPcmData.SetFormat(NUM_CHANNELS, WasapiCS.SampleFormatTypeToUseBitsPerSample(mRecSampleFormat),
+            recPcmData.SetFormat(mStartTestingArgs.numChannels, WasapiCS.SampleFormatTypeToUseBitsPerSample(mRecSampleFormat),
                 WasapiCS.SampleFormatTypeToValidBitsPerSample(mRecSampleFormat),
                 mSampleRate,
                 PcmDataLib.PcmData.ValueRepresentationType.SInt, mPcmPlay.NumFrames);
             recPcmData.SetSampleLargeArray(mCapturedPcmData);
 
             // double型に変換。
-            var a = mPcmPlay.GetDoubleArray(TEST_CHANNEL);
-            var b = recPcmData.GetDoubleArray(TEST_CHANNEL);
+            var a = mPcmPlay.GetDoubleArray(mStartTestingArgs.testChannel);
+            var b = recPcmData.GetDoubleArray(mStartTestingArgs.testChannel);
 
             var c = WWMath.CrossCorrelation.CalcCircularCrossCorrelation(
                 a.ToArray(), b.ToArray(), 1.0/a.LongLength);
@@ -713,7 +735,7 @@ namespace WWImpulseResponse {
                 mCapturedPcmData.CopyFrom(data, 0, mCapturedBytes, data.Length);
                 mCapturedBytes += data.Length;
 
-                long capturedFrames = mCapturedBytes / NUM_CHANNELS / (WasapiCS.SampleFormatTypeToUseBitsPerSample(mRecSampleFormat) / 8);
+                long capturedFrames = mCapturedBytes / mStartTestingArgs.numChannels / (WasapiCS.SampleFormatTypeToUseBitsPerSample(mRecSampleFormat) / 8);
 
                 //Console.WriteLine("Captured {0} frames", capturedFrames);
             } else {

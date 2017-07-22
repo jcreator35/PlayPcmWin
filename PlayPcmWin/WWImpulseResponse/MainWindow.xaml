@@ -8,11 +8,90 @@
             <ColumnDefinition Width="3*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="2*" />
+            <RowDefinition Height="3*" />
             <RowDefinition Height="3*" />
             <RowDefinition Height="4*" />
             <RowDefinition Height="2*" />
         </Grid.RowDefinitions>
+        <GroupBox Grid.ColumnSpan="2" Header="PCM data settings" Margin="4,0,4,0" Name="groupBoxPcmDataSettings" >
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*" />
+                    <ColumnDefinition Width="2*" />
+                </Grid.ColumnDefinitions>
+                <GroupBox Header="Sample format" >
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                        </Grid.RowDefinitions>
+                        <GroupBox Header="Sample rate" Grid.RowSpan="2" Margin="6" Name="groupBoxSampleRate" Grid.Column="0">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="1*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="1*" />
+                                    <RowDefinition Height="1*" />
+                                    <RowDefinition Height="1*" />
+                                </Grid.RowDefinitions>
+                                <RadioButton Content="44.1kHz" HorizontalAlignment="Left" IsChecked="True" Margin="6,0,0,0" Name="radioButton44100" VerticalAlignment="Center" />
+                                <RadioButton Content="48kHz" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButton48000" VerticalAlignment="Center" />
+                                <RadioButton Content="88.2kHz" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButton88200" VerticalAlignment="Center" />
+                                <RadioButton Content="96kHz" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButton96000" VerticalAlignment="Center" />
+                                <RadioButton Content="176.4kHz" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButton176400" VerticalAlignment="Center" />
+                                <RadioButton Content="192kHz" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButton192000" VerticalAlignment="Center" />
+                            </Grid>
+                        </GroupBox>
+                        <GroupBox Grid.Column="1" Header="Num of Channels" >
+                            <Grid>
+                                <ComboBox HorizontalAlignment="Center" Name="comboBoxNumChannels" VerticalAlignment="Center" >
+                                    <ComboBoxItem Content="2 ch" IsSelected="True"/>
+                                    <ComboBoxItem Content="6 ch" />
+                                    <ComboBoxItem Content="8 ch" />
+                                </ComboBox>
+                            </Grid>
+                        </GroupBox>
+                        <GroupBox Grid.Column="1" Grid.Row="1" Header="Test channel (starts from 0)" >
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="1*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox HorizontalAlignment="Right" HorizontalContentAlignment="Right" Name="textBoxTestChannel" VerticalAlignment="Center" Text="0" Width="60" />
+                                <Label Content="ch" Grid.Column="1" HorizontalAlignment="Left" Name="label2" VerticalAlignment="Center" />
+                            </Grid>
+                        </GroupBox>
+                    </Grid>
+                </GroupBox>
+                <GroupBox Header="Test method" Margin="6" Name="groupBoxTestMethod" Grid.Column="1" >
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*" />
+                            <ColumnDefinition Width="3*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                        </Grid.RowDefinitions>
+                        <RadioButton Content="Maximum Length Sequence" HorizontalAlignment="Left" Grid.ColumnSpan="2" IsChecked="True" Margin="6,0,0,0" Name="radioButtonPcmRandom" VerticalAlignment="Center" />
+                        <ComboBox HorizontalAlignment="Left" Margin="40,0,0,0" Name="comboBoxMLSOrder" VerticalAlignment="Center" Grid.ColumnSpan="2" Grid.Row="1">
+                            <ComboBoxItem Content="order=16 ( 65,535 samples / cycle )" IsSelected="True" />
+                            <ComboBoxItem Content="order=17 ( 131,072 samples / cycle )" />
+                            <ComboBoxItem Content="order=18 ( 262,143 samples / cycle )" />
+                            <ComboBoxItem Content="order=19 ( 524,287 samples / cycle )" />
+                            <ComboBoxItem Content="order=20 ( 1,048,575 samples / cycle )" />
+                        </ComboBox>
+                    </Grid>
+                </GroupBox>
+            </Grid>
+        </GroupBox>
         <GroupBox Header="Playback settings" Name="groupBoxPlayback" Grid.ColumnSpan="2" Margin="4,0,4,0" Grid.Row="1">
             <Grid>
                 <Grid.RowDefinitions>
@@ -125,53 +204,6 @@
         <GroupBox Grid.Row="3" Header="Log" Name="groupBoxLog" Grid.Column="1"  Margin="0,6,6,6">
             <Grid>
                 <TextBox Name="textBoxLog" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Visible" />
-            </Grid>
-        </GroupBox>
-        <GroupBox Grid.ColumnSpan="2" Header="PCM data settings" Margin="4,0,4,0" Name="groupBoxPcmDataSettings" >
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="3*" />
-                    <ColumnDefinition Width="5*" />
-                </Grid.ColumnDefinitions>
-                <GroupBox Header="Sample rate" Margin="6" Name="groupBoxSampleRate" Grid.Column="0">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1*" />
-                            <ColumnDefinition Width="1*" />
-                            <ColumnDefinition Width="1*" />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="1*" />
-                            <RowDefinition Height="1*" />
-                        </Grid.RowDefinitions>
-                        <RadioButton Content="44.1kHz" HorizontalAlignment="Left" IsChecked="True" Margin="6,0,0,0" Name="radioButton44100" VerticalAlignment="Center" />
-                        <RadioButton Content="48kHz" Grid.Row="1" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButton48000" VerticalAlignment="Center" />
-                        <RadioButton Content="88.2kHz" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButton88200" VerticalAlignment="Center" />
-                        <RadioButton Content="96kHz" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButton96000" VerticalAlignment="Center" />
-                        <RadioButton Content="176.4kHz" Grid.Column="2" Grid.Row="0" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButton176400" VerticalAlignment="Center" />
-                        <RadioButton Content="192kHz" Grid.Column="2" Grid.Row="1" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButton192000" VerticalAlignment="Center" />
-                    </Grid>
-                </GroupBox>
-                <GroupBox Header="Test method" Margin="6" Name="groupBoxTestMethod" Grid.Column="1" >
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="2*" />
-                            <ColumnDefinition Width="3*" />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="1*" />
-                            <RowDefinition Height="1*" />
-                        </Grid.RowDefinitions>
-                        <RadioButton Content="Maximum Length Sequence" HorizontalAlignment="Left" IsChecked="True" Margin="6,0,0,0" Name="radioButtonPcmRandom" VerticalAlignment="Center" />
-                        <ComboBox Grid.Column="1" HorizontalAlignment="Left" Margin="0" Name="comboBoxMLSOrder" VerticalAlignment="Center">
-                            <ComboBoxItem Content="order=16 ( 65,535 samples / cycle )" IsSelected="True" />
-                            <ComboBoxItem Content="order=17 ( 131,072 samples / cycle )" />
-                            <ComboBoxItem Content="order=18 ( 262,143 samples / cycle )" />
-                            <ComboBoxItem Content="order=19 ( 524,287 samples / cycle )" />
-                            <ComboBoxItem Content="order=20 ( 1,048,575 samples / cycle )" />
-                        </ComboBox>
-                    </Grid>
-                </GroupBox>
             </Grid>
         </GroupBox>
         <ProgressBar Grid.Row="3" Height="22" Margin="6,0,6,6" Name="progressBar1" VerticalAlignment="Bottom" />
