@@ -411,18 +411,20 @@ namespace WWImpulseResponse {
             long writePos = 0;
             for (long i = 0; i < mls.Length; ++i) {
                 for (int ch=0; ch<numCh; ++ch) {
+                    int v = 0x7fffffff;
+                    
+                    // -6dBする。
+                    v /= 2;
+
                     if (mls[i] == 0) {
-                        // 最小値 0x8000 0x800000 or 0x80000000
-                        for (int c = 0; c < sampleBytes - 1; ++c) {
-                            r.Set(writePos++, 0);
-                        }
-                        r.Set(writePos++, 0x80);
-                    } else {
-                        // 最大値 0x7fff 0x7fffff or 0x7fffffff
-                        for (int c = 0; c < sampleBytes - 1; ++c) {
-                            r.Set(writePos++, 0xff);
-                        }
-                        r.Set(writePos++, 0x7f);
+                        v = -v;
+                    }
+
+                    uint uV = (uint)v;
+
+                    for (int c = 0; c<sampleBytes; ++c) {
+                        byte b = (byte)(uV >> (8*(4 - sampleBytes + c)));
+                        r.Set(writePos++, b);
                     }
                 }
             }
@@ -454,8 +456,6 @@ namespace WWImpulseResponse {
             r.result = false;
             r.text = "StartTesting failed!\n";
             e.Result = r;
-
-
 
             PreparePcmData(args);
 
@@ -635,7 +635,7 @@ namespace WWImpulseResponse {
             var b = recPcmData.GetDoubleArray(mStartTestingArgs.testChannel);
 
             var c = WWMath.CrossCorrelation.CalcCircularCrossCorrelation(
-                a.ToArray(), b.ToArray(), 1.0/a.LongLength);
+                a.ToArray(), b.ToArray());
 
             using (var sw = new StreamWriter(File.Open("outputA.csv", FileMode.Create))) {
                 for (int i = 0; i < a.LongLength; ++i) {

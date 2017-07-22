@@ -8,49 +8,30 @@ namespace WWMath {
     public class CrossCorrelation {
 
         /// <summary>
-        /// Cross-correlation.
-        /// when a==b, result is autocorrelation.
-        /// 
-        /// https://en.wikipedia.org/wiki/Cross-correlation
-        /// </summary>
-        /// <param name="a"></param>
-        /// <param name="b"></param>
-        /// <returns></returns>
-        public static double[] CalcCrossCorrelation(double[] a, double[] b) {
-            var c = new double[b.Length];
-
-            for (int n = 0; n < b.Length; ++n) {
-                c[n] = 0;
-                for (int m = 0; m < a.Length; ++m) {
-                    if (b.Length <= m + n) {
-                        break;
-                    }
-                    c[n] += a[m] * b[m + n];
-                }
-            }
-
-            return c;
-        }
-
-        /// <summary>
         /// Circular Cross-Correlation.
         /// when a==b, result is circular autocorrelation.
         /// </summary>
-        public static double[] CalcCircularCrossCorrelation(double[] a, double[] b, double scale) {
-            var c = new double[b.Length];
+        public static double[] CalcCircularCrossCorrelation(double[] a, double[] b) {
+            if (a.Length != b.Length) {
+                throw new NotImplementedException("size of array is different");
+            }
+
+            int count = a.Length;
+
+            var c = new double[count];
 
 #if true
-            Parallel.For(0, b.Length, n => {
+            Parallel.For(0, count, n => {
 #else
-            for (int n = 0; n < b.Length; ++n) {
+            for (int n = 0; n < count; ++n) {
 #endif
-                c[n] = 0;
-                for (int m = 0; m < a.Length; ++m) {
-                    int bPos = (m + n) % b.Length;
-                    c[n] += a[m] * b[bPos];
+                double sum = 0;
+                for (int k = 0; k < count; ++k) {
+                    int aPos = (k + n) % count;
+                    sum += b[k] * a[aPos];
                 }
 
-                c[n] *= scale;
+                c[n] = sum / (count + 1);
             });
 
 
