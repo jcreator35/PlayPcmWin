@@ -38,6 +38,8 @@ namespace WWImpulseResponse {
         private Wasapi.WasapiCS.CaptureCallback mCaptureDataArrivedDelegate;
 
         private static int NUM_CHANNELS = 2;
+        private int TEST_CHANNEL = 0;
+
         private int mSampleRate;
         private WasapiCS.SampleFormatType mPlaySampleFormat;
         private WasapiCS.SampleFormatType mRecSampleFormat;
@@ -51,8 +53,6 @@ namespace WWImpulseResponse {
         private int ZERO_FLUSH_MILLISEC = 1000;
         private int TIME_PERIOD = 10000;
 
-        private int MLS_ORDER = 16;
-        private int TEST_CH = 0;
 
         private State mState = State.Init;
 
@@ -83,6 +83,14 @@ namespace WWImpulseResponse {
 
         private void LocalizeUI() {
         }
+
+        private readonly int [] MLS_ORDERS = new int[] {
+            16,
+            17,
+            18,
+            19,
+            20
+        };
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
             LocalizeUI();
@@ -333,6 +341,14 @@ namespace WWImpulseResponse {
 
         //=========================================================================================================
 
+        class StartTestingArgs {
+            public int order;
+
+            public StartTestingArgs(int aOrder) {
+                order = aOrder;
+            }
+        };
+
         // 開始ボタンを押すと以下の順に実行される。
         //                BwStartTesting_DoWork()
         //                └PreparePcmData()
@@ -362,7 +378,7 @@ namespace WWImpulseResponse {
             textBoxLog.Text += "Preparing data.\n";
             textBoxLog.ScrollToEnd();
 
-            mBwStartTesting.RunWorkerAsync();
+            mBwStartTesting.RunWorkerAsync(new StartTestingArgs(MLS_ORDERS[comboBoxMLSOrder.SelectedIndex]));
         }
 
         private LargeArray<byte> CreatePcmData(byte[] mls, WasapiCS.SampleFormatType sft, int numCh) {
@@ -392,8 +408,8 @@ namespace WWImpulseResponse {
             return r;
         }
 
-        private void PreparePcmData() {
-            var mls = new WWMath.MaximumLengthSequence(MLS_ORDER);
+        private void PreparePcmData(StartTestingArgs args) {
+            var mls = new WWMath.MaximumLengthSequence(args.order);
             var seq = mls.Sequence();
 
             // mPcmTest : テストデータ。このPCMデータを再生し、インパルス応答特性を調べる。
@@ -412,12 +428,13 @@ namespace WWImpulseResponse {
 
         private void BwStartTesting_DoWork(object sender, DoWorkEventArgs e) {
             //Console.WriteLine("BwStartTesting_DoWork()");
+            var args = e.Argument as StartTestingArgs;
             var r = new StartTestingResult();
             r.result = false;
             r.text = "StartTesting failed!\n";
             e.Result = r;
 
-            PreparePcmData();
+            PreparePcmData(args);
 
             System.GC.Collect();
 
@@ -592,13 +609,23 @@ namespace WWImpulseResponse {
             recPcmData.SetSampleLargeArray(mCapturedPcmData);
 
             // double型に変換。
-            var a = mPcmPlay.GetDoubleArray(TEST_CH);
-            var b = recPcmData.GetDoubleArray(TEST_CH);
+            var a = mPcmPlay.GetDoubleArray(TEST_CHANNEL);
+            var b = recPcmData.GetDoubleArray(TEST_CHANNEL);
 
             var c = WWMath.CrossCorrelation.CalcCircularCrossCorrelation(
-                a.ToArray(), b.ToArray());
+                a.ToArray(), b.ToArray(), 1.0/a.LongLength);
 
-            using (var sw = new StreamWriter(File.Open("output.csv", FileMode.Create))) {
+            using (var sw = new StreamWriter(File.Open("outputA.csv", FileMode.Create))) {
+                for (int i = 0; i < a.LongLength; ++i) {
+                    sw.WriteLine("{0}", a.At(i));
+                }
+            }
+            using (var sw = new StreamWriter(File.Open("outputB.csv", FileMode.Create))) {
+                for (int i = 0; i < b.LongLength; ++i) {
+                    sw.WriteLine("{0}", b.At(i));
+                }
+            }
+            using (var sw = new StreamWriter(File.Open("outputC.csv", FileMode.Create))) {
                 for (int i = 0; i < c.Length; ++i) {
                     sw.WriteLine("{0}", c[i]);
                 }

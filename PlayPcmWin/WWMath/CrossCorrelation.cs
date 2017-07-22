@@ -36,7 +36,7 @@ namespace WWMath {
         /// Circular Cross-Correlation.
         /// when a==b, result is circular autocorrelation.
         /// </summary>
-        public static double[] CalcCircularCrossCorrelation(double[] a, double[] b) {
+        public static double[] CalcCircularCrossCorrelation(double[] a, double[] b, double scale) {
             var c = new double[b.Length];
 
 #if true
@@ -49,7 +49,11 @@ namespace WWMath {
                     int bPos = (m + n) % b.Length;
                     c[n] += a[m] * b[bPos];
                 }
+
+                c[n] *= scale;
             });
+
+
 
             return c;
         }

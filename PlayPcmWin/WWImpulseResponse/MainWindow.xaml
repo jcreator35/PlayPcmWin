@@ -130,8 +130,8 @@
         <GroupBox Grid.ColumnSpan="2" Header="PCM data settings" Margin="4,0,4,0" Name="groupBoxPcmDataSettings" >
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="2*" />
                     <ColumnDefinition Width="3*" />
+                    <ColumnDefinition Width="5*" />
                 </Grid.ColumnDefinitions>
                 <GroupBox Header="Sample rate" Margin="6" Name="groupBoxSampleRate" Grid.Column="0">
                     <Grid>
@@ -155,8 +155,8 @@
                 <GroupBox Header="Test method" Margin="6" Name="groupBoxTestMethod" Grid.Column="1" >
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1*" />
-                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="2*" />
+                            <ColumnDefinition Width="3*" />
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="1*" />
@@ -164,7 +164,11 @@
                         </Grid.RowDefinitions>
                         <RadioButton Content="Maximum Length Sequence" HorizontalAlignment="Left" IsChecked="True" Margin="6,0,0,0" Name="radioButtonPcmRandom" VerticalAlignment="Center" />
                         <ComboBox Grid.Column="1" HorizontalAlignment="Left" Margin="0" Name="comboBoxMLSOrder" VerticalAlignment="Center">
-                            <ComboBoxItem Content="order=16, 65535 samples" IsSelected="True" />
+                            <ComboBoxItem Content="order=16 ( 65,535 samples / cycle )" IsSelected="True" />
+                            <ComboBoxItem Content="order=17 ( 131,072 samples / cycle )" />
+                            <ComboBoxItem Content="order=18 ( 262,143 samples / cycle )" />
+                            <ComboBoxItem Content="order=19 ( 524,287 samples / cycle )" />
+                            <ComboBoxItem Content="order=20 ( 1,048,575 samples / cycle )" />
                         </ComboBox>
                     </Grid>
                 </GroupBox>
