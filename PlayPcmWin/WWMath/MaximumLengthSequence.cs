@@ -16,6 +16,9 @@ namespace WWMath {
         public MaximumLengthSequence(int order) {
             mOrder = order;
             switch (order) {
+            case 3:
+                mSequence = Create3();
+                break;
             case 4:
                 mSequence = Create4();
                 break;
@@ -47,6 +50,33 @@ namespace WWMath {
 
         public byte[] Sequence() {
             return mSequence;
+        }
+
+        /// <summary>
+        /// order=3
+        /// trinomial。
+        /// x^3 + x^2 + 1
+        /// </summary>
+        private byte[] Create3() {
+            int order = 3;
+            var b = new byte[(int)Math.Pow(2, order) - 1];
+
+            uint start_state = 0x7;
+            uint lfsr = start_state;
+            uint bit;
+            uint period = 0;
+
+            do {
+                // order==3, nPoly=2, 3,2
+                bit = ((lfsr >> 0) ^ (lfsr >> 2)) & 1;
+                lfsr = (lfsr >> 1) | (bit << 2);
+
+                b[period] = (byte)(lfsr & 1);
+
+                ++period;
+            } while (lfsr != start_state);
+
+            return b;
         }
 
         /// <summary>

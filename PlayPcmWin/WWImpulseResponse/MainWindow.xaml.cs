@@ -127,6 +127,62 @@ namespace WWImpulseResponse {
 
             mStateChanged = new Wasapi.WasapiCS.StateChangedCallback(StateChangedCallback);
             mWasapiPlay.RegisterStateChangedCallback(mStateChanged);
+
+            {
+                var mls = new WWMath.MaximumLengthSequence(3);
+                var b = mls.Sequence();
+                for (int i = 0; i < b.Length; ++i) {
+                    Console.Write("{0} ", b[i]);
+                }
+                Console.WriteLine("");
+            }
+
+            /*
+            {
+                var m = new WWMath.WWMatrix(3, 3);
+                // Set()の見た目と中に入っている様子が転置していることに注意。
+                m.Set(new double[] {
+                    0,1,2,
+                    3,4,5,
+                    6,7,8
+                });
+
+                var n = new WWMath.WWMatrix(3, 1);
+                n.Set(new double[] {
+                    0,
+                    1,
+                    2});
+
+                var mn = WWMath.WWMatrix.Mul(m, n);
+                m.Print("m");
+                n.Print("n");
+                mn.Print("mn");
+            }
+            */
+            {
+                var v8 = new WWMath.Matrix<int>(8, 3);
+                v8.Set(new int[] {
+                    0,0,0,0,1,1,1,1,
+                    0,0,1,1,0,0,1,1,
+                    0,1,0,1,0,1,0,1
+                });
+
+                var h8 = new WWMath.Matrix<int>(3, 8);
+                h8.Set(new int[] {
+                    0,0,0,
+                    0,0,1,
+                    0,1,0,
+                    0,1,1,
+                    1,0,0,
+                    1,0,1,
+                    1,1,0,
+                    1,1,1
+                });
+
+                var m = WWMath.Matrix<int>.Mul(v8, h8);
+                m.Update((r,c,v) => { return v & 1; });
+                m.PrintInt("H");
+            }
         }
 
         public void StateChangedCallback(StringBuilder idStr) {
