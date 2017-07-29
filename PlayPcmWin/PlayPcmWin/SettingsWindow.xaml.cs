@@ -617,5 +617,14 @@ namespace PlayPcmWin {
                 comboBoxRenderThreadPriority.IsEnabled = true;
             }
         }
+
+        private void checkBoxParallelRead_Checked(object sender, RoutedEventArgs e) {
+            checkBoxVerifyFlacMD5Sum.IsEnabled = false;
+            checkBoxVerifyFlacMD5Sum.IsChecked = false;
+        }
+
+        private void checkBoxParallelRead_Unchecked(object sender, RoutedEventArgs e) {
+            checkBoxVerifyFlacMD5Sum.IsEnabled = true;
+        }
     }
 }
