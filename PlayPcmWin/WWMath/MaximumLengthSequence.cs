@@ -28,6 +28,12 @@ namespace WWMath {
             case 6:
                 mSequence = Create6();
                 break;
+            case 7:
+                mSequence = Create7();
+                break;
+            case 8:
+                mSequence = Create8();
+                break;
             case 16:
                 mSequence = Create16();
                 break;
@@ -54,14 +60,12 @@ namespace WWMath {
 
         /// <summary>
         /// order=3
-        /// trinomial。
-        /// x^3 + x^2 + 1
         /// </summary>
         private byte[] Create3() {
             int order = 3;
             var b = new byte[(int)Math.Pow(2, order) - 1];
 
-            uint start_state = 0x7;
+            uint start_state = 1;
             uint lfsr = start_state;
             uint bit;
             uint period = 0;
@@ -151,6 +155,60 @@ namespace WWMath {
                 // order==6, nPoly=2, 6,1
                 bit = ((lfsr >> 0) ^ (lfsr >> 1)) & 1;
                 lfsr = (lfsr >> 1) | (bit << 5);
+
+                b[period] = (byte)(lfsr & 1);
+
+                ++period;
+            } while (lfsr != start_state);
+
+            return b;
+        }
+        
+        /// <summary>
+        /// order=7
+        /// trinomial。
+        /// x^7 + x^6 + 1
+        /// </summary>
+        private byte[] Create7() {
+            int order = 7;
+            var b = new byte[(int)Math.Pow(2, order) - 1];
+
+            uint start_state = 1;
+            uint lfsr = start_state;
+            uint bit;
+            uint period = 0;
+
+            do {
+                // order==7, nPoly=2, 7,6
+                bit = ((lfsr >> 0) ^ (lfsr >> 6)) & 1;
+                lfsr = (lfsr >> 1) | (bit << 6);
+
+                b[period] = (byte)(lfsr & 1);
+
+                ++period;
+            } while (lfsr != start_state);
+
+            return b;
+        }
+
+        /// <summary>
+        /// order=8
+        /// trinomialではなく比較的計算量が多い。
+        /// x^8 + x^4 + x^3 + x^2 + 1
+        /// </summary>
+        private byte[] Create8() {
+            int order = 8;
+            var b = new byte[(int)Math.Pow(2, order) - 1];
+
+            uint start_state = 1;
+            uint lfsr = start_state;
+            uint bit;
+            uint period = 0;
+
+            do {
+                // order==8, nPoly=4, 8,4,3,2
+                bit = ((lfsr >> 4) ^ (lfsr >> 3) ^ (lfsr >> 2) ^ (lfsr >> 0)) & 1;
+                lfsr = (lfsr >> 1) | (bit << 7);
 
                 b[period] = (byte)(lfsr & 1);
 

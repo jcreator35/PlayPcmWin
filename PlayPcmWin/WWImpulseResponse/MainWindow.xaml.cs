@@ -128,47 +128,66 @@ namespace WWImpulseResponse {
             mStateChanged = new Wasapi.WasapiCS.StateChangedCallback(StateChangedCallback);
             mWasapiPlay.RegisterStateChangedCallback(mStateChanged);
 
+            int N = 3;
+            int P = 7; // (2^N)-1
+
+            byte[] mlsSeq;
             {
-                var mls = new WWMath.MaximumLengthSequence(3);
-                var b = mls.Sequence();
-                for (int i = 0; i < b.Length; ++i) {
-                    Console.Write("{0} ", b[i]);
+                var mls = new WWMath.MaximumLengthSequence(N);
+                mlsSeq = mls.Sequence();
+                for (int i = 0; i < mlsSeq.Length; ++i) {
+                    Console.Write("{0} ", mlsSeq[i]);
                 }
                 Console.WriteLine("");
             }
 
-            /*
             {
-                var m = new WWMath.WWMatrix(3, 3);
-                // Set()の見た目と中に入っている様子が転置していることに注意。
-                m.Set(new double[] {
-                    0,1,2,
-                    3,4,5,
-                    6,7,8
-                });
-
-                var n = new WWMath.WWMatrix(3, 1);
-                n.Set(new double[] {
-                    0,
-                    1,
-                    2});
-
-                var mn = WWMath.WWMatrix.Mul(m, n);
-                m.Print("m");
-                n.Print("n");
-                mn.Print("mn");
+                var mlsD = new double[mlsSeq.Length];
+                for (int i = 0; i < mlsD.Length; ++i) {
+                    mlsD[i] = mlsSeq[i] * 2.0 - 1.0;
+                }
+                var ccc = WWMath.CrossCorrelation.CalcCircularCrossCorrelation(mlsD, mlsD);
+                for (int i = 0; i < ccc.Length; ++i) {
+                    Console.Write("{0:g2} ", ccc[i]);
+                }
+                Console.WriteLine("");
             }
-            */
+
+            var mlsMat = new WWMath.Matrix(P, P);
             {
-                var v8 = new WWMath.Matrix<int>(8, 3);
-                v8.Set(new int[] {
+                for (int y = 0; y < P; ++y) {
+                    for (int x = 0; x < P; ++x) {
+                        mlsMat.Set(y, x, mlsSeq[(x + y) % P]);
+                    }
+                }
+            }
+            mlsMat.Print("MLS matrix");
+
+            {
+                var x = new WWMath.Matrix(P, 1);
+                for (int i = 0; i < P; ++i) {
+                    x.Set(i, 0, mlsSeq[i]);
+                }
+                var y = WWMath.Matrix.Mul(mlsMat, x);
+
+                // 1/(P+1)倍する。
+                y.Update((r, c, v) => { return v * 1.0 / (P + 1); });
+
+                y.Print("circular cross-correlation");
+            }
+
+
+
+            {
+                var v8 = new WWMath.Matrix(8, 3);
+                v8.Set(new double[] {
                     0,0,0,0,1,1,1,1,
                     0,0,1,1,0,0,1,1,
                     0,1,0,1,0,1,0,1
                 });
 
-                var h8 = new WWMath.Matrix<int>(3, 8);
-                h8.Set(new int[] {
+                var h8 = new WWMath.Matrix(3, 8);
+                h8.Set(new double[] {
                     0,0,0,
                     0,0,1,
                     0,1,0,
@@ -179,9 +198,9 @@ namespace WWImpulseResponse {
                     1,1,1
                 });
 
-                var m = WWMath.Matrix<int>.Mul(v8, h8);
-                m.Update((r,c,v) => { return v & 1; });
-                m.PrintInt("H");
+                var m = WWMath.Matrix.Mul(v8, h8);
+                m.Update((r, c, v) => { return (int)v & 1; });
+                m.Print("H");
             }
         }
 
