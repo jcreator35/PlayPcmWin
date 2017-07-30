@@ -80,7 +80,7 @@
                         <Label Content="0:00:00/0:00:00" Margin="148,0,6,0" Name="mLabelPlayingTime" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" FontWeight="Bold" FontSize="16" FontFamily="Courier New" Height="29" VerticalAlignment="Bottom" />
                     </Grid>
                 </GroupBox>
-                <Slider Margin="6,0,514,0" Name="mSlider1" MouseMove="OnSlider1_MouseMove" Height="23" VerticalAlignment="Bottom" IsMoveToPointEnabled="True" MouseLeftButtonDown="OnSlider1_MouseLeftButtonDown" MouseLeftButtonUp="OnSlider1_MouseLeftButtonUp" />
+                <Slider Margin="6,0,0,0" Name="mSlider1" MouseMove="OnSlider1_MouseMove" Height="23" VerticalAlignment="Bottom" IsMoveToPointEnabled="True" MouseLeftButtonDown="OnSlider1_MouseLeftButtonDown" MouseLeftButtonUp="OnSlider1_MouseLeftButtonUp" HorizontalAlignment="Left" Width="367" />
                 <GroupBox Header="Playback Device" Height="103" HorizontalAlignment="Left" Margin="379,0,0,0" Name="mGroupBoxPlaybackDevice" VerticalAlignment="Top" Width="226">
                     <Grid>
                         <ListBox Name="mListBoxPlaybackDevice" />
