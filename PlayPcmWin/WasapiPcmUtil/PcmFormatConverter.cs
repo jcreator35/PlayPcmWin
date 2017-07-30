@@ -30,8 +30,8 @@ namespace WasapiPcmUtil {
                 || (sampleFormat == WasapiCS.SampleFormatType.Sint24
                     || sampleFormat != WasapiCS.SampleFormatType.Sint32V24));
 
-            int fromBytesPerFrame = fromChannels * WasapiCS.SampleFormatTypeToUseBitsPerSample(sampleFormat);
-            int toBytesPerFrame = toChannels * WasapiCS.SampleFormatTypeToUseBitsPerSample(sampleFormat);
+            int fromBytesPerFrame = fromChannels * WasapiCS.SampleFormatTypeToUseBitsPerSample(sampleFormat) / 8;
+            int toBytesPerFrame = toChannels * WasapiCS.SampleFormatTypeToUseBitsPerSample(sampleFormat) / 8;
             int numFrames = fromBytes.Length / fromBytesPerFrame;
 
             var toBytes = new byte[numFrames * toBytesPerFrame];
@@ -45,26 +45,60 @@ namespace WasapiPcmUtil {
 
             switch (streamType) {
             case WasapiCS.StreamType.DoP:
-                for (int i = 0; i < numFrames; ++i) {
-                    Array.Copy(fromBytes, fromPos, toBytes, toPos, copyBytes);
-                    fromPos += fromBytesPerFrame;
-                    toPos += copyBytes;
+                if (fromChannels == 1 && 1 < toChannels) {
+                    for (int i = 0; i < numFrames; ++i) {
+                        // モノラル→ステレオ2ch
+                        for (int ch = 0; ch < 2; ++ch) {
+                            Array.Copy(fromBytes, fromPos, toBytes, toPos, copyBytes);
+                            toPos += copyBytes;
+                        }
 
-                    if (fromChannels < toChannels) {
-                        // コピー先のほうがチャンネル数が多いとき、DoP無音を追加する。
-                        int offs = sampleFormat == WasapiCS.SampleFormatType.Sint24 ? 0: 1;
-                        for (int ch=0; ch < (toChannels - fromChannels); ++ch) {
-                            Array.Copy(mDopSilence[i&1], 0, toBytes, toPos + offs, 3);
+                        // 残りのチャンネルはDoP無音を追加する。
+                        int offs = sampleFormat == WasapiCS.SampleFormatType.Sint24 ? 0 : 1;
+                        for (int ch = 2; ch < toChannels; ++ch) {
+                            Array.Copy(mDopSilence[i & 1], 0, toBytes, toPos + offs, 3);
                             toPos += toBytesPerFrame;
+                        }
+
+                        fromPos += fromBytesPerFrame;
+                    }
+                } else {
+                    for (int i = 0; i < numFrames; ++i) {
+                        Array.Copy(fromBytes, fromPos, toBytes, toPos, copyBytes);
+                        fromPos += fromBytesPerFrame;
+                        toPos += copyBytes;
+
+                        if (fromChannels < toChannels) {
+                            // コピー先のほうがチャンネル数が多いとき、DoP無音を追加する。
+                            int offs = sampleFormat == WasapiCS.SampleFormatType.Sint24 ? 0 : 1;
+                            for (int ch = 0; ch < (toChannels - fromChannels); ++ch) {
+                                Array.Copy(mDopSilence[i & 1], 0, toBytes, toPos + offs, 3);
+                                toPos += toBytesPerFrame;
+                            }
                         }
                     }
                 }
                 break;
             case WasapiCS.StreamType.PCM:
-                for (int i = 0; i < numFrames; ++i) {
-                    Array.Copy(fromBytes, fromPos, toBytes, toPos, copyBytes);
-                    fromPos += fromBytesPerFrame;
-                    toPos += toBytesPerFrame;
+                if (fromChannels == 1 && 1 < toChannels) {
+                    for (int i = 0; i < numFrames; ++i) {
+                        // モノラル→ステレオ2ch
+                        for (int ch = 0; ch < 2; ++ch) {
+                            Array.Copy(fromBytes, fromPos, toBytes, toPos, copyBytes);
+                            toPos += copyBytes;
+                        }
+                        
+                        // 残りのチャンネルはPCM無音。
+                        toPos += copyBytes * (toChannels - 2);
+
+                        fromPos += fromBytesPerFrame;
+                    }
+                } else {
+                    for (int i = 0; i < numFrames; ++i) {
+                        Array.Copy(fromBytes, fromPos, toBytes, toPos, copyBytes);
+                        fromPos += fromBytesPerFrame;
+                        toPos += toBytesPerFrame;
+                    }
                 }
                 break;
             }
