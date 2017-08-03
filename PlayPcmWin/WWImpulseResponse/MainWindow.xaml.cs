@@ -8,6 +8,8 @@ using System.Threading;
 using System.IO;
 using WWUtil;
 using System.Diagnostics;
+using WWMath;
+using System.Collections.Generic;
 
 namespace WWImpulseResponse {
     /// <summary>
@@ -128,80 +130,6 @@ namespace WWImpulseResponse {
             mStateChanged = new Wasapi.WasapiCS.StateChangedCallback(StateChangedCallback);
             mWasapiPlay.RegisterStateChangedCallback(mStateChanged);
 
-            int N = 3;
-            int P = 7; // (2^N)-1
-
-            byte[] mlsSeq;
-            {
-                var mls = new WWMath.MaximumLengthSequence(N);
-                mlsSeq = mls.Sequence();
-                for (int i = 0; i < mlsSeq.Length; ++i) {
-                    Console.Write("{0} ", mlsSeq[i]);
-                }
-                Console.WriteLine("");
-            }
-
-            {
-                var mlsD = new double[mlsSeq.Length];
-                for (int i = 0; i < mlsD.Length; ++i) {
-                    mlsD[i] = mlsSeq[i] * 2.0 - 1.0;
-                }
-                var ccc = WWMath.CrossCorrelation.CalcCircularCrossCorrelation(mlsD, mlsD);
-                for (int i = 0; i < ccc.Length; ++i) {
-                    Console.Write("{0:g2} ", ccc[i]);
-                }
-                Console.WriteLine("");
-            }
-
-            var mlsMat = new WWMath.Matrix(P, P);
-            {
-                for (int y = 0; y < P; ++y) {
-                    for (int x = 0; x < P; ++x) {
-                        mlsMat.Set(y, x, mlsSeq[(x + y) % P]);
-                    }
-                }
-            }
-            mlsMat.Print("MLS matrix");
-
-            {
-                var x = new WWMath.Matrix(P, 1);
-                for (int i = 0; i < P; ++i) {
-                    x.Set(i, 0, mlsSeq[i]);
-                }
-                var y = WWMath.Matrix.Mul(mlsMat, x);
-
-                // 1/(P+1)倍する。
-                y.Update((r, c, v) => { return v * 1.0 / (P + 1); });
-
-                y.Print("circular cross-correlation");
-            }
-
-
-
-            {
-                var v8 = new WWMath.Matrix(8, 3);
-                v8.Set(new double[] {
-                    0,0,0,0,1,1,1,1,
-                    0,0,1,1,0,0,1,1,
-                    0,1,0,1,0,1,0,1
-                });
-
-                var h8 = new WWMath.Matrix(3, 8);
-                h8.Set(new double[] {
-                    0,0,0,
-                    0,0,1,
-                    0,1,0,
-                    0,1,1,
-                    1,0,0,
-                    1,0,1,
-                    1,1,0,
-                    1,1,1
-                });
-
-                var m = WWMath.Matrix.Mul(v8, h8);
-                m.Update((r, c, v) => { return (int)v & 1; });
-                m.Print("H");
-            }
         }
 
         public void StateChangedCallback(StringBuilder idStr) {
@@ -507,7 +435,7 @@ namespace WWImpulseResponse {
         }
 
         private void PreparePcmData(StartTestingArgs args) {
-            var mls = new WWMath.MaximumLengthSequence(args.order);
+            var mls = new MaximumLengthSequence(args.order);
             var seq = mls.Sequence();
 
             // mPcmTest : テストデータ。このPCMデータを再生し、インパルス応答特性を調べる。
@@ -709,7 +637,7 @@ namespace WWImpulseResponse {
             var a = mPcmPlay.GetDoubleArray(mStartTestingArgs.testChannel);
             var b = recPcmData.GetDoubleArray(mStartTestingArgs.testChannel);
 
-            var c = WWMath.CrossCorrelation.CalcCircularCrossCorrelation(
+            var c = CrossCorrelation.CalcCircularCrossCorrelation(
                 a.ToArray(), b.ToArray());
 
             using (var sw = new StreamWriter(File.Open("outputA.csv", FileMode.Create))) {

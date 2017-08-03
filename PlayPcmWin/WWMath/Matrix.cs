@@ -7,9 +7,9 @@ using WWUtil;
 namespace WWMath {
     public class Matrix {
         /// <summary>
-        /// ■■行列の要素はcolumn majorで並んでいる。■■
+        /// ■■行列の要素はrow majorで並んでいる。■■
         /// すなわち、1次元配列にシリアライズするとき、
-        /// 0column目の全要素を詰め、1column目の全要素を詰め…という要領で詰める。
+        /// 0row目の全要素を詰め、1row目の全要素を詰め…という要領で詰める。
         /// <para/>numRow=3, numColumn=3の例。
         /// <para/>
         /// <para/>　　　　　　 column番号
@@ -19,20 +19,20 @@ namespace WWMath {
         /// <para/>row番号2→ └a20 a21 a22┘
         /// <para/>
         /// <para/> ↓
-        /// <para/> m[] = { a00, a10, a20, a01, a11, a21, a01, a12, a22 }
+        /// <para/> m[] = { a00, a01, a02, a10, a11, a12, a20, a21, a22 }
         /// </summary>
         /// <param name="row">行の数</param>
         /// <param name="column">列の数</param>
         public Matrix(int numRow, int numColumn) {
             mRow = numRow;
-            mColumn = numColumn;
-            m = new LargeArray<double>(mRow * mColumn);
+            mCol = numColumn;
+            m = new LargeArray<double>(mRow * mCol);
         }
 
         /// <summary>
-        /// ■■行列の要素はcolumn majorで並んでいる。■■
+        /// ■■行列の要素はrow majorで並んでいる。■■
         /// すなわち、1次元配列にシリアライズするとき、
-        /// 0column目の全要素を詰め、1column目の全要素を詰め…という要領で詰める。
+        /// 0row目の全要素を詰め、1row目の全要素を詰め…という要領で詰める。
         /// <para/>numRow=3, numColumn=3の例。
         /// <para/>
         /// <para/>　　　　　　 column番号
@@ -42,15 +42,15 @@ namespace WWMath {
         /// <para/>row番号2→ └a20 a21 a22┘
         /// <para/>
         /// <para/> ↓
-        /// <para/> m[] = { a00, a10, a20, a01, a11, a21, a01, a12, a22 }
+        /// <para/> m[] = { a00, a01, a02, a10, a11, a12, a20, a21, a22 }
         /// </summary>
         /// <param name="row">行の数</param>
         /// <param name="column">列の数</param>
         public Matrix(int numRow, int numColumn, double[] v) {
             mRow = numRow;
-            mColumn = numColumn;
+            mCol = numColumn;
 
-            if (mRow * mColumn != v.Length) {
+            if (mRow * mCol != v.Length) {
                 throw new ArgumentException("v.length and row * column mismatch");
             }
 
@@ -61,21 +61,21 @@ namespace WWMath {
             if (row < 0 || mRow <= row) {
                 throw new ArgumentOutOfRangeException("row");
             }
-            if (column < 0 || mColumn <= column) {
+            if (column < 0 || mCol <= column) {
                 throw new ArgumentOutOfRangeException("column");
             }
 
-            return m.At(column * mRow + row);
+            return m.At(column +mCol * row);
         }
 
         public void Set(int row, int column, double v) {
-            m.Set(column * mRow + row, v);
+            m.Set(column + mCol *row, v);
         }
 
         /// <summary>
-        /// ■■行列の要素はcolumn majorで並んでいる。■■
+        /// ■■行列の要素はrow majorで並んでいる。■■
         /// すなわち、1次元配列にシリアライズするとき、
-        /// 0column目の全要素を詰め、1column目の全要素を詰め…という要領で詰める。
+        /// 0row目の全要素を詰め、1row目の全要素を詰め…という要領で詰める。
         /// <para/>numRow=3, numColumn=3の例。
         /// <para/>
         /// <para/>　　　　　　 column番号
@@ -85,10 +85,10 @@ namespace WWMath {
         /// <para/>row番号2→ └a20 a21 a22┘
         /// <para/>
         /// <para/> ↓
-        /// <para/> m[] = { a00, a10, a20, a01, a11, a21, a01, a12, a22 }
+        /// <para/> m[] = { a00, a01, a02, a10, a11, a12, a20, a21, a22 }
         /// </summary>
         public void Set(double[] v) {
-            if (v.Length != mRow * mColumn) {
+            if (v.Length != mRow * mCol) {
                 throw new ArgumentException("v.Length mismatch");
             }
             m.CopyFrom(v, 0, 0, v.Length);
@@ -115,11 +115,20 @@ namespace WWMath {
             return rv;
         }
 
+        /// <summary>
+        /// rv := this x a
+        /// 自分自身を変更しない。
+        /// </summary>
+        /// <returns>乗算結果。</returns>
+        public Matrix Mul(Matrix a) {
+            return Mul(this, a);
+        }
+
         public delegate double UpdateDelegate(int row, int column, double vIn);
 
         public void Update(UpdateDelegate f) {
             for (int r = 0; r < mRow; ++r) {
-                for (int c = 0; c < mColumn; ++c) {
+                for (int c = 0; c < mCol; ++c) {
                     double from = At(r, c);
                     double to = f(r, c, from);
                     Set(r,c,to);
@@ -128,9 +137,9 @@ namespace WWMath {
         }
 
         public void Print(string s) {
-            Console.WriteLine("{0}: {1}x{2}", s, mRow, mColumn);
+            Console.WriteLine("{0}: {1}x{2}", s, mRow, mCol);
             for (int r = 0; r < mRow; ++r) {
-                for (int c = 0; c < mColumn; ++c) {
+                for (int c = 0; c < mCol; ++c) {
                     Console.Write("{0} ", At(r, c));
                 }
                 Console.WriteLine("");
@@ -142,11 +151,11 @@ namespace WWMath {
         }
 
         public int Column {
-            get { return (int)mColumn; }
+            get { return (int)mCol; }
         }
 
         public Matrix Inverse() {
-            if (mRow != mColumn) {
+            if (mRow != mCol) {
                 throw new InvalidOperationException("row != column");
             }
 
@@ -162,7 +171,7 @@ namespace WWMath {
         }
 
         private Matrix Inverse2() {
-            if (mRow != 2 || mColumn != 2) {
+            if (mRow != 2 || mCol != 2) {
                 throw new InvalidOperationException("order != 2");
             }
 
@@ -178,20 +187,20 @@ namespace WWMath {
         }
 
         private Matrix Inverse3() {
-            if (mRow != 3 || mColumn != 3) {
+            if (mRow != 3 || mCol != 3) {
                 throw new InvalidOperationException("order != 3");
             }
 
             double a11 = m.At(0);
-            double a21 = m.At(1);
-            double a31 = m.At(2);
+            double a12 = m.At(1);
+            double a13 = m.At(2);
 
-            double a12 = m.At(3);
+            double a21 = m.At(3);
             double a22 = m.At(4);
-            double a32 = m.At(5);
+            double a23 = m.At(5);
 
-            double a13 = m.At(6);
-            double a23 = m.At(7);
+            double a31 = m.At(6);
+            double a32 = m.At(7);
             double a33 = m.At(8);
 
             double det =
@@ -215,13 +224,13 @@ namespace WWMath {
             double m33 = a11 * a22 - a12 * a21;
 
             return new Matrix(3,3, new double[] {
-                m11 / det, m21 / det, m31 / det,
-                m12 / det, m22 / det, m32 / det,
-                m13 / det, m23 / det, m33 / det });
+                m11 / det, m12 / det, m13 / det,
+                m21 / det, m22 / det, m23 / det,
+                m31 / det, m32 / det, m33 / det });
         }
 
         private long mRow;
-        private long mColumn;
+        private long mCol;
         private LargeArray<double> m;
     }
 }

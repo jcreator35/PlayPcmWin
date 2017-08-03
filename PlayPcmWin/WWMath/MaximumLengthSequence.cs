@@ -65,7 +65,7 @@ namespace WWMath {
             int order = 3;
             var b = new byte[(int)Math.Pow(2, order) - 1];
 
-            uint start_state = 1;
+            uint start_state = 7;
             uint lfsr = start_state;
             uint bit;
             uint period = 0;
