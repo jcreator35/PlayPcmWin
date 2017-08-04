@@ -83,7 +83,7 @@
     <Compile Include="SecondOrderComplexRationalPolynomial.cs" />
     <Compile Include="FirstOrderComplexRationalPolynomial.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WalshHadamardTransform.cs" />
+    <Compile Include="FastWalshHadamardTransform.cs" />
     <Compile Include="WWComplex.cs" />
     <Compile Include="WWDftCpu.cs" />
     <Compile Include="Matrix.cs" />

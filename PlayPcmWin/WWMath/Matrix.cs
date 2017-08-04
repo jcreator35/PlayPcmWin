@@ -26,7 +26,7 @@ namespace WWMath {
         public Matrix(int numRow, int numColumn) {
             mRow = numRow;
             mCol = numColumn;
-            m = new LargeArray<double>(mRow * mCol);
+            m = new double[mRow * mCol];
         }
 
         /// <summary>
@@ -54,7 +54,8 @@ namespace WWMath {
                 throw new ArgumentException("v.length and row * column mismatch");
             }
 
-            m = new LargeArray<double>(v);
+            m = new double[v.Length];
+            Array.Copy(v, m, v.Length);
         }
 
         public double At(int row, int column) {
@@ -65,11 +66,11 @@ namespace WWMath {
                 throw new ArgumentOutOfRangeException("column");
             }
 
-            return m.At(column +mCol * row);
+            return m[column +mCol * row];
         }
 
         public void Set(int row, int column, double v) {
-            m.Set(column + mCol *row, v);
+            m[column + mCol *row] = v;
         }
 
         /// <summary>
@@ -91,7 +92,7 @@ namespace WWMath {
             if (v.Length != mRow * mCol) {
                 throw new ArgumentException("v.Length mismatch");
             }
-            m.CopyFrom(v, 0, 0, v.Length);
+            Array.Copy(v, m, v.Length);
         }
 
         public static Matrix Mul(Matrix lhs, Matrix rhs) {
@@ -124,6 +125,22 @@ namespace WWMath {
             return Mul(this, a);
         }
 
+        /// <summary>
+        /// aを縦行列と見做して後から掛ける
+        /// rv := M x aT
+        /// </summary>
+        /// <returns>乗算結果の行列を転置したもの</returns>
+        public double[] Mul(double[] a) {
+            if (mCol != a.Length) {
+                throw new ArgumentException("a.Length != mat.Col");
+            }
+
+            var aT = new Matrix(a.Length, 1, a);
+            var rv = Mul(aT);
+
+            return rv.ToArray();
+        }
+
         public delegate double UpdateDelegate(int row, int column, double vIn);
 
         public void Update(UpdateDelegate f) {
@@ -154,83 +171,12 @@ namespace WWMath {
             get { return (int)mCol; }
         }
 
-        public Matrix Inverse() {
-            if (mRow != mCol) {
-                throw new InvalidOperationException("row != column");
-            }
-
-            int order = (int)mRow;
-            switch (order) {
-            case 2:
-                return Inverse2();
-            case 3:
-                return Inverse3();
-            default:
-                throw new NotImplementedException();
-            }
-        }
-
-        private Matrix Inverse2() {
-            if (mRow != 2 || mCol != 2) {
-                throw new InvalidOperationException("order != 2");
-            }
-
-            double a = m.At(0);
-            double b = m.At(2);
-            double c = m.At(1);
-            double d = m.At(3);
-
-            double det = a * d - b * c;
-            return new Matrix(2, 2, new double[] {
-                +d / det, -c / det,
-                -b / det, +a / det });
-        }
-
-        private Matrix Inverse3() {
-            if (mRow != 3 || mCol != 3) {
-                throw new InvalidOperationException("order != 3");
-            }
-
-            double a11 = m.At(0);
-            double a12 = m.At(1);
-            double a13 = m.At(2);
-
-            double a21 = m.At(3);
-            double a22 = m.At(4);
-            double a23 = m.At(5);
-
-            double a31 = m.At(6);
-            double a32 = m.At(7);
-            double a33 = m.At(8);
-
-            double det =
-                a11 * a22 * a33 +
-                a12 * a23 * a31 +
-                a13 * a21 * a32 -
-                a13 * a22 * a31 -
-                a11 * a23 * a32 -
-                a12 * a21 * a33;
-
-            double m11 = a22 * a33 - a23 * a32;
-            double m21 = a23 * a31 - a21 * a33;
-            double m31 = a21 * a32 - a22 * a31;
-
-            double m12 = a13 * a32 - a12 * a33;
-            double m22 = a11 * a33 - a13 * a31;
-            double m32 = a12 * a31 - a11 * a32;
-
-            double m13 = a12 * a23 - a13 * a22;
-            double m23 = a13 * a21 - a11 * a23;
-            double m33 = a11 * a22 - a12 * a21;
-
-            return new Matrix(3,3, new double[] {
-                m11 / det, m12 / det, m13 / det,
-                m21 / det, m22 / det, m23 / det,
-                m31 / det, m32 / det, m33 / det });
+        private double[] ToArray() {
+            return m.ToArray();
         }
 
         private long mRow;
         private long mCol;
-        private LargeArray<double> m;
+        private double [] m;
     }
 }

@@ -22,12 +22,12 @@ namespace WWMath {
                 ++N;
             }
 
-            var m = new Matrix(L, N);
+            var m = new Matrix(L, N+1);
             for (int r = 0; r < L; ++r) {
                 m.Set(r, 0, from[r]);
             }
 
-            for (int c = 0; c < N-1; ++c) {
+            for (int c = 0; c < N; ++c) {
                 for (int r = 0; r < L / 2; ++r) {
                     m.Set(r, c + 1, m.At(r*2, c) + m.At(r*2 + 1, c));
                 }
@@ -38,7 +38,7 @@ namespace WWMath {
 
             var rv = new double[L];
             for (int r = 0; r < L; ++r) {
-                rv[r] = m.At(r, N-1);
+                rv[r] = m.At(r, N);
             }
 
             return rv;

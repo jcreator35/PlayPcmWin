@@ -130,6 +130,9 @@ namespace WWImpulseResponse {
             mStateChanged = new Wasapi.WasapiCS.StateChangedCallback(StateChangedCallback);
             mWasapiPlay.RegisterStateChangedCallback(mStateChanged);
 
+            var md = new MLSDeconvolution(8);
+            md.Deconvolution(md.MLSSequence());
+
         }
 
         public void StateChangedCallback(StringBuilder idStr) {

@@ -23,7 +23,106 @@ namespace WWImpulseResponse {
 
         public double[] Deconvolution(double[] recorded) {
             int N = mOrder;
-            int P = (1<<N)-1;
+            int P = (1 << N) - 1;
+
+            var from = new double[P+1];
+            {
+                int copySize = recorded.Length;
+                if (from.Length < copySize) {
+                    copySize = from.Length;
+                }
+                Array.Copy(recorded, from, copySize);
+            }
+
+            byte[] mlsSeq;
+            {
+                var mls = new MaximumLengthSequence(N);
+                mlsSeq = mls.Sequence();
+                /*
+                for (int i = 0; i < mlsSeq.Length; ++i) {
+                    Console.Write("{0} ", mlsSeq[i]);
+                }
+                Console.WriteLine("");
+                */
+            }
+
+            // S: MLS行列の上N行。
+            var S = new MatrixGF2(N, P);
+            {
+                for (int y = 0; y < N; ++y) {
+                    for (int x = 0; x < P; ++x) {
+                        S.Set(y, x, (0 != mlsSeq[(x + y) % P]) ? GF2.One : GF2.Zero);
+                    }
+                }
+            }
+            //S.Print("S");
+
+            // σ: MLS行列の左上NxN
+            var σ = S.Subset(0, 0, N, N);
+            //σ.Print("σ");
+
+            var σInv = σ.Inverse();
+            //σInv.Print("σ^-1");
+
+            // L: Psの転置 x σInv
+            var L = S.Transpose().Mul(σInv);
+            //L.Print("L");
+
+            // Ps: S行列の列の値を2進数として、順番入れ替えのための情報PsReorderを作る
+            var PsReorder = new List<int>();
+            PsReorder.Add(0);
+            for (int c = 0; c < P; ++c) {
+                int sum = 0;
+                for (int r = 0; r < N; ++r) {
+                    sum += (1 << (N - 1 - r)) * S.At(r, c).Val;
+                }
+                //Console.WriteLine("Ps: c={0} sum={1}", c, sum);
+                PsReorder.Add(sum);
+            }
+
+            // Pl: L行列の列の値を2進数として、順番入れ替えのための情報PlReorderを作る
+            var PlReorder = new List<int>();
+            PlReorder.Add(0);
+            for (int r = 0; r < P; ++r) {
+                int sum = 0;
+                for (int c = 0; c < N; ++c) {
+                    sum += (1 << (N - 1 - c)) * L.At(r, c).Val;
+                }
+                //Console.WriteLine("Pl: r={0} sum={1}", r, sum);
+                PlReorder.Add(sum);
+            }
+
+            // Walsh-Hadamard変換を使ってMLS deconvolutionを行う。
+            var reorderedFrom = new double[P + 1];
+            for (int i = 0; i < P + 1; ++i) {
+                reorderedFrom[PsReorder[i]] = from[i];
+            }
+
+            var hR = FastWalshHadamardTransform.Transform(reorderedFrom);
+
+            var hTo = new double[P + 1];
+            for (int i = 0; i < P + 1; ++i) {
+                hTo[i] = -(hR[PlReorder[i]] - 3.0) / (P+1);
+            }
+            Print(hTo, "hTo");
+
+            return hTo;
+        }
+
+        public void Test(double[] recorded) {
+            // 動作テスト
+
+            int N = mOrder;
+            int P = (1 << N) - 1;
+
+            var from = new double[P + 1];
+            {
+                int copySize = recorded.Length;
+                if (from.Length < copySize) {
+                    copySize = from.Length;
+                }
+                Array.Copy(recorded, from, copySize);
+            }
 
             byte[] mlsSeq;
             {
@@ -98,10 +197,21 @@ namespace WWImpulseResponse {
             var H8 = MatrixGF2.Mul(B, Bt);
             H8.Print("H8");
 
+            var vTest = new double[P + 1];
+            for (int i = 0; i < P + 1; ++i) {
+                vTest[i] = i;
+            }
+
+            var r1 = H8.ToMatrix().Mul(vTest);
+            Print(r1, "R1");
+
+            var r2 = FastWalshHadamardTransform.Transform(vTest);
+            Print(r2, "R2");
+
             // Ps: S行列の列の値を2進数として、順番入れ替え行列を作る
             var Ps = new MatrixGF2(P + 1, P + 1);
-            var ordering = new List<int>();
-            ordering.Add(0);
+            var PsReorder = new List<int>();
+            PsReorder.Add(0);
             for (int c = 0; c < P; ++c) {
                 int sum = 0;
                 for (int r = 0; r < N; ++r) {
@@ -109,14 +219,14 @@ namespace WWImpulseResponse {
                 }
                 Console.WriteLine("Ps: c={0} sum={1}", c, sum);
                 Ps.Set(sum, c + 1, GF2.One);
-                ordering.Add(sum);
+                PsReorder.Add(sum);
             }
             Ps.Print("Ps");
 
             {
                 var testMat = new Matrix(P + 1, 1);
                 for (int r = 0; r < P + 1; ++r) {
-                    testMat.Set(r, 0, ordering[r]);
+                    testMat.Set(r, 0, PsReorder[r]);
                 }
 
                 var PsTest = Ps.ToMatrix().Mul(testMat);
@@ -125,6 +235,8 @@ namespace WWImpulseResponse {
 
             // Pl: L行列の列の値を2進数として、順番入れ替え行列を作る
             var Pl = new MatrixGF2(P + 1, P + 1);
+            var PlReorder = new List<int>();
+            PlReorder.Add(0);
             for (int r = 0; r < P; ++r) {
                 int sum = 0;
                 for (int c = 0; c < N; ++c) {
@@ -132,6 +244,7 @@ namespace WWImpulseResponse {
                 }
                 Console.WriteLine("Pl: r={0} sum={1}", r, sum);
                 Pl.Set(r + 1, sum, GF2.One);
+                PlReorder.Add(sum);
             }
             Pl.Print("Pl");
 
@@ -157,8 +270,35 @@ namespace WWImpulseResponse {
             var Mhat = Pl.Mul(H8).Mul(Ps);
             Mhat.Print("Mhat");
 
-            // 
-            return null;
+            // MLS deconvolution
+            var decon = Mhat.ToMatrix().Mul(from);
+            Print(decon, "decon");
+
+            // 同じ処理をWalsh-Hadamard変換を使って行う。
+            var reorderedFrom = new double[P + 1];
+            for (int i = 0; i < P + 1; ++i) {
+                reorderedFrom[PsReorder[i]] = from[i];
+            }
+
+#if true
+            var hR = FastWalshHadamardTransform.Transform(reorderedFrom);
+#else
+            var hR = H8.ToMatrix().Mul(reorderedFrom);
+#endif
+
+            var hTo = new double[P + 1];
+            for (int i = 0; i < P + 1; ++i) {
+                hTo[i] = hR[PlReorder[i]];
+            }
+            Print(hTo, "hTo");
+        }
+
+        private static void Print(double[] v, string s) {
+            Console.Write("{0} := {{", s);
+            for (int i = 0; i < v.Length; ++i) {
+                Console.Write("{0} ", v[i]);
+            }
+            Console.WriteLine("}}");
         }
 
         private int mOrder;

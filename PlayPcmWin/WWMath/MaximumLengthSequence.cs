@@ -92,7 +92,7 @@ namespace WWMath {
             int order = 4;
             var b = new byte[(int)Math.Pow(2, order) - 1];
 
-            uint start_state = 1;
+            uint start_state = 15;
             uint lfsr = start_state;
             uint bit;
             uint period = 0;
@@ -119,7 +119,7 @@ namespace WWMath {
             int order = 5;
             var b = new byte[(int)Math.Pow(2, order) - 1];
 
-            uint start_state = 1;
+            uint start_state = 31;
             uint lfsr = start_state;
             uint bit;
             uint period = 0;
@@ -146,7 +146,7 @@ namespace WWMath {
             int order = 6;
             var b = new byte[(int)Math.Pow(2, order) - 1];
 
-            uint start_state = 1;
+            uint start_state = 63;
             uint lfsr = start_state;
             uint bit;
             uint period = 0;
@@ -173,7 +173,7 @@ namespace WWMath {
             int order = 7;
             var b = new byte[(int)Math.Pow(2, order) - 1];
 
-            uint start_state = 1;
+            uint start_state = 127;
             uint lfsr = start_state;
             uint bit;
             uint period = 0;
@@ -200,7 +200,7 @@ namespace WWMath {
             int order = 8;
             var b = new byte[(int)Math.Pow(2, order) - 1];
 
-            uint start_state = 1;
+            uint start_state = 255;
             uint lfsr = start_state;
             uint bit;
             uint period = 0;
@@ -226,7 +226,7 @@ namespace WWMath {
             int order = 16;
             var b = new byte[(int)Math.Pow(2, order) - 1];
 
-            uint start_state = 1;
+            uint start_state = 65535;
             uint lfsr = start_state;
             uint bit;
             uint period = 0;
@@ -253,7 +253,7 @@ namespace WWMath {
             int order = 17;
             var b = new byte[(int)Math.Pow(2, order) - 1];
 
-            uint start_state = 1;
+            uint start_state = 131071;
             uint lfsr = start_state;
             uint bit;
             uint period = 0;
@@ -280,7 +280,7 @@ namespace WWMath {
             int order = 18;
             var b = new byte[(int)Math.Pow(2, order) - 1];
 
-            uint start_state = 1;
+            uint start_state = 262143;
             uint lfsr = start_state;
             uint bit;
             uint period = 0;
@@ -306,7 +306,7 @@ namespace WWMath {
             int order = 19;
             var b = new byte[(int)Math.Pow(2, order) - 1];
 
-            uint start_state = 1;
+            uint start_state = 524287;
             uint lfsr = start_state;
             uint bit;
             uint period = 0;
@@ -333,7 +333,7 @@ namespace WWMath {
             int order = 20;
             var b = new byte[(int)Math.Pow(2, order) - 1];
 
-            uint start_state = 1;
+            uint start_state = 1048575;
             uint lfsr = start_state;
             uint bit;
             uint period = 0;

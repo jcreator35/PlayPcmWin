@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace WWMath {
     public class MatrixGF2 {
@@ -97,7 +98,7 @@ namespace WWMath {
             int loopCount = lhs.Column;
 
             var rv = new MatrixGF2(lhs.Row, rhs.Column);
-            for (int r = 0; r < rv.Row; ++r) {
+            Parallel.For(0, rv.Row, r => {
                 for (int c = 0; c < rv.Column; ++c) {
                     GF2 v = GF2.Zero;
                     for (int i = 0; i < loopCount; ++i) {
@@ -105,7 +106,7 @@ namespace WWMath {
                     }
                     rv.Set(r, c, v);
                 }
-            }
+            });
 
             return rv;
         }
