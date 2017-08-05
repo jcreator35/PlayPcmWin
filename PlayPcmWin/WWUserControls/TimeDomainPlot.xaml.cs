@@ -45,13 +45,41 @@ namespace WWUserControls {
 
         private const double MINUS_TIME_RATIO = 0.2;
 
+        /// <summary>
+        /// ImpulseResponse表示用関数。
+        /// </summary>
         public WWMath.Functions.TimeDomainResponseFunctionDelegate ImpulseResponseFunction = (double t) => { return 0; };
+        /// <summary>
+        /// StepResponse表示用関数。
+        /// </summary>
         public WWMath.Functions.TimeDomainResponseFunctionDelegate StepResponseFunction = (double t) => { if (t <= 0) { return 0; } return 1; };
+
+        /// <summary>
+        /// PCMデータ。DiscreteTimeSequenceモードで使用。
+        /// </summary>
+        private double[] mTimeDomainSequence = new double[1];
+        private int mSampleRate = 44100;
 
         public enum FunctionType {
             ImpulseResponse,
             StepResponse,
+            DiscreteTimeSequence,
         };
+
+        public void SetFunctionType(FunctionType t) {
+            comboBoxFunction.SelectedIndex = (int)t;
+
+            if (t == FunctionType.DiscreteTimeSequence) {
+                comboBoxFunction.IsEnabled = false;
+            } else {
+                comboBoxFunction.IsEnabled = true;
+            }
+        }
+
+        public void SetDiscreteTimeSequence(double[] seq, int sampleRate) {
+            mTimeDomainSequence = seq;
+            mSampleRate = sampleRate;
+        }
 
         private double PlotXToTime(int idx) {
             return TimeRange * ((double)idx / FR_LINE_WIDTH - MINUS_TIME_RATIO);
@@ -76,7 +104,59 @@ namespace WWUserControls {
             if (!mInitialized) {
                 return;
             }
+            FunctionType ft = (FunctionType)comboBoxFunction.SelectedIndex;
 
+            switch (ft) {
+            case FunctionType.ImpulseResponse:
+            case FunctionType.StepResponse:
+                UpdateImpulseResponse();
+                break;
+            case FunctionType.DiscreteTimeSequence:
+                UpdateDiscreteTimeSequence();
+                break;
+            }
+        }
+
+        private int FindPeak() {
+            int peak = 0;
+            double maxMagnitude = 0.0;
+
+            for (int i = 0; i < mTimeDomainSequence.Length; ++i) {
+                double mag = Math.Abs(mTimeDomainSequence[i]);
+                if (maxMagnitude < mag) {
+                    peak = i;
+                    maxMagnitude = mag;
+                }
+            }
+
+            return peak;
+        }
+
+        private void UpdateDiscreteTimeSequence() {
+
+            int peakPos = FindPeak();
+            peakPos -= FR_LINE_WIDTH/5;
+
+            if (mTimeDomainSequence.Length < peakPos + FR_LINE_WIDTH) {
+                peakPos = mTimeDomainSequence.Length - FR_LINE_WIDTH;
+            }
+
+            if (peakPos < 0) {
+                peakPos = 0;
+            }
+
+            double[] sampled = new double[FR_LINE_WIDTH];
+
+            for (int i = 0; i < sampled.Length; ++i) {
+                if (i < mTimeDomainSequence.Length) {
+                    sampled[i] = mTimeDomainSequence[peakPos + i];
+                }
+            }
+
+            UpdateGraph(sampled, 1.0);
+        }
+
+        private void UpdateImpulseResponse() {
             double scale = mTimeScales[comboBoxTimeScale.SelectedIndex];
             TimeScale = 0.01 * scale;
             TimeRange = 20.0 * scale;
@@ -100,7 +180,7 @@ namespace WWUserControls {
                 double y = 0;
                 switch ((FunctionType)comboBoxFunction.SelectedIndex) {
                 case FunctionType.ImpulseResponse:
-                    y = ImpulseResponseFunction(t*2*Math.PI);
+                    y = ImpulseResponseFunction(t * 2 * Math.PI);
                     break;
                 case FunctionType.StepResponse:
                     y = StepResponseFunction(t * 2 * Math.PI);
@@ -114,6 +194,10 @@ namespace WWUserControls {
                 sampled[idx] = y;
             }
 
+            UpdateGraph(sampled, maxMagnitude);
+        }
+
+        private void UpdateGraph(double[] sampled, double maxMagnitude) {
             // 時間表示と時間の縦線を引く。
             for (double idx = 0; idx <= FR_LINE_WIDTH; idx += (double)FR_LINE_WIDTH / TIME_LABEL_NUM) {
                 double t = PlotXToTime((int)idx);
@@ -170,7 +254,6 @@ namespace WWUserControls {
                     lastY = y;
                 }
             }
-
         }
 
         private void comboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) {

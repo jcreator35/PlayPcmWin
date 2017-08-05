@@ -6,33 +6,14 @@ using WWMath;
 
 namespace WWImpulseResponse {
     class MLSDeconvolution {
+        private int mOrder;
+        private List<int> mFromReorder;
+        private List<int> mToReorder;
+
         public MLSDeconvolution(int order) {
             mOrder = order;
-        }
-
-        public double[] MLSSequence() {
-            var mls = new MaximumLengthSequence(mOrder);
-            var b = mls.Sequence();
-            var rv = new double[b.Length];
-            for (int i = 0; i < b.Length; ++i) {
-                rv[i] = b[i] * 2.0 - 1.0;
-            }
-
-            return rv;
-        }
-
-        public double[] Deconvolution(double[] recorded) {
             int N = mOrder;
             int P = (1 << N) - 1;
-
-            var from = new double[P+1];
-            {
-                int copySize = recorded.Length;
-                if (from.Length < copySize) {
-                    copySize = from.Length;
-                }
-                Array.Copy(recorded, from, copySize);
-            }
 
             byte[] mlsSeq;
             {
@@ -69,46 +50,77 @@ namespace WWImpulseResponse {
             //L.Print("L");
 
             // Ps: S行列の列の値を2進数として、順番入れ替えのための情報PsReorderを作る
-            var PsReorder = new List<int>();
-            PsReorder.Add(0);
+            mFromReorder = new List<int>();
+            mFromReorder.Add(0);
             for (int c = 0; c < P; ++c) {
                 int sum = 0;
                 for (int r = 0; r < N; ++r) {
                     sum += (1 << (N - 1 - r)) * S.At(r, c).Val;
                 }
                 //Console.WriteLine("Ps: c={0} sum={1}", c, sum);
-                PsReorder.Add(sum);
+                mFromReorder.Add(sum);
             }
 
             // Pl: L行列の列の値を2進数として、順番入れ替えのための情報PlReorderを作る
-            var PlReorder = new List<int>();
-            PlReorder.Add(0);
+            mToReorder = new List<int>();
+            mToReorder.Add(0);
             for (int r = 0; r < P; ++r) {
                 int sum = 0;
                 for (int c = 0; c < N; ++c) {
                     sum += (1 << (N - 1 - c)) * L.At(r, c).Val;
                 }
                 //Console.WriteLine("Pl: r={0} sum={1}", r, sum);
-                PlReorder.Add(sum);
+                mToReorder.Add(sum);
+            }
+        }
+
+        /// <summary>
+        /// このシーケンスをリピート再生し、(1 &lt;&lt; order)サンプル録音し、Deconvoutionを呼び出す。
+        /// </summary>
+        /// <returns></returns>
+        public double[] MLSSequence() {
+            var mls = new MaximumLengthSequence(mOrder);
+            var b = mls.Sequence();
+            var rv = new double[b.Length];
+            for (int i = 0; i < b.Length; ++i) {
+                rv[i] = b[i] * 2.0 - 1.0;
+            }
+
+            return rv;
+        }
+
+        /// <summary>
+        /// Maximum Length Sequenceを録再したものを入力し、
+        /// MLSとのCircular Cross Correlationを計算し出力する。
+        /// </summary>
+        /// <param name="recorded">Maximum Length Sequenceを録再したもの。長さは(1 &lt;&lt; order)サンプル。</param>
+        /// <returns></returns>
+        public double[] Deconvolution(double[] from) {
+            int N = mOrder;
+            int P = (1 << N) - 1;
+
+            if (from.Length != P + 1) {
+                throw new ArgumentException("from.Length should be (1 << order)");
             }
 
             // Walsh-Hadamard変換を使ってMLS deconvolutionを行う。
             var reorderedFrom = new double[P + 1];
             for (int i = 0; i < P + 1; ++i) {
-                reorderedFrom[PsReorder[i]] = from[i];
+                reorderedFrom[mFromReorder[i]] = from[i];
             }
 
             var hR = FastWalshHadamardTransform.Transform(reorderedFrom);
 
             var hTo = new double[P + 1];
             for (int i = 0; i < P + 1; ++i) {
-                hTo[i] = -(hR[PlReorder[i]] - 3.0) / (P+1);
+                hTo[i] = -(hR[mToReorder[i]] - 1.0) / (P+1);
             }
-            Print(hTo, "hTo");
+            //Print(hTo, "hTo");
 
             return hTo;
         }
 
+#if false
         public void Test(double[] recorded) {
             // 動作テスト
 
@@ -292,6 +304,7 @@ namespace WWImpulseResponse {
             }
             Print(hTo, "hTo");
         }
+#endif
 
         private static void Print(double[] v, string s) {
             Console.Write("{0} := {{", s);
@@ -301,6 +314,6 @@ namespace WWImpulseResponse {
             Console.WriteLine("}}");
         }
 
-        private int mOrder;
     }
+
 }

@@ -130,9 +130,18 @@ namespace WWImpulseResponse {
             mStateChanged = new Wasapi.WasapiCS.StateChangedCallback(StateChangedCallback);
             mWasapiPlay.RegisterStateChangedCallback(mStateChanged);
 
-            var md = new MLSDeconvolution(8);
-            md.Deconvolution(md.MLSSequence());
+            mTimeDomainPlot.SetFunctionType(WWUserControls.TimeDomainPlot.FunctionType.DiscreteTimeSequence);
+            mTimeDomainPlot.SetDiscreteTimeSequence(new double[1], 44100);
 
+            /*
+            var md = new MLSDeconvolution(18);
+
+            var mls = md.MLSSequence();
+            var recorded = new double[mls.Length + 1];
+            Array.Copy(mls, 0, recorded, 1, mls.Length);
+
+            md.Deconvolution(recorded);
+            */
         }
 
         public void StateChangedCallback(StringBuilder idStr) {
@@ -408,7 +417,7 @@ namespace WWImpulseResponse {
             mBwStartTesting.RunWorkerAsync(mStartTestingArgs);
         }
 
-        private LargeArray<byte> CreatePcmData(byte[] mls, WasapiCS.SampleFormatType sft, int numCh) {
+        private LargeArray<byte> CreatePcmData(double[] mls, WasapiCS.SampleFormatType sft, int numCh) {
             int sampleBytes = (WasapiCS.SampleFormatTypeToUseBitsPerSample(sft)/8);
             int frameBytes = sampleBytes * numCh;
             long bytes = (long)mls.Length * frameBytes;
@@ -422,7 +431,7 @@ namespace WWImpulseResponse {
                     // -6dBする。
                     v /= 2;
 
-                    if (mls[i] == 0) {
+                    if (mls[i] < 0) {
                         v = -v;
                     }
 
@@ -437,11 +446,13 @@ namespace WWImpulseResponse {
             return r;
         }
 
-        private void PreparePcmData(StartTestingArgs args) {
-            var mls = new MaximumLengthSequence(args.order);
-            var seq = mls.Sequence();
+        private MLSDeconvolution mMLSDecon;
 
-            // mPcmTest : テストデータ。このPCMデータを再生し、インパルス応答特性を調べる。
+        private void PreparePcmData(StartTestingArgs args) {
+            mMLSDecon = new MLSDeconvolution(args.order);
+            var seq = mMLSDecon.MLSSequence();
+
+            // mPcmPlay : テストデータ。このPCMデータを再生し、インパルス応答特性を調べる。
             mPcmPlay = new PcmDataLib.PcmData();
             mPcmPlay.SetFormat(args.numChannels,
                 WasapiCS.SampleFormatTypeToUseBitsPerSample(mPlaySampleFormat),
@@ -450,9 +461,9 @@ namespace WWImpulseResponse {
                 PcmDataLib.PcmData.ValueRepresentationType.SInt, seq.Length);
             mPcmPlay.SetSampleLargeArray(CreatePcmData(seq, mPlaySampleFormat, args.numChannels));
 
-            // 録音データ置き場。
+            // 録音データ置き場。Maximum Length Seqneuceのサイズよりも1サンプル多くしておく。
             int recBytesPerSample = WasapiCS.SampleFormatTypeToUseBitsPerSample(mRecSampleFormat) / 8;
-            mCapturedPcmData = new LargeArray<byte>((long)recBytesPerSample * args.numChannels * seq.Length);
+            mCapturedPcmData = new LargeArray<byte>((long)recBytesPerSample * args.numChannels * (seq.Length+1));
         }
 
         private void BwStartTesting_DoWork(object sender, DoWorkEventArgs e) {
@@ -633,9 +644,11 @@ namespace WWImpulseResponse {
             recPcmData.SetFormat(mStartTestingArgs.numChannels, WasapiCS.SampleFormatTypeToUseBitsPerSample(mRecSampleFormat),
                 WasapiCS.SampleFormatTypeToValidBitsPerSample(mRecSampleFormat),
                 mSampleRate,
-                PcmDataLib.PcmData.ValueRepresentationType.SInt, mPcmPlay.NumFrames);
+                PcmDataLib.PcmData.ValueRepresentationType.SInt,
+                mPcmPlay.NumFrames + 1); //< 再生したMaximum Length Sequenceのサイズよりも1サンプル多い。
             recPcmData.SetSampleLargeArray(mCapturedPcmData);
 
+#if false
             // double型に変換。
             var a = mPcmPlay.GetDoubleArray(mStartTestingArgs.testChannel);
             var b = recPcmData.GetDoubleArray(mStartTestingArgs.testChannel);
@@ -658,6 +671,16 @@ namespace WWImpulseResponse {
                     sw.WriteLine("{0}", c[i]);
                 }
             }
+#else
+            var recorded = recPcmData.GetDoubleArray(mStartTestingArgs.testChannel);
+            var decon = mMLSDecon.Deconvolution(recorded.ToArray());
+            var impulse = new double[decon.Length];
+            for (int i = 0; i < decon.Length; ++i) {
+                impulse[i] = 2.0 * decon[decon.Length - 1 - i];
+            }
+            mTimeDomainPlot.SetDiscreteTimeSequence(impulse, mSampleRate);
+            // この後描画ができるタイミングでmTimeDomainPlot.Update()を呼ぶ。
+#endif
         }
 
         private void RecRunWorkerCompleted(object o, RunWorkerCompletedEventArgs args) {
@@ -674,6 +697,9 @@ namespace WWImpulseResponse {
                 progressBar1.Value = 0;
 
                 mState = State.Init;
+
+                // プロット描画を更新。
+                mTimeDomainPlot.Update();
             }
 
             textBoxLog.Text += "Finished\n";
