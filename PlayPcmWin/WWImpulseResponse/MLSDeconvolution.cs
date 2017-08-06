@@ -120,7 +120,7 @@ namespace WWImpulseResponse {
             return hTo;
         }
 
-#if false
+#if true
         public void Test(double[] recorded) {
             // 動作テスト
 
@@ -179,7 +179,10 @@ namespace WWImpulseResponse {
             var S = mlsMat.Subset(0, 0, N, P);
             S.Print("S");
 
-            // L: Psの転置 x σInv
+            // Sの転置S^T
+            S.Transpose().Print("S^T");
+
+            // L: Sの転置 x σInv
             var L = S.Transpose().Mul(σInv);
             L.Print("L");
 

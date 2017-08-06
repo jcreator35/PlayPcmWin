@@ -134,9 +134,53 @@ namespace WWImpulseResponse {
             mTimeDomainPlot.SetDiscreteTimeSequence(new double[1], 44100);
 
             /*
-            var md = new MLSDeconvolution(18);
+            var md = new MLSDeconvolution(3);
+            md.Test(md.MLSSequence());
 
-            var mls = md.MLSSequence();
+            for (int order = 3; order <= 24; ++order) {
+                var md = new MLSDeconvolution(order);
+                var mls = md.MLSSequence();
+
+                System.Diagnostics.Debug.Assert(mls.Length != Math.Pow(2, order) - 1);
+
+                string path = string.Format("output{0}_512x32.bmp", order);
+                using (BinaryWriter bw = new BinaryWriter(File.Open(path, FileMode.Create))) {
+                    using (BinaryReader br = new BinaryReader(File.Open("C:/work/BpsConvWin2/WWImpulseResponse/template_512x32.bmp", FileMode.Open))) {
+                        for (int i = 0; i < 0x436; ++i) {
+                            byte b = br.ReadByte();
+                            bw.Write(b);
+                        }
+                    }
+
+                    for (int i = 0; i < 512*32; ++i) {
+                        int pos = i % mls.Length;
+                        byte v = (byte)(255 * ((mls[pos] + 1.0) / 2));
+                        bw.Write(v);
+                    }
+                }
+
+                path = string.Format("output{0}_512x512.bmp", order);
+                using (BinaryWriter bw = new BinaryWriter(File.Open(path, FileMode.Create))) {
+                    using (BinaryReader br = new BinaryReader(File.Open("C:/work/BpsConvWin2/WWImpulseResponse/template_512x512.bmp", FileMode.Open))) {
+                        for (int i = 0; i < 0x436; ++i) {
+                            byte b = br.ReadByte();
+                            bw.Write(b);
+                        }
+                    }
+
+                    for (int i = 0; i < 512 * 512; ++i) {
+                        int pos = i % mls.Length;
+                        byte v = (byte)(255 * ((mls[pos] + 1.0) / 2));
+                        bw.Write(v);
+                    }
+                }
+            }
+
+            for (int i = 0; i < mls.Length; ++i) {
+                Console.Write("{0},", (mls[i] + 1.0) / 2);
+            }
+            Console.WriteLine("");
+
             var recorded = new double[mls.Length + 1];
             Array.Copy(mls, 0, recorded, 1, mls.Length);
 
