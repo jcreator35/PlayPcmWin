@@ -2,12 +2,14 @@
 using System.Diagnostics;
 using Wasapi;
 
-namespace RecPcmWin {
-    class LevelMeter {
+namespace Wasapi {
+    public class LevelMeter {
         private PeakCalculator [] mPeakCalcArray;
         private WasapiCS.SampleFormatType mSampleFormat;
         private int mCh;
         private double[] mLastPeakLevelDb;
+
+        private int mPeakHoldSec;
 
         private Stopwatch mSw = new Stopwatch();
 
@@ -23,6 +25,7 @@ namespace RecPcmWin {
                 double updateIntervalSec, int releaseTimeDbPerSec) {
             mSampleFormat = sampleFormat;
             mCh = ch;
+            mPeakHoldSec = peakHoldSec;
 
             mLastPeakLevelDb = new double[ch];
             mPeakCalcArray = new PeakCalculator[ch];
@@ -87,12 +90,14 @@ namespace RecPcmWin {
 
             for (int ch=0; ch<mCh; ++ch) {
                 mPeakCalcArray[ch].UpdateEnd();
-                // 最後のピーク値 x 時間減衰。
-                double lastPeakDb = mLastPeakLevelDb[ch] - ReleaseTimeDbPerSec * mSw.ElapsedMilliseconds / 1000.0;
-                if (mPeakCalcArray[ch].PeakDb < lastPeakDb) {
-                    mPeakCalcArray[ch].UpdatePeakDbTo(lastPeakDb);
+                if (0 < mPeakHoldSec) {
+                    // 最後のピーク値 x 時間減衰。
+                    double lastPeakDb = mLastPeakLevelDb[ch] - ReleaseTimeDbPerSec * mSw.ElapsedMilliseconds / 1000.0;
+                    if (mPeakCalcArray[ch].PeakDb < lastPeakDb) {
+                        mPeakCalcArray[ch].UpdatePeakDbTo(lastPeakDb);
+                    }
+                    mLastPeakLevelDb[ch] = mPeakCalcArray[ch].PeakDb;
                 }
-                mLastPeakLevelDb[ch] = mPeakCalcArray[ch].PeakDb;
             }
 
             mSw.Restart();

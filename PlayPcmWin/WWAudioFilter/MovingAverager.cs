@@ -1,4 +1,5 @@
-﻿
+﻿using WWUtil;
+
 namespace WWAudioFilter {
     class MovingAverager {
         public int AverageSamples { get { return mDelayX.DelaySamples; } }

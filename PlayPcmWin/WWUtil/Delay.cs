@@ -1,7 +1,7 @@
 ﻿using System;
 
-namespace WWAudioFilter {
-    class Delay {
+namespace WWUtil {
+    public class Delay {
         public int DelaySamples { get { return mDelay.Length; } }
 
         // ring buffer

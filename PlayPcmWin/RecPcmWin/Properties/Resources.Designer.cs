@@ -88,15 +88,6 @@ namespace RecPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Error: Release time must be integer equal to or larger than zero.
-        /// </summary>
-        internal static string ErrorReleaseTimeMustBePositiveInteger {
-            get {
-                return ResourceManager.GetString("ErrorReleaseTimeMustBePositiveInteger", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Error: Wasapi buffer size must be integer number greater than 0.
         /// </summary>
         internal static string ErrorWasapiBufferSize {
@@ -187,24 +178,6 @@ namespace RecPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Other Settings.
-        /// </summary>
-        internal static string MainLevelMeterOther {
-            get {
-                return ResourceManager.GetString("MainLevelMeterOther", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Release time.
-        /// </summary>
-        internal static string MainLevelMeterReleaseTime {
-            get {
-                return ResourceManager.GetString("MainLevelMeterReleaseTime", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Update while recording.
         /// </summary>
         internal static string MainLevelMeterUpdateWhileRecording {
@@ -232,15 +205,6 @@ namespace RecPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Amber Level.
-        /// </summary>
-        internal static string MainNominalPeakLevel {
-            get {
-                return ResourceManager.GetString("MainNominalPeakLevel", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Num of Channels.
         /// </summary>
         internal static string MainNumOfChannels {
@@ -255,15 +219,6 @@ namespace RecPcmWin.Properties {
         internal static string MainOperationMode {
             get {
                 return ResourceManager.GetString("MainOperationMode", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Peak Hold.
-        /// </summary>
-        internal static string MainPeakHold {
-            get {
-                return ResourceManager.GetString("MainPeakHold", resourceCulture);
             }
         }
         

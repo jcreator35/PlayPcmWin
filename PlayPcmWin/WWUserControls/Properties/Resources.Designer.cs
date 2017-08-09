@@ -70,6 +70,51 @@ namespace WWUserControls.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Error: Release time must be integer equal to or larger than zero.
+        /// </summary>
+        internal static string ErrorReleaseTimeMustBePositiveInteger {
+            get {
+                return ResourceManager.GetString("ErrorReleaseTimeMustBePositiveInteger", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Other Settings.
+        /// </summary>
+        internal static string MainLevelMeterOther {
+            get {
+                return ResourceManager.GetString("MainLevelMeterOther", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Release time.
+        /// </summary>
+        internal static string MainLevelMeterReleaseTime {
+            get {
+                return ResourceManager.GetString("MainLevelMeterReleaseTime", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Amber Level.
+        /// </summary>
+        internal static string MainNominalPeakLevel {
+            get {
+                return ResourceManager.GetString("MainNominalPeakLevel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Peak Hold.
+        /// </summary>
+        internal static string MainPeakHold {
+            get {
+                return ResourceManager.GetString("MainPeakHold", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to R of stage #{0} = {1}.
         /// </summary>
         internal static string ResistorValueDescription {

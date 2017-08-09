@@ -85,9 +85,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Delay.cs" />
-    <Compile Include="LevelMeter.cs" />
-    <Compile Include="PeakCalculator.cs" />
     <Compile Include="PreferenceStore.cs" />
     <Compile Include="Properties\Resources.ja-JP.Designer.cs">
       <DependentUpon>Resources.ja-JP.resx</DependentUpon>
@@ -150,6 +147,14 @@
     <ProjectReference Include="..\WavRWLib2\WavRWLib2.csproj">
       <Project>{77005090-E2C5-4063-9681-0D0EED33A2B2}</Project>
       <Name>WavRWLib2</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WWMath\WWMath.csproj">
+      <Project>{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}</Project>
+      <Name>WWMath</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WWUserControls\WWUserControls.csproj">
+      <Project>{2721D7F3-8A5A-4059-A619-BB5ED7ACCC0C}</Project>
+      <Name>WWUserControls</Name>
     </ProjectReference>
     <ProjectReference Include="..\WWUtil\WWUtil.csproj">
       <Project>{FC57308E-CF56-4B3E-B920-4093660D0A4A}</Project>

@@ -120,6 +120,21 @@
   <data name="CapacitorValueDescription" xml:space="preserve">
     <value>C of stage #{0} = {1}</value>
   </data>
+  <data name="ErrorReleaseTimeMustBePositiveInteger" xml:space="preserve">
+    <value>Error: Release time must be integer equal to or larger than zero</value>
+  </data>
+  <data name="MainLevelMeterOther" xml:space="preserve">
+    <value>Other Settings</value>
+  </data>
+  <data name="MainLevelMeterReleaseTime" xml:space="preserve">
+    <value>Release time</value>
+  </data>
+  <data name="MainNominalPeakLevel" xml:space="preserve">
+    <value>Amber Level</value>
+  </data>
+  <data name="MainPeakHold" xml:space="preserve">
+    <value>Peak Hold</value>
+  </data>
   <data name="ResistorValueDescription" xml:space="preserve">
     <value>R of stage #{0} = {1}</value>
   </data>

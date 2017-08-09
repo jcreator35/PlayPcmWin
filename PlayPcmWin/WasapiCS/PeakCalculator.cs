@@ -1,7 +1,7 @@
 ﻿using System;
-using WWAudioFilter;
+using WWUtil;
 
-namespace RecPcmWin {
+namespace Wasapi {
     class PeakCalculator {
         public double PeakDb { get; set; }
         public double PeakHoldDb { get; set; }

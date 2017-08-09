@@ -6,6 +6,7 @@
 using System;
 using System.Globalization;
 using System.Collections.Generic;
+using WWUtil;
 
 namespace WWAudioFilter {
     public class SubsonicFilter : FilterBase {

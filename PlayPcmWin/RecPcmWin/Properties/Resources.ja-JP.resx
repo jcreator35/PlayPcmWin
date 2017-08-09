@@ -126,9 +126,6 @@
   <data name="ErrorRecordingBufferSize" xml:space="preserve">
     <value>エラー: 録音バッファーサイズは1以上2097151以下の整数を入れて下さい。</value>
   </data>
-  <data name="ErrorReleaseTimeMustBePositiveInteger" xml:space="preserve">
-    <value>エラー: リリース時間には0以上の整数値を入れて下さい</value>
-  </data>
   <data name="ErrorWasapiBufferSize" xml:space="preserve">
     <value>エラー: WASAPIバッファーサイズは1以上の整数を入れて下さい。</value>
   </data>
@@ -162,9 +159,6 @@
   <data name="MainLevelMeterOther" xml:space="preserve">
     <value>他の設定</value>
   </data>
-  <data name="MainLevelMeterReleaseTime" xml:space="preserve">
-    <value>リリース時間</value>
-  </data>
   <data name="MainLevelMeterUpdateWhileRecording" xml:space="preserve">
     <value>録音中も更新</value>
   </data>
@@ -174,17 +168,11 @@
   <data name="MainLog" xml:space="preserve">
     <value>ログ</value>
   </data>
-  <data name="MainNominalPeakLevel" xml:space="preserve">
-    <value>黄色レベル</value>
-  </data>
   <data name="MainNumOfChannels" xml:space="preserve">
     <value>チャンネル数</value>
   </data>
   <data name="MainOperationMode" xml:space="preserve">
     <value>動作モード</value>
-  </data>
-  <data name="MainPeakHold" xml:space="preserve">
-    <value>ピークホールド</value>
   </data>
   <data name="MainQuantizationBitRate" xml:space="preserve">
     <value>量子化ビット数</value>

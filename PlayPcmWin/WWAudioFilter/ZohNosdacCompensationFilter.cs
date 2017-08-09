@@ -17,6 +17,7 @@
 
 using System;
 using System.Globalization;
+using WWUtil;
 
 namespace WWAudioFilter {
     class ZohNosdacCompensationFilter : FilterBase {

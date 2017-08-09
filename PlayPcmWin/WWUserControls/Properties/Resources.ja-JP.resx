@@ -120,6 +120,18 @@
   <data name="CapacitorValueDescription" xml:space="preserve">
     <value>{0}段目回路のC = {1}</value>
   </data>
+  <data name="ErrorReleaseTimeMustBePositiveInteger" xml:space="preserve">
+    <value>エラー: リリース時間には0以上の整数値を入れて下さい</value>
+  </data>
+  <data name="MainLevelMeterReleaseTime" xml:space="preserve">
+    <value>リリース時間</value>
+  </data>
+  <data name="MainNominalPeakLevel" xml:space="preserve">
+    <value>黄色レベル</value>
+  </data>
+  <data name="MainPeakHold" xml:space="preserve">
+    <value>ピークホールド</value>
+  </data>
   <data name="ResistorValueDescription" xml:space="preserve">
     <value>{0}段目回路のR = {1}</value>
   </data>

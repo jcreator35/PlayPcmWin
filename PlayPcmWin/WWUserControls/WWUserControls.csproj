@@ -82,6 +82,9 @@
     <Compile Include="FrequencyResponse.xaml.cs">
       <DependentUpon>FrequencyResponse.xaml</DependentUpon>
     </Compile>
+    <Compile Include="LevelMeterUC.xaml.cs">
+      <DependentUpon>LevelMeterUC.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PoleZeroPlot.xaml.cs">
       <DependentUpon>PoleZeroPlot.xaml</DependentUpon>
@@ -104,6 +107,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="LevelMeterUC.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="PoleZeroPlot.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -114,17 +121,22 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\WasapiCS\WasapiCS.csproj">
+      <Project>{0D9C1283-4DA5-4C3F-8A4E-AD8194381DE4}</Project>
+      <Name>WasapiCS</Name>
+    </ProjectReference>
     <ProjectReference Include="..\WWMath\WWMath.csproj">
       <Project>{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}</Project>
       <Name>WWMath</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.ja-JP.resx" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Include="Properties\Resources.ja-JP.resx" />
+    <EmbeddedResource Include="Properties\Resources.cs-CZ.resx" />
   </ItemGroup>
   <ItemGroup>
     <None Include="WWUserControls.snk" />

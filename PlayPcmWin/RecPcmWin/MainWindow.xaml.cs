@@ -7,7 +7,6 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using System.Windows.Shapes;
 using Wasapi;
 
 namespace RecPcmWin {
@@ -16,12 +15,6 @@ namespace RecPcmWin {
             get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); }
         }
 
-        private long mLevelMeterLastDispTick = 0;
-        private const long LEVEL_METER_UPDATE_INTERVAL_MS = 66;
-        private const double METER_LEFT_X = 50.0;
-        private const double METER_WIDTH = 400.0;
-        private const double METER_0DB_W = 395.0;
-        private const double METER_SMALLEST_DB = -48.0;
         private const int MAX_RECORDING_BUFFER_MB = 2097151;
 
         private WasapiControl mWasapiCtrl = new WasapiControl();
@@ -30,8 +23,30 @@ namespace RecPcmWin {
         private bool mInitialized = false;
         private List<WasapiCS.DeviceAttributes> mDeviceList = null;
         private LevelMeter mLevelMeter;
+        private object mLock = new Object();
 
-        private string [] mResourceCultureNameArray = new string[] {
+        private readonly int[] gComboBoxItemSampleRate = new int[] {
+            44100,
+            48000,
+            64000,
+            88200,
+            96000,
+
+            128000,
+            176400,
+            192000,
+            352800,
+            384000,
+
+            705600,
+            768000,
+            1411200,
+            1536000,
+            2822400,
+            3072000,
+        };
+
+        private string[] mResourceCultureNameArray = new string[] {
             "cs-CZ",
             "en-US",
             "ja-JP",
@@ -57,88 +72,6 @@ namespace RecPcmWin {
             InitializeComponent();
         }
 
-        private Rectangle[] mRectangleG8chArray;
-        private Rectangle[] mRectangleY8chArray;
-        private Rectangle[] mRectangleR8chArray;
-        private Rectangle[] mRectangleMask8chArray;
-        private Rectangle[] mRectanglePeak8chArray;
-        private TextBlock[] mTextBlockLevelMeter8chArray;
-
-        private void InitLevelMeter() {
-            mLevelMeter = new LevelMeter(mPref.SampleFormat, mPref.NumOfChannels, mPref.PeakHoldSeconds,
-                mPref.WasapiBufferSizeMS * 0.001, mPref.ReleaseTimeDbPerSec);
-
-            mRectangleG8chArray = new Rectangle[] {
-                rectangleG1,
-                rectangleG2,
-                rectangleG3,
-                rectangleG4,
-                rectangleG5,
-
-                rectangleG6,
-                rectangleG7,
-                rectangleG8,
-            };
-
-            mRectangleY8chArray = new Rectangle[] {
-                rectangleY1,
-                rectangleY2,
-                rectangleY3,
-                rectangleY4,
-                rectangleY5,
-
-                rectangleY6,
-                rectangleY7,
-                rectangleY8,
-            };
-
-            mRectangleR8chArray = new Rectangle[] {
-                rectangleR1,
-                rectangleR2,
-                rectangleR3,
-                rectangleR4,
-                rectangleR5,
-
-                rectangleR6,
-                rectangleR7,
-                rectangleR8,
-            };
-            mRectangleMask8chArray = new Rectangle[] {
-                rectangleMask1,
-                rectangleMask2,
-                rectangleMask3,
-                rectangleMask4,
-                rectangleMask5,
-
-                rectangleMask6,
-                rectangleMask7,
-                rectangleMask8,
-            };
-            mRectanglePeak8chArray = new Rectangle[] {
-                rectanglePeak1,
-                rectanglePeak2,
-                rectanglePeak3,
-                rectanglePeak4,
-                rectanglePeak5,
-
-                rectanglePeak6,
-                rectanglePeak7,
-                rectanglePeak8,
-            };
-
-            mTextBlockLevelMeter8chArray = new TextBlock[] {
-                textBlockLevelMeter1,
-                textBlockLevelMeter2,
-                textBlockLevelMeter3,
-                textBlockLevelMeter4,
-                textBlockLevelMeter5,
-
-                textBlockLevelMeter6,
-                textBlockLevelMeter7,
-                textBlockLevelMeter8,
-            };
-        }
-
         private void UpdateUITexts() {
             groupBoxUISettings.Header = Properties.Resources.MainDisplaySettings;
             groupBoxWasapiSettings.Header = Properties.Resources.MainWasapiSettings;
@@ -151,6 +84,7 @@ namespace RecPcmWin {
             groupBoxWasapiBufferSize.Header = Properties.Resources.MainWasapiBufferSize;
             groupBoxRecordingControl.Header = Properties.Resources.MainRecordingControl;
             groupBoxQuantizationBitRate.Header = Properties.Resources.MainQuantizationBitRate;
+            groupBoxLevelMeter.Header = Properties.Resources.MainLevelMeter;
             radioButtonEventDriven.Content = Properties.Resources.EventDriven;
             radioButtonTimerDriven.Content = Properties.Resources.TimerDriven;
             buttonInspectDevice.Content = Properties.Resources.MainAvailableFormats;
@@ -159,15 +93,11 @@ namespace RecPcmWin {
             buttonSelectDevice.Content = Properties.Resources.MainSelect;
             buttonDeselectDevice.Content = Properties.Resources.MainDeselect;
             labelLanguage.Content = Properties.Resources.MainLanguage;
-            groupBoxLevelMeter.Header = Properties.Resources.MainLevelMeter;
-            groupBoxPeakHold.Header = Properties.Resources.MainPeakHold;
-            groupBoxNominalPeakLevel.Header = Properties.Resources.MainNominalPeakLevel;
-            groupBoxLevelMeterOther.Header = Properties.Resources.MainLevelMeterOther;
-            checkBoxLevelMeterUpdateWhileRecording.Content = Properties.Resources.MainLevelMeterUpdateWhileRecording;
-            textBlockLevelMeterReleaseTime.Text = Properties.Resources.MainLevelMeterReleaseTime;
             checkBoxSetDwChannelMask.Content = Properties.Resources.MainCheckboxSetDwChannelMask;
             groupBoxDwChannelMask.Header = Properties.Resources.MainGroupBoxDwChannelMask;
             groupBoxMasterVolumeControl.Header = Properties.Resources.MainGroupBoxMasterVolumeControl;
+            checkBoxLevelMeterUpdateWhileRecording.Content = Properties.Resources.MainLevelMeterUpdateWhileRecording;
+            mLevelMeterUC.UpdateUITexts();
         }
 
         private void PreferenceToUI() {
@@ -224,237 +154,35 @@ namespace RecPcmWin {
                 CultureInfo.InvariantCulture, "{0}",
                 mPref.RecordingBufferSizeMB);
 
-            switch (mPref.PeakHoldSeconds) {
-            case 1:
-            default:
-                radioButtonPeakHold1sec.IsChecked = true;
-                break;
-            case 3:
-                radioButtonPeakHold3sec.IsChecked = true;
-                break;
-            case -1:
-                radioButtonPeakHoldInfinity.IsChecked = true;
-                break;
-            }
-
-            switch (mPref.YellowLevelDb) {
-            case -6:
-                radioButtonNominalPeakM6.IsChecked = true;
-                break;
-            case -10:
-                radioButtonNominalPeakM10.IsChecked = true;
-                break;
-            case -12:
-            default:
-                radioButtonNominalPeakM12.IsChecked = true;
-                break;
-            }
-
+            checkBoxSetDwChannelMask.IsChecked = mPref.SetDwChannelMask;
             checkBoxLevelMeterUpdateWhileRecording.IsChecked = mPref.UpdateLevelMeterWhileRecording;
 
-            checkBoxSetDwChannelMask.IsChecked = mPref.SetDwChannelMask;
-
-            textBoxLevelMeterReleaseTime.Text = string.Format(
-                CultureInfo.InvariantCulture, "{0}",
-                mPref.ReleaseTimeDbPerSec);
-
-            UpdateLevelMeterScale();
+            // Level Meter params
+            mLevelMeterUC.PreferenceToUI(mPref.PeakHoldSeconds, mPref.YellowLevelDb, mPref.ReleaseTimeDbPerSec);
         }
-
-        /// <summary>
-        /// -48dBのとき0
-        /// 0dBよりわずかに少ないとき390
-        /// 0dB以上の時400
-        /// </summary>
-        private static double MeterValueDbToW(double db) {
-            if (db < METER_SMALLEST_DB) {
-                return 0;
-            }
-            if (0 <= db) {
-                return METER_0DB_W;
-            }
-
-            return -(db / METER_SMALLEST_DB) * METER_0DB_W + METER_0DB_W;
-        }
-
-        private Brush DbToBrush(double dB) {
-            if (dB < mPref.YellowLevelDb) {
-                return new SolidColorBrush(Colors.Lime);
-            }
-            if (dB < -0.1) {
-                return new SolidColorBrush(Colors.Yellow);
-            }
-            return new SolidColorBrush(Colors.Red);
-        }
-
-        private void ResetLevelMeter() {
-            Canvas.SetLeft(rectangleMaskL, METER_LEFT_X);
-            Canvas.SetLeft(rectangleMaskR, METER_LEFT_X);
-            rectangleMaskL.Width = METER_WIDTH;
-            rectangleMaskR.Width = METER_WIDTH;
-            foreach (var r in mRectangleMask8chArray) {
-                Canvas.SetLeft(r, METER_LEFT_X);
-                r.Width = METER_WIDTH;
-            }
-
-            Canvas.SetLeft(rectanglePeakL, METER_LEFT_X);
-            Canvas.SetLeft(rectanglePeakR, METER_LEFT_X);
-            rectanglePeakL.Fill = new SolidColorBrush(Colors.Transparent);
-            rectanglePeakR.Fill = new SolidColorBrush(Colors.Transparent);
-            foreach (var r in mRectanglePeak8chArray) {
-                Canvas.SetLeft(r, METER_LEFT_X);
-                r.Fill = new SolidColorBrush(Colors.Transparent);
-            }
-
-            textBlockLevelMeterL.Text = string.Format(CultureInfo.CurrentCulture, "  L");
-            textBlockLevelMeterR.Text = string.Format(CultureInfo.CurrentCulture, "  R");
-            for (int ch=0; ch<mTextBlockLevelMeter8chArray.Length; ++ch) {
-                mTextBlockLevelMeter8chArray[ch].Text = string.Format(CultureInfo.CurrentCulture, "  Ch.{0}", ch + 1);
-            }
-        }
-
-        private void UpdateLevelMeterScale() {
-            double greenW = MeterValueDbToW(mPref.YellowLevelDb);
-            rectangleGL.Width = greenW;
-            rectangleGR.Width = greenW;
-            foreach (var r in mRectangleG8chArray) {
-                r.Width = greenW;
-            }
-
-            Canvas.SetLeft(rectangleYL, METER_LEFT_X + greenW);
-            Canvas.SetLeft(rectangleYR, METER_LEFT_X + greenW);
-            rectangleYL.Width = METER_0DB_W - greenW;
-            rectangleYR.Width = METER_0DB_W - greenW;
-            foreach (var r in mRectangleY8chArray) {
-                Canvas.SetLeft(r, METER_LEFT_X + greenW);
-                r.Width = METER_0DB_W - greenW;
-            }
-
-            Canvas.SetLeft(rectangleRL, METER_LEFT_X + METER_0DB_W);
-            Canvas.SetLeft(rectangleRR, METER_LEFT_X + METER_0DB_W);
-            foreach (var r in mRectangleR8chArray) {
-                Canvas.SetLeft(r, METER_LEFT_X + METER_0DB_W);
-            }
-
-            switch (mPref.YellowLevelDb) {
-            case -12:
-            case -6:
-                lineM10dB.Visibility = System.Windows.Visibility.Hidden;
-                labelLevelMeterM10dB.Visibility = System.Windows.Visibility.Hidden;
-                lineM12dB.Visibility = System.Windows.Visibility.Visible;
-                labelLevelMeterM12dB.Visibility = System.Windows.Visibility.Visible;
-
-                lineM10dB8.Visibility = System.Windows.Visibility.Hidden;
-                labelLevelMeterM10dB8.Visibility = System.Windows.Visibility.Hidden;
-                lineM12dB8.Visibility = System.Windows.Visibility.Visible;
-                labelLevelMeterM12dB8.Visibility = System.Windows.Visibility.Visible;
-                break;
-            case -10:
-                lineM10dB.Visibility = System.Windows.Visibility.Visible;
-                labelLevelMeterM10dB.Visibility = System.Windows.Visibility.Visible;
-                lineM12dB.Visibility = System.Windows.Visibility.Hidden;
-                labelLevelMeterM12dB.Visibility = System.Windows.Visibility.Hidden;
-
-                lineM10dB8.Visibility = System.Windows.Visibility.Visible;
-                labelLevelMeterM10dB8.Visibility = System.Windows.Visibility.Visible;
-                lineM12dB8.Visibility = System.Windows.Visibility.Hidden;
-                labelLevelMeterM12dB8.Visibility = System.Windows.Visibility.Hidden;
-                break;
-            default:
-                System.Diagnostics.Debug.Assert(false);
-                break;
-            }
-        }
-
-        // 桁数を右揃えにして表示する。
-        private static string DbToString(double db) {
-            if (db < -200) {
-                return "Low";
-            }
-            var s = string.Format(CultureInfo.CurrentCulture, "{0:+0.0;-0.0;+0.0}", db);
-            return string.Format(CultureInfo.InvariantCulture, "{0,6}", s);
-        }
-
-        private void UpdateLevelMeter(double [] peakDb, double [] peakHoldDb) {
-            switch (peakDb.Length) {
-            case 2:
-                {
-                    double maskLW = METER_WIDTH - MeterValueDbToW(peakDb[0]);
-                    double maskRW = METER_WIDTH - MeterValueDbToW(peakDb[1]);
-
-                    Canvas.SetLeft(rectangleMaskL, METER_LEFT_X + (METER_WIDTH - maskLW));
-                    Canvas.SetLeft(rectangleMaskR, METER_LEFT_X + (METER_WIDTH - maskRW));
-                    rectangleMaskL.Width = maskLW;
-                    rectangleMaskR.Width = maskRW;
-
-                    double peakHoldLX = METER_LEFT_X + MeterValueDbToW(peakHoldDb[0]);
-                    double peakHoldRX = METER_LEFT_X + MeterValueDbToW(peakHoldDb[1]);
-                    Canvas.SetLeft(rectanglePeakL, peakHoldLX);
-                    Canvas.SetLeft(rectanglePeakR, peakHoldRX);
-
-                    rectanglePeakL.Fill = DbToBrush(peakHoldDb[0]);
-                    rectanglePeakR.Fill = DbToBrush(peakHoldDb[1]);
-
-                    textBlockLevelMeterL.Text = string.Format(CultureInfo.CurrentCulture, "  L\n{0}", DbToString(peakDb[0]));
-                    textBlockLevelMeterR.Text = string.Format(CultureInfo.CurrentCulture, "  R\n{0}", DbToString(peakDb[1]));
-                }
-                break;
-            case 8: {
-                    for (int ch = 0; ch < 8; ++ch) {
-                        double maskW = METER_WIDTH - MeterValueDbToW(peakDb[ch]);
-                        Canvas.SetLeft(mRectangleMask8chArray[ch], METER_LEFT_X + (METER_WIDTH - maskW));
-                        mRectangleMask8chArray[ch].Width = maskW;
-
-                        double peakHoldX = METER_LEFT_X + MeterValueDbToW(peakHoldDb[ch]);
-                        Canvas.SetLeft(mRectanglePeak8chArray[ch], peakHoldX);
-
-                        mRectanglePeak8chArray[ch].Fill = DbToBrush(peakHoldDb[ch]);
-
-                        mTextBlockLevelMeter8chArray[ch].Text = string.Format(CultureInfo.CurrentCulture, "{0}", DbToString(peakDb[ch]));
-                    }
-                }
-                break;
-            default:
-                break;
-            }
-        }
-
-        private void ControlCaptureCallback(byte[] pcmData) {
-            // このスレッドは描画できないので注意。
-
-            mLevelMeter.Update(pcmData);
-
-            double[] peakDb;
-            double[] peakHoldDb;
-
-            if (mLevelMeter.NumChannels <= 2) {
-                peakDb = new double[2];
-                peakHoldDb = new double[2];
-
-                for (int ch = 0; ch < 2; ++ch) {
-                    peakDb[ch] = mLevelMeter.GetPeakDb(ch);
-                    peakHoldDb[ch] = mLevelMeter.GetPeakHoldDb(ch);
-                }
-            } else {
-                peakDb = new double[8];
-                peakHoldDb = new double[8];
-
-                for (int ch = 0; ch < 8; ++ch) {
-                    peakDb[ch] = mLevelMeter.GetPeakDb(ch);
-                    peakHoldDb[ch] = mLevelMeter.GetPeakHoldDb(ch);
-                }
-            }
-
-            if (DateTime.Now.Ticks - mLevelMeterLastDispTick < LEVEL_METER_UPDATE_INTERVAL_MS * 10000) {
+        
+        private void checkBoxLevelMeterUpdateWhileRecording_Checked(object sender, RoutedEventArgs e) {
+            if (!mInitialized) {
                 return;
             }
 
-            mLevelMeterLastDispTick = DateTime.Now.Ticks;
+            mPref.UpdateLevelMeterWhileRecording = true;
 
-            Dispatcher.BeginInvoke(new Action(delegate() {
-                // 描画スレッドで描画する。
-                UpdateLevelMeter(peakDb, peakHoldDb);
-            }));
+            mWasapiCtrl.SetCaptureCallback(ControlCaptureCallback);
+        }
+
+        private void checkBoxLevelMeterUpdateWhileRecording_Unchecked(object sender, RoutedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            }
+
+            mPref.UpdateLevelMeterWhileRecording = false;
+
+            if (!buttonRec.IsEnabled) {
+                // 録音中。
+                mWasapiCtrl.SetCaptureCallback(null);
+                mLevelMeterUC.ResetLevelMeter();
+            }
         }
 
         private void CreateDeviceList() {
@@ -670,13 +398,7 @@ namespace RecPcmWin {
                 AddLog("This device does not support hardware volume control.\r\n");
             }
 
-            if (mPref.NumOfChannels <= 2) {
-                canvasLevelMeter2ch.Visibility = Visibility.Visible;
-                canvasLevelMeter8ch.Visibility = Visibility.Hidden;
-            } else {
-                canvasLevelMeter2ch.Visibility = Visibility.Hidden;
-                canvasLevelMeter8ch.Visibility = Visibility.Visible;
-            }
+            mLevelMeterUC.UpdateNumOfChannels(mPref.NumOfChannels);
 
             mBW = new BackgroundWorker();
             mBW.WorkerReportsProgress = true;
@@ -698,7 +420,7 @@ namespace RecPcmWin {
         private void buttonRec_Click(object sender, RoutedEventArgs e) {
             if (checkBoxLevelMeterUpdateWhileRecording.IsChecked != true) {
                 mWasapiCtrl.SetCaptureCallback(null);
-                ResetLevelMeter();
+                mLevelMeterUC.ResetLevelMeter();
             }
 
             AddLog(string.Format("StorePcm(true)\r\n"));
@@ -762,7 +484,7 @@ namespace RecPcmWin {
             buttonRec.IsEnabled = false;
             buttonStop.IsEnabled = false;
             groupBoxWasapiSettings.IsEnabled = true;
-            ResetLevelMeter();
+            mLevelMeterUC.ResetLevelMeter();
         }
 
         private void DoWork(object o, DoWorkEventArgs args) {
@@ -907,107 +629,12 @@ namespace RecPcmWin {
             }
         }
 
-        private void radioButtonPeakHold1sec_Checked(object sender, RoutedEventArgs e) {
-            if (!mInitialized) {
-                return;
-            }
-
-            mPref.PeakHoldSeconds = 1;
-            mLevelMeter = new LevelMeter(mPref.SampleFormat, mPref.NumOfChannels,
-                mPref.PeakHoldSeconds, mPref.WasapiBufferSizeMS * 0.001, mPref.ReleaseTimeDbPerSec);
-        }
-
-        private void radioButtonPeakHold3sec_Checked(object sender, RoutedEventArgs e) {
-            if (!mInitialized) {
-                return;
-            }
-            mPref.PeakHoldSeconds = 3;
-            mLevelMeter = new LevelMeter(mPref.SampleFormat, mPref.NumOfChannels,
-                mPref.PeakHoldSeconds, mPref.WasapiBufferSizeMS * 0.001, mPref.ReleaseTimeDbPerSec);
-        }
-
-        private void radioButtonPeakHoldInfinity_Checked(object sender, RoutedEventArgs e) {
-            if (!mInitialized) {
-                return;
-            }
-            mPref.PeakHoldSeconds = -1;
-            mLevelMeter = new LevelMeter(mPref.SampleFormat, mPref.NumOfChannels,
-                mPref.PeakHoldSeconds, mPref.WasapiBufferSizeMS * 0.001, mPref.ReleaseTimeDbPerSec);
-        }
-
-        private void radioButtonNominalPeakM6_Checked(object sender, RoutedEventArgs e) {
-            if (!mInitialized) {
-                return;
-            }
-            mPref.YellowLevelDb = -6;
-            UpdateLevelMeterScale();
-        }
-
-        private void radioButtonNominalPeakM10_Checked(object sender, RoutedEventArgs e) {
-            if (!mInitialized) {
-                return;
-            }
-            mPref.YellowLevelDb = -10;
-            UpdateLevelMeterScale();
-        }
-
-        private void radioButtonNominalPeakM12_Checked(object sender, RoutedEventArgs e) {
-            if (!mInitialized) {
-                return;
-            }
-            mPref.YellowLevelDb = -12;
-            UpdateLevelMeterScale();
-        }
-
-        private void checkBoxLevelMeterUpdateWhileRecording_Checked(object sender, RoutedEventArgs e) {
-            if (!mInitialized) {
-                return;
-            }
-
-            mPref.UpdateLevelMeterWhileRecording = true;
-
-            mWasapiCtrl.SetCaptureCallback(ControlCaptureCallback);
-        }
-
-        private void checkBoxLevelMeterUpdateWhileRecording_Unchecked(object sender, RoutedEventArgs e) {
-            if (!mInitialized) {
-                return;
-            }
-
-            mPref.UpdateLevelMeterWhileRecording = false;
-
-            if (!buttonRec.IsEnabled) {
-                // 録音中。
-                mWasapiCtrl.SetCaptureCallback(null);
-                ResetLevelMeter();
-            }
-        }
-
-        private void buttonPeakHoldReset_Click(object sender, RoutedEventArgs e) {
-            mLevelMeter.PeakHoldReset();
-        }
-
         private void checkBoxSetDwChannelMask_Checked(object sender, RoutedEventArgs e) {
             mPref.SetDwChannelMask = true;
         }
 
         private void checkBoxSetDwChannelMask_Unchecked(object sender, RoutedEventArgs e) {
             mPref.SetDwChannelMask = false;
-        }
-
-        private void textBoxLevelMeterReleaseTime_TextChanged(object sender, TextChangedEventArgs e) {
-            if (!mInitialized) {
-                return;
-            }
-
-            int v;
-            if (Int32.TryParse(textBoxLevelMeterReleaseTime.Text, out v) && 0 <= v) {
-                mPref.ReleaseTimeDbPerSec = v;
-                mLevelMeter = new LevelMeter(mPref.SampleFormat, mPref.NumOfChannels, mPref.PeakHoldSeconds,
-                    mPref.WasapiBufferSizeMS * 0.001, mPref.ReleaseTimeDbPerSec);
-            } else {
-                MessageBox.Show(Properties.Resources.ErrorReleaseTimeMustBePositiveInteger);
-            }
         }
 
         private void sliderMasterVolume_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) {
@@ -1018,27 +645,6 @@ namespace RecPcmWin {
             labelRecordingVolume.Content = string.Format("{0} dB", sliderMasterVolume.Value);
             mWasapiCtrl.SetEndpointMasterVolume((float)sliderMasterVolume.Value);
         }
-
-        private readonly int [] gComboBoxItemSampleRate = new int [] {
-            44100,
-            48000,
-            64000,
-            88200,
-            96000,
-
-            128000,
-            176400,
-            192000,
-            352800,
-            384000,
-
-            705600,
-            768000,
-            1411200,
-            1536000,
-            2822400,
-            3072000,
-        };
 
         private void comboBoxSampleRate_SelectionChanged(object sender, SelectionChangedEventArgs e) {
             if (!mInitialized) {
@@ -1056,8 +662,6 @@ namespace RecPcmWin {
                 Thread.CurrentThread.CurrentCulture = newCulture;
                 Thread.CurrentThread.CurrentUICulture = newCulture;
             }
-
-            InitLevelMeter();
 
             comboBoxLang.SelectedIndex = CultureStringToIdx(Thread.CurrentThread.CurrentUICulture.Name);
 
@@ -1077,10 +681,59 @@ namespace RecPcmWin {
             int currentSec = 0;
             int maxSec = (int)((long)mPref.RecordingBufferSizeMB * 1024 * 1024 / GetBytesPerSec(mPref));
             UpdateDurationLabel(currentSec, maxSec);
-            
-            ResetLevelMeter();
+
+            mLevelMeterUC.SetParamChangedCallback(LevelMeterUCParamChanged);
 
             mInitialized = true;
+        }
+
+        /// <summary>
+        /// LevelMeterユーザーコントロールの設定がユーザー操作によって変更されたとき呼び出される。
+        /// </summary>
+        private void LevelMeterUCParamChanged(
+                int peakHoldSeconds, int yellowLevelDb, int releaseTimeDbPerSec, bool meterReset) {
+            mPref.PeakHoldSeconds = peakHoldSeconds;
+            mPref.YellowLevelDb = yellowLevelDb;
+            mPref.ReleaseTimeDbPerSec = releaseTimeDbPerSec;
+
+            lock (mLock) {
+                mLevelMeter = new LevelMeter(mPref.SampleFormat, mPref.NumOfChannels, mPref.PeakHoldSeconds,
+                    mPref.WasapiBufferSizeMS * 0.001, mPref.ReleaseTimeDbPerSec);
+            }
+        }
+
+        private void ControlCaptureCallback(byte[] pcmData) {
+            // このスレッドは描画できないので注意。
+
+            double[] peakDb;
+            double[] peakHoldDb;
+
+            lock (mLock) {
+                mLevelMeter.Update(pcmData);
+
+                if (mLevelMeter.NumChannels <= 2) {
+                    peakDb = new double[2];
+                    peakHoldDb = new double[2];
+
+                    for (int ch = 0; ch < 2; ++ch) {
+                        peakDb[ch] = mLevelMeter.GetPeakDb(ch);
+                        peakHoldDb[ch] = mLevelMeter.GetPeakHoldDb(ch);
+                    }
+                } else {
+                    peakDb = new double[8];
+                    peakHoldDb = new double[8];
+
+                    for (int ch = 0; ch < 8; ++ch) {
+                        peakDb[ch] = mLevelMeter.GetPeakDb(ch);
+                        peakHoldDb[ch] = mLevelMeter.GetPeakHoldDb(ch);
+                    }
+                }
+            }
+
+            Dispatcher.BeginInvoke(new Action(delegate() {
+                // 描画スレッドで描画する。
+                mLevelMeterUC.UpdateLevelMeter(peakDb, peakHoldDb);
+            }));
         }
     }
 }
