@@ -116,6 +116,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MLSDeconvolution.cs" />
+    <Compile Include="PreferenceStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -172,6 +173,10 @@
     <ProjectReference Include="..\WWUtil\WWUtil.csproj">
       <Project>{FC57308E-CF56-4B3E-B920-4093660D0A4A}</Project>
       <Name>WWUtil</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WWXmlRW\WWXmlRW.csproj">
+      <Project>{AB557C03-95F9-4D3A-B2CB-16EC26D884CD}</Project>
+      <Name>WWXmlRW</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

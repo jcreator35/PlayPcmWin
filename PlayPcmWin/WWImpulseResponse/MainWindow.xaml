@@ -13,18 +13,8 @@
             <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
         <ScrollViewer Grid.ColumnSpan="2">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*" />
-                    <ColumnDefinition Width="3*" />
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="3*" />
-                    <RowDefinition Height="3*" />
-                    <RowDefinition Height="4*" />
-                    <RowDefinition Height="8*" />
-                </Grid.RowDefinitions>
-                <GroupBox Grid.ColumnSpan="2" Header="PCM data settings" Margin="4,0,4,0" Name="groupBoxPcmDataSettings" >
+            <StackPanel >
+                <GroupBox Header="PCM data settings" Margin="4,0,4,0" Name="groupBoxPcmDataSettings" >
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="3*" />
@@ -93,9 +83,9 @@
                                 </Grid.RowDefinitions>
                                 <RadioButton Content="Maximum Length Sequence" HorizontalAlignment="Left" Grid.ColumnSpan="2" IsChecked="True" Margin="6,0,0,0" Name="radioButtonPcmRandom" VerticalAlignment="Center" />
                                 <ComboBox HorizontalAlignment="Left" Margin="40,0,0,0" Name="comboBoxMLSOrder" VerticalAlignment="Center" Grid.ColumnSpan="2" Grid.Row="1">
-                                    <ComboBoxItem Content="order=16 ( 65,535 samples / cycle )" />
+                                    <ComboBoxItem Content="order=16 ( 65,535 samples / cycle )" IsSelected="True" />
                                     <ComboBoxItem Content="order=17 ( 131,072 samples / cycle )" />
-                                    <ComboBoxItem Content="order=18 ( 262,143 samples / cycle )" IsSelected="True" />
+                                    <ComboBoxItem Content="order=18 ( 262,143 samples / cycle )" />
                                     <ComboBoxItem Content="order=19 ( 524,287 samples / cycle )" />
                                     <ComboBoxItem Content="order=20 ( 1,048,575 samples / cycle )" />
                                 </ComboBox>
@@ -103,7 +93,17 @@
                         </GroupBox>
                     </Grid>
                 </GroupBox>
-                <GroupBox Header="Playback settings" Name="groupBoxPlayback" Grid.ColumnSpan="2" Margin="4,0,4,0" Grid.Row="1">
+                <GroupBox Header="Output folder" Name="groupBoxOutputPath" Margin="4,0,4,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="3*" />
+                        </Grid.ColumnDefinitions>
+                        <Label Content="Output Folder:" HorizontalAlignment="Right" />
+                        <TextBox Grid.Column="1" Margin="4" Text="C:/audio/impulseresponse" Name="textboxOutputFolder" />
+                    </Grid>
+                </GroupBox>
+                <GroupBox Header="Playback settings" Name="groupBoxPlayback" Margin="4,0,4,0">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="1*" />
@@ -135,7 +135,7 @@
                                     <ColumnDefinition Width="1*" />
                                 </Grid.ColumnDefinitions>
                                 <Label Content="ms" Grid.Column="1" HorizontalAlignment="Left" Margin="6,0,0,0" Name="labelPlayBufferSize" VerticalAlignment="Center" />
-                                <TextBox Margin="6,0,0,0" Name="textBoxPlayBufferSize" VerticalAlignment="Center" Text="170" HorizontalContentAlignment="Right" />
+                                <TextBox Margin="6,0,0,0" Name="textBoxPlayBufferSize" VerticalAlignment="Center" Text="100" HorizontalContentAlignment="Right" />
                             </Grid>
                         </GroupBox>
                         <GroupBox Header="PCM format" Margin="155,6,6,48" Name="groupBoxPlayPcmFormat" Grid.Column="1" Grid.RowSpan="2">
@@ -154,7 +154,7 @@
                         </GroupBox>
                     </Grid>
                 </GroupBox>
-                <GroupBox Grid.Row="2" Header="Recording settings" Name="groupBoxRecording" Grid.ColumnSpan="2"  Margin="4,0,4,0" >
+                <GroupBox Header="Recording settings" Name="groupBoxRecording" Margin="4,0,4,0" >
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="1*" />
@@ -186,7 +186,7 @@
                                     <ColumnDefinition Width="1*" />
                                 </Grid.ColumnDefinitions>
                                 <Label Content="ms" Grid.Column="1" HorizontalAlignment="Left" Margin="6,0,0,0" Name="label1" VerticalAlignment="Center" />
-                                <TextBox HorizontalContentAlignment="Right" Margin="6,0,0,0" Name="textBoxRecBufferSize" Text="170" VerticalAlignment="Center" />
+                                <TextBox HorizontalContentAlignment="Right" Margin="6,0,0,0" Name="textBoxRecBufferSize" Text="100" VerticalAlignment="Center" />
                             </Grid>
                         </GroupBox>
                         <GroupBox Header="PCM format" Margin="155,6,6,0" Name="groupBoxRecPcmFormat" Grid.Column="1" >
@@ -210,10 +210,13 @@
                         </GroupBox>
                     </Grid>
                 </GroupBox>
-                <GroupBox Header="Time Domain Plot" Grid.Row="3" Grid.ColumnSpan="2" Name="groupBoxTD">
+                <GroupBox Header="Level Meter" Name="groupBoxLV" Height="252" >
+                    <wwuc:LevelMeterUC x:Name="mLevelMeterUC" />
+                </GroupBox>
+                <GroupBox Header="Time Domain Plot" Name="groupBoxTD">
                     <wwuc:TimeDomainPlot x:Name="mTimeDomainPlot"  />
                 </GroupBox>
-            </Grid>
+            </StackPanel>
         </ScrollViewer>
         <Button Content="Start" Grid.Row="1" Margin="6,12,6,0" Name="buttonStart" VerticalAlignment="Top" IsEnabled="False" Click="buttonStart_Click" />
         <Button Content="Stop" Grid.Row="1" Margin="6,42,6,0" Name="buttonStop" VerticalAlignment="Top" IsEnabled="False" Click="buttonStop_Click" />
@@ -222,6 +225,5 @@
                 <TextBox Name="textBoxLog" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Visible" />
             </Grid>
         </GroupBox>
-        <ProgressBar Grid.Row="1" Height="22" Margin="6,0,6,6" Name="progressBar1" VerticalAlignment="Bottom" />
     </Grid>
 </Window>

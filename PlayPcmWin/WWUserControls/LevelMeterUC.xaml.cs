@@ -50,6 +50,10 @@ namespace WWUserControls {
             textBlockLevelMeterReleaseTime.Text = Properties.Resources.MainLevelMeterReleaseTime;
         }
 
+        public void YellowLevelChangeEnable(bool bEnable) {
+            groupBoxNominalPeakLevel.IsEnabled = bEnable;
+        }
+
         private Rectangle[] mRectangleG8chArray;
         private Rectangle[] mRectangleY8chArray;
         private Rectangle[] mRectangleR8chArray;

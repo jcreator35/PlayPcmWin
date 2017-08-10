@@ -79,6 +79,9 @@ namespace WWUserControls {
         public void SetDiscreteTimeSequence(double[] seq, int sampleRate) {
             mTimeDomainSequence = seq;
             mSampleRate = sampleRate;
+
+            // サンプリング周波数(Hz) と表示サンプル数FR_LINE_WIDTHから表示時間範囲TimeRangeを計算。
+            TimeRange = (double)FR_LINE_WIDTH / sampleRate;
         }
 
         private double PlotXToTime(int idx) {
@@ -100,23 +103,6 @@ namespace WWUserControls {
 
         private List<Label> mLabelList = new List<Label>();
 
-        public void Update() {
-            if (!mInitialized) {
-                return;
-            }
-            FunctionType ft = (FunctionType)comboBoxFunction.SelectedIndex;
-
-            switch (ft) {
-            case FunctionType.ImpulseResponse:
-            case FunctionType.StepResponse:
-                UpdateImpulseResponse();
-                break;
-            case FunctionType.DiscreteTimeSequence:
-                UpdateDiscreteTimeSequence();
-                break;
-            }
-        }
-
         private int FindPeak() {
             int peak = 0;
             double maxMagnitude = 0.0;
@@ -132,8 +118,38 @@ namespace WWUserControls {
             return peak;
         }
 
-        private void UpdateDiscreteTimeSequence() {
+        public void Clear() {
+            foreach (var item in mLineList) {
+                canvasTD.Children.Remove(item);
+            }
+            mLineList.Clear();
 
+            foreach (var item in mLabelList) {
+                canvasTD.Children.Remove(item);
+            }
+            mLabelList.Clear();
+        }
+
+        public void Update() {
+            if (!mInitialized) {
+                return;
+            }
+
+            Clear();
+
+            FunctionType ft = (FunctionType)comboBoxFunction.SelectedIndex;
+            switch (ft) {
+            case FunctionType.ImpulseResponse:
+            case FunctionType.StepResponse:
+                UpdateImpulseResponse();
+                break;
+            case FunctionType.DiscreteTimeSequence:
+                UpdateDiscreteTimeSequence();
+                break;
+            }
+        }
+
+        private void UpdateDiscreteTimeSequence() {
             int peakPos = FindPeak();
             peakPos -= FR_LINE_WIDTH/5;
 
@@ -160,16 +176,6 @@ namespace WWUserControls {
             double scale = mTimeScales[comboBoxTimeScale.SelectedIndex];
             TimeScale = 0.01 * scale;
             TimeRange = 20.0 * scale;
-
-            foreach (var item in mLineList) {
-                canvasTD.Children.Remove(item);
-            }
-            mLineList.Clear();
-
-            foreach (var item in mLabelList) {
-                canvasTD.Children.Remove(item);
-            }
-            mLabelList.Clear();
 
             double[] sampled = new double[FR_LINE_WIDTH];
 
@@ -211,6 +217,7 @@ namespace WWUserControls {
                 }
 
                 {
+                    // 時間数値表示。
                     var label = new Label();
                     label.Content = Common.UnitNumberString(t * TimeScale);
                     canvasTD.Children.Add(label);

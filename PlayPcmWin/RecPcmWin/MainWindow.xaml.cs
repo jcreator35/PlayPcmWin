@@ -703,6 +703,10 @@ namespace RecPcmWin {
         }
 
         private void ControlCaptureCallback(byte[] pcmData) {
+            UpdateLevelMeter(pcmData);
+        }
+
+        private void UpdateLevelMeter(byte[] pcmData) {
             // このスレッドは描画できないので注意。
 
             double[] peakDb;

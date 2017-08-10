@@ -50,6 +50,8 @@ namespace WWImpulseResponse {
         private int mRecDeviceIdx = -1;
         private int ZERO_FLUSH_MILLISEC = 1000;
         private int TIME_PERIOD = 10000;
+        
+        private LevelMeter mLevelMeter;
 
         private State mState = State.Init;
 
@@ -64,6 +66,7 @@ namespace WWImpulseResponse {
         private Object mLock = new Object();
 
         private Wasapi.WasapiCS.StateChangedCallback mStateChanged;
+        private Preference mPref = null;
 
         private class StartTestingResult {
             public bool result;
@@ -79,6 +82,7 @@ namespace WWImpulseResponse {
         };
 
         private void LocalizeUI() {
+            mLevelMeterUC.UpdateUITexts();
         }
 
         private readonly int [] MLS_ORDERS = new int[] {
@@ -96,6 +100,7 @@ namespace WWImpulseResponse {
         };
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
+            mPref = PreferenceStore.Load(); 
             LocalizeUI();
 
             mWasapiPlay = new WasapiCS();
@@ -125,7 +130,7 @@ namespace WWImpulseResponse {
 
             UpdateDeviceList();
 
-            textBoxLog.Text = string.Format("WasapiBitmatchChecker version {0}\r\n", AssemblyVersion);
+            textBoxLog.Text = string.Format("WWImpulseResponse version {0}\r\n", AssemblyVersion);
 
             mStateChanged = new Wasapi.WasapiCS.StateChangedCallback(StateChangedCallback);
             mWasapiPlay.RegisterStateChangedCallback(mStateChanged);
@@ -133,59 +138,24 @@ namespace WWImpulseResponse {
             mTimeDomainPlot.SetFunctionType(WWUserControls.TimeDomainPlot.FunctionType.DiscreteTimeSequence);
             mTimeDomainPlot.SetDiscreteTimeSequence(new double[1], 44100);
 
-            /*
-            var md = new MLSDeconvolution(3);
-            md.Test(md.MLSSequence());
+            mLevelMeterUC.PreferenceToUI(1, -6, -100);
+            mLevelMeterUC.YellowLevelChangeEnable(false);
+            mLevelMeterUC.SetParamChangedCallback(LevelMeterUCParamChanged);
+        }
+        
+        /// <summary>
+        /// LevelMeterユーザーコントロールの設定がユーザー操作によって変更されたとき呼び出される。
+        /// </summary>
+        private void LevelMeterUCParamChanged(
+                int peakHoldSeconds, int yellowLevelDb, int releaseTimeDbPerSec, bool meterReset) {
+            mPref.PeakHoldSeconds = peakHoldSeconds;
+            mPref.YellowLevelDb = yellowLevelDb;
+            mPref.ReleaseTimeDbPerSec = releaseTimeDbPerSec;
 
-            for (int order = 3; order <= 24; ++order) {
-                var md = new MLSDeconvolution(order);
-                var mls = md.MLSSequence();
-
-                System.Diagnostics.Debug.Assert(mls.Length != Math.Pow(2, order) - 1);
-
-                string path = string.Format("output{0}_512x32.bmp", order);
-                using (BinaryWriter bw = new BinaryWriter(File.Open(path, FileMode.Create))) {
-                    using (BinaryReader br = new BinaryReader(File.Open("C:/work/BpsConvWin2/WWImpulseResponse/template_512x32.bmp", FileMode.Open))) {
-                        for (int i = 0; i < 0x436; ++i) {
-                            byte b = br.ReadByte();
-                            bw.Write(b);
-                        }
-                    }
-
-                    for (int i = 0; i < 512*32; ++i) {
-                        int pos = i % mls.Length;
-                        byte v = (byte)(255 * ((mls[pos] + 1.0) / 2));
-                        bw.Write(v);
-                    }
-                }
-
-                path = string.Format("output{0}_512x512.bmp", order);
-                using (BinaryWriter bw = new BinaryWriter(File.Open(path, FileMode.Create))) {
-                    using (BinaryReader br = new BinaryReader(File.Open("C:/work/BpsConvWin2/WWImpulseResponse/template_512x512.bmp", FileMode.Open))) {
-                        for (int i = 0; i < 0x436; ++i) {
-                            byte b = br.ReadByte();
-                            bw.Write(b);
-                        }
-                    }
-
-                    for (int i = 0; i < 512 * 512; ++i) {
-                        int pos = i % mls.Length;
-                        byte v = (byte)(255 * ((mls[pos] + 1.0) / 2));
-                        bw.Write(v);
-                    }
-                }
+            lock (mLock) {
+                mLevelMeter = new LevelMeter(mPref.SampleFormat, mPref.NumOfChannels, mPref.PeakHoldSeconds,
+                    mPref.WasapiBufferSizeMS * 0.001, mPref.ReleaseTimeDbPerSec);
             }
-
-            for (int i = 0; i < mls.Length; ++i) {
-                Console.Write("{0},", (mls[i] + 1.0) / 2);
-            }
-            Console.WriteLine("");
-
-            var recorded = new double[mls.Length + 1];
-            Array.Copy(mls, 0, recorded, 1, mls.Length);
-
-            md.Deconvolution(recorded);
-            */
         }
 
         public void StateChangedCallback(StringBuilder idStr) {
@@ -285,6 +255,9 @@ namespace WWImpulseResponse {
 
         private void Window_Closed(object sender, EventArgs e) {
             Term();
+
+            // 設定ファイルを書き出す。
+            PreferenceStore.Save(mPref);
         }
 
         private void StopBlocking() {
@@ -402,13 +375,15 @@ namespace WWImpulseResponse {
             public int testChannel;
             public int playDwChannelMask;
             public int recDwChannelMask;
+            public string outputFolder;
 
-            public StartTestingArgs(int aOrder, int numCh, int testCh, int playDwChMask, int recDwChMask) {
+            public StartTestingArgs(int aOrder, int numCh, int testCh, int playDwChMask, int recDwChMask, string aOutputFolder) {
                 order = aOrder;
                 numChannels = numCh;
                 testChannel = testCh;
                 playDwChannelMask = playDwChMask;
                 recDwChannelMask = recDwChMask;
+                outputFolder = aOutputFolder;
             }
         };
 
@@ -457,7 +432,15 @@ namespace WWImpulseResponse {
                 MessageBox.Show("Error: test channel number is out of range");
                 return;
             }
-            mStartTestingArgs = new StartTestingArgs(MLS_ORDERS[comboBoxMLSOrder.SelectedIndex], numCh, testCh, playDwChMask, recDwChMask);
+
+            mPref.NumOfChannels = numCh;
+            mLevelMeterUC.UpdateNumOfChannels(mPref.NumOfChannels);
+
+            mTimeDomainPlot.Clear();
+
+            Directory.CreateDirectory(textboxOutputFolder.Text);
+
+            mStartTestingArgs = new StartTestingArgs(MLS_ORDERS[comboBoxMLSOrder.SelectedIndex], numCh, testCh, playDwChMask, recDwChMask, textboxOutputFolder.Text);
             mBwStartTesting.RunWorkerAsync(mStartTestingArgs);
         }
 
@@ -529,6 +512,9 @@ namespace WWImpulseResponse {
                 mCapturedBytes = 0;
                 mReceivedBytes = 0;
 
+                mLevelMeter = new LevelMeter(mRecSampleFormat, args.numChannels, mPref.PeakHoldSeconds,
+                    mPref.WasapiBufferSizeMS * 0.001, mPref.ReleaseTimeDbPerSec);
+
                 hr = mWasapiRec.Setup(mRecDeviceIdx,
                         WasapiCS.DeviceType.Rec, WasapiCS.StreamType.PCM,
                         mSampleRate, mRecSampleFormat, args.numChannels, args.recDwChannelMask,
@@ -584,6 +570,13 @@ namespace WWImpulseResponse {
             }
         }
 
+        class RecWorkerArgs {
+            public string outputFolder;
+            public RecWorkerArgs(string path) {
+                outputFolder = path;
+            }
+        };
+
         void BwStartTesting_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
             //Console.WriteLine("BwStartTesting_RunWorkerCompleted()");
             var r = e.Result as StartTestingResult;
@@ -611,7 +604,11 @@ namespace WWImpulseResponse {
             mPlayWorker.RunWorkerAsync();
 
             hr = mWasapiRec.StartRecording();
-            mRecWorker.RunWorkerAsync();
+
+
+            var recArgs = new RecWorkerArgs(textboxOutputFolder.Text);
+
+            mRecWorker.RunWorkerAsync(recArgs);
 
             mState = State.Syncing;
         }
@@ -640,10 +637,6 @@ namespace WWImpulseResponse {
             // 停止完了後タスクの処理は、ここではなく、PlayRunWorkerCompletedで行う。
         }
 
-        private void RecWorkerProgressChanged(object sender, ProgressChangedEventArgs e) {
-            progressBar1.Value = e.ProgressPercentage;
-        }
-
         /// <summary>
         /// 再生終了。
         /// </summary>
@@ -652,24 +645,22 @@ namespace WWImpulseResponse {
         }
 
         private void RecDoWork(object o, DoWorkEventArgs args) {
+            var recArgs = args.Argument as RecWorkerArgs;
             BackgroundWorker bw = (BackgroundWorker)o;
 
-            bw.ReportProgress(10);
-
-            while (!mWasapiRec.Run(1000) && mState != State.RecCompleted) {
-                if (mState == State.Running) {
-                    bw.ReportProgress(25);
-                }
-
+            while (!mWasapiRec.Run(1000)) {
                 System.Threading.Thread.Sleep(1);
+                if (mState == State.RecCompleted) {
+                    ProcessCapturedData(bw, recArgs.outputFolder);
+                    mCapturedBytes = 0;
+                    mState = State.Running;
+                }
                 if (bw.CancellationPending) {
                     Console.WriteLine("RecDoWork() CANCELED");
                     mWasapiRec.Stop();
                     args.Cancel = true;
                 }
             }
-
-            bw.ReportProgress(50);
 
             // 再生停止する。
             mWasapiPlay.Stop();
@@ -679,10 +670,11 @@ namespace WWImpulseResponse {
                 mWasapiRec.Unsetup();
             }
 
-            ProcessCapturedData();
         }
 
-        private void ProcessCapturedData() {
+        int mCaptureCounter = 0;
+
+        private void ProcessCapturedData(BackgroundWorker bw, string folder) {
             // 録音したデータをrecPcmDataに入れる。
             var recPcmData = new PcmDataLib.PcmData();
             recPcmData.SetFormat(mStartTestingArgs.numChannels, WasapiCS.SampleFormatTypeToUseBitsPerSample(mRecSampleFormat),
@@ -722,13 +714,46 @@ namespace WWImpulseResponse {
             for (int i = 0; i < decon.Length; ++i) {
                 impulse[i] = 2.0 * decon[decon.Length - 1 - i];
             }
-            mTimeDomainPlot.SetDiscreteTimeSequence(impulse, mSampleRate);
+
+            ++mCaptureCounter;
+
+            string path = string.Format("{0}/impulse{1}.csv", folder, mCaptureCounter);
+
+            OutputToCsvFile(impulse, mSampleRate, path);
+
+            lock (mLock) {
+                mTimeDomainPlot.SetDiscreteTimeSequence(impulse, mSampleRate);
+            }
             // この後描画ができるタイミングでmTimeDomainPlot.Update()を呼ぶ。
 #endif
+            bw.ReportProgress(10);
+        }
+
+        private void OutputToCsvFile(double[] impulse, int sampleRate, string path) {
+            using (var sw = new StreamWriter(File.Open(path, FileMode.Create))) {
+                sw.WriteLine("Time, Amplitude");
+                for (int i = 0; i < impulse.Length; ++i) {
+                    double time = (double)i / sampleRate;
+                    double v = impulse[i];
+                    sw.WriteLine("{0:R}, {1:R}", time, v);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 取得したインパルス応答を描画する。
+        /// </summary>
+        private void RecWorkerProgressChanged(object sender, ProgressChangedEventArgs e) {
+            lock (mLock) {
+                mTimeDomainPlot.Update();
+            }
         }
 
         private void RecRunWorkerCompleted(object o, RunWorkerCompletedEventArgs args) {
-            //Console.WriteLine("RecRunWorkerCompleted()");
+            Console.WriteLine("RecRunWorkerCompleted()");
+
+            mLevelMeterUC.SetParamChangedCallback(null);
+            mLevelMeterUC.ResetLevelMeter();
 
             lock (mLock) {
                 // 完了。UIの状態を戻す。
@@ -738,13 +763,12 @@ namespace WWImpulseResponse {
                 groupBoxPlayback.IsEnabled = true;
                 groupBoxRecording.IsEnabled = true;
 
-                progressBar1.Value = 0;
-
                 mState = State.Init;
 
                 // プロット描画を更新。
                 mTimeDomainPlot.Update();
             }
+
 
             textBoxLog.Text += "Finished\n";
             textBoxLog.ScrollToEnd();
@@ -787,8 +811,6 @@ namespace WWImpulseResponse {
             groupBoxPcmDataSettings.IsEnabled = true;
             groupBoxPlayback.IsEnabled = true;
             groupBoxRecording.IsEnabled = true;
-
-            progressBar1.Value = 0;
         }
 
         private void buttonStop_Click(object sender, RoutedEventArgs e) {
@@ -825,7 +847,43 @@ namespace WWImpulseResponse {
             }
         }
 
+        private void UpdateLevelMeter(byte[] pcmData) {
+            // このスレッドは描画できないので注意。
+
+            double[] peakDb;
+            double[] peakHoldDb;
+
+            lock (mLock) {
+                mLevelMeter.Update(pcmData);
+
+                if (mLevelMeter.NumChannels <= 2) {
+                    peakDb = new double[2];
+                    peakHoldDb = new double[2];
+
+                    for (int ch = 0; ch < 2; ++ch) {
+                        peakDb[ch] = mLevelMeter.GetPeakDb(ch);
+                        peakHoldDb[ch] = mLevelMeter.GetPeakHoldDb(ch);
+                    }
+                } else {
+                    peakDb = new double[8];
+                    peakHoldDb = new double[8];
+
+                    for (int ch = 0; ch < 8; ++ch) {
+                        peakDb[ch] = mLevelMeter.GetPeakDb(ch);
+                        peakHoldDb[ch] = mLevelMeter.GetPeakHoldDb(ch);
+                    }
+                }
+            }
+
+            Dispatcher.BeginInvoke(new Action(delegate() {
+                // 描画スレッドで描画する。
+                mLevelMeterUC.UpdateLevelMeter(peakDb, peakHoldDb);
+            }));
+        }
+
         private void CaptureDataArrived(byte[] data) {
+            UpdateLevelMeter(data);
+
             lock (mLock) {
                 // Console.WriteLine("CaptureDataArrived {0} bytes, {1} frames", data.Length, data.Length / (mPcmTest.BitsPerFrame/8));
                 switch (mState) {
