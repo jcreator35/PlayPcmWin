@@ -1,20 +1,14 @@
 ﻿using System;
-using System.Windows;
-using Wasapi;
 using System.ComponentModel;
-using System.Windows.Threading;
-using System.Text;
-using System.Threading;
 using System.IO;
-using WWUtil;
-using System.Diagnostics;
+using System.Text;
+using System.Windows;
+using System.Windows.Threading;
+using Wasapi;
 using WWMath;
-using System.Collections.Generic;
+using WWUtil;
 
 namespace WWImpulseResponse {
-    /// <summary>
-    /// MainWindow.xaml の相互作用ロジック
-    /// </summary>
     public partial class MainWindow : Window {
         public MainWindow() {
             InitializeComponent();
@@ -145,6 +139,7 @@ namespace WWImpulseResponse {
             mFreqResponse.SamplingFrequency = 48000;
             mFreqResponse.ShowPhase = false;
             mFreqResponse.ShowGroupDelay = false;
+            mFreqResponse.UpdateMagnitudeRange(WWUserControls.FrequencyResponse.MagnitudeRangeType.M48dB);
             mFreqResponse.Update();
 
             mLevelMeterUC.PreferenceToUI(1, -6, -100);
@@ -466,7 +461,7 @@ namespace WWImpulseResponse {
             mBwStartTesting.RunWorkerAsync(mStartTestingArgs);
         }
 
-        private LargeArray<byte> CreatePcmData(double[] mls, WasapiCS.SampleFormatType sft, int numCh) {
+        private LargeArray<byte> CreatePcmData(double[] mls, WasapiCS.SampleFormatType sft, int numCh, int playCh) {
             int sampleBytes = (WasapiCS.SampleFormatTypeToUseBitsPerSample(sft)/8);
             int frameBytes = sampleBytes * numCh;
             long bytes = (long)mls.Length * frameBytes;
@@ -475,20 +470,26 @@ namespace WWImpulseResponse {
             long writePos = 0;
             for (long i = 0; i < mls.Length; ++i) {
                 for (int ch=0; ch<numCh; ++ch) {
-                    int v = 0x7fffffff;
-                    
-                    // -6dBする。
-                    v /= 2;
+                    if (ch != playCh) {
+                        for (int c = 0; c < sampleBytes; ++c) {
+                            r.Set(writePos++, 0);
+                        }
+                    } else {
+                        int v = 0x7fffffff;
 
-                    if (mls[i] < 0) {
-                        v = -v;
-                    }
+                        // -6dBする。
+                        v /= 2;
 
-                    uint uV = (uint)v;
+                        if (mls[i] < 0) {
+                            v = -v;
+                        }
 
-                    for (int c = 0; c<sampleBytes; ++c) {
-                        byte b = (byte)(uV >> (8*(4 - sampleBytes + c)));
-                        r.Set(writePos++, b);
+                        uint uV = (uint)v;
+
+                        for (int c = 0; c < sampleBytes; ++c) {
+                            byte b = (byte)(uV >> (8 * (4 - sampleBytes + c)));
+                            r.Set(writePos++, b);
+                        }
                     }
                 }
             }
@@ -508,7 +509,7 @@ namespace WWImpulseResponse {
                 WasapiCS.SampleFormatTypeToValidBitsPerSample(mPlaySampleFormat),
                 mSampleRate,
                 PcmDataLib.PcmData.ValueRepresentationType.SInt, seq.Length);
-            mPcmPlay.SetSampleLargeArray(CreatePcmData(seq, mPlaySampleFormat, args.numChannels));
+            mPcmPlay.SetSampleLargeArray(CreatePcmData(seq, mPlaySampleFormat, args.numChannels, args.testChannel));
 
             // 録音データ置き場。Maximum Length Seqneuceのサイズよりも1サンプル多くしておく。
             int recBytesPerSample = WasapiCS.SampleFormatTypeToUseBitsPerSample(mRecSampleFormat) / 8;
@@ -714,9 +715,10 @@ namespace WWImpulseResponse {
 
             ++mCaptureCounter;
 
+            /*
             string path = string.Format("{0}/impulse{1}.csv", folder, mCaptureCounter);
-
             OutputToCsvFile(impulse, mSampleRate, path);
+            */
 
             lock (mLock) {
                 mTimeDomainPlot.SetDiscreteTimeSequence(impulse, mSampleRate);

@@ -76,6 +76,10 @@ namespace WWUserControls {
             }
         }
 
+        public void UpdateMagnitudeRange(MagnitudeRangeType t) {
+            comboBoxMagRange.SelectedIndex = (int)t;
+        }
+
         public enum FreqScaleType {
             Linear,
             Logarithmic,
