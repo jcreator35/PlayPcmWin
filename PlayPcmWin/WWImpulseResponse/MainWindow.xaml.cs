@@ -405,11 +405,14 @@ namespace WWImpulseResponse {
         //                     ↓                       ↓
         // mPlayWorker.RunWorkerAsync()         mRecWorker.RunWorkerAsync()
         // PlayDoWork()                         RecDoWork() → CaptureDataArrived()
-        //   (リピート再生)                                    ├CaptureSync()
-        //                                                    └CaptureRunning()
+        //   (リピート再生)                        │           ├CaptureSync()
+        //                                        │           └CaptureRunning()
+        //                                        └ProcessCapturedData() → RecWorkerProgressChanged()
+        //
+        //                                      ユーザーがStopボタン押下
+        //                                             ↓
         // PlayRunWorkerCompleted()   ←──────────── mWasapiPlay.Stop()
         //                                          mWasapiRec.Stop()
-        //                                          ProcessCapturedData()
         //                                      RecRunWorkerCompleted()
         private void buttonStart_Click(object sender, RoutedEventArgs e) {
             if (!UpdateTestParamsFromUI()) {
