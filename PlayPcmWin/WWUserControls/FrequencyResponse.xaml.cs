@@ -14,10 +14,12 @@ namespace WWUserControls {
         public FrequencyResponse() {
             InitializeComponent();
             SamplingFrequency = 44100;
+            PhaseUnwarp = true;
             mInitialized = true;
         }
 
         private bool mInitialized = false;
+        public bool PhaseUnwarp { get; set; }
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e) {
             Update();
@@ -357,7 +359,8 @@ namespace WWUserControls {
             var frGroupDelay = new double[FR_LINE_WIDTH];
 
             double maxMagnitude = 0.0;
-            double minPhase = 0.0;
+            double maxPhase = -double.MaxValue;
+            double minPhase = double.MaxValue;
             double maxGroupDelay = 0.0;
 
             for (int i = 0; i < FR_LINE_WIDTH; ++i) {
@@ -390,12 +393,18 @@ namespace WWUserControls {
                     frPhase[i] = h.Phase();
                 } else {
                     frPhase[i] = h.Phase();
-                    while (frPhase[i - 1] < frPhase[i]) {
-                        frPhase[i] -= 2.0 * Math.PI;
+
+                    if (PhaseUnwarp) {
+                        while (frPhase[i - 1] < frPhase[i]) {
+                            frPhase[i] -= 2.0 * Math.PI;
+                        }
                     }
                 }
                 if (frPhase[i] < minPhase) {
                     minPhase = frPhase[i];
+                }
+                if (maxPhase < frPhase[i]) {
+                    maxPhase = frPhase[i];
                 }
 
                 if (1 <= i) {
@@ -405,6 +414,7 @@ namespace WWUserControls {
                         maxGroupDelay = frGroupDelay[i];
                     }
                 }
+
                 /*
                 Console.WriteLine("{0}Hz: {1:g4}dB {2:g4} deg", ω / (2.0 * Math.PI),
                     20.0 * Math.Log10(frMagnitude[i]),
@@ -415,22 +425,23 @@ namespace WWUserControls {
             if (maxMagnitude < float.Epsilon) {
                 maxMagnitude = 1.0f;
             }
-            if (-float.Epsilon < minPhase) {
+            if (Math.Abs(maxPhase - minPhase) < Math.PI / 6) {
                 // 30°
-                minPhase = -Math.PI/6;
+                minPhase = maxPhase -Math.PI/6;
             }
 
             if (maxGroupDelay < 0.0001) {
                 maxGroupDelay = 0.0001;
             }
 
+            double maxDegree = maxPhase * 180.0 / Math.PI;
             double minDegree = minPhase * 180.0 / Math.PI;
 
-            labelPhase180.Content  = string.Format("{0:g4}", 0);
-            labelPhase90.Content   = string.Format("{0:g4}", minDegree * (1.0/4.0));
-            labelPhase0.Content    = string.Format("{0:g4}", minDegree * (2.0 / 4.0));
-            labelPhaseM90.Content  = string.Format("{0:g4}", minDegree * (3.0 / 4.0));
-            labelPhaseM180.Content = string.Format("{0:g4}", minDegree * (4.0 / 4.0));
+            labelPhase180.Content  = string.Format("{0:g4}", maxDegree);
+            labelPhase90.Content   = string.Format("{0:g4}", minDegree + (maxDegree - minDegree) * (3.0 / 4.0));
+            labelPhase0.Content    = string.Format("{0:g4}", minDegree + (maxDegree - minDegree) * (2.0 / 4.0));
+            labelPhaseM90.Content  = string.Format("{0:g4}", minDegree + (maxDegree - minDegree) * (1.0 / 4.0));
+            labelPhaseM180.Content = string.Format("{0:g4}", minDegree);
 
             labelGroupDelay0.Content = Common.UnitNumberString(maxGroupDelay * (0.0 / 4.0));
             labelGroupDelay1.Content = Common.UnitNumberString(maxGroupDelay * (1.0 / 4.0));
@@ -590,7 +601,8 @@ namespace WWUserControls {
                     // phase plot
                     // 振幅が小さいと回転の精度が低いので表示しない。
                     if (DISP_MAG_THRESHOLD < frMagnitude[i]) {
-                        posP = new Point(FR_LINE_LEFT + i, FR_LINE_TOP + FR_LINE_HEIGHT * phase / minPhase);
+                        posP = new Point(FR_LINE_LEFT + i,
+                            FR_LINE_TOP + FR_LINE_HEIGHT * (maxPhase - phase) / Math.Abs(maxPhase - minPhase));
                         if (1 <= i && ( posP.X - lastPosP.X ) < 2) {
                             var lineP = new Line();
                             lineP.Stroke = Brushes.Red;

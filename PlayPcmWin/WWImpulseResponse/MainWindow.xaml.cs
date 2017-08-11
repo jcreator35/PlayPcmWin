@@ -137,7 +137,8 @@ namespace WWImpulseResponse {
 
             mFreqResponse.Mode = WWUserControls.FrequencyResponse.ModeType.ZPlane;
             mFreqResponse.SamplingFrequency = 48000;
-            mFreqResponse.ShowPhase = false;
+            mFreqResponse.PhaseUnwarp = false;
+            //mFreqResponse.ShowPhase = false;
             mFreqResponse.ShowGroupDelay = false;
             mFreqResponse.UpdateMagnitudeRange(WWUserControls.FrequencyResponse.MagnitudeRangeType.M48dB);
             mFreqResponse.Update();
@@ -461,7 +462,7 @@ namespace WWImpulseResponse {
             mBwStartTesting.RunWorkerAsync(mStartTestingArgs);
         }
 
-        private LargeArray<byte> CreatePcmData(double[] mls, WasapiCS.SampleFormatType sft, int numCh, int playCh) {
+        private LargeArray<byte> CreatePcmSamples(double[] mls, WasapiCS.SampleFormatType sft, int numCh, int playCh) {
             int sampleBytes = (WasapiCS.SampleFormatTypeToUseBitsPerSample(sft)/8);
             int frameBytes = sampleBytes * numCh;
             long bytes = (long)mls.Length * frameBytes;
@@ -502,6 +503,8 @@ namespace WWImpulseResponse {
             mMLSDecon = new MLSDeconvolution(args.order);
             var seq = mMLSDecon.MLSSequence();
 
+            var sampleData = CreatePcmSamples(seq, mPlaySampleFormat, args.numChannels, args.testChannel);
+
             // mPcmPlay : テストデータ。このPCMデータを再生し、インパルス応答特性を調べる。
             mPcmPlay = new PcmDataLib.PcmData();
             mPcmPlay.SetFormat(args.numChannels,
@@ -509,7 +512,7 @@ namespace WWImpulseResponse {
                 WasapiCS.SampleFormatTypeToValidBitsPerSample(mPlaySampleFormat),
                 mSampleRate,
                 PcmDataLib.PcmData.ValueRepresentationType.SInt, seq.Length);
-            mPcmPlay.SetSampleLargeArray(CreatePcmData(seq, mPlaySampleFormat, args.numChannels, args.testChannel));
+            mPcmPlay.SetSampleLargeArray(sampleData);
 
             // 録音データ置き場。Maximum Length Seqneuceのサイズよりも1サンプル多くしておく。
             int recBytesPerSample = WasapiCS.SampleFormatTypeToUseBitsPerSample(mRecSampleFormat) / 8;
@@ -726,17 +729,20 @@ namespace WWImpulseResponse {
 
             // 周波数特性を計算する。
             var fr = CalcFrequencyResponse(impulse);
-            mFreqResponse.TransferFunction = (WWComplex z) => {
-                double θ = Math.Atan2(z.imaginary, z.real);
-                double freq01 = θ / Math.PI;
 
-                int pos = (int)(freq01 * fr.Length/2);
-                if (pos < 0) {
-                    return WWComplex.Zero();
-                }
+            lock (mLock) {
+                mFreqResponse.TransferFunction = (WWComplex z) => {
+                    double θ = Math.Atan2(z.imaginary, z.real);
+                    double freq01 = θ / Math.PI;
 
-                return fr[pos];
-            };
+                    int pos = (int)(freq01 * fr.Length / 2);
+                    if (pos < 0) {
+                        return WWComplex.Zero();
+                    }
+
+                    return fr[pos];
+                };
+            }
 
             // この後描画ができるタイミング(RecWorkerProgressChanged())でmTimeDomainPlot.Update()を呼ぶ。
             bw.ReportProgress(10);

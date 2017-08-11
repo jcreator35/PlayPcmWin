@@ -236,8 +236,13 @@ namespace WWUserControls {
                 for (int f = 0; f < upsampleFactor; ++f) {
                     double sampleValue = 0;
                     for (int offs = 0; offs + upsampleFactor - f < coeffs.Length; offs += upsampleFactor) {
+                        int readPos = pos + offs / upsampleFactor;
+                        double input = 0.0;
 
-                        double input = mTimeDomainSequence[pos + offs / upsampleFactor];
+                        if (readPos < mTimeDomainSequence.Length) {
+                            input = mTimeDomainSequence[readPos];
+                        }
+
                         if (input != 0.0) {
                             sampleValue += coeffs[offs + upsampleFactor - f] * input;
                         }
