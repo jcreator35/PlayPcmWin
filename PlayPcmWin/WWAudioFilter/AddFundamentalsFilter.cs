@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using WWMath;
 
 namespace WWAudioFilter {
     public class AddFundamentalsFilter : FilterBase {
@@ -49,7 +50,7 @@ namespace WWAudioFilter {
 
         public override PcmFormat Setup(PcmFormat inputFormat) {
             mPcmFormat = new PcmFormat(inputFormat);
-            mFftLength = WWAFUtil.NextPowerOf2(mPcmFormat.SampleRate);
+            mFftLength = Functions.NextPowerOf2(mPcmFormat.SampleRate);
             mOverlappedFft = new OverlappedFft(mFftLength);
 
             return inputFormat;

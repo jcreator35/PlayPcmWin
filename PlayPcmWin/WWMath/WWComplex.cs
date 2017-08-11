@@ -202,6 +202,45 @@ namespace WWMath {
             }
         }
 
+        public static WWComplex[] Add(WWComplex[] a, WWComplex[] b) {
+            if (a.Length != b.Length) {
+                throw new ArgumentException("input array length mismatch");
+            }
+
+            var c = new WWComplex[a.Length];
+            for (int i = 0; i < a.Length; ++i) {
+                c[i] = WWComplex.Add(a[i], b[i]);
+            }
+            return c;
+        }
+
+        public static WWComplex[] Mul(WWComplex[] a, WWComplex[] b) {
+            if (a.Length != b.Length) {
+                throw new ArgumentException("input array length mismatch");
+            }
+
+            var c = new WWComplex[a.Length];
+            for (int i = 0; i < a.Length; ++i) {
+                c[i] = WWComplex.Mul(a[i], b[i]);
+            }
+            return c;
+        }
+
+        public static double AverageDistance(WWComplex[] a, WWComplex[] b) {
+            if (a.Length != b.Length) {
+                throw new ArgumentException("input array length mismatch");
+            }
+
+            double d = 0.0;
+            for (int i = 0; i < a.Length; ++i) {
+                var s = WWComplex.Sub(a[i], b[i]);
+                d += s.Magnitude();
+            }
+
+            d /= a.Length;
+            return d;
+        }
+
         static WWComplex mUnity = new WWComplex(1, 0);
         static WWComplex mZero = new WWComplex(0, 0);
         public static WWComplex Unity() {

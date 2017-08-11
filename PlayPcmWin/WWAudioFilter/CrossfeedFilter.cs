@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows;
+using WWMath;
 
 namespace WWAudioFilter {
     class CrossfeedFilter : FilterBase {
@@ -156,7 +157,7 @@ namespace WWAudioFilter {
             // 入力データとしてmPcmAllChannelsが使用できる。mPcmAllChannels[0]==左スピーカーの音、mPcmAllChannels[1]==右スピーカーの音。
 
             long fftLength = (mNumSamples < mCoeffs[0].Length) ? mCoeffs[0].Length : mNumSamples;
-            fftLength = WWAFUtil.NextPowerOf2(fftLength);
+            fftLength = Functions.NextPowerOf2(fftLength);
 
             // 左スピーカーの音=mPcmAllChannels[0]
             // 左スピーカーと耳chの相互作用のCoeff==mCoeffs[ch]

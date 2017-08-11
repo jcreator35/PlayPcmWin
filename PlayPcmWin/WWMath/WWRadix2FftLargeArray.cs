@@ -1,44 +1,44 @@
 ﻿using System;
-using WWMath;
+using WWUtil;
 
-namespace WWAudioFilter {
-    class WWRadix2Fft {
-        private int mNumPoints;
+namespace WWMath {
+    class WWRadix2FftLargeArray {
+        private long mNumPoints;
         private int mNumStage;
-        private WWComplex[] mWn;
-        private uint [] mBitReversalTable;
+        private LargeArray<WWComplex> mWn;
+        private LargeArray<ulong> mBitReversalTable;
 
-        public WWRadix2Fft(int numPoints) {
+        public WWRadix2FftLargeArray(long numPoints) {
             if (!Functions.IsPowerOfTwo(numPoints) || numPoints < 2) {
                 throw new ArgumentException("numPoints must be power of two integer and larger than 2");
             }
             mNumPoints = numPoints;
 
-            mWn = new WWComplex[mNumPoints];
-            for (int i=0; i < mNumPoints; ++i) {
+            mWn = new LargeArray<WWComplex>(mNumPoints);
+            for (long i=0; i < mNumPoints; ++i) {
                 double angle = -2.0 * Math.PI * i / mNumPoints;
-                mWn[i] = new WWComplex(Math.Cos(angle), Math.Sin(angle));
+                mWn.Set(i, new WWComplex(Math.Cos(angle), Math.Sin(angle)));
             }
 
             // mNumStage == log_2(mNumPoints)
-            int t = mNumPoints;
+            long t = mNumPoints;
             for (int i=0; 0 < t; ++i) {
                 t >>= 1;
                 mNumStage = i;
             }
 
-            mBitReversalTable = new uint[mNumPoints];
-            for (uint i=0; i < mNumPoints; ++i) {
-                mBitReversalTable[i] = BitReversal(mNumStage, i);
+            mBitReversalTable = new LargeArray<ulong>(mNumPoints);
+            for (long i=0; i < mNumPoints; ++i) {
+                mBitReversalTable.Set(i, BitReversal(mNumStage, (ulong)i));
             }
         }
 
-        private static int Pow2(int x) {
-            return 1 << x;
+        private static long Pow2(int x) {
+            return 1L << x;
         }
 
-        private static uint BitReversal(int numOfBits, uint v) {
-            uint r = v;
+        private static ulong BitReversal(int numOfBits, ulong v) {
+            ulong r = v;
             int s = numOfBits - 1;
 
             for (v >>= 1; v!=0; v >>= 1) {
@@ -49,28 +49,28 @@ namespace WWAudioFilter {
 
             r <<= s;
 
-            uint mask = ~(0xffffffffU << numOfBits);
+            ulong mask = ~(0xffffffffffffffffUL << numOfBits);
             r &= mask;
 
             return r;
         }
 
-        public WWComplex[] ForwardFft(WWComplex[] aFrom) {
-            if (aFrom == null || aFrom.Length != mNumPoints) {
+        public LargeArray<WWComplex> ForwardFft(LargeArray<WWComplex> aFrom) {
+            if (aFrom == null || aFrom.LongLength != mNumPoints) {
                 throw new ArgumentOutOfRangeException("aFrom");
             }
-            var aTo = new WWComplex[aFrom.Length];
+            var aTo = new LargeArray<WWComplex>(aFrom.LongLength);
 
-            var aTmp0 = new WWComplex[mNumPoints];
-            for (int i=0; i < aTmp0.Length; ++i) {
-                aTmp0[i] = new WWComplex(aFrom[mBitReversalTable[i]]);
+            var aTmp0 = new LargeArray<WWComplex>(mNumPoints);
+            for (int i=0; i < aTmp0.LongLength; ++i) {
+                aTmp0.Set(i, aFrom.At((long)mBitReversalTable.At(i)));
             }
-            var aTmp1 = new WWComplex[mNumPoints];
-            for (int i=0; i < aTmp1.Length; ++i) {
-                aTmp1[i] = new WWComplex();
+            var aTmp1 = new LargeArray<WWComplex>(mNumPoints);
+            for (int i=0; i < aTmp1.LongLength; ++i) {
+                aTmp1.Set(i, new WWComplex(0,0));
             }
 
-            var aTmps = new WWComplex[2][];
+            var aTmps = new LargeArray<WWComplex>[2];
             aTmps[0] = aTmp0;
             aTmps[1] = aTmp1;
 
@@ -82,9 +82,11 @@ namespace WWAudioFilter {
             return aTo;
         }
 
-        public WWComplex[] InverseFft(WWComplex[] aFrom, double? compensation = null) {
+        public LargeArray<WWComplex> InverseFft(LargeArray<WWComplex> aFrom,
+                double? compensation = null) {
             for (int i=0; i < aFrom.LongLength; ++i) {
-                aFrom[i].imaginary *= -1.0;
+                var t = new WWComplex(aFrom.At(i).real, -aFrom.At(i).imaginary);
+                aFrom.Set(i, t);
             }
 
             var aTo = ForwardFft(aFrom);
@@ -95,14 +97,14 @@ namespace WWAudioFilter {
             }
 
             for (int i=0; i < aTo.LongLength; ++i) {
-                aTo[i].real      *= c;
-                aTo[i].imaginary *= -1.0 * c;
+                var t = new WWComplex(aTo.At(i).real * c, -aTo.At(i).imaginary * c);
+                aTo.Set(i, t);
             }
 
             return aTo;
         }
 
-        private void FftStageN(int stageNr, WWComplex[] x, WWComplex[] y) {
+        private void FftStageN(int stageNr, LargeArray<WWComplex> x, LargeArray<WWComplex> y) {
             /*
              * stage0: 2つの入力データにバタフライ演算 (length=8の時) 4回 (nRepeat=4, nSubRepeat=2)
              * y[0] = x[0] + w_n^(0*4) * x[1]
@@ -147,39 +149,38 @@ namespace WWAudioFilter {
              * stageN:
              */
 
-            int nRepeat    = Pow2(mNumStage - stageNr - 1);
-            int nSubRepeat = mNumPoints / nRepeat;
-            var t = new WWComplex();
+            long nRepeat    = Pow2(mNumStage - stageNr - 1);
+            long nSubRepeat = mNumPoints / nRepeat;
 
-            for (int i=0; i<nRepeat; ++i) {
-                int offsBase = i * nSubRepeat;
+            for (long i=0; i<nRepeat; ++i) {
+                long offsBase = i * nSubRepeat;
 
                 bool allZero = true;
-                for (int j=0; j < nSubRepeat/2; ++j) {
-                    int offs = offsBase + (j % (nSubRepeat/2));
-                    if (Double.Epsilon < x[offs].Magnitude()) {
+                for (long j=0; j < nSubRepeat/2; ++j) {
+                    long offs = offsBase + (j % (nSubRepeat/2));
+                    if (Double.Epsilon < x.At(offs).Magnitude()) {
                         allZero = false;
                         break;
                     }
-                    if (Double.Epsilon < x[offs + nSubRepeat / 2].Magnitude()) {
+                    if (Double.Epsilon < x.At(offs + nSubRepeat / 2).Magnitude()) {
                         allZero = false;
                         break;
                     }
                 }
 
                 if (allZero) {
-                    for (int j=0; j < nSubRepeat / 2; ++j) {
-                        y[j + offsBase].Set(0, 0);
+                    for (long j=0; j < nSubRepeat / 2; ++j) {
+                        y.Set(j + offsBase, new WWComplex(0, 0));
                     }
                 } else {
-                    for (int j=0; j < nSubRepeat; ++j) {
-                        int offs = offsBase + (j % (nSubRepeat / 2));
-                        y[j + offsBase].CopyFrom(x[offs]);
+                    for (long j=0; j < nSubRepeat; ++j) {
+                        long offs = offsBase + (j % (nSubRepeat / 2));
+                        var t = x.At(offs);
 
-                        t.CopyFrom(mWn[j * nRepeat]);
-                        t.Mul(x[offs + nSubRepeat / 2]);
+                        var t2 = WWComplex.Mul(mWn.At(j * nRepeat), x.At(offs + nSubRepeat / 2));
+                        var t3 = WWComplex.Add(t, t2);
 
-                        y[j + offsBase].Add(t);
+                        y.Set(j + offsBase, t3);
                     }
                 }
             }

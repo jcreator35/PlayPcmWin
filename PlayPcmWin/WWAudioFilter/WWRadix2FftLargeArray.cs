@@ -1,4 +1,5 @@
 ﻿using System;
+using WWMath;
 
 namespace WWAudioFilter {
     class WWRadix2FftLargeArray {
@@ -8,7 +9,7 @@ namespace WWAudioFilter {
         private WWUtil.LargeArray<ulong> mBitReversalTable;
 
         public WWRadix2FftLargeArray(long numPoints) {
-            if (!WWAFUtil.IsPowerOfTwo(numPoints) || numPoints < 2) {
+            if (!Functions.IsPowerOfTwo(numPoints) || numPoints < 2) {
                 throw new ArgumentException("numPoints must be power of two integer and larger than 2");
             }
             mNumPoints = numPoints;

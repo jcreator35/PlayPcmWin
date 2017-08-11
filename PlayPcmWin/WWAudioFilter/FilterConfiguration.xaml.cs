@@ -3,6 +3,7 @@
     using System.Windows.Controls;
     using System.Globalization;
     using Microsoft.Win32;
+using WWMath;
 
     namespace WWAudioFilter {
         /// <summary>
@@ -504,7 +505,7 @@
 
                 var overlap = (FftUpsampler.OverlapType)comboBoxFftOverlap.SelectedIndex;
 
-                if (!WWAFUtil.IsPowerOfTwo(factor)) {
+                if (!Functions.IsPowerOfTwo(factor)) {
                     switch (factorType) {
                     case UpsamplerType.FFT:
                         // 2の乗数ではない倍数に対応していない。

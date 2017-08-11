@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using WWMath;
 
 namespace WWUserControls {
     /// <summary>
@@ -24,11 +25,17 @@ namespace WWUserControls {
             Update();
         }
 
-        private double[] mTimeScales = {
+        private double[] mTimeScaleImpulseResponseFunction = {
             0.1,
             1.0,
             2.0,
             5.0};
+
+        private double[] mTimeScaleDiscrete = {
+            1.0,
+            1.0/4,
+            1.0/8
+        };
 
         private const int FR_LINE_LEFT = 64;
         private const int FR_LINE_HEIGHT = 256;
@@ -39,6 +46,9 @@ namespace WWUserControls {
 
         private const int TIME_LABEL_NUM = 10;
         
+        /// <summary>
+        /// 大きくすると広い時間範囲が画面に出る。
+        /// </summary>
         public double TimeRange { get; set; }
 
         public double TimeScale { get; set; }
@@ -69,11 +79,29 @@ namespace WWUserControls {
         public void SetFunctionType(FunctionType t) {
             comboBoxFunction.SelectedIndex = (int)t;
 
+            double [] timeScales = null;
+
             if (t == FunctionType.DiscreteTimeSequence) {
                 comboBoxFunction.IsEnabled = false;
+                timeScales = mTimeScaleDiscrete;
             } else {
                 comboBoxFunction.IsEnabled = true;
+                timeScales = mTimeScaleImpulseResponseFunction;
             }
+
+            comboBoxTimeScale.SelectionChanged -= comboBox_SelectionChanged;
+            comboBoxTimeScale.Items.Clear();
+            for (int i = 0; i < timeScales.Length; ++i) {
+                string s = string.Format("{0} x", timeScales[i]);
+                comboBoxTimeScale.Items.Add(s);
+            }
+
+            if (t == FunctionType.DiscreteTimeSequence) {
+                comboBoxTimeScale.SelectedIndex = 1;
+            } else {
+                comboBoxTimeScale.SelectedIndex = 1;
+            }
+            comboBoxTimeScale.SelectionChanged += comboBox_SelectionChanged;
         }
 
         public void SetDiscreteTimeSequence(double[] seq, int sampleRate) {
@@ -81,7 +109,7 @@ namespace WWUserControls {
             mSampleRate = sampleRate;
 
             // サンプリング周波数(Hz) と表示サンプル数FR_LINE_WIDTHから表示時間範囲TimeRangeを計算。
-            TimeRange = (double)FR_LINE_WIDTH / sampleRate;
+            TimeRange = (double)FR_LINE_WIDTH / sampleRate * TimeScale;
         }
 
         private double PlotXToTime(int idx) {
@@ -149,31 +177,80 @@ namespace WWUserControls {
             }
         }
 
-        private void UpdateDiscreteTimeSequence() {
-            int peakPos = FindPeak();
-            peakPos -= FR_LINE_WIDTH/5;
+        private double [] SetupCoeffs(int windowLen, int upsampleFactor) {
+            var window = WWWindowFunc.BlackmanWindow(windowLen);
 
-            if (mTimeDomainSequence.Length < peakPos + FR_LINE_WIDTH) {
-                peakPos = mTimeDomainSequence.Length - FR_LINE_WIDTH;
+            // ループ処理を簡単にするため最初と最後に0を置く。
+            var coeffs = new double[1 + windowLen + 1];
+            long center = windowLen / 2;
+
+            for (long i = 0; i < windowLen / 2 + 1; ++i) {
+                long numerator = i;
+                int denominator = upsampleFactor;
+                int numeratorReminder = (int)(numerator % (denominator * 2));
+                if (numerator == 0) {
+                    coeffs[1 + center + i] = 1.0f;
+                } else if (numerator % denominator == 0) {
+                    // sinc(180 deg) == 0, sinc(360 deg) == 0, ...
+                    coeffs[1 + center + i] = 0.0f;
+                } else {
+                    coeffs[1 + center + i] = Math.Sin(Math.PI * numeratorReminder / denominator)
+                        / (Math.PI * numerator / denominator)
+                        * window[center + i];
+                }
+                coeffs[1 + center - i] = coeffs[1 + center + i];
+            }
+
+            return coeffs;
+        }
+
+        private void UpdateDiscreteTimeSequence() {
+            double scale = mTimeScaleDiscrete[comboBoxTimeScale.SelectedIndex];
+            TimeScale = scale;
+            TimeRange = (double)FR_LINE_WIDTH / mSampleRate * TimeScale;
+
+            int upsampleFactor = (int)(1.0 / TimeScale);
+
+            var coeffs = SetupCoeffs(15, upsampleFactor);
+
+            int peakPos = FindPeak();
+            peakPos -= (int)((FR_LINE_WIDTH / 5  + coeffs.Length / 2)* TimeScale);
+
+            if (mTimeDomainSequence.Length < peakPos + FR_LINE_WIDTH * TimeScale) {
+                peakPos = mTimeDomainSequence.Length - (int)(FR_LINE_WIDTH * TimeScale);
             }
 
             if (peakPos < 0) {
                 peakPos = 0;
             }
 
-            double[] sampled = new double[FR_LINE_WIDTH];
+            if (mTimeDomainSequence.Length < coeffs.Length) {
+                return;
+            }
 
-            for (int i = 0; i < sampled.Length; ++i) {
-                if (i < mTimeDomainSequence.Length) {
-                    sampled[i] = mTimeDomainSequence[peakPos + i];
-                }
+            var sampled = new double[FR_LINE_WIDTH];
+
+            for (int i = 0; i < sampled.Length/upsampleFactor; ++i) {
+                int pos = (int)(peakPos + i);
+
+                for (int f = 0; f < upsampleFactor; ++f) {
+                    double sampleValue = 0;
+                    for (int offs = 0; offs + upsampleFactor - f < coeffs.Length; offs += upsampleFactor) {
+
+                        double input = mTimeDomainSequence[pos + offs / upsampleFactor];
+                        if (input != 0.0) {
+                            sampleValue += coeffs[offs + upsampleFactor - f] * input;
+                        }
+                    }
+                    sampled[i * upsampleFactor + f] = sampleValue;
+                } 
             }
 
             UpdateGraph(sampled, 1.0);
         }
 
         private void UpdateImpulseResponse() {
-            double scale = mTimeScales[comboBoxTimeScale.SelectedIndex];
+            double scale = mTimeScaleImpulseResponseFunction[comboBoxTimeScale.SelectedIndex];
             TimeScale = 0.01 * scale;
             TimeRange = 20.0 * scale;
 

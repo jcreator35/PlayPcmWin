@@ -85,10 +85,14 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="FastWalshHadamardTransform.cs" />
     <Compile Include="WWComplex.cs" />
+    <Compile Include="WWConvolution.cs" />
     <Compile Include="WWDftCpu.cs" />
     <Compile Include="Matrix.cs" />
     <Compile Include="WWPolynomial.cs" />
+    <Compile Include="WWRadix2Fft.cs" />
+    <Compile Include="WWRadix2FftLargeArray.cs" />
     <Compile Include="WWUtil.cs" />
+    <Compile Include="WWWindowFunc.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="WWMath.snk" />

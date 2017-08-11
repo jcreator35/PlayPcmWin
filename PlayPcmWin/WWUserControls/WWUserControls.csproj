@@ -129,6 +129,10 @@
       <Project>{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}</Project>
       <Name>WWMath</Name>
     </ProjectReference>
+    <ProjectReference Include="..\WWUtil\WWUtil.csproj">
+      <Project>{FC57308E-CF56-4B3E-B920-4093660D0A4A}</Project>
+      <Name>WWUtil</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.ja-JP.resx" />

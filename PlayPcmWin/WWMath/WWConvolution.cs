@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using WWMath;
 
-namespace WWAudioFilter {
+namespace WWMath {
     class WWConvolution {
         static WWComplex Get(WWComplex[] v, int pos) {
             if (pos < 0 || v.Length <= pos) {
-                return new WWComplex();
+                return WWComplex.Zero();
             }
             return v[pos];
         }
@@ -18,12 +14,12 @@ namespace WWAudioFilter {
             var r = new WWComplex[f.Length + g.Length - 1];
 
             Parallel.For(0, r.Length, i => {
-                WWComplex v = new WWComplex();
+                WWComplex v = WWComplex.Zero();
 
                 for (int j = 0; j < f.Length; ++j) {
                     int fpos = f.Length - j - 1;
                     int gpos = i + j - (f.Length - 1);
-                    v.Add(WWComplex.Mul(Get(f, fpos), Get(g, gpos)));
+                    v = WWComplex.Add(v, WWComplex.Mul(Get(f, fpos), Get(g, gpos)));
                 }
                 r[i] = v;
             });
@@ -86,7 +82,7 @@ namespace WWAudioFilter {
                     if (r.Length <= i * fragmentSize + j) {
                         break;
                     }
-                    r[i * fragmentSize + j].Add(yf[j]);
+                    r[i * fragmentSize + j] = WWComplex.Add(r[i*fragmentSize+j], yf[j]);
                 }
             };
 
