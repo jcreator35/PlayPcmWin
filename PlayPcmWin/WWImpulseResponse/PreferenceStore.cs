@@ -14,16 +14,21 @@ namespace WWImpulseResponse {
 
         public int Version { get; set; }
 
+        public int MLSOrder { get; set; }
+
         public int SampleRate { get; set; }
-        public WasapiCS.SampleFormatType SampleFormat { get; set; }
+
+        public WasapiCS.SampleFormatType PlaySampleFormat { get; set; }
+        public WasapiCS.SampleFormatType RecSampleFormat { get; set; }
         public int NumOfChannels { get; set; }
-        public int WasapiBufferSizeMS { get; set; }
-        public WasapiCS.DataFeedMode WasapiDataFeedMode { get; set; }
-        public int RecordingBufferSizeMB { get; set; }
+        public int TestChannel { get; set; }
+        public int PlayWasapiBufferSizeMS { get; set; }
+        public int RecWasapiBufferSizeMS { get; set; }
+        public WasapiCS.DataFeedMode PlayDataFeedMode { get; set; }
+        public WasapiCS.DataFeedMode RecDataFeedMode { get; set; }
 
-        public string PreferredDeviceIdString { get; set; }
-
-        public bool UpdateLevelMeterWhileRecording { get; set; }
+        public string PlayPreferredDeviceIdString { get; set; }
+        public string RecPreferredDeviceIdString { get; set; }
 
         public bool SetDwChannelMask { get; set; }
 
@@ -43,19 +48,19 @@ namespace WWImpulseResponse {
         /// </summary>
         public void Reset() {
             Version = CurrentVersion;
-
-            SampleRate = 44100;
-            SampleFormat = WasapiCS.SampleFormatType.Sint16;
+            MLSOrder = 16;
+            SampleRate = 48000;
+            PlaySampleFormat = WasapiCS.SampleFormatType.Sint16;
+            RecSampleFormat = WasapiCS.SampleFormatType.Sint16;
             NumOfChannels = 2;
-            WasapiBufferSizeMS = 100;
-            WasapiDataFeedMode = WasapiCS.DataFeedMode.EventDriven;
-            RecordingBufferSizeMB = 256;
-            PreferredDeviceIdString = "";
-            YellowLevelDb = -12;
-            UpdateLevelMeterWhileRecording = false;
-            PeakHoldSeconds = 1;
-            SetDwChannelMask = false;
-            ReleaseTimeDbPerSec = 100;
+            TestChannel = 0;
+            PlayWasapiBufferSizeMS = 100;
+            RecWasapiBufferSizeMS = 100;
+            PlayDataFeedMode = WasapiCS.DataFeedMode.EventDriven;
+            RecDataFeedMode = WasapiCS.DataFeedMode.EventDriven;
+            PlayPreferredDeviceIdString = "";
+            RecPreferredDeviceIdString = "";
+            SetDwChannelMask = true;
         }
     }
 

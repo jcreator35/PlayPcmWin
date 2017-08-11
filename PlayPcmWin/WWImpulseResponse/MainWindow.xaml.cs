@@ -7,6 +7,7 @@ using System.Windows.Threading;
 using Wasapi;
 using WWMath;
 using WWUtil;
+using System.Collections.Generic;
 
 namespace WWImpulseResponse {
     public partial class MainWindow : Window {
@@ -33,13 +34,6 @@ namespace WWImpulseResponse {
 
         private Wasapi.WasapiCS.CaptureCallback mCaptureDataArrivedDelegate;
 
-        private int mSampleRate;
-        private WasapiCS.SampleFormatType mPlaySampleFormat;
-        private WasapiCS.SampleFormatType mRecSampleFormat;
-        private WasapiCS.DataFeedMode mPlayDataFeedMode;
-        private WasapiCS.DataFeedMode mRecDataFeedMode;
-        private int mPlayBufferMillisec;
-        private int mRecBufferMillisec;
         private int mPlayDeviceIdx = -1;
         private int mRecDeviceIdx = -1;
         private int ZERO_FLUSH_MILLISEC = 1000;
@@ -64,6 +58,7 @@ namespace WWImpulseResponse {
         
         private WWRadix2Fft mFFT;
         private int mCaptureCounter = 0;
+        private bool mInitialized = false;
 
         private class StartTestingResult {
             public bool result;
@@ -96,6 +91,9 @@ namespace WWImpulseResponse {
             8
         };
 
+        private List<string> mPlayDeviceIdStringList = new List<string>();
+        private List<string> mRecDeviceIdStringList = new List<string>();
+
         private void Window_Loaded(object sender, RoutedEventArgs e) {
             mPref = PreferenceStore.Load(); 
             LocalizeUI();
@@ -124,7 +122,6 @@ namespace WWImpulseResponse {
             mRecWorker.WorkerReportsProgress = true;
             mRecWorker.ProgressChanged += new ProgressChangedEventHandler(RecWorkerProgressChanged);
 
-
             UpdateDeviceList();
 
             textBoxLog.Text = string.Format("WWImpulseResponse version {0}\r\n", AssemblyVersion);
@@ -146,6 +143,10 @@ namespace WWImpulseResponse {
             mLevelMeterUC.PreferenceToUI(1, -6, -100);
             mLevelMeterUC.YellowLevelChangeEnable(false);
             mLevelMeterUC.SetParamChangedCallback(LevelMeterUCParamChanged);
+
+            PreferenceToUI();
+
+            mInitialized = true;
         }
         
         /// <summary>
@@ -158,8 +159,8 @@ namespace WWImpulseResponse {
             mPref.ReleaseTimeDbPerSec = releaseTimeDbPerSec;
 
             lock (mLock) {
-                mLevelMeter = new LevelMeter(mPref.SampleFormat, mPref.NumOfChannels, mPref.PeakHoldSeconds,
-                    mPref.WasapiBufferSizeMS * 0.001, mPref.ReleaseTimeDbPerSec);
+                mLevelMeter = new LevelMeter(mPref.RecSampleFormat, mPref.NumOfChannels, mPref.PeakHoldSeconds,
+                    mPref.RecWasapiBufferSizeMS * 0.001, mPref.ReleaseTimeDbPerSec);
             }
         }
 
@@ -196,10 +197,12 @@ namespace WWImpulseResponse {
                     prevDevice = listBoxPlayDevices.SelectedItem as string;
                 }
 
+                mPlayDeviceIdStringList.Clear();
                 listBoxPlayDevices.Items.Clear();
                 for (int i=0; i < mWasapiPlay.GetDeviceCount(); ++i) {
                     var attr = mWasapiPlay.GetDeviceAttributes(i);
                     listBoxPlayDevices.Items.Add(attr.Name);
+                    mPlayDeviceIdStringList.Add(attr.DeviceIdString);
                     if (attr.Name.Equals(prevDevice)) {
                         listBoxPlayDevices.SelectedIndex = i;
                     }
@@ -217,9 +220,11 @@ namespace WWImpulseResponse {
                     prevDevice = listBoxRecDevices.SelectedItem as string;
                 }
 
+                mRecDeviceIdStringList.Clear();
                 listBoxRecDevices.Items.Clear();
                 for (int i=0; i < mWasapiRec.GetDeviceCount(); ++i) {
                     var attr = mWasapiRec.GetDeviceAttributes(i);
+                    mRecDeviceIdStringList.Add(attr.DeviceIdString);
                     listBoxRecDevices.Items.Add(attr.Name);
                     if (attr.Name.Equals(prevDevice)) {
                         listBoxRecDevices.SelectedIndex = i;
@@ -289,85 +294,241 @@ namespace WWImpulseResponse {
             }
         }
 
+        private void PreferenceToUI() {
+            switch (mPref.MLSOrder) {
+            case 16:
+            default:
+                comboBoxMLSOrder.SelectedIndex = 0;
+                break;
+            case 17:
+                comboBoxMLSOrder.SelectedIndex = 1;
+                break;
+            case 18:
+                comboBoxMLSOrder.SelectedIndex = 2;
+                break;
+            case 19:
+                comboBoxMLSOrder.SelectedIndex = 3;
+                break;
+            case 20:
+                comboBoxMLSOrder.SelectedIndex = 4;
+                break;
+            }
+
+            switch (mPref.SampleRate) {
+            case 44100:
+                radioButton44100.IsChecked = true;
+                break;
+            case 48000:
+            default:
+                radioButton48000.IsChecked = true;
+                break;
+            case 88200:
+                radioButton88200.IsChecked = true;
+                break;
+            case 96000:
+                radioButton96000.IsChecked = true;
+                break;
+            case 176400:
+                radioButton176400.IsChecked = true;
+                break;
+            case 192000:
+                radioButton192000.IsChecked = true;
+                break;
+            }
+
+            switch (mPref.PlaySampleFormat) {
+            case WasapiCS.SampleFormatType.Sint16:
+            default:
+                radioButtonPlayPcm16.IsChecked = true;
+                break;
+            case WasapiCS.SampleFormatType.Sint24:
+                radioButtonPlayPcm24.IsChecked = true;
+                break;
+            case WasapiCS.SampleFormatType.Sint32V24:
+                radioButtonPlayPcm32v24.IsChecked = true;
+                break;
+            case WasapiCS.SampleFormatType.Sint32:
+                radioButtonPlayPcm32v32.IsChecked = true;
+                break;
+            }
+
+            switch (mPref.RecSampleFormat) {
+            case WasapiCS.SampleFormatType.Sint16:
+            default:
+                radioButtonRecPcm16.IsChecked = true;
+                break;
+            case WasapiCS.SampleFormatType.Sint24:
+                radioButtonRecPcm24.IsChecked = true;
+                break;
+            case WasapiCS.SampleFormatType.Sint32V24:
+                radioButtonRecPcm32v24.IsChecked = true;
+                break;
+            case WasapiCS.SampleFormatType.Sint32:
+                radioButtonRecPcm32v32.IsChecked = true;
+                break;
+            }
+
+            switch (mPref.NumOfChannels) {
+            case 2:
+            default:
+                comboBoxNumChannels.SelectedIndex = 0;
+                break;
+            case 6:
+                comboBoxNumChannels.SelectedIndex = 1;
+                break;
+            case 8:
+                comboBoxNumChannels.SelectedIndex = 2;
+                break;
+            }
+
+            textBoxTestChannel.Text = string.Format("{0}", mPref.TestChannel);
+
+            textBoxPlayBufferSize.Text = string.Format("{0}", mPref.PlayWasapiBufferSizeMS);
+            textBoxRecBufferSize.Text = string.Format("{0}", mPref.RecWasapiBufferSizeMS);
+
+            switch (mPref.PlayDataFeedMode) {
+            case WasapiCS.DataFeedMode.EventDriven:
+            default:
+                radioButtonPlayEvent.IsChecked = true;
+                break;
+            case WasapiCS.DataFeedMode.TimerDriven:
+                radioButtonPlayTimer.IsChecked = true;
+                break;
+            }
+
+            switch (mPref.RecDataFeedMode) {
+            case WasapiCS.DataFeedMode.EventDriven:
+            default:
+                radioButtonRecEvent.IsChecked = true;
+                break;
+            case WasapiCS.DataFeedMode.TimerDriven:
+                radioButtonRecTimer.IsChecked = true;
+                break;
+            }
+
+            checkBoxRecSetDwChannelMask.IsChecked = mPref.SetDwChannelMask;
+
+            if (0 < mPref.PlayPreferredDeviceIdString.Length) {
+                for (int i = 0; i < mPlayDeviceIdStringList.Count; ++i) {
+                    string s = mPlayDeviceIdStringList[i];
+                    if (0 == String.Compare(s, mPref.PlayPreferredDeviceIdString)) {
+                        listBoxPlayDevices.SelectedIndex = i;
+                    }
+                }
+            }
+
+            if (0 < mPref.RecPreferredDeviceIdString.Length) {
+                for (int i = 0; i < mRecDeviceIdStringList.Count; ++i) {
+                    string s = mRecDeviceIdStringList[i];
+                    if (0 == String.Compare(s, mPref.RecPreferredDeviceIdString)) {
+                        listBoxRecDevices.SelectedIndex = i;
+                    }
+                }
+            }
+        }
+
         private bool UpdateTestParamsFromUI() {
 
             mPlayDeviceIdx = listBoxPlayDevices.SelectedIndex;
+            mPref.PlayPreferredDeviceIdString = mPlayDeviceIdStringList[mPlayDeviceIdx];
+
             mRecDeviceIdx = listBoxRecDevices.SelectedIndex;
+            mPref.RecPreferredDeviceIdString = mRecDeviceIdStringList[mRecDeviceIdx];
 
             if (radioButton44100.IsChecked == true) {
-                mSampleRate = 44100;
+                mPref.SampleRate = 44100;
             }
             if (radioButton48000.IsChecked == true) {
-                mSampleRate = 48000;
+                mPref.SampleRate = 48000;
             }
             if (radioButton88200.IsChecked == true) {
-                mSampleRate = 88200;
+                mPref.SampleRate = 88200;
             }
             if (radioButton96000.IsChecked == true) {
-                mSampleRate = 96000;
+                mPref.SampleRate = 96000;
             }
             if (radioButton176400.IsChecked == true) {
-                mSampleRate = 176400;
+                mPref.SampleRate = 176400;
             }
             if (radioButton192000.IsChecked == true) {
-                mSampleRate = 192000;
+                mPref.SampleRate = 192000;
             }
 
             if (radioButtonPlayPcm16.IsChecked == true) {
-                mPlaySampleFormat = WasapiCS.SampleFormatType.Sint16;
+                mPref.PlaySampleFormat = WasapiCS.SampleFormatType.Sint16;
             }
             if (radioButtonPlayPcm24.IsChecked == true) {
-                mPlaySampleFormat = WasapiCS.SampleFormatType.Sint24;
+                mPref.PlaySampleFormat = WasapiCS.SampleFormatType.Sint24;
             }
             if (radioButtonPlayPcm32v24.IsChecked == true) {
-                mPlaySampleFormat = WasapiCS.SampleFormatType.Sint32V24;
+                mPref.PlaySampleFormat = WasapiCS.SampleFormatType.Sint32V24;
             }
             if (radioButtonPlayPcm32v32.IsChecked == true) {
-                mPlaySampleFormat = WasapiCS.SampleFormatType.Sint32;
+                mPref.PlaySampleFormat = WasapiCS.SampleFormatType.Sint32;
             }
 
             if (radioButtonRecPcm16.IsChecked == true) {
-                mRecSampleFormat = WasapiCS.SampleFormatType.Sint16;
+                mPref.RecSampleFormat = WasapiCS.SampleFormatType.Sint16;
             }
             if (radioButtonRecPcm24.IsChecked == true) {
-                mRecSampleFormat = WasapiCS.SampleFormatType.Sint24;
+                mPref.RecSampleFormat = WasapiCS.SampleFormatType.Sint24;
             }
             if (radioButtonRecPcm32v24.IsChecked == true) {
-                mRecSampleFormat = WasapiCS.SampleFormatType.Sint32V24;
+                mPref.RecSampleFormat = WasapiCS.SampleFormatType.Sint32V24;
             }
             if (radioButtonRecPcm32v32.IsChecked == true) {
-                mRecSampleFormat = WasapiCS.SampleFormatType.Sint32;
+                mPref.RecSampleFormat = WasapiCS.SampleFormatType.Sint32;
             }
 
             if (radioButtonPlayEvent.IsChecked == true) {
-                mPlayDataFeedMode = WasapiCS.DataFeedMode.EventDriven;
+                mPref.PlayDataFeedMode = WasapiCS.DataFeedMode.EventDriven;
             }
             if (radioButtonPlayTimer.IsChecked == true) {
-                mPlayDataFeedMode = WasapiCS.DataFeedMode.TimerDriven;
+                mPref.PlayDataFeedMode = WasapiCS.DataFeedMode.TimerDriven;
             }
 
             if (radioButtonRecEvent.IsChecked == true) {
-                mRecDataFeedMode = WasapiCS.DataFeedMode.EventDriven;
+                mPref.RecDataFeedMode = WasapiCS.DataFeedMode.EventDriven;
             }
             if (radioButtonRecTimer.IsChecked == true) {
-                mRecDataFeedMode = WasapiCS.DataFeedMode.TimerDriven;
+                mPref.RecDataFeedMode = WasapiCS.DataFeedMode.TimerDriven;
             }
 
-            if (!Int32.TryParse(textBoxPlayBufferSize.Text, out mPlayBufferMillisec)) {
+            int playBuffSz;
+            if (!Int32.TryParse(textBoxPlayBufferSize.Text, out playBuffSz)) {
                 MessageBox.Show(Properties.Resources.msgPlayBufferSizeError);
                 return false;
             }
-            if (mPlayBufferMillisec <= 0 || 1000 <= mPlayBufferMillisec) {
+            if (playBuffSz <= 0 || 1000 <= playBuffSz) {
                 MessageBox.Show(Properties.Resources.msgPlayBufferSizeTooLarge);
-
+                return false;
             }
-            if (!Int32.TryParse(textBoxRecBufferSize.Text, out mRecBufferMillisec)) {
+            mPref.PlayWasapiBufferSizeMS = playBuffSz;
+
+            int recBuffSz;
+            if (!Int32.TryParse(textBoxRecBufferSize.Text, out recBuffSz)) {
                 MessageBox.Show(Properties.Resources.msgRecBufferSizeError);
                 return false;
             }
-            if (mRecBufferMillisec <= 0 || 1000 <= mRecBufferMillisec) {
+            if (recBuffSz <= 0 || 1000 <= recBuffSz) {
                 MessageBox.Show(Properties.Resources.msgRecBufferSizeTooLarge);
+                return false;
             }
+            mPref.RecWasapiBufferSizeMS = recBuffSz;
+
+            mPref.MLSOrder = MLS_ORDERS[comboBoxMLSOrder.SelectedIndex];
+
+            int numCh = NUM_CH[comboBoxNumChannels.SelectedIndex];
+            mPref.NumOfChannels = numCh;
+
+            mPref.SetDwChannelMask = checkBoxRecSetDwChannelMask.IsChecked == true;
+
+            int testCh = 0;
+            if (!Int32.TryParse(textBoxTestChannel.Text, out testCh) || testCh < 0 || numCh <= testCh) {
+                MessageBox.Show("Error: test channel number is out of range");
+                return false;
+            }
+            mPref.TestChannel = testCh;
 
             return true;
         }
@@ -426,39 +587,30 @@ namespace WWImpulseResponse {
             textBoxLog.Text += "Preparing data.\n";
             textBoxLog.ScrollToEnd();
 
-            int numCh = NUM_CH[comboBoxNumChannels.SelectedIndex];
-
+            int numCh = mPref.NumOfChannels;
             int playDwChMask = WasapiCS.GetTypicalChannelMask(numCh);
 
             int recDwChMask = 0;
-            if (checkBoxRecSetDwChannelMask.IsChecked == true) {
+            if (mPref.SetDwChannelMask) {
                 recDwChMask = WasapiCS.GetTypicalChannelMask(numCh);
             }
 
-            int testCh = 0;
-            if (!Int32.TryParse(textBoxTestChannel.Text, out testCh) || testCh < 0 || numCh <= testCh) {
-                MessageBox.Show("Error: test channel number is out of range");
-                return;
-            }
-
-            mPref.NumOfChannels = numCh;
             mLevelMeterUC.UpdateNumOfChannels(mPref.NumOfChannels);
 
             mTimeDomainPlot.Clear();
 
-            mFreqResponse.SamplingFrequency = mSampleRate;
+            mFreqResponse.SamplingFrequency = mPref.SampleRate;
             mFreqResponse.TransferFunction = (WWComplex z) => { return new WWComplex(1, 0); };
             mFreqResponse.Update();
 
             Directory.CreateDirectory(textboxOutputFolder.Text);
 
-            int mlsOrder = MLS_ORDERS[comboBoxMLSOrder.SelectedIndex];
-            int numSamples = 1<<mlsOrder;
+            int numSamples = 1 << mPref.MLSOrder;
 
             mFFT = new WWRadix2Fft(numSamples);
 
-            mStartTestingArgs = new StartTestingArgs(mlsOrder,
-                    numCh, testCh, playDwChMask, recDwChMask, textboxOutputFolder.Text);
+            mStartTestingArgs = new StartTestingArgs(mPref.MLSOrder,
+                    numCh, mPref.TestChannel, playDwChMask, recDwChMask, textboxOutputFolder.Text);
             mBwStartTesting.RunWorkerAsync(mStartTestingArgs);
         }
 
@@ -503,19 +655,19 @@ namespace WWImpulseResponse {
             mMLSDecon = new MLSDeconvolution(args.order);
             var seq = mMLSDecon.MLSSequence();
 
-            var sampleData = CreatePcmSamples(seq, mPlaySampleFormat, args.numChannels, args.testChannel);
+            var sampleData = CreatePcmSamples(seq, mPref.PlaySampleFormat, args.numChannels, args.testChannel);
 
             // mPcmPlay : テストデータ。このPCMデータを再生し、インパルス応答特性を調べる。
             mPcmPlay = new PcmDataLib.PcmData();
             mPcmPlay.SetFormat(args.numChannels,
-                WasapiCS.SampleFormatTypeToUseBitsPerSample(mPlaySampleFormat),
-                WasapiCS.SampleFormatTypeToValidBitsPerSample(mPlaySampleFormat),
-                mSampleRate,
+                WasapiCS.SampleFormatTypeToUseBitsPerSample(mPref.PlaySampleFormat),
+                WasapiCS.SampleFormatTypeToValidBitsPerSample(mPref.PlaySampleFormat),
+                mPref.SampleRate,
                 PcmDataLib.PcmData.ValueRepresentationType.SInt, seq.Length);
             mPcmPlay.SetSampleLargeArray(sampleData);
 
             // 録音データ置き場。Maximum Length Seqneuceのサイズよりも1サンプル多くしておく。
-            int recBytesPerSample = WasapiCS.SampleFormatTypeToUseBitsPerSample(mRecSampleFormat) / 8;
+            int recBytesPerSample = WasapiCS.SampleFormatTypeToUseBitsPerSample(mPref.RecSampleFormat) / 8;
             mCapturedPcmData = new LargeArray<byte>((long)recBytesPerSample * args.numChannels * (seq.Length+1));
         }
 
@@ -538,20 +690,20 @@ namespace WWImpulseResponse {
                 mCapturedBytes = 0;
                 mReceivedBytes = 0;
 
-                mLevelMeter = new LevelMeter(mRecSampleFormat, args.numChannels, mPref.PeakHoldSeconds,
-                    mPref.WasapiBufferSizeMS * 0.001, mPref.ReleaseTimeDbPerSec);
+                mLevelMeter = new LevelMeter(mPref.RecSampleFormat, args.numChannels, mPref.PeakHoldSeconds,
+                    mPref.RecWasapiBufferSizeMS * 0.001, mPref.ReleaseTimeDbPerSec);
 
                 hr = mWasapiRec.Setup(mRecDeviceIdx,
                         WasapiCS.DeviceType.Rec, WasapiCS.StreamType.PCM,
-                        mSampleRate, mRecSampleFormat, args.numChannels, args.recDwChannelMask,
+                        mPref.SampleRate, mPref.RecSampleFormat, args.numChannels, args.recDwChannelMask,
                         WasapiCS.MMCSSCallType.Enable, WasapiCS.MMThreadPriorityType.None,
                         WasapiCS.SchedulerTaskType.ProAudio, WasapiCS.ShareMode.Exclusive,
-                        mRecDataFeedMode, mRecBufferMillisec, ZERO_FLUSH_MILLISEC, TIME_PERIOD, true);
+                        mPref.RecDataFeedMode, mPref.RecWasapiBufferSizeMS, ZERO_FLUSH_MILLISEC, TIME_PERIOD, true);
                 if (hr < 0) {
                     r.result = false;
                     r.text = string.Format(Properties.Resources.msgRecSetupError,
-                            mSampleRate, mRecSampleFormat, args.numChannels, mRecDataFeedMode,
-                            mRecBufferMillisec, mWasapiRec.GetErrorMessage(hr)) + "\n";
+                            mPref.SampleRate, mPref.RecSampleFormat, args.numChannels, mPref.RecDataFeedMode,
+                            mPref.RecWasapiBufferSizeMS, mWasapiRec.GetErrorMessage(hr)) + "\n";
                     e.Result = r;
                     StopUnsetup();
                     return;
@@ -561,15 +713,16 @@ namespace WWImpulseResponse {
 
                 hr = mWasapiPlay.Setup(mPlayDeviceIdx,
                         WasapiCS.DeviceType.Play, WasapiCS.StreamType.PCM,
-                        mSampleRate, mPlaySampleFormat, args.numChannels, args.playDwChannelMask,
+                        mPref.SampleRate, mPref.PlaySampleFormat, args.numChannels, args.playDwChannelMask,
                         WasapiCS.MMCSSCallType.Enable, WasapiCS.MMThreadPriorityType.None,
                         WasapiCS.SchedulerTaskType.ProAudio, WasapiCS.ShareMode.Exclusive,
-                        mPlayDataFeedMode, mPlayBufferMillisec, ZERO_FLUSH_MILLISEC, TIME_PERIOD, true);
+                        mPref.PlayDataFeedMode, mPref.PlayWasapiBufferSizeMS, ZERO_FLUSH_MILLISEC, TIME_PERIOD, true);
                 if (hr < 0) {
                     mWasapiPlay.Unsetup();
                     r.result = false;
                     r.text = string.Format(Properties.Resources.msgPlaySetupError,
-                            mSampleRate, mPlaySampleFormat, args.numChannels, mPlayDataFeedMode, mPlayBufferMillisec) + "\n";
+                            mPref.SampleRate, mPref.PlaySampleFormat, args.numChannels,
+                            mPref.PlayDataFeedMode, mPref.PlayWasapiBufferSizeMS) + "\n";
                     e.Result = r;
                     return;
                 }
@@ -587,11 +740,14 @@ namespace WWImpulseResponse {
                 var recAttr = mWasapiRec.GetDeviceAttributes(mRecDeviceIdx);
 
                 r.result = true;
-                r.text = string.Format(Properties.Resources.msgTestStarted, mSampleRate, mPcmPlay.NumFrames / mSampleRate, mPcmPlay.NumFrames * 0.001 * 0.001);
+                r.text = string.Format(Properties.Resources.msgTestStarted, mPref.SampleRate,
+                        mPcmPlay.NumFrames / mPref.SampleRate, mPcmPlay.NumFrames * 0.001 * 0.001);
                 r.text += string.Format(Properties.Resources.msgPlaySettings,
-                        mPlaySampleFormat, mPlayBufferMillisec, mPlayDataFeedMode, playAttr.Name);
+                        mPref.PlaySampleFormat, mPref.PlayWasapiBufferSizeMS,
+                        mPref.PlayDataFeedMode, playAttr.Name);
                 r.text += string.Format(Properties.Resources.msgRecSettings,
-                        mRecSampleFormat, mRecBufferMillisec, mRecDataFeedMode, recAttr.Name);
+                        mPref.RecSampleFormat, mPref.RecWasapiBufferSizeMS,
+                        mPref.RecDataFeedMode, recAttr.Name);
                 e.Result = r;
             }
         }
@@ -701,9 +857,10 @@ namespace WWImpulseResponse {
         private void ProcessCapturedData(BackgroundWorker bw, string folder) {
             // 録音したデータをrecPcmDataに入れる。
             var recPcmData = new PcmDataLib.PcmData();
-            recPcmData.SetFormat(mStartTestingArgs.numChannels, WasapiCS.SampleFormatTypeToUseBitsPerSample(mRecSampleFormat),
-                WasapiCS.SampleFormatTypeToValidBitsPerSample(mRecSampleFormat),
-                mSampleRate,
+            recPcmData.SetFormat(mStartTestingArgs.numChannels, 
+                WasapiCS.SampleFormatTypeToUseBitsPerSample(mPref.RecSampleFormat),
+                WasapiCS.SampleFormatTypeToValidBitsPerSample(mPref.RecSampleFormat),
+                mPref.SampleRate,
                 PcmDataLib.PcmData.ValueRepresentationType.SInt,
                 mPcmPlay.NumFrames + 1); //< 再生したMaximum Length Sequenceのサイズよりも1サンプル多い。
             recPcmData.SetSampleLargeArray(mCapturedPcmData);
@@ -724,7 +881,7 @@ namespace WWImpulseResponse {
             */
 
             lock (mLock) {
-                mTimeDomainPlot.SetDiscreteTimeSequence(impulse, mSampleRate);
+                mTimeDomainPlot.SetDiscreteTimeSequence(impulse, mPref.SampleRate);
             }
 
             // 周波数特性を計算する。
@@ -883,7 +1040,9 @@ namespace WWImpulseResponse {
                 mCapturedPcmData.CopyFrom(data, 0, mCapturedBytes, data.Length);
                 mCapturedBytes += data.Length;
 
-                long capturedFrames = mCapturedBytes / mStartTestingArgs.numChannels / (WasapiCS.SampleFormatTypeToUseBitsPerSample(mRecSampleFormat) / 8);
+                long capturedFrames = mCapturedBytes
+                    / mStartTestingArgs.numChannels
+                    / (WasapiCS.SampleFormatTypeToUseBitsPerSample(mPref.RecSampleFormat) / 8);
 
                 //Console.WriteLine("Captured {0} frames", capturedFrames);
             } else {
