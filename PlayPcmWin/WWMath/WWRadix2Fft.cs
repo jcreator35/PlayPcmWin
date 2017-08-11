@@ -1,7 +1,7 @@
 ﻿using System;
 
 namespace WWMath {
-    class WWRadix2Fft {
+    public class WWRadix2Fft {
         private int mNumPoints;
         private int mNumStage;
         private WWComplex[] mWn;

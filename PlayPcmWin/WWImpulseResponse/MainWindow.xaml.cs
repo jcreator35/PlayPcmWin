@@ -67,6 +67,9 @@ namespace WWImpulseResponse {
 
         private Wasapi.WasapiCS.StateChangedCallback mStateChanged;
         private Preference mPref = null;
+        
+        private WWRadix2Fft mFFT;
+        private int mCaptureCounter = 0;
 
         private class StartTestingResult {
             public bool result;
@@ -137,6 +140,12 @@ namespace WWImpulseResponse {
 
             mTimeDomainPlot.SetFunctionType(WWUserControls.TimeDomainPlot.FunctionType.DiscreteTimeSequence);
             mTimeDomainPlot.SetDiscreteTimeSequence(new double[1], 44100);
+
+            mFreqResponse.Mode = WWUserControls.FrequencyResponse.ModeType.ZPlane;
+            mFreqResponse.SamplingFrequency = 48000;
+            mFreqResponse.ShowPhase = false;
+            mFreqResponse.ShowGroupDelay = false;
+            mFreqResponse.Update();
 
             mLevelMeterUC.PreferenceToUI(1, -6, -100);
             mLevelMeterUC.YellowLevelChangeEnable(false);
@@ -438,9 +447,19 @@ namespace WWImpulseResponse {
 
             mTimeDomainPlot.Clear();
 
+            mFreqResponse.SamplingFrequency = mSampleRate;
+            mFreqResponse.TransferFunction = (WWComplex z) => { return new WWComplex(1, 0); };
+            mFreqResponse.Update();
+
             Directory.CreateDirectory(textboxOutputFolder.Text);
 
-            mStartTestingArgs = new StartTestingArgs(MLS_ORDERS[comboBoxMLSOrder.SelectedIndex], numCh, testCh, playDwChMask, recDwChMask, textboxOutputFolder.Text);
+            int mlsOrder = MLS_ORDERS[comboBoxMLSOrder.SelectedIndex];
+            int numSamples = 1<<mlsOrder;
+
+            mFFT = new WWRadix2Fft(numSamples);
+
+            mStartTestingArgs = new StartTestingArgs(mlsOrder,
+                    numCh, testCh, playDwChMask, recDwChMask, textboxOutputFolder.Text);
             mBwStartTesting.RunWorkerAsync(mStartTestingArgs);
         }
 
@@ -672,8 +691,6 @@ namespace WWImpulseResponse {
 
         }
 
-        int mCaptureCounter = 0;
-
         private void ProcessCapturedData(BackgroundWorker bw, string folder) {
             // 録音したデータをrecPcmDataに入れる。
             var recPcmData = new PcmDataLib.PcmData();
@@ -684,30 +701,7 @@ namespace WWImpulseResponse {
                 mPcmPlay.NumFrames + 1); //< 再生したMaximum Length Sequenceのサイズよりも1サンプル多い。
             recPcmData.SetSampleLargeArray(mCapturedPcmData);
 
-#if false
-            // double型に変換。
-            var a = mPcmPlay.GetDoubleArray(mStartTestingArgs.testChannel);
-            var b = recPcmData.GetDoubleArray(mStartTestingArgs.testChannel);
-
-            var c = CrossCorrelation.CalcCircularCrossCorrelation(
-                a.ToArray(), b.ToArray());
-
-            using (var sw = new StreamWriter(File.Open("outputA.csv", FileMode.Create))) {
-                for (int i = 0; i < a.LongLength; ++i) {
-                    sw.WriteLine("{0}", a.At(i));
-                }
-            }
-            using (var sw = new StreamWriter(File.Open("outputB.csv", FileMode.Create))) {
-                for (int i = 0; i < b.LongLength; ++i) {
-                    sw.WriteLine("{0}", b.At(i));
-                }
-            }
-            using (var sw = new StreamWriter(File.Open("outputC.csv", FileMode.Create))) {
-                for (int i = 0; i < c.Length; ++i) {
-                    sw.WriteLine("{0}", c[i]);
-                }
-            }
-#else
+            // インパルス応答impulse[]を得る。
             var recorded = recPcmData.GetDoubleArray(mStartTestingArgs.testChannel);
             var decon = mMLSDecon.Deconvolution(recorded.ToArray());
             var impulse = new double[decon.Length];
@@ -724,9 +718,53 @@ namespace WWImpulseResponse {
             lock (mLock) {
                 mTimeDomainPlot.SetDiscreteTimeSequence(impulse, mSampleRate);
             }
-            // この後描画ができるタイミングでmTimeDomainPlot.Update()を呼ぶ。
-#endif
+
+            // 周波数特性を計算する。
+            var fr = CalcFrequencyResponse(impulse);
+            mFreqResponse.TransferFunction = (WWComplex z) => {
+                double θ = Math.Atan2(z.imaginary, z.real);
+                double freq01 = θ / Math.PI;
+
+                int pos = (int)(freq01 * fr.Length/2);
+                if (pos < 0) {
+                    return WWComplex.Zero();
+                }
+
+                return fr[pos];
+            };
+
+            // この後描画ができるタイミング(RecWorkerProgressChanged())でmTimeDomainPlot.Update()を呼ぶ。
             bw.ReportProgress(10);
+        }
+
+        private int FindPeak(double [] sequence) {
+            int peak = 0;
+            double maxMagnitude = 0.0;
+
+            for (int i = 0; i < sequence.Length; ++i) {
+                double mag = Math.Abs(sequence[i]);
+                if (maxMagnitude < mag) {
+                    peak = i;
+                    maxMagnitude = mag;
+                }
+            }
+
+            return peak;
+        }
+
+        private WWComplex [] CalcFrequencyResponse(double[] impulse) {
+            int peakPos = FindPeak(impulse);
+
+            // peakPosが先頭になるようなシーケンスimpulseA。
+            var impulseA = new WWComplex[impulse.Length];
+            for (int i=0; i<impulse.Length - peakPos; ++i) {
+                impulseA[i] = new WWComplex(impulse[i+peakPos],0);
+            }
+            for (int i=0; i<peakPos; ++i) {
+                impulseA[impulse.Length - peakPos + i] = new WWComplex(impulse[i],0);
+            }
+
+            return mFFT.ForwardFft(impulseA);
         }
 
         private void OutputToCsvFile(double[] impulse, int sampleRate, string path) {
@@ -746,6 +784,7 @@ namespace WWImpulseResponse {
         private void RecWorkerProgressChanged(object sender, ProgressChangedEventArgs e) {
             lock (mLock) {
                 mTimeDomainPlot.Update();
+                mFreqResponse.Update();
             }
         }
 

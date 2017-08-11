@@ -216,6 +216,9 @@
                 <GroupBox Header="Time Domain Plot" Name="groupBoxTD">
                     <wwuc:TimeDomainPlot x:Name="mTimeDomainPlot"  />
                 </GroupBox>
+                <GroupBox Header="Frequency response" Name="groupBoxFR">
+                    <wwuc:FrequencyResponse x:Name="mFreqResponse"  />
+                </GroupBox>
             </StackPanel>
         </ScrollViewer>
         <Button Content="Start" Grid.Row="1" Margin="6,12,6,0" Name="buttonStart" VerticalAlignment="Top" IsEnabled="False" Click="buttonStart_Click" />

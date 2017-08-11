@@ -20,10 +20,6 @@ namespace WWUserControls {
         private bool mInitialized = false;
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e) {
-            ShowGain = true;
-            ShowPhase = true;
-            ShowGroupDelay = true;
-
             Update();
         }
 
@@ -48,9 +44,37 @@ namespace WWUserControls {
 
         private const double DISP_MAG_THRESHOLD = 0.001 * 0.001 * 0.001;
 
-        public bool ShowGain { get; set; }
-        public bool ShowPhase { get; set; }
-        public bool ShowGroupDelay { get; set; }
+        private bool mShowGain = true;
+        private bool mShowPhase = true;
+        private bool mShowGroupDelay = true;
+
+        public bool ShowGain {
+            get {
+                return mShowGain;
+            }
+            set {
+                mShowGain = value;
+                checkBoxShowGain.IsChecked = mShowGain;
+            }
+        }
+        public bool ShowPhase {
+            get {
+                return mShowPhase;
+            }
+            set {
+                mShowPhase = value;
+                checkBoxShowPhase.IsChecked = mShowPhase;
+            }
+        }
+        public bool ShowGroupDelay {
+            get {
+                return mShowGroupDelay;
+            }
+            set {
+                mShowGroupDelay = value;
+                checkBoxShowGroupDelay.IsChecked = mShowGroupDelay;
+            }
+        }
 
         public enum FreqScaleType {
             Linear,
@@ -608,7 +632,7 @@ namespace WWUserControls {
                 return;
             }
 
-            ShowGain = checkBoxShowGain.IsChecked == true;
+            mShowGain = checkBoxShowGain.IsChecked == true;
             Update();
         }
 
@@ -617,7 +641,7 @@ namespace WWUserControls {
                 return;
             }
 
-            ShowPhase = checkBoxShowPhase.IsChecked == true;
+            mShowPhase = checkBoxShowPhase.IsChecked == true;
             Update();
         }
 
@@ -626,7 +650,7 @@ namespace WWUserControls {
                 return;
             }
 
-            ShowGroupDelay = checkBoxShowGroupDelay.IsChecked == true;
+            mShowGroupDelay = checkBoxShowGroupDelay.IsChecked == true;
             Update();
         }
     }
