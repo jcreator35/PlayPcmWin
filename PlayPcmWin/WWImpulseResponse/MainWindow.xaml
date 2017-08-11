@@ -93,7 +93,7 @@
                         </GroupBox>
                     </Grid>
                 </GroupBox>
-                <GroupBox Header="Output folder" Name="groupBoxOutputPath" Margin="4,0,4,0">
+                <GroupBox Header="Output folder" Name="groupBoxOutputPath" Margin="4,0,4,0" Visibility="Collapsed">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="1*" />
