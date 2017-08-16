@@ -52,7 +52,7 @@ struct WasapiIoMixFormat {
 #pragma pack(pop)
 
 __declspec(dllexport)
-int __stdcall
+HRESULT __stdcall
 WasapiIO_GetMixFormat(int instanceId, int deviceId, WasapiIoMixFormat &mixFormat_return);
 
 #pragma pack(push, 4)
@@ -66,7 +66,7 @@ struct WasapiIoInspectArgs {
 #pragma pack(pop)
 
 __declspec(dllexport)
-int __stdcall
+HRESULT __stdcall
 WasapiIO_InspectDevice(int instanceId, int deviceId, const WasapiIoInspectArgs &args);
 
 #pragma pack(push, 4)
@@ -113,7 +113,7 @@ WasapiIO_AddPlayPcmDataSetPcmFragment(int instanceId, int pcmId, int64_t posByte
 
 /// @return HRESULT
 __declspec(dllexport)
-int __stdcall
+HRESULT __stdcall
 WasapiIO_ResampleIfNeeded(int instanceId, int conversionQuality);
 
 __declspec(dllexport)
@@ -157,15 +157,15 @@ bool __stdcall
 WasapiIO_Run(int instanceId, int millisec);
 
 __declspec(dllexport)
-void __stdcall
+HRESULT __stdcall
 WasapiIO_Stop(int instanceId);
 
 __declspec(dllexport)
-int __stdcall
+HRESULT __stdcall
 WasapiIO_Pause(int instanceId);
 
 __declspec(dllexport)
-int __stdcall
+HRESULT __stdcall
 WasapiIO_Unpause(int instanceId);
 
 #pragma pack(push, 4)

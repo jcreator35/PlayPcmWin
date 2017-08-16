@@ -313,7 +313,7 @@ WasapiIO_GetDeviceAttributes(int instanceId, int deviceId, WasapiIoDeviceAttribu
 }
 
 __declspec(dllexport)
-int __stdcall
+HRESULT __stdcall
 WasapiIO_InspectDevice(int instanceId, int deviceId, const WasapiIoInspectArgs &args)
 {
     WasapiIO *self = Instance(instanceId);
@@ -403,7 +403,7 @@ WasapiIO_AddPlayPcmDataSetPcmFragment(int instanceId, int pcmId, int64_t posByte
 }
 
 __declspec(dllexport)
-int __stdcall
+HRESULT __stdcall
 WasapiIO_ResampleIfNeeded(int instanceId, int conversionQuality)
 {
     WasapiIO *self = Instance(instanceId);
@@ -544,16 +544,16 @@ WasapiIO_Run(int instanceId, int millisec)
 }
 
 __declspec(dllexport)
-void __stdcall
+HRESULT __stdcall
 WasapiIO_Stop(int instanceId)
 {
     WasapiIO *self = Instance(instanceId);
     assert(self);
-    self->wasapi.Stop();
+    return self->wasapi.Stop();
 }
 
 __declspec(dllexport)
-int __stdcall
+HRESULT __stdcall
 WasapiIO_Pause(int instanceId)
 {
     WasapiIO *self = Instance(instanceId);
@@ -562,7 +562,7 @@ WasapiIO_Pause(int instanceId)
 }
 
 __declspec(dllexport)
-int __stdcall
+HRESULT __stdcall
 WasapiIO_Unpause(int instanceId)
 {
     WasapiIO *self = Instance(instanceId);
@@ -721,7 +721,7 @@ WasapiIO_ClearAudioFilter(int instanceId)
 }
 
 __declspec(dllexport)
-int __stdcall
+HRESULT __stdcall
 WasapiIO_GetMixFormat(int instanceId, int deviceId, WasapiIoMixFormat &mixFormat_return)
 {
     WasapiIO *self = Instance(instanceId);

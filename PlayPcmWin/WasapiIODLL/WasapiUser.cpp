@@ -158,7 +158,7 @@ WasapiUser::Term(void)
     }
 }
 
-int
+HRESULT
 WasapiUser::GetMixFormat(IMMDevice *device, WWPcmFormat &mixFormat_return)
 {
     HRESULT hr;
@@ -235,7 +235,7 @@ end:
     return hr;
 }
 
-int
+HRESULT
 WasapiUser::InspectDevice(IMMDevice *device, const WWPcmFormat &pcmFormat)
 {
     HRESULT hr;
@@ -574,10 +574,12 @@ end:
     return hr;
 }
 
-void
+HRESULT
 WasapiUser::Stop(void)
 {
-    HRESULT hr;
+    HRESULT hr = S_OK;
+    BOOL b;
+    DWORD dw = S_OK;
 
     dprintf("D: %s() AC=%p SE=%p T=%p\n", __FUNCTION__, m_audioClient, m_shutdownEvent, m_thread);
 
@@ -594,8 +596,16 @@ WasapiUser::Stop(void)
     if (nullptr != m_shutdownEvent) {
         SetEvent(m_shutdownEvent);
     }
+
     if (nullptr != m_thread) {
         WaitForSingleObject(m_thread, INFINITE);
+
+        b = GetExitCodeThread(m_thread, &dw);
+        if (b && SUCCEEDED(hr)) {
+            hr = dw;
+            dprintf("D: Thread exit code = 0x%x\n", hr);
+        }
+
         dprintf("D: %s:%d CloseHandle(%p)\n", __FILE__, __LINE__, m_thread);
         if (m_thread) {
             CloseHandle(m_thread);
@@ -608,6 +618,8 @@ WasapiUser::Stop(void)
         CloseHandle(m_shutdownEvent);
         m_shutdownEvent = nullptr;
     }
+
+    return hr;
 }
 
 HRESULT
@@ -859,10 +871,10 @@ WasapiUser::CreateWritableFrames(BYTE *pData_return, int wantFrames)
 }
 
 /// WASAPIデバイスにPCMデータを送れるだけ送る。
-bool
-WasapiUser::AudioSamplesSendProc(void)
+HRESULT
+WasapiUser::AudioSamplesSendProc(bool &result)
 {
-    bool    result     = true;
+    result             = true;
     BYTE    *to        = nullptr;
     HRESULT hr         = 0;
     int     copyFrames = 0;
@@ -921,8 +933,12 @@ WasapiUser::AudioSamplesSendProc(void)
     }
 
 end:
+    if (FAILED(hr)) {
+        result = false;
+    }
+
     ReleaseMutex(m_mutex);
-    return result;
+    return hr;
 }
 
 /// 再生スレッド メイン。
@@ -966,11 +982,11 @@ WasapiUser::RenderMain(void)
             break;
         case WAIT_OBJECT_0 + 1:     // m_audioSamplesReadyEvent
             // イベント駆動モードの時だけ起こる。
-            stillPlaying = AudioSamplesSendProc();
+            hr = AudioSamplesSendProc(stillPlaying);
             break;
         case WAIT_TIMEOUT:
             // タイマー駆動モードの時だけ起こる。
-            stillPlaying = AudioSamplesSendProc();
+            hr = AudioSamplesSendProc(stillPlaying);
             break;
         default:
             break;
@@ -1026,11 +1042,11 @@ WasapiUser::CaptureMain(void)
             break;
         case WAIT_OBJECT_0 + 1:     // m_audioSamplesReadyEvent
             // only in EventDriven mode
-            stillRecording = AudioSamplesRecvProc();
+            hr = AudioSamplesRecvProc(stillRecording);
             break;
         case WAIT_TIMEOUT:
             // only in TimerDriven mode
-            stillRecording = AudioSamplesRecvProc();
+            hr = AudioSamplesRecvProc(stillRecording);
             break;
         default:
             break;
@@ -1045,10 +1061,10 @@ end:
     return hr;
 }
 
-bool
-WasapiUser::AudioSamplesRecvProc(void)
+HRESULT
+WasapiUser::AudioSamplesRecvProc(bool &result)
 {
-    bool    result     = true;
+    result     = true;
     UINT32  packetLength = 0;
     UINT32  numFramesAvailable = 0;
     DWORD   flags      = 0;
@@ -1082,5 +1098,5 @@ WasapiUser::AudioSamplesRecvProc(void)
 
 end:
     ReleaseMutex(m_mutex);
-    return result;
+    return hr;
 }

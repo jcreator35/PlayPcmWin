@@ -2666,11 +2666,18 @@ namespace PlayPcmWin
         /// </summary>
         private bool m_bStopGently;
 
+        class DoWorkResultArgs {
+            public int hr;
+        };
+
         /// <summary>
         /// 再生中。バックグラウンドスレッド。
         /// </summary>
         private void PlayDoWork(object o, DoWorkEventArgs args) {
             //Console.WriteLine("PlayDoWork started");
+            var r = new DoWorkResultArgs();
+            r.hr = 0;
+            args.Result = r;
             var bw = o as BackgroundWorker;
             bool cancelProcessed = false;
 
@@ -2687,7 +2694,7 @@ namespace PlayPcmWin
                         wasapi.Unpause();
                         cancelProcessed = true;
                     } else {
-                        wasapi.Stop();
+                        r.hr = wasapi.Stop();
                         args.Cancel = true;
                     }
                 }
@@ -2695,7 +2702,10 @@ namespace PlayPcmWin
 
             // 正常に最後まで再生が終わった場合、ここでStopを呼んで、後始末する。
             // キャンセルの場合は、2回Stopが呼ばれることになるが、問題ない!!!
-            wasapi.Stop();
+            int hr = wasapi.Stop();
+            if (0 <= r.hr) {
+                r.hr = hr;
+            }
 
             // 停止完了後タスクの処理は、ここではなく、PlayRunWorkerCompletedで行う。
         }
@@ -2873,8 +2883,15 @@ namespace PlayPcmWin
         /// 再生終了。
         /// </summary>
         private void PlayRunWorkerCompleted(object o, RunWorkerCompletedEventArgs args) {
+            var playResult = args.Result as DoWorkResultArgs;
+
             m_sw.Stop();
-            AddLogText(string.Format(CultureInfo.InvariantCulture, Properties.Resources.PlayCompletedElapsedTimeIs + " {0}{1}", m_sw.Elapsed, Environment.NewLine));
+
+            if (playResult.hr < 0) {
+                AddLogText(string.Format(CultureInfo.InvariantCulture, "Error: play stopped with error {0:X8}{1}", playResult.hr, Environment.NewLine));
+            } else {
+                AddLogText(string.Format(CultureInfo.InvariantCulture, Properties.Resources.PlayCompletedElapsedTimeIs + " {0}{1}", m_sw.Elapsed, Environment.NewLine));
+            }
 
             PerformPlayCompletedTask();
         }

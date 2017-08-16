@@ -57,10 +57,10 @@ public:
     void    Term(void);
 
     /// @return HRESULT
-    int GetMixFormat(IMMDevice *device, WWPcmFormat &mixFormat);
+    HRESULT GetMixFormat(IMMDevice *device, WWPcmFormat &mixFormat);
 
     /// @return 0 when the specified sampleFormat is supported
-    int InspectDevice(IMMDevice *device, const WWPcmFormat &pcmFormat);
+    HRESULT InspectDevice(IMMDevice *device, const WWPcmFormat &pcmFormat);
 
     /// @param format sampleRate pcm data sample rate. On WASAPI shared mode, device sample rate cannot be changed so
     ///        you need to resample pcm to DeviceSampleRate
@@ -91,7 +91,7 @@ public:
     bool Run(int millisec);
 
     /// 停止。
-    void Stop(void);
+    HRESULT Stop(void);
 
     /// ポーズ。
     HRESULT Pause(void);
@@ -169,8 +169,8 @@ private:
     DWORD RenderMain(void);
     DWORD CaptureMain(void);
 
-    bool AudioSamplesSendProc(void);
-    bool AudioSamplesRecvProc(void);
+    HRESULT AudioSamplesSendProc(bool &continue_return);
+    HRESULT AudioSamplesRecvProc(bool &continue_return);
 
     /// WASAPIレンダーバッファに詰めるデータを作る。
     int CreateWritableFrames(BYTE *pData_return, int wantFrames);

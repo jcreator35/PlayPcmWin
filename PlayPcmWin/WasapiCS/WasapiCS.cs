@@ -162,7 +162,7 @@ namespace Wasapi {
         WasapiIO_Run(int instanceId, int millisec);
 
         [DllImport("WasapiIODLL.dll")]
-        private extern static void
+        private extern static int
         WasapiIO_Stop(int instanceId);
 
         [DllImport("WasapiIODLL.dll")]
@@ -720,8 +720,8 @@ namespace Wasapi {
             return WasapiIO_Run(mId, millisec);
         }
 
-        public void Stop() {
-            WasapiIO_Stop(mId);
+        public int Stop() {
+            return WasapiIO_Stop(mId);
         }
 
         public int Pause() {
