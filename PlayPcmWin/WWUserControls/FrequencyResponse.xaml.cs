@@ -345,18 +345,18 @@ namespace WWUserControls {
                 canvasFR.Children.Remove(item);
             }
             mLabelList.Clear();
-            
-            // F特の計算。
 
-            var frMagnitude = new double[FR_LINE_WIDTH];
+            mFrMagnitude = new double[FR_LINE_WIDTH];
 
             // frequency - phase
-            var frPhase = new double[FR_LINE_WIDTH];
+            mFrPhase = new double[FR_LINE_WIDTH];
 
             // angle frequency of idx
-            var frω = new double[FR_LINE_WIDTH];
+            mFrω = new double[FR_LINE_WIDTH];
 
-            var frGroupDelay = new double[FR_LINE_WIDTH];
+            mFrGroupDelay = new double[FR_LINE_WIDTH];
+
+            UpdateFr();
 
             double maxMagnitude = 0.0;
             double maxPhase = -double.MaxValue;
@@ -364,54 +364,23 @@ namespace WWUserControls {
             double maxGroupDelay = 0.0;
 
             for (int i = 0; i < FR_LINE_WIDTH; ++i) {
-                double ω = 2.0 * Math.PI * PlotXToFrequency(i);
-
-                WWComplex h;
-                switch (Mode) {
-                case ModeType.SPlane:
-                    h = TransferFunction(new WWComplex(0, ω));
-                    break;
-                case ModeType.ZPlane: {
-                        double θ = ω / SamplingFrequency;
-                        h = TransferFunction(new WWComplex(Math.Cos(θ), Math.Sin(θ)));
-                    }
-                    break;
-                default:
-                    System.Diagnostics.Debug.Assert(false);
-                    h = WWComplex.Unity();
-                    break;
-                }
-                double magnitude = h.Magnitude();
+                double magnitude = mFrMagnitude[i];
                 if (maxMagnitude < magnitude) {
                     maxMagnitude = magnitude;
                 }
 
-                frω[i] = ω;
-                frMagnitude[i] = h.Magnitude();
-
-                if (i == 0) {
-                    frPhase[i] = h.Phase();
-                } else {
-                    frPhase[i] = h.Phase();
-
-                    if (PhaseUnwarp) {
-                        while (frPhase[i - 1] < frPhase[i]) {
-                            frPhase[i] -= 2.0 * Math.PI;
-                        }
-                    }
+                if (mFrPhase[i] < minPhase) {
+                    minPhase = mFrPhase[i];
                 }
-                if (frPhase[i] < minPhase) {
-                    minPhase = frPhase[i];
-                }
-                if (maxPhase < frPhase[i]) {
-                    maxPhase = frPhase[i];
+                if (maxPhase < mFrPhase[i]) {
+                    maxPhase = mFrPhase[i];
                 }
 
                 if (1 <= i) {
-                    double phaseDiff = frPhase[i] - frPhase[i - 1];
-                    frGroupDelay[i] = -phaseDiff / (frω[i] - frω[i - 1]);
-                    if (maxGroupDelay < frGroupDelay[i]) {
-                        maxGroupDelay = frGroupDelay[i];
+                    double phaseDiff = mFrPhase[i] - mFrPhase[i - 1];
+                    mFrGroupDelay[i] = -phaseDiff / (mFrω[i] - mFrω[i - 1]);
+                    if (maxGroupDelay < mFrGroupDelay[i]) {
+                        maxGroupDelay = mFrGroupDelay[i];
                     }
                 }
 
@@ -427,7 +396,7 @@ namespace WWUserControls {
             }
             if (Math.Abs(maxPhase - minPhase) < Math.PI / 6) {
                 // 30°
-                minPhase = maxPhase -Math.PI/6;
+                minPhase = maxPhase - Math.PI / 6;
             }
 
             if (maxGroupDelay < 0.0001) {
@@ -437,10 +406,10 @@ namespace WWUserControls {
             double maxDegree = maxPhase * 180.0 / Math.PI;
             double minDegree = minPhase * 180.0 / Math.PI;
 
-            labelPhase180.Content  = string.Format("{0:g4}", maxDegree);
-            labelPhase90.Content   = string.Format("{0:g4}", minDegree + (maxDegree - minDegree) * (3.0 / 4.0));
-            labelPhase0.Content    = string.Format("{0:g4}", minDegree + (maxDegree - minDegree) * (2.0 / 4.0));
-            labelPhaseM90.Content  = string.Format("{0:g4}", minDegree + (maxDegree - minDegree) * (1.0 / 4.0));
+            labelPhase180.Content = string.Format("{0:g4}", maxDegree);
+            labelPhase90.Content = string.Format("{0:g4}", minDegree + (maxDegree - minDegree) * (3.0 / 4.0));
+            labelPhase0.Content = string.Format("{0:g4}", minDegree + (maxDegree - minDegree) * (2.0 / 4.0));
+            labelPhaseM90.Content = string.Format("{0:g4}", minDegree + (maxDegree - minDegree) * (1.0 / 4.0));
             labelPhaseM180.Content = string.Format("{0:g4}", minDegree);
 
             labelGroupDelay0.Content = Common.UnitNumberString(maxGroupDelay * (0.0 / 4.0));
@@ -448,7 +417,6 @@ namespace WWUserControls {
             labelGroupDelay2.Content = Common.UnitNumberString(maxGroupDelay * (2.0 / 4.0));
             labelGroupDelay3.Content = Common.UnitNumberString(maxGroupDelay * (3.0 / 4.0));
             labelGroupDelay4.Content = Common.UnitNumberString(maxGroupDelay * (4.0 / 4.0));
-
 
             var vGridFreqList = GenerateVerticalGridFreqList(FreqListType.ForLine);
             foreach (var freq in vGridFreqList) {
@@ -545,7 +513,7 @@ namespace WWUserControls {
             var lastPosG = new Point();
 
             for (int i = 0; i < FR_LINE_WIDTH; ++i) {
-                if (mMode == ModeType.ZPlane && SamplingFrequency/2 < frω[i] / 2 / Math.PI) {
+                if (mMode == ModeType.ZPlane && SamplingFrequency / 2 < mFrω[i] / 2 / Math.PI) {
                     break;
                 }
 
@@ -553,7 +521,7 @@ namespace WWUserControls {
                 Point posP = new Point();
                 Point posG = new Point();
 
-                double phase = frPhase[i];
+                double phase = mFrPhase[i];
                 /*
                 while (phase <= -Math.PI) {
                     phase += 2.0 * Math.PI;
@@ -565,12 +533,12 @@ namespace WWUserControls {
 
                 switch ((MagScaleType)comboBoxMagScale.SelectedIndex) {
                 case MagScaleType.Linear:
-                    posM = new Point(FR_LINE_LEFT + i, FR_LINE_BOTTOM - FR_LINE_HEIGHT * frMagnitude[i] / maxMagnitude);
+                    posM = new Point(FR_LINE_LEFT + i, FR_LINE_BOTTOM - FR_LINE_HEIGHT * mFrMagnitude[i] / maxMagnitude);
                     break;
                 case MagScaleType.Logarithmic:
                     posM = new Point(FR_LINE_LEFT + i,
-                        FR_LINE_TOP 
-                        + FR_LINE_HEIGHT * 20.0 * Math.Log10(frMagnitude[i] / maxMagnitude)
+                        FR_LINE_TOP
+                        + FR_LINE_HEIGHT * 20.0 * Math.Log10(mFrMagnitude[i] / maxMagnitude)
                           / (20.0 * Math.Log10(magRangeMax)));
                     break;
                 default:
@@ -588,7 +556,7 @@ namespace WWUserControls {
                 }
 
                 if (ShowGain && bDraw) {
-                    if (DISP_MAG_THRESHOLD < frMagnitude[i]) {
+                    if (DISP_MAG_THRESHOLD < mFrMagnitude[i]) {
                         var lineM = new Line();
                         lineM.Stroke = Brushes.Blue;
                         LineSetPos(lineM, lastPosM.X, lastPosM.Y, posM.X, posM.Y);
@@ -600,10 +568,10 @@ namespace WWUserControls {
                 if (ShowPhase) {
                     // phase plot
                     // 振幅が小さいと回転の精度が低いので表示しない。
-                    if (DISP_MAG_THRESHOLD < frMagnitude[i]) {
+                    if (DISP_MAG_THRESHOLD < mFrMagnitude[i]) {
                         posP = new Point(FR_LINE_LEFT + i,
                             FR_LINE_TOP + FR_LINE_HEIGHT * (maxPhase - phase) / Math.Abs(maxPhase - minPhase));
-                        if (1 <= i && ( posP.X - lastPosP.X ) < 2) {
+                        if (1 <= i && (posP.X - lastPosP.X) < 2) {
                             var lineP = new Line();
                             lineP.Stroke = Brushes.Red;
                             LineSetPos(lineP, lastPosP.X, lastPosP.Y, posP.X, posP.Y);
@@ -616,14 +584,14 @@ namespace WWUserControls {
                 if (ShowGroupDelay) {
                     // group delay plot.
                     // 振幅が小さいと回転の精度が低いので表示しない。
-                    if (1 <= i && DISP_MAG_THRESHOLD < frMagnitude[i]) {
-                        double phaseDiff = frPhase[i] - frPhase[i - 1];
-                        double groupDelay = -phaseDiff / ( frω[i] - frω[i - 1] );
+                    if (1 <= i && DISP_MAG_THRESHOLD < mFrMagnitude[i]) {
+                        double phaseDiff = mFrPhase[i] - mFrPhase[i - 1];
+                        double groupDelay = -phaseDiff / (mFrω[i] - mFrω[i - 1]);
                         //Console.WriteLine("{0} {1}", i, groupDelay);
 
                         posG = new Point(FR_LINE_LEFT + i, FR_LINE_BOTTOM - FR_LINE_HEIGHT * groupDelay / maxGroupDelay);
 
-                        if (2 <= i && ( posG.X - lastPosG.X ) < 2) {
+                        if (2 <= i && (posG.X - lastPosG.X) < 2) {
                             var lineG = new Line();
                             lineG.Stroke = Brushes.Gray;
                             LineSetPos(lineG, lastPosG.X, lastPosG.Y, posG.X, posG.Y);
@@ -636,6 +604,49 @@ namespace WWUserControls {
                 lastPosP = posP;
                 lastPosM = posM;
                 lastPosG = posG;
+            }
+        }
+        
+        double[] mFrMagnitude;
+        double[] mFrPhase;
+        double[] mFrGroupDelay;
+        double[] mFrω;
+
+        private void UpdateFr() {
+            // F特の計算。
+
+            for (int i = 0; i < FR_LINE_WIDTH; ++i) {
+                double ω = 2.0 * Math.PI * PlotXToFrequency(i);
+
+                WWComplex h;
+                switch (Mode) {
+                case ModeType.SPlane:
+                    h = TransferFunction(new WWComplex(0, ω));
+                    break;
+                case ModeType.ZPlane: {
+                        double θ = ω / SamplingFrequency;
+                        h = TransferFunction(new WWComplex(Math.Cos(θ), Math.Sin(θ)));
+                    }
+                    break;
+                default:
+                    System.Diagnostics.Debug.Assert(false);
+                    h = WWComplex.Unity();
+                    break;
+                }
+                mFrω[i] = ω;
+                mFrMagnitude[i] = h.Magnitude();
+
+                if (i == 0) {
+                    mFrPhase[i] = h.Phase();
+                } else {
+                    mFrPhase[i] = h.Phase();
+
+                    if (PhaseUnwarp) {
+                        while (mFrPhase[i - 1] < mFrPhase[i]) {
+                            mFrPhase[i] -= 2.0 * Math.PI;
+                        }
+                    }
+                }
             }
         }
 
@@ -669,5 +680,6 @@ namespace WWUserControls {
             mShowGroupDelay = checkBoxShowGroupDelay.IsChecked == true;
             Update();
         }
+
     }
 }

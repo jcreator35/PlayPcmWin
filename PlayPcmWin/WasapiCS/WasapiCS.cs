@@ -840,7 +840,7 @@ namespace Wasapi {
             return hr;
         }
 
-        public string GetErrorMessage(int ercd) {
+        public static string GetErrorMessage(int ercd) {
             switch ((uint)ercd) {
             case 0x88890001: return "AUDCLNT_E_NOT_INITIALIZED";
             case 0x88890002: return "AUDCLNT_E_ALREADY_INITIALIZED";
@@ -871,6 +871,17 @@ namespace Wasapi {
             case 0x88890018: return "AUDCLNT_E_BUFFER_ERROR";
             case 0x88890019: return "AUDCLNT_E_BUFFER_SIZE_NOT_ALIGNED";
             case 0x88890020: return "AUDCLNT_E_INVALID_DEVICE_PERIOD";
+
+            case 0x88890021: return "AUDCLNT_E_INVALID_STREAM_FLAG";
+            case 0x88890022: return "AUDCLNT_E_ENDPOINT_OFFLOAD_NOT_CAPABLE";
+            case 0x88890023: return "AUDCLNT_E_OUT_OF_OFFLOAD_RESOURCES";
+            case 0x88890024: return "AUDCLNT_E_OFFLOAD_MODE_ONLY";
+            case 0x88890025: return "AUDCLNT_E_NONOFFLOAD_MODE_ONLY";
+
+            case 0x88890026: return "AUDCLNT_E_RESOURCES_INVALIDATED";
+            case 0x88890027: return "AUDCLNT_E_RAW_MODE_UNSUPPORTED";
+            case 0x88890028: return "AUDCLNT_E_ENGINE_PERIODICITY_LOCKED";
+            case 0x88890029: return "AUDCLNT_E_ENGINE_FORMAT_LOCKED";
 
             default:
                 return "";

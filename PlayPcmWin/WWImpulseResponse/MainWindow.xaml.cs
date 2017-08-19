@@ -134,7 +134,7 @@ namespace WWImpulseResponse {
 
             mFreqResponse.Mode = WWUserControls.FrequencyResponse.ModeType.ZPlane;
             mFreqResponse.SamplingFrequency = 48000;
-            mFreqResponse.PhaseUnwarp = false;
+            mFreqResponse.PhaseUnwarp = true;
             //mFreqResponse.ShowPhase = false;
             mFreqResponse.ShowGroupDelay = false;
             mFreqResponse.UpdateMagnitudeRange(WWUserControls.FrequencyResponse.MagnitudeRangeType.M48dB);
@@ -703,7 +703,7 @@ namespace WWImpulseResponse {
                     r.result = false;
                     r.text = string.Format(Properties.Resources.msgRecSetupError,
                             mPref.SampleRate, mPref.RecSampleFormat, args.numChannels, mPref.RecDataFeedMode,
-                            mPref.RecWasapiBufferSizeMS, mWasapiRec.GetErrorMessage(hr)) + "\n";
+                            mPref.RecWasapiBufferSizeMS, WasapiCS.GetErrorMessage(hr)) + "\n";
                     e.Result = r;
                     StopUnsetup();
                     return;
@@ -857,7 +857,7 @@ namespace WWImpulseResponse {
         private void ProcessCapturedData(BackgroundWorker bw, string folder) {
             // 録音したデータをrecPcmDataに入れる。
             var recPcmData = new PcmDataLib.PcmData();
-            recPcmData.SetFormat(mStartTestingArgs.numChannels, 
+            recPcmData.SetFormat(mStartTestingArgs.numChannels,
                 WasapiCS.SampleFormatTypeToUseBitsPerSample(mPref.RecSampleFormat),
                 WasapiCS.SampleFormatTypeToValidBitsPerSample(mPref.RecSampleFormat),
                 mPref.SampleRate,
@@ -873,12 +873,13 @@ namespace WWImpulseResponse {
                 impulse[i] = 2.0 * decon[decon.Length - 1 - i];
             }
 
-            ++mCaptureCounter;
+            {
+                // ファイルに保存。
+                string path = string.Format("{0}/ImpulseResponse{1}_{2}.csv", folder, DateTime.Now.ToString("yyyyMMddHHmmss"), mCaptureCounter);
+                OutputImpulseToCsvFile(impulse, mPref.SampleRate, path);
+            }
 
-            /*
-            string path = string.Format("{0}/impulse{1}.csv", folder, mCaptureCounter);
-            OutputToCsvFile(impulse, mSampleRate, path);
-            */
+            ++mCaptureCounter;
 
             lock (mLock) {
                 mTimeDomainPlot.SetDiscreteTimeSequence(impulse, mPref.SampleRate);
@@ -886,6 +887,12 @@ namespace WWImpulseResponse {
 
             // 周波数特性を計算する。
             var fr = CalcFrequencyResponse(impulse);
+
+            {
+                // ファイルに保存。
+                string path = string.Format("{0}/FrequencyResponse{1}_{2}.csv", folder, DateTime.Now.ToString("yyyyMMddHHmmss"), mCaptureCounter);
+                OutputFrequencyResponseToCsvFile(fr, mPref.SampleRate, path);
+            }
 
             lock (mLock) {
                 mFreqResponse.TransferFunction = (WWComplex z) => {
@@ -935,13 +942,27 @@ namespace WWImpulseResponse {
             return mFFT.ForwardFft(impulseA);
         }
 
-        private void OutputToCsvFile(double[] impulse, int sampleRate, string path) {
+        private void OutputImpulseToCsvFile(double[] impulse, int sampleRate, string path) {
             using (var sw = new StreamWriter(File.Open(path, FileMode.Create))) {
                 sw.WriteLine("Time, Amplitude");
                 for (int i = 0; i < impulse.Length; ++i) {
                     double time = (double)i / sampleRate;
                     double v = impulse[i];
                     sw.WriteLine("{0:R}, {1:R}", time, v);
+                }
+            }
+        }
+
+        private void OutputFrequencyResponseToCsvFile(WWComplex[] fr, int sampleRate, string path) {
+            using (var sw = new StreamWriter(File.Open(path, FileMode.Create))) {
+                sw.WriteLine("Frequency(Hz), Magnitude, Phase");
+                for (int i = 0; i < fr.Length; ++i) {
+                    double freq = (double)sampleRate * i / fr.Length;
+
+                    double mag = fr[i].Magnitude();
+                    double pha = fr[i].Phase();
+
+                    sw.WriteLine("{0:R}, {1:R}, {2:R}", freq, mag, pha);
                 }
             }
         }

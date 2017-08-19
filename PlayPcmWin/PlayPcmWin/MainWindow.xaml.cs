@@ -2888,7 +2888,8 @@ namespace PlayPcmWin
             m_sw.Stop();
 
             if (playResult.hr < 0) {
-                AddLogText(string.Format(CultureInfo.InvariantCulture, "Error: play stopped with error {0:X8}{1}", playResult.hr, Environment.NewLine));
+                AddLogText(string.Format(CultureInfo.InvariantCulture, "Error: play stopped with error {0:X8} {1}{2}", playResult.hr,
+                        WasapiCS.GetErrorMessage(playResult.hr), Environment.NewLine));
             } else {
                 AddLogText(string.Format(CultureInfo.InvariantCulture, Properties.Resources.PlayCompletedElapsedTimeIs + " {0}{1}", m_sw.Elapsed, Environment.NewLine));
             }
