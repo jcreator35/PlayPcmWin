@@ -229,7 +229,7 @@ namespace RecPcmWin {
         }
 
         public string ErrorCodeToStr(int ercd) {
-            return mWasapi.GetErrorMessage(ercd);
+            return WasapiCS.GetErrorMessage(ercd);
         }
     }
 }
