@@ -197,10 +197,19 @@ struct FlacDecodeInfo {
             buffPerChannel = nullptr;
         }
 
-        assert(!fp);
+        if (rawPcmData) {
+            delete [] rawPcmData;
+            rawPcmData = nullptr;
+        }
+        rawPcmDataBytes = 0;
 
         delete [] pictureData;
         pictureData = nullptr;
+
+        if (fp) {
+            fclose(fp);
+            fp = nullptr;
+        }
     }
 
     volatile static int nextId;
@@ -711,11 +720,6 @@ end:
             fdi->decoder = nullptr;
         }
 
-        if (fdi->fp != nullptr) {
-            fclose(fdi->fp);
-            fdi->fp = nullptr;
-        }
-
         int result = fdi->errorCode;
         FlacTInfoDelete<FlacDecodeInfo>(g_flacDecodeInfoMap, fdi);
         fdi = nullptr;
@@ -1003,15 +1007,6 @@ WWFlacRW_DecodeEnd(int id)
         fdi->decoder = nullptr;
     }
 
-    delete[] fdi->rawPcmData;
-    fdi->rawPcmData = nullptr;
-    fdi->rawPcmDataBytes = 0;
-
-    if (fdi->fp != nullptr) {
-        fclose(fdi->fp);
-        fdi->fp = nullptr;
-    }
-
     int ercd = fdi->errorCode;
     FlacTInfoDelete<FlacDecodeInfo>(g_flacDecodeInfoMap, fdi);
     fdi = nullptr;
@@ -1034,7 +1029,6 @@ struct FlacEncodeInfo {
     FLAC__StreamEncoder *encoder;
     FLAC__StreamMetadata *flacMetaArray[FMT_NUM];
     int                  flacMetaCount;
-
 
     int          id;
     int          sampleRate;
@@ -1124,7 +1118,10 @@ struct FlacEncodeInfo {
         delete [] pictureData;
         pictureData = nullptr;
 
-        assert(!fp);
+        if (fp) {
+            fclose(fp);
+            fp = nullptr;
+        }
     }
 
     volatile static int nextId;
@@ -1533,7 +1530,7 @@ end:
         fei->encoder = nullptr;
     }
 
-    if (nullptr != fei->fp) {
+    if (fei->fp) {
         fclose(fei->fp);
         fei->fp = nullptr;
     }
@@ -1711,11 +1708,11 @@ end:
 
         FLAC__stream_decoder_delete(decoder);
         decoder = nullptr;
+    }
 
-        if (fp != nullptr) {
-            fclose(fp);
-            fp = nullptr;
-        }
+    if (fp) {
+        fclose(fp);
+        fp = nullptr;
     }
 
     return result;

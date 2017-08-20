@@ -1324,7 +1324,7 @@ namespace PlayPcmWin
                             ShareModeToStr(m_preference.WasapiSharedOrExclusive),
                             Properties.Resources.Failed,
                             hr,
-                            wasapi.GetErrorMessage(hr),
+                            WasapiCS.GetErrorMessage(hr),
                             Properties.Resources.SetupFailAdvice,
                             Environment.NewLine);
                     MessageBox.Show(s);
