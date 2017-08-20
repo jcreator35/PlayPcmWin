@@ -2883,7 +2883,12 @@ namespace PlayPcmWin
         /// 再生終了。
         /// </summary>
         private void PlayRunWorkerCompleted(object o, RunWorkerCompletedEventArgs args) {
-            var playResult = args.Result as DoWorkResultArgs;
+            DoWorkResultArgs playResult = new DoWorkResultArgs();
+            if (args.Cancelled) {
+                // 再生中に×ボタンを押すとここに来る。
+            } else {
+                playResult = args.Result as DoWorkResultArgs;
+            }
 
             m_sw.Stop();
 
