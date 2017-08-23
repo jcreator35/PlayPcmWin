@@ -672,6 +672,7 @@ namespace WWAudioFilter {
                 audioDataTo.picture = tagData.Picture;
             }
 
+            //for (int ch=0; ch<audioDataFrom.meta.channels; ++ch) {
             Parallel.For(0, audioDataFrom.meta.channels, ch => {
                 var filters = new List<FilterBase>();
                 foreach (var f in aFilters) {
@@ -684,6 +685,7 @@ namespace WWAudioFilter {
                 var to = audioDataTo.pcm[ch];
                 rv = ProcessAudioFile(filters, audioDataFrom.meta.channels, ch, ref from, ref to, Callback);
                 if (rv < 0) {
+                    //break;
                     return;
                 }
                 audioDataTo.pcm[ch] = to;
@@ -695,7 +697,7 @@ namespace WWAudioFilter {
                 }
 
                 filters = null;
-            });
+            } );
 
             if (rv < 0) {
                 return rv;

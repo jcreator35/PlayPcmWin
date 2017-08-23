@@ -373,7 +373,7 @@
     <value>Cicディレイ値は1以上の整数の値を入力してください</value>
   </data>
   <data name="FilterCicFilterDesc" xml:space="preserve">
-    <value>CICフィルター: {0}, Combディレイ={1}</value>
+    <value>CICフィルター: Order={0}, Combディレイ={1}</value>
   </data>
   <data name="LabelCicDelay" xml:space="preserve">
     <value>ディレイ:</value>

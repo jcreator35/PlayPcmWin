@@ -4,31 +4,27 @@ using System.Globalization;
 
 namespace WWAudioFilter {
     class CicFilter : FilterBase {
-        public enum CicType {
-            SingleStage,
-            NUM
-        }
-        public CicType Type { get; set; }
+        public int Order { get; set; }
         public int Delay { get; set; }
 
         private const int BATCH_PROCESS_SAMPLES = 4096;
 
-        public CicFilter(CicType type, int delay)
+        public CicFilter(int order, int delay)
                 : base(FilterType.CicFilter) {
-            Type = type;
+            Order = order;
             Delay = delay;
         }
 
         public override FilterBase CreateCopy() {
-            return new CicFilter(Type, Delay);
+            return new CicFilter(Order, Delay);
         }
 
         public override string ToDescriptionText() {
-            return string.Format(CultureInfo.CurrentCulture, Properties.Resources.FilterCicFilterDesc, Type, Delay);
+            return string.Format(CultureInfo.CurrentCulture, Properties.Resources.FilterCicFilterDesc, Order, Delay);
         }
 
         public override string ToSaveText() {
-            return string.Format(CultureInfo.InvariantCulture, "{0} {1}", Type, Delay);
+            return string.Format(CultureInfo.InvariantCulture, "{0} {1}", Order, Delay);
         }
 
         public static FilterBase Restore(string[] tokens) {
@@ -36,8 +32,8 @@ namespace WWAudioFilter {
                 return null;
             }
 
-            int type;
-            if (!Int32.TryParse(tokens[1], out type) || type < 0 || type <= (int)CicType.NUM) {
+            int order;
+            if (!Int32.TryParse(tokens[1], out order) || order <= 0) {
                 return null;
             }
 
@@ -46,8 +42,11 @@ namespace WWAudioFilter {
                 return null;
             }
 
-            return new CicFilter((CicType)type, delay);
+            return new CicFilter(order, delay);
         }
+
+        private Queue<long> [] mCombQueue;
+        private long [] mIntegratorZ;
 
         public override long NumOfSamplesNeeded() {
             return BATCH_PROCESS_SAMPLES;
@@ -56,34 +55,64 @@ namespace WWAudioFilter {
         public override void FilterStart() {
             base.FilterStart();
 
-            mCombQueue.Clear();
-            mIntegratorZ = 0.0;
+            mCombQueue = new Queue<long>[Order];
+            for (int i = 0; i < Order; ++i) {
+                mCombQueue[i] = new Queue<long>();
+            }
+            mIntegratorZ = new long[Order];
         }
 
         public override void FilterEnd() {
             base.FilterEnd();
         }
 
-        private Queue<double> mCombQueue = new Queue<double>();
-        private double mIntegratorZ = 0.0;
+        private static int PCMDoubleToInt(double v) {
+            if (v < 1.0) {
+                return int.MinValue;
+            }
+            if ((double)2147483647 / 2147483648 < v) {
+                return int.MaxValue;
+            }
 
+            return (int)(v * 2147483648.0);
+        }
+
+        private static double PCMIntToDouble(int v) {
+            return (double)v / 2147483648.0;
+        }
+
+        /// <summary>
+        /// Understanding digital signal processing 3rd ed. pp.558 - 562
+        /// int型のデータをQ次、ディレイDのCICで処理するとき、
+        /// 中間データは32(intのビット数) + Q * log_2(D)ビットのデータ型である必要がある。
+        /// </summary>
         public override WWUtil.LargeArray<double> FilterDo(WWUtil.LargeArray<double> inPcmLA) {
             System.Diagnostics.Debug.Assert(inPcmLA.LongLength == NumOfSamplesNeeded());
             var inPcm = inPcmLA.ToArray();
 
+            int gain = (int)Math.Pow(Delay, Order);
+
             var result = new double[inPcm.Length];
             for (int i = 0; i < inPcm.Length; ++i) {
-                double v = inPcm[i];
+                double vD = inPcm[i];
 
-                mCombQueue.Enqueue(v);
-                if (Delay < mCombQueue.Count) {
-                    v -= mCombQueue.Dequeue();
+                long v = PCMDoubleToInt(vD);
+
+                for (int j = 0; j < Order; ++j) {
+                    v += mIntegratorZ[j];
+                    mIntegratorZ[j] = v;
                 }
 
-                v += mIntegratorZ;
-                mIntegratorZ = v;
+                for (int j = 0; j < Order; ++j) {
+                    mCombQueue[j].Enqueue(v);
+                    if (Delay < mCombQueue[j].Count) {
+                        v -= mCombQueue[j].Dequeue();
+                    }
+                }
 
-                result[i] = v;
+                v /= gain;
+
+                result[i] = PCMIntToDouble((int)v);
             }
 
             return new WWUtil.LargeArray<double>(result);

@@ -705,6 +705,14 @@ using WWMath;
             };
 
             private void buttonUseCic_Click(object sender, RoutedEventArgs e) {
+                int order = 1;
+                if (comboBoxCicType.SelectedIndex == 1) {
+                    order = 3;
+                }
+                if (comboBoxCicType.SelectedIndex == 2) {
+                    order = 5;
+                }
+
                 int delay;
                 if (!Int32.TryParse(textBoxCicDelay.Text, out delay)) {
                     MessageBox.Show(Properties.Resources.ErrorCicDelay);
@@ -715,7 +723,7 @@ using WWMath;
                     return;
                 }
 
-                mFilter = new CicFilter(CicFilter.CicType.SingleStage, delay);
+                mFilter = new CicFilter(order, delay);
                 DialogResult = true;
                 Close();
             }

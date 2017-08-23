@@ -358,7 +358,7 @@ Processing...
     <value>Factor (f) :</value>
   </data>
   <data name="FilterCicFilterDesc" xml:space="preserve">
-    <value>CIC Filter: {0}, Comb delay={1}</value>
+    <value>CIC Filter: Order={0}, Comb delay={1}</value>
   </data>
   <data name="GroupCic" xml:space="preserve">
     <value>CIC Filter</value>

@@ -602,7 +602,7 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to CIC Filter: {0}, Comb delay={1}.
+        ///   Looks up a localized string similar to CIC Filter: Order={0}, Comb delay={1}.
         /// </summary>
         internal static string FilterCicFilterDesc {
             get {
