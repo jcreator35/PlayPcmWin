@@ -94,11 +94,14 @@ namespace WWAudioFilter {
             if (mTotalSamples / 8 <= mOffsBytes || longCount == 0) {
                 // 完全に範囲外の時。
                 int writePos = 0;
-                for (long i = 0; i < longCount; ++i) {
+                for (long i = 0; i < (longCount+7)/8; ++i) {
                     byte b = 0x69; // DSD silence
 
                     // 1バイト内のビットの並びはMSBから古い順にデータが詰まっている。
-                    for (int bit = 7; 0<=bit; --bit) {
+                    for (int bit = 7; 0 <= bit; --bit) {
+                        if (longCount <= writePos) {
+                            break;
+                        }
                         result.Set(writePos++, ((b >> bit) & 1) == 1 ? 1.0 : -1.0);
                     }
                 }
