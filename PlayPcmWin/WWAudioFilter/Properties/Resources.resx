@@ -567,4 +567,7 @@ Processing...
   <data name="FilterWindowedSincDownsampleDesc" xml:space="preserve">
     <value>Windowed Sinc downsample: {0}x, window length={1}</value>
   </data>
+  <data name="CbItemCicType3rdStage" xml:space="preserve">
+    <value>3rd stage CIC</value>
+  </data>
 </root>

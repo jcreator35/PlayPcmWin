@@ -92,6 +92,7 @@ using WWMath;
                 groupBoxCic.Header = Properties.Resources.GroupCic;
                 labelCicFilterType.Content = Properties.Resources.LabelCicFilterType;
                 cbItemCicTypeSingleStage.Content = Properties.Resources.CbItemCicTypeSingleStage;
+                cbItemCicTypeThirdStage.Content = Properties.Resources.CbItemCicType3rdStage;
                 labelCicDelay.Content = Properties.Resources.LabelCicDelay;
                 labelCicDelaySamples.Content = Properties.Resources.LabelCicDelaySamples;
                 buttonUseCic.Content = Properties.Resources.ButtonUseThisFilter;

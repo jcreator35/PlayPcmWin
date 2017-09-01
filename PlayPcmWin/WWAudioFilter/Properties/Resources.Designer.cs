@@ -169,6 +169,15 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 3rd stage CIC.
+        /// </summary>
+        internal static string CbItemCicType3rdStage {
+            get {
+                return ResourceManager.GetString("CbItemCicType3rdStage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Single stage CIC.
         /// </summary>
         internal static string CbItemCicTypeSingleStage {

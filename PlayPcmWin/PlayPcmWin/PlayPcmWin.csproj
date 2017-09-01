@@ -6,7 +6,7 @@
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{23DC272C-B67B-41C5-9622-A35BFA3B9D1E}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>PlayPcmWin</RootNamespace>
     <AssemblyName>PlayPcmWin</AssemblyName>
@@ -255,6 +255,10 @@
     <ProjectReference Include="..\WavRWLib2\WavRWLib2.csproj">
       <Project>{77005090-E2C5-4063-9681-0D0EED33A2B2}</Project>
       <Name>WavRWLib2</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WWFilterCppCs\WWFilterCppCs.csproj">
+      <Project>{1D2FED4A-D40F-4A8F-A963-4C733B8EDD04}</Project>
+      <Name>WWFilterCppCs</Name>
     </ProjectReference>
     <ProjectReference Include="..\WWFlacRWCS\WWFlacRWCS.csproj">
       <Project>{DA071B6A-B2E2-4567-84D1-5A9122DAB75C}</Project>

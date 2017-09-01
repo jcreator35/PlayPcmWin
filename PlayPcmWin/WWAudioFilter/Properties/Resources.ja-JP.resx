@@ -516,4 +516,7 @@
   <data name="FilterWindowedSincDownsampleDesc" xml:space="preserve">
     <value>Windowed Sinc ダウンサンプラー: {0}倍, 窓の長さ={1}</value>
   </data>
+  <data name="CbItemCicType3rdStage" xml:space="preserve">
+    <value>3段CIC (Sinc3)</value>
+  </data>
 </root>

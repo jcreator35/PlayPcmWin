@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
-using System.IO;
-using System.ComponentModel;
-using System.Threading.Tasks;
-using System.Globalization;
-using System.Text;
-using System.Diagnostics;
 
 namespace WWAudioFilter {
     /// <summary>
