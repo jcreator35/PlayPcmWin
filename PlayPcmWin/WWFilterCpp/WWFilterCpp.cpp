@@ -6,6 +6,7 @@
 #include "WWIIRFilterSerial.h"
 #include "WWCicDownsampler.h"
 #include "WWHalfbandFilterDownsampler.h"
+#include "WWSdmToPcm.h"
 #include <map>
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -390,7 +391,7 @@ WWFilterCpp_Test(void)
             20.0*log10(2*accOut47_47/accIn));
     }
 #endif
-#if 1
+#if 0
 
     WWCicDownsampler cic;
 
@@ -452,6 +453,18 @@ WWFilterCpp_Test(void)
         printf("%d, %f\n", freq,
             20.0*log10(64*accOut/accIn));
     }
+#endif
+#if 1
+    WWSdmToPcm sdmpcm;
+    int outSamples = 44100*10;
+    sdmpcm.Start(outSamples);
+    for (int i=0; i<outSamples*64/16; ++i) {
+        sdmpcm.AddInputSamples(0x6969);
+    }
+    sdmpcm.Drain();
+    const float *buf = sdmpcm.GetOutputPcm();
+    sdmpcm.End();
+
 #endif
     return 0;
 }

@@ -37,12 +37,9 @@ WWCicDownsampler::Filter(const uint16_t inSdm)
         v -= tmp;
     }
 
-    // Sinc3 1ビットのデータが4096倍され、13ビットのデータになる。
-    // Sinc4 1ビットのデータが65536倍され、17ビットのデータになる。
-#if 0
-    v = (v - 4096) >> 2;
-#endif
-    return ((float)v) / 4096.0f;
+    // Sinc4
+    v -= 32768; // -32768 <= v <= 32768 になる。
+    return ((float)v) / 32768.0f;
 }
 
 /// このinPcmの宣言、16と書いても文法上は意味ない (ただのポインタ型になる)

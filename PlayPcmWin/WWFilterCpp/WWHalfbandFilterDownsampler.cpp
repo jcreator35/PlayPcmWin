@@ -68,7 +68,9 @@ WWHalfbandFilterDownsampler::DesignFilter(void) {
     coeffs = nullptr;
 }
 
-// Understanding Digital Signal Processing 3rd ed., pp.546
+// Understanding Digital Signal Processing 3rd ed.
+// pp.546-547 Figure 10-27 (c)
+// pp.703 Figure 13-16 (a)
 void
 WWHalfbandFilterDownsampler::Filter(
         const float *inPcm, int numIn, float *outPcm_r)
@@ -88,13 +90,13 @@ WWHalfbandFilterDownsampler::Filter(
         if ((inPos & 1) == 0) {
 
             // 偶数サンプル入力の場合。上側のディレイに投入。
-            // Folded FIRの高速化手法は用いていない。
+            // Folded FIRの高速化手法を用いている。
             // 上側ディレイから出力値を計算する。
             mDelayU.Filter(v);
 
-            r += mCoeffsU[0] * v;
-            for (int i=0; i<mDelayU.DelaySamples(); ++i) {
-                r += mCoeffsU[i+1] * mDelayU.GetNth(i);
+            r += mCoeffsU[0] * (v + mDelayU.GetNth(mDelayU.DelaySamples()-1));
+            for (int i=0; i<mDelayU.DelaySamples()/2; ++i) {
+                r += mCoeffsU[i+1] * (mDelayU.GetNth(i) + mDelayU.GetNth(mDelayU.DelaySamples()-2-i));
             }
         } else {
             // 奇数サンプル入力の場合。下側のディレイに投入。

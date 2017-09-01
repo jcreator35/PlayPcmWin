@@ -44,11 +44,14 @@ public:
     // 中に持っている出力バッファーを削除する。
     void End(void);
 
+    int FilterDelay(void) const {
+        return 13;
+    }
+
 private:
     WWCicDownsampler mCicDS;
     WWHalfbandFilterDownsampler mHBDS23;
     WWHalfbandFilterDownsampler mHBDS47;
-    static const int mDelaySamples = 25;
     float mTmp1Pcm[2];
     int mTmp1Count;
     float mTmp2Pcm[2];

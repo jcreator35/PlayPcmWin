@@ -21,6 +21,8 @@ public:
     /// このinPcmの宣言、16と書いても文法上は意味ない (ただのポインタ型になる)
     float Filter(const float v[16]);
 
+    int FilterDelay(void) const { return 0; }
+
 private:
     /// Order==3 : Sinc3 CIC filter
     static const int Order=4;

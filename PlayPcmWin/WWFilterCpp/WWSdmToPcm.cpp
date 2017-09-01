@@ -21,14 +21,14 @@ WWSdmToPcm::Start(int totalOutSamples)
     mHBDS47.Start();
     mTotalOutSamples = totalOutSamples;
     assert(mOutPcm == nullptr);
-    mOutPcm = new float[totalOutSamples + mDelaySamples];
+    mOutPcm = new float[totalOutSamples + FilterDelay()];
 }
 
 void
 WWSdmToPcm::Drain(void)
 {
-    // 出力データをさらに25サンプル出す: 25サンプル遅延して出てくるので。
-    const int flushSampleIn = mDelaySamples * 64 / 16;
+    // 出力データをさらに遅延サンプル分出す。
+    const int flushSampleIn = FilterDelay() * 64 / 16;
     for (int i=0; i<flushSampleIn; ++i) {
         AddInputSamples(0x6969);
     }
@@ -38,7 +38,7 @@ const float *
 WWSdmToPcm::GetOutputPcm(void) const
 {
     assert(mOutPcm);
-    return & mOutPcm[mDelaySamples];
+    return & mOutPcm[FilterDelay()];
 }
 
 void
@@ -46,5 +46,8 @@ WWSdmToPcm::End(void)
 {
     delete [] mOutPcm;
     mOutPcm = nullptr;
+
+    mHBDS47.End();
+    mHBDS23.End();
 }
 
