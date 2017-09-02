@@ -40,6 +40,7 @@ WWCicUpsampler::Filter(const float inPcm, float outPcm_r[16])
             mInteg[i] = v;
         }
 
+#if 0
         // CICのゲインは
         // sinc1 16xダウンサンプルの時16倍 (4ビット右シフトで16ビット値を得る)
         // sinc2 16xダウンサンプルの時256倍 (8ビット右シフトで16ビット値を得る)
@@ -61,7 +62,10 @@ WWCicUpsampler::Filter(const float inPcm, float outPcm_r[16])
             v <<= 4;
             break;
         }
-
+#else
+        // Sinc4
+        v <<= 4;
+#endif
         outPcm_r[offs] = ((float)v) / 2147483648.0f;
 
         v = 0;

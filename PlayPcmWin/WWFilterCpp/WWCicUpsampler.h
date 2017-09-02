@@ -1,5 +1,7 @@
 ﻿// 日本語
 
+#pragma once
+
 #include <stdint.h>
 
 /// 入力のfloat型 PCM信号をCIC Sincフィルターで16倍アップサンプルする。

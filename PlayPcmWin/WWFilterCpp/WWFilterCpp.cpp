@@ -11,6 +11,7 @@
 #include "WWSdmToPcm.h"
 #include "WWCicUpsampler.h"
 #include "WWHalfbandFilterUpsampler.h"
+#include "WWPcmToSdm.h"
 #include <map>
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -40,13 +41,13 @@ static int gNextIdx = 1;
 
 // Crfb ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
-static std::map<int, WWLoopFilterCRFB* > gIdxFilterMap;
+static std::map<int, WWLoopFilterCRFB<double>* > gIdxFilterMap;
 
 extern "C" WWFILTERCPP_API
 int __stdcall
 WWFilterCpp_Crfb_Build(int order, const double *a, const double *b, const double *g, double gain)
 {
-    auto *p = new WWLoopFilterCRFB(order, a, b, g, gain);
+    auto *p = new WWLoopFilterCRFB<double>(order, a, b, g, gain);
     ADD_NEW_INSTANCE(p,gIdxFilterMap);
 }
 
@@ -514,7 +515,7 @@ WWFilterCpp_Test(void)
             20.0*log10(accOut/accIn/16));
     }
 #endif
-#if 1
+#if 0
     WWHalfbandFilterUpsampler hb(47);
 
     const int inputFr = 44100;
@@ -557,6 +558,42 @@ WWFilterCpp_Test(void)
 
         printf("%d, %f\n", freq,
             20.0*log10(accOut/accIn/upsampleScale));
+    }
+#endif
+
+#if 1
+    WWPcmToSdm ps;
+
+    const int inputFr = 44100;
+    const int upsampleScale = 64;
+    const int outputFr = inputFr * upsampleScale;
+
+    float scale = 0.5;
+
+    for (int freq=0; freq < inputFr/2; freq += inputFr/2000) {
+        double omegaDelta = (double)freq / inputFr * 2.0 * M_PI;
+
+#define IN_COUNT (1000)
+        float inPcm[IN_COUNT];
+
+        ps.Start(IN_COUNT*64);
+
+        double omega = 0;
+        double accIn = 0;
+        for (int i=0; i<IN_COUNT; ++i) {
+            float vIn = scale * cos((float)omega);
+            inPcm[i] = vIn;
+
+            ps.AddInputSamples(inPcm, 1);
+
+            omega += omegaDelta;
+            if (1.0 * M_PI <= omega) {
+                omega -= 2.0 * M_PI;
+            }
+        }
+
+        ps.Drain();
+        ps.End();
     }
 #endif
 
