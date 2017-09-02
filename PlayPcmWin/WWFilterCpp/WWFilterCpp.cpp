@@ -561,7 +561,7 @@ WWFilterCpp_Test(void)
     }
 #endif
 
-#if 1
+#if 0
     WWPcmToSdm ps;
 
     const int inputFr = 44100;
@@ -593,6 +593,56 @@ WWFilterCpp_Test(void)
         }
 
         ps.Drain();
+        ps.End();
+    }
+#endif
+
+#if 1
+    WWPcmToSdm ps;
+    WWSdmToPcm sp;
+
+    const int inputFr = 44100;
+    const int upsampleScale = 64;
+    const int outputFr = inputFr * upsampleScale;
+
+    float scale = 0.5;
+
+    for (int freq=0; freq < inputFr/2; freq += inputFr/2000) {
+        double omegaDelta = (double)freq / inputFr * 2.0 * M_PI;
+
+#define IN_COUNT (1000)
+        float inPcm[IN_COUNT];
+
+        ps.Start(IN_COUNT*64);
+        sp.Start(IN_COUNT);
+
+        double omega = 0;
+        double accIn = 0;
+        for (int i=0; i<IN_COUNT; ++i) {
+            float vIn = scale * cos((float)omega);
+            inPcm[i] = vIn;
+
+            ps.AddInputSamples(inPcm, 1);
+
+            omega += omegaDelta;
+            if (1.0 * M_PI <= omega) {
+                omega -= 2.0 * M_PI;
+            }
+        }
+
+        ps.Drain();
+
+        const uint16_t *sdm = ps.GetOutputSdm();
+        for (int i=0; i<IN_COUNT*64/16; ++i) {
+            sp.AddInputSamples(sdm[i]);
+        }
+
+        sp.Drain();
+
+        const float *pcm = sp.GetOutputPcm();
+
+        sp.End();
+
         ps.End();
     }
 #endif
