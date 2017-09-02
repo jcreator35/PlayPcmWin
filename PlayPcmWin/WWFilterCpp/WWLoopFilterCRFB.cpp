@@ -1,4 +1,6 @@
-﻿#include "stdafx.h"
+﻿// 日本語
+
+#include "stdafx.h"
 #include "WWLoopFilterCRFB.h"
 #include <stdlib.h>
 #include <assert.h>

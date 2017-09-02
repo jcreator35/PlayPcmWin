@@ -1,4 +1,6 @@
-﻿/* NOSDAC high frequency roll-off compensation filter
+﻿// 日本語
+
+/* NOSDAC high frequency roll-off compensation filter
  * 
  * NOSDAC frequency response (continuous-time): Hr_zoh(jΩ)=sinc(jΩ/2)
  * Compensation filter frequency response (discretE-time): Hr_comp(ω) = 1 / sinc(ω/2)

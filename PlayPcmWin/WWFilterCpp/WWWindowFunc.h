@@ -1,4 +1,6 @@
-﻿#pragma once
+﻿// 日本語
+
+#pragma once
 
 /// カイザー窓。
 /// @param alpha カイザー窓のパラーメーター α

@@ -1,4 +1,6 @@
-﻿#include "stdafx.h"
+﻿// 日本語
+
+#include "stdafx.h"
 #include "WWCicDownsampler.h"
 #include <stdint.h>
 #include <assert.h>
@@ -52,7 +54,7 @@ WWCicDownsampler::Filter(const float inPcm[16])
     // 16x downsample
     for (int k = 0; k < 16; ++k) {
         // 1次のノイズシェイピング。
-        v = (int)((double)0x8000 * (inPcm[k] + mQerr));
+        v = (int32_t)((float)0x8000 * (inPcm[k] + mQerr));
         mQerr = (inPcm[k] - (float)v/0x8000);
 
         for (int i = 0; i < Order; ++i) {
@@ -68,14 +70,13 @@ WWCicDownsampler::Filter(const float inPcm[16])
         v -= tmp;
     }
 
+#if 0
     // CICの入力データは16ビットint
-    // これを、16bit intになるようシフトする。
-
+    // これを、16bit intになるようシフトするには
     // sinc1 16xダウンサンプルの時16倍 (4ビット右シフトで16ビット値を得る)
     // sinc2 16xダウンサンプルの時256倍 (8ビット右シフトで16ビット値を得る)
     // sinc3 16xダウンサンプルの時4096倍 (12ビット右シフトで16ビット値を得る)
     // sinc4 16xダウンサンプルの時65536倍 (16ビット右シフトで16ビット値を得る)
-
     switch (Order) {
     case 1:
         v <<= 12;
@@ -89,8 +90,10 @@ WWCicDownsampler::Filter(const float inPcm[16])
     case 4:
         break;
     }
-
+#else
+    // Sinc4フィルター。vには32ビット値が出てくる。
     float f = ((float)v) / 2147483648.0f;
+#endif
     return f;
 }
 

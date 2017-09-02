@@ -15,6 +15,9 @@
     <ClInclude Include="WWWindowFunc.h" />
     <ClInclude Include="WWCicDownsampler.h" />
     <ClInclude Include="WWSdmToPcm.h" />
+    <ClInclude Include="WWPcmToSdm.h" />
+    <ClInclude Include="WWCicUpsampler.h" />
+    <ClInclude Include="WWHalfbandFilterUpsampler.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WWFilterCpp.cpp" />
@@ -28,5 +31,8 @@
     <ClCompile Include="WWWindowFunc.cpp" />
     <ClCompile Include="WWCicDownsampler.cpp" />
     <ClCompile Include="WWSdmToPcm.cpp" />
+    <ClCompile Include="WWPcmToSdm.cpp" />
+    <ClCompile Include="WWCicUpsampler.cpp" />
+    <ClCompile Include="WWHalfbandFilterUpsampler.cpp" />
   </ItemGroup>
 </Project>

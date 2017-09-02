@@ -1,4 +1,6 @@
-﻿#include "stdafx.h"
+﻿// 日本語
+
+#include "stdafx.h"
 #include "WWFilterCpp.h"
 #include "WWLoopFilterCRFB.h"
 #include "WWZohCompensation.h"
@@ -7,6 +9,8 @@
 #include "WWCicDownsampler.h"
 #include "WWHalfbandFilterDownsampler.h"
 #include "WWSdmToPcm.h"
+#include "WWCicUpsampler.h"
+#include "WWHalfbandFilterUpsampler.h"
 #include <map>
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -454,7 +458,7 @@ WWFilterCpp_Test(void)
             20.0*log10(64*accOut/accIn));
     }
 #endif
-#if 1
+#if 0
     WWSdmToPcm sdmpcm;
     int outSamples = 44100*10;
     sdmpcm.Start(outSamples);
@@ -466,6 +470,96 @@ WWFilterCpp_Test(void)
     sdmpcm.End();
 
 #endif
+#if 0
+    WWCicUpsampler cu;
+
+    int inputFr = 44100;
+    int outputFr = 44100 * 16;
+
+    float scale = 0.999969482421875f;
+
+    printf("Frequency(Hz),CIC4_16xUpsampler\n");
+
+    for (int freq=0; freq < inputFr/2; freq += inputFr/2000) {
+        double omegaDelta = (double)freq / inputFr * 2.0 * M_PI;
+
+#define IN_COUNT (1000)
+        float inPcm[IN_COUNT];
+        float outPcm[IN_COUNT*16];
+
+        double omega = 0;
+        double accIn = 0;
+        for (int i=0; i<IN_COUNT; ++i) {
+            float vIn = scale * cos((float)omega);
+            inPcm[i] = vIn;
+
+            cu.Filter(inPcm[i], &outPcm[i*16]);
+
+            if (3 <= i) {
+                accIn += abs(vIn);
+            }
+
+            omega += omegaDelta;
+            if (1.0 * M_PI <= omega) {
+                omega -= 2.0 * M_PI;
+            }
+        }
+
+        double accOut = 0;
+        for (int i=3*16; i<IN_COUNT*16; ++i) {
+            accOut += abs(outPcm[i]);
+        }
+
+        printf("%d, %f\n", freq,
+            20.0*log10(accOut/accIn/16));
+    }
+#endif
+#if 1
+    WWHalfbandFilterUpsampler hb(47);
+
+    const int inputFr = 44100;
+    const int upsampleScale = 2;
+    const int outputFr = inputFr * upsampleScale;
+
+    float scale = 0.999969482421875f;
+
+    printf("Frequency(Hz),HBUpsampler\n");
+
+    for (int freq=0; freq < inputFr/2; freq += inputFr/2000) {
+        double omegaDelta = (double)freq / inputFr * 2.0 * M_PI;
+
+#define IN_COUNT (1000)
+        float inPcm[IN_COUNT];
+        float outPcm[IN_COUNT*2];
+
+        double omega = 0;
+        double accIn = 0;
+        for (int i=0; i<IN_COUNT; ++i) {
+            float vIn = scale * cos((float)omega);
+            inPcm[i] = vIn;
+
+            hb.Filter(&inPcm[i], 1, &outPcm[i*upsampleScale]);
+
+            if (hb.FilterDelay()/2 <= i) {
+                accIn += abs(vIn);
+            }
+
+            omega += omegaDelta;
+            if (1.0 * M_PI <= omega) {
+                omega -= 2.0 * M_PI;
+            }
+        }
+
+        double accOut = 0;
+        for (int i=hb.FilterDelay(); i<IN_COUNT*upsampleScale; ++i) {
+            accOut += abs(outPcm[i]);
+        }
+
+        printf("%d, %f\n", freq,
+            20.0*log10(accOut/accIn/upsampleScale));
+    }
+#endif
+
     return 0;
 }
 

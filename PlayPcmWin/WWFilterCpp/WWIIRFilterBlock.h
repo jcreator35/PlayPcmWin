@@ -1,4 +1,6 @@
-﻿#pragma once
+﻿// 日本語
+
+#pragma once
 
 #include <stdexcept>
 #include <string.h>

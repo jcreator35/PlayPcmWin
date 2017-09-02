@@ -1,4 +1,6 @@
-﻿#include "stdafx.h"
+﻿// 日本語
+
+#include "stdafx.h"
 #include "WWSdmToPcm.h"
 #include "WWDelay.h"
 #include <stdint.h>

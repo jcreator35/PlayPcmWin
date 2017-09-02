@@ -1,4 +1,6 @@
-﻿#include "stdafx.h"
+﻿// 日本語
+
+#include "stdafx.h"
 #include "WWIIRFilterGraph.h"
 
 WWIIRFilterGraph::WWIIRFilterGraph(int nBlocks)

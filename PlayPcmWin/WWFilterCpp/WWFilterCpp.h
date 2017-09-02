@@ -1,4 +1,6 @@
-﻿#pragma once
+﻿// 日本語
+
+#pragma once
 
 #ifdef WWFILTERCPP_EXPORTS
 #define WWFILTERCPP_API __declspec(dllexport)

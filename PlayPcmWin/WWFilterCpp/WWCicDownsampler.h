@@ -1,4 +1,6 @@
-﻿#pragma once
+﻿// 日本語
+
+#pragma once
 
 #include <stdint.h>
 
@@ -25,6 +27,7 @@ public:
 
 private:
     /// Order==3 : Sinc3 CIC filter
+    /// Order==4 : Sinc4 CIC filter
     static const int Order=4;
 
     int32_t mDelay[Order];

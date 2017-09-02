@@ -1,13 +1,15 @@
+ï»¿// æ—¥æœ¬èªž
+
 #pragma once
 
 #include "WWCicDownsampler.h"
 #include "WWHalfbandFilterDownsampler.h"
 #include <stdint.h>
 
-/** 1ƒ`ƒƒƒ“ƒlƒ‹‚ÌSDMƒXƒgƒŠ[ƒ€‚ð“ü—Í‚µ‚Ä64•ª‚Ì1ƒ_ƒEƒ“ƒTƒ“ƒvƒ‹‚µ‚ÄfloatŒ^‚ÌPCMo—Í‚ð“¾‚éB
- * SDMƒXƒgƒŠ[ƒ€‚ðCICƒ_ƒEƒ“ƒTƒ“ƒvƒ‰[‚Å16•ª‚Ì1ƒ_ƒEƒ“ƒTƒ“ƒvƒ‹‚µ‚Ä
- * ƒn[ƒtƒoƒ“ƒhƒtƒBƒ‹ƒ^[ƒ_ƒEƒ“ƒTƒ“ƒvƒ‰[‚Å2•ª‚Ì1ƒ_ƒEƒ“ƒTƒ“ƒvƒ‹
- * ƒn[ƒtƒoƒ“ƒhƒtƒBƒ‹ƒ^[ƒ_ƒEƒ“ƒTƒ“ƒvƒ‰[‚Å2•ª‚Ì1ƒ_ƒEƒ“ƒTƒ“ƒvƒ‹
+/** 1ãƒãƒ£ãƒ³ãƒãƒ«ã®SDMã‚¹ãƒˆãƒªãƒ¼ãƒ ã‚’å…¥åŠ›ã—ã¦64åˆ†ã®1ãƒ€ã‚¦ãƒ³ã‚µãƒ³ãƒ—ãƒ«ã—ã¦floatåž‹ã®PCMå‡ºåŠ›ã‚’å¾—ã‚‹ã€‚
+ * SDMã‚¹ãƒˆãƒªãƒ¼ãƒ ã‚’CICãƒ€ã‚¦ãƒ³ã‚µãƒ³ãƒ—ãƒ©ãƒ¼ã§16åˆ†ã®1ãƒ€ã‚¦ãƒ³ã‚µãƒ³ãƒ—ãƒ«ã—ã¦
+ * ãƒãƒ¼ãƒ•ãƒãƒ³ãƒ‰ãƒ•ã‚£ãƒ«ã‚¿ãƒ¼ãƒ€ã‚¦ãƒ³ã‚µãƒ³ãƒ—ãƒ©ãƒ¼ã§2åˆ†ã®1ãƒ€ã‚¦ãƒ³ã‚µãƒ³ãƒ—ãƒ«
+ * ãƒãƒ¼ãƒ•ãƒãƒ³ãƒ‰ãƒ•ã‚£ãƒ«ã‚¿ãƒ¼ãƒ€ã‚¦ãƒ³ã‚µãƒ³ãƒ—ãƒ©ãƒ¼ã§2åˆ†ã®1ãƒ€ã‚¦ãƒ³ã‚µãƒ³ãƒ—ãƒ«
  * 16 * 2 * 2 = 64x
  */
 class WWSdmToPcm {
@@ -19,8 +21,8 @@ public:
 
     void Start(int totalOutSamples);
 
-    /// Sdmƒf[ƒ^‚ð16ƒTƒ“ƒvƒ‹“Š“ü‚·‚éB
-    /// @param inSdm 1ƒrƒbƒg‚ÌSDMƒf[ƒ^‚ª16ŒÂAƒrƒbƒOƒGƒ“ƒfƒBƒAƒ“ƒrƒbƒgƒI[ƒ_[‚Å“ü‚Á‚Ä‚¢‚éB
+    /// Sdmãƒ‡ãƒ¼ã‚¿ã‚’16ã‚µãƒ³ãƒ—ãƒ«æŠ•å…¥ã™ã‚‹ã€‚
+    /// @param inSdm 1ãƒ“ãƒƒãƒˆã®SDMãƒ‡ãƒ¼ã‚¿ãŒ16å€‹ã€ãƒ“ãƒƒã‚°ã‚¨ãƒ³ãƒ‡ã‚£ã‚¢ãƒ³ãƒ“ãƒƒãƒˆã‚ªãƒ¼ãƒ€ãƒ¼ã§å…¥ã£ã¦ã„ã‚‹ã€‚
     void AddInputSamples(const uint16_t inSdm) {
         mTmp1Pcm[mTmp1Count++] = mCicDS.Filter(inSdm);
 
@@ -35,13 +37,13 @@ public:
         }
     }
 
-    // ‚·‚×‚Ä‘«‚µ‚½‚çŒÄ‚ÔB(ƒtƒ‰ƒbƒVƒ…‚µ‚ÄƒfƒBƒŒƒC‚É‘Ø—¯‚µ‚Ä‚¢‚éƒTƒ“ƒvƒ‹‚ðo‚·B)
+    // ã™ã¹ã¦è¶³ã—ãŸã‚‰å‘¼ã¶ã€‚(ãƒ•ãƒ©ãƒƒã‚·ãƒ¥ã—ã¦ãƒ‡ã‚£ãƒ¬ã‚¤ã«æ»žç•™ã—ã¦ã„ã‚‹ã‚µãƒ³ãƒ—ãƒ«ã‚’å‡ºã™ã€‚)
     void Drain(void);
 
-    // ’†‚ÉŽ‚Á‚Ä‚¢‚éo—Íƒoƒbƒtƒ@[‚ÌÅ‰‚Ìo—Íƒf[ƒ^‚ðŽw‚µ‚Ä‚¢‚éƒ|ƒCƒ“ƒ^‚ð–ß‚·B
+    // ä¸­ã«æŒã£ã¦ã„ã‚‹å‡ºåŠ›ãƒãƒƒãƒ•ã‚¡ãƒ¼ã®æœ€åˆã®å‡ºåŠ›ãƒ‡ãƒ¼ã‚¿ã‚’æŒ‡ã—ã¦ã„ã‚‹ãƒã‚¤ãƒ³ã‚¿ã‚’æˆ»ã™ã€‚
     const float *GetOutputPcm(void) const;
 
-    // ’†‚ÉŽ‚Á‚Ä‚¢‚éo—Íƒoƒbƒtƒ@[‚ðíœ‚·‚éB
+    // ä¸­ã«æŒã£ã¦ã„ã‚‹å‡ºåŠ›ãƒãƒƒãƒ•ã‚¡ãƒ¼ã‚’å‰Šé™¤ã™ã‚‹ã€‚
     void End(void);
 
     int FilterDelay(void) const {
