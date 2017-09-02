@@ -237,9 +237,10 @@
                             <Label x:Name="labelCicFilterType" Content="Type:" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
                             <ComboBox HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Name="comboBoxCicType" VerticalAlignment="Center">
                                 <ComboBoxItem x:Name="cbItemCicTypeSingleStage" Content="Single stage CIC" />
-                                <ComboBoxItem x:Name="cbItemCicTypeThirdStage" Content="3rd stage CIC" IsSelected="True" />
-                                <ComboBoxItem x:Name="cbItemCicTypeFourthStage" Content="4th stage CIC" />
-                                <ComboBoxItem x:Name="cbItemCicType5thStage" Content="5th stage CIC" />
+                                <ComboBoxItem x:Name="cbItemCicType2Stage" Content="2 stage CIC" />
+                                <ComboBoxItem x:Name="cbItemCicType3Stage" Content="3 stage CIC" IsSelected="True" />
+                                <ComboBoxItem x:Name="cbItemCicType4Stage" Content="4 stage CIC" />
+                                <ComboBoxItem x:Name="cbItemCicType5Stage" Content="5 stage CIC" />
                             </ComboBox>
                             <Label Grid.Column="0" Grid.Row="1" Content="Delay:"  Name="labelCicDelay" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
                             <TextBox Grid.Column="1" Grid.Row="1" Margin="3" Name="textBoxCicDelay" Text="16" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />

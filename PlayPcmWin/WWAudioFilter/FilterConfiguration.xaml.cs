@@ -92,7 +92,7 @@ using WWMath;
                 groupBoxCic.Header = Properties.Resources.GroupCic;
                 labelCicFilterType.Content = Properties.Resources.LabelCicFilterType;
                 cbItemCicTypeSingleStage.Content = Properties.Resources.CbItemCicTypeSingleStage;
-                cbItemCicTypeThirdStage.Content = Properties.Resources.CbItemCicType3rdStage;
+                cbItemCicType3Stage.Content = Properties.Resources.CbItemCicType3rdStage;
                 labelCicDelay.Content = Properties.Resources.LabelCicDelay;
                 labelCicDelaySamples.Content = Properties.Resources.LabelCicDelaySamples;
                 buttonUseCic.Content = Properties.Resources.ButtonUseThisFilter;
@@ -235,14 +235,18 @@ using WWMath;
                     case 1:
                         comboBoxCicType.SelectedIndex = 0;
                         break;
-                    case 3:
+                    case 2:
                         comboBoxCicType.SelectedIndex = 1;
                         break;
-                    case 4:
+                    case 3:
+                    default:
                         comboBoxCicType.SelectedIndex = 2;
                         break;
-                    case 5:
+                    case 4:
                         comboBoxCicType.SelectedIndex = 3;
+                        break;
+                    case 5:
+                        comboBoxCicType.SelectedIndex = 4;
                         break;
                     }
                     textBoxCicDelay.Text = string.Format(CultureInfo.CurrentCulture, "{0}", cic.Delay);
@@ -714,16 +718,7 @@ using WWMath;
             }
 
             private void buttonUseCic_Click(object sender, RoutedEventArgs e) {
-                int order = 1;
-                if (comboBoxCicType.SelectedIndex == 1) {
-                    order = 3;
-                }
-                if (comboBoxCicType.SelectedIndex == 2) {
-                    order = 4;
-                }
-                if (comboBoxCicType.SelectedIndex == 3) {
-                    order = 5;
-                }
+                int order = comboBoxCicType.SelectedIndex+1;
 
                 int delay;
                 if (!Int32.TryParse(textBoxCicDelay.Text, out delay)) {
