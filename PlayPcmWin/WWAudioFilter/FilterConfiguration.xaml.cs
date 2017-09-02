@@ -231,6 +231,20 @@ using WWMath;
                     break;
                 case FilterType.CicFilter:
                     var cic = filter as CicFilter;
+                    switch (cic.Order) {
+                    case 1:
+                        comboBoxCicType.SelectedIndex = 0;
+                        break;
+                    case 3:
+                        comboBoxCicType.SelectedIndex = 1;
+                        break;
+                    case 4:
+                        comboBoxCicType.SelectedIndex = 2;
+                        break;
+                    case 5:
+                        comboBoxCicType.SelectedIndex = 3;
+                        break;
+                    }
                     textBoxCicDelay.Text = string.Format(CultureInfo.CurrentCulture, "{0}", cic.Delay);
                     break;
 
@@ -699,18 +713,15 @@ using WWMath;
                 Close();
             }
 
-            enum CicFilterType {
-                Decimation1stOrder8x,
-                Decimation1stOrder8xWithCompensation,
-                Interpolation1stOrder4x,
-            };
-
             private void buttonUseCic_Click(object sender, RoutedEventArgs e) {
                 int order = 1;
                 if (comboBoxCicType.SelectedIndex == 1) {
                     order = 3;
                 }
                 if (comboBoxCicType.SelectedIndex == 2) {
+                    order = 4;
+                }
+                if (comboBoxCicType.SelectedIndex == 3) {
                     order = 5;
                 }
 

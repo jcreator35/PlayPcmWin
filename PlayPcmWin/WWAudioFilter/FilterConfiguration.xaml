@@ -238,10 +238,11 @@
                             <ComboBox HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Name="comboBoxCicType" VerticalAlignment="Center">
                                 <ComboBoxItem x:Name="cbItemCicTypeSingleStage" Content="Single stage CIC" />
                                 <ComboBoxItem x:Name="cbItemCicTypeThirdStage" Content="3rd stage CIC" IsSelected="True" />
+                                <ComboBoxItem x:Name="cbItemCicTypeFourthStage" Content="4th stage CIC" />
                                 <ComboBoxItem x:Name="cbItemCicType5thStage" Content="5th stage CIC" />
                             </ComboBox>
                             <Label Grid.Column="0" Grid.Row="1" Content="Delay:"  Name="labelCicDelay" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
-                            <TextBox Grid.Column="1" Grid.Row="1" Margin="3" Name="textBoxCicDelay" Text="64" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                            <TextBox Grid.Column="1" Grid.Row="1" Margin="3" Name="textBoxCicDelay" Text="16" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
                             <Label Grid.Column="2" Grid.Row="1" Content="samples"  Name="labelCicDelaySamples" HorizontalContentAlignment="Left" VerticalAlignment="Center" />
                             <Button x:Name="buttonUseCic" Content="Use this filter" VerticalAlignment="Center" Grid.Row="2" Grid.ColumnSpan="3" Click="buttonUseCic_Click" />
                         </Grid>
