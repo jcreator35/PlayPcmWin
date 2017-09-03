@@ -1,6 +1,5 @@
 ﻿// 日本語
 
-#include "stdafx.h"
 #include "WWCicUpsampler.h"
 #include <stdint.h>
 #include <assert.h>

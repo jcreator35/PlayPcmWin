@@ -17,7 +17,7 @@
 #define CREATE_PLAYPCM_ON_RENDER_BUFFER
 
 // DoPマーカーが正しく付いているかチェックする。
-//#define CHECK_DOP_MARKER
+#define CHECK_DOP_MARKER
 
 static AUDCLNT_SHAREMODE
 WWShareModeToAudClientShareMode(WWShareMode sm)

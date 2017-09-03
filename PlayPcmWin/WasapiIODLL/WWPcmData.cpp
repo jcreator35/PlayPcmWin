@@ -1,4 +1,4 @@
-// 日本語 UTF-8
+﻿// 日本語 UTF-8
 
 #include "WWPcmData.h"
 #include "WWUtil.h"
@@ -6,6 +6,10 @@
 #include <malloc.h>
 #include <stdint.h>
 #include <float.h>
+#include "WWSdmToPcm.h"
+#include "WWPcmToSdm.h"
+#include <stdint.h>
+#include <array>
 
 const char *
 WWPcmDataContentTypeToStr(WWPcmDataContentType w)
@@ -527,6 +531,134 @@ WWPcmData::CreateCrossfadeDataPcm(
     return (int)mFrames; 
 }
 
+#define SPLICE_NOISE_SAMPLES (10)
+
+int
+WWPcmData::CreateCrossfadeDataDop(
+        const WWPcmData &fromDop, int64_t fromPosFrame,
+        const WWPcmData &toDop,   int64_t toPosFrame)
+{
+    assert(0 < mFrames && mFrames <= 0x7fffffff);
+
+    switch (mSampleFormat) {
+    case WWPcmDataSampleFormatSint32:
+    case WWPcmDataSampleFormatSint32V24:
+    case WWPcmDataSampleFormatSint24:
+        // DoPの処理が可能なフォーマット。
+        break;
+    default:
+        // DoPに対応していないデバイスでDoP再生しようとするとここに来ることがある。何もしない。
+        return (int)mFrames;
+    }
+
+    WWPcmData fromPcm;
+    WWPcmData toPcm;
+
+    fromPcm.Init(-1, mSampleFormat, mChannels, mFrames, mBytesPerFrame, mContentType, WWStreamDop);
+    toPcm.Init(  -1, mSampleFormat, mChannels, mFrames, mBytesPerFrame, mContentType, WWStreamDop);
+
+    int * first10 = new int[SPLICE_NOISE_SAMPLES*mChannels];
+    int first10Pos = 0;
+
+    int * last10  = new int[SPLICE_NOISE_SAMPLES*mChannels];
+    int last10Pos = 0;
+
+    // サンプルデータを詰める。
+    {
+        const WWPcmData *pcm0 = &fromDop;
+        int64_t pcm0Pos = fromPosFrame;
+
+        const WWPcmData *pcm1 = &toDop;
+        int64_t pcm1Pos = toPosFrame;
+
+        for (int x=0; x<(int)fromPcm.Frames(); ++x) {
+            for (int ch=0; ch<mChannels; ++ch) {
+
+                int y0 = pcm0->GetSampleValueInt(ch, pcm0Pos);
+                fromPcm.SetSampleValueInt(ch, x, y0);
+                if (x < SPLICE_NOISE_SAMPLES) {
+                    first10[first10Pos++] = y0;
+                }
+
+                int y1 = pcm1->GetSampleValueInt(ch, pcm1Pos);
+                toPcm.SetSampleValueInt(ch, x, y1);
+                if (mFrames-SPLICE_NOISE_SAMPLES <= x) {
+                    last10[last10Pos++] = y1;
+                }
+            }
+
+            ++pcm0Pos;
+            if (pcm0->mFrames <= pcm0Pos && nullptr != pcm0->mNext) {
+                pcm0 = pcm0->mNext;
+                pcm0Pos = 0;
+            }
+
+            ++pcm1Pos;
+            if (pcm1->mFrames <= pcm1Pos && nullptr != pcm1->mNext) {
+                pcm1 = pcm1->mNext;
+                pcm1Pos = 0;
+            }
+        }
+    }
+
+    fromPcm.DopToPcmFast();
+    toPcm.DopToPcmFast();
+
+    // DopToPcmでfromPcm->mFrames (== toPcm->mFrames)が変化するので、this->mFramesをそれに合わせる。
+    mFrames = (int)fromPcm.Frames();
+
+    for (int x=0; x<mFrames; ++x) {
+        for (int ch=0; ch<mChannels; ++ch) {
+            float ratio = (float)x / mFrames;
+            float y0 = fromPcm.GetSampleValueAsFloat(ch, x);
+            float y1 = toPcm.GetSampleValueAsFloat(ch, x);
+            float y = y0 * (1.0f - ratio) + y1 * ratio;
+
+            SetSampleValueAsFloat(ch, x, y);
+
+            //printf("%d %f %f %f\n", x, y0, y1, y);
+        }
+    }
+
+    PcmToDopFast();
+
+    // PcmToDopでmFramesが変化することに注意。
+
+    if (SPLICE_NOISE_SAMPLES * 10 < mFrames) {
+        // Sdm → Pcm → Sdm変換で最初10サンプルが荒れるので。
+
+        int from10Pos = 0;
+        for (int x=0; x<SPLICE_NOISE_SAMPLES; ++x) {
+            for (int ch=0; ch<mChannels; ++ch) {
+                int y = first10[from10Pos++];
+                SetSampleValueInt(ch, x, y);
+            }
+        }
+
+        int last10Pos = 0;
+        for (int x=(int)mFrames-10; x<(int)mFrames; ++x) {
+            for (int ch=0; ch<mChannels; ++ch) {
+                int y = last10[last10Pos++];
+                SetSampleValueInt(ch, x, y);
+            }
+        }
+    }
+
+    delete [] last10;
+    last10 = nullptr;
+
+    delete [] first10;
+    first10 = nullptr;
+
+    toPcm.Term();
+    fromPcm.Term();
+
+    mPosFrame = 0;
+
+    // クロスフェードのPCMデータは2GBもない(assertでチェックしている)。intにキャストする。
+    return (int)mFrames; 
+}
+
 int
 WWPcmData::GetBufferData(int64_t fromBytes, int wantBytes, BYTE *data_return)
 {
@@ -648,6 +780,7 @@ WWPcmData::FillDopSilentData(void)
 
     switch (mSampleFormat) {
     case WWPcmDataSampleFormatSint32V24:
+    case WWPcmDataSampleFormatSint32:
         for (int64_t i=0; i<mFrames; ++i) {
             for (int ch=0; ch<mChannels; ++ch) {
                 mStream[writePos+0] = 0;
@@ -675,6 +808,10 @@ WWPcmData::FillDopSilentData(void)
         break;
     }
 }
+
+
+
+#if 0
 
 static const unsigned char gBitsSetTable256[256] = 
 {
@@ -749,6 +886,7 @@ WWPcmData::DopToPcm(void)
 
     int64_t pos = 0;
     switch (mSampleFormat) {
+    case WWPcmDataSampleFormatSint32:
     case WWPcmDataSampleFormatSint32V24:
         for (int64_t i=0; i<mFrames; ++i) {
             for (int ch=0; ch<mChannels; ++ch) {
@@ -803,33 +941,6 @@ WWPcmData::DopToPcm(void)
     dsdStreams = nullptr;
 }
 
-void
-WWPcmData::CheckDopMarker(void)
-{
-    assert((mFrames&1)==0);
-    int64_t pos = 0;
-    switch (mSampleFormat) {
-    case WWPcmDataSampleFormatSint32V24:
-        for (int64_t i=0; i<mFrames; ++i) {
-            for (int ch=0; ch<mChannels; ++ch) {
-                assert(mStream[pos+3] == ((i&1)?0xfa:0x05));
-                pos += 4;
-            }
-        }
-        break;
-    case WWPcmDataSampleFormatSint24:
-        for (int64_t i=0; i<mFrames; ++i) {
-            for (int ch=0; ch<mChannels; ++ch) {
-                assert(mStream[pos+2] == ((i&1)?0xfa:0x05));
-                pos += 3;
-            }
-        }
-        break;
-    default:
-        break;
-    }
-}
-
 /// 非常に音が悪いPCM→Dop DSD変換。
 void
 WWPcmData::PcmToDop(void)
@@ -843,6 +954,7 @@ WWPcmData::PcmToDop(void)
 
     switch (mSampleFormat) {
     case WWPcmDataSampleFormatSint32V24:
+    case WWPcmDataSampleFormatSint32:
         for (int64_t i=0; i<mFrames; ++i) {
             for (int ch=0; ch<mChannels; ++ch) {
                 SmallDsdStreamInfo *p = &dsdStreams[ch];
@@ -922,6 +1034,255 @@ WWPcmData::PcmToDop(void)
     dsdStreams = nullptr;
 }
 
+#else
+
+static int FloatToInt(float vF)
+{
+    int vI;
+    if (0.9999999995343387126922607421875f < vF) {
+        vI = INT32_MAX;
+    } else if (vF < -1.0f) {
+        vI = INT32_MIN;
+    } else {
+        vI = (int)(vF * 2147483648.0f);
+    }
+    return vI;
+}
+
+/// Dop DSD→ PCM変換。
+void
+WWPcmData::DopToPcmFast(void)
+{
+    WWSdmToPcm *sp = new WWSdmToPcm[mChannels];
+    if (nullptr == sp) {
+        assert(0);
+        return;
+    }
+
+    for (int ch=0; ch<mChannels; ++ch) {
+        WWSdmToPcm *p = &sp[ch];
+        p->Start((int)(mFrames/4));
+    }
+
+    int64_t pos = 0;
+    switch (mSampleFormat) {
+    case WWPcmDataSampleFormatSint32V24:
+    case WWPcmDataSampleFormatSint32:
+        for (int64_t i=0; i<mFrames; ++i) {
+            for (int ch=0; ch<mChannels; ++ch) {
+                WWSdmToPcm *p = &sp[ch];
+
+                uint16_t inSdm = (mStream[pos+2] << 8) + mStream[pos+1];
+                p->AddInputSamples(inSdm);
+                pos += 4;
+            }
+        }
+        break;
+    case WWPcmDataSampleFormatSint24:
+        for (int64_t i=0; i<mFrames; ++i) {
+            for (int ch=0; ch<mChannels; ++ch) {
+                WWSdmToPcm *p = &sp[ch];
+
+                uint16_t inSdm = (mStream[pos+2] << 8) + mStream[pos+1];
+                p->AddInputSamples(inSdm);
+                pos += 3;
+            }
+        }
+        break;
+    default:
+        assert(0);
+        break;
+    }
+
+    for (int ch=0; ch<mChannels; ++ch) {
+        WWSdmToPcm *p = &sp[ch];
+        p->Drain();
+    }
+
+    pos = 0;
+    switch (mSampleFormat) {
+    case WWPcmDataSampleFormatSint32V24:
+    case WWPcmDataSampleFormatSint32:
+        for (int64_t i=0; i<mFrames/4; ++i) {
+            for (int ch=0; ch<mChannels; ++ch) {
+                WWSdmToPcm *p = &sp[ch];
+                const float vF = p->GetOutputPcm()[i];
+                int vI = FloatToInt(vF);
+
+                mStream[pos+0] = 0;
+                mStream[pos+1] = (BYTE)(0xff&(vI >> 8));
+                mStream[pos+2] = (BYTE)(0xff&(vI >> 16));
+                mStream[pos+3] = (BYTE)(0xff&(vI >> 24));
+                pos += 4;
+            }
+        }
+        mStreamType = WWStreamPcm;
+        mFrames /= 4;
+        break;
+    case WWPcmDataSampleFormatSint24:
+        for (int64_t i=0; i<mFrames/4; ++i) {
+            for (int ch=0; ch<mChannels; ++ch) {
+                WWSdmToPcm *p = &sp[ch];
+                const float vF = p->GetOutputPcm()[i];
+                int vI = FloatToInt(vF);
+
+                mStream[pos+0] = (BYTE)(0xff&(vI >> 8));
+                mStream[pos+1] = (BYTE)(0xff&(vI >> 16));
+                mStream[pos+2] = (BYTE)(0xff&(vI >> 24));
+                pos += 3;
+            }
+        }
+        mStreamType = WWStreamPcm;
+        mFrames /= 4;
+        break;
+    default:
+        assert(0);
+        break;
+    }
+
+    for (int ch=0; ch<mChannels; ++ch) {
+        WWSdmToPcm *p = &sp[ch];
+        p->End();
+    }
+
+    delete [] sp;
+    sp = nullptr;
+}
+
+void
+WWPcmData::PcmToDopFast(void)
+{
+    WWPcmToSdm *ps = new WWPcmToSdm[mChannels];
+
+    if (nullptr == ps) {
+        assert(0);
+        return;
+    }
+
+    for (int ch=0; ch<mChannels; ++ch) {
+        WWPcmToSdm *p = &ps[ch];
+        p->Start((int)(mFrames*64));
+    }
+
+    int64_t pos = 0;
+    switch (mSampleFormat) {
+    case WWPcmDataSampleFormatSint32V24:
+    case WWPcmDataSampleFormatSint32:
+        for (int64_t i=0; i<mFrames; ++i) {
+            for (int ch=0; ch<mChannels; ++ch) {
+                WWPcmToSdm *p = &ps[ch];
+                int vI = (mStream[pos+3]<<24)
+                        + (mStream[pos+2]<<16)
+                        + (mStream[pos+1]<<8);
+                float vF = (float)vI / 2147483648.0f;
+                p->AddInputSamples(&vF, 1);
+                pos += 4;
+            }
+        }
+        break;
+    case WWPcmDataSampleFormatSint24:
+        for (int64_t i=0; i<mFrames; ++i) {
+            for (int ch=0; ch<mChannels; ++ch) {
+                WWPcmToSdm *p = &ps[ch];
+                int vI = (mStream[pos+2]<<24)
+                        + (mStream[pos+1]<<16)
+                        + (mStream[pos+0]<<8);
+                float vF = (float)vI / 2147483648.0f;
+                p->AddInputSamples(&vF, 1);
+                pos += 3;
+            }
+        }
+        break;
+    default:
+        assert(0);
+        break;
+    }
+
+    for (int ch=0; ch<mChannels; ++ch) {
+        WWPcmToSdm *p = &ps[ch];
+        p->Drain();
+    }
+
+    pos = 0;
+    switch (mSampleFormat) {
+    case WWPcmDataSampleFormatSint32V24:
+    case WWPcmDataSampleFormatSint32:
+        for (int64_t i=0; i<mFrames*4; ++i) {
+            for (int ch=0; ch<mChannels; ++ch) {
+                WWPcmToSdm *p = &ps[ch];
+
+                const uint16_t v = p->GetOutputSdm()[i];
+
+                mStream[pos+0] = 0;
+                mStream[pos+1] = (BYTE)(0xff & v);
+                mStream[pos+2] = (BYTE)(0xff & (v>>8));
+                mStream[pos+3] = (i&1) ? 0xfa : 0x05;
+                pos += 4;
+            }
+        }
+        mFrames *= 4;
+        mStreamType = WWStreamDop;
+        break;
+    case WWPcmDataSampleFormatSint24:
+        for (int64_t i=0; i<mFrames*4; ++i) {
+            for (int ch=0; ch<mChannels; ++ch) {
+                WWPcmToSdm *p = &ps[ch];
+
+                const uint16_t v = p->GetOutputSdm()[i];
+
+                mStream[pos+0] = (BYTE)(0xff & v);
+                mStream[pos+1] = (BYTE)(0xff & (v>>8));
+                mStream[pos+2] = (i&1) ? 0xfa : 0x05;
+                pos += 3;
+            }
+        }
+        mFrames *= 4;
+        mStreamType = WWStreamDop;
+        break;
+    default:
+        assert(0);
+        break;
+    }
+
+    for (int ch=0; ch<mChannels; ++ch) {
+        WWPcmToSdm *p = &ps[ch];
+        p->End();
+    }
+
+    delete [] ps;
+    ps = nullptr;
+}
+
+#endif
+
+void
+WWPcmData::CheckDopMarker(void)
+{
+    assert((mFrames&1)==0);
+    int64_t pos = 0;
+    switch (mSampleFormat) {
+    case WWPcmDataSampleFormatSint32:
+    case WWPcmDataSampleFormatSint32V24:
+        for (int64_t i=0; i<mFrames; ++i) {
+            for (int ch=0; ch<mChannels; ++ch) {
+                assert(mStream[pos+3] == ((i&1)?0xfa:0x05));
+                pos += 4;
+            }
+        }
+        break;
+    case WWPcmDataSampleFormatSint24:
+        for (int64_t i=0; i<mFrames; ++i) {
+            for (int ch=0; ch<mChannels; ++ch) {
+                assert(mStream[pos+2] == ((i&1)?0xfa:0x05));
+                pos += 3;
+            }
+        }
+        break;
+    default:
+        break;
+    }
+}
+
 static void
 CopyStream(const WWPcmData &from, int64_t fromPosFrame, int64_t numFrames, WWPcmData &to)
 {
@@ -951,24 +1312,39 @@ WWPcmData::UpdateSpliceDataWithStraightLineDop(
         const WWPcmData &fromDop, int64_t fromPosFrame,
         const WWPcmData &toDop,   int64_t toPosFrame)
 {
+    switch (mSampleFormat) {
+    case WWPcmDataSampleFormatSint32:
+    case WWPcmDataSampleFormatSint32V24:
+    case WWPcmDataSampleFormatSint24:
+        // DoPの処理が可能なフォーマット。
+        break;
+    default:
+        // DoPに対応していないデバイスでDoP再生しようとするとここに来ることがある。何もしない。
+        return (int)mFrames;
+    }
+
     WWPcmData fromPcm;
     WWPcmData toPcm;
 
     fromPcm.Init(-1, mSampleFormat, mChannels, SPLICE_READ_FRAME_NUM, mBytesPerFrame, mContentType, WWStreamPcm);
     fromPcm.FillDopSilentData();
     CopyStream(fromDop, fromPosFrame, SPLICE_READ_FRAME_NUM, fromPcm);
-    fromPcm.DopToPcm();
+    fromPcm.DopToPcmFast();
 
     toPcm.Init(  -1, mSampleFormat, mChannels, SPLICE_READ_FRAME_NUM, mBytesPerFrame, mContentType, WWStreamPcm);
     toPcm.FillDopSilentData();
     CopyStream(toDop,   toPosFrame,   SPLICE_READ_FRAME_NUM, toPcm);
-    toPcm.DopToPcm();
+    toPcm.DopToPcmFast();
+
+    // PcmToDopFast()がmFramesを4倍する。
+    // PCMを1/4で作る。
+    mFrames /= 4;
 
     int sampleCount = UpdateSpliceDataWithStraightLinePcm(
             fromPcm, SPLICE_READ_FRAME_NUM-1,
             toPcm,   SPLICE_READ_FRAME_NUM-1);
 
-    PcmToDop();
+    PcmToDopFast();
 
     toPcm.Term();
     fromPcm.Term();
@@ -983,7 +1359,7 @@ WWPcmData::UpdateSpliceDataWithStraightLine(
         const WWPcmData &fromPcm, int64_t fromPosFrame,
         const WWPcmData &toPcm,   int64_t toPosFrame)
 {
-    switch (mStreamType) {
+    switch (fromPcm.StreamType()) {
     case WWStreamPcm:
         return UpdateSpliceDataWithStraightLinePcm(fromPcm, fromPosFrame, toPcm, toPosFrame);
     case WWStreamDop:
@@ -1002,11 +1378,11 @@ WWPcmData::CreateCrossfadeData(
         const WWPcmData &fromPcm, int64_t fromPosFrame,
         const WWPcmData &toPcm,   int64_t toPosFrame)
 {
-    switch (mStreamType) {
+    switch (fromPcm.StreamType()) {
     case WWStreamPcm:
         return CreateCrossfadeDataPcm(fromPcm, fromPosFrame, toPcm, toPosFrame);
     case WWStreamDop:
-        return UpdateSpliceDataWithStraightLineDop(fromPcm, fromPosFrame, toPcm, toPosFrame);
+        return CreateCrossfadeDataDop(fromPcm, fromPosFrame, toPcm, toPosFrame);
     default:
         assert(0);
         return 0;

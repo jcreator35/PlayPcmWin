@@ -62,6 +62,33 @@
     <ClCompile Include="WWAudioFilterDelay.cpp">
       <Filter>source files</Filter>
     </ClCompile>
+    <ClCompile Include="WWPcmToSdm.cpp">
+      <Filter>PcmToSdm</Filter>
+    </ClCompile>
+    <ClCompile Include="WWSdmToPcm.cpp">
+      <Filter>PcmToSdm</Filter>
+    </ClCompile>
+    <ClCompile Include="WWWindowFunc.cpp">
+      <Filter>PcmToSdm</Filter>
+    </ClCompile>
+    <ClCompile Include="WWCicDownsampler.cpp">
+      <Filter>PcmToSdm</Filter>
+    </ClCompile>
+    <ClCompile Include="WWCicUpsampler.cpp">
+      <Filter>PcmToSdm</Filter>
+    </ClCompile>
+    <ClCompile Include="WWHalfbandFilterDownsampler.cpp">
+      <Filter>PcmToSdm</Filter>
+    </ClCompile>
+    <ClCompile Include="WWHalfbandFilterUpsampler.cpp">
+      <Filter>PcmToSdm</Filter>
+    </ClCompile>
+    <ClCompile Include="WWLoopFilterCRFB.cpp">
+      <Filter>PcmToSdm</Filter>
+    </ClCompile>
+    <ClCompile Include="WWPcmToSdmTest.cpp">
+      <Filter>PcmToSdm</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WasapiIOIF.h">
@@ -133,6 +160,33 @@
     <ClInclude Include="WWAudioFilterDelay.h">
       <Filter>header files</Filter>
     </ClInclude>
+    <ClInclude Include="WWPcmToSdm.h">
+      <Filter>PcmToSdm</Filter>
+    </ClInclude>
+    <ClInclude Include="WWSdmToPcm.h">
+      <Filter>PcmToSdm</Filter>
+    </ClInclude>
+    <ClInclude Include="WWWindowFunc.h">
+      <Filter>PcmToSdm</Filter>
+    </ClInclude>
+    <ClInclude Include="WWCicDownsampler.h">
+      <Filter>PcmToSdm</Filter>
+    </ClInclude>
+    <ClInclude Include="WWCicUpsampler.h">
+      <Filter>PcmToSdm</Filter>
+    </ClInclude>
+    <ClInclude Include="WWDelay.h">
+      <Filter>PcmToSdm</Filter>
+    </ClInclude>
+    <ClInclude Include="WWHalfbandFilterDownsampler.h">
+      <Filter>PcmToSdm</Filter>
+    </ClInclude>
+    <ClInclude Include="WWHalfbandFilterUpsampler.h">
+      <Filter>PcmToSdm</Filter>
+    </ClInclude>
+    <ClInclude Include="WWLoopFilterCRFB.h">
+      <Filter>PcmToSdm</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="source files">
@@ -140,6 +194,9 @@
     </Filter>
     <Filter Include="header files">
       <UniqueIdentifier>{7c4fca3d-9eef-4f41-8e66-2c7dd85f09c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PcmToSdm">
+      <UniqueIdentifier>{f5e911d6-d9a2-4085-ad12-db4e0a16c918}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

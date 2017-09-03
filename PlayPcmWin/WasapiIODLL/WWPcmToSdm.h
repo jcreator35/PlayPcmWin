@@ -6,6 +6,7 @@
 #include "WWHalfbandFilterUpsampler.h"
 #include "WWLoopFilterCRFB.h"
 #include <stdint.h>
+#include <assert.h>
 
 /** 1チャンネルのfloat型PCMストリームを入力して64倍アップサンプルして1ビットSDM出力を得る。
  * ハーフバンドフィルターアップサンプラーで2倍
@@ -30,7 +31,10 @@ public:
     void Drain(void);
 
     // 中に持っている出力バッファーの最初の出力データを指しているポインタを戻す。
-    const uint16_t *GetOutputSdm(void) const;
+    const uint16_t *GetOutputSdm(void) const {
+        assert(mOutSdm);
+        return & mOutSdm[FilterDelay16()];
+    }
 
     // 中に持っている出力バッファーを削除する。
     void End(void);

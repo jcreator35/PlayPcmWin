@@ -1,6 +1,5 @@
 ﻿// 日本語
 
-#include "stdafx.h"
 #include "WWPcmToSdm.h"
 
 const float WWPcmToSdm::mA[4] = { 0.0057254522986342048f, 0.051607454170822936f,
@@ -26,7 +25,7 @@ WWPcmToSdm::Start(int totalOutSamples)
     mLoopFilter.Reset();
     mTotalOutSamples16 = totalOutSamples/16;
     assert(mOutSdm == nullptr);
-    mOutSdm = new uint16_t[totalOutSamples + FilterDelay16()];
+    mOutSdm = new uint16_t[mTotalOutSamples16 + FilterDelay16()];
 }
 
 #if 0
@@ -70,12 +69,7 @@ WWPcmToSdm::Drain(void)
     }
 }
 
-const uint16_t *
-WWPcmToSdm::GetOutputSdm(void) const
-{
-    assert(mOutSdm);
-    return & mOutSdm[FilterDelay16()];
-}
+
 
 void
 WWPcmToSdm::End(void)

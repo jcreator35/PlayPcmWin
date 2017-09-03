@@ -79,9 +79,3 @@ WWFilterCpp_IIRSerial_SetParam(int idx, int osr, int decimation);
 extern "C" WWFILTERCPP_API
 int __stdcall
 WWFilterCpp_IIRParallel_SetParam(int idx, int osr, int decimation);
-
-// SdmToPcm conversion ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
-
-extern "C" WWFILTERCPP_API
-int __stdcall
-WWFilterCpp_Test(void);

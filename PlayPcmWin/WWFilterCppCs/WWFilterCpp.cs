@@ -88,11 +88,6 @@ namespace WWFilterCppCs {
             mFilterType = FilterType.IIRSerial;
         }
 
-        public void SdmToPcm() {
-            mFilterType = FilterType.SdmToPcm;
-            WWFilterCpp_SdmToPcm();
-        }
-
         public void AddIIRBlock(int nA, double[] a, int nB, double[] b) {
             if (mIdx <= 0) {
                 throw new InvalidOperationException();
@@ -234,11 +229,6 @@ namespace WWFilterCppCs {
         [DllImport("WWFilterCpp.dll", CharSet = CharSet.Unicode)]
         internal extern static
         int WWFilterCpp_IIRParallel_SetParam(int idx, int osr, int decimation);
-
-        [DllImport("WWFilterCpp.dll", CharSet = CharSet.Unicode)]
-        internal extern static
-        int WWFilterCpp_SdmToPcm();
-
 
     }
 }

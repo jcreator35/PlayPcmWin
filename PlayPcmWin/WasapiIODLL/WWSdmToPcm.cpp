@@ -1,6 +1,5 @@
 ﻿// 日本語
 
-#include "stdafx.h"
 #include "WWSdmToPcm.h"
 #include "WWDelay.h"
 #include <stdint.h>
@@ -34,13 +33,6 @@ WWSdmToPcm::Drain(void)
     for (int i=0; i<flushSampleIn; ++i) {
         AddInputSamples(0x6969);
     }
-}
-
-const float *
-WWSdmToPcm::GetOutputPcm(void) const
-{
-    assert(mOutPcm);
-    return & mOutPcm[FilterDelay()];
 }
 
 void

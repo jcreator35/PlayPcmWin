@@ -1202,7 +1202,12 @@ namespace PlayPcmWin
             case ChannelCount2Type.MixFormatChannelCount: {
                     // ミックスフォーマットのチャンネル数にする。
                     var mixFormat = wasapi.GetMixFormat(listBoxDevices.SelectedIndex);
-                    ch = mixFormat.numChannels;
+                    if (mixFormat == null) {
+                        // 異常だが、この後ログが出るのでここではスルーする。
+                        ch = 2;
+                    } else {
+                        ch = mixFormat.numChannels;
+                    }
                 }
                 break;
             }
@@ -3067,8 +3072,12 @@ namespace PlayPcmWin
             }
 
             var mixFormat = wasapi.GetMixFormat(listBoxDevices.SelectedIndex);
-            AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.GetMixFormat() sampleRate={0} sampleFormat={1} numChannels={2} dwChannelMask=0x{3:X}",
-                mixFormat.sampleRate, mixFormat.sampleFormat, mixFormat.numChannels, mixFormat.dwChannelMask));
+            if (mixFormat == null) {
+                AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.GetMixFormat() failed!\n"));
+            } else {
+                AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.GetMixFormat() sampleRate={0} sampleFormat={1} numChannels={2} dwChannelMask=0x{3:X}",
+                    mixFormat.sampleRate, mixFormat.sampleFormat, mixFormat.numChannels, mixFormat.dwChannelMask));
+            }
         }
 
         /// <summary>

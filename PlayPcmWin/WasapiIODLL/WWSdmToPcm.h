@@ -5,6 +5,7 @@
 #include "WWCicDownsampler.h"
 #include "WWHalfbandFilterDownsampler.h"
 #include <stdint.h>
+#include <assert.h>
 
 /** 1チャンネルのSDMストリームを入力して64分の1ダウンサンプルしてfloat型のPCM出力を得る。
  * SDMストリームをCICダウンサンプラーで16分の1ダウンサンプルして
@@ -41,7 +42,10 @@ public:
     void Drain(void);
 
     // 中に持っている出力バッファーの最初の出力データを指しているポインタを戻す。
-    const float *GetOutputPcm(void) const;
+    const float *GetOutputPcm(void) const {
+        assert(mOutPcm);
+        return & mOutPcm[FilterDelay()];
+    }
 
     // 中に持っている出力バッファーを削除する。
     void End(void);

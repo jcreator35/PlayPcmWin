@@ -1,6 +1,5 @@
 ﻿// 日本語
 
-#include "stdafx.h"
 #include "WWWindowFunc.h"
 #include <assert.h>
 #include <math.h>
