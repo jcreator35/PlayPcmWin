@@ -113,6 +113,7 @@
       <ExceptionHandling>Async</ExceptionHandling>
       <TreatWarningAsError>true</TreatWarningAsError>
       <DisableSpecificWarnings>4819</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>..\WWDSPCpp\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -146,6 +147,7 @@
       <ExceptionHandling>Async</ExceptionHandling>
       <TreatWarningAsError>true</TreatWarningAsError>
       <DisableSpecificWarnings>4819</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>..\WWDSPCpp\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -167,26 +169,17 @@
     <ClInclude Include="WWAudioFilterPolarityInvert.h" />
     <ClInclude Include="WWAudioFilterSequencer.h" />
     <ClInclude Include="WWAudioFilterZohNosdacCompensation.h" />
-    <ClInclude Include="WWCicDownsampler.h" />
-    <ClInclude Include="WWCicUpsampler.h" />
-    <ClInclude Include="WWDelay.h" />
-    <ClInclude Include="WWHalfbandFilterDownsampler.h" />
-    <ClInclude Include="WWHalfbandFilterUpsampler.h" />
-    <ClInclude Include="WWLoopFilterCRFB.h" />
     <ClInclude Include="WWMFResampler.h" />
     <ClInclude Include="WWMMNotificationClient.h" />
     <ClInclude Include="WWPcmData.h" />
     <ClInclude Include="WWPcmDelay.h" />
     <ClInclude Include="WWPcmSampleManipulator.h" />
     <ClInclude Include="WWPcmStream.h" />
-    <ClInclude Include="WWPcmToSdm.h" />
     <ClInclude Include="WWPlayPcmGroup.h" />
-    <ClInclude Include="WWSdmToPcm.h" />
     <ClInclude Include="WWThreadCharacteristics.h" />
     <ClInclude Include="WWTimerResolution.h" />
     <ClInclude Include="WWTypes.h" />
     <ClInclude Include="WWUtil.h" />
-    <ClInclude Include="WWWindowFunc.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
@@ -200,11 +193,6 @@
     <ClCompile Include="WWAudioFilterPolarityInvert.cpp" />
     <ClCompile Include="WWAudioFilterSequencer.cpp" />
     <ClCompile Include="WWAudioFilterZohNosdacCompensation.cpp" />
-    <ClCompile Include="WWCicDownsampler.cpp" />
-    <ClCompile Include="WWCicUpsampler.cpp" />
-    <ClCompile Include="WWHalfbandFilterDownsampler.cpp" />
-    <ClCompile Include="WWHalfbandFilterUpsampler.cpp" />
-    <ClCompile Include="WWLoopFilterCRFB.cpp" />
     <ClCompile Include="WWMFResampler.cpp" />
     <ClCompile Include="WWMMNotificationClient.cpp" />
     <ClCompile Include="WWPcmData.cpp">
@@ -213,14 +201,15 @@
     <ClCompile Include="WWPcmDelay.cpp" />
     <ClCompile Include="WWPcmSampleManipulator.cpp" />
     <ClCompile Include="WWPcmStream.cpp" />
-    <ClCompile Include="WWPcmToSdm.cpp" />
-    <ClCompile Include="WWPcmToSdmTest.cpp" />
     <ClCompile Include="WWPlayPcmGroup.cpp" />
-    <ClCompile Include="WWSdmToPcm.cpp" />
     <ClCompile Include="WWThreadCharacteristics.cpp" />
     <ClCompile Include="WWTimerResolution.cpp" />
     <ClCompile Include="WWUtil.cpp" />
-    <ClCompile Include="WWWindowFunc.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WWDSPCpp\WWDSPCppVs2010.vcxproj">
+      <Project>{a7d636e0-5d03-424b-be66-1b7ef35168d9}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
