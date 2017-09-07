@@ -1,11 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="WWFilterCpp.h" />
-    <ClInclude Include="WWLoopFilterCRFB.h" />
-    <ClInclude Include="WWDelay.h" />
     <ClInclude Include="WWZohCompensation.h" />
     <ClInclude Include="WWIIRFilterBlock.h" />
     <ClInclude Include="WWIIRFilterSerial.h" />
@@ -15,8 +12,6 @@
   <ItemGroup>
     <ClCompile Include="WWFilterCpp.cpp" />
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="WWLoopFilterCRFB.cpp" />
     <ClCompile Include="WWZohCompensation.cpp" />
     <ClCompile Include="WWIIRFilterBlock.cpp" />
     <ClCompile Include="WWIIRFilterGraph.cpp" />

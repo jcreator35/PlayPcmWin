@@ -17,7 +17,6 @@
  * [3] Richard G. Lyons, Understanding Digital Signal Processing, 3 rd Ed., Pearson, 2011, pp. 702
  */
 
-#include "stdafx.h"
 #include "WWZohCompensation.h"
 
 static const int COEFF_LENGTH = 33;

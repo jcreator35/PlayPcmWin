@@ -1,7 +1,9 @@
 ﻿// 日本語
 
 // dllmain.cpp : Defines the entry point for the DLL application.
-#include "stdafx.h"
+#include "targetver.h"
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 
 BOOL APIENTRY DllMain( HMODULE hModule,
                        DWORD  ul_reason_for_call,

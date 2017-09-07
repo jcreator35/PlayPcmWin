@@ -1,6 +1,5 @@
 ﻿// 日本語
 
-#include "stdafx.h"
 #include "WWFilterCpp.h"
 #include "WWLoopFilterCRFB.h"
 #include "WWZohCompensation.h"

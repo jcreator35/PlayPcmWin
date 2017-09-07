@@ -1,6 +1,5 @@
 ﻿// 日本語
 
-#include "stdafx.h"
 #include "WWIIRFilterBlock.h"
 
 WWIIRFilterBlock::WWIIRFilterBlock(void)
