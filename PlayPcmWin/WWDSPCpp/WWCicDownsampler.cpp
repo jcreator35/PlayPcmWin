@@ -40,7 +40,9 @@ WWCicDownsampler::Filter(const uint16_t inSdm)
 
     // Sinc4
     v -= 32768; // -32768 <= v <= 32768 になる。
-    return ((float)v) / 32768.0f;
+
+    return ((float)v) / 32768.0f;    //< この除算は、コンパイラの最適化が定数1/32768との乗算に置き換えた。
+
 }
 
 /// このinPcmの宣言、16と書いても文法上は意味ない (ただのポインタ型になる)
