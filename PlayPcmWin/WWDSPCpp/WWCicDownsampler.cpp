@@ -22,8 +22,8 @@ WWCicDownsampler::Filter(const uint16_t inSdm)
 
     // integrator
     // 16x downsample
-    for (int bit = 0; bit < 16; ++bit) {
-        v = 1 & (inSdm >> (15 - bit));
+    for (int bit = 15; 0 <= bit; --bit) {
+        v = 1 & (inSdm >> bit);
 
         for (int i = 0; i < Order; ++i) {
             v += mInteg[i];
