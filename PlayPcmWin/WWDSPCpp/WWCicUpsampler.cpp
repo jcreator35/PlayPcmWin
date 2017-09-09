@@ -11,16 +11,13 @@ WWCicUpsampler::Clear(void)
         mInteg[i] = 0;
         mDelay[i] = 0;
     }
-    mQerr = 0;
 }
 
 /// このinPcmの宣言、16と書いても文法上は意味ない (ただのポインタ型になる)
 void
 WWCicUpsampler::Filter(const float inPcm, float outPcm_r[16])
 {
-    // 1次のノイズシェイピング。
-    int32_t v = (int32_t)((float)0x8000 * (inPcm + mQerr));
-    mQerr = (inPcm - (float)v/0x8000);
+    int32_t v = (int32_t)((float)0x8000 * (inPcm));
 
     // delay
     for (int i = 0; i < Order; ++i) {

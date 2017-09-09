@@ -27,6 +27,4 @@ private:
 
     int32_t mDelay[Order];
     int32_t mInteg[Order];
-
-    float mQerr;
 };
