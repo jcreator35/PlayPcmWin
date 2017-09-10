@@ -1,28 +1,26 @@
 ﻿// 日本語
 
-#include "WWHalfbandFilterUpsampler.h"
-#include "WWWindowFunc.h"
-#include "WWDftCpu.h"
+#include "WWHalfbandFilter.h"
 #include <stdint.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include "WWDftCpu.h"
 
 void
-WWHalfbandFilterUpsampler::Start(void)
+WWHalfbandFilter::Start(void)
 {
-    mDelayU.FillZeroes();
-    mDelayL.FillZeroes();
+    mDelay.FillZeroes();
 }
 
 void
-WWHalfbandFilterUpsampler::End(void)
+WWHalfbandFilter::End(void)
 {
 }
 
 // Understanding Digital Signal Processing 3rd ed., pp.546
 void
-WWHalfbandFilterUpsampler::DesignFilter(void) {
-    assert(mCoeffsU == nullptr);
+WWHalfbandFilter::DesignFilter(void) {
+    assert(mCoeffs == nullptr);
 
 #if 1
     auto *coeffs = new double[mFilterLength];
@@ -60,11 +58,12 @@ WWHalfbandFilterUpsampler::DesignFilter(void) {
     int pos = len1/2 + 1;
     for (int i=0; i<mFilterLength; ++i) {
         coeffs[i] = coeffsT[pos++].real();
-
         if (len1 <= pos) {
             pos = 0;
         }
     }
+
+
 
     delete [] coeffsT;
     coeffsT = nullptr;
@@ -104,35 +103,30 @@ WWHalfbandFilterUpsampler::DesignFilter(void) {
 # endif
 #endif
 
-#if 1
-    // 2倍する。
-    for (int i = 0; i < mFilterLength; ++i) {
-        coeffs[i] *= 2.0;
-    }
-#else
+#if 0
     // 0.5倍する
     for (int i = 0; i < mFilterLength; ++i) {
         coeffs[i] *= 0.5;
     }
 #endif
 
-    mCoeffL = (float)coeffs[(mFilterLength-1)/2];
+    mCoeffs = new float[mFilterLength];
+    memset(mCoeffs, 0, sizeof(float)*mFilterLength);
 
-    mCoeffsU = new float[(mFilterLength+1)/2];
     for (int i=0;i<mFilterLength; ++i) {
-        if (0 == (i&1)) {
-            mCoeffsU[i/2] = (float)coeffs[i];
+        if (0 == (i&1) || i == mFilterLength/2) {
+            mCoeffs[i] = (float)coeffs[i];
         }
     }
 
-#if 0
-    // 全てのmCoeffsUを足したら1になるように係数mCoeffsUを調整する。
-    float sum = 0;
-    for (int i=0;i<(mFilterLength+1)/4; ++i) {
-        sum += mCoeffsU[i];
+#if 1
+    // 合計が1.0になるようにする。
+    float sum = 0.0f;
+    for (int i=0;i<mFilterLength; ++i) {
+        sum += mCoeffs[i];
     }
-    for (int i=0;i<(mFilterLength+1)/2; ++i) {
-        mCoeffsU[i] *= 0.25f/sum;
+    for (int i=0;i<mFilterLength; ++i) {
+        mCoeffs[i] *= 1.0f / sum;
     }
 #endif
 
@@ -141,52 +135,31 @@ WWHalfbandFilterUpsampler::DesignFilter(void) {
 }
 
 // Understanding Digital Signal Processing 3rd ed.
-// pp.546-547 Figure 10-27 (d)
+// pp.546-547 Figure 10-27 (c)
 // pp.703 Figure 13-16 (a)
 void
-WWHalfbandFilterUpsampler::Filter(
+WWHalfbandFilter::Filter(
         const float *inPcm, int numIn, float *outPcm_r)
 {
-    assert(mCoeffsU);
+    assert(mCoeffs);
     assert(inPcm);
     assert(outPcm_r);
 
     int outPos = 0;
-    for (int inPos=0; inPos<numIn; ++inPos) {
+    for (int inPos=0; inPos < numIn; ++inPos) {
         float v = inPcm[inPos];
 
-        // 1個の入力サンプルに対して2サンプル出力する。
+        //v = 1.0f;
 
-        {
-            // 上側のディレイに投入。
-            // Folded FIRの高速化手法を用いている。
+        mDelay.Filter(v);
 
-            const float last = mDelayU.Filter(v);
-
-            float r = 0;
-            r += mCoeffsU[0] * (v + last);
-            for (int i=0; i<mDelayU.DelaySamples()/2; ++i) {
-                const float v0 = mDelayU.GetNth(i+1);
-                const float v1 = mDelayU.GetNth(mDelayU.DelaySamples()-1-i);
-                r += mCoeffsU[i+1] * (v0 + v1);
-            }
-
-            //printf("outPos=%d r=%f\n", outPos, r);
-
-            outPcm_r[outPos++] = r;
+        float r = 0;
+        for (int i=0; i<mFilterLength; ++i) {
+            r += mCoeffs[i] * mDelay.GetNth(i);
         }
 
-        {
-            // 下側のディレイに投入。
-            // 下側ディレイから出力値を計算する。
-            float d = mDelayL.Filter(v);
+        //printf("%f\n", r);
 
-            float r = mCoeffL * d;
-
-            //printf("outPos=%d r=%f\n", outPos, r);
-
-            outPcm_r[outPos++] = r;
-        }
-
+        outPcm_r[outPos++] = r;
     }
 }

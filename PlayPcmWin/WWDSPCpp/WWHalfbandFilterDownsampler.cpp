@@ -1,10 +1,10 @@
 ﻿// 日本語
 
 #include "WWHalfbandFilterDownsampler.h"
-#include "WWWindowFunc.h"
 #include <stdint.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include "WWDftCpu.h"
 
 void
 WWHalfbandFilterDownsampler::Start(void)
@@ -18,12 +18,59 @@ WWHalfbandFilterDownsampler::End(void)
 {
 }
 
-static const double gSine90Table[] = { 0.0, 1.0, 0.0, -1.0 };
-
 // Understanding Digital Signal Processing 3rd ed., pp.546
 void
 WWHalfbandFilterDownsampler::DesignFilter(void) {
     assert(mCoeffsU == nullptr);
+
+#if 1
+    auto *coeffs = new double[mFilterLength];
+
+    const int len1 = mFilterLength+1;
+    auto *coeffsF = new std::complex<double>[len1];
+    for (int i=0; i<len1;++i) {
+        int phase = i * 4 / len1;
+        switch (phase) {
+        case 0:
+            coeffsF[i] = std::complex<double>(1.0,0.0);
+            break;
+        case 1:
+            coeffsF[i] = std::complex<double>(0.0,0.0);
+            break;
+        case 2:
+            coeffsF[i] = std::complex<double>(0.0,0.0);
+            break;
+        case 3:
+            coeffsF[i] = std::complex<double>(1.0,0.0);
+            break;
+        }
+
+        if (i == len1/4) {
+            coeffsF[i] = std::complex<double>(0.5,0.0);
+        }
+        if (i == 3 * len1/4) {
+            coeffsF[i] = std::complex<double>(0.5,0.0);
+        }
+    }
+
+    auto *coeffsT = new std::complex<double>[len1];
+    WWDftCpu::Dft1d(coeffsF, len1, coeffsT);
+
+    int pos = len1/2 + 1;
+    for (int i=0; i<mFilterLength; ++i) {
+        coeffs[i] = coeffsT[pos++].real();
+        if (len1 <= pos) {
+            pos = 0;
+        }
+    }
+
+    delete [] coeffsT;
+    coeffsT = nullptr;
+
+    delete [] coeffsF;
+    coeffsF = nullptr;
+#else
+    static const double gSine90Table[] = { 0.0, 1.0, 0.0, -1.0 };
 
     auto *coeffs = new double[mFilterLength];
     memset(coeffs, 0, sizeof(double)*mFilterLength);
@@ -43,6 +90,7 @@ WWHalfbandFilterDownsampler::DesignFilter(void) {
         coeffs[filterCenter - 1 + i] = v;
     }
 
+# if 0
     // Kaiser窓(α==9)をかける
     auto * w = new double[mFilterLength];
     WWKaiserWindow(9.0, mFilterLength, w);
@@ -51,11 +99,15 @@ WWHalfbandFilterDownsampler::DesignFilter(void) {
     }
     delete [] w;
     w = nullptr;
+# endif
+#endif
 
+#if 0
     // 0.5倍する
     for (int i = 0; i < mFilterLength; ++i) {
         coeffs[i] *= 0.5;
     }
+#endif
 
     mCoeffsU = new float[(mFilterLength+1)/2];
     mCoeffL = (float)coeffs[(mFilterLength-1)/2];
@@ -82,33 +134,36 @@ WWHalfbandFilterDownsampler::Filter(
 
     int outPos = 0;
     float r = 0;
-    for (int inPos=0; inPos<numIn; ++inPos) {
+    for (int inPos=0; inPos < numIn; ++inPos) {
         float v = inPcm[inPos];
+
+        //v = 1.0f;
 
         // 偶数サンプルの始めで集計を開始。
         // 奇数サンプルの終わりに集計結果を書き込む。
 
         if ((inPos & 1) == 0) {
-
-            // 偶数サンプル入力の場合。上側のディレイに投入。
-            // Folded FIRの高速化手法を用いている。
-            // 上側ディレイから出力値を計算する。
-            mDelayU.Filter(v);
-
-            r += mCoeffsU[0] * (v + mDelayU.GetNth(mDelayU.DelaySamples()-1));
-            for (int i=0; i<mDelayU.DelaySamples()/2; ++i) {
-                r += mCoeffsU[i+1] * (mDelayU.GetNth(i) + mDelayU.GetNth(mDelayU.DelaySamples()-2-i));
-            }
-        } else {
-            // 奇数サンプル入力の場合。下側のディレイに投入。
-            // 下側ディレイから出力値を計算する。
+            // 下側のディレイに投入。
             float d = mDelayL.Filter(v);
 
             r += mCoeffL * d;
+        } else {
+            // 上側のディレイに投入。
+            // Folded FIRの高速化手法を用いている。
+            // 上側ディレイから出力値を計算する。
+            const float last = mDelayU.Filter(v);
+
+            r += mCoeffsU[0] * (v + last);
+            for (int i=0; i<mDelayU.DelaySamples()/2; ++i) {
+                const float v0 = mDelayU.GetNth(i+1);
+                const float v1 = mDelayU.GetNth(mDelayU.DelaySamples()-1-i);
+                r += mCoeffsU[i+1] * (v0+v1);
+            }
+
+            //printf("outPos=%d r=%f\n", outPos, r);
 
             // 集計結果を書き込む。
             outPcm_r[outPos++] = r;
-
             r = 0;
         }
     }

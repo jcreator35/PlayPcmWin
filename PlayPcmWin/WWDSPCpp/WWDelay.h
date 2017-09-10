@@ -56,6 +56,7 @@ public:
     /// </summary>
     /// <param name="nth">0: 最新のサンプル、1: 1サンプル過去のサンプル。</param>
     T GetNth(int nth) {
+        assert(0<=nth && nth < mDelayLength);
         int pos = mPos - 1 - nth;
 
         if (pos < 0) {
