@@ -249,6 +249,8 @@ private:
     bool SetSampleValueInt(int ch, int64_t posFrame, int value);
     bool SetSampleValueFloat(int ch, int64_t posFrame, float value);
 
+    int GetSampleValueAsInt24(int ch, int64_t posFrame) const;
+
     float GetSampleValueAsFloat(int ch, int64_t posFrame) const;
     bool SetSampleValueAsFloat(int ch, int64_t posFrame, float value);
 

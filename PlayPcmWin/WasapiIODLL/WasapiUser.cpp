@@ -474,6 +474,8 @@ WasapiUser::UpdatePcmDataFormat(const WWPcmFormat &fmt)
 {
     assert(WWSMShared == m_shareMode);
     m_pcmFormat = fmt;
+
+    m_pcmStream.SetStreamType(fmt.streamType);
 }
 
 void

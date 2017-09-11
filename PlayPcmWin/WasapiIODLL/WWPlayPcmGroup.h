@@ -74,4 +74,6 @@ private:
     bool                m_repeat;
 
     void PlayPcmDataListDebug(void);
+
+    bool SdmToPcm(void);
 };

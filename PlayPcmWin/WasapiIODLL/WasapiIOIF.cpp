@@ -137,6 +137,9 @@ WasapiIO::ResampleIfNeeded(int conversionQuality)
         return hr;
     }
 
+    // DoPÇÕPCMå`éÆÇ…ïœä∑Ç≥ÇÍÇΩÅB
+    deviceFormat.streamType = WWStreamPcm;
+
     wasapi.UpdatePcmDataFormat(deviceFormat);
 
     return hr;

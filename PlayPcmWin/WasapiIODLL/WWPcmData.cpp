@@ -262,6 +262,80 @@ WWPcmData::GetSampleValueInt(int ch, int64_t posFrame) const
     return result;
 }
 
+static float
+SaturateForInt24(const float v) {
+    if (v < -1.0f) {
+        return -1.0f;
+    }
+    if (8388607.0f / 8388608.0f < v) {
+        return 8388607.0f / 8388608.0f;
+    }
+    return v;
+}
+
+int
+WWPcmData::GetSampleValueAsInt24(int ch, int64_t posFrame) const
+{
+    assert(mSampleFormat != WWPcmDataSampleFormatSfloat);
+    assert(0 <= ch && ch < mChannels);
+
+    if (posFrame < 0 ||
+        mFrames <= posFrame) {
+        return 0;
+    }
+
+    int result = 0;
+    switch (mSampleFormat) {
+    case WWPcmDataSampleFormatSint16:
+        {
+            short *p = (short*)(&mStream[2 * (mChannels * posFrame + ch)]);
+            result = *p;
+            result <<= 8;
+        }
+        break;
+    case WWPcmDataSampleFormatSint24:
+        {
+            // bus error回避。x86にはbus error無いけど一応。
+            unsigned char *p =
+                (unsigned char*)(&mStream[3 * (mChannels * posFrame + ch)]);
+
+            result =
+                (((unsigned int)p[0])<<8) +
+                (((unsigned int)p[1])<<16) +
+                (((unsigned int)p[2])<<24);
+            result >>= 8;
+        }
+        break;
+    case WWPcmDataSampleFormatSint32V24:
+        {
+            int *p = (int*)(&mStream[4 * (mChannels * posFrame + ch)]);
+            result = *p;
+            result >>= 8;
+        }
+        break;
+    case WWPcmDataSampleFormatSint32:
+        {
+            // bus errorは起きない。
+            int *p = (int*)(&mStream[4 * (mChannels * posFrame + ch)]);
+            result = *p;
+            result >>= 8;
+        }
+        break;
+    case WWPcmDataSampleFormatSfloat:
+        {
+            float *p = (float*)(&mStream[4 * (mChannels * posFrame + ch)]);
+            float v = SaturateForInt24(*p);
+            result = (int)(8388608.0f * v);
+        }
+        break;
+    default:
+        assert(0);
+        break;
+    }
+
+    return result;
+}
+
 float
 WWPcmData::GetSampleValueFloat(int ch, int64_t posFrame) const
 {
@@ -809,17 +883,16 @@ WWPcmData::FillDopSilentData(void)
     }
 }
 
-static int FloatToInt(float vF)
+static float
+SaturateFloat(const float v)
 {
-    int vI;
-    if (0.9999999995343387126922607421875f < vF) {
-        vI = INT32_MAX;
-    } else if (vF < -1.0f) {
-        vI = INT32_MIN;
-    } else {
-        vI = (int)(vF * 2147483648.0f);
+    if (v < -1.0f) {
+        return -1.0f;
     }
-    return vI;
+    if (8388607.0f / 8388608.0f < v) {
+        return 8388607.0f / 8388608.0f;
+    }
+    return v;
 }
 
 /// Dop DSD→ PCM変換。
@@ -837,34 +910,14 @@ WWPcmData::DopToPcmFast(void)
         p->Start((int)(mFrames/4));
     }
 
-    int64_t pos = 0;
-    switch (mSampleFormat) {
-    case WWPcmDataSampleFormatSint32V24:
-    case WWPcmDataSampleFormatSint32:
-        for (int64_t i=0; i<mFrames; ++i) {
-            for (int ch=0; ch<mChannels; ++ch) {
-                WWSdmToPcm *p = &sp[ch];
+    for (int64_t i=0; i<mFrames; ++i) {
+        for (int ch=0; ch<mChannels; ++ch) {
+            const int v = GetSampleValueAsInt24(ch, i);
+            const uint16_t inSdm = (uint16_t)v;
 
-                uint16_t inSdm = (mStream[pos+2] << 8) + mStream[pos+1];
-                p->AddInputSamples(inSdm);
-                pos += 4;
-            }
+            WWSdmToPcm *p = &sp[ch];
+            p->AddInputSamples(inSdm);
         }
-        break;
-    case WWPcmDataSampleFormatSint24:
-        for (int64_t i=0; i<mFrames; ++i) {
-            for (int ch=0; ch<mChannels; ++ch) {
-                WWSdmToPcm *p = &sp[ch];
-
-                uint16_t inSdm = (mStream[pos+2] << 8) + mStream[pos+1];
-                p->AddInputSamples(inSdm);
-                pos += 3;
-            }
-        }
-        break;
-    default:
-        assert(0);
-        break;
     }
 
     for (int ch=0; ch<mChannels; ++ch) {
@@ -872,45 +925,17 @@ WWPcmData::DopToPcmFast(void)
         p->Drain();
     }
 
-    pos = 0;
-    switch (mSampleFormat) {
-    case WWPcmDataSampleFormatSint32V24:
-    case WWPcmDataSampleFormatSint32:
-        for (int64_t i=0; i<mFrames/4; ++i) {
-            for (int ch=0; ch<mChannels; ++ch) {
-                WWSdmToPcm *p = &sp[ch];
-                const float vF = p->GetOutputPcm()[i];
-                int vI = FloatToInt(vF);
+    // PCMサンプル数が4分の1に減る。
+    mFrames /= 4;
+    mStreamType = WWStreamPcm;
 
-                mStream[pos+0] = 0;
-                mStream[pos+1] = (BYTE)(0xff&(vI >> 8));
-                mStream[pos+2] = (BYTE)(0xff&(vI >> 16));
-                mStream[pos+3] = (BYTE)(0xff&(vI >> 24));
-                pos += 4;
-            }
+    for (int64_t i=0; i<mFrames; ++i) {
+        for (int ch=0; ch<mChannels; ++ch) {
+            const WWSdmToPcm *p = &sp[ch];
+            float v=p->GetOutputPcm()[i];
+            v = SaturateFloat(v);
+            SetSampleValueAsFloat(ch,i,v);
         }
-        mStreamType = WWStreamPcm;
-        mFrames /= 4;
-        break;
-    case WWPcmDataSampleFormatSint24:
-        for (int64_t i=0; i<mFrames/4; ++i) {
-            for (int ch=0; ch<mChannels; ++ch) {
-                WWSdmToPcm *p = &sp[ch];
-                const float vF = p->GetOutputPcm()[i];
-                int vI = FloatToInt(vF);
-
-                mStream[pos+0] = (BYTE)(0xff&(vI >> 8));
-                mStream[pos+1] = (BYTE)(0xff&(vI >> 16));
-                mStream[pos+2] = (BYTE)(0xff&(vI >> 24));
-                pos += 3;
-            }
-        }
-        mStreamType = WWStreamPcm;
-        mFrames /= 4;
-        break;
-    default:
-        assert(0);
-        break;
     }
 
     for (int ch=0; ch<mChannels; ++ch) {

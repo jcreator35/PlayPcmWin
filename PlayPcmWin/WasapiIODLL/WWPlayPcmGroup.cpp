@@ -179,6 +179,30 @@ WWPlayPcmGroup::PlayPcmDataListDebug(void)
 #endif
 }
 
+bool
+WWPlayPcmGroup::SdmToPcm(void)
+{
+    const size_t N = m_playPcmDataList.size();
+    assert(1 <= N);
+
+    if (m_pcmFormat.streamType != WWStreamDop) {
+        // 変換の必要なし。
+        return false;
+    }
+
+    // 変換の必要あり。
+    for (size_t i=0; i<N; ++i) {
+        WWPcmData *pd = &m_playPcmDataList[i];
+        pd->DopToPcmFast();
+    }
+
+    // 4分の1のサンプルレートのPCM形式に変換された。
+    m_pcmFormat.streamType = WWStreamPcm;
+    m_pcmFormat.sampleRate /= 4;
+
+    return true;
+}
+
 HRESULT
 WWPlayPcmGroup::DoResample(WWPcmFormat &targetFmt, int conversionQuality)
 {
@@ -194,6 +218,10 @@ WWPlayPcmGroup::DoResample(WWPcmFormat &targetFmt, int conversionQuality)
     if (nullptr == buff) {
         hr = E_OUTOFMEMORY;
         goto end;
+    }
+
+    if (SdmToPcm()) {
+        // SdmをPCMに変換した。
     }
 
     // 共有モードのサンプルレート変更。

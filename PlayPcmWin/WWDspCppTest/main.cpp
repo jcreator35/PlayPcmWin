@@ -120,6 +120,32 @@ ConvertInt16ToFloat(const uint8_t *p)
     return vF;
 }
 
+static float
+ReadPcmFloat(const Wav& wav, const uint8_t *p)
+{
+    float v = 0;
+    if (wav.header.audioFormat == 0x3) {
+        const float *pF = (const float*)p;
+        v = *pF;
+    } else {
+        switch (wav.header.bitsPerSample) {
+        case 32:
+            v = ConvertInt32ToFloat(p);
+            break;
+        case 24:
+            v = ConvertInt24ToFloat(p);
+            break;
+        case 16:
+            v = ConvertInt16ToFloat(p);
+            break;
+        default:
+            assert(0);
+            break;
+        }
+    }
+    return v;
+}
+
 static void
 ConvertFloatToInt32(const float vF, uint8_t *pTo)
 {
@@ -150,49 +176,73 @@ ConvertFloatToInt16(const float vF, uint8_t *pTo)
     pTo[1] = 0xff & (vI>>8);
 }
 
+static void
+WritePcmFloat(const Wav& wav, const float v, uint8_t *pTo)
+{
+    if (wav.header.audioFormat == 0x3) {
+        float *pF = (float*)pTo;
+        *pF = v;
+    } else {
+        switch (wav.header.bitsPerSample) {
+        case 32:
+            ConvertFloatToInt32(v, pTo);
+            break;
+        case 24:
+            ConvertFloatToInt24(v, pTo);
+            break;
+        case 16:
+            ConvertFloatToInt16(v, pTo);
+            break;
+        default:
+            assert(0);
+            break;
+        }
+    }
+}
+
 struct Upsampler
 {
-    Upsampler(void) : hu47(47) { }
+    Upsampler(void) : hu47(47), hu23(23) { }
 
     void Start(void) {
         hu47.Start();
-        //hu23.Start();
+        hu23.Start();
     }
 
     void End(void) {
         hu47.End();
-        //hu23.End();
+        hu23.End();
     }
 
     void Filter(const float inPcm, float *outPcm) {
-        //float tmp1[2];
-        hu47.Filter(&inPcm, 1, outPcm);
-        //hu23.Filter(tmp1, 2, outPcm);
+        float tmp1[2];
+        hu47.Filter(&inPcm, 1, tmp1);
+        hu23.Filter(tmp1, 2, outPcm);
     }
 
     WWHalfbandFilterUpsampler hu47;
-    //WWHalfbandFilterUpsampler hu23;
+    WWHalfbandFilterUpsampler hu23;
 };
 
 struct Downsampler
 {
-    Downsampler(void) : ds47(47) { }
+    Downsampler(void) : ds47(47), ds23(23) { }
 
     void Start(void) {
         ds47.Start();
-        //ds23.Start();
+        ds23.Start();
     }
 
     void End(void) {
         ds47.End();
-        //ds23.End();
+        ds23.End();
     }
 
     void Filter(const float * inPcm, int inPcmCount, float *outPcm) {
-#if 0
+#if 1
         assert(inPcmCount == 4);
         float tmp1[2];
-        ds47.Filter(inPcm, 4, outPcm);
+        ds47.Filter(inPcm, 4, tmp1);
         ds23.Filter(tmp1, 2, outPcm);
 #else
         ds47.Filter(inPcm, 2, outPcm);
@@ -200,7 +250,7 @@ struct Downsampler
     }
 
     WWHalfbandFilterDownsampler ds47;
-    //WWHalfbandFilterDownsampler ds23;
+    WWHalfbandFilterDownsampler ds23;
 };
 
 #if 0
@@ -577,7 +627,7 @@ RunDownsampleTest(void)
 }
 #endif
 
-#if 1
+#if 0
 static bool
 RunUpDownTest(void)
 {
@@ -613,36 +663,17 @@ RunUpDownTest(void)
 
     for (int64_t i = 0; i<inPcmSamples; ++i) {
         for (int ch = 0; ch<CH; ++ch) {
-            float v = 0;
-            if (audioFormat == 0x3) {
-                const float *pF = (const float*)&wavIn.pcm[pos];
-                v = *pF;
-            } else {
-                switch (wavIn.header.bitsPerSample) {
-                case 32:
-                    v = ConvertInt32ToFloat(&wavIn.pcm[pos]);
-                    break;
-                case 24:
-                    v = ConvertInt24ToFloat(&wavIn.pcm[pos]);
-                    break;
-                case 16:
-                    v = ConvertInt16ToFloat(&wavIn.pcm[pos]);
-                    break;
-                default:
-                    assert(0);
-                    break;
-                }
-            }
+            float v = ReadPcmFloat(wavIn, &wavIn.pcm[pos]);
 
             //v = 1.0f;
             v *= 0.5f;
 
-            float pcmTmp[2];
+            float pcmTmp[4];
             us[ch].Filter(v, pcmTmp);
             float vOut = 0;
-            ds[ch].Filter(pcmTmp, 2, &vOut);
+            ds[ch].Filter(pcmTmp, 4, &vOut);
 
-            printf("%f %f\n", v, vOut);
+            //printf("%f %f\n", v, vOut);
 
             if (8388607.0f / 8388608.0f < vOut) {
                 vOut = 8388607.0f / 8388608.0f;
@@ -651,25 +682,7 @@ RunUpDownTest(void)
                 vOut = -1.0f;
             }
 
-            if (audioFormat == 0x3) {
-                float *pF = (float*)&pcmOut[pos];
-                *pF = vOut;
-            } else {
-                switch (wavIn.header.bitsPerSample) {
-                case 32:
-                    ConvertFloatToInt32(vOut, &pcmOut[pos]);
-                    break;
-                case 24:
-                    ConvertFloatToInt24(vOut, &pcmOut[pos]);
-                    break;
-                case 16:
-                    ConvertFloatToInt16(vOut, &pcmOut[pos]);
-                    break;
-                default:
-                    assert(0);
-                    break;
-                }
-            }
+            WritePcmFloat(wavIn, vOut, &pcmOut[pos]);
 
             pos += bytesPerSample;
         }
@@ -689,7 +702,7 @@ RunUpDownTest(void)
 }
 #endif
 
-#if 0
+#if 1
 static bool
 RunAll(void)
 {
@@ -697,12 +710,15 @@ RunAll(void)
     WWSdmToPcm sp[2];
 
     Wav wavIn;
-    if (!ReadWav("C:/audio/TestSignal4424.wav", wavIn)) {
+    if (!ReadWav("C:/audio/RecordTest2444.wav", wavIn)) {
         printf("ReadWav failed\n");
         return false;
     }
 
-    int totalPcmSamples = wavIn.pcmBytes / 6;
+    const int bytesPerSample = (wavIn.header.bitsPerSample +7)/8;
+    const int CH = wavIn.header.numCh;
+    const int bytesPerFrame = CH * bytesPerSample;
+    int totalPcmSamples = wavIn.header.dataChunkSize / bytesPerFrame;
 
     for (int ch = 0; ch<2; ++ch) {
         ps[ch].Start(totalPcmSamples * 64);
@@ -713,8 +729,8 @@ RunAll(void)
     float vMin = 0;
     int64_t pos = 0;
     for (int64_t i = 0; i<totalPcmSamples; ++i) {
-        for (int ch = 0; ch<2; ++ch) {
-            float v = ConvertToFloat(&wavIn.pcm[pos]);
+        for (int ch = 0; ch<CH; ++ch) {
+            float v = ReadPcmFloat(wavIn, &wavIn.pcm[pos]);
             if (vMax < v) {
                 vMax = v;
             }
@@ -725,17 +741,17 @@ RunAll(void)
             v *= 0.5f;
 
             ps[ch].AddInputSamples(&v, 1);
-            pos += 3;
+            pos += bytesPerSample;
         }
     }
 
     printf("vMax=%f, vMin=%f\n", vMax, vMin);
 
-    for (int ch = 0; ch<2; ++ch) {
+    for (int ch = 0; ch<CH; ++ch) {
         ps[ch].Drain();
     }
 
-    for (int ch = 0; ch<2; ++ch) {
+    for (int ch = 0; ch<CH; ++ch) {
         const uint16_t *sdm = ps[ch].GetOutputSdm();
         for (int64_t i = 0; i<totalPcmSamples*64/16; ++i) {
             sp[ch].AddInputSamples(*sdm);
@@ -743,12 +759,12 @@ RunAll(void)
         }
     }
 
-    for (int ch = 0; ch<2; ++ch) {
+    for (int ch = 0; ch<CH; ++ch) {
         ps[ch].End();
         sp[ch].Drain();
     }
 
-    uint8_t *pcmOut = new uint8_t[wavIn.pcmBytes];
+    uint8_t *pcmOut = new uint8_t[wavIn.header.dataChunkSize];
     if (!pcmOut) {
         printf("Memory exhausted\n");
         return false;
@@ -759,7 +775,7 @@ RunAll(void)
 
     pos = 0;
     for (int64_t i = 0; i<totalPcmSamples; ++i) {
-        for (int ch = 0; ch<2; ++ch) {
+        for (int ch = 0; ch<CH; ++ch) {
             const float *p = sp[ch].GetOutputPcm();
             float v = p[i];
             if (vMax < v) {
@@ -776,14 +792,14 @@ RunAll(void)
                 v = -1.0f;
             }
 
-            ConvertToInt24(v, &pcmOut[pos]);
-            pos += 3;
+            WritePcmFloat(wavIn, v, &pcmOut[pos]);
+            pos += bytesPerSample;
         }
     }
 
     printf("vMax=%f, vMin=%f\n", vMax, vMin);
 
-    for (int ch = 0; ch<2; ++ch) {
+    for (int ch = 0; ch<CH; ++ch) {
         sp[ch].End();
     }
 
@@ -793,7 +809,7 @@ RunAll(void)
 
 int main(void)
 {
-    RunUpDownTest();
+    RunAll();
 
 #ifndef NDEBUG
     _CrtDumpMemoryLeaks();

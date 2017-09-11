@@ -963,16 +963,22 @@ namespace PlayPcmWin
                 break;
             case State.再生グループ読み込み中:
                 UpdateUIToNonEditableState();
-                switch (m_deviceSetupParams.StreamType) {
-                case WasapiCS.StreamType.PCM:
+                if (radioButtonShared.IsChecked == true) {
+                    // 共有モード。
                     statusBarText.Content = Properties.Resources.MainStatusReadingFiles;
-                    break;
-                case WasapiCS.StreamType.DoP:
-                    statusBarText.Content = Properties.Resources.MainStatusReadingFilesDoP;
-                    break;
-                default:
-                    System.Diagnostics.Debug.Assert(false);
-                    break;
+                } else {
+                    // 排他モード。
+                    switch (m_deviceSetupParams.StreamType) {
+                    case WasapiCS.StreamType.PCM:
+                        statusBarText.Content = Properties.Resources.MainStatusReadingFiles;
+                        break;
+                    case WasapiCS.StreamType.DoP:
+                        statusBarText.Content = Properties.Resources.MainStatusReadingFilesDoP;
+                        break;
+                    default:
+                        System.Diagnostics.Debug.Assert(false);
+                        break;
+                    }
                 }
                 break;
             default:
