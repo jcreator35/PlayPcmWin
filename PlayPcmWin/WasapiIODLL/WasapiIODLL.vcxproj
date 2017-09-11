@@ -209,6 +209,11 @@
   <ItemGroup>
     <ProjectReference Include="..\WWDSPCpp\WWDSPCppVs2010.vcxproj">
       <Project>{a7d636e0-5d03-424b-be66-1b7ef35168d9}</Project>
+      <Private>true</Private>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
