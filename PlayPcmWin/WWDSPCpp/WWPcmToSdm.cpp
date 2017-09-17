@@ -1,6 +1,7 @@
 ﻿// 日本語
 
 #include "WWPcmToSdm.h"
+#include "WWDspUtil.h"
 
 #if 0
 // 3次。
@@ -76,7 +77,7 @@ WWPcmToSdm::AddInputSamples(const float *inPcm, int inPcmCount)
 
         uint8_t outSdm[2];
         mLoopFilter.Filter(16, tmp4Pcm, outSdm);
-        mOutSdm[mOutCount++] = (outSdm[0]<<8) + outSdm[1];
+        mOutSdm[mOutCount++] = (WWBitReversal(outSdm[0])<<8) + WWBitReversal(outSdm[1]);
         assert(mOutCount <= mTotalOutSamples16 + FilterDelay16());
     }
 }

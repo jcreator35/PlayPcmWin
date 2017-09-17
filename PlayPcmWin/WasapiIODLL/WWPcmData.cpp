@@ -11,6 +11,9 @@
 #include <stdint.h>
 #include <array>
 
+#define SPLICE_NOISE_SAMPLES   (10)
+#define SPLICE_READ_FRAME_NUM  (10)
+
 const char *
 WWPcmDataContentTypeToStr(WWPcmDataContentType w)
 {
@@ -605,8 +608,6 @@ WWPcmData::CreateCrossfadeDataPcm(
     return (int)mFrames; 
 }
 
-#define SPLICE_NOISE_SAMPLES (10)
-
 int
 WWPcmData::CreateCrossfadeDataDop(
         const WWPcmData &fromDop, int64_t fromPosFrame,
@@ -631,11 +632,11 @@ WWPcmData::CreateCrossfadeDataDop(
     fromPcm.Init(-1, mSampleFormat, mChannels, mFrames, mBytesPerFrame, mContentType, WWStreamDop);
     toPcm.Init(  -1, mSampleFormat, mChannels, mFrames, mBytesPerFrame, mContentType, WWStreamDop);
 
-    int * first10 = new int[SPLICE_NOISE_SAMPLES*mChannels];
-    int first10Pos = 0;
+    int * firstPart = new int[SPLICE_NOISE_SAMPLES*mChannels];
+    int firstPartPos = 0;
 
-    int * last10  = new int[SPLICE_NOISE_SAMPLES*mChannels];
-    int last10Pos = 0;
+    int * lastPart  = new int[SPLICE_NOISE_SAMPLES*mChannels];
+    int lastPartPos = 0;
 
     // サンプルデータを詰める。
     {
@@ -651,13 +652,13 @@ WWPcmData::CreateCrossfadeDataDop(
                 int y0 = pcm0->GetSampleValueInt(ch, pcm0Pos);
                 fromPcm.SetSampleValueInt(ch, x, y0);
                 if (x < SPLICE_NOISE_SAMPLES) {
-                    first10[first10Pos++] = y0;
+                    firstPart[firstPartPos++] = y0;
                 }
 
                 int y1 = pcm1->GetSampleValueInt(ch, pcm1Pos);
                 toPcm.SetSampleValueInt(ch, x, y1);
                 if (mFrames-SPLICE_NOISE_SAMPLES <= x) {
-                    last10[last10Pos++] = y1;
+                    lastPart[lastPartPos++] = y1;
                 }
             }
 
@@ -690,7 +691,7 @@ WWPcmData::CreateCrossfadeDataDop(
 
             SetSampleValueAsFloat(ch, x, y);
 
-            //printf("%d %f %f %f\n", x, y0, y1, y);
+            //printf("%d %f * %f + %f * %f = %f\n", x, (1.0f - ratio), y0, ratio, y1, y);
         }
     }
 
@@ -699,30 +700,31 @@ WWPcmData::CreateCrossfadeDataDop(
     // PcmToDopでmFramesが変化することに注意。
 
     if (SPLICE_NOISE_SAMPLES * 10 < mFrames) {
+        // SPLICE_NOISE_SAMPLESの10倍以上のサンプル数があるとき、両端をオリジナルデータで上書き。
         // Sdm → Pcm → Sdm変換で最初10サンプルが荒れるので。
 
-        int from10Pos = 0;
+        firstPartPos = 0;
         for (int x=0; x<SPLICE_NOISE_SAMPLES; ++x) {
             for (int ch=0; ch<mChannels; ++ch) {
-                int y = first10[from10Pos++];
+                int y = firstPart[firstPartPos++];
                 SetSampleValueInt(ch, x, y);
             }
         }
 
-        int last10Pos = 0;
-        for (int x=(int)mFrames-10; x<(int)mFrames; ++x) {
+       lastPartPos = 0;
+        for (int x=(int)mFrames-SPLICE_NOISE_SAMPLES; x<(int)mFrames; ++x) {
             for (int ch=0; ch<mChannels; ++ch) {
-                int y = last10[last10Pos++];
+                int y = lastPart[lastPartPos++];
                 SetSampleValueInt(ch, x, y);
             }
         }
     }
 
-    delete [] last10;
-    last10 = nullptr;
+    delete [] lastPart;
+    lastPart = nullptr;
 
-    delete [] first10;
-    first10 = nullptr;
+    delete [] firstPart;
+    firstPart = nullptr;
 
     toPcm.Term();
     fromPcm.Term();
@@ -1101,8 +1103,6 @@ CopyStream(const WWPcmData &from, int64_t fromPosFrame, int64_t numFrames, WWPcm
     }
 }
 
-#define SPLICE_READ_FRAME_NUM (4)
-
 int
 WWPcmData::UpdateSpliceDataWithStraightLineDop(
         const WWPcmData &fromDop, int64_t fromPosFrame,
@@ -1119,17 +1119,34 @@ WWPcmData::UpdateSpliceDataWithStraightLineDop(
         return (int)mFrames;
     }
 
+    int * firstPart = new int[SPLICE_READ_FRAME_NUM*mChannels];
+    int firstPartPos = 0;
+
+    int * lastPart  = new int[SPLICE_READ_FRAME_NUM*mChannels];
+    int lastPartPos = 0;
+
     WWPcmData fromPcm;
     WWPcmData toPcm;
 
     fromPcm.Init(-1, mSampleFormat, mChannels, SPLICE_READ_FRAME_NUM, mBytesPerFrame, mContentType, WWStreamPcm);
     fromPcm.FillDopSilentData();
     CopyStream(fromDop, fromPosFrame, SPLICE_READ_FRAME_NUM, fromPcm);
-    fromPcm.DopToPcmFast();
+    for (int x=0; x<SPLICE_READ_FRAME_NUM; ++x) {
+        for (int ch=0; ch<mChannels; ++ch) {
+            firstPart[firstPartPos++] = fromPcm.GetSampleValueAsInt24(ch, x);
+        }
+    }
 
     toPcm.Init(  -1, mSampleFormat, mChannels, SPLICE_READ_FRAME_NUM, mBytesPerFrame, mContentType, WWStreamPcm);
     toPcm.FillDopSilentData();
     CopyStream(toDop,   toPosFrame,   SPLICE_READ_FRAME_NUM, toPcm);
+    for (int x=0; x<SPLICE_READ_FRAME_NUM; ++x) {
+        for (int ch=0; ch<mChannels; ++ch) {
+            lastPart[lastPartPos++] = toPcm.GetSampleValueAsInt24(ch, x);
+        }
+    }
+
+    fromPcm.DopToPcmFast();
     toPcm.DopToPcmFast();
 
     // PcmToDopFast()がmFramesを4倍する。
@@ -1141,6 +1158,31 @@ WWPcmData::UpdateSpliceDataWithStraightLineDop(
             toPcm,   SPLICE_READ_FRAME_NUM-1);
 
     PcmToDopFast();
+
+
+    // Sdm → Pcm → Sdm変換で最初10サンプルが荒れるので。
+
+    firstPartPos = 0;
+    for (int x=0; x<SPLICE_READ_FRAME_NUM; ++x) {
+        for (int ch=0; ch<mChannels; ++ch) {
+            int y = firstPart[firstPartPos++];
+            SetSampleValueInt(ch, x, y);
+        }
+    }
+
+    lastPartPos = 0;
+    for (int x=(int)mFrames-SPLICE_READ_FRAME_NUM; x<(int)mFrames; ++x) {
+        for (int ch=0; ch<mChannels; ++ch) {
+            int y = lastPart[lastPartPos++];
+            SetSampleValueInt(ch, x, y);
+        }
+    }
+
+    delete [] lastPart;
+    lastPart = nullptr;
+
+    delete [] firstPart;
+    firstPart = nullptr;
 
     toPcm.Term();
     fromPcm.Term();

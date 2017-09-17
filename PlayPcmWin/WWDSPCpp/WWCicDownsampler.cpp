@@ -54,10 +54,13 @@ WWCicDownsampler::Filter(const float inPcm[16])
     // integrator
     // 16x downsample
     for (int k = 0; k < 16; ++k) {
+#if 1
+        v = (int32_t)((float)0x8000 * inPcm[k]);
+#else
         // 1次のノイズシェイピング。
-        v = (int32_t)((float)0x8000 * (inPcm[k] + mQerr));
-        mQerr = (inPcm[k] - (float)v/0x8000);
-
+        //v = (int32_t)((float)0x8000 * (inPcm[k] + mQerr));
+        //mQerr = (inPcm[k] - (float)v/0x8000);
+#endif
         for (int i = 0; i < Order; ++i) {
             v += mInteg[i];
             mInteg[i] = v;

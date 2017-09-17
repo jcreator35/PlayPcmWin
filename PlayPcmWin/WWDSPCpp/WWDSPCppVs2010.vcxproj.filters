@@ -45,6 +45,9 @@
     <ClCompile Include="WWHalfbandFilter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="WWDspUtil.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WWCicDownsampler.h">
@@ -78,6 +81,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="WWHalfbandFilter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWDspUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

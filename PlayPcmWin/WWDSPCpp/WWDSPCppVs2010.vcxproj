@@ -26,6 +26,7 @@
       <InlineFunctionExpansion Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Default</InlineFunctionExpansion>
     </ClCompile>
     <ClCompile Include="WWDftCpu.cpp" />
+    <ClCompile Include="WWDspUtil.cpp" />
     <ClCompile Include="WWHalfbandFilter.cpp" />
     <ClCompile Include="WWHalfbandFilterDownsampler.cpp">
       <AssemblerOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AssemblyAndSourceCode</AssemblerOutput>
@@ -63,6 +64,7 @@
     <ClInclude Include="WWCicUpsampler.h" />
     <ClInclude Include="WWDelay.h" />
     <ClInclude Include="WWDftCpu.h" />
+    <ClInclude Include="WWDspUtil.h" />
     <ClInclude Include="WWHalfbandFilter.h" />
     <ClInclude Include="WWHalfbandFilterDownsampler.h" />
     <ClInclude Include="WWHalfbandFilterUpsampler.h" />
