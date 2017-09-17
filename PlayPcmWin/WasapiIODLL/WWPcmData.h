@@ -245,14 +245,13 @@ private:
      */
     int GetSampleValueInt(int ch, int64_t posFrame) const;
     float GetSampleValueFloat(int ch, int64_t posFrame) const;
-
-    bool SetSampleValueInt(int ch, int64_t posFrame, int value);
-    bool SetSampleValueFloat(int ch, int64_t posFrame, float value);
-
     int GetSampleValueAsInt24(int ch, int64_t posFrame) const;
-
     float GetSampleValueAsFloat(int ch, int64_t posFrame) const;
-    bool SetSampleValueAsFloat(int ch, int64_t posFrame, float value);
+
+    bool SetSampleValueInt(int ch, int64_t posFrame, int v);
+    bool SetSampleValueFloat(int ch, int64_t posFrame, float v);
+    bool SetSampleValueAsInt24(int ch, int64_t posFrame, int v);
+    bool SetSampleValueAsFloat(int ch, int64_t posFrame, float v);
 
     /** create splice data from the two adjacent sample data */
     int UpdateSpliceDataWithStraightLinePcm(
