@@ -42,10 +42,7 @@ public:
     void Drain(void);
 
     // 中に持っている出力バッファーの最初の出力データを指しているポインタを戻す。
-    const float *GetOutputPcm(void) const {
-        assert(mOutPcm);
-        return & mOutPcm[FilterDelay()];
-    }
+    const float *GetOutputPcm(void) const;
 
     // 中に持っている出力バッファーを削除する。
     void End(void);

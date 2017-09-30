@@ -45,3 +45,9 @@ WWSdmToPcm::End(void)
     mHBDS23.End();
 }
 
+const float *
+WWSdmToPcm::GetOutputPcm(void) const
+{
+    assert(mOutPcm);
+    return & mOutPcm[FilterDelay()];
+}
