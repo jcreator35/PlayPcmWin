@@ -5,7 +5,6 @@
 #include "WWCicDownsampler.h"
 #include "WWHalfbandFilterDownsampler.h"
 #include <stdint.h>
-#include <assert.h>
 
 /** 1チャンネルのSDMストリームを入力して64分の1ダウンサンプルしてfloat型のPCM出力を得る。
  * SDMストリームをCICダウンサンプラーで16分の1ダウンサンプルして
