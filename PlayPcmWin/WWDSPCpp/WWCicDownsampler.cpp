@@ -38,7 +38,8 @@ WWCicDownsampler::Filter(const uint16_t inSdm)
         v -= tmp;
     }
 
-    // Sinc4
+    //  Sinc4 16xダウンサンプルの時 0 <= v <= 65536
+
     v -= 32768; // -32768 <= v <= 32768 になる。
 
     return ((float)v) / 32768.0f;    //< この除算は、コンパイラの最適化が定数1/32768との乗算に置き換えた。
@@ -54,13 +55,7 @@ WWCicDownsampler::Filter(const float inPcm[16])
     // integrator
     // 16x downsample
     for (int k = 0; k < 16; ++k) {
-#if 1
         v = (int32_t)((float)0x8000 * inPcm[k]);
-#else
-        // 1次のノイズシェイピング。
-        //v = (int32_t)((float)0x8000 * (inPcm[k] + mQerr));
-        //mQerr = (inPcm[k] - (float)v/0x8000);
-#endif
         for (int i = 0; i < Order; ++i) {
             v += mInteg[i];
             mInteg[i] = v;
