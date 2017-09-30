@@ -28,6 +28,7 @@ public:
 private:
     /// Order==3 : Sinc3 CIC filter
     /// Order==4 : Sinc4 CIC filter
+    /// Orderを書き換えたら、Filter()のvの桁合わせ処理を修正する事。
     static const int Order=4;
 
     int32_t mDelay[Order];
