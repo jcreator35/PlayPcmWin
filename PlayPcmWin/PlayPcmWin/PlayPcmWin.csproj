@@ -122,6 +122,7 @@
     <Compile Include="DeviceAttributes.cs" />
     <Compile Include="DeviceSetupParams.cs" />
     <Compile Include="DsdiffReader.cs" />
+    <Compile Include="FileDisappearCheck.cs" />
     <Compile Include="FlacDecodeIF.cs" />
     <Compile Include="InterceptMediaKeys.cs" />
     <Compile Include="M3uRW.cs" />
