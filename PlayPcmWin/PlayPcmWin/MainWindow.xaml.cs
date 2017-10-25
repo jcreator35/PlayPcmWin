@@ -2660,7 +2660,7 @@ namespace PlayPcmWin
 
             AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.StartPlayback({0}) {1:X8}{2}", wavDataId, hr, Environment.NewLine));
             if (hr < 0) {
-                MessageBox.Show(string.Format(CultureInfo.InvariantCulture, Properties.Resources.PlayStartFailed + "！{0:X8}", hr));
+                MessageBox.Show(string.Format(CultureInfo.InvariantCulture, Properties.Resources.PlayStartFailed + "！{0:X8}  {1}", hr, WasapiCS.GetErrorMessage(hr)));
                 Exit();
                 return false;
             }

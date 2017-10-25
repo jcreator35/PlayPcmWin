@@ -842,6 +842,7 @@ namespace Wasapi {
 
         public static string GetErrorMessage(int ercd) {
             switch ((uint)ercd) {
+            case 0x800700AA: return "Resource is in use";
             case 0x88890001: return "AUDCLNT_E_NOT_INITIALIZED";
             case 0x88890002: return "AUDCLNT_E_ALREADY_INITIALIZED";
             case 0x88890003: return "AUDCLNT_E_WRONG_ENDPOINT_TYPE";
