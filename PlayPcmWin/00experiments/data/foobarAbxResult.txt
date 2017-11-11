@@ -1,0 +1,38 @@
+foo_abx 2.0.4 report
+foobar2000 v1.3.9
+2017-11-11 09:30:47
+
+File A: AbsolutePolarityListeningTestTone.flac
+SHA1: c4f4e59eedb9e838e5c393c4508e1f29113591f0
+File B: AbsolutePolarityListeningTestToneInverted.flac
+SHA1: d093c9a9723042caf0b39d1afa8d814660100808
+
+Output:
+WASAPI (event) : Analog (5+6) (RME Fireface 400), 24-bit
+Crossfading: NO
+
+09:30:47 : Test started.
+09:31:32 : 01/01
+09:31:43 : 02/02
+09:31:57 : 03/03
+09:32:06 : 04/04
+09:32:14 : 05/05
+09:32:25 : 06/06
+09:32:34 : 07/07
+09:32:43 : 08/08
+09:32:51 : 09/09
+09:33:00 : 10/10
+09:33:09 : 11/11
+09:33:16 : 12/12
+09:33:23 : 13/13
+09:33:30 : 14/14
+09:33:37 : 15/15
+09:33:45 : 16/16
+09:33:45 : Test finished.
+
+ ---------- 
+Total: 16/16
+Probability that you were guessing: 0.0%
+
+ -- signature -- 
+ebbfe10775af9517f6c7391d6dd32e89d3bf81b0
