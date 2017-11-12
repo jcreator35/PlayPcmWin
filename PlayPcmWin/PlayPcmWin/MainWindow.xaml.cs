@@ -302,7 +302,7 @@ namespace PlayPcmWin
 
         List<PreferenceAudioFilter> mPreferenceAudioFilterList = new List<PreferenceAudioFilter>();
 
-        /// ///////////////////////////////////////////////////////////////////////////////////////////////////
+        // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
         public MainWindow()
         {
@@ -1480,34 +1480,34 @@ namespace PlayPcmWin
             return nError;
         }
 
-        private void RemoveDisappearedFilesFromPlayList(string path) {
-            // 再生リストを調べて消えたファイルを消す。
+        /// <summary>
+        /// 再生リストを調べて消えたファイルを消す。
+        /// </summary>
+        /// <returns>リストから消したファイルの個数。</returns>
+        private int RemoveDisappearedFilesFromPlayList(string path) {
             List<int> items = new List<int>();
 
-#if false
-            // パス名が親ディレクトリの名前だったりするので、面倒。
-            for (int i=0; i < m_playListItems.Count; ++i) {
-                var pli = m_playListItems[i];
-                if (path.CompareTo(pli.Path) == 0) {
-                    items.Add(i);
-                }
-            }
-#else
             for (int i=0; i < m_playListItems.Count; ++i) {
                 var pli = m_playListItems[i];
                 if (!System.IO.File.Exists(pli.Path)) {
                     items.Add(i);
                 }
             }
-#endif
 
             if (items.Count == 0) {
                 // 消すものはない。
-                return;
+                return 0;
             }
 
             RemovePlaylistItems(items);
+            m_FileDisappearedProcAfter = false;
+
+            AddLogText(Properties.Resources.SomeFilesAreDisappeared + "\n");
+
+            return items.Count;
         }
+
+        private bool m_FileDisappearedProcAfter;
 
         private void FileDisappearedEventProc(string path) {
             Dispatcher.BeginInvoke(new Action(delegate() {
@@ -1516,6 +1516,7 @@ namespace PlayPcmWin
                     RemoveDisappearedFilesFromPlayList(path);
                     break;
                 default:
+                    m_FileDisappearedProcAfter = true;
                     break;
                 }
             }));
@@ -1527,7 +1528,7 @@ namespace PlayPcmWin
             FileDisappearedEventProc(path);
         }
 
-        //////////////////////////////////////////////////////////////////////////
+        // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
         private void MainWindowDragEnter(object sender, DragEventArgs e)
         {
@@ -2790,10 +2791,7 @@ namespace PlayPcmWin
             StartReadFiles(m_taskAfterStop.GroupId);
         }
 
-        /// <summary>
-        /// 再生終了後タスクを実行する。
-        /// </summary>
-        private void PerformPlayCompletedTask() {
+        private bool PerformTaskAfterStop() {
             // 再生終了後に行うタスクがある場合、ここで実行する。
             switch (m_taskAfterStop.Type) {
             case NextTaskType.PlaySpecifiedGroup:
@@ -2814,7 +2812,7 @@ namespace PlayPcmWin
 
                 if (SetupDevice(m_taskAfterStop.GroupId)) {
                     StartReadPlayGroupOnTask();
-                    return;
+                    return true;
                 }
 
                 // デバイスの設定を試みたら、失敗した。
@@ -2822,6 +2820,25 @@ namespace PlayPcmWin
                 break;
             default:
                 break;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// 再生終了後タスクを実行する。
+        /// </summary>
+        private void PerformPlayCompletedTask() {
+            if (m_FileDisappearedProcAfter && 0 < RemoveDisappearedFilesFromPlayList("")) {
+                // 1個以上ファイルが消えた。再生終了後タスクを実行せずに停止する。
+                m_taskAfterStop.Type = NextTaskType.None;
+            } else {
+                bool rv = PerformTaskAfterStop();
+
+                if (rv) {
+                    // 次の再生が始まる。
+                    return;
+                }
             }
 
             // 再生終了後に行うタスクがない。停止する。

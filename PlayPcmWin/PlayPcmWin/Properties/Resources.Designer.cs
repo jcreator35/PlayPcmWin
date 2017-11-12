@@ -1769,6 +1769,15 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Some files are disappeared. Playlist updated..
+        /// </summary>
+        internal static string SomeFilesAreDisappeared {
+            get {
+                return ResourceManager.GetString("SomeFilesAreDisappeared", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Timer driven.
         /// </summary>
         internal static string TimerDriven {

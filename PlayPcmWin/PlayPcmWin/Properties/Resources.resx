@@ -721,4 +721,7 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   <data name="MainDataGridColumnFileExtension" xml:space="preserve">
     <value>File Extension</value>
   </data>
+  <data name="SomeFilesAreDisappeared" xml:space="preserve">
+    <value>Some files are disappeared. Playlist updated.</value>
+  </data>
 </root>
