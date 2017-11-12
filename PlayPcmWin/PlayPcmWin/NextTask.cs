@@ -53,5 +53,4 @@ namespace PlayPcmWin {
         public int GroupId { get; set; }
         public int PcmDataId { get; set; }
     };
-
 }

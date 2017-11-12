@@ -15,6 +15,7 @@ namespace PlayPcmWin {
         private PcmDataLib.PcmData mPcmData;
         private bool mReadSeparatorAfter;
         private int mRowId;
+        private FileDisappearCheck mFileDisappearCheck;
 
         public static void SetNextRowId(int id) {
             mNextRowId = id;
@@ -111,9 +112,10 @@ namespace PlayPcmWin {
             }
         }
 
-        public PlayListItemInfo(PcmDataLib.PcmData pcmData) {
+        public PlayListItemInfo(PcmDataLib.PcmData pcmData, FileDisappearCheck.FileDisappearedEventHandler cb) {
             mPcmData = pcmData;
             mRowId = mNextRowId++;
+            mFileDisappearCheck = new FileDisappearCheck(System.IO.Path.GetDirectoryName(pcmData.FullPath), System.IO.Path.GetFileName(pcmData.FullPath), cb);
         }
 
         public string FileExtension {
