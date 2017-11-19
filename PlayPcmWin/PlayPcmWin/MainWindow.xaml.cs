@@ -416,7 +416,15 @@ namespace PlayPcmWin
         }
 
         private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParamP, IntPtr lParamP, ref bool handled) {
-            int wParam = wParamP.ToInt32();
+            int wParam = 0;
+            try {
+                wParam = (int)wParamP.ToInt64();
+            } catch (System.OverflowException) {
+                Console.WriteLine("{0:x8}", wParam);
+            }
+            if (wParam == 0) {
+                return IntPtr.Zero;
+            }
 
             switch (msg) {
             case WM_DEVICECHANGE:
