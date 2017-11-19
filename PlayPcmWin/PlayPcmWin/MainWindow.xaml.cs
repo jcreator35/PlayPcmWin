@@ -104,7 +104,6 @@ namespace PlayPcmWin
         /// </summary>
         private int m_loadingGroupId = -1;
 
-
         /// <summary>
         /// デバイスSetup情報。サンプリングレート、量子化ビット数…。
         /// </summary>
@@ -1128,6 +1127,7 @@ namespace PlayPcmWin
 
         private void Term() {
             DeleteKeyListener();
+            FileDisappearCheck.Clear();
 
             if (ap.wasapi != null) {
                 // バックグラウンドスレッドにjoinして、完全に止まるまで待ち合わせするブロッキング版のStopを呼ぶ。

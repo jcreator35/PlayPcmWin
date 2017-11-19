@@ -4,23 +4,13 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace PlayPcmWin {
-    class FileDisappearCheck {
+    class FileDisappearCheck : IDisposable {
         public delegate void FileDisappearedEventHandler(string path);
+        private string mPath;
+        private FileSystemWatcher mFsw;
+        private FileDisappearedEventHandler mFileDisappeared;
 
         private static Dictionary<string, FileDisappearCheck> mInstances = new Dictionary<string, FileDisappearCheck>();
-
-        public static void Clear() {
-            mInstances.Clear();
-        }
-
-        private static void DumpKeyList() {
-            int i=0;
-            Console.WriteLine("Total {0}", mInstances.Count);
-            foreach (var item in mInstances) {
-                Console.WriteLine("{0}: {1}", i, item.Key);
-                ++i;
-            }
-        }
 
         /// <summary>
         /// あるディレクトリの中の特定のアイテム(ファイルまたはサブディレクトリ)が消えたらイベントを送出する。
@@ -79,6 +69,43 @@ namespace PlayPcmWin {
             }
         }
 
+        public void Dispose() {
+            Term();
+        }
+
+        /// <summary>
+        /// 終了処理。
+        /// </summary>
+        private void Term() {
+            if (mFsw == null) {
+                return;
+            }
+
+            mFsw.EnableRaisingEvents = false;
+            mFsw.Dispose();
+            mFsw = null;
+        }
+
+        /// <summary>
+        /// すべてのインスタンスを消去する。static関数。
+        /// </summary>
+        public static void Clear() {
+            foreach (var v in mInstances) {
+                v.Value.Term();
+            }
+
+            mInstances.Clear();
+        }
+
+        private static void DumpKeyList() {
+            int i=0;
+            Console.WriteLine("Total {0}", mInstances.Count);
+            foreach (var item in mInstances) {
+                Console.WriteLine("{0}: {1}", i, item.Key);
+                ++i;
+            }
+        }
+
         void OnError(object sender, ErrorEventArgs e) {
             Console.WriteLine("FileSystemWatcher raised Error event");
 
@@ -96,8 +123,5 @@ namespace PlayPcmWin {
             mFileDisappeared(mPath);
         }
 
-        private string mPath;
-        private FileSystemWatcher mFsw;
-        private FileDisappearedEventHandler mFileDisappeared;
     }
 }

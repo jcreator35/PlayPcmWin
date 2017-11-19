@@ -38,7 +38,12 @@ namespace PlayPcmWin {
         }
 
         private void Term() {
+            if (mHookId == IntPtr.Zero) {
+                return;
+            }
+
             UnhookWindowsHookEx(mHookId);
+            mHookId = IntPtr.Zero;
         }
 
         private IntPtr SetHook(LowLevelKeyboardProc proc) {
