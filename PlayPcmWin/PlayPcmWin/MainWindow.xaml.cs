@@ -2682,7 +2682,7 @@ namespace PlayPcmWin
                 return;
             }
 
-            if (!m_preference.RefrainRedraw) {
+            if (m_preference.RefrainRedraw) {
                 return;
             }
 
