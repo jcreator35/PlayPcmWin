@@ -406,7 +406,7 @@ namespace PlayPcmWin
         // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
         private const int WM_DEVICECHANGE = 0x219;
-        private const int DBT_DEVICEREMOVECOMPLETE = 0x8004;
+        private const uint DBT_DEVICEREMOVECOMPLETE = 0x8004u;
 
         // WM_DEVICECHANGE イベントを取得する。
         protected override void OnSourceInitialized(EventArgs e) {
@@ -416,15 +416,7 @@ namespace PlayPcmWin
         }
 
         private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParamP, IntPtr lParamP, ref bool handled) {
-            int wParam = 0;
-            try {
-                wParam = (int)wParamP.ToInt64();
-            } catch (System.OverflowException) {
-                Console.WriteLine("{0:x8}", wParam);
-            }
-            if (wParam == 0) {
-                return IntPtr.Zero;
-            }
+            uint wParam = (uint)wParamP.ToInt64();
 
             switch (msg) {
             case WM_DEVICECHANGE:
