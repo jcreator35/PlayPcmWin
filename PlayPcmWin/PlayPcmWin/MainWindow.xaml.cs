@@ -2233,9 +2233,14 @@ namespace PlayPcmWin
                     wantFrames = (int)( wantFramesTotal - frameCount );
                 }
 
-                byte[] part = pr.StreamReadOne(wantFrames);
+                int readResult;
+                byte[] part = pr.StreamReadOne(wantFrames, out readResult);
                 if (null == part) {
                     pr.StreamEnd();
+                    if (readResult < 0) {
+                        return new ReadFileResultFailed(pd.Id, WWFlacRWCS.FlacRW.ErrorCodeToStr(readResult));
+                    }
+
                     Console.WriteLine("D: ReadOnePcmFileFragment() lowmemory");
                     return lowMemoryFailed;
                 }

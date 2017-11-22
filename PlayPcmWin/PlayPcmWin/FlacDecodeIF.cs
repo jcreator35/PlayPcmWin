@@ -140,14 +140,14 @@ namespace PlayPcmWin {
         /// PCMサンプルを読み出す。
         /// </summary>
         /// <returns>読んだサンプルデータ。サイズはpreferredFramesよりも少ない場合がある。(preferredFramesよりも多くはない。)</returns>
-        public byte [] ReadStreamReadOne(long preferredFrames)
+        public byte [] ReadStreamReadOne(long preferredFrames, out int ercd)
         {
             System.Diagnostics.Debug.Assert(0 < mBytesPerFrame);
 
             byte[] buff = null;
-            int ercd = mFlacRW.DecodeStreamOne(out buff);
+            ercd = mFlacRW.DecodeStreamOne(out buff);
             if (ercd < 0) {
-                return new byte[0];
+                return null;
             }
 
             if (md5 != null) {

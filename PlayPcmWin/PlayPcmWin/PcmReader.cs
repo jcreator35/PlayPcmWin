@@ -124,11 +124,13 @@ namespace PlayPcmWin {
         /// </summary>
         /// <param name="preferredFrames">読み込みたいフレーム数。1Mフレームぐらいにすると良い。(このフレーム数のデータが戻るとは限らない)</param>
         /// <returns>PCMデータが詰まったバイト列。0要素の配列の場合、もう終わり。</returns>
-        public byte[] StreamReadOne(int preferredFrames) {
+        public byte[] StreamReadOne(int preferredFrames, out int ercd) {
+            ercd = 0;
+
             byte[] result;
             switch (m_format) {
             case Format.FLAC:
-                result = mFlacR.ReadStreamReadOne(preferredFrames);
+                result = mFlacR.ReadStreamReadOne(preferredFrames, out ercd);
                 break;
             case Format.AIFF:
                 result = mAiffR.ReadStreamReadOne(mBr, preferredFrames);
