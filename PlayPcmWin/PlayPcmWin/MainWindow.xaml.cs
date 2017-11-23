@@ -888,14 +888,8 @@ namespace PlayPcmWin
             dataGridPlayList.UpdateLayout();
             UpdateCoverart();
 
-            if (m_preference.RefrainRedraw) {
-                // 再描画抑制モード
-                slider1.IsEnabled = false;
-                labelPlayingTime.Content = PLAYING_TIME_UNKNOWN;
-            } else {
-                slider1.IsEnabled = true;
-                labelPlayingTime.Content = PLAYING_TIME_ALLZERO;
-            }
+            slider1.IsEnabled = true;
+            labelPlayingTime.Content = PLAYING_TIME_ALLZERO;
 
             switch (m_state) {
             case State.再生リストなし:
@@ -2690,10 +2684,6 @@ namespace PlayPcmWin
             var bw = ev.bw;
 
             if (null == ap.wasapi) {
-                return;
-            }
-
-            if (m_preference.RefrainRedraw) {
                 return;
             }
 

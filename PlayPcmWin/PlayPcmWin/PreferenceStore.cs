@@ -77,6 +77,8 @@ namespace PlayPcmWin {
         public bool StorePlaylistContent { get; set; }
         public bool DispCoverart { get; set; }
         public bool ReduceVolume { get; set; }
+
+        // RefrainRedraw is deprecated 
         public bool RefrainRedraw { get; set; }
         public bool Shuffle { get; set; }
         public int ZeroFlushMillisec { get; set; }
