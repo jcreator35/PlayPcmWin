@@ -127,6 +127,9 @@ namespace PlayPcmWin {
         public byte[] StreamReadOne(int preferredFrames, out int ercd) {
             ercd = 0;
 
+            // FLACのデコーダーはエラーコードを戻すことがある。
+            // 他のデコーダーは、データ領域に構造がないので読み出しエラーは特にない。System.IOExceptionが起きることはある。
+
             byte[] result;
             switch (m_format) {
             case Format.FLAC:

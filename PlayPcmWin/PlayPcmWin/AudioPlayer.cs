@@ -206,8 +206,8 @@ namespace PlayPcmWin {
                         cancelProcessed = true;
                     } else {
                         r.hr = wasapi.Stop();
-                        args.Cancel = true;
                     }
+                    args.Cancel = true;
                 }
             }
 
@@ -219,38 +219,64 @@ namespace PlayPcmWin {
             }
 
             // 停止完了後タスクの処理は、ここではなく、PlayRunWorkerCompletedで行う。
+            Console.WriteLine("PlayDoWork() end");
         }
 
         private void PlayProgressChanged(object sender, ProgressChangedEventArgs e) {
             var ev = new PlayEvent(PlayEventType.ProgressChanged ,0, m_playWorker);
-            m_playEventCb(ev);
+            CallEventCallback(ev);
         }
 
         private void PlayRunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
-            var r = e.Result as PlayDoWorkResult;
-            PlayEventType t = (e.Cancelled) ? PlayEventType.Finished : PlayEventType.Finished;
+            PlayDoWorkResult r = new PlayDoWorkResult();
+            r.hr = 0;
+
+            if (!e.Cancelled) {
+                r = e.Result as PlayDoWorkResult;
+            }
+
+            PlayEventType t = (e.Cancelled) ? PlayEventType.Canceled : PlayEventType.Finished;
             var ev = new PlayEvent(t, r.hr, m_playWorker);
-            m_playEventCb(ev);
+            CallEventCallback(ev);
         }
 
-        public void StartPlayWorker(PlayEventCallback cb) {
+        private void CallEventCallback(PlayEvent ev) {
+            if (m_playEventCb != null) {
+                m_playEventCb(ev);
+            }
+        }
+
+        private void StartPlayWorker(PlayEventCallback cb) {
             m_playEventCb = cb;
 
             m_playWorker.RunWorkerAsync();
+        }
+
+        public void SetPlayEventCallback(PlayEventCallback cb) {
+            m_playEventCb = cb;
         }
 
         public bool IsPlayWorkerBusy() {
             return m_playWorker.IsBusy;
         }
 
+        public int StartPlayback(int wavDataId, PlayEventCallback cb) {
+            int hr = wasapi.StartPlayback(wavDataId);
+            StartPlayWorker(cb);
+            return hr;
+        }
+
         public bool PlayStop(bool stopGently) {
-            if (!m_playWorker.IsBusy) {
-                return false;
+            if (m_playWorker.IsBusy) {
+                m_bStopGently = stopGently;
+                m_playWorker.CancelAsync();
+                return true;
             }
 
-            m_bStopGently = stopGently;
-            m_playWorker.CancelAsync();
+            // StartPlayback()が呼ばれたが、例外が出てスレッドが開始していない場合。
+            wasapi.Stop();
             return true;
         }
+
     }
 }

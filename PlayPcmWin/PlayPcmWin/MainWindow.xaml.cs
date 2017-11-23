@@ -1126,39 +1126,46 @@ namespace PlayPcmWin
         }
 
         private void Term() {
-            DeleteKeyListener();
-            FileDisappearCheck.Clear();
 
-            if (ap.wasapi != null) {
-                // バックグラウンドスレッドにjoinして、完全に止まるまで待ち合わせするブロッキング版のStopを呼ぶ。
-                // そうしないと、バックグラウンドスレッドによって使用中のオブジェクトが
-                // この後のUnsetupの呼出によって開放されてしまい問題が起きる。
-                StopBlocking();
-                UnsetupDevice();
-                ap.WasapiTerm();
+            try {
+                DeleteKeyListener();
+                FileDisappearCheck.Clear();
 
-                // ウィンドウの位置とサイズを保存
-                m_preference.SetMainWindowLeftTopWidthHeight(Left, Top, Width, Height);
+                if (ap.wasapi != null) {
+                    // バックグラウンドスレッドにjoinして、完全に止まるまで待ち合わせするブロッキング版のStopを呼ぶ。
+                    // そうしないと、バックグラウンドスレッドによって使用中のオブジェクトが
+                    // この後のUnsetupの呼出によって開放されてしまい問題が起きる。
+                    ap.SetPlayEventCallback(null);
+                    StopBlocking();
+                    UnsetupDevice();
+                    ap.WasapiTerm();
 
-                // 再生リピート設定を保存
-                SetPreferencePlaymodeFromComboBox();
+                    // ウィンドウの位置とサイズを保存
+                    m_preference.SetMainWindowLeftTopWidthHeight(Left, Top, Width, Height);
 
-                // 設定画面の表示状態を保存
-                m_preference.SettingsIsExpanded = expanderSettings.IsExpanded;
+                    // 再生リピート設定を保存
+                    SetPreferencePlaymodeFromComboBox();
 
-                // 再生リストの列の並び順を覚える
-                SavePlaylistColumnOrderToPreference();
+                    // 設定画面の表示状態を保存
+                    m_preference.SettingsIsExpanded = expanderSettings.IsExpanded;
 
-                // 最後に再生していた曲の番号
-                m_preference.LastPlayItemIndex = dataGridPlayList.SelectedIndex;
+                    // 再生リストの列の並び順を覚える
+                    SavePlaylistColumnOrderToPreference();
 
-                // 設定ファイルを書き出す。
-                PreferenceStore.Save(m_preference);
+                    // 最後に再生していた曲の番号
+                    m_preference.LastPlayItemIndex = dataGridPlayList.SelectedIndex;
 
-                PreferenceAudioFilterStore.Save(mPreferenceAudioFilterList);
+                    // 設定ファイルを書き出す。
+                    PreferenceStore.Save(m_preference);
 
-                // 再生リストをIsolatedStorageに保存。
-                SavePpwPlaylist(string.Empty);
+                    PreferenceAudioFilterStore.Save(mPreferenceAudioFilterList);
+
+                    // 再生リストをIsolatedStorageに保存。
+                    SavePpwPlaylist(string.Empty);
+                }
+
+            } catch (System.Exception ex) {
+                Console.WriteLine("{0}", ex);
             }
         }
 
@@ -2625,7 +2632,10 @@ namespace PlayPcmWin
             m_sw.Reset();
             m_sw.Start();
 
-            int hr = ap.wasapi.StartPlayback(wavDataId);
+            // 再生バックグラウンドタスク開始。PlayDoWorkが実行される。
+            // 再生バックグラウンドタスクを止めるには、Stop()を呼ぶ。
+            // 再生バックグラウンドタスクが止まったらPlayRunWorkerCompletedが呼ばれる。
+            int hr = ap.StartPlayback(wavDataId, new AudioPlayer.PlayEventCallback(PlayEventHandler));
             {
                 var stat = ap.wasapi.GetWorkerThreadSetupResult();
 
@@ -2653,10 +2663,6 @@ namespace PlayPcmWin
                 return false;
             }
 
-            // 再生バックグラウンドタスク開始。PlayDoWorkが実行される。
-            // 再生バックグラウンドタスクを止めるには、Stop()を呼ぶ。
-            // 再生バックグラウンドタスクが止まったらPlayRunWorkerCompletedが呼ばれる。
-            ap.StartPlayWorker(new AudioPlayer.PlayEventCallback(PlayEventHandler));
             return true;
         }
 
