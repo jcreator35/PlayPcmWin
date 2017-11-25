@@ -266,10 +266,20 @@ namespace PlayPcmWin {
             return hr;
         }
 
+        /// 再生を停止し、再生ワーカースレッドをキャンセルする。ワーカースレッドの停止を待合せる。
         public bool PlayStop(bool stopGently) {
             if (m_playWorker.IsBusy) {
                 m_bStopGently = stopGently;
                 m_playWorker.CancelAsync();
+
+                // バックグラウンドスレッドにjoinして、完全に止まるまで待ち合わせする。
+                while (m_playWorker.IsBusy) {
+                    System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(
+                            System.Windows.Threading.DispatcherPriority.Background,
+                            new System.Threading.ThreadStart(delegate { }));
+                    System.Threading.Thread.Sleep(100);
+                }
+
                 return true;
             }
 

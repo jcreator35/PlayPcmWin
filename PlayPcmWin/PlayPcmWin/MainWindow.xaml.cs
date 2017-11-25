@@ -912,6 +912,7 @@ namespace PlayPcmWin
                     dataGridPlayList.SelectedIndex = 0;
                 }
                 statusBarText.Content = Properties.Resources.MainStatusPressPlayButton;
+                progressBar1.Visibility = System.Windows.Visibility.Collapsed;
                 break;
             case State.デバイスSetup完了:
                 // 一覧のクリアーとデバイスの選択、再生リストの作成関連を押せなくする。
@@ -1059,14 +1060,12 @@ namespace PlayPcmWin
         }
 
         /// <summary>
-        /// 再生中の場合は、停止を開始する。
-        /// (ブロックしないのでこの関数から抜けたときに停止完了していないことがある)
-        /// 
+        /// 再生中の場合は、停止。
         /// 再生中でない場合は、再生停止後イベントtaskAfterStopをここで実行する。
         /// 再生中の場合は、停止完了後にtaskAfterStopを実行する。
         /// </summary>
         /// <param name="taskAfterStop"></param>
-        void StopAsync(NextTask taskAfterStop, bool stopGently) {
+        void Stop(NextTask taskAfterStop, bool stopGently) {
             m_taskAfterStop = taskAfterStop;
 
             if (ap.IsPlayWorkerBusy()) {
@@ -1080,16 +1079,8 @@ namespace PlayPcmWin
 
         void StopBlocking()
         {
-            StopAsync(new NextTask(NextTaskType.None), false);
+            Stop(new NextTask(NextTaskType.None), false);
             m_readFileWorker.CancelAsync();
-
-            // バックグラウンドスレッドにjoinして、完全に止まるまで待ち合わせする。
-            while (ap.IsPlayWorkerBusy()) {
-                System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(
-                        System.Windows.Threading.DispatcherPriority.Background,
-                        new System.Threading.ThreadStart(delegate { }));
-                System.Threading.Thread.Sleep(100);
-            }
 
             while (m_readFileWorker.IsBusy) {
                 System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(
@@ -1810,7 +1801,8 @@ namespace PlayPcmWin
         private void ReadFileDoWork(object o, DoWorkEventArgs args) {
             var bw = o as BackgroundWorker;
             int readGroupId = (int)args.Argument;
-            // Console.WriteLine("D: ReadFileSingleDoWork({0}) started", readGroupId);
+            
+            //Console.WriteLine("D: ReadFileDoWork({0}) started", readGroupId);
 
             PcmReader.CalcMD5SumIfAvailable = m_preference.VerifyFlacMD5Sum;
 
@@ -2360,9 +2352,10 @@ namespace PlayPcmWin
             AddLogText(r.message);
 
             if (r.hr < 0) {
+                // ファイル読み込みが失敗した。
+                Console.WriteLine("ReadFileRunWorkerCompleted with error");
                 MessageBox.Show(r.message);
-                Exit();
-                return;
+                m_taskAfterStop.Set(NextTaskType.None);
             }
 
             if (0 < r.individualResultList.Count) {
@@ -2394,8 +2387,8 @@ namespace PlayPcmWin
                 ReadStartPlayByWavDataId(wavDataId);
                 break;
             default:
-                // ファイル読み込み完了後、何もすることはない。
-                ChangeState(State.ファイル読み込み完了);
+                // 再生断念。
+                ChangeState(State.再生リストあり);
                 UpdateUIStatus();
                 break;
             }
@@ -2422,6 +2415,8 @@ namespace PlayPcmWin
         /// 読み込みが完了したらReadFileRunWorkerCompletedが呼ばれる。
         /// </summary>
         private void StartReadFiles(int loadGroupId) {
+            //Console.WriteLine("StartReadFiles({0})", loadGroupId);
+
             progressBar1.Visibility = System.Windows.Visibility.Visible;
             progressBar1.Value = 0;
 
@@ -2555,7 +2550,8 @@ namespace PlayPcmWin
             // m_LoadedGroupIdの再生が自然に完了したら、行うタスクを決定する。
             UpdateNextTask();
 
-            if (!SetupDevice(pcmData.GroupId)) {
+            if (!SetupDevice(pcmData.GroupId) ||
+                    !StartPlay(wavDataId)) {
                 //dataGridPlayList.SelectedIndex = 0;
                 ChangeState(State.ファイル読み込み完了);
 
@@ -2563,7 +2559,6 @@ namespace PlayPcmWin
                 UpdateDeviceList();
                 return false;
             }
-            StartPlay(wavDataId);
 
             if (nextTask == NextTaskType.PlayPauseSpecifiedGroup) {
                 ButtonPauseClicked();
@@ -2650,10 +2645,14 @@ namespace PlayPcmWin
                 }
             }
 
-            AddLogText(string.Format(CultureInfo.InvariantCulture, "ap.wasapi.StartPlayback({0}) {1:X8}{2}", wavDataId, hr, Environment.NewLine));
+            AddLogText(string.Format(CultureInfo.InvariantCulture,
+                    "ap.wasapi.StartPlayback({0}) {1:X8}{2}", wavDataId, hr, Environment.NewLine));
             if (hr < 0) {
-                MessageBox.Show(string.Format(CultureInfo.InvariantCulture, Properties.Resources.PlayStartFailed + "！{0:X8}  {1}", hr, WasapiCS.GetErrorMessage(hr)));
-                Exit();
+                m_taskAfterStop.Set(NextTaskType.None);
+
+                MessageBox.Show(string.Format(CultureInfo.InvariantCulture,
+                        Properties.Resources.PlayStartFailed + "！{0:X8}  {1}", hr, WasapiCS.GetErrorMessage(hr)));
+                ap.PlayStop(false);
                 return false;
             }
 
@@ -2832,6 +2831,7 @@ namespace PlayPcmWin
         private void PerformPlayCompletedTask() {
             if (m_FileDisappearedProcAfter && 0 < RemoveDisappearedFilesFromPlayList("")) {
                 // 1個以上ファイルが消えた。再生終了後タスクを実行せずに停止する。
+                
                 m_taskAfterStop.Type = NextTaskType.None;
             } else {
                 bool rv = PerformTaskAfterStop();
@@ -2864,19 +2864,21 @@ namespace PlayPcmWin
         /// 再生終了。
         /// </summary>
         private void PlayRunWorkerCompleted(AudioPlayer.PlayEvent ev) {
+            m_sw.Stop();
+
             if (ev.eventType == AudioPlayer.PlayEventType.Canceled) {
                 // 再生中に×ボタンを押すとここに来る。
+                // 再生中に次の曲ボタンを押した場合もここに来る。
+                Console.WriteLine("PlayRunWorkerCompleted with cancel");
             }
-
-            m_sw.Stop();
 
             if (ev.ercd < 0) {
                 AddLogText(string.Format(CultureInfo.InvariantCulture, "Error: play stopped with error {0:X8} {1}{2}",
                     ev.ercd, WasapiCS.GetErrorMessage(ev.ercd), Environment.NewLine));
-            } else {
-                AddLogText(string.Format(CultureInfo.InvariantCulture, Properties.Resources.PlayCompletedElapsedTimeIs + " {0}{1}", m_sw.Elapsed, Environment.NewLine));
+                return;
             }
 
+            AddLogText(string.Format(CultureInfo.InvariantCulture, Properties.Resources.PlayCompletedElapsedTimeIs + " {0}{1}", m_sw.Elapsed, Environment.NewLine));
             PerformPlayCompletedTask();
         }
 
@@ -2885,7 +2887,7 @@ namespace PlayPcmWin
             UpdateUIStatus();
 
             // 停止ボタンで停止した場合は、停止後何もしない。
-            StopAsync(new NextTask(NextTaskType.None), true);
+            Stop(new NextTask(NextTaskType.None), true);
             AddLogText(string.Format(CultureInfo.InvariantCulture, "ap.wasapi.Stop(){0}", Environment.NewLine));
         }
 
@@ -3136,7 +3138,7 @@ namespace PlayPcmWin
             var pcmData = ap.PcmDataListForPlay.FindById(wavDataId);
             if (null == pcmData) {
                 // 再生リストの中に次に再生する曲が見つからない。1曲再生の時起きる。
-                StopAsync(new NextTask(nextTask, 0, wavDataId), true);
+                Stop(new NextTask(nextTask, 0, wavDataId), true);
                 return;
             }
 
@@ -3152,7 +3154,7 @@ namespace PlayPcmWin
                 AddLogText(string.Format(CultureInfo.InvariantCulture, "ap.wasapi.UpdatePlayPcmDataById({0}){1}", wavDataId, Environment.NewLine));
             } else {
                 // ファイルグループが違う場合、再生を停止し、グループを読み直し、再生を再開する。
-                StopAsync(new NextTask(nextTask, groupId, wavDataId), true);
+                Stop(new NextTask(nextTask, groupId, wavDataId), true);
             }
         }
 
@@ -3273,12 +3275,8 @@ namespace PlayPcmWin
         }
 
         private void buttonRemovePlayList_Click(object sender, RoutedEventArgs e) {
-            var selectedItemCount = dataGridPlayList.SelectedItems.Count;
-
             var items = new List<int>();
-            foreach (int item in dataGridPlayList.SelectedItems) {
-                items.Add(item);
-            }
+            items.Add(dataGridPlayList.SelectedIndex);
 
             RemovePlaylistItems(items);
         }
