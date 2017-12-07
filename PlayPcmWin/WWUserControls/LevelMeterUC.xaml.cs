@@ -172,7 +172,8 @@ namespace WWUserControls {
         /// PeakHoldSeconds, YellowLevelDb, ReleaseTimeDbPerSecプロパティの値を更新し、
         /// UIの状態を更新する。
         /// </summary>
-        public void PreferenceToUI(int peakHoldSeconds, int yellowLevelDb, int releaseTimeDbPerSec) {
+        public void PreferenceToUI(int peakHoldSeconds, int yellowLevelDb,
+                int releaseTimeDbPerSec) {
             PeakHoldSeconds = peakHoldSeconds;
             YellowLevelDb = yellowLevelDb;
             ReleaseTimeDbPerSec = releaseTimeDbPerSec;

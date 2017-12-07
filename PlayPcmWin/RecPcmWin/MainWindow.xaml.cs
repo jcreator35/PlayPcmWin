@@ -78,10 +78,10 @@ namespace RecPcmWin {
             groupBoxSampleRate.Header = Properties.Resources.MainSampleRate;
             groupBoxDeviceSelect.Header = Properties.Resources.MainListOfRecordingDevices;
             groupBoxLog.Header = Properties.Resources.MainLog;
-            groupBoxNumOfChannels.Header = Properties.Resources.MainNumOfChannels;
+            labelNumOfChannels.Content = Properties.Resources.MainNumOfChannels;
             groupBoxOperationMode.Header = Properties.Resources.MainOperationMode;
-            groupBoxRecordingBufferSize.Header = Properties.Resources.MainRecordingDataSize;
-            groupBoxWasapiBufferSize.Header = Properties.Resources.MainWasapiBufferSize;
+            labelRecordingBufferSize.Content = Properties.Resources.MainRecordingDataSize;
+            labelWasapiBufferSize.Content = Properties.Resources.MainWasapiBufferSize;
             groupBoxRecordingControl.Header = Properties.Resources.MainRecordingControl;
             groupBoxQuantizationBitRate.Header = Properties.Resources.MainQuantizationBitRate;
             groupBoxLevelMeter.Header = Properties.Resources.MainLevelMeter;
@@ -94,7 +94,6 @@ namespace RecPcmWin {
             buttonDeselectDevice.Content = Properties.Resources.MainDeselect;
             labelLanguage.Content = Properties.Resources.MainLanguage;
             checkBoxSetDwChannelMask.Content = Properties.Resources.MainCheckboxSetDwChannelMask;
-            groupBoxDwChannelMask.Header = Properties.Resources.MainGroupBoxDwChannelMask;
             groupBoxMasterVolumeControl.Header = Properties.Resources.MainGroupBoxMasterVolumeControl;
             checkBoxLevelMeterUpdateWhileRecording.Content = Properties.Resources.MainLevelMeterUpdateWhileRecording;
             mLevelMeterUC.UpdateUITexts();
