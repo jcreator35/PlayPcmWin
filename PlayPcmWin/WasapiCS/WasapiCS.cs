@@ -662,7 +662,14 @@ namespace Wasapi {
 
         public void ScalePcmAmplitude(double scale) {
             WasapiIO_ScalePcmAmplitude(mId, scale);
+            mPcmScale = scale;
         }
+
+        public double GetScalePcmAmplitude() {
+            return mPcmScale;
+        }
+
+        private double mPcmScale = 1.0;
 
         public bool AddPlayPcmDataEnd() {
             return WasapiIO_AddPlayPcmDataEnd(mId);

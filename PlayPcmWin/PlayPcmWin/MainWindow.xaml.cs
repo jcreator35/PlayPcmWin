@@ -939,12 +939,13 @@ namespace PlayPcmWin
                                 SampleFormatTypeToStr(stat.DeviceSampleFormat),
                                 stat.DeviceNumChannels, stat.DeviceSampleRate * 0.000016);
                     } else {
-                        statusBarText.Content = string.Format(CultureInfo.InvariantCulture, "{0} WASAPI{1} {2}kHz {3} {4}ch PCM.",
+                        statusBarText.Content = string.Format(CultureInfo.InvariantCulture, "{0} WASAPI{1} {2}kHz {3} {4}ch PCM {5:F2}dB.",
                                 Properties.Resources.MainStatusPlaying,
                                 radioButtonShared.IsChecked == true ? Properties.Resources.Shared : Properties.Resources.Exclusive,
                                 stat.DeviceSampleRate * 0.001,
                                 SampleFormatTypeToStr(stat.DeviceSampleFormat),
-                                stat.DeviceNumChannels);
+                                stat.DeviceNumChannels,
+                                20.0 * Math.Log10(ap.wasapi.GetScalePcmAmplitude()));
                     }
 
                     progressBar1.Visibility = System.Windows.Visibility.Collapsed;
@@ -1874,10 +1875,12 @@ namespace PlayPcmWin
                     return;
                 }
 
+                ap.wasapi.ScalePcmAmplitude(1.0);
                 if (m_preference.ReduceVolume) {
                     // PCMの音量を6dB下げる。
                     // もしもDSDの時は下げない。
-                    ap.wasapi.ScalePcmAmplitude(0.5);
+                    double scale = m_preference.ReduceVolumeScale();
+                    ap.wasapi.ScalePcmAmplitude(scale);
                 } else if (m_preference.WasapiSharedOrExclusive == WasapiSharedOrExclusiveType.Shared
                         && m_preference.SootheLimiterApo) {
                     // Limiter APO対策の音量制限。

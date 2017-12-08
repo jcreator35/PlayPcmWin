@@ -1344,7 +1344,7 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Reduce PCM volume by 6dB.
+        ///   Looks up a localized string similar to Reduce PCM volume:.
         /// </summary>
         internal static string SettingsCheckBoxReduceVolume {
             get {

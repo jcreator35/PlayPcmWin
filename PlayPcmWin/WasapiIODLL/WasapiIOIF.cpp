@@ -172,6 +172,11 @@ WasapiIO::ScanPcmMaxAbsAmplitude(void)
 void
 WasapiIO::ScalePcmAmplitude(double scale)
 {
+    if (scale == 1.0) {
+        // Œµ–§‚É1.0”{‚Ì‚Æ‚«A‰½‚à•Ï‚í‚ç‚È‚¢‚Ì‚Åˆ—‚ğÈ—ª‚·‚éB
+        return;
+    }
+
     for (int i=0; i<playPcmGroup.Count(); ++i) {
         WWPcmData *pcm = playPcmGroup.NthPcmData(i);
         assert(pcm);

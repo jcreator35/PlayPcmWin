@@ -77,6 +77,7 @@ namespace PlayPcmWin {
         public bool StorePlaylistContent { get; set; }
         public bool DispCoverart { get; set; }
         public bool ReduceVolume { get; set; }
+        public int ReduceVolumeByDb { get; set; }
 
         // RefrainRedraw is deprecated 
         public bool RefrainRedraw { get; set; }
@@ -179,6 +180,7 @@ namespace PlayPcmWin {
             StorePlaylistContent = true;
             DispCoverart = true;
             ReduceVolume = false;
+            ReduceVolumeByDb = 6;
             RefrainRedraw = false;
             ZeroFlushMillisec = 500;
             TimePeriodHundredNanosec = TIME_PERIOD_ONE_MILLISEC;
@@ -226,6 +228,35 @@ namespace PlayPcmWin {
             MainWindowTop    = top;
             MainWindowWidth  = width;
             MainWindowHeight = height;
+        }
+
+        public double ReduceVolumeScale() {
+            if (!ReduceVolume) {
+                return 1.0;
+            }
+
+            double scale = 1.0;
+            switch (ReduceVolumeByDb) {
+            case 2:
+                scale = 0.7943282347243; // -2dB
+                break;
+            case 4:
+                scale = 0.6309573444802; // -4dB
+                break;
+            case 6:
+                scale = 0.5; // -6.02dB
+                break;
+            case 12:
+                scale = 0.25; // -12.04dB
+                break;
+            case 16:
+                scale = 0.1584893192461; // -16dB
+                break;
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                break;
+            }
+            return scale;
         }
     }
 
