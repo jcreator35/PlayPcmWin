@@ -212,11 +212,10 @@ WasapiIO::StartRecording(void)
 HRESULT
 WasapiIO::OnDeviceStateChanged(LPCWSTR pwstrDeviceId, DWORD dwNewState)
 {
-    (void)dwNewState;
     // 再生中で、再生しているデバイスの状態が変わったときは
     // DeviceStateChanged()は再生を停止しなければならない
     if (stateChangedCallback) {
-        stateChangedCallback(pwstrDeviceId);
+        stateChangedCallback(pwstrDeviceId, dwNewState);
     }
 
     return S_OK;

@@ -203,8 +203,20 @@ namespace Wasapi {
         private extern static bool
         WasapiIO_GetPlayCursorPosition(int instanceId, int usageType, out WasapiIoCursorLocation a);
 
+        public enum WasapiDeviceState {
+            Active = 1,
+            Disabled = 2,
+            NotPresent = 4,
+            Unplugged = 8,
+        };
+
+        /// <summary>
+        /// デバイスが消えたとかのイベント。
+        /// </summary>
+        /// <param name="idStr">デバイスのID。</param>
+        /// <param name="dwNewState">WasapiDeviceState型の値のOR</param>
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-        public delegate void StateChangedCallback(StringBuilder idStr);
+        public delegate void StateChangedCallback(StringBuilder idStr, int dwNewState);
 
         [DllImport("WasapiIODLL.dll")]
         private static extern void WasapiIO_RegisterStateChangedCallback(int instanceId, StateChangedCallback callback);

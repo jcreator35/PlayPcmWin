@@ -3482,7 +3482,7 @@ namespace PlayPcmWin
         /// <summary>
         /// デバイスが突然消えたとか、突然増えたとかのイベント。
         /// </summary>
-        private void WasapiStatusChanged(StringBuilder idStr) {
+        private void WasapiStatusChanged(StringBuilder idStr, int dwNewState) {
             //Console.WriteLine("WasapiStatusChanged {0}", idStr);
             Dispatcher.BeginInvoke(new Action(delegate() {
                 // AddLogText(string.Format(CultureInfo.InvariantCulture, Properties.Resources.DeviceStateChanged + Environment.NewLine, idStr));

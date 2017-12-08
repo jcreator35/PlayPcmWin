@@ -74,6 +74,10 @@ namespace RecPcmWin {
             return mCapturedPcmData;
         }
 
+        public void RegisterStateChangedCallback(Wasapi.WasapiCS.StateChangedCallback callback) {
+            mWasapi.RegisterStateChangedCallback(callback);
+        }
+
         private void CsCaptureCallback(byte[] pcmData) {
             if (pcmData == null || pcmData.Length == 0) {
                 return;
@@ -105,6 +109,12 @@ namespace RecPcmWin {
             return mCapturedPcmData != null;
         }
 
+        private bool mDeviceInUse = false;
+
+        public bool IsDeviceInUse() {
+            return mDeviceInUse;
+        }
+
         public int Init() {
             int hr = mWasapi.Init();
             if (hr < 0) {
@@ -114,6 +124,7 @@ namespace RecPcmWin {
             mCsCaptureCallback = new WasapiCS.CaptureCallback(CsCaptureCallback);
             mWasapi.RegisterCaptureCallback(mCsCaptureCallback);
 
+            mDeviceInUse = false;
             return hr;
         }
 
@@ -123,6 +134,7 @@ namespace RecPcmWin {
             mWasapi.Term();
             ReleaseCaptureMemory();
             mWasapi = null;
+            mDeviceInUse = false;
         }
 
         public int EnumerateRecDeviceNames(List<WasapiCS.DeviceAttributes> deviceList) {
@@ -154,12 +166,16 @@ namespace RecPcmWin {
             mSampleFormat = sampleFormatType;
             mSampleRate = sampleRate;
             mNumChannels = numChannels;
+
+            mDeviceInUse = true;
+
             return hr;
         }
 
         public void Unsetup() {
             mWasapi.Stop();
             mWasapi.Unsetup();
+            mDeviceInUse = false;
         }
 
         public void Stop() {

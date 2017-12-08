@@ -6,7 +6,7 @@
 
 extern "C" {
 
-typedef void (__stdcall WWStateChanged)(LPCWSTR deviceIdStr);
+typedef void (__stdcall WWStateChanged)(LPCWSTR deviceIdStr, int dwNewState);
 
 /// @param instanceId_return [out] instance id
 /// @return 0: success. -1 or less: failed. returns error code HRESULT

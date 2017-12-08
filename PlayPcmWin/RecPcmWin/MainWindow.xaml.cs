@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using Wasapi;
+using System.Text;
 
 namespace RecPcmWin {
     public partial class MainWindow : Window {
@@ -24,6 +25,8 @@ namespace RecPcmWin {
         private List<WasapiCS.DeviceAttributes> mDeviceList = null;
         private LevelMeter mLevelMeter;
         private object mLock = new Object();
+        private bool mDeviceListUpdatePending = false;
+        private Wasapi.WasapiCS.StateChangedCallback mWasapiStateChangedDelegate;
 
         private readonly int[] gComboBoxItemSampleRate = new int[] {
             44100,
@@ -186,8 +189,9 @@ namespace RecPcmWin {
 
         private void CreateDeviceList() {
             int hr;
-
             int selectedIndex = -1;
+
+            mDeviceListUpdatePending = false;
 
             listBoxDevices.Items.Clear();
 
@@ -414,6 +418,10 @@ namespace RecPcmWin {
             buttonDeselectDevice.IsEnabled = false;
             sliderMasterVolume.IsEnabled = false;
             AddLog(string.Format("wasapi.Stop()\r\n"));
+
+            if (mDeviceListUpdatePending) {
+                CreateDeviceList();
+            }
         }
 
         private void buttonRec_Click(object sender, RoutedEventArgs e) {
@@ -484,6 +492,10 @@ namespace RecPcmWin {
             buttonStop.IsEnabled = false;
             groupBoxWasapiSettings.IsEnabled = true;
             mLevelMeterUC.ResetLevelMeter();
+
+            if (mDeviceListUpdatePending) {
+                CreateDeviceList();
+            }
         }
 
         private void DoWork(object o, DoWorkEventArgs args) {
@@ -683,7 +695,42 @@ namespace RecPcmWin {
 
             mLevelMeterUC.SetParamChangedCallback(LevelMeterUCParamChanged);
 
+            mWasapiStateChangedDelegate = new Wasapi.WasapiCS.StateChangedCallback(WasapiStatusChanged);
+            mWasapiCtrl.RegisterStateChangedCallback(mWasapiStateChangedDelegate);
+
             mInitialized = true;
+        }
+
+        /// <summary>
+        /// デバイスが突然消えたとか、突然増えたとかのイベント。
+        /// </summary>
+        private void WasapiStatusChanged(StringBuilder idStr, int dwNewState) {
+            Dispatcher.BeginInvoke(new Action(delegate() {
+                if (mWasapiCtrl.IsDeviceInUse()) {
+                    // デバイス使用中。使用終了したらデバイス一覧を更新する。
+                    mDeviceListUpdatePending = true;
+                } else {
+                    // 直ちにデバイス一覧を更新する。
+
+                    string deviceState = "";
+                    if (0 != (dwNewState & (int)WasapiCS.WasapiDeviceState.Active)) {
+                        deviceState += "Active ";
+                    }
+                    if (0 != (dwNewState & (int)WasapiCS.WasapiDeviceState.Disabled)) {
+                        deviceState += "Disabled ";
+                    }
+                    if (0 != (dwNewState & (int)WasapiCS.WasapiDeviceState.NotPresent)) {
+                        deviceState += "NotPresent ";
+                    }
+                    if (0 != (dwNewState & (int)WasapiCS.WasapiDeviceState.Unplugged)) {
+                        deviceState += "Unplugged ";
+                    }
+
+                    AddLog(string.Format("WasapiStatusChanged {0} {1}\n", idStr, deviceState));
+
+                    CreateDeviceList();
+                }
+            }));
         }
 
         /// <summary>

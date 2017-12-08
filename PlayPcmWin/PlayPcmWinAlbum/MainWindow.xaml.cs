@@ -981,7 +981,7 @@ namespace PlayPcmWinAlbum {
         /// <summary>
         /// デバイスが突然消えたとか、突然増えたとかのイベント。
         /// </summary>
-        private void OnWasapiStatusChanged(StringBuilder idStr) {
+        private void OnWasapiStatusChanged(StringBuilder idStr, int dwNewState) {
             Console.WriteLine("OnWasapiStatusChanged {0}", idStr);
             Dispatcher.BeginInvoke(new Action(delegate() {
                 // AddLogText(string.Format(CultureInfo.InvariantCulture, Properties.Resources.DeviceStateChanged + Environment.NewLine, idStr));
