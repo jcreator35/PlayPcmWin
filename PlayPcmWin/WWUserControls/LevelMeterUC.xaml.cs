@@ -334,8 +334,8 @@ namespace WWUserControls {
                     rectanglePeakL.Fill = DbToBrush(peakHoldDb[0]);
                     rectanglePeakR.Fill = DbToBrush(peakHoldDb[1]);
 
-                    textBlockLevelMeterL.Text = string.Format(CultureInfo.CurrentCulture, "  L\n{0}", DbToString(peakDb[0]));
-                    textBlockLevelMeterR.Text = string.Format(CultureInfo.CurrentCulture, "  R\n{0}", DbToString(peakDb[1]));
+                    textBlockLevelMeterL.Text = string.Format(CultureInfo.CurrentCulture, "  L\n{0}", DbToString(peakHoldDb[0]));
+                    textBlockLevelMeterR.Text = string.Format(CultureInfo.CurrentCulture, "  R\n{0}", DbToString(peakHoldDb[1]));
                 }
                 break;
             case 8: {
@@ -349,7 +349,7 @@ namespace WWUserControls {
 
                         mRectanglePeak8chArray[ch].Fill = DbToBrush(peakHoldDb[ch]);
 
-                        mTextBlockLevelMeter8chArray[ch].Text = string.Format(CultureInfo.CurrentCulture, "{0}", DbToString(peakDb[ch]));
+                        mTextBlockLevelMeter8chArray[ch].Text = string.Format(CultureInfo.CurrentCulture, "{0}", DbToString(peakHoldDb[ch]));
                     }
                 }
                 break;
