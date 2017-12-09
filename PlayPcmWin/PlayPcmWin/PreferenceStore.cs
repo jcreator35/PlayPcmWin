@@ -246,12 +246,6 @@ namespace PlayPcmWin {
             case 6:
                 scale = 0.5; // -6.02dB
                 break;
-            case 12:
-                scale = 0.25; // -12.04dB
-                break;
-            case 16:
-                scale = 0.1584893192461; // -16dB
-                break;
             default:
                 System.Diagnostics.Debug.Assert(false);
                 break;

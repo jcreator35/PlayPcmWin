@@ -175,8 +175,6 @@
                                 <ComboBoxItem Content="-2" />
                                 <ComboBoxItem Content="-4" />
                                 <ComboBoxItem Content="-6.02" IsSelected="True" />
-                                <ComboBoxItem Content="-12.04" />
-                                <ComboBoxItem Content="-16" />
                             </ComboBox>
                         </Grid>
                     </GroupBox>

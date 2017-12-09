@@ -179,12 +179,6 @@ namespace PlayPcmWin {
             default:
                 comboBoxReduceVolumeByDb.SelectedIndex = 2;
                 break;
-            case 12: // -12dB
-                comboBoxReduceVolumeByDb.SelectedIndex = 3;
-                break;
-            case 16: // -16dB
-                comboBoxReduceVolumeByDb.SelectedIndex = 4;
-                break;
             }
 
             checkBoxParallelRead.IsChecked = preference.ParallelRead;
@@ -393,12 +387,6 @@ namespace PlayPcmWin {
                 break;
             case 2: // 6dB
                 m_preference.ReduceVolumeByDb = 6;
-                break;
-            case 3: // 12dB
-                m_preference.ReduceVolumeByDb = 12;
-                break;
-            case 4: // 16dB
-                m_preference.ReduceVolumeByDb = 16;
                 break;
             default:
                 System.Diagnostics.Debug.Assert(false);
