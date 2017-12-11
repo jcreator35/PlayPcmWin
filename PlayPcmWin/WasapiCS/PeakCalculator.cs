@@ -80,7 +80,9 @@ namespace Wasapi {
 
         public void UpdatePeakDbTo(double v) {
             PeakDb = v;
-            PeakHoldDb = v;
+            if (PeakHoldDb < v) {
+                PeakHoldDb = v;
+            }
         }
     };
 }
