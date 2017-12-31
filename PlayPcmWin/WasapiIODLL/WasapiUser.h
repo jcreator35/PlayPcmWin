@@ -57,7 +57,9 @@ public:
     void    Term(void);
 
     /// @return HRESULT
-    HRESULT GetMixFormat(IMMDevice *device, WWPcmFormat &mixFormat);
+    HRESULT GetMixFormat(IMMDevice *device, WWPcmFormat *mixFormat);
+
+    HRESULT GetDevicePeriod(IMMDevice *device, int64_t *defaultPeriod, int64_t *minPeriod);
 
     /// @return 0 when the specified sampleFormat is supported
     HRESULT InspectDevice(IMMDevice *device, const WWPcmFormat &pcmFormat);

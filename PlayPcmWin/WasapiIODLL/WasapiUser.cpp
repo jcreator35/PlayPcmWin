@@ -58,9 +58,14 @@ PcmFormatToWfex(const WWPcmFormat &pcmFormat, WAVEFORMATEXTENSIBLE *wfex)
 static void
 WfexToPcmFormat(const WAVEFORMATEXTENSIBLE *wfex, WWPcmFormat &pcmFormat)
 {
-    pcmFormat.Set(wfex->Format.nSamplesPerSec,
-            WWPcmDataSampleFormatTypeGenerate(wfex->Format.wBitsPerSample, wfex->Samples.wValidBitsPerSample, wfex->SubFormat),
-            wfex->Format.nChannels, wfex->dwChannelMask, WWStreamUnknown);
+    pcmFormat.Set(
+            wfex->Format.nSamplesPerSec,
+            WWPcmDataSampleFormatTypeGenerate(wfex->Format.wBitsPerSample,
+            wfex->Samples.wValidBitsPerSample,
+            wfex->SubFormat),
+            wfex->Format.nChannels,
+            wfex->dwChannelMask,
+            WWStreamUnknown);
 }
 
 static EDataFlow
@@ -159,7 +164,7 @@ WasapiUser::Term(void)
 }
 
 HRESULT
-WasapiUser::GetMixFormat(IMMDevice *device, WWPcmFormat &mixFormat_return)
+WasapiUser::GetMixFormat(IMMDevice *device, WWPcmFormat *mixFormat_return)
 {
     HRESULT hr;
     WAVEFORMATEX *waveFormat = nullptr;
@@ -177,7 +182,7 @@ WasapiUser::GetMixFormat(IMMDevice *device, WWPcmFormat &mixFormat_return)
     WWWaveFormatDebug(waveFormat);
     WWWFEXDebug(wfex);
 
-    WfexToPcmFormat(wfex, mixFormat_return);
+    WfexToPcmFormat(wfex, *mixFormat_return);
 
 end:
     SafeRelease(&device);
@@ -187,6 +192,24 @@ end:
         CoTaskMemFree(waveFormat);
         waveFormat = nullptr;
     }
+
+    return hr;
+}
+
+HRESULT
+WasapiUser::GetDevicePeriod(IMMDevice *device, int64_t *defaultPeriod, int64_t *minimumPeriod)
+{
+    HRESULT hr;
+
+    IAudioClient *audioClient = nullptr;
+
+    HRG(device->Activate(__uuidof(IAudioClient), CLSCTX_INPROC_SERVER, nullptr, (void**)&audioClient));
+
+    HRG(audioClient->GetDevicePeriod(defaultPeriod, minimumPeriod));
+
+end:
+    SafeRelease(&device);
+    SafeRelease(&audioClient);
 
     return hr;
 }

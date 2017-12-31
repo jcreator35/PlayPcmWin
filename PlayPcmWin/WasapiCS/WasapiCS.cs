@@ -47,6 +47,18 @@ namespace Wasapi {
         private extern static int
         WasapiIO_GetMixFormat(int instanceId, int deviceId, out MixFormatArgs mixFormat);
 
+
+        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        internal struct DevicePeriodArgs {
+            public long defaultPeriod;
+            public long minimumPeriod;
+        };
+
+        [DllImport("WasapiIODLL.dll")]
+        private extern static int
+        WasapiIO_GetDevicePeriod(int instanceId, int deviceId, out DevicePeriodArgs devicePeriod);
+
+
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
         internal struct InspectArgs {
             public int deviceType;      ///< DeviceType
@@ -572,6 +584,30 @@ namespace Wasapi {
                 return null;
             }
             return new MixFormat(args.sampleRate, (SampleFormatType)args.sampleFormat, args.numChannels, args.dwChannelMask);
+        }
+
+        public class DevicePeriod {
+            /// <summary>
+            /// unit is 100 * nanosec
+            /// </summary>
+            public long defaultPeriod;
+            /// <summary>
+            /// unit is 100 * nanosec
+            /// </summary>
+            public long minimumPeriod;
+            public DevicePeriod(long defaultPeriod, long minimumPeriod) {
+                this.defaultPeriod = defaultPeriod;
+                this.minimumPeriod = minimumPeriod;
+            }
+        }
+
+        public DevicePeriod GetDevicePeriod(int deviceId) {
+            DevicePeriodArgs args;
+            if (WasapiIO_GetDevicePeriod(mId, deviceId, out args) < 0) {
+                return null;
+            }
+
+            return new DevicePeriod(args.defaultPeriod, args.minimumPeriod);
         }
 
         public int InspectDevice(int deviceId, DeviceType dt, int sampleRate, SampleFormatType format, int numChannels, int dwChannelMask) {

@@ -738,7 +738,7 @@ WasapiIO_GetMixFormat(int instanceId, int deviceId, WasapiIoMixFormat &mixFormat
     assert(device);
 
     WWPcmFormat pcmFormat;
-    int hr = self->wasapi.GetMixFormat(device, pcmFormat);
+    int hr = self->wasapi.GetMixFormat(device, &pcmFormat);
     if (SUCCEEDED(hr)) {
         mixFormat_return.sampleFormat = pcmFormat.sampleFormat;
         mixFormat_return.sampleRate = pcmFormat.sampleRate;
@@ -748,6 +748,24 @@ WasapiIO_GetMixFormat(int instanceId, int deviceId, WasapiIoMixFormat &mixFormat
 
     return hr;
 }
+
+__declspec(dllexport)
+HRESULT __stdcall
+WasapiIO_GetDevicePeriod(int instanceId, int deviceId, WasapiIoDevicePeriod &devicePeriod_return)
+{
+    WasapiIO *self = Instance(instanceId);
+    assert(self);
+
+    IMMDevice *device = self->deviceEnumerator.GetDevice(deviceId);
+    assert(device);
+
+    int hr = self->wasapi.GetDevicePeriod(device,
+        &devicePeriod_return.defaultPeriod,
+        &devicePeriod_return.minimumPeriod);
+
+    return hr;
+}
+
 
 __declspec(dllexport)
 int __stdcall

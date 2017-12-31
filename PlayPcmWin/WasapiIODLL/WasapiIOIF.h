@@ -56,6 +56,17 @@ HRESULT __stdcall
 WasapiIO_GetMixFormat(int instanceId, int deviceId, WasapiIoMixFormat &mixFormat_return);
 
 #pragma pack(push, 4)
+struct WasapiIoDevicePeriod {
+    int64_t defaultPeriod;
+    int64_t minimumPeriod;
+};
+#pragma pack(pop)
+
+__declspec(dllexport)
+HRESULT __stdcall
+WasapiIO_GetDevicePeriod(int instanceId, int deviceId, WasapiIoDevicePeriod &devicePeriod_return);
+
+#pragma pack(push, 4)
 struct WasapiIoInspectArgs {
     int deviceType;      ///< WWDeviceType, 0: Play, 1: Rec
     int sampleRate;

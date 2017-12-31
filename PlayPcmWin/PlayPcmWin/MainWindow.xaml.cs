@@ -3012,7 +3012,6 @@ namespace PlayPcmWin
             AddLogText(string.Format(CultureInfo.InvariantCulture, "ap.wasapi.InspectDevice()\r\nDeviceFriendlyName={0}\r\nDeviceIdString={1}{2}",
                 attr.Name, attr.DeviceIdString, Environment.NewLine));
 
-
             foreach (int numChannels in gInspectNumChannels) {
                 int channelMask = WasapiCS.GetTypicalChannelMask(numChannels);
                 AddLogText(string.Format(CultureInfo.InvariantCulture,
@@ -3051,10 +3050,19 @@ namespace PlayPcmWin
 
             var mixFormat = ap.wasapi.GetMixFormat(listBoxDevices.SelectedIndex);
             if (mixFormat == null) {
-                AddLogText(string.Format(CultureInfo.InvariantCulture, "ap.wasapi.GetMixFormat() failed!\n"));
+                AddLogText(string.Format(CultureInfo.InvariantCulture, "IAudioClient::GetMixFormat() failed!\n"));
             } else {
-                AddLogText(string.Format(CultureInfo.InvariantCulture, "ap.wasapi.GetMixFormat() sampleRate={0} sampleFormat={1} numChannels={2} dwChannelMask=0x{3:X}",
+                AddLogText(string.Format(CultureInfo.InvariantCulture, "IAudioClient::GetMixFormat()\n  {0}Hz {2}ch {1}, dwChannelMask=0x{3:X}\n",
                     mixFormat.sampleRate, mixFormat.sampleFormat, mixFormat.numChannels, mixFormat.dwChannelMask));
+            }
+
+            var devicePeriod = ap.wasapi.GetDevicePeriod(listBoxDevices.SelectedIndex);
+            if (devicePeriod == null) {
+                AddLogText(string.Format(CultureInfo.InvariantCulture, "IAudioClient::GetDevicePeriod() failed!\n"));
+            } else {
+                AddLogText(string.Format(CultureInfo.InvariantCulture, "IAudioClient::GetDevicePeriod()\n  default={0}ms, min={1}ms\n",
+                    devicePeriod.defaultPeriod / 10000.0,
+                    devicePeriod.minimumPeriod / 10000.0));
             }
         }
 
