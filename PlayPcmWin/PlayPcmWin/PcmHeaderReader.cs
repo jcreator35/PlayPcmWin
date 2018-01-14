@@ -6,6 +6,7 @@ using System.IO;
 using System.Globalization;
 using WavRWLib2;
 using PcmDataLib;
+using WWMFReaderCs;
 
 namespace PlayPcmWin {
     class PcmHeaderReader {
@@ -291,6 +292,35 @@ namespace PlayPcmWin {
             return result;
         }
 
+        private bool ReadMp3FileHeader(string path) {
+            bool result = false;
+            var pd = new PcmDataLib.PcmData();
+
+            WWMFReader.Metadata meta;
+            int rv = WWMFReader.ReadHeader(path, out meta);
+            if (0 <= rv) {
+                pd.SetFormat(meta.numChannels, meta.bitsPerSample, meta.bitsPerSample, meta.sampleRate,
+                    PcmData.ValueRepresentationType.SInt, meta.numApproxFrames);
+                pd.SampleDataType = PcmDataLib.PcmData.DataType.PCM;
+                pd.DisplayName = meta.title;
+                pd.AlbumTitle = meta.album;
+                pd.ArtistName = meta.artist;
+                pd.ComposerName = meta.composer;
+                if (null != meta.picture) {
+                    pd.SetPicture(meta.picture.Length, meta.picture);
+                }
+
+                if (CheckAddPcmData(path, pd, true)) {
+                    result = true;
+                }
+            } else {
+                LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + " {1}: {2}{3}",
+                        "MP3", rv, path, Environment.NewLine));
+            }
+
+            return result;
+        }
+
         /// <summary>
         /// FLACファイルのヘッダ部分を読み込む。
         /// </summary>
@@ -444,6 +474,11 @@ namespace PlayPcmWin {
                 case ".FLAC":
                     if (mode != ReadHeaderMode.OnlyMetaFile) {
                         errCount += !ReadFlacFileHeader(path, mode) ? 1 : 0;
+                    }
+                    break;
+                case ".MP3":
+                    if (mode != ReadHeaderMode.OnlyMetaFile) {
+                        errCount += !ReadMp3FileHeader(path) ? 1 : 0;
                     }
                     break;
                 case ".AIF":

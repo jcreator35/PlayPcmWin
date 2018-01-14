@@ -139,6 +139,12 @@ CollectMetadata(IMFMetadata *pMetadata,
     GET_STR_META(L"WM/AlbumTitle", album);
     GET_STR_META(L"WM/Composer", composer);
 
+    hr = pMetadata->GetProperty(L"WM/Picture", &var);
+    if (SUCCEEDED(hr)) {
+        meta.pictureBytes = var.blob.cbSize;
+        PropVariantClear(&var);
+    }
+
     return hr;
 }
 
@@ -178,7 +184,7 @@ end:
 // Inspired from "Windows-classic-samples/Samples/Win7Samples/multimedia/mediafoundation/AudioClip sample"
 
 static HRESULT
-ConfigureAudioStreamToUncompressedPcm(
+GetUncompressedPcmAudio(
         IMFSourceReader *pReader,
         IMFMediaType **ppPCMAudio)
 {
@@ -212,6 +218,32 @@ ConfigureAudioStreamToUncompressedPcm(
 
 end:
     SafeRelease(&pUncompressedAudioType);
+    SafeRelease(&pPartialType);
+    return hr;
+}
+
+static HRESULT
+ConfigureAudioTypeToUncompressedPcm(
+        IMFSourceReader *pReader)
+{
+    HRESULT hr = S_OK;
+
+    assert(pReader);
+    IMFMediaType *pPartialType = nullptr;
+
+    // Create a partial media type that specifies uncompressed PCM audio.
+    HRG(MFCreateMediaType(&pPartialType));
+    HRG(pPartialType->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Audio));
+    HRG(pPartialType->SetGUID(MF_MT_SUBTYPE, MFAudioFormat_PCM));
+
+    // Set this type on the source reader. The source reader will
+    // load the necessary decoder.
+    HRG(pReader->SetCurrentMediaType((DWORD)MF_SOURCE_READER_FIRST_AUDIO_STREAM, nullptr, pPartialType));
+
+    // Ensure the stream is selected.
+    HRG(pReader->SetStreamSelection((DWORD)MF_SOURCE_READER_FIRST_AUDIO_STREAM, TRUE));
+
+end:
     SafeRelease(&pPartialType);
     return hr;
 }
@@ -252,7 +284,7 @@ end:
     return hr;
 }
 
-WWMFREADER_API int
+extern "C" __declspec(dllexport) int __stdcall
 WWMFReaderReadHeader(
         const wchar_t *wszSourceFile,
         WWMFReaderMetadata *meta_return)
@@ -273,9 +305,6 @@ WWMFReaderReadHeader(
 
     memset(meta_return, 0, sizeof(WWMFReaderMetadata));
 
-    // Initialize the COM library.
-    HRG(CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE));
-
     // Intialize the Media Foundation platform.
     HRG(MFStartup(MF_VERSION));
 
@@ -284,7 +313,7 @@ WWMFReaderReadHeader(
 
     GetAudioEncodingBitrate(pReader, &bitrate);
 
-    HRG(ConfigureAudioStreamToUncompressedPcm(pReader, &pMTPcmAudio));
+    HRG(GetUncompressedPcmAudio(pReader, &pMTPcmAudio));
 
     HRG(MFCreateWaveFormatExFromMFMediaType(pMTPcmAudio, &pWfex, &cbFormat));
 
@@ -320,21 +349,82 @@ end:
     SafeRelease(&pMTPcmAudio);
     SafeRelease(&pReader);
     MFShutdown();
-    CoUninitialize();
 
     return hr;
 }
 
-WWMFREADER_API int
+extern "C" __declspec(dllexport) int __stdcall
+WWMFReaderGetCoverart(
+        const wchar_t *wszSourceFile,
+        unsigned char *data_return,
+        int64_t *dataBytes_inout)
+{
+    assert(data_return);
+
+    HRESULT hr = S_OK;
+
+    IMFSourceReader *pReader = nullptr;
+    IMFMetadataProvider * pMetaProvider = nullptr;
+    IMFMediaSource *pMediaSource = nullptr;
+    IMFPresentationDescriptor *pPD = nullptr;
+    IMFMetadata *pMetadata = nullptr;
+
+    const int64_t maxDataBytes = *dataBytes_inout;
+    *dataBytes_inout = 0;
+    
+    DWORD dwStream = 0;
+    UINT32 cbBlob = 0;
+    PROPVARIANT var;
+    PropVariantInit(&var);
+
+    // Intialize the Media Foundation platform.
+    HRG(MFStartup(MF_VERSION));
+
+    // Create the source reader to read the input file.
+    HRG(MFCreateSourceReaderFromURL(wszSourceFile, nullptr, &pReader));
+
+    HRG(pReader->GetServiceForStream(MF_SOURCE_READER_MEDIASOURCE,
+            MF_METADATA_PROVIDER_SERVICE,
+            IID_IMFMetadataProvider,
+            (LPVOID*)&pMetaProvider));
+    HRG(CreateMediaSource(wszSourceFile, &pMediaSource));
+    HRG(pMediaSource->CreatePresentationDescriptor(&pPD));
+    HRG(pMetaProvider->GetMFMetadata(pPD, dwStream, 0, &pMetadata));
+
+    hr = pMetadata->GetProperty(L"WM/Picture", &var);
+    if (SUCCEEDED(hr)) {
+        int copyBytes = (int)maxDataBytes;
+        if (var.blob.cbSize < copyBytes) {
+            copyBytes = (int)var.blob.cbSize;
+        }
+        memcpy(data_return, var.blob.pBlobData, copyBytes);
+        *dataBytes_inout = copyBytes;
+
+        PropVariantClear(&var);
+    }
+
+end:
+    SafeRelease(&pMetadata);
+    SafeRelease(&pPD);
+    SafeRelease(&pMediaSource);
+    SafeRelease(&pMetaProvider);
+    SafeRelease(&pReader);
+    MFShutdown();
+
+    return hr;
+}
+
+extern "C" __declspec(dllexport) int __stdcall
 WWMFReaderReadData(
         const wchar_t *wszSourceFile,
         unsigned char *data_return,
         int64_t *dataBytes_inout)
 {
+    assert(data_return);
+
     HRESULT hr = S_OK;
 
     IMFSourceReader *pReader = nullptr;
-    IMFMediaType *pMTPcmAudio = nullptr;
     IMFSample *pSample = nullptr;
     IMFMediaBuffer *pBuffer = nullptr;
     BYTE *pAudioData = nullptr;
@@ -345,12 +435,10 @@ WWMFReaderReadData(
     const int64_t cbMaxAudioData = *dataBytes_inout;
     *dataBytes_inout = 0;
 
-    HRG(CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE));
-
     HRG(MFStartup(MF_VERSION));
 
     HRG(MFCreateSourceReaderFromURL(wszSourceFile, nullptr, &pReader));
-    HRG(ConfigureAudioStreamToUncompressedPcm(pReader, &pMTPcmAudio));
+    HRG(ConfigureAudioTypeToUncompressedPcm(pReader));
 
     while (true) {
         dwFlags = 0;
@@ -407,10 +495,8 @@ end:
 
     SafeRelease(&pSample);
     SafeRelease(&pBuffer);
-    SafeRelease(&pMTPcmAudio);
     SafeRelease(&pReader);
     MFShutdown();
-    CoUninitialize();
 
     return hr;
 }

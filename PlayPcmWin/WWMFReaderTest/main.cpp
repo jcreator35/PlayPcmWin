@@ -3,10 +3,16 @@
 #include <string.h>
 #include <crtdbg.h>
 #include "WWMFReader.h"
+#include <SDKDDKVer.h>
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include "../WasapiIODLL/WWUtil.h"
+#include <mfapi.h>
 
 static int
 ReadHeader(const wchar_t *inputFile)
 {
+    unsigned char *picture = nullptr;
     WWMFReaderMetadata meta;
     int rv = WWMFReaderReadHeader(inputFile, &meta);
     if (rv < 0) {
@@ -26,6 +32,26 @@ ReadHeader(const wchar_t *inputFile)
     printf("Artist        = %S\n", meta.artist);
     printf("Album         = %S\n", meta.album);
     printf("Composer      = %S\n", meta.composer);
+    printf("pictureBytes  = %lld\n", meta.pictureBytes);
+
+    picture = new unsigned char[meta.pictureBytes];
+
+    if (0 < meta.pictureBytes) {
+        rv = WWMFReaderGetCoverart(inputFile, picture, &meta.pictureBytes);
+        if (rv < 0) {
+            printf("Error: error read coverart\n");
+        }
+
+        {
+            FILE *fp = fopen("picture.jpg", "wb");
+            fwrite(picture, meta.pictureBytes, 1, fp);
+            fclose(fp);
+        }
+
+        delete [] picture;
+        picture = nullptr;
+    }
+
     return rv;
 }
 
@@ -86,6 +112,7 @@ PrintUsage(const wchar_t *appName)
 int
 wmain(int argc, wchar_t *argv[])
 {
+    int hr = S_OK;
     int rv = 1;
 
     bool printUsage = true;
@@ -95,6 +122,10 @@ wmain(int argc, wchar_t *argv[])
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
     (void)HeapSetInformation(NULL, HeapEnableTerminationOnCorruption, NULL, 0); 
+
+    // Initialize the COM library.
+    HRG(CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE));
+
 
     switch (argc) {
     case 3:
@@ -114,6 +145,9 @@ wmain(int argc, wchar_t *argv[])
     if (printUsage) {
         PrintUsage(argv[0]);
     }
+
+end:
+    CoUninitialize();
 
     return rv;
 }

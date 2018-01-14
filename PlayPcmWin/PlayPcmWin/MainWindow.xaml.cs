@@ -724,6 +724,9 @@ namespace PlayPcmWin
             } catch (System.IO.FileFormatException ex) {
                 Console.WriteLine("D: DispCoverart {0}", ex);
                 imageCoverArt.Source = null;
+            } catch (System.NotSupportedException ex) {
+                Console.WriteLine("D: DispCoverart {0}", ex);
+                imageCoverArt.Source = null;
             }
         }
 
@@ -2075,7 +2078,7 @@ namespace PlayPcmWin
             GC.Collect();
 
             bool result = true;
-            if (m_preference.ParallelRead && PcmReader.IsTheFormatCompressed(PcmReader.GuessFileFormatFromFilePath(pd.FullPath))
+            if (m_preference.ParallelRead && PcmReader.IsTheFormatParallelizable(PcmReader.GuessFileFormatFromFilePath(pd.FullPath))
                     && ((m_preference.BpsConvNoiseShaping == NoiseShapingType.None) || !mPcmUtil.IsNoiseShapingOrDitherCapable(pd, m_deviceSetupParams.SampleFormat))) {
                 // ファイルのstartFrameからendFrameまでを読みだす。(並列化)
                 int fragmentCount = Environment.ProcessorCount;

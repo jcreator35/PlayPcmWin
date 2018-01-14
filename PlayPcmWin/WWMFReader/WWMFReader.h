@@ -15,6 +15,8 @@
 
 #define WWMFReaderStrCount 256
 
+extern "C" {
+
 struct WWMFReaderMetadata {
     int sampleRate;
     int numChannels;
@@ -26,6 +28,8 @@ struct WWMFReaderMetadata {
     int64_t numApproxFrames;
     int64_t numExactFrames;
 
+    int64_t pictureBytes;
+
     wchar_t title[WWMFReaderStrCount];
     wchar_t artist[WWMFReaderStrCount];
     wchar_t album[WWMFReaderStrCount];
@@ -36,13 +40,23 @@ struct WWMFReaderMetadata {
     }
 };
 
-WWMFREADER_API int
+WWMFREADER_API int __stdcall
 WWMFReaderReadHeader(
         const wchar_t *wszSourceFile,
         WWMFReaderMetadata *meta_return);
 
-WWMFREADER_API int
+WWMFREADER_API int __stdcall
+WWMFReaderGetCoverart(
+        const wchar_t *wszSourceFile,
+        unsigned char *data_return,
+        int64_t *dataBytes_inout);
+
+WWMFREADER_API int __stdcall
 WWMFReaderReadData(
         const wchar_t *wszSourceFile,
         unsigned char *data_return,
         int64_t *dataBytes_inout);
+
+
+}; // extern "C"
+
