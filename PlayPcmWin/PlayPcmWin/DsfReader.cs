@@ -222,7 +222,8 @@ namespace PlayPcmWin {
                 // OutputFrames must be even number
                 ++OutputFrames;
             }
-            
+
+            pcmData.SampleDataType = PcmDataLib.PcmData.DataType.DoP;
             pcmData.SetFormat(
                 NumChannels,
                 24,
@@ -230,7 +231,6 @@ namespace PlayPcmWin {
                 SampleRate/16,
                 PcmDataLib.PcmData.ValueRepresentationType.SInt,
                 OutputFrames);
-            pcmData.SampleDataType = PcmDataLib.PcmData.DataType.DoP;
 
             if (mode == ReadHeaderMode.AllHeadersWithID3 &&
                 mMetadataOffset != 0) {

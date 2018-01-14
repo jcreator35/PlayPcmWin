@@ -93,12 +93,17 @@ namespace PlayPcmWin {
 
         public string BitRate {
             get {
+                // Mbpsを小数点以下3桁まで表示する。
+                int kbps = mPcmData.BitRate / 1000;
+                return string.Format(CultureInfo.CurrentCulture, "{0}Mbps", kbps * 0.001);
+                /*
                 long kbps = (long)mPcmData.ValidBitsPerSample * mPcmData.SampleRate * mPcmData.NumChannels / 1000;
                 if (mPcmData.SampleDataType == PcmDataLib.PcmData.DataType.DoP) {
                     kbps = (long)mPcmData.SampleRate * 16 * mPcmData.NumChannels / 1000;
                 }
 
                 return string.Format(CultureInfo.CurrentCulture, "{0}Mbps", kbps * 0.001);
+                */
             }
         }
 

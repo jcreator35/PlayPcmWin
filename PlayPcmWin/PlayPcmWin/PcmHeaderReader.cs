@@ -310,6 +310,8 @@ namespace PlayPcmWin {
                     pd.SetPicture(meta.picture.Length, meta.picture);
                 }
 
+                pd.BitRate = meta.bitRate;
+
                 if (CheckAddPcmData(path, pd, true)) {
                     result = true;
                 }

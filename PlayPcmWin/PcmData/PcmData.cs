@@ -57,6 +57,11 @@ namespace PcmDataLib {
         public int ValidBitsPerSample { get; set; }
 
         /// <summary>
+        /// ビットレート(bps)。0のとき可逆圧縮なのでサンプルレートと有効ビット数とチャンネル数から計算する。
+        /// </summary>
+        public int BitRate { get; set; }
+
+        /// <summary>
         /// サンプル値形式(int、float)
         /// </summary>
         public ValueRepresentationType
@@ -319,18 +324,24 @@ namespace PcmDataLib {
         /// PCMデータの形式を設定する。
         /// </summary>
         public void SetFormat(
-            int numChannels,
-            int bitsPerSample,
-            int validBitsPerSample,
-            int sampleRate,
-            ValueRepresentationType sampleValueRepresentation,
-            long numFrames) {
+                int numChannels,
+                int bitsPerSample,
+                int validBitsPerSample,
+                int sampleRate,
+                ValueRepresentationType sampleValueRepresentation,
+                long numFrames) {
             NumChannels = numChannels;
             BitsPerSample = bitsPerSample;
             ValidBitsPerSample = validBitsPerSample;
             SampleRate = sampleRate;
             SampleValueRepresentationType = sampleValueRepresentation;
             mNumFrames = numFrames;
+
+            if (SampleDataType == PcmDataLib.PcmData.DataType.DoP) {
+                BitRate = SampleRate * numChannels * 16;
+            } else {
+                BitRate = SampleRate * numChannels * validBitsPerSample;
+            }
 
             mSampleLargeArray = null;
         }
