@@ -35,14 +35,32 @@ namespace WWMFReaderCs {
 
             do {
                 pos = Array.IndexOf(p, (byte)(0xff), pos);
-                if (0 <= pos && pos + 2 < p.Length && p[pos + 1] == 0xd8) {
+                if (0 <= pos && pos + 4 < p.Length
+                        && p[pos + 1] == 0xd8
+                        && p[pos + 2] == 0xff
+                        && (p[pos + 3] == 0xdb || p[pos + 3] == 0xe0 || p[pos + 3] == 0xe1)) {
                     return p.Skip(pos).ToArray();
                 }
-                pos += 2;
+                pos += 1;
 
-            } while (0 <= pos && pos + 2 < p.Length);
+            } while (0 <= pos && pos + 4 < p.Length);
 
             return new byte [0];
+        }
+
+        private static byte[] TrimPng(byte[] p) {
+            int pos = 0;
+
+            do {
+                pos = Array.IndexOf(p, (byte)(0x89), pos);
+                if (0 <= pos && pos + 4 < p.Length && p[pos + 1] == 0x50 && p[pos + 2] == 0x4e && p[pos + 3] == 0x47) {
+                    return p.Skip(pos).ToArray();
+                }
+                pos += 1;
+
+            } while (0 <= pos && pos + 4 < p.Length);
+
+            return new byte[0];
         }
 
         public static int ReadHeader(
@@ -73,8 +91,14 @@ namespace WWMFReaderCs {
                 hr = NativeMethods.WWMFReaderGetCoverart(wszSourceFile, picture, ref pictureBytes);
                 if (0 <= hr) {
                     // ゴミが最初についているので取る。
-                    picture = TrimJpeg(picture);
-
+                    var picJpeg = TrimJpeg(picture);
+                    if (0 < picJpeg.Length) {
+                        picture = picJpeg;
+                    } else {
+                        var picPng = TrimPng(picture);
+                        picture = picPng;
+                        // JPEGでもPNGでもないときはここで画像サイズが0になる。
+                    }
                     meta_return.picture = picture;
                 }
             } else {

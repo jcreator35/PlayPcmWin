@@ -118,13 +118,14 @@ end:
 
 #endif
 
-#define GET_STR_META(KEY, MEMBER)               \
-    hr = pMetadata->GetProperty(KEY, &var);     \
-    if (SUCCEEDED(hr)) {                        \
-        if (var.vt == VT_LPWSTR) {              \
-            wcscpy_s(meta.MEMBER, var.pwszVal); \
-        }                                       \
-        PropVariantClear(&var);                 \
+#define GET_STR_META(KEY, MEMBER)                                      \
+    hr = pMetadata->GetProperty(KEY, &var);                            \
+    if (SUCCEEDED(hr)) {                                               \
+        if (var.vt == VT_LPWSTR) {                                     \
+            wcsncpy_s(meta.MEMBER, var.pwszVal, WWMFReaderStrCount-1); \
+            meta.MEMBER[WWMFReaderStrCount-1] = 0;                     \
+        }                                                              \
+        PropVariantClear(&var);                                        \
     }
 
 static HRESULT
