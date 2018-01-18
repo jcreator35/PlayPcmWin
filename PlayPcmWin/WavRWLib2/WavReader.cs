@@ -183,10 +183,12 @@ namespace WavRWLib2 {
             uint subChunk1Size = br.ReadUInt32();
             FmtSubChunkSize = (int)subChunk1Size;
 
-            if (40 == subChunk1Size) {
-                // Console.WriteLine("D: FmtSubChunk.ReadRiffChunk() WAVEFORMATEXTENSIBLE\n");
-            } else if (14 != subChunk1Size && 16 != subChunk1Size && 18 != subChunk1Size) {
-                ErrorReason = string.Format("E: FmtSubChunk.ReadRiffChunk() subChunk1Size!=16 {0} this file type is not supported", subChunk1Size);
+            if (18 <= subChunk1Size) {
+                // extensible領域がある。
+                // subChunk1Size==18でextensibleSize==0のWAVファイルを見たことがある。
+                // subChunk1Size==40でextensibleSize==22のときWAVEFORMATEXTENSIBLE。
+            } else if (14 != subChunk1Size && 16 != subChunk1Size) {
+                ErrorReason = string.Format("E: FmtSubChunk.ReadRiffChunk() subChunk1Size={0} this file type is not supported", subChunk1Size);
                 return 0;
             }
 
@@ -224,21 +226,22 @@ namespace WavRWLib2 {
                 ValidBitsPerSample = BitsPerSample;
             }
 
-            int extensibleSize = 0;
-
             if (Int32.MaxValue <= SampleRate) {
                 ErrorReason = string.Format("E: Sample rate is too large {0}", SampleRate);
                 return 0;
             }
             SampleRate = (int)sampleRate;
 
-            if (18  <= subChunk1Size) {
+            int extensibleSize = 0;
+            if (18 <= subChunk1Size) {
                 // cbSize 2bytes
                 extensibleSize = br.ReadUInt16();
             }
 
             if (22 == extensibleSize) {
                 // WAVEFORMATEXTENSIBLE(22 bytes)
+                // WAVEFORMATex == 18バイト
+                // 計40バイト。
 
                 ValidBitsPerSample = br.ReadUInt16();
                 if (ValidBitsPerSample == 0) {
@@ -265,18 +268,15 @@ namespace WavRWLib2 {
                             formatGuid[12], formatGuid[13], formatGuid[14], formatGuid[15]);
                     return 0;
                 }
-            }
-
-            if (40 == subChunk1Size && 0 == extensibleSize) {
-                // Pro Tools WAV
-                PcmDataLib.Util.BinaryReaderSkip(br, 22);
-            }
-
-            if (0 != extensibleSize && 22 != extensibleSize) {
-                // extensibleSizeが壊れているのではないだろうか。
-                // extensibleSizeを信用せず、subChunk1Sizeを使用してfmtチャンクをスキップする。
-                // この場合fmtチャンクを既に18バイト読み込んでいるのでスキップするバイト数はsubChunk1Size-18。
-                PcmDataLib.Util.BinaryReaderSkip(br, subChunk1Size - 18);
+            } else {
+                if (18 < subChunk1Size) {
+                    // 知らないextensibleSize。
+                    // extensibleSizeを信用せず、subChunk1Sizeを使用してfmtチャンクをスキップする。
+                    // この場合fmtチャンクを既に18バイト読み込んでいるので
+                    // スキップするバイト数はsubChunk1Size - 18。2の倍数に繰り上げる。
+                    int skipBytes = (int)((subChunk1Size - 18 + 1) & (~1L));
+                    PcmDataLib.Util.BinaryReaderSkip(br, skipBytes);
+                }
             }
 
             if (byteRate != SampleRate * NumChannels * BitsPerSample / 8) {
