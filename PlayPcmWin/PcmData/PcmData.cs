@@ -57,7 +57,7 @@ namespace PcmDataLib {
         public int ValidBitsPerSample { get; set; }
 
         /// <summary>
-        /// ビットレート(bps)。0のとき可逆圧縮なのでサンプルレートと有効ビット数とチャンネル数から計算する。
+        /// ビットレート(bps)。
         /// </summary>
         public int BitRate { get; set; }
 
@@ -67,6 +67,10 @@ namespace PcmDataLib {
         public ValueRepresentationType
             SampleValueRepresentationType { get; set; }
 
+        /// <summary>
+        /// trueのとき不可逆圧縮されていた。
+        /// </summary>
+        public bool IsLossyCompressed { get; set; }
 
         public enum DataType {
             PCM,
@@ -344,6 +348,7 @@ namespace PcmDataLib {
             }
 
             mSampleLargeArray = null;
+            IsLossyCompressed = false;
         }
 
         /// <summary>

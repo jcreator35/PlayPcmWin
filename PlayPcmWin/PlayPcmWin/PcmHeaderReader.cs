@@ -311,6 +311,7 @@ namespace PlayPcmWin {
                 }
 
                 pd.BitRate = meta.bitRate;
+                pd.IsLossyCompressed = true;
 
                 if (CheckAddPcmData(path, pd, true)) {
                     result = true;
