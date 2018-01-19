@@ -238,7 +238,7 @@ namespace WavRWLib2 {
                 extensibleSize = br.ReadUInt16();
             }
 
-            if (22 == extensibleSize) {
+            if (22 == extensibleSize && 40 <= subChunk1Size) {
                 // WAVEFORMATEXTENSIBLE(22 bytes)
                 // WAVEFORMATex == 18バイト
                 // 計40バイト。
