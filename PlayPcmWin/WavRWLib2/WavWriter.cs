@@ -52,7 +52,7 @@ namespace WavRWLib2
             return true;
         }
 
-        private static bool IsRf64Size(long sampleBytes) {
+        public static bool IsRf64Size(long sampleBytes) {
             int riffChunkBytes = 12;
             int fmtChunkBytes = 26;
             int dataChunkHeaderBytes = 8;

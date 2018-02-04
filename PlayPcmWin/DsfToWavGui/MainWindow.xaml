@@ -1,0 +1,30 @@
+﻿<Window x:Class="DsfToWavGui.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="DsfToWavGui" Height="600" Width="600" AllowDrop="True" Loaded="Window_Loaded">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="140" />
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="90" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40" />
+            <RowDefinition Height="40" />
+            <RowDefinition Height="40" />
+            <RowDefinition Height="1*" />
+        </Grid.RowDefinitions>
+        <Label Content="Input DSF/DFF File:" HorizontalAlignment="Right" Name="labelInPath" VerticalAlignment="Center" />
+        <Label Content="Output WAV File:" HorizontalAlignment="Right" Name="labelOutPath" VerticalAlignment="Center" Grid.Row="1" />
+        <TextBox Grid.Column="1" Margin="6,0,6,0" Name="textBoxInPath" VerticalAlignment="Center" Text="C:\audio\input.dsf" DragEnter="textBoxInPath_DragEnter" Drop="textBoxInPath_Drop" />
+        <TextBox Margin="6,0,6,0" Name="textBoxOutPath" VerticalAlignment="Center" Grid.Column="1" Grid.Row="1" Text="C:\audio\output.wav" />
+        <Button Content="_Start conversion" Grid.Row="2" Height="23" Margin="30,10,0,6" Name="buttonStart" VerticalAlignment="Center" Grid.ColumnSpan="2" HorizontalAlignment="Left" Width="202" Click="buttonStart_Click" />
+        <GroupBox Header="Log" Name="groupBoxLog" Grid.Row="3" Grid.ColumnSpan="3">
+            <Grid>
+                <TextBox Name="textBoxLog" AcceptsReturn="True" AcceptsTab="True" IsReadOnly="True" VerticalScrollBarVisibility="Visible" TextWrapping="Wrap" />
+            </Grid>
+        </GroupBox>
+        <Button Content="_Browse..." Grid.Column="2" HorizontalAlignment="Left" Margin="6,0,0,0" Name="buttonBrowseIn" VerticalAlignment="Center" Width="75" Click="buttonBrowseIn_Click" />
+        <Button Content="B_rowse..." HorizontalAlignment="Left" Margin="6,0,0,0" Name="buttonBrowseOut" VerticalAlignment="Center" Width="75" Grid.Column="2" Grid.Row="1" Click="buttonBrowseOut_Click" />
+    </Grid>
+</Window>
