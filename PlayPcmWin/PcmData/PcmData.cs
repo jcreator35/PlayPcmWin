@@ -77,7 +77,7 @@ namespace PcmDataLib {
             DoP
         };
         /// <summary>
-        /// true: DoP false: PCM
+        /// DoP or PCM
         /// </summary>
         public DataType SampleDataType { get; set; }
 
@@ -631,7 +631,6 @@ namespace PcmDataLib {
         }
 
         public int GetSampleValueInInt32(int ch, long pos) {
-            Debug.Assert(SampleValueRepresentationType == ValueRepresentationType.SInt);
             Debug.Assert(0 <= ch && ch < NumChannels);
             if (pos < 0 || NumFrames <= pos) {
                 return 0;
@@ -648,6 +647,17 @@ namespace PcmDataLib {
                     + (mSampleLargeArray.At(offset + 1) << 16)
                     + (mSampleLargeArray.At(offset + 2) << 24);
             case 32:
+                if (SampleValueRepresentationType == PcmDataLib.PcmData.ValueRepresentationType.SFloat) {
+                    var buff = new byte[4];
+                    buff[0] = mSampleLargeArray.At(offset + 0);
+                    buff[1] = mSampleLargeArray.At(offset + 1);
+                    buff[2] = mSampleLargeArray.At(offset + 2);
+                    buff[3] = mSampleLargeArray.At(offset + 3);
+                    float f = BitConverter.ToSingle(buff, 0);
+                    int v = (int)(f * 0x80000000L);
+                    return v;
+                }
+
                 switch (ValidBitsPerSample) {
                 case 24:
                     return (mSampleLargeArray.At(offset + 1) << 8)

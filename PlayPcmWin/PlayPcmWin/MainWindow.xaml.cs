@@ -2284,6 +2284,15 @@ namespace PlayPcmWin
 
                 pdAfter = pdAfter.ConvertChannelCount(m_deviceSetupParams.NumChannels);
 
+                /*
+                // これは駄目だった！もっと手前でDoPマーカーの判定をしてDoPとPCMが混在しないようにする必要がある。
+                // PCMのとき、DoPマーカーが付いていたらDSDフラグを立てる。
+                if (m_deviceSetupParams.SharedOrExclusive == WasapiSharedOrExclusiveType.Exclusive &&
+                        pdAfter.ScanDopMarkerAndUpdate()) {
+                    ap.wasapi.UpdateStreamType(pd.Id, WasapiCS.StreamType.DoP);
+                }
+                */
+
                 //Console.WriteLine("pdAfter.ConvertChannelCount({0}) SampleLargeArray {1}", m_deviceSetupParams.NumChannels, pdAfter.GetSampleLargeArray().LongLength);
 
                 long posBytes = ( writeOffsFrame + frameCount ) * pdAfter.BitsPerFrame / 8;

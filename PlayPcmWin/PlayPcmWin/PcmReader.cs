@@ -202,7 +202,7 @@ namespace PlayPcmWin {
         }
 
         /// <summary>
-        /// 読み込み処理を通常終了する。
+        /// 読み込み処理を終了する。
         /// </summary>
         /// <returns>Error code</returns>
         public int StreamEnd() {

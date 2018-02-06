@@ -16,6 +16,10 @@ namespace PcmDataLib {
         /// ファイルの終わりを超えたときEndOfStreamExceptionを出す
         /// </summary>
         public static long BinaryReaderSkip(BinaryReader reader, long count) {
+            if (count < 0) {
+                throw new ArgumentOutOfRangeException("count");
+            }
+
             if (count == 0) {
                 return 0;
             }

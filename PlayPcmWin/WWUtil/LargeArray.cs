@@ -28,7 +28,7 @@ namespace WWUtil {
         /// <summary>
         /// ctor
         /// </summary>
-        /// <param name="count">要素数。バイト数ではありません。</param>
+        /// <param name="count">要素数。バイト数ではありません。Tがbyteのときに限りバイト数でもある。</param>
         public LargeArray(long count) {
             mCount = count;
             if (count < 0) {

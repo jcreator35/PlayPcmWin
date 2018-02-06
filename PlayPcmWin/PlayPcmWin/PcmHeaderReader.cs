@@ -186,7 +186,7 @@ namespace PlayPcmWin {
         /// <returns>読めたらtrue</returns>
         private bool ReadWavFileHeader(string path) {
             bool result = false;
-            var pd = new PcmDataLib.PcmData();
+            var pd = new PcmData();
 
             var wavR = new WavReader();
             using (BinaryReader br = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))) {
@@ -195,6 +195,11 @@ namespace PlayPcmWin {
 
                     pd.SetFormat(wavR.NumChannels, wavR.BitsPerSample, wavR.ValidBitsPerSample,
                             (int)wavR.SampleRate, wavR.SampleValueRepresentationType, wavR.NumFrames);
+
+                    if (wavR.SampleDataType == WavReader.DataType.DoP) {
+                        pd.SampleDataType = PcmData.DataType.DoP;
+                    }
+
                     if ("RIFFINFO_INAM".Equals(wavR.Title) &&
                             "RIFFINFO_IART".Equals(wavR.ArtistName)) {
                         // Issue 79 workaround
