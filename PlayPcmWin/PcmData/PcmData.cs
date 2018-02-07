@@ -1015,5 +1015,110 @@ namespace PcmDataLib {
 
             return r;
         }
+
+        public const int DOP_SCAN_FRAMES = 4096;
+
+        private enum DopMarkerState {
+            Init,
+            H05,
+            Hfa
+        };
+
+        private int GetSampleValueInInt32(byte[] buff, int ch, int pos) {
+            Debug.Assert(0 <= ch && ch < NumChannels);
+
+            int bytesPerFrame = BitsPerSample / 8 * NumChannels;
+            int numFrames = buff.Length / bytesPerFrame;
+
+            if (pos < 0 || numFrames <= pos) {
+                return 0;
+            }
+
+            int offset = pos * bytesPerFrame + ch * BitsPerSample / 8;
+
+            switch (BitsPerSample) {
+            case 16:
+                return (buff[offset] << 16)
+                    + (buff[offset + 1] << 24);
+            case 24:
+                return (buff[offset] << 8)
+                    + (buff[offset + 1] << 16)
+                    + (buff[offset + 2] << 24);
+            case 32:
+                if (SampleValueRepresentationType == PcmDataLib.PcmData.ValueRepresentationType.SFloat) {
+                    float f = BitConverter.ToSingle(buff, offset);
+                    int v = (int)(f * 0x80000000L);
+                    return v;
+                }
+
+                switch (ValidBitsPerSample) {
+                case 24:
+                    return (buff[offset + 1] << 8)
+                        + (buff[offset + 2] << 16)
+                        + (buff[offset + 3] << 24);
+                case 32:
+                    return (buff[offset])
+                        + (buff[offset + 1] << 8)
+                        + (buff[offset + 2] << 16)
+                        + (buff[offset + 3] << 24);
+                default:
+                    System.Diagnostics.Debug.Assert(false);
+                    return 0;
+                }
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                return 0;
+            }
+        }
+        
+        /// <summary>
+        /// データ列にDoPマーカーがあるかどうか調べる。
+        /// </summary>
+        /// <returns>DoPであった。</returns>
+        public bool ScanDopMarker(byte [] buff) {
+            if (ValidBitsPerSample < 24
+                    || SampleRate < 176400) {
+                return false;
+            }
+
+            int bytesPerFrame = BitsPerSample / 8 * NumChannels;
+
+            int buffFrames = buff.Length / bytesPerFrame;
+
+            var state = DopMarkerState.Init;
+
+            // 最上位バイトに0x05, 0xfa, 0x05, 0xfa, ... という具合にDoPマーカーが入っている。
+            for (int i = 0; i < buffFrames; ++i) {
+                int v = GetSampleValueInInt32(buff, 0, i);
+                switch (state) {
+                case DopMarkerState.Init:
+                    if (0x05 == (0xff & (v >> 24))) {
+                        state = DopMarkerState.H05;
+                    } else if (0xfa == (0xff & (v >> 24))) {
+                        state = DopMarkerState.Hfa;
+                    } else {
+                        return false;
+                    }
+                    break;
+                case DopMarkerState.H05:
+                    if (0xfa == (0xff & (v >> 24))) {
+                        state = DopMarkerState.Hfa;
+                    } else {
+                        return false;
+                    }
+                    break;
+                case DopMarkerState.Hfa:
+                    if (0x05 == (0xff & (v >> 24))) {
+                        state = DopMarkerState.H05;
+                    } else {
+                        return false;
+                    }
+                    break;
+                }
+            }
+
+            // DoPマーカーが付いている
+            return true;
+        }
     }
 }

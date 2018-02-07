@@ -213,7 +213,7 @@ namespace PlayPcmWin {
 
             switch (m_format) {
             case Format.FLAC:
-                rv = mFlacR.ReadStreamEnd();
+                rv = mFlacR.ReadEnd();
                 mMD5SumInMetadata = mFlacR.MD5SumInMetadata;
                 mMD5SumOfPcm = mFlacR.MD5SumOfPcm;
                 break;

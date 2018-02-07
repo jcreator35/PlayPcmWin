@@ -329,6 +329,18 @@ namespace PlayPcmWin {
             return result;
         }
 
+        private PcmData FlacScanDopMarker(PcmData pcmData, FlacDecodeIF fdif) {
+            // 1個PCMデータを読み出す。
+            int ercd = 0;
+            var buff = fdif.ReadStreamReadOne(PcmDataLib.PcmData.DOP_SCAN_FRAMES, out ercd);
+            bool bDoP = pcmData.ScanDopMarker(buff);
+            if (bDoP) {
+                pcmData.SampleDataType = PcmData.DataType.DoP;
+            }
+
+            return pcmData;
+        }
+
         /// <summary>
         /// FLACファイルのヘッダ部分を読み込む。
         /// </summary>
@@ -348,6 +360,11 @@ namespace PlayPcmWin {
             }
 
             // FLACヘッダ部分読み込み成功。
+
+            // PCMデータにDoPマーカーが付いているか調べ、pcmData.SampleDataTypeを確定する。
+            pcmData = FlacScanDopMarker(pcmData, fdif);
+            fdif.ReadEnd();
+
             if (ctiList.Count == 0 || mode == ReadHeaderMode.OnlyConcreteFile) {
                 // FLAC埋め込みCUEシート情報を読まない。
 

@@ -76,21 +76,23 @@ namespace PlayPcmWin {
             }
         }
 
+        /// <summary>
+        /// この後ReadEndを呼んで終了して下さい。
+        /// </summary>
         public int ReadHeader(string flacFilePath, out PcmDataLib.PcmData pcmData_return,
                 out List<WWFlacRWCS.FlacCuesheetTrack> cueSheet_return) {
             pcmData_return = new PcmDataLib.PcmData();
             cueSheet_return = new List<WWFlacRWCS.FlacCuesheetTrack>();
 
-            var flacRW = new WWFlacRWCS.FlacRW();
-            int ercd = flacRW.DecodeHeader(flacFilePath);
+            mFlacRW = new WWFlacRWCS.FlacRW();
+            int ercd = mFlacRW.DecodeHeader(flacFilePath);
             if (ercd < 0) {
                 return ercd;
             }
 
-            flacRW.GetDecodedCuesheet(out cueSheet_return);
+            mFlacRW.GetDecodedCuesheet(out cueSheet_return);
 
-            CreatePcmData(flacFilePath, flacRW, out pcmData_return);
-            flacRW.DecodeEnd();
+            CreatePcmData(flacFilePath, mFlacRW, out pcmData_return);
 
             mBytesPerFrame = pcmData_return.BitsPerFrame / 8;
             mNumFrames = pcmData_return.NumFrames;
@@ -166,9 +168,10 @@ namespace PlayPcmWin {
             return buff;
         }
 
-        public int ReadStreamEnd()
+        public int ReadEnd()
         {
             mFlacRW.DecodeEnd();
+            mFlacRW = null;
 
             if (md5 != null) {
                 md5.TransformFinalBlock(new byte[0], 0, 0);
@@ -178,13 +181,12 @@ namespace PlayPcmWin {
                 mMD5TmpBuffer = null;
             }
 
-            mBytesPerFrame = 0;
-
             return 0;
         }
 
         public void ReadStreamAbort() {
             mFlacRW.DecodeEnd();
+            mFlacRW = null;
 
             if (md5 != null) {
                 md5.Dispose();

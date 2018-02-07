@@ -467,14 +467,6 @@ namespace WavRWLib2 {
             return result;
         }
 
-        private const int DOP_SCAN_FRAMES = 4096;
-
-        private enum DopMarkerState {
-            Init,
-            H05,
-            Hfa
-        };
-        
         public enum DataType {
             PCM,
             DoP
@@ -485,68 +477,20 @@ namespace WavRWLib2 {
         /// </summary>
         public DataType SampleDataType { get; set; }
 
-        private int GetSampleValueInInt32(byte [] buff, int ch, int pos) {
-            Debug.Assert(0 <= ch && ch < NumChannels);
-
-            int bytesPerFrame = BitsPerSample / 8 * NumChannels;
-            int numFrames = buff.Length / bytesPerFrame;
-
-            if (pos < 0 || numFrames <= pos) {
-                return 0;
-            }
-
-            int offset = pos * bytesPerFrame + ch * BitsPerSample / 8;
-
-            switch (BitsPerSample) {
-            case 16:
-                return (buff[offset] << 16)
-                    + (buff[offset+1] << 24);
-            case 24:
-                return (buff[offset] << 8)
-                    + (buff[offset+1] << 16)
-                    + (buff[offset+2] << 24);
-            case 32:
-                if (SampleValueRepresentationType == PcmDataLib.PcmData.ValueRepresentationType.SFloat) {
-                    float f = BitConverter.ToSingle(buff, offset);
-                    int v = (int)(f * 0x80000000L);
-                    return v;
-                }
-
-                switch (ValidBitsPerSample) {
-                case 24:
-                    return (buff[offset+1] << 8)
-                        + (buff[offset+2] << 16)
-                        + (buff[offset+3] << 24);
-                case 32:
-                    return (buff[offset])
-                        + (buff[offset+1] << 8)
-                        + (buff[offset+2] << 16)
-                        + (buff[offset+3] << 24);
-                default:
-                    System.Diagnostics.Debug.Assert(false);
-                    return 0;
-                }
-            default:
-                System.Diagnostics.Debug.Assert(false);
-                return 0;
-            }
-        }
-
         /// <summary>
-        /// PCMなのにデータ列にDoPマーカーが付いているとき、DoPに変更する。
+        /// DoPマーカーが出てくるか調べ、SampleDataTypeを確定する。
         /// </summary>
-        /// <returns>ファイルを読み進めたバイト数。</returns>
-        private int PeekDopMarker(BinaryReader br, long numFrames) {
+        /// <returns>DATAチャンクの中身をPeekしたバイト数。</returns>
+        private int ScanDopMarker(BinaryReader br, long numFrames) {
             SampleDataType = DataType.PCM;
 
-            if (ValidBitsPerSample < 24
-                    || SampleRate < 176400) {
-                return 0;
-            }
+            var pcmData = new PcmDataLib.PcmData();
+            pcmData.SetFormat(NumChannels, BitsPerSample, ValidBitsPerSample, SampleRate,
+                SampleValueRepresentationType, numFrames);
 
             int bytesPerFrame = BitsPerSample / 8 * NumChannels;
 
-            int scanFrames = DOP_SCAN_FRAMES;
+            int scanFrames = PcmDataLib.PcmData.DOP_SCAN_FRAMES;
             if (numFrames < scanFrames) {
                 scanFrames = (int)NumFrames;
             }
@@ -555,40 +499,10 @@ namespace WavRWLib2 {
 
             var buff = br.ReadBytes(scanBytes);
 
-            var state = DopMarkerState.Init;
-
-            // 最上位バイトに0x05, 0xfa, 0x05, 0xfa, ... という具合にDoPマーカーが入っている。
-            for (int i = 0; i < scanFrames; ++i) {
-                int v = GetSampleValueInInt32(buff, 0, i);
-                switch (state) {
-                case DopMarkerState.Init:
-                    if (0x05 == (0xff & (v >> 24))) {
-                        state = DopMarkerState.H05;
-                    } else if (0xfa == (0xff & (v >> 24))) {
-                        state = DopMarkerState.Hfa;
-                    } else {
-                        return buff.Length;
-                    }
-                    break;
-                case DopMarkerState.H05:
-                    if (0xfa == (0xff & (v >> 24))) {
-                        state = DopMarkerState.Hfa;
-                    } else {
-                        return buff.Length;
-                    }
-                    break;
-                case DopMarkerState.Hfa:
-                    if (0x05 == (0xff & (v >> 24))) {
-                        state = DopMarkerState.H05;
-                    } else {
-                        return buff.Length;
-                    }
-                    break;
-                }
+            if (pcmData.ScanDopMarker(buff)) {
+                SampleDataType = DataType.DoP;
             }
 
-            // DoPマーカーが付いているので、DoPフラグを立てる。
-            SampleDataType = DataType.DoP;
             return buff.Length;
         }
 
@@ -677,7 +591,7 @@ namespace WavRWLib2 {
                         int peekFrames = 0;
 
                         if (mode == ReadMode.OnlyHeader) {
-                            peekFrames = PeekDopMarker(br, frameBytes);
+                            peekFrames = ScanDopMarker(br, dsc.NumFrames);
                         }
 
                         // マルチデータチャンク形式の場合、data chunkの後にさらにdata chunkが続いたりするので、

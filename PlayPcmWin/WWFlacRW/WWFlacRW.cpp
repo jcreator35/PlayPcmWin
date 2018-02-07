@@ -656,12 +656,19 @@ WWFlacRW_Decode(int frdt, const wchar_t *path)
         goto end;
     }
 
-    if (frdt == FRDT_One) {
+    switch (frdt) {
+    case FRDT_One:
+    case FRDT_Header:
         initStatus = FLAC__stream_decoder_init_FILE(
                 fdi->decoder, fdi->fp, RecvDecodedDataOneCallback, MetadataCallback, ErrorCallback, fdi);
-    } else {
+        break;
+    case FRDT_All:
         initStatus = FLAC__stream_decoder_init_FILE(
                 fdi->decoder, fdi->fp, RecvDecodedDataAllCallback, MetadataCallback, ErrorCallback, fdi);
+        break;
+    default:
+        assert(0);
+        break;
     }
 
     if(initStatus != FLAC__STREAM_DECODER_INIT_STATUS_OK) {
