@@ -121,6 +121,7 @@ namespace PlayPcmWin {
             cbItemChannelCount32.Content = Properties.Resources.SettingsCbItemChannelCount32;
             cbItemChannelCountMixFormat.Content = Properties.Resources.SettingsCbItemChannelCountMixFormat;
 
+            checkBoxIsFormatSupported.Content = Properties.Resources.SettingsCheckBoxIsFormatSupportedCall;
             checkBoxParallelRead.Content = Properties.Resources.SettingsCheckBoxParallelRead;
         }
 
@@ -181,6 +182,7 @@ namespace PlayPcmWin {
                 break;
             }
 
+            checkBoxIsFormatSupported.IsChecked = preference.IsFormatSupportedCall;
             checkBoxParallelRead.IsChecked = preference.ParallelRead;
 
             if (10000 == preference.TimePeriodHundredNanosec) {
@@ -392,6 +394,8 @@ namespace PlayPcmWin {
                 System.Diagnostics.Debug.Assert(false);
                 break;
             }
+
+            m_preference.IsFormatSupportedCall = checkBoxIsFormatSupported.IsChecked == true;
 
             m_preference.ParallelRead = checkBoxParallelRead.IsChecked == true;
 

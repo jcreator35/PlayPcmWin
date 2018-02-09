@@ -1102,6 +1102,10 @@ WWPcmData::PcmToDopFast(void)
 void
 WWPcmData::CheckDopMarker(void)
 {
+    if (mStreamType != WWStreamDop) {
+        return;
+    }
+
     assert((mFrames&1)==0);
     int64_t pos = 0;
     switch (mSampleFormat) {

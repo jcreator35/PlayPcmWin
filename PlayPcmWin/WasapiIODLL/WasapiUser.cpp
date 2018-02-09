@@ -33,8 +33,24 @@ WWShareModeToAudClientShareMode(WWShareMode sm)
     }
 }
 
+/* これは、サポートフォーマットが減ってしまう。
 static void
-PcmFormatToWfex(const WWPcmFormat &pcmFormat, WAVEFORMATEXTENSIBLE *wfex)
+PcmFormatToWfex16(const WWPcmFormat &pcmFormat, WAVEFORMATEX *wfex)
+{
+    wfex->wFormatTag           = WAVE_FORMAT_PCM;
+    wfex->nChannels            = (WORD)pcmFormat.numChannels;
+    wfex->nSamplesPerSec       = pcmFormat.sampleRate;
+    wfex->wBitsPerSample       = (WORD)WWPcmDataSampleFormatTypeToBitsPerSample(pcmFormat.sampleFormat);
+    wfex->cbSize               = 0;
+
+    // あとは計算で決まる。
+    wfex->nBlockAlign          = (WORD)((wfex->wBitsPerSample / 8) * wfex->nChannels);
+    wfex->nAvgBytesPerSec      = wfex->nSamplesPerSec * wfex->nBlockAlign;
+}
+*/
+
+static void
+PcmFormatToWfex40(const WWPcmFormat &pcmFormat, WAVEFORMATEXTENSIBLE *wfex)
 {
     wfex->Format.wFormatTag           = WAVE_FORMAT_EXTENSIBLE;
     wfex->Format.nChannels            = (WORD)pcmFormat.numChannels;
@@ -282,7 +298,11 @@ WasapiUser::InspectDevice(IMMDevice *device, const WWPcmFormat &pcmFormat)
         goto end;
     }
 
-    PcmFormatToWfex(pcmFormat, wfex);
+#if 0
+    PcmFormatToWfex16(pcmFormat, waveFormat);
+#else
+    PcmFormatToWfex40(pcmFormat, wfex);
+#endif
 
     dprintf("preferred Format:\n");
     WWWaveFormatDebug(waveFormat);
@@ -348,7 +368,7 @@ WasapiUser::Setup(IMMDevice *device, WWDeviceType deviceType, const WWPcmFormat 
         // on exclusive mode, sampleRate, bitsPerSample can be changed on most devices.
         // also nChannels can be changed on some audio devices.
 
-        PcmFormatToWfex(m_pcmFormat, wfex);
+        PcmFormatToWfex40(m_pcmFormat, wfex);
 
         dprintf("preferred Format:\n");
         WWWaveFormatDebug(waveFormat);
