@@ -91,6 +91,7 @@ WasapiWrap::Init(void)
     assert(!m_deviceCollection);
     assert(!m_deviceToUse);
 
+    // STA
     hr = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
     if (S_OK == hr) {
         m_coInitializeSuccess = true;
@@ -659,6 +660,7 @@ WasapiWrap::RenderMain(void)
     DWORD waitResult;
     HRESULT hr = 0;
 
+    // MTA
     HRG(CoInitializeEx(nullptr, COINIT_MULTITHREADED));
 
     while (stillPlaying) {
