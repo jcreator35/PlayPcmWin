@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Windows.h>
+#include <comdef.h>
 
 void WWErrorDescription(HRESULT hr);
 
@@ -15,16 +16,18 @@ void WWErrorDescription(HRESULT hr);
 #  define dprintf(x, ...)
 #endif
 
-#define HRG(x)                                   \
-{                                                \
-    dprintf("D: invoke %s\n", #x);               \
-    hr = x;                                      \
-    if (FAILED(hr)) {                            \
-        printf("E: %s failed (%08x)\n", #x, hr); \
-        WWErrorDescription(hr);                  \
-        goto end;                                \
-    }                                            \
-}                                                \
+#define HRG(x)                                              \
+{                                                           \
+    dprintf("D: invoke %s\n", #x);                          \
+    hr = x;                                                 \
+    if (FAILED(hr)) {                                       \
+        _com_error err(hr);                                 \
+        LPCWSTR errMsg = err.ErrorMessage();                \
+        printf("E: %s failed (%08x) %S\n", #x, hr, errMsg); \
+        WWErrorDescription(hr);                             \
+        goto end;                                           \
+    }                                                       \
+}                                                           \
 
 #define HRR(x)                                   \
 {                                                \
