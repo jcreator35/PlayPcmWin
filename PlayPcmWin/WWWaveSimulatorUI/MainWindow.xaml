@@ -1,0 +1,78 @@
+﻿<Window x:Class="WWWaveSimulatorUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="800" Width="1280" Loaded="Window_Loaded">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="260" />
+            <ColumnDefinition Width="1*" />
+        </Grid.ColumnDefinitions>
+        <ScrollViewer>
+            <StackPanel>
+                <GroupBox Header="Show" Height="120" >
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <RadioButton Content="Sound speed on the material" Grid.Row="0" Margin="6,0,0,0" Name="radioButtonCa" VerticalAlignment="Center" IsChecked="True" Checked="radioButtonPermit_Checked" />
+                        <RadioButton Content="Density of the material" Grid.Row="1" Margin="6,0,0,0" Name="radioButtonRoh" VerticalAlignment="Center" />
+                        <RadioButton Content="Pressure" Grid.Row="2" Margin="6,0,0,0" Name="radioButtonP" VerticalAlignment="Center" />
+                        <RadioButton Content="Velocity" Grid.Row="3" Margin="6,0,0,0" Name="radioButtonV" VerticalAlignment="Center" />
+                    </Grid>
+                </GroupBox>
+                
+                <GroupBox Header="Control" Height="100" >
+                    <Grid Margin="6,0,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="30" />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <Button Content="_Start" Grid.Column="0" HorizontalAlignment="Center" Name="buttonStart" VerticalAlignment="Center" Width="60" />
+                        <Button Content="S_top"  Grid.Column="1" HorizontalAlignment="Center" Name="buttonStop" VerticalAlignment="Center" Width="60" IsEnabled="False" />
+                        <Label Grid.Row="1" Grid.ColumnSpan="2" Margin="6,0,0,0" Content="Time = 0" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" />
+                    </Grid>
+                </GroupBox>
+                
+                <GroupBox Header="Grid Size" Height="100" >
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                        </Grid.RowDefinitions>
+                        <Label Content=" Width (pixel):" Grid.Row="0" HorizontalAlignment="Right" Name="labelGridW" VerticalAlignment="Center" />
+                        <TextBox Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" Name="textBoxGridW" VerticalAlignment="Center" Width="50" Text="256" HorizontalContentAlignment="Right" />
+                        <Label Content="Height (pixel):" Grid.Row="1" HorizontalAlignment="Right" Name="labelGridH" VerticalAlignment="Center" />
+                        <TextBox Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" Name="textBoxGridH" VerticalAlignment="Center" Width="50" Text="256" HorizontalContentAlignment="Right" />
+                        <Label Content="Depth (pixel):" Grid.Row="2" HorizontalAlignment="Right" Name="labelGridD" VerticalAlignment="Center" />
+                        <TextBox Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" Name="textBoxGridD" VerticalAlignment="Center" Width="50" Text="256" HorizontalContentAlignment="Right" />
+                    </Grid>
+                </GroupBox>
+                <GroupBox Header="Height" Height="300" >
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="200" />
+                            <RowDefinition Height="1*" />
+                        </Grid.RowDefinitions>
+                        <Slider HorizontalAlignment="Center" Name="slider1" VerticalAlignment="Top" Orientation="Vertical" Height="200" Maximum="255" Value="128" Interval="1" ValueChanged="slider1_ValueChanged" />
+                        <Label Content="128" Grid.Row="1" HorizontalAlignment="Center" Name="labelHeight" VerticalAlignment="Top" />
+                    </Grid>
+                </GroupBox>
+            </StackPanel>
+        </ScrollViewer>
+        <ScrollViewer Grid.Column="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+            <Canvas Name="canvas1" Width="1024" Height="1024"/>
+        </ScrollViewer>
+    </Grid>
+</Window>
