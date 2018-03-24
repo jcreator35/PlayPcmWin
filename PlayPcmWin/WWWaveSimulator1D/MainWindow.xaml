@@ -17,11 +17,13 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="1*" />
                         <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
                     </Grid.RowDefinitions>
                     <Label Content="Sound speed (m/s)" HorizontalAlignment="Right" Name="labelSoundSpeed" VerticalAlignment="Center" />
-                    <TextBox Grid.Column="1" HorizontalAlignment="Left" Name="textBoxSoundSpeed" VerticalAlignment="Center" Width="60" Text="334" HorizontalContentAlignment="Right" />
-                    <Label Content="Time step Δt (s)" Grid.Row="1" HorizontalAlignment="Right" Name="labelTimeStep" VerticalAlignment="Center" />
-                    <TextBox Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" Name="textBoxTimeStep" VerticalAlignment="Center" Width="60" Text="0.001" HorizontalContentAlignment="Right" />
+                    <TextBox Grid.Column="1" HorizontalAlignment="Left" Name="textBoxSoundSpeed" VerticalAlignment="Center" Width="60" Text="334" HorizontalContentAlignment="Right"  />
+                    <Label Content="Time step Δt (ms)" Grid.Row="1" HorizontalAlignment="Right" Name="labelTimeStep" VerticalAlignment="Center" />
+                    <TextBox Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" Name="textBoxTimeStep" VerticalAlignment="Center" Width="60" Text="0.01" HorizontalContentAlignment="Right" />
+                    <Button Content="Update Simulator" Grid.Row="2" HorizontalAlignment="Center" Grid.ColumnSpan="2" Name="buttonUpdateSimulator" VerticalAlignment="Center" Click="buttonUpdateSimulator_Click" />
                 </Grid>
             </GroupBox>
             <GroupBox Header="Control" Height="116" Name="groupBox2" >
@@ -42,7 +44,7 @@
                     <Button Content="⏸" HorizontalAlignment="Center" Grid.Column="3" Name="buttonPause" VerticalAlignment="Center" Width="50" Height="40" FontSize="20" IsEnabled="False" />
                     <Label Content="Time:" Grid.Row="1" HorizontalAlignment="Right" Name="labelTime" VerticalAlignment="Center" />
                     <Label Content="0.0" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Right" Name="labelSec" VerticalAlignment="Center" />
-                    <Label Content="sec" Grid.Row="1" Grid.Column="3" HorizontalAlignment="Left" Name="labelSecUnit" VerticalAlignment="Center" />
+                    <Label Content="ms" Grid.Row="1" Grid.Column="3" HorizontalAlignment="Left" Name="labelSecUnit" VerticalAlignment="Center" />
                 </Grid>
             </GroupBox>
         </StackPanel>
@@ -50,11 +52,16 @@
             <GroupBox Header="Pressure (Touch string to generate Wave)" Height="320">
                 <ScrollViewer Grid.Column="1" Name="scrollViewerP" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Disabled">
                     <Canvas Height="256" Name="canvasP" Width="1024" MouseUp="canvasP_MouseUp" Background="White">
+                        <Line X1="-3" X2="1024" Y1="128" Y2="128" Stroke="LightGray" />
                         <Polyline Name="mPolylineP"  Stroke="Black" StrokeThickness="1" />
+                        <TextBlock Canvas.Left="-3" Canvas.Top="128" Name="textBlockZero" Text="0"  />
+                        <TextBlock Canvas.Left="509" Canvas.Top="128" Name="textBlockHalf" Text="Half"  />
+                        <TextBlock Canvas.Left="1021" Canvas.Top="128" Name="textBlockFull" Text="Full"  />
+                        <TextBlock Canvas.Left="1028" Canvas.Top="140" Name="textBlockCm" Text="m"  />
                     </Canvas>
                 </ScrollViewer>
             </GroupBox>
-            <GroupBox Header="Velocity" Height="320">
+            <GroupBox Header="Velocity" Height="320" Visibility="Collapsed">
                 <ScrollViewer Grid.Column="1" Name="scrollViewerV" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Disabled">
                     <Canvas Height="256" Name="canvasV" Width="1024" Background="White">
                         <Polyline Name="mPolylineV" Stroke="Black" StrokeThickness="1" />

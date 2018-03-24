@@ -23,12 +23,12 @@ namespace WWWaveSimulator1D {
     public partial class MainWindow : Window {
         private WaveSim1D mSim;
 
-        private int mW = 256;
-        private int mScale = 4;
+        private int mW = 1024;
+        private int mVisualizeStep = 4;
         private int mSleepMillisec = 17;
 
         private double mCenterY = 127;
-        private double mMagnitude = 64;
+        private double mMagnitude = 128;
 
         DispatcherTimer mDT;
 
@@ -36,12 +36,17 @@ namespace WWWaveSimulator1D {
             InitializeComponent();
         }
 
+        private object mLock = new object();
+
         private bool mInitialized = false;
+        private float mC0 = 334.0f;             // 334 (m/s)
+        private float mΔt = 1.0e-5f;            // 1x10^-5 (s)
+        private float mΔx = 334.0f * 1.0e-5f;   // 334 * 10^-5 (m)  (mC0 * mΔtにするとSc=1になる)
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
             mInitialized = true;
 
-            mSim = new WaveSim1D(mW);
+            UpdateSimulator();
 
             mDT = new System.Windows.Threading.DispatcherTimer();
             mDT.Tick += new EventHandler(dispatcherTimer_Tick);
@@ -54,10 +59,34 @@ namespace WWWaveSimulator1D {
             buttonRewind.IsEnabled = true;
         }
 
-        private void dispatcherTimer_Tick(object sender, EventArgs e) {
-            mSim.Update();
+        private void UpdateSimulator() {
+            if (!float.TryParse(textBoxSoundSpeed.Text, out mC0)) {
+                MessageBox.Show("E: parse Sound Speed failed");
+                return;
+            }
+            float Δt_ms;
+            if (!float.TryParse(textBoxTimeStep.Text, out Δt_ms)) {
+                MessageBox.Show("E: parsing Time step failed");
+                return;
+            }
+            mΔt = Δt_ms * 0.001f;
 
-            UpdateUI();
+            mΔx = mC0 * mΔt;
+
+            textBlockHalf.Text = string.Format("{0}", mΔx * 512);
+            textBlockFull.Text = string.Format("{0}", mΔx * 1024);
+
+            lock (mLock) {
+                mSim = new WaveSim1D(mW, mC0, mΔt, mΔx);
+            }
+        }
+
+        private void dispatcherTimer_Tick(object sender, EventArgs e) {
+            lock (mLock) {
+                mSim.Update();
+
+                UpdateUI();
+            }
 
             // Forcing the CommandManager to raise the RequerySuggested event
             //CommandManager.InvalidateRequerySuggested();
@@ -67,9 +96,9 @@ namespace WWWaveSimulator1D {
             mPolylineP.Points.Clear();
 
             var P = mSim.P();
-            for (int i = 0; i < P.Length; ++i) {
+            for (int i = 0; i < P.Length; i+=mVisualizeStep) {
                 double y = mCenterY - mMagnitude * P[i];
-                mPolylineP.Points.Add(new Point(i * mScale, y));
+                mPolylineP.Points.Add(new Point(i, y));
             }
 
             /*
@@ -85,11 +114,20 @@ namespace WWWaveSimulator1D {
 
         private void canvasP_MouseUp(object sender, MouseButtonEventArgs e) {
             Point p = Mouse.GetPosition(canvasP);
-            mSim.AddStimula((float)(p.X / mScale));
+            mSim.AddStimula((float)(p.X));
         }
 
         private void buttonRewind_Click(object sender, RoutedEventArgs e) {
             mSim.Reset();
+        }
+
+
+        private void buttonUpdateSimulator_Click(object sender, RoutedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            }
+
+            UpdateSimulator();
         }
     }
 }

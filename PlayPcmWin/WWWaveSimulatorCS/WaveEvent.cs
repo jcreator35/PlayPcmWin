@@ -17,7 +17,7 @@ namespace WWWaveSimulatorCS {
         private float mSc;
         private const float PULSE_MAGNITUDE = 1.0f;
         private const float SINE_PERIOD = 50.0f;
-        private const int GAUSSIAN_PERIOD = 50;
+        private const int GAUSSIAN_PERIOD = 200;
 
         public WaveEvent(EventType t, float Sc, float x) {
             mType = t;
@@ -62,7 +62,7 @@ namespace WWWaveSimulatorCS {
 
         private bool UpdateGaussian(float[] P) {
             float halfPeriod = (float)(GAUSSIAN_PERIOD/mSc/2);
-            float width = 0.01f;
+            float width = 0.001f;
 
             float fr = (float)Math.Exp(-(mTime - halfPeriod) * (mTime - halfPeriod) * width);
 
