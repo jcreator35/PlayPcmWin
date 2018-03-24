@@ -79,6 +79,8 @@
   <ItemGroup>
     <Compile Include="Params.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WaveEvent.cs" />
+    <Compile Include="WaveSim1D.cs" />
     <Compile Include="WaveSim3D.cs" />
     <Compile Include="WWVector3.cs" />
   </ItemGroup>
