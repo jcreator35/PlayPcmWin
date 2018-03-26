@@ -21,7 +21,7 @@ namespace WWWaveSimulatorCS {
         /// <summary>
         /// 密度ρ
         /// </summary>
-        float[] mρ;
+        float[] mRoh;
 
         float[] mLoss;
 
@@ -59,9 +59,9 @@ namespace WWWaveSimulatorCS {
         public void Reset() {
             mP = new float[mGridW];
             mV = new float[mGridW];
-            mρ = new float[mGridW];
+            mRoh = new float[mGridW];
             for (int i = 0; i < mGridW; ++i) {
-                mρ[i] = 1.0f;
+                mRoh[i] = 1.0f;
             }
             /*
             for (int i = mGridW / 2; i < mGridW; ++i) {
@@ -80,11 +80,9 @@ namespace WWWaveSimulatorCS {
             */
 
             mLoss = new float[mGridW];
-            /*
             for (int i = mGridW/2; i < mGridW; ++i) {
                 mLoss[i] = 0.01f;
             }
-            */
 
             mWaveEventList.Clear();
 
@@ -114,8 +112,9 @@ namespace WWWaveSimulatorCS {
             mV[mV.Length - 1] = mV[mV.Length - 2];
             // Update V (John B.Schneider, Understanding the Finite-Difference Time-domain method, pp.328)
             for (int i = 0; i < mV.Length-1; ++i) {
-                float Cv = 2.0f * mSc / ((mρ[i] + mρ[i + 1]) * mC0);
-                mV[i] -= Cv * (mP[i + 1] - mP[i]);
+                float loss = mLoss[i];
+                float Cv = 2.0f * mSc / ((mRoh[i] + mRoh[i + 1]) * mC0);
+                mV[i] = (1.0f-loss)/(1.0f+loss) * mV[i] - (Cv/(1.0f+loss)) * (mP[i + 1] - mP[i]);
             }
 
             // ABC for P (pp.53)
@@ -123,7 +122,7 @@ namespace WWWaveSimulatorCS {
             // Update P (John B.Schneider, Understanding the Finite-Difference Time-domain method, pp.325)
             for (int i = 1; i < mP.Length; ++i) {
                 float loss = mLoss[i];
-                float Cp = mρ[i] * mCr[i] * mCr[i] * mC0 * mSc;
+                float Cp = mRoh[i] * mCr[i] * mCr[i] * mC0 * mSc;
                 mP[i] = (1.0f-loss)/(1.0f+loss) * mP[i] - (Cp/(1.0f+loss)) * (mV[i] - mV[i - 1]);
             }
 
@@ -140,10 +139,10 @@ namespace WWWaveSimulatorCS {
 
         public float ρ(int x) {
             System.Diagnostics.Debug.Assert(0 <= x);
-            if (mρ.Length <= x) {
-                return mρ[mρ.Length - 1];
+            if (mRoh.Length <= x) {
+                return mRoh[mRoh.Length - 1];
             }
-            return mρ[x];
+            return mRoh[x];
         }
 
         public float P(int x) {
