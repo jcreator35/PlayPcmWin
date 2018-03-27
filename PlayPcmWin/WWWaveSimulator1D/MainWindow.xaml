@@ -52,7 +52,10 @@
             <GroupBox Header="Pressure (Touch string to generate Wave)" Height="320">
                 <ScrollViewer Grid.Column="1" Name="scrollViewerP" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Disabled">
                     <Canvas Height="256" Name="canvasP" Width="1024" MouseUp="canvasP_MouseUp" Background="White">
+                        <Rectangle Canvas.Left="0" Canvas.Top="0" Height="256" Fill="LightGray" Width="51.2" />
+                        <Rectangle Canvas.Left="971.8" Canvas.Top="0" Height="256" Fill="LightGray" Width="51.2" />
                         <Line X1="-3" X2="1024" Y1="128" Y2="128" Stroke="LightGray" />
+                        <Line X1="512" X2="512" Y1="125" Y2="131" Stroke="Black" />
                         <Polyline Name="mPolylineP"  Stroke="Black" StrokeThickness="1" />
                         <TextBlock Canvas.Left="-3" Canvas.Top="128" Name="textBlockZero" Text="0"  />
                         <TextBlock Canvas.Left="509" Canvas.Top="128" Name="textBlockHalf" Text="Half"  />

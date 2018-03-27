@@ -1,4 +1,4 @@
-﻿// John B.Schneider, Understanding the Finite-Difference Time-domain method, pp.325-328
+﻿// [Schneider17] John B.Schneider, Understanding the Finite-Difference Time-domain method, 2017, pp.325-328
 
 
 using System;
@@ -60,28 +60,43 @@ namespace WWWaveSimulatorCS {
             mP = new float[mGridW];
             mV = new float[mGridW];
             mRoh = new float[mGridW];
+            mCr = new float[mGridW];
+            mLoss = new float[mGridW];
+
+            /*
+             * 音響インピーダンスη=ρ*Ca (Schneider17, pp.63, pp.325)
+             * η1から前進しη2の界面に達した波が界面で反射するとき
+             *
+             *             η2-η1
+             * 反射率 r = ────────
+             *             η2+η1
+             * 
+             * 媒質1のインピーダンスη1と反射率→媒質2のインピーダンスη2を得る式:
+             *
+             *       -(r+1)η1
+             * η2 = ─────────
+             *         r-1
+             */
+
             for (int i = 0; i < mGridW; ++i) {
                 mRoh[i] = 1.0f;
             }
-            /*
-            for (int i = mGridW / 2; i < mGridW; ++i) {
-                mρ[i] = 10.0f;
-            }
-             */
+            float r = 0.9f;
+            float roh2 = -(r + 1) * 1.0f / (r - 1);
 
-            mCr = new float[mGridW];
+            // 左右端領域は反射率90％の壁になっている。
+            for (int i = 0; i < mGridW * 1 / 20; ++i) {
+                mRoh[i] = roh2;
+                mLoss[i] = 0.1f;
+            }
+            for (int i = mGridW *19/20; i < mGridW; ++i) {
+                mRoh[i] = roh2;
+                mLoss[i] = 0.1f;
+            }
+
+            // 相対音速。0 < Cr < 1
             for (int i = 0; i < mGridW; ++i) {
                 mCr[i] = 1.0f;
-            }
-            /*
-            for (int i = mGridW/2; i < mGridW; ++i) {
-                mCr[i] = 0.5f;
-            }
-            */
-
-            mLoss = new float[mGridW];
-            for (int i = mGridW/2; i < mGridW; ++i) {
-                mLoss[i] = 0.01f;
             }
 
             mWaveEventList.Clear();
@@ -107,24 +122,33 @@ namespace WWWaveSimulatorCS {
                     mWaveEventList.Remove(v);
                 }
             }
-            
-            // ABC for V (pp.53)
+
+            // ABC for V (Schneider17, pp.53)
             mV[mV.Length - 1] = mV[mV.Length - 2];
-            // Update V (John B.Schneider, Understanding the Finite-Difference Time-domain method, pp.328)
+            // Update V (Schneider17, pp.328)
             for (int i = 0; i < mV.Length-1; ++i) {
                 float loss = mLoss[i];
                 float Cv = 2.0f * mSc / ((mRoh[i] + mRoh[i + 1]) * mC0);
                 mV[i] = (1.0f-loss)/(1.0f+loss) * mV[i] - (Cv/(1.0f+loss)) * (mP[i + 1] - mP[i]);
             }
 
-            // ABC for P (pp.53)
+            // ABC for P (Schneider17, pp.53)
             mP[0] = mP[1];
-            // Update P (John B.Schneider, Understanding the Finite-Difference Time-domain method, pp.325)
+            // Update P (Schneider17, pp.325)
             for (int i = 1; i < mP.Length; ++i) {
                 float loss = mLoss[i];
                 float Cp = mRoh[i] * mCr[i] * mCr[i] * mC0 * mSc;
                 mP[i] = (1.0f-loss)/(1.0f+loss) * mP[i] - (Cp/(1.0f+loss)) * (mV[i] - mV[i - 1]);
             }
+
+            float pMax = 0.0f;
+            for (int i = 1; i < mP.Length; ++i) {
+                if (pMax < Math.Abs(mP[i])) {
+                    pMax = Math.Abs(mP[i]);
+                }
+            }
+
+            Console.WriteLine("pMax={0}", pMax);
 
             ++mTimeTick;
         }
