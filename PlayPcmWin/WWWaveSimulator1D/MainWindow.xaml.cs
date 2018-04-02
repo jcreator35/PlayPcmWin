@@ -53,10 +53,11 @@ namespace WWWaveSimulator1D {
             mDT.Interval = new TimeSpan(0, 0, 0, 0, mSleepMillisec);
             mDT.Start();
 
-            buttonPlay.IsEnabled = false;
-            buttonStepForward.IsEnabled = false;
-            buttonPause.IsEnabled = true;
             buttonRewind.IsEnabled = true;
+            buttonFastForward.IsEnabled = true;
+
+            labelFreq.IsEnabled = false;
+            textBoxFreq.IsEnabled = false;
         }
 
         private void UpdateSimulator() {
@@ -83,7 +84,8 @@ namespace WWWaveSimulator1D {
 
         private void dispatcherTimer_Tick(object sender, EventArgs e) {
             lock (mLock) {
-                mSim.Update();
+                int nStimuli = mSim.Update();
+                Console.Write("{0} ", nStimuli);
 
                 UpdateUI();
             }
@@ -114,7 +116,17 @@ namespace WWWaveSimulator1D {
 
         private void canvasP_MouseUp(object sender, MouseButtonEventArgs e) {
             Point p = Mouse.GetPosition(canvasP);
-            mSim.AddStimula((float)(p.X));
+
+            WaveEvent.EventType t =
+                (WaveEvent.EventType)comboBoxSourceType.SelectedIndex;
+
+            float freq;
+            if (!float.TryParse(textBoxFreq.Text, out freq)) {
+                MessageBox.Show("Parse error : Frequency");
+                return;
+            }
+
+            mSim.AddStimula(t, (float)(p.X), freq);
         }
 
         private void buttonRewind_Click(object sender, RoutedEventArgs e) {
@@ -129,5 +141,51 @@ namespace WWWaveSimulator1D {
 
             UpdateSimulator();
         }
+
+        private void sliderFreq_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) {
+            if (!mInitialized) {
+                return;
+            }
+        }
+
+        private void buttonFastForward_Click(object sender, RoutedEventArgs e) {
+            lock (mLock) {
+                for (int i = 0; i < 1000; ++i) {
+                    mSim.Update();
+                }
+            }
+        }
+
+        private void buttonFastForward10_Click(object sender, RoutedEventArgs e) {
+            lock (mLock) {
+                for (int i = 0; i < 10000; ++i) {
+                    mSim.Update();
+                }
+            }
+        }
+
+        private void comboBoxSourceType_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            }
+
+            WaveEvent.EventType t =
+                (WaveEvent.EventType)comboBoxSourceType.SelectedIndex;
+
+            switch (t) {
+            case WaveEvent.EventType.Gaussian:
+                labelFreq.IsEnabled = false;
+                textBoxFreq.IsEnabled = false;
+                break;
+            case WaveEvent.EventType.Sine:
+                labelFreq.IsEnabled = true;
+                textBoxFreq.IsEnabled = true;
+                break;
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                break;
+            }
+        }
+    
     }
 }

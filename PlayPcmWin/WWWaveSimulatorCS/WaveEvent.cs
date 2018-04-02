@@ -4,34 +4,38 @@ using System.Linq;
 using System.Text;
 
 namespace WWWaveSimulatorCS {
-    class WaveEvent {
+    public class WaveEvent {
         public enum EventType {
             Gaussian,
-            Pulse,
             Sine,
+            Pulse,
         };
 
         private EventType mType;
         private int mTime;
         private int mX;
         private float mSc;
+        private float mFreq;
+        private float mΔt;
         private const float PULSE_MAGNITUDE = 1.0f;
-        private const float SINE_PERIOD = 50.0f;
+        private const float SINE_PERIOD = 1000000.0f;
         private const int GAUSSIAN_PERIOD = 200;
 
-        public WaveEvent(EventType t, float Sc, float x) {
+        public WaveEvent(EventType t, float Sc, float x, float freq, float Δt) {
             mType = t;
             mSc = Sc;
+            mFreq = freq;
+            mΔt = Δt;
 
             switch (t) {
             case EventType.Gaussian:
                 mTime = (int)(GAUSSIAN_PERIOD/ Sc);
                 break;
-            case EventType.Pulse:
-                mTime = 1;
-                break;
             case EventType.Sine:
                 mTime = (int)(SINE_PERIOD / Sc);
+                break;
+            case EventType.Pulse:
+                mTime = 1;
                 break;
             }
 
@@ -49,11 +53,11 @@ namespace WWWaveSimulatorCS {
             case EventType.Gaussian:
                 result = UpdateGaussian(P);
                 break;
-            case EventType.Pulse:
-                result = UpdatePulse(P);
-                break;
             case EventType.Sine:
                 result = UpdateSine(P);
+                break;
+            case EventType.Pulse:
+                result = UpdatePulse(P);
                 break;
             }
 
@@ -79,8 +83,22 @@ namespace WWWaveSimulatorCS {
             return IsFinished();
         }
 
+        /// <summary>
+        /// 経過時間 (秒)
+        /// </summary>
+        public float ElapsedTime() {
+            return  ((int)(SINE_PERIOD / mSc) - mTime) * mΔt;
+        }
+
         private bool UpdateSine(float[] P) {
-            P[mX] += 0.5f * (float)Math.Sin(2.0 * Math.PI * (float)(SINE_PERIOD - mSc * mTime) / SINE_PERIOD);
+            // ω: 角周波数
+            // f: 周波数
+            // T: 周期
+            // ω = 2π * f = 2π/T;
+
+            var ω = 2.0f * Math.PI * mFreq;
+
+            P[mX] += 0.1f * (float)Math.Sin(ω * ElapsedTime());
 
             --mTime;
             return IsFinished();
