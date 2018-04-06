@@ -85,7 +85,7 @@ namespace WWWaveSimulator1D {
         private void dispatcherTimer_Tick(object sender, EventArgs e) {
             lock (mLock) {
                 int nStimuli = mSim.Update();
-                Console.Write("{0} ", nStimuli);
+                //Console.Write("{0} ", nStimuli);
 
                 UpdateUI();
             }
@@ -112,6 +112,7 @@ namespace WWWaveSimulator1D {
             */
 
             labelSec.Content = string.Format("{0:F4}", mSim.ElapsedTime());
+            labelMagnitude.Content = string.Format("Magnitude: {0:F4}", mSim.Magnitude());
         }
 
         private void canvasP_MouseUp(object sender, MouseButtonEventArgs e) {

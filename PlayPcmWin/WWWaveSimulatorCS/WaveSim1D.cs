@@ -109,6 +109,12 @@ namespace WWWaveSimulatorCS {
             mWaveEventList.Add(ev);
         }
 
+        private float mMagnitude = 0;
+        
+        public float Magnitude() {
+            return mMagnitude;
+        }
+
         public int Update() {
             int nStimuli = 0;
 
@@ -170,7 +176,7 @@ namespace WWWaveSimulatorCS {
                 }
             }
 
-            Console.WriteLine("pMax={0}", pMax);
+            mMagnitude = pMax;
 
             ++mTimeTick;
 

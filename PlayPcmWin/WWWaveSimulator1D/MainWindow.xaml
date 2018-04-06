@@ -65,6 +65,15 @@
                     <TextBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Name="textBoxFreq" VerticalAlignment="Center" Width="60" Text="271.25" HorizontalContentAlignment="Right" />
                 </Grid>
             </GroupBox>
+            <GroupBox Header="Statistics" Height="100" Name="groupBoxStatistics" >
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                    </Grid.RowDefinitions>
+                    <Label Content="Magnitude: 0" HorizontalAlignment="Left" Margin="6,0,0,0" Name="labelMagnitude" VerticalAlignment="Center" />
+                </Grid>
+            </GroupBox>
         </StackPanel>
         <StackPanel Grid.Column="1">
             <GroupBox Header="Pressure (Touch string to generate Wave)" Height="320">
