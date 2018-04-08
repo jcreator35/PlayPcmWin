@@ -112,6 +112,7 @@ namespace WWWaveSimulator2D {
 
             switch (t) {
             case WaveEvent.EventType.Gaussian:
+            case WaveEvent.EventType.Pulse:
                 labelFreq.IsEnabled = false;
                 textBoxFreq.IsEnabled = false;
                 break;
@@ -143,7 +144,7 @@ namespace WWWaveSimulator2D {
                 return;
             }
 
-            mSim.AddStimula(t, (float)(p.X), (float)(p.Y), freq, magnitude);
+            mSim.AddStimulus(t, (float)(p.X), (float)(p.Y), freq, magnitude);
         }
     }
 }

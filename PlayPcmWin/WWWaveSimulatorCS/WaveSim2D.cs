@@ -94,26 +94,27 @@ namespace WWWaveSimulatorCS {
             }
 
             // 上下左右端領域は反射率80％の壁になっている。
-            float r = 0.8f; // 0.8 == 80%
+            float r = 1.0f; // 0.8 == 80%
             float roh2 = -(r + 1) * 1.0f / (r - 1);
+            float loss2 = 0.1f;
             for (int y = 0; y < mGridH; ++y) {
                 for (int x = 0; x < mGridW * 1 / 20; ++x) {
                     SetRoh(x, y, roh2);
-                    SetLoss(x, y, 0.1f);
+                    SetLoss(x, y, loss2);
                 }
                 for (int x = mGridW * 19 / 20; x < mGridW; ++x) {
                     SetRoh(x, y, roh2);
-                    SetLoss(x, y, 0.1f);
+                    SetLoss(x, y, loss2);
                 }
             }
             for (int x = 0; x < mGridW; ++x) {
                 for (int y = 0; y < mGridH * 1 / 20; ++y) {
                     SetRoh(x, y, roh2);
-                    SetLoss(x, y, 0.1f);
+                    SetLoss(x, y, loss2);
                 }
                 for (int y = mGridH * 19 / 20; y < mGridH; ++y) {
                     SetRoh(x, y, roh2);
-                    SetLoss(x, y, 0.1f);
+                    SetLoss(x, y, loss2);
                 }
             }
 
@@ -122,7 +123,7 @@ namespace WWWaveSimulatorCS {
             mTimeTick = 0;
         }
 
-        public void AddStimula(WaveEvent.EventType t, float x, float y, float freq, float magnitude) {
+        public void AddStimulus(WaveEvent.EventType t, float x, float y, float freq, float magnitude) {
             int pos = ((int)x) + ((int)y) * mGridW;
 
             var ev = new WaveEvent(t, mSc, pos, freq, magnitude, mΔt);
@@ -148,10 +149,20 @@ namespace WWWaveSimulatorCS {
 
                 ++nStimuli;
             }
-
             if (0 < toRemove.Count) {
                 foreach (var v in toRemove) {
                     mWaveEventList.Remove(v);
+                }
+            }
+
+            {
+                // 平面波
+                float d = 0.2f * (float)Math.Sin(2.0f * Math.PI * mTimeTick * 0.01f);
+                Console.WriteLine("{0}", d);
+                for (int y = mGridH / 20; y < mGridH * 19 / 20; ++y) {
+                    int x = mGridW / 2;
+
+                    SetP(x, y, d);
                 }
             }
 
@@ -164,26 +175,28 @@ namespace WWWaveSimulatorCS {
             }
 
             // Update V (Schneider17, pp.328)
-#if true
+#if false
             Parallel.For(0, mGridH - 1, y => {
                 for (int x = 0; x < mGridW - 1; ++x) {
                     pos = x + y * mGridW;
                     float loss = mLoss[pos];
                     float Cv = 2.0f * mSc / ((mRoh[pos] + mRoh[pos + 1]) * mC0);
                     WWVectorF2 v = V(x, y);
-                    v.v[0] = (1.0f - loss) / (1.0f + loss) * v.v[0] - (Cv / (1.0f + loss)) * (P(x + 1, y) - P(x, y));
-                    v.v[1] = (1.0f - loss) / (1.0f + loss) * v.v[1] - (Cv / (1.0f + loss)) * (P(x, y + 1) - P(x, y));
+                    float vx = (1.0f - loss) / (1.0f + loss) * v.X - (Cv / (1.0f + loss)) * (P(x + 1, y) - P(x, y));
+                    float vy = (1.0f - loss) / (1.0f + loss) * v.Y - (Cv / (1.0f + loss)) * (P(x, y + 1) - P(x, y));
+                    SetV(x, y, new WWVectorF2(vx, vy));
                 }
             });
 #else
             for (int y=0; y<mGridH-1; ++y) {
-                for (int x=0; x<mGridW-1; ++x) {
-                    pos = x + y*mGridW;
+                for (int x = 0; x < mGridW - 1; ++x) {
+                    pos = x + y * mGridW;
                     float loss = mLoss[pos];
                     float Cv = 2.0f * mSc / ((mRoh[pos] + mRoh[pos + 1]) * mC0);
                     WWVectorF2 v = V(x, y);
-                    v.v[0] = (1.0f - loss) / (1.0f + loss) * v.v[0] - (Cv / (1.0f + loss)) * (P(x + 1, y) - P(x, y));
-                    v.v[1] = (1.0f - loss) / (1.0f + loss) * v.v[1] - (Cv / (1.0f + loss)) * (P(x, y+1) - P(x, y));
+                    float vx = (1.0f - loss) / (1.0f + loss) * v.X - (Cv / (1.0f + loss)) * (P(x + 1, y) - P(x, y));
+                    float vy = (1.0f - loss) / (1.0f + loss) * v.Y - (Cv / (1.0f + loss)) * (P(x, y + 1) - P(x, y));
+                    SetV(x, y, new WWVectorF2(vx, vy));
                 }
             }
 #endif
@@ -196,7 +209,7 @@ namespace WWWaveSimulatorCS {
                 SetP(x, 0, P(x, 1));
             }
             // Update P (Schneider17, pp.325)
-#if true
+#if false
             Parallel.For(1, mGridH, y => {
                 for (int x = 1; x < mGridW; ++x) {
                     pos = x + y * mGridW;
@@ -204,18 +217,18 @@ namespace WWWaveSimulatorCS {
                     var v = V(x, y);
                     float Cp = mRoh[pos] * mCr[pos] * mCr[pos] * mC0 * mSc;
                     mP[pos] = (1.0f - loss) / (1.0f + loss) * mP[pos] - (Cp / (1.0f + loss))
-                        * (v.v[0] - V(x - 1, y).v[0] + v.v[1] - V(x, y - 1).v[1]);
+                        * (v.X - V(x - 1, y).X + v.Y - V(x, y - 1).Y);
                 }
             });
 #else
             for (int y = 1; y < mGridH; ++y) {
                 for (int x = 1; x < mGridW; ++x) {
-                    pos = x + y*mGridW;
+                    pos = x + y * mGridW;
                     float loss = mLoss[pos];
-                    var v = V(x,y);
+                    var v = V(x, y);
                     float Cp = mRoh[pos] * mCr[pos] * mCr[pos] * mC0 * mSc;
                     mP[pos] = (1.0f - loss) / (1.0f + loss) * mP[pos] - (Cp / (1.0f + loss))
-                        * (v.v[0] - V(x-1,y).v[0] + v.v[1] - V(x,y-1).v[1]);
+                        * (v.X - V(x - 1, y).X + v.Y - V(x, y - 1).Y);
                 }
             }
 #endif
@@ -260,7 +273,16 @@ namespace WWWaveSimulatorCS {
         }
 
         public float[] Pshow() {
-            return mP;
+            var p = new float[mGridCount];
+
+            Parallel.For(0, mGridH, y => {
+                for (int x = 0; x < mGridW; ++x) {
+                    int pos = x + y * mGridW;
+                    p[pos] = Math.Abs(mP[pos]);
+                }
+            });
+
+            return p;
         }
 
         public float ElapsedTime() {

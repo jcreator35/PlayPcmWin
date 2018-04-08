@@ -104,7 +104,7 @@ namespace WWWaveSimulatorCS {
             mTimeTick = 0;
         }
 
-        public void AddStimula(WaveEvent.EventType t, float x, float freq, float magnitude) {
+        public void AddStimulus(WaveEvent.EventType t, float x, float freq, float magnitude) {
             var ev = new WaveEvent(t, mSc, x, freq, magnitude, mΔt);
             mWaveEventList.Add(ev);
         }

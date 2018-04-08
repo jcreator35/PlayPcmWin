@@ -5,6 +5,25 @@ using System.Text;
 
 namespace WWWaveSimulatorCS {
     public class WWVectorF2 {
-        public float[] v = new float[2];
+        private float[] v = new float[2];
+        public WWVectorF2() {
+        }
+
+        public WWVectorF2(float x, float y) {
+            v[0] = x;
+            v[1] = y;
+        }
+
+        public float X {
+            get {
+                return v[0];
+            }
+        }
+
+        public float Y {
+            get { 
+                return v[1];
+            }
+        }
     }
 }

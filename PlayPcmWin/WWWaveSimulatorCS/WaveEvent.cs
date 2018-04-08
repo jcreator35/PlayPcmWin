@@ -18,9 +18,9 @@ namespace WWWaveSimulatorCS {
         private float mFreq;
         private float mMagnitude;
         private float mΔt;
-        private const float PULSE_MAGNITUDE = 1.0f;
         private const float SINE_PERIOD = 1000000.0f;
         private const int GAUSSIAN_PERIOD = 200;
+        private const int PULSE_PERIOD = 1;
 
         public WaveEvent(EventType t, float Sc, float x, float freq, float magnitude, float Δt) {
             mType = t;
@@ -37,7 +37,7 @@ namespace WWWaveSimulatorCS {
                 mTime = (int)(SINE_PERIOD / Sc);
                 break;
             case EventType.Pulse:
-                mTime = 1;
+                mTime = (int)(PULSE_PERIOD/Sc);
                 break;
             }
 
@@ -72,24 +72,10 @@ namespace WWWaveSimulatorCS {
 
             float fr = (float)Math.Exp(-(mTime - halfPeriod) * (mTime - halfPeriod) * width);
 
-            P[mX] += fr;
+            P[mX] += mMagnitude * fr;
 
             --mTime;
             return IsFinished();
-        }
-
-        private bool UpdatePulse(float[] P) {
-            P[mX] += PULSE_MAGNITUDE;
-
-            --mTime;
-            return IsFinished();
-        }
-
-        /// <summary>
-        /// 経過時間 (秒)
-        /// </summary>
-        public float ElapsedTime() {
-            return  ((int)(SINE_PERIOD / mSc) - mTime) * mΔt;
         }
 
         private bool UpdateSine(float[] P) {
@@ -104,6 +90,20 @@ namespace WWWaveSimulatorCS {
 
             --mTime;
             return IsFinished();
+        }
+
+        private bool UpdatePulse(float[] P) {
+            P[mX] += mMagnitude;
+
+            --mTime;
+            return IsFinished();
+        }
+
+        /// <summary>
+        /// 経過時間 (秒)
+        /// </summary>
+        public float ElapsedTime() {
+            return ((int)(SINE_PERIOD / mSc) - mTime) * mΔt;
         }
 
         public bool IsFinished() {

@@ -127,7 +127,13 @@ namespace WWWaveSimulator1D {
                 return;
             }
 
-            mSim.AddStimula(t, (float)(p.X), freq);
+            float magnitude;
+            if (!float.TryParse(textBoxMagnitude.Text, out magnitude)) {
+                MessageBox.Show("Parse error : Stimulus magnitude");
+                return;
+            }
+
+            mSim.AddStimulus(t, (float)(p.X), freq, magnitude);
         }
 
         private void buttonRewind_Click(object sender, RoutedEventArgs e) {
@@ -175,6 +181,7 @@ namespace WWWaveSimulator1D {
 
             switch (t) {
             case WaveEvent.EventType.Gaussian:
+            case WaveEvent.EventType.Pulse:
                 labelFreq.IsEnabled = false;
                 textBoxFreq.IsEnabled = false;
                 break;

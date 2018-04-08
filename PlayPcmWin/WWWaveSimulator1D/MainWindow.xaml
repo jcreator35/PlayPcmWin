@@ -46,7 +46,7 @@
                     <Label Content="ms" Grid.Row="1" Grid.Column="3" HorizontalAlignment="Left" Name="labelSecUnit" VerticalAlignment="Center" />
                 </Grid>
             </GroupBox>
-            <GroupBox Header="Source control" Height="100" Name="groupBoxSourceControl" >
+            <GroupBox Header="Stimulus" Height="100" Name="groupBoxSourceControl" >
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2*" />
@@ -60,9 +60,12 @@
                     <ComboBox Grid.Row="0" Grid.RowSpan="2" HorizontalAlignment="Left" Name="comboBoxSourceType" VerticalAlignment="Top" Width="120" SelectionChanged="comboBoxSourceType_SelectionChanged">
                         <ComboBoxItem Content="Waveform: Gaussian" IsSelected="True" />
                         <ComboBoxItem Content="Waveform: Sinusoidal" />
+                        <ComboBoxItem Content="Waveform: Pulse" />
                     </ComboBox>
                     <Label Content="Frequency (Hz)" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Right" Name="labelFreq" VerticalAlignment="Center" />
                     <TextBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Name="textBoxFreq" VerticalAlignment="Center" Width="60" Text="271.25" HorizontalContentAlignment="Right" />
+                    <Label Content="Magnitude" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Right" Name="labelStimulusMagnitude" VerticalAlignment="Center" />
+                    <TextBox Grid.Row="2" Grid.Column="1" HorizontalAlignment="Left" Name="textBoxMagnitude" VerticalAlignment="Center" Width="60" Text="0.2" HorizontalContentAlignment="Right" />
                 </Grid>
             </GroupBox>
             <GroupBox Header="Statistics" Height="100" Name="groupBoxStatistics" >
