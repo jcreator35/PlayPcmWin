@@ -122,10 +122,10 @@ namespace WWWaveSimulatorCS {
             mTimeTick = 0;
         }
 
-        public void AddStimula(WaveEvent.EventType t, float x, float y, float freq) {
+        public void AddStimula(WaveEvent.EventType t, float x, float y, float freq, float magnitude) {
             int pos = ((int)x) + ((int)y) * mGridW;
 
-            var ev = new WaveEvent(t, mSc, pos, freq, mΔt);
+            var ev = new WaveEvent(t, mSc, pos, freq, magnitude, mΔt);
             mWaveEventList.Add(ev);
         }
 

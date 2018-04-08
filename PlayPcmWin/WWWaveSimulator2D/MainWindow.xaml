@@ -45,6 +45,8 @@
                     </ComboBox>
                     <Label Content="Frequency (Hz)" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Right" Name="labelFreq" VerticalAlignment="Center" />
                     <TextBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Name="textBoxFreq" VerticalAlignment="Center" Width="60" Text="271.25" HorizontalContentAlignment="Right" />
+                    <Label Content="Magnitude" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Right" Name="labelStimulationMagnitude" VerticalAlignment="Center" />
+                    <TextBox Grid.Row="2" Grid.Column="1" HorizontalAlignment="Left" Name="textBoxStimulationMagnitude" VerticalAlignment="Center" Width="60" Text="0.2" HorizontalContentAlignment="Right" />
                 </Grid>
             </GroupBox>
             <GroupBox Header="Statistics" Height="100" Name="groupBoxStatistics" >
@@ -58,7 +60,7 @@
             </GroupBox>
         </StackPanel>
         <ScrollViewer Grid.Column="1" Name="scrollViewer1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-            <Canvas Height="1024" HorizontalAlignment="Left" Name="canvasP" VerticalAlignment="Top" Width="1024">
+            <Canvas Height="1024" HorizontalAlignment="Left" Name="canvasP" VerticalAlignment="Top" Width="1024" MouseUp="canvasP_MouseUp" Background="White">
                 <Image Width="1024" Height="1024" Name="mImage" />
                 <Rectangle Canvas.Left="0" Canvas.Top="0" Height="1024" Fill="LightGray" Width="51.2" />
                 <Rectangle Canvas.Left="971.8" Canvas.Top="0" Height="1024" Fill="LightGray" Width="51.2" />

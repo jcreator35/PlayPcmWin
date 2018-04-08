@@ -16,15 +16,17 @@ namespace WWWaveSimulatorCS {
         private int mX;
         private float mSc;
         private float mFreq;
+        private float mMagnitude;
         private float mΔt;
         private const float PULSE_MAGNITUDE = 1.0f;
         private const float SINE_PERIOD = 1000000.0f;
         private const int GAUSSIAN_PERIOD = 200;
 
-        public WaveEvent(EventType t, float Sc, float x, float freq, float Δt) {
+        public WaveEvent(EventType t, float Sc, float x, float freq, float magnitude, float Δt) {
             mType = t;
             mSc = Sc;
             mFreq = freq;
+            mMagnitude = magnitude;
             mΔt = Δt;
 
             switch (t) {
@@ -98,7 +100,7 @@ namespace WWWaveSimulatorCS {
 
             var ω = 2.0f * Math.PI * mFreq;
 
-            P[mX] += 0.1f * (float)Math.Sin(ω * ElapsedTime());
+            P[mX] += mMagnitude * (float)Math.Sin(ω * ElapsedTime());
 
             --mTime;
             return IsFinished();

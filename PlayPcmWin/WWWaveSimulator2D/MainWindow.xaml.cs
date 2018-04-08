@@ -124,5 +124,26 @@ namespace WWWaveSimulator2D {
                 break;
             }
         }
+    
+        private void canvasP_MouseUp(object sender, MouseButtonEventArgs e) {
+            Point p = Mouse.GetPosition(canvasP);
+
+            WaveEvent.EventType t =
+                (WaveEvent.EventType)comboBoxSourceType.SelectedIndex;
+            
+            float freq;
+            if (!float.TryParse(textBoxFreq.Text, out freq)) {
+                MessageBox.Show("Parse error : Frequency");
+                return;
+            }
+
+            float magnitude = 0;
+            if (!float.TryParse(textBoxStimulationMagnitude.Text, out magnitude)) {
+                MessageBox.Show("Error: Stimulation magnitude parse error");
+                return;
+            }
+
+            mSim.AddStimula(t, (float)(p.X), (float)(p.Y), freq, magnitude);
+        }
     }
 }
