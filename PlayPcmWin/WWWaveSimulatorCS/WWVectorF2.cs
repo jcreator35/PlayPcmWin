@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 
 namespace WWWaveSimulatorCS {
-    public class WWVector3 {
-        public double [] v = new double[3];
+    public class WWVectorF2 {
+        public float[] v = new float[2];
     }
 }

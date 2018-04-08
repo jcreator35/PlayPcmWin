@@ -11,33 +11,24 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using WWWaveSimulatorCS;
-using System.ComponentModel;
-using System.Threading;
 using System.Windows.Threading;
+using WWWaveSimulatorCS;
 
-namespace WWWaveSimulator1D {
+namespace WWWaveSimulator2D {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window {
-        private WaveSim1D mSim;
-
-        private int mW = 1024;
-        private int mVisualizeStep = 4;
-        private int mSleepMillisec = 17;
-
-        private double mCenterY = 127;
-        private double mMagnitude = 128;
-
+        private bool mInitialized;
         private DispatcherTimer mDT;
-
+        private WaveSim2D mSim;
         private object mLock = new object();
-
-        private bool mInitialized = false;
-        private float mC0 = 334.0f;             // 334 (m/s)
-        private float mΔt = 1.0e-5f;            // 1x10^-5 (s)
-        private float mΔx = 334.0f * 1.0e-5f;   // 334 * 10^-5 (m)  (mC0 * mΔtにするとSc=1になる)
+        private int mW = 1024;
+        private int mH = 1024;
+        private int mSleepMillisec = 100;
+        private float mC0 = 334; // 334m/s
+        private float mΔt = 0.01f * 0.001f; // 0.01ms
+        private float mΔx;
 
         public MainWindow() {
             InitializeComponent();
@@ -61,24 +52,13 @@ namespace WWWaveSimulator1D {
         }
 
         private void UpdateSimulator() {
-            if (!float.TryParse(textBoxSoundSpeed.Text, out mC0)) {
-                MessageBox.Show("E: parse Sound Speed failed");
-                return;
-            }
-            float Δt_ms;
-            if (!float.TryParse(textBoxTimeStep.Text, out Δt_ms)) {
-                MessageBox.Show("E: parsing Time step failed");
-                return;
-            }
-            mΔt = Δt_ms * 0.001f;
-
             mΔx = mC0 * mΔt;
 
             textBlockHalf.Text = string.Format("{0}", mΔx * 512);
             textBlockFull.Text = string.Format("{0}", mΔx * 1024);
 
             lock (mLock) {
-                mSim = new WaveSim1D(mW, mC0, mΔt, mΔx);
+                mSim = new WaveSim2D(mW, mH, mC0, mΔt, mΔx);
             }
         }
 
@@ -89,64 +69,21 @@ namespace WWWaveSimulator1D {
 
                 UpdateUI();
             }
-
-            // Forcing the CommandManager to raise the RequerySuggested event
-            //CommandManager.InvalidateRequerySuggested();
         }
 
         private void UpdateUI() {
-            mPolylineP.Points.Clear();
 
-            var P = mSim.P();
-            for (int i = 0; i < P.Length; i+=mVisualizeStep) {
-                double y = mCenterY - mMagnitude * P[i];
-                mPolylineP.Points.Add(new Point(i, y));
-            }
-
-            /*
-            var V = mSim.V();
-            for (int i = 0; i < V.Length; ++i) {
-                double y = mCenterY - mMagnitude * V[i];
-                mPolylineV.Points.Add(new Point(i * mScale, y));
-            }
-            */
+            var Pshow = mSim.Pshow();
+            var bitmap = BitmapSource.Create(mW, mH, 96,96, PixelFormats.Gray32Float, null, Pshow, mW*4);
+            bitmap.Freeze();
+            mImage.Source = bitmap;
 
             labelSec.Content = string.Format("{0:F4}", mSim.ElapsedTime());
             labelMagnitude.Content = string.Format("Magnitude: {0:F4}", mSim.Magnitude());
         }
 
-        private void canvasP_MouseUp(object sender, MouseButtonEventArgs e) {
-            Point p = Mouse.GetPosition(canvasP);
-
-            WaveEvent.EventType t =
-                (WaveEvent.EventType)comboBoxSourceType.SelectedIndex;
-
-            float freq;
-            if (!float.TryParse(textBoxFreq.Text, out freq)) {
-                MessageBox.Show("Parse error : Frequency");
-                return;
-            }
-
-            mSim.AddStimula(t, (float)(p.X), freq);
-        }
-
         private void buttonRewind_Click(object sender, RoutedEventArgs e) {
             mSim.Reset();
-        }
-
-
-        private void buttonUpdateSimulator_Click(object sender, RoutedEventArgs e) {
-            if (!mInitialized) {
-                return;
-            }
-
-            UpdateSimulator();
-        }
-
-        private void sliderFreq_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) {
-            if (!mInitialized) {
-                return;
-            }
         }
 
         private void buttonFastForward_Click(object sender, RoutedEventArgs e) {
@@ -187,6 +124,5 @@ namespace WWWaveSimulator1D {
                 break;
             }
         }
-    
     }
 }
