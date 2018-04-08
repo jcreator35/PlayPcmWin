@@ -138,8 +138,6 @@ namespace WWWaveSimulatorCS {
 
         public int Update() {
             int nStimuli = 0;
-            int pos = 0;
-
             // Stimuli
             var toRemove = new List<WaveEvent>();
             foreach (var v in mWaveEventList) {
@@ -175,10 +173,10 @@ namespace WWWaveSimulatorCS {
             }
 
             // Update V (Schneider17, pp.328)
-#if false
+#if true
             Parallel.For(0, mGridH - 1, y => {
                 for (int x = 0; x < mGridW - 1; ++x) {
-                    pos = x + y * mGridW;
+                    int pos = x + y * mGridW;
                     float loss = mLoss[pos];
                     float Cv = 2.0f * mSc / ((mRoh[pos] + mRoh[pos + 1]) * mC0);
                     WWVectorF2 v = V(x, y);
@@ -209,10 +207,10 @@ namespace WWWaveSimulatorCS {
                 SetP(x, 0, P(x, 1));
             }
             // Update P (Schneider17, pp.325)
-#if false
+#if true
             Parallel.For(1, mGridH, y => {
                 for (int x = 1; x < mGridW; ++x) {
-                    pos = x + y * mGridW;
+                    int pos = x + y * mGridW;
                     float loss = mLoss[pos];
                     var v = V(x, y);
                     float Cp = mRoh[pos] * mCr[pos] * mCr[pos] * mC0 * mSc;
