@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WWUtil;
 
 namespace WWWaveSimulatorCS {
     public class WaveSim2D {
@@ -33,15 +34,19 @@ namespace WWWaveSimulatorCS {
         int mGridH; // y
         int mGridCount; // x * y
 
+        private Delay [] mDelayArray;
+
+        private float [] mAbcCoef;
+
         /// <summary>
         /// シミュレーションtick。Δtを掛けると時間になる。
         /// </summary>
         int mTimeTick;
 
-        private float mC0 = 334.0f;             // 334 (m/s)
-        private float mΔt = 1.0e-5f;            // 1x10^-5 (s)
-        private float mΔx = 334.0f * 1.0e-5f;   // 334 * 10^-5 (m)
-        private float mSc = 0; // c0 * Δt / Δx;
+        private float mC0 = 1.0f; // 334.0f;             // 334 (m/s)
+        private float mΔt = 1.0f; // 1.0e-5f;            // 1x10^-5 (s)
+        private float mΔx = 1.0f; // 334.0f * 1.0e-5f;   // 334 * 10^-5 (m)
+        private float mSc = 1.0f; // クーラント数は1.0/sqrt(2)     c0 * Δt / Δx;
 
         private List<WaveEvent> mWaveEventList = new List<WaveEvent>();
 
@@ -50,11 +55,20 @@ namespace WWWaveSimulatorCS {
             mGridH = gridH;
             mGridCount = mGridW * mGridH;
 
+            mSc = 1.0f / (float)Math.Sqrt(2.0);
+
+#if false
             mC0 = c0;
             mΔt = Δt;
             mΔx = Δx;
 
             mSc = mC0 * mΔt / mΔx;
+#endif
+
+            mDelayArray = new Delay[(gridW + gridH) * 2];
+            for (int i = 0; i < mDelayArray.Length; ++i) {
+                mDelayArray[i] = new Delay(2);
+            }
 
             Reset();
         }
@@ -83,6 +97,8 @@ namespace WWWaveSimulatorCS {
              *       -(r+1)η1
              * η2 = ─────────
              *         r-1
+             *         
+             * Courant number Sc = c0 Δt / Δx
              */
 
             for (int i = 0; i < mGridCount; ++i) {
@@ -93,6 +109,7 @@ namespace WWWaveSimulatorCS {
                 mCr[i] = 1.0f;
             }
 
+#if false
             // 上下左右端領域は反射率80％の壁になっている。
             float r = 1.0f; // 0.8 == 80%
             float roh2 = -(r + 1) * 1.0f / (r - 1);
@@ -117,8 +134,21 @@ namespace WWWaveSimulatorCS {
                     SetLoss(x, y, loss2);
                 }
             }
+#endif
 
             mWaveEventList.Clear();
+
+            // 2次のABC用の過去データ置き場。
+            for (int i = 0; i < mDelayArray.Length; ++i) {
+                mDelayArray[i].FillZeroes();
+            }
+            // ABCの係数。
+            mAbcCoef = new float[3];
+            float ScPrime = 1.0f;
+            float denom = 1.0f / ScPrime + 2.0f + ScPrime;
+            mAbcCoef[0] = -(1.0f / ScPrime - 2.0f + ScPrime) / denom;
+            mAbcCoef[1] = +(2.0f * ScPrime - 2.0f / ScPrime) / denom;
+            mAbcCoef[2] = -(4.0f * ScPrime + 4.0f / ScPrime) / denom;
 
             mTimeTick = 0;
         }
@@ -153,17 +183,9 @@ namespace WWWaveSimulatorCS {
                 }
             }
 
-            {
-                // 平面波
-                float d = 0.2f * (float)Math.Sin(2.0f * Math.PI * mTimeTick * 0.01f);
-                Console.WriteLine("{0}", d);
-                for (int y = mGridH / 20; y < mGridH * 19 / 20; ++y) {
-                    int x = mGridW / 2;
-
-                    SetP(x, y, d);
-                }
-            }
-
+#if true
+            // 2nd order ABC (pp.159)
+#else
             // ABC for V (Schneider17, pp.53)
             for (int y = 0; y < mGridH; ++y) {
                 SetV(mGridW - 1, y, V(mGridW - 2, y));
@@ -171,6 +193,7 @@ namespace WWWaveSimulatorCS {
             for (int x = 0; x < mGridW; ++x) {
                 SetV(x, mGridH - 1, V(x, mGridH - 2));
             }
+#endif
 
             // Update V (Schneider17, pp.328)
 #if true
@@ -179,7 +202,8 @@ namespace WWWaveSimulatorCS {
                     int pos = x + y * mGridW;
                     float loss = mLoss[pos];
                     float Cv = 2.0f * mSc / ((mRoh[pos] + mRoh[pos + 1]) * mC0);
-                    WWVectorF2 v = V(x, y);
+
+                    var v = V(x, y);
                     float vx = (1.0f - loss) / (1.0f + loss) * v.X - (Cv / (1.0f + loss)) * (P(x + 1, y) - P(x, y));
                     float vy = (1.0f - loss) / (1.0f + loss) * v.Y - (Cv / (1.0f + loss)) * (P(x, y + 1) - P(x, y));
                     SetV(x, y, new WWVectorF2(vx, vy));
@@ -199,6 +223,8 @@ namespace WWWaveSimulatorCS {
             }
 #endif
 
+#if true
+#else
             // ABC for P (Schneider17, pp.53)
             for (int y = 0; y < mGridH; ++y) {
                 SetP(0, y, P(1, y));
@@ -206,6 +232,8 @@ namespace WWWaveSimulatorCS {
             for (int x = 0; x < mGridW; ++x) {
                 SetP(x, 0, P(x, 1));
             }
+#endif
+
             // Update P (Schneider17, pp.325)
 #if true
             Parallel.For(1, mGridH, y => {
@@ -214,7 +242,8 @@ namespace WWWaveSimulatorCS {
                     float loss = mLoss[pos];
                     var v = V(x, y);
                     float Cp = mRoh[pos] * mCr[pos] * mCr[pos] * mC0 * mSc;
-                    mP[pos] = (1.0f - loss) / (1.0f + loss) * mP[pos] - (Cp / (1.0f + loss))
+                    mP[pos] = (1.0f - loss) / (1.0f + loss) * mP[pos] 
+                        - (Cp / (1.0f + loss))
                         * (v.X - V(x - 1, y).X + v.Y - V(x, y - 1).Y);
                 }
             });
@@ -227,6 +256,29 @@ namespace WWWaveSimulatorCS {
                     float Cp = mRoh[pos] * mCr[pos] * mCr[pos] * mC0 * mSc;
                     mP[pos] = (1.0f - loss) / (1.0f + loss) * mP[pos] - (Cp / (1.0f + loss))
                         * (v.X - V(x - 1, y).X + v.Y - V(x, y - 1).Y);
+                }
+            }
+#endif
+
+            #if true
+            {   // Ricker wavelet
+                float length = 20.0f;
+                float Sc = 1.0f / (float)Math.Sqrt(2.0);
+                var p = (float)Math.PI * ((Sc * mTimeTick) / length - 1.0f);
+
+                p *= p;
+                p = (1.0f - 2.0f*p)*(float)Math.Exp(-p);
+                SetP(mGridW/2, mGridH/2, p);
+            }
+#else
+            {
+                // 平面波
+                float d = 0.2f * (float)Math.Sin(2.0f * Math.PI * mTimeTick * 0.01f);
+                Console.WriteLine("{0}", d);
+                for (int y = mGridH / 20; y < mGridH * 19 / 20; ++y) {
+                    int x = mGridW / 20;
+
+                    SetP(x, y, d);
                 }
             }
 #endif

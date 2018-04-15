@@ -23,8 +23,8 @@ namespace WWWaveSimulator2D {
         private DispatcherTimer mDT;
         private WaveSim2D mSim;
         private object mLock = new object();
-        private int mW = 1024;
-        private int mH = 1024;
+        private int mW = 100;
+        private int mH = 100;
         private int mSleepMillisec = 100;
         private float mC0 = 334; // 334m/s
         private float mΔt = 0.01f * 0.001f; // 0.01ms
