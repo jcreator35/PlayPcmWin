@@ -64,8 +64,8 @@ namespace WWWaveSimulatorCS {
 
             mSc = mC0 * mΔt / mΔx;
 #endif
-
-            mDelayArray = new Delay[(gridW + gridH) * 2];
+            // 上下左右 x 2
+            mDelayArray = new Delay[(gridW + gridH) * 2 * 2];
             for (int i = 0; i < mDelayArray.Length; ++i) {
                 mDelayArray[i] = new Delay(2);
             }
@@ -142,13 +142,20 @@ namespace WWWaveSimulatorCS {
             for (int i = 0; i < mDelayArray.Length; ++i) {
                 mDelayArray[i].FillZeroes();
             }
-            // ABCの係数。
-            mAbcCoef = new float[3];
-            float ScPrime = 1.0f;
-            float denom = 1.0f / ScPrime + 2.0f + ScPrime;
-            mAbcCoef[0] = -(1.0f / ScPrime - 2.0f + ScPrime) / denom;
-            mAbcCoef[1] = +(2.0f * ScPrime - 2.0f / ScPrime) / denom;
-            mAbcCoef[2] = -(4.0f * ScPrime + 4.0f / ScPrime) / denom;
+
+            {
+                // ABCの係数。
+
+                float Cp = mRoh[0] * mCr[0] * mCr[0] * mC0 * mSc;
+                float Cv = 2.0f * mSc / ((mRoh[0] + mRoh[0 + 1]) * mC0);
+
+                mAbcCoef = new float[3];
+                float ScPrime = 1.0f; // (float)Math.Sqrt(Cp * Cv);
+                float denom = 1.0f / ScPrime + 2.0f + ScPrime;
+                mAbcCoef[0] = -(1.0f / ScPrime - 2.0f + ScPrime) / denom;
+                mAbcCoef[1] = +(2.0f * ScPrime - 2.0f / ScPrime) / denom;
+                mAbcCoef[2] = -(4.0f * ScPrime + 4.0f / ScPrime) / denom;
+            }
 
             mTimeTick = 0;
         }
@@ -223,17 +230,6 @@ namespace WWWaveSimulatorCS {
             }
 #endif
 
-#if true
-#else
-            // ABC for P (Schneider17, pp.53)
-            for (int y = 0; y < mGridH; ++y) {
-                SetP(0, y, P(1, y));
-            }
-            for (int x = 0; x < mGridW; ++x) {
-                SetP(x, 0, P(x, 1));
-            }
-#endif
-
             // Update P (Schneider17, pp.325)
 #if true
             Parallel.For(1, mGridH, y => {
@@ -242,7 +238,7 @@ namespace WWWaveSimulatorCS {
                     float loss = mLoss[pos];
                     var v = V(x, y);
                     float Cp = mRoh[pos] * mCr[pos] * mCr[pos] * mC0 * mSc;
-                    mP[pos] = (1.0f - loss) / (1.0f + loss) * mP[pos] 
+                    mP[pos] = (1.0f - loss) / (1.0f + loss) * mP[pos]
                         - (Cp / (1.0f + loss))
                         * (v.X - V(x - 1, y).X + v.Y - V(x, y - 1).Y);
                 }
@@ -260,15 +256,94 @@ namespace WWWaveSimulatorCS {
             }
 #endif
 
-            #if true
+#if true
+            // 1次のABC pp.148
+            for (int y = 0; y < mGridH; ++y) {
+                int offs = 0;
+
+                {
+                    // 左端 (x==0)
+
+                    //     m q
+                    //    p0_0をこれから計算する。
+                    float p0_1 = (float)mDelayArray[offs + y * 2 + 0].GetNthDelayedSampleValue(0);
+
+                    float p1_0 = (float)P(1, y);
+                    float p1_1 = (float)mDelayArray[offs + y * 2 + 1].GetNthDelayedSampleValue(0);
+
+                    float p0_0 = p1_1 + (mSc - 1) / (mSc + 1) * (p1_0 - p0_1);
+                    SetP(0, y, p0_0);
+
+                    mDelayArray[offs + y * 2 + 0].Filter(p0_0);
+                    mDelayArray[offs + y * 2 + 1].Filter(p1_0);
+                }
+
+                offs = mGridH*2;
+                {
+                    // 右端 (x==mGridW-1)
+                    //     m q
+                    //    p0_0をこれから計算する。
+                    float p0_1 = (float)mDelayArray[offs + y * 2 + 0].GetNthDelayedSampleValue(0);
+
+                    float p1_0 = (float)P(mGridW-2, y);
+                    float p1_1 = (float)mDelayArray[offs + y * 2 + 1].GetNthDelayedSampleValue(0);
+
+                    float p0_0 = p1_1 + (mSc - 1) / (mSc + 1) * (p1_0 - p0_1);
+                    SetP(mGridW-1, y, p0_0);
+
+                    mDelayArray[offs + y * 2 + 0].Filter(p0_0);
+                    mDelayArray[offs + y * 2 + 1].Filter(p1_0);
+                }
+            }
+
+            for (int x = 0; x < mGridW; ++x) {
+                int offs = mGridH*4;
+
+                {
+                    // 上 (y==0)
+
+                    //     m q
+                    //    p0_0をこれから計算する。
+                    float p0_1 = (float)mDelayArray[offs + x * 2 + 0].GetNthDelayedSampleValue(0);
+
+                    float p1_0 = (float)P(x, 1);
+                    float p1_1 = (float)mDelayArray[offs + x * 2 + 1].GetNthDelayedSampleValue(0);
+
+                    float p0_0 = p1_1 + (mSc - 1) / (mSc + 1) * (p1_0 - p0_1);
+                    SetP(x, 0, p0_0);
+
+                    mDelayArray[offs + x * 2 + 0].Filter(p0_0);
+                    mDelayArray[offs + x * 2 + 1].Filter(p1_0);
+                }
+
+                offs = mGridH*4 + mGridW * 2;
+                {
+                    // 下端 (y==mGridH-1)
+                    //     m q
+                    //    p0_0をこれから計算する。
+                    float p0_1 = (float)mDelayArray[offs + x * 2 + 0].GetNthDelayedSampleValue(0);
+
+                    float p1_0 = (float)P(x, mGridH - 2);
+                    float p1_1 = (float)mDelayArray[offs + x * 2 + 1].GetNthDelayedSampleValue(0);
+
+                    float p0_0 = p1_1 + (mSc - 1) / (mSc + 1) * (p1_0 - p0_1);
+                    SetP(x, mGridH - 1, p0_0);
+
+                    mDelayArray[offs + x * 2 + 0].Filter(p0_0);
+                    mDelayArray[offs + x * 2 + 1].Filter(p1_0);
+                }
+            }
+#endif
+
+#if true
             {   // Ricker wavelet
                 float length = 20.0f;
                 float Sc = 1.0f / (float)Math.Sqrt(2.0);
                 var p = (float)Math.PI * ((Sc * mTimeTick) / length - 1.0f);
 
                 p *= p;
-                p = (1.0f - 2.0f*p)*(float)Math.Exp(-p);
-                SetP(mGridW/2, mGridH/2, p);
+                p = (1.0f - 2.0f * p) * (float)Math.Exp(-p);
+                SetP(mGridW / 2, mGridH / 2, p);
             }
 #else
             {
