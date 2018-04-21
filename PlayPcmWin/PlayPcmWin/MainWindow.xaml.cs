@@ -935,20 +935,22 @@ namespace PlayPcmWin
 
                     var stat = ap.wasapi.GetSessionStatus();
                     if (WasapiCS.StreamType.DoP == stat.StreamType) {
-                        statusBarText.Content = string.Format(CultureInfo.InvariantCulture, "{0} WASAPI{1} {2}kHz {3} {4}ch DoP DSD {5:F1}MHz.",
+                        statusBarText.Content = string.Format(CultureInfo.InvariantCulture, "{0} WASAPI{1} {2}kHz {3} {4}ch DoP DSD {5:F1}MHz. Audio buffer size={6:F1}ms",
                                 Properties.Resources.MainStatusPlaying,
                                 radioButtonShared.IsChecked == true ? Properties.Resources.Shared : Properties.Resources.Exclusive,
                                 stat.DeviceSampleRate * 0.001,
                                 SampleFormatTypeToStr(stat.DeviceSampleFormat),
-                                stat.DeviceNumChannels, stat.DeviceSampleRate * 0.000016);
+                                stat.DeviceNumChannels, stat.DeviceSampleRate * 0.000016,
+                                1000.0 * stat.EndpointBufferFrameNum / stat.DeviceSampleRate);
                     } else {
-                        statusBarText.Content = string.Format(CultureInfo.InvariantCulture, "{0} WASAPI{1} {2}kHz {3} {4}ch PCM {5:F2}dB.",
+                        statusBarText.Content = string.Format(CultureInfo.InvariantCulture, "{0} WASAPI{1} {2}kHz {3} {4}ch PCM {5:F2}dB. Audio buffer size={6:F1}ms",
                                 Properties.Resources.MainStatusPlaying,
                                 radioButtonShared.IsChecked == true ? Properties.Resources.Shared : Properties.Resources.Exclusive,
                                 stat.DeviceSampleRate * 0.001,
                                 SampleFormatTypeToStr(stat.DeviceSampleFormat),
                                 stat.DeviceNumChannels,
-                                20.0 * Math.Log10(ap.wasapi.GetScalePcmAmplitude()));
+                                20.0 * Math.Log10(ap.wasapi.GetScalePcmAmplitude()),
+                                1000.0 * stat.EndpointBufferFrameNum / stat.DeviceSampleRate);
                     }
 
                     progressBar1.Visibility = System.Windows.Visibility.Collapsed;
