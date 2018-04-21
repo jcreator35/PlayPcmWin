@@ -25,6 +25,7 @@ Open Visual Studio x64 Win64 command prompt and enter following commands to crea
  sn -k WWFilterCppCs\WWFilterCppCs.snk
  sn -k WWImpulseResponse\WWImpulseResponse.snk
  sn -k WWMFReaderCs\WWMFReaderCs.snk
+ sn -k AiffHeaderRead\AiffHeaderRead.snk
 
 Open PlayPcmWin\PlayPcmWin.sln to build/run PlayPcmWin (choose Release x64 build target)
 
