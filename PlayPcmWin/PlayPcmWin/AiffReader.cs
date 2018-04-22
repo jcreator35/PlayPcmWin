@@ -96,7 +96,12 @@ namespace PlayPcmWin {
                     }
 
                     long ckSize = Util.ReadBigU32(br);
-                    PcmDataLib.Util.BinaryReaderSkip(br, PcmDataLib.Util.ChunkSizeWithPad(ckSize));
+                    long skipBytes = PcmDataLib.Util.ChunkSizeWithPad(ckSize);
+                    if (skipBytes < 0) {
+                        Console.WriteLine("E: SkipToChunk skipBytes < 0 {0}", skipBytes);
+                        return false;
+                    }
+                    PcmDataLib.Util.BinaryReaderSkip(br, skipBytes);
                 }
             } catch (System.IO.EndOfStreamException ex) {
                 Console.WriteLine(ex);
@@ -150,6 +155,11 @@ namespace PlayPcmWin {
                     return ResultType.NotSupportAifcCompression;
                 }
             }
+
+            if (ckSize - readSize < 0) {
+                Console.WriteLine("E: ReadCommonChunk ckSize - readSize = {0}", ckSize - readSize);
+                return ResultType.HeaderError;
+            }
             PcmDataLib.Util.BinaryReaderSkip(br, ckSize - readSize);
             
             SampleRate = (int)IEEE754ExtendedDoubleBigEndianToDouble(sampleRate80);
@@ -186,37 +196,61 @@ namespace PlayPcmWin {
             } else {
                 // SoundDataチャンクの最後まで移動。
                 // sizeof offset + blockSize == 8
-                PcmDataLib.Util.BinaryReaderSkip(br, PcmDataLib.Util.ChunkSizeWithPad(ckSize) - 8);
+
+                long skipBytes = PcmDataLib.Util.ChunkSizeWithPad(ckSize) - 8;
+                if (skipBytes < 0) {
+                    Console.WriteLine("E: ReadSoundDataChunk skipBytes < 0 {0}", skipBytes);
+                    return ResultType.HeaderError;
+                }
+                PcmDataLib.Util.BinaryReaderSkip(br, skipBytes);
             }
 
             return ResultType.Success;
         }
 
+        /// <summary>
+        /// ID3チャンクの読み込み。
+        /// 失敗してもクラッシュしないようにした: ReadErrorが戻る。
+        /// この関数を呼び出した後、ファイルポインタは中途半端な場所を挿した状態になる。
+        /// </summary>
         private ResultType ReadID3Chunk(BinaryReader br) {
-            if (!SkipToChunk(br, "ID3 ")) {
+            long ckSize = 0;
+            PcmDataLib.ID3Reader.ID3Result id3r = PcmDataLib.ID3Reader.ID3Result.ReadError;
+
+            try {
+                if (!SkipToChunk(br, "ID3 ")) {
+                    return ResultType.ReadError;
+                }
+
+                ckSize = Util.ReadBigU32(br);
+                if (ckSize < 10) {
+                    return ResultType.ReadError;
+                }
+            
+                id3r = mId3Reader.Read(br);
+            } catch (Exception ex) {
+                Console.WriteLine("ReadID3Chunk {0}", ex);
                 return ResultType.ReadError;
             }
-
-            long ckSize = Util.ReadBigU32(br);
-            if (ckSize < 10) {
-                return ResultType.ReadError;
-            }
-
-            var id3r = mId3Reader.Read(br);
 
             ResultType result = ResultType.Success;
             switch (id3r) {
             case PcmDataLib.ID3Reader.ID3Result.ReadError:
+            case PcmDataLib.ID3Reader.ID3Result.NotSupportedID3version: //< ID3が読めなくても再生はできるようにする。
                 result = ResultType.ReadError;
-                break;
-            case PcmDataLib.ID3Reader.ID3Result.NotSupportedID3version:
-                // ID3が読めなくても再生はできるようにする。
-                result = ResultType.Success;
-                PcmDataLib.Util.BinaryReaderSkip(br, PcmDataLib.Util.ChunkSizeWithPad(ckSize) - mId3Reader.ReadBytes);
                 break;
             case PcmDataLib.ID3Reader.ID3Result.Success:
                 result = ResultType.Success;
-                PcmDataLib.Util.BinaryReaderSkip(br, PcmDataLib.Util.ChunkSizeWithPad(ckSize) - mId3Reader.ReadBytes);
+                /* 以下はチャンクの終わりまでスキップする処理。必要ない。
+                {
+                    long skipBytes = PcmDataLib.Util.ChunkSizeWithPad(ckSize) - mId3Reader.ReadBytes;
+                    if (skipBytes < 0) {
+                        Console.WriteLine("ReadID3Chunk skipBytes < 0");
+                    } else {
+                        PcmDataLib.Util.BinaryReaderSkip(br, skipBytes);
+                    }
+                }
+                */
                 break;
             default:
                 // 追加忘れ
@@ -224,6 +258,7 @@ namespace PlayPcmWin {
                 result = ResultType.ReadError;
                 break;
             }
+
             return result;
         }
 
