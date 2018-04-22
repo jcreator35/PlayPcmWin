@@ -2,6 +2,7 @@
 using System.Windows;
 using Microsoft.Win32;
 using PcmDataLib;
+using System;
 
 namespace AiffHeaderRead {
     public partial class MainWindow : Window {
@@ -71,8 +72,13 @@ namespace AiffHeaderRead {
                 string.Format("File size = {0} bytes\r\n", new System.IO.FileInfo(path).Length);
 
             string s = "";
-            using (var br = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read))) {
-                s = ar.ReadHeader(br, out pcm);
+
+            try {
+                using (var br = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read))) {
+                    s = ar.ReadHeader(br, out pcm);
+                }
+            } catch (Exception ex) {
+                s += string.Format("\r\n{0}\r\n", ex);
             }
 
             textBoxOutput.Text += s;
