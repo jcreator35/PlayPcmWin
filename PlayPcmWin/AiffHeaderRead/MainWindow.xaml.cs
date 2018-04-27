@@ -18,7 +18,12 @@ namespace AiffHeaderRead {
             textBoxOutput.Text +=
                 string.Format("AiffHeaderRead {0}", AssemblyVersion);
 
-
+            string[] args = Environment.GetCommandLineArgs();
+            if (args.Length == 2) {
+                var path = args[1];
+                textBoxInputFile.Text = path;
+                Read(path);
+            }
         }
 
         private void MainWindowDragEnter(object sender, DragEventArgs e) {

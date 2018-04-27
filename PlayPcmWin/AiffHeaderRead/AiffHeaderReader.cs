@@ -245,9 +245,12 @@ namespace AiffHeaderRead {
             case PcmDataLib.ID3Reader.ID3Result.ReadError:
                 result = ResultType.ReadError;
                 break;
-            case PcmDataLib.ID3Reader.ID3Result.Success:
             case PcmDataLib.ID3Reader.ID3Result.NotSupportedID3version: // ID3が読めなくても再生はできるようにする。
                 result = ResultType.Success;
+                mSB.Append(string.Format("    ID3Reader returned {0}\r\n", id3r));
+                break;
+            case PcmDataLib.ID3Reader.ID3Result.Success:
+                mSB.Append(string.Format("    ID3 version 2.{0}\r\n", mId3Reader.MinorVersion));
                 /* この処理は必要ない。s
                 PcmDataLib.Util.BinaryReaderSkip(br, PcmDataLib.Util.ChunkSizeWithPad(ckSize) - mId3Reader.ReadBytes);
                  * */
@@ -332,7 +335,7 @@ namespace AiffHeaderRead {
                 if (0 < PictureBytes) {
                     pcmData.SetPicture(PictureBytes, PictureData);
                 }
-                mSB.Append(string.Format("    ID3チャンク読み込み成功。\r\n"));
+                mSB.Append(string.Format("    ID3チャンク読み込み終了。\r\n"));
                 break;
             default:
                 mSB.Append(string.Format("Error: ID3チャンクのエラー。{0}\r\n",result));
