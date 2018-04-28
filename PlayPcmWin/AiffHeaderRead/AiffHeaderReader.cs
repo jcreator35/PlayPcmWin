@@ -267,6 +267,7 @@ namespace AiffHeaderRead {
         public string TitleName { get { return mId3Reader.TitleName; } }
         public string AlbumName { get { return mId3Reader.AlbumName; } }
         public string ArtistName { get { return mId3Reader.ArtistName; } }
+        public string Composer { get { return mId3Reader.Composer; } }
 
         /// <summary>
         /// 画像データバイト数(無いときは0)
@@ -332,9 +333,14 @@ namespace AiffHeaderRead {
                 pcmData.DisplayName = TitleName;
                 pcmData.AlbumTitle = AlbumName;
                 pcmData.ArtistName = ArtistName;
+                pcmData.ComposerName = Composer;
                 if (0 < PictureBytes) {
                     pcmData.SetPicture(PictureBytes, PictureData);
                 }
+                mSB.Append(string.Format("    TitleName={0}\r\n", TitleName));
+                mSB.Append(string.Format("    AlbumName={0}\r\n", AlbumName));
+                mSB.Append(string.Format("    ArtistName={0}\r\n", ArtistName));
+                mSB.Append(string.Format("    Composer={0}\r\n", Composer));
                 mSB.Append(string.Format("    ID3チャンク読み込み終了。\r\n"));
                 break;
             default:

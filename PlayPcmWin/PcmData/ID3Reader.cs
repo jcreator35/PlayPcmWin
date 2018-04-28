@@ -12,6 +12,7 @@ namespace PcmDataLib {
         public string AlbumName { get; set; }
         public string TitleName { get; set; }
         public string ArtistName { get; set; }
+        public string Composer { get; set; }
 
         public int MinorVersion { get { return m_tagVersion[0]; } }
 
@@ -56,6 +57,7 @@ namespace PcmDataLib {
             AlbumName = string.Empty;
             TitleName = string.Empty;
             ArtistName = string.Empty;
+            Composer = string.Empty;
             m_unsynchro = false;
             m_footerPresent = false;
             m_bytesRemain = 0;
@@ -345,6 +347,10 @@ namespace PcmDataLib {
                     // "TPE1" artist
                     ArtistName = ReadTextFrame(br, frameSize, frameFlags);
                     break;
+                case 0x54434f4d:
+                    // "TCOM" composer
+                    Composer = ReadTextFrame(br, frameSize, frameFlags);
+                    break;
                 case 0x41504943:
                     // "APIC" attached picture
                     m_pictureData = ReadAttachedPictureFrameV23(br, frameSize);
@@ -392,6 +398,10 @@ namespace PcmDataLib {
                     // "TP1" Artist
                     ArtistName = ReadTextFrame(br, frameSize, 0);
                     break;
+                case 0x54434d:
+                    // "TCM" composer
+                    Composer = ReadTextFrame(br, frameSize, 0);
+                    break;
                 case 0x504943:
                     // "PIC" Attached Picture
                     m_pictureData = ReadAttachedPictureFrameV22(br, frameSize);
@@ -409,6 +419,19 @@ namespace PcmDataLib {
             return ID3Result.Success;
         }
 
+        private void SkipPadding(BinaryReader br) {
+            long skipBytes = m_bytesRemain;
+            if (m_footerPresent) {
+                skipBytes = m_bytesRemain - 10;
+            }
+
+            if (skipBytes < 0) {
+                return;
+            }
+
+            SkipBytesWithUnsynchro(br, skipBytes);
+        }
+
         public ID3Result Read(BinaryReader br) {
             Clear();
 
@@ -417,6 +440,9 @@ namespace PcmDataLib {
             if (result != ID3Result.Success) {
                 return result;
             }
+
+            Console.WriteLine("read  ={0}", m_readBytes);
+            Console.WriteLine("remain={0}", m_bytesRemain);
 
             switch (m_tagVersion[0]) {
             case 4:
@@ -432,6 +458,11 @@ namespace PcmDataLib {
             if (result != ID3Result.Success) {
                 return result;
             }
+
+            Console.WriteLine("read  ={0}", m_readBytes);
+            Console.WriteLine("remain={0}", m_bytesRemain);
+
+            SkipPadding(br);
 
             if (m_footerPresent) {
                 result = ReadTagFooter(br);
