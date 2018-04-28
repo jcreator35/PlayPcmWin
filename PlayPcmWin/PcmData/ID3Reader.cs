@@ -420,9 +420,9 @@ namespace PcmDataLib {
         }
 
         private void SkipPadding(BinaryReader br) {
-            long skipBytes = m_bytesRemain;
+            long skipBytes = m_bytesRemain-10;
             if (m_footerPresent) {
-                skipBytes = m_bytesRemain - 10;
+                skipBytes = m_bytesRemain - 20;
             }
 
             if (skipBytes < 0) {
@@ -441,8 +441,8 @@ namespace PcmDataLib {
                 return result;
             }
 
-            Console.WriteLine("read  ={0}", m_readBytes);
-            Console.WriteLine("remain={0}", m_bytesRemain);
+            //Console.WriteLine("read  ={0}", m_readBytes);
+            //Console.WriteLine("remain={0}", m_bytesRemain);
 
             switch (m_tagVersion[0]) {
             case 4:
@@ -459,8 +459,8 @@ namespace PcmDataLib {
                 return result;
             }
 
-            Console.WriteLine("read  ={0}", m_readBytes);
-            Console.WriteLine("remain={0}", m_bytesRemain);
+            //Console.WriteLine("read  ={0}", m_readBytes);
+            //Console.WriteLine("remain={0}", m_bytesRemain);
 
             SkipPadding(br);
 

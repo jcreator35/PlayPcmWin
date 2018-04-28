@@ -119,6 +119,7 @@ namespace WavRWLib2 {
         public string Title { get; set; }
         public string ArtistName { get; set; }
         public string AlbumName { get; set; }
+        public string ComposerName { get; set; }
 
         /// <summary>
         /// 画像データバイト数(無いときは0)
@@ -376,17 +377,23 @@ namespace WavRWLib2 {
             }
             int readBytes = (int)((headerBytes + 1) & (~1L));
 
-            byte[] data = br.ReadBytes(readBytes);
-
-            mId3Reader.Read(new BinaryReader(new MemoryStream(data)));
-            if (mId3Reader.TitleName != null && 0 < mId3Reader.TitleName.Length) {
-                Title = mId3Reader.TitleName;
-            }
-            if (mId3Reader.AlbumName != null && 0 < mId3Reader.AlbumName.Length) {
-                AlbumName = mId3Reader.AlbumName;
-            }
-            if (mId3Reader.ArtistName != null && 0 < mId3Reader.ArtistName.Length) {
-                ArtistName = mId3Reader.ArtistName;
+            try {
+                byte[] data = br.ReadBytes(readBytes);
+                mId3Reader.Read(new BinaryReader(new MemoryStream(data)));
+                if (mId3Reader.TitleName != null && 0 < mId3Reader.TitleName.Length) {
+                    Title = mId3Reader.TitleName;
+                }
+                if (mId3Reader.AlbumName != null && 0 < mId3Reader.AlbumName.Length) {
+                    AlbumName = mId3Reader.AlbumName;
+                }
+                if (mId3Reader.ArtistName != null && 0 < mId3Reader.ArtistName.Length) {
+                    ArtistName = mId3Reader.ArtistName;
+                }
+                if (mId3Reader.Composer != null && 0 < mId3Reader.Composer.Length) {
+                    ComposerName = mId3Reader.Composer;
+                }
+            } catch (Exception ex) {
+                Console.WriteLine("ID3 chunk read error. continue... {0}", ex);
             }
 
             return 4 + readBytes;
@@ -542,6 +549,8 @@ namespace WavRWLib2 {
                         advance = ReadListChunk(br);
                     } else if (PcmDataLib.Util.FourCCHeaderIs(fourcc, 0, "id3 ")) {
                         advance = ReadId3Chunk(br);
+                    } else if (PcmDataLib.Util.FourCCHeaderIs(fourcc, 0, "ID3 ")) {
+                        advance = ReadId3Chunk(br);
                     } else if (PcmDataLib.Util.FourCCHeaderIs(fourcc, 0, "ds64")) {
                         advance = ReadDS64Chunk(br);
                         ds64ChunkExist = true;
@@ -588,15 +597,15 @@ namespace WavRWLib2 {
                             }
                         }
 
-                        int peekFrames = 0;
+                        int peekBytes = 0;
 
                         if (mode == ReadMode.OnlyHeader) {
-                            peekFrames = ScanDopMarker(br, dsc.NumFrames);
+                            peekBytes = ScanDopMarker(br, dsc.NumFrames);
                         }
 
                         // マルチデータチャンク形式の場合、data chunkの後にさらにdata chunkが続いたりするので、
                         // 読み込みを続行する。
-                        long skipBytes = ((dsc.NumFrames - peekFrames) * frameBytes + 1) & (~1L);
+                        long skipBytes = (dsc.NumFrames * frameBytes - peekBytes + 1) & (~1L);
                         if (0 < skipBytes) {
                             PcmDataLib.Util.BinaryReaderSkip(br, skipBytes);
                         }

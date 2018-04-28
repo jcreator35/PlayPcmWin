@@ -265,6 +265,7 @@ namespace PlayPcmWin {
         public string TitleName { get { return mId3Reader.TitleName; } }
         public string AlbumName { get { return mId3Reader.AlbumName; } }
         public string ArtistName { get { return mId3Reader.ArtistName; } }
+        public string ComposerName { get { return mId3Reader.Composer; } }
 
         /// <summary>
         /// 画像データバイト数(無いときは0)
@@ -322,6 +323,7 @@ namespace PlayPcmWin {
                     pcmData.DisplayName = TitleName;
                     pcmData.AlbumTitle = AlbumName;
                     pcmData.ArtistName = ArtistName;
+                    pcmData.ComposerName = ComposerName;
                     if (0 < PictureBytes) {
                         pcmData.SetPicture(PictureBytes, PictureData);
                     }

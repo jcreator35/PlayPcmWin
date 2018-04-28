@@ -213,6 +213,9 @@ namespace PlayPcmWin {
                         if (wavR.ArtistName != null) {
                             pd.ArtistName = wavR.ArtistName;
                         }
+                        if (wavR.ComposerName != null) {
+                            pd.ComposerName = wavR.ComposerName;
+                        }
                     }
                     pd.SetPicture(wavR.PictureBytes, wavR.PictureData);
                     result = CheckAddPcmData(path, pd, true);
