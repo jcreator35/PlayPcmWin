@@ -1,7 +1,7 @@
 ﻿<Window x:Class="WWWaveSimulator2D.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MainWindow" Height="1100" Width="1340" Loaded="Window_Loaded">
+        Title="MainWindow" Height="1100" Width="1340" UseLayoutRounding="True" Loaded="Window_Loaded">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="256" />
