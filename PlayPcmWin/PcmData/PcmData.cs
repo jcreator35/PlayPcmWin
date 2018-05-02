@@ -188,6 +188,22 @@ namespace PcmDataLib {
             }
         }
 
+        public int DurationMilliSec {
+            get {
+                int ms = (int)(NumFrames * 1000 / SampleRate)
+                        - StartTick *1000 / 75;
+                if (0 <= EndTick) {
+                    ms = (EndTick - StartTick) * 1000 / 75;
+                }
+
+                // 0だと困ることもあるだろう。
+                if (ms <= 0) {
+                    ms = 1;
+                }
+                return ms;
+            }
+        }
+
         /// <summary>
         /// ファイルの最終書き込み時刻。
         /// </summary>

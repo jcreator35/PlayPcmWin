@@ -21,6 +21,7 @@ using PcmDataLib;
 using Wasapi;
 using WasapiPcmUtil;
 using WWUtil;
+using System.Net.Sockets;
 
 namespace PlayPcmWin
 {
@@ -3813,6 +3814,79 @@ namespace PlayPcmWin
                 sfu.Update(ap.wasapi, mPreferenceAudioFilterList);
             } else {
                 sfu.Update(ap.wasapi, new List<PreferenceAudioFilter>());
+            }
+        }
+
+        // PPWServer ■■■■■■■■■■■■■■■■■■■■■■■■■
+
+        private const int PPWSERVER_LISTEN_PORT = 2002;
+        private BackgroundWorker mBWPPWServer = new BackgroundWorker();
+        private PPWServer mPPWServer = null;
+
+        private void MenuItemPPWServerSettings_Click(object sender, RoutedEventArgs e) {
+            var sw = new PPWServerSettingsWindow();
+
+            if (mPPWServer != null) {
+                sw.SetServerState(PPWServerSettingsWindow.ServerState.Started,
+                    mPPWServer.ListenIPAddress, mPPWServer.ListenPort);
+            } else {
+                sw.SetServerState(PPWServerSettingsWindow.ServerState.Stopped, "", -1);
+            }
+
+            var r = sw.ShowDialog();
+            if (r != true) {
+                return;
+            }
+
+            if (mPPWServer == null) {
+                // サーバー起動。
+                mBWPPWServer = new BackgroundWorker();
+                mBWPPWServer.DoWork += new DoWorkEventHandler(mBWPPWServer_DoWork);
+                mBWPPWServer.WorkerSupportsCancellation = true;
+                mBWPPWServer.WorkerReportsProgress = true;
+                mBWPPWServer.ProgressChanged += new ProgressChangedEventHandler(mBWPPWServer_ProgressChanged);
+                mBWPPWServer.RunWorkerCompleted += new RunWorkerCompletedEventHandler(mBWPPWServer_RunWorkerCompleted);
+                mBWPPWServer.RunWorkerAsync();
+            } else {
+                // サーバー終了。
+                mBWPPWServer.CancelAsync();
+                while (mBWPPWServer.IsBusy) {
+                    System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(
+                            System.Windows.Threading.DispatcherPriority.Background,
+                            new System.Threading.ThreadStart(delegate { }));
+                    System.Threading.Thread.Sleep(100);
+                }
+                mBWPPWServer = null;
+            }
+        }
+
+        void mBWPPWServer_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
+        }
+
+        void  mBWPPWServer_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            string s = e.UserState as string;
+            AddLogText(s);
+        }
+
+        void  mBWPPWServer_DoWork(object sender, DoWorkEventArgs e)
+        {
+            mPPWServer = new PPWServer();
+            mPPWServer.Run(new PPWServer.RemoteCmdRecvDelegate(PPWServerRemoteCmdRecv), mBWPPWServer, PPWSERVER_LISTEN_PORT);
+            mPPWServer = null;
+        }
+
+        private void PPWServerRemoteCmdRecv(NetworkStream stream, RemoteCommand cmd) {
+            switch (cmd.cmd) {
+            case RemoteCommandType.PlaylistWant:
+                // 再生リストを送る。
+                var plCmd = new RemoteCommand(RemoteCommandType.PlaylistSend);
+                foreach (var a in m_playListItems) {
+                    var p = new RemoteCommandPlayListItem(a.PcmData().DurationMilliSec, a.ArtistName, a.Title, a.PcmData().PictureData);
+                    plCmd.playlist.Add(p);
+                }
+                mPPWServer.Send(stream, plCmd);
+                break;
             }
         }
     }

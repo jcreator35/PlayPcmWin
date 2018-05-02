@@ -134,8 +134,13 @@
     <Compile Include="PlayListItemInfo.cs" />
     <Compile Include="PlaylistRW.cs" />
     <Compile Include="PpwPlaylistRW.cs" />
+    <Compile Include="PPWServer.cs" />
+    <Compile Include="PPWServerSettingsWindow.xaml.cs">
+      <DependentUpon>PPWServerSettingsWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="PreferenceAudioFilter.cs" />
     <Compile Include="PreferenceAudioFilterStore.cs" />
+    <Compile Include="RemoteCommand.cs" />
     <Compile Include="SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
@@ -168,6 +173,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="PPWServerSettingsWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="SettingsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
