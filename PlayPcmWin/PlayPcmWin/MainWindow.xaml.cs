@@ -3889,7 +3889,11 @@ namespace PlayPcmWin
                         var plCmd = new RemoteCommand(RemoteCommandType.PlaylistSend);
                         plCmd.trackIdx = dataGridPlayList.SelectedIndex;
                         foreach (var a in m_playListItems) {
-                            var p = new RemoteCommandPlayListItem(a.PcmData().DurationMilliSec, a.ArtistName, a.Title, a.PcmData().PictureData);
+                            var p = new RemoteCommandPlayListItem(
+                                a.PcmData().DurationMilliSec,
+                                a.PcmData().SampleRate,
+                                a.PcmData().ValidBitsPerSample,
+                                a.AlbumTitle, a.ArtistName, a.Title, a.PcmData().PictureData);
                             plCmd.playlist.Add(p);
                         }
                         mPPWServer.SendAsync(plCmd);

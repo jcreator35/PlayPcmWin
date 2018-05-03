@@ -13,12 +13,19 @@ namespace PlayPcmWin {
 
     class RemoteCommandPlayListItem {
         public int durationMillsec;
+        public int sampleRate;
+        public int bitDepth;
+        public string albumName;
         public string artistName;
         public string titleName;
         public byte[] albumCoverArt;
-        public RemoteCommandPlayListItem(int aDurationMilliSec, string aArtistName,
-                string aTitleName, byte[] aAlbumCoverArt) {
+        public RemoteCommandPlayListItem(int aDurationMilliSec,
+            int aSampleRate, int aBitDepth, string aAlbumName,
+            string aArtistName, string aTitleName, byte[] aAlbumCoverArt) {
             durationMillsec = aDurationMilliSec;
+            sampleRate = aSampleRate;
+            bitDepth = aBitDepth;
+            albumName = aAlbumName;
             artistName = aArtistName;
             titleName = aTitleName;
             albumCoverArt = aAlbumCoverArt;

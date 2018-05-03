@@ -184,6 +184,10 @@ namespace PlayPcmWin {
                     * selected track (int32)
                     * 
                     * Track0 duration millisec (int32)
+                    * Track0 sampleRate        (int32)
+                    * Track0 bitdepth          (int32)
+                    * Track0 albumName bytes (int32)
+                    * Track0 albumName (utf8 string)
                     * Track0 artistName bytes (int32)
                     * Track0 artistName (utf8 string)
                     * Track0 titleName bytes (int32)
@@ -202,6 +206,9 @@ namespace PlayPcmWin {
 
                 foreach (var pl in cmd.playlist) {
                     sendData.Add(BitConverter.GetBytes(pl.durationMillsec));
+                    sendData.Add(BitConverter.GetBytes(pl.sampleRate));
+                    sendData.Add(BitConverter.GetBytes(pl.bitDepth));
+                    AppendString(pl.albumName, ref sendData);
                     AppendString(pl.artistName, ref sendData);
                     AppendString(pl.titleName, ref sendData);
                     AppendByteArray(pl.albumCoverArt, ref sendData);
