@@ -9,6 +9,7 @@ using System.Threading;
 namespace PlayPcmWin {
     class PPWServer {
         private const int STREAM_READ_TIMEOUT = 10000;
+        private const int IDLE_SLEEP_MS = 100;
         private const int RECV_TOO_LARGE = 10000;
         public const int VERSION = 100;
 
@@ -121,8 +122,11 @@ namespace PlayPcmWin {
 
             var cmd = new RemoteCommand(header, (int)bytes, payload);
             if (cmd.cmd == RemoteCommandType.Exit) {
+                Console.WriteLine("D: PPWServer RemoteCommand EXIT received\n");
                 bContinue = false;
             }
+
+            Console.WriteLine("PPWServer RecvRequests {0} {1}", DateTime.Now.Second, cmd.cmd);
 
             mRemoteCmdRecvDelegate(cmd);
 
@@ -181,38 +185,44 @@ namespace PlayPcmWin {
                     * Number of payload bytes (int64)
                     * 
                     * Number of tracks (int32)
-                    * selected track (int32)
+                    * if (0 < number of tracks) {
+                    *   selected track (int32)
                     * 
-                    * Track0 duration millisec (int32)
-                    * Track0 sampleRate        (int32)
-                    * Track0 bitdepth          (int32)
-                    * Track0 albumName bytes (int32)
-                    * Track0 albumName (utf8 string)
-                    * Track0 artistName bytes (int32)
-                    * Track0 artistName (utf8 string)
-                    * Track0 titleName bytes (int32)
-                    * Track0 titleName (utf8 string)
-                    * Track0 albumCoverArt bytes (int32)
-                    * Track0 albumCoverArt (binary)
+                    *   Track0 duration millisec (int32)
+                    *   Track0 sampleRate        (int32)
+                    *   Track0 bitdepth          (int32)
+                    *   Track0 albumName bytes (int32)
+                    *   Track0 albumName (utf8 string)
+                    *   Track0 artistName bytes (int32)
+                    *   Track0 artistName (utf8 string)
+                    *   Track0 titleName bytes (int32)
+                    *   Track0 titleName (utf8 string)
+                    *   Track0 albumCoverArt bytes (int32)
+                    *   Track0 albumCoverArt (binary)
                     * 
-                    * Track1 
-                    * ...
+                    *   Track1 
+                    *   ...
+                    * }
                 */
 
                 List<byte[]> sendData = new List<byte[]>();
 
                 sendData.Add(BitConverter.GetBytes(cmd.playlist.Count));
-                sendData.Add(BitConverter.GetBytes(cmd.trackIdx));
 
-                foreach (var pl in cmd.playlist) {
-                    sendData.Add(BitConverter.GetBytes(pl.durationMillsec));
-                    sendData.Add(BitConverter.GetBytes(pl.sampleRate));
-                    sendData.Add(BitConverter.GetBytes(pl.bitDepth));
-                    AppendString(pl.albumName, ref sendData);
-                    AppendString(pl.artistName, ref sendData);
-                    AppendString(pl.titleName, ref sendData);
-                    AppendByteArray(pl.albumCoverArt, ref sendData);
-                    Console.WriteLine("albumCoverArt size={0}", pl.albumCoverArt.Length);
+                if (0 < cmd.playlist.Count) {
+                    sendData.Add(BitConverter.GetBytes(cmd.trackIdx));
+
+                    int idx = 0;
+                    foreach (var pl in cmd.playlist) {
+                        sendData.Add(BitConverter.GetBytes(pl.durationMillsec));
+                        sendData.Add(BitConverter.GetBytes(pl.sampleRate));
+                        sendData.Add(BitConverter.GetBytes(pl.bitDepth));
+                        AppendString(pl.albumName, ref sendData);
+                        AppendString(pl.artistName, ref sendData);
+                        AppendString(pl.titleName, ref sendData);
+                        AppendByteArray(pl.albumCoverArt, ref sendData);
+                        ++idx;
+                    }
                 }
 
                 // stream output
@@ -251,65 +261,84 @@ namespace PlayPcmWin {
             }
         }
 
-        /// <returns>bContinue : true:continue to listen, false: abort and end</returns>
-        private bool InteractWithClient(TcpClient client, NetworkStream stream) {
-            var result = ReturnCode.Timeout;
-
-            stream.ReadTimeout = STREAM_READ_TIMEOUT;
-
-            // 設定情報を受信する。
-
-            var br = new BinaryReader(stream);
-            result = RecvGreetings(br);
-
-            if (result != ReturnCode.OK) {
-                // 失敗したので接続を切る。
-                mBgWorker.ReportProgress(1, string.Format("Connected from {0}\nPPWServer Error: {1}. Connection closed.\nWaiting PPWRemote on: IP address = {2}, Port = {3}\n",
-                    client.Client.RemoteEndPoint, result, mListenIPAddress, mListenPort));
-                return true;
+        private void SendQueuedMsg(BinaryWriter bw) {
+            int sendCmdCount = 0;
+            lock (mLock) {
+                sendCmdCount = mCmdToSend.Count;
             }
+
+            while (0 < sendCmdCount) {
+                RemoteCommand rc = null;
+                lock (mLock) {
+                    rc = mCmdToSend[0];
+                }
+
+                Console.WriteLine("PPWServer SendQueuedMsg() {0} Sending {1}", DateTime.Now.Second, rc.cmd);
+                Send(bw, rc);
+
+                lock (mLock) {
+                    mCmdToSend.RemoveAt(0);
+                    sendCmdCount = mCmdToSend.Count;
+                }
+            }
+        }
+
+        /// <returns>true: listen and accept next client, false: abort and end!</returns>
+        private bool InteractWithClient(TcpClient client, NetworkStream stream) {
+            Console.WriteLine("InteractWithClient() started {0}", DateTime.Now.Second);
+            stream.ReadTimeout = STREAM_READ_TIMEOUT;
+            var br = new BinaryReader(stream);
+
+            {
+                var greetResult = ReturnCode.Timeout;
+
+                // 設定情報を受信する。
+
+                greetResult = RecvGreetings(br);
+
+                if (greetResult != ReturnCode.OK) {
+                    // 失敗したので接続を切る。
+                    mBgWorker.ReportProgress(1, string.Format("Connected from {0}\nPPWServer Error: {1}. Connection closed.\nWaiting PPWRemote on: IP address = {2}, Port = {3}\n",
+                        client.Client.RemoteEndPoint, greetResult, mListenIPAddress, mListenPort));
+                    return true;
+                }
+            }
+            Console.WriteLine("InteractWithClient() Recv Greetings {0}", DateTime.Now.Second);
 
             mBgWorker.ReportProgress(1, string.Format("Connected from {0}\n", client.Client.RemoteEndPoint));
 
-            bool bContinue = true;
+            bool result = true;
             using (var bw = new BinaryWriter(stream)) {
-                while (bContinue) {
+                while (true) {
                     // たまったコマンドを全て送出する。
-                    int sendCmdCount = 0;
-                    lock (mLock) {
-                        sendCmdCount = mCmdToSend.Count;
-                    }
-
-                    while (0 < sendCmdCount) {
-                        RemoteCommand rc = null;
-                        lock (mLock) {
-                            rc = mCmdToSend[0];
-                        }
-
-                        Send(bw, rc);
-
-                        lock (mLock) {
-                            mCmdToSend.RemoveAt(0);
-                            sendCmdCount = mCmdToSend.Count;
-                        }
-                    }
+                    SendQueuedMsg(bw);
+                    stream.Flush();
 
                     if (stream.DataAvailable) {
                         // 受信データがある。
-                        bContinue = RecvRequests(br);
+                        var bExit = !RecvRequests(br);
+                        if (bExit) {
+                            // EXITを受信。
+                            // 切断し、次の接続を待ち受ける。
+                            result = true;
+                            break;
+                        }
                     } else {
-                        Thread.Sleep(STREAM_READ_TIMEOUT);
+                        Thread.Sleep(IDLE_SLEEP_MS);
                     }
 
                     if (mBgWorker.CancellationPending) {
-                        // 終了コマンドを送出する。
+                        // 終了コマンドを送出。
                         Send(bw, new RemoteCommand(RemoteCommandType.Exit));
-                        bContinue = false;
+                        stream.Flush();
+                        // リッスンソケットを閉じてサーバーを終了する。
+                        result = false;
+                        break;
                     }
                 }
             }
 
-            return bContinue;
+            return result;
         }
 
         public void Run(RemoteCmdRecvDelegate remoteCmdRecvDelegate, BackgroundWorker bgWorker, int port) {
@@ -333,7 +362,7 @@ namespace PlayPcmWin {
                     while (!bPending) {
                         bPending = mListenSock.Pending();
                         if (!bPending) {
-                            Thread.Sleep(STREAM_READ_TIMEOUT);
+                            Thread.Sleep(IDLE_SLEEP_MS);
                         }
                         if (bgWorker.CancellationPending) {
                             // cancel

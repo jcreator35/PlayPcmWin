@@ -892,6 +892,7 @@ namespace PlayPcmWin
         private void UpdateUIStatus() {
             dataGridPlayList.UpdateLayout();
             UpdateCoverart();
+            PPWServerSendPlaylist();
 
             slider1.IsEnabled = true;
             labelPlayingTime.Content = PLAYING_TIME_ALLZERO;
@@ -3824,6 +3825,7 @@ namespace PlayPcmWin
         private const int PPWSERVER_LISTEN_PORT = 2002;
         private BackgroundWorker mBWPPWServer = new BackgroundWorker();
         private PPWServer mPPWServer = null;
+        private int mLastSendPlaylistItemCount = -1;
 
         private void MenuItemPPWServerSettings_Click(object sender, RoutedEventArgs e) {
             var sw = new PPWServerSettingsWindow();
@@ -3873,6 +3875,7 @@ namespace PlayPcmWin
 
         void  mBWPPWServer_DoWork(object sender, DoWorkEventArgs e)
         {
+            mLastSendPlaylistItemCount = -1;
             mPPWServer = new PPWServer();
             mPPWServer.Run(new PPWServer.RemoteCmdRecvDelegate(PPWServerRemoteCmdRecv), mBWPPWServer, PPWSERVER_LISTEN_PORT);
             mPPWServer = null;
@@ -3886,21 +3889,42 @@ namespace PlayPcmWin
                     switch (cmd.cmd) {
                     case RemoteCommandType.PlaylistWant:
                         // 再生リストを送る。
-                        var plCmd = new RemoteCommand(RemoteCommandType.PlaylistSend);
-                        plCmd.trackIdx = dataGridPlayList.SelectedIndex;
-                        foreach (var a in m_playListItems) {
-                            var p = new RemoteCommandPlayListItem(
-                                a.PcmData().DurationMilliSec,
-                                a.PcmData().SampleRate,
-                                a.PcmData().ValidBitsPerSample,
-                                a.AlbumTitle, a.ArtistName, a.Title, a.PcmData().PictureData);
-                            plCmd.playlist.Add(p);
-                        }
-                        mPPWServer.SendAsync(plCmd);
+                        PPWServerSendPlaylist();
                         break;
                     }
                 }));
+        }
 
+        // MainWindowのUIスレッドから呼び出して下さい。
+        private void PPWServerSendPlaylist() {
+            Console.WriteLine("PPWServerSendPlaylist() start {0}", DateTime.Now.Second);
+
+            if (mPPWServer == null) {
+                return;
+            }
+
+            if (mLastSendPlaylistItemCount == m_playListItems.Count) {
+                return;
+            }
+            mLastSendPlaylistItemCount = m_playListItems.Count;
+
+            var plCmd = new RemoteCommand(RemoteCommandType.PlaylistSend);
+            plCmd.trackIdx = dataGridPlayList.SelectedIndex;
+            foreach (var a in m_playListItems) {
+                int sampleRate = a.PcmData().SampleRate;
+                int bitDepth = a.PcmData().ValidBitsPerSample;
+                if (a.PcmData().SampleDataType == PcmData.DataType.DoP) {
+                    sampleRate *= 16;
+                    bitDepth = 1;
+                }
+                var p = new RemoteCommandPlayListItem(
+                    a.PcmData().DurationMilliSec, sampleRate, bitDepth,
+                    a.AlbumTitle, a.ArtistName, a.Title, a.PcmData().PictureData);
+                plCmd.playlist.Add(p);
+            }
+            Console.WriteLine("PPWServerSendPlaylist() SendAsync start {0}", DateTime.Now.Second);
+            mPPWServer.SendAsync(plCmd);
+            Console.WriteLine("PPWServerSendPlaylist() SendAsync end {0}", DateTime.Now.Second);
         }
     }
 }
