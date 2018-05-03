@@ -3878,7 +3878,7 @@ namespace PlayPcmWin
             mPPWServer = null;
         }
 
-        private void PPWServerRemoteCmdRecv(NetworkStream stream, RemoteCommand cmd) {
+        private void PPWServerRemoteCmdRecv(RemoteCommand cmd) {
             Application.Current.Dispatcher.BeginInvoke(
                 DispatcherPriority.Background, new Action(() => {
                     // ここはMainWindowのUIスレッド。

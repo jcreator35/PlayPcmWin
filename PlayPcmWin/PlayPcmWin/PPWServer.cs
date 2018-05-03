@@ -10,39 +10,33 @@ namespace PlayPcmWin {
     class PPWServer {
         private const int STREAM_READ_TIMEOUT = 10000;
         private const int RECV_TOO_LARGE = 10000;
+        public const int VERSION = 100;
+
+        public delegate void RemoteCmdRecvDelegate(RemoteCommand cmd);
+        public string ListenIPAddress { get { return mListenIPAddress; } }
+        public int ListenPort { get { return mListenPort; } }
+
+        private RemoteCmdRecvDelegate mRemoteCmdRecvDelegate = null;
+        private TcpListener mListenSock = null;
+        private NetworkStream mStream = null;
+        private string mListenIPAddress = "";
+        private int mListenPort = -1;
+        private object mLock = new object();
+
+        private BackgroundWorker mBgWorker;
+        private List<RemoteCommand> mCmdToSend = new List<RemoteCommand>();
 
         internal class Utility {
-            private const int BUFF_BYTES = 8192;
-            public static byte[] StreamReadBytes(NetworkStream stream, int bytes) {
-                var output = new byte[bytes];
-                int readBytes = 0;
-                do {
-                    int wantBytes = bytes - readBytes;
-                    if (BUFF_BYTES < wantBytes) {
-                        wantBytes = BUFF_BYTES;
-                    }
-                    readBytes += stream.Read(output, readBytes, wantBytes);
-                } while (readBytes < bytes);
-
-                return output;
+            public static byte[] StreamReadBytes(BinaryReader br, int bytes) {
+                return br.ReadBytes(bytes);
             }
 
-            public static long StreamReadInt64(NetworkStream stream) {
-                byte[] data = StreamReadBytes(stream, 8);
-                using (var ms = new MemoryStream(data)) {
-                    using (var br = new BinaryReader(ms)) {
-                        return br.ReadInt64();
-                    }
-                }
+            public static int StreamReadInt32(BinaryReader br) {
+                return br.ReadInt32();
             }
 
-            public static int StreamReadInt32(NetworkStream stream) {
-                byte[] data = StreamReadBytes(stream, 4);
-                using (var ms = new MemoryStream(data)) {
-                    using (var br = new BinaryReader(ms)) {
-                        return br.ReadInt32();
-                    }
-                }
+            public static long StreamReadInt64(BinaryReader br) {
+                return br.ReadInt64();
             }
 
             public static void StreamWriteBytes(BinaryWriter bw, byte[] b) {
@@ -60,16 +54,6 @@ namespace PlayPcmWin {
             }
         }
 
-        public delegate void RemoteCmdRecvDelegate(NetworkStream stream, RemoteCommand cmd);
-
-        RemoteCmdRecvDelegate mRemoteCmdRecvDelegate = null;
-
-        TcpListener mListener = null;
-
-        object mLock = new object();
-
-        public const int VERSION = 100;
-
         enum ReturnCode {
             OK,
             Timeout,
@@ -79,31 +63,37 @@ namespace PlayPcmWin {
         };
 
         public void Abort() {
-            if (mListener != null) {
-                Console.WriteLine("ServerController.Abort()");
-                mListener.Server.Close();
+            Console.WriteLine("ServerController.Abort()");
+            if (mStream != null) {
+                Console.WriteLine("ServerController.Abort() close stream");
+                mStream.Close();
+                mStream = null;
+            }
+            if (mListenSock != null) {
+                Console.WriteLine("ServerController.Abort() close listen socket");
+                mListenSock.Server.Close();
             }
         }
 
-        private static ReturnCode RecvGreetings(NetworkStream stream) {
+        private static ReturnCode RecvGreetings(BinaryReader br) {
             /*
               "PPWR"
               size    = 8   (8bytes)
               version = 100 (8bytes)
              */
 
-            int header = Utility.StreamReadInt32(stream);
+            int header = Utility.StreamReadInt32(br);
             if (header != RemoteCommand.FOURCC_PPWR) {
                 // 最初の4バイトは "PPWR"
                 return ReturnCode.NotPPWRemote;
             }
 
-            long sz = Utility.StreamReadInt64(stream);
+            long sz = Utility.StreamReadInt64(br);
             if (sz != 8) {
                 return ReturnCode.NotPPWRemote;
             }
 
-            long version = Utility.StreamReadInt64(stream);
+            long version = Utility.StreamReadInt64(br);
             if (version < VERSION) {
                 return ReturnCode.PPWRemoteVersionIsTooLow;
             }
@@ -115,18 +105,18 @@ namespace PlayPcmWin {
         }
 
         /// <returns>true: continue, false:end</returns>
-        private bool RecvRequests(NetworkStream stream) {
+        private bool RecvRequests(BinaryReader br) {
             bool bContinue = true;
 
-            int header = Utility.StreamReadInt32(stream);
-            long bytes = Utility.StreamReadInt64(stream);
+            int header = Utility.StreamReadInt32(br);
+            long bytes = Utility.StreamReadInt64(br);
             if (bytes < 0 || RECV_TOO_LARGE < bytes) {
                 return false;
             }
 
             var payload = new byte[0];
             if (0 < bytes) {
-                payload = Utility.StreamReadBytes(stream, (int)bytes);
+                payload = Utility.StreamReadBytes(br, (int)bytes);
             }
 
             var cmd = new RemoteCommand(header, (int)bytes, payload);
@@ -134,7 +124,7 @@ namespace PlayPcmWin {
                 bContinue = false;
             }
 
-            mRemoteCmdRecvDelegate(stream, cmd);
+            mRemoteCmdRecvDelegate(cmd);
 
             return bContinue;
         }
@@ -178,60 +168,60 @@ namespace PlayPcmWin {
             to.Add(b);
         }
 
-        public void Send(BinaryWriter bw, RemoteCommand cmd) {
-            lock (mLock) {
-                switch (cmd.cmd) {
-                case RemoteCommandType.PlaylistSend:
-                    /* send playlist
-                     * 
-                     * "PLLS"
-                     * Number of payload bytes (int64)
-                     * 
-                     * Number of tracks (int32)
-                     * selected track (int32)
-                     * 
-                     * Track0 duration millisec (int32)
-                     * Track0 artistName bytes (int32)
-                     * Track0 artistName (utf8 string)
-                     * Track0 titleName bytes (int32)
-                     * Track0 titleName (utf8 string)
-                     * Track0 albumCoverArt bytes (int32)
-                     * Track0 albumCoverArt (binary)
-                     * 
-                     * Track1 
-                     * ...
-                    */
+        private void Send(BinaryWriter bw, RemoteCommand cmd) {
+            switch (cmd.cmd) {
+            case RemoteCommandType.Exit:
+                Utility.StreamWriteInt32(bw, RemoteCommand.FOURCC_EXIT);
+                Utility.StreamWriteInt64(bw, 0);
+                break;
+            case RemoteCommandType.PlaylistSend:
+                /* send playlist
+                    * 
+                    * "PLLS"
+                    * Number of payload bytes (int64)
+                    * 
+                    * Number of tracks (int32)
+                    * selected track (int32)
+                    * 
+                    * Track0 duration millisec (int32)
+                    * Track0 artistName bytes (int32)
+                    * Track0 artistName (utf8 string)
+                    * Track0 titleName bytes (int32)
+                    * Track0 titleName (utf8 string)
+                    * Track0 albumCoverArt bytes (int32)
+                    * Track0 albumCoverArt (binary)
+                    * 
+                    * Track1 
+                    * ...
+                */
 
-                    List<byte[]> sendData = new List<byte[]>();
+                List<byte[]> sendData = new List<byte[]>();
 
-                    sendData.Add(BitConverter.GetBytes(cmd.playlist.Count));
-                    sendData.Add(BitConverter.GetBytes(cmd.trackIdx));
+                sendData.Add(BitConverter.GetBytes(cmd.playlist.Count));
+                sendData.Add(BitConverter.GetBytes(cmd.trackIdx));
 
-                    foreach (var pl in cmd.playlist) {
-                        sendData.Add(BitConverter.GetBytes(pl.durationMillsec));
-                        AppendString(pl.artistName, ref sendData);
-                        AppendString(pl.titleName, ref sendData);
-                        AppendByteArray(pl.albumCoverArt, ref sendData);
-                        Console.WriteLine("albumCoverArt size={0}", pl.albumCoverArt.Length);
-                    }
-
-                    // stream output
-                    byte[] dataBytes = ByteArrayListToByteArray(sendData);
-
-                    Utility.StreamWriteInt32(bw, RemoteCommand.FOURCC_PLAYLIST_SEND);
-                    Utility.StreamWriteInt64(bw, dataBytes.LongLength);
-                    Utility.StreamWriteBytes(bw, dataBytes);
-                    break;
-                default:
-                    break;
+                foreach (var pl in cmd.playlist) {
+                    sendData.Add(BitConverter.GetBytes(pl.durationMillsec));
+                    AppendString(pl.artistName, ref sendData);
+                    AppendString(pl.titleName, ref sendData);
+                    AppendByteArray(pl.albumCoverArt, ref sendData);
+                    Console.WriteLine("albumCoverArt size={0}", pl.albumCoverArt.Length);
                 }
-            }
-        }
 
-        private string mListenIPAddress = "";
-        private int mListenPort = -1;
-        public string ListenIPAddress { get { return mListenIPAddress; } }
-        public int ListenPort { get { return mListenPort; } }
+                // stream output
+                byte[] dataBytes = ByteArrayListToByteArray(sendData);
+
+                Utility.StreamWriteInt32(bw, RemoteCommand.FOURCC_PLAYLIST_SEND);
+                Utility.StreamWriteInt64(bw, dataBytes.LongLength);
+                Utility.StreamWriteBytes(bw, dataBytes);
+                break;
+            default:
+                break;
+            }
+
+            // Hope this flushes buffers
+            bw.Flush();
+        }
 
         private static string GetLocalIPAddress() {
             var host = Dns.GetHostEntry(Dns.GetHostName());
@@ -248,21 +238,22 @@ namespace PlayPcmWin {
             mListenPort = port;
         }
 
-        private BackgroundWorker mBgWorker;
-        private List<RemoteCommand> mCmdToSend = new List<RemoteCommand>();
-
         public void SendAsync(RemoteCommand cmd) {
-            mCmdToSend.Add(cmd);
+            lock (mLock) {
+                mCmdToSend.Add(cmd);
+            }
         }
 
         /// <returns>bContinue : true:continue to listen, false: abort and end</returns>
         private bool InteractWithClient(TcpClient client, NetworkStream stream) {
-            stream.ReadTimeout = STREAM_READ_TIMEOUT;
-
-            // 接続してきた。設定情報を受信する。
             var result = ReturnCode.Timeout;
 
-            result = RecvGreetings(stream);
+            stream.ReadTimeout = STREAM_READ_TIMEOUT;
+
+            // 設定情報を受信する。
+
+            var br = new BinaryReader(stream);
+            result = RecvGreetings(br);
 
             if (result != ReturnCode.OK) {
                 // 失敗したので接続を切る。
@@ -298,12 +289,14 @@ namespace PlayPcmWin {
 
                     if (stream.DataAvailable) {
                         // 受信データがある。
-                        bContinue = RecvRequests(stream);
+                        bContinue = RecvRequests(br);
                     } else {
                         Thread.Sleep(STREAM_READ_TIMEOUT);
                     }
 
                     if (mBgWorker.CancellationPending) {
+                        // 終了コマンドを送出する。
+                        Send(bw, new RemoteCommand(RemoteCommandType.Exit));
                         bContinue = false;
                     }
                 }
@@ -319,8 +312,8 @@ namespace PlayPcmWin {
             try {
                 // コントロールポートの待受を開始する。
                 IPAddress addr = IPAddress.Any;
-                mListener = new TcpListener(addr, port);
-                mListener.Start();
+                mListenSock = new TcpListener(addr, port);
+                mListenSock.Start();
 
                 UpdateListenIPandPort(port);
 
@@ -331,7 +324,7 @@ namespace PlayPcmWin {
                 while (bContinue) {
                     bool bPending = false;
                     while (!bPending) {
-                        bPending = mListener.Pending();
+                        bPending = mListenSock.Pending();
                         if (!bPending) {
                             Thread.Sleep(STREAM_READ_TIMEOUT);
                         }
@@ -347,31 +340,45 @@ namespace PlayPcmWin {
 
                     // クライアントが接続してきてAcceptを待っている。
                     try {
-                        using (var client = mListener.AcceptTcpClient()) {
+                        using (var client = mListenSock.AcceptTcpClient()) {
                             using (var stream = client.GetStream()) {
+                                lock (mLock) {
+                                    mStream = stream;
+                                }
+
                                 bContinue = InteractWithClient(client, stream);
-                                bgWorker.ReportProgress(1, string.Format("Connection closed. Waiting another client to connect.\n"));
+
+                                if (bContinue) {
+                                    bgWorker.ReportProgress(1, string.Format("Connection closed. Waiting another client to connect.\n"));
+                                }
                             }
                         }
                     } catch (IOException ex) {
                         bgWorker.ReportProgress(1, string.Format("{0}\nConnection closed. Waiting another client to connect.\n", ex));
                     }
+
+                    lock (mLock) {
+                        mStream = null;
+                    }
                 }
+                bgWorker.ReportProgress(1, string.Format("PPWServer stopped.\n"));
             } catch (SocketException e) {
-                Console.WriteLine("SocketException: {0}\n", e);
+                Console.WriteLine("SocketException: {0}\nPPWServer stopped.\n", e);
                 bgWorker.ReportProgress(1, string.Format("{0}.\n", e));
             } catch (IOException e) {
-                Console.WriteLine("IOException: {0}\n", e);
+                Console.WriteLine("IOException: {0}\nPPWServer stopped.\n", e);
+                bgWorker.ReportProgress(1, string.Format("{0}.\n", e));
+            } catch (Exception e) {
+                Console.WriteLine("Exception: {0}\nPPWServer stopped.\n", e);
                 bgWorker.ReportProgress(1, string.Format("{0}.\n", e));
             } finally {
             }
 
-            if (mListener != null) {
-                mListener.Stop();
+            if (mListenSock != null) {
+                mListenSock.Stop();
             }
-            mListener = null;
+            mListenSock = null;
 
-            bgWorker.ReportProgress(1, string.Format("PPWServer stopped.\n\n"));
         }
     }
 }
