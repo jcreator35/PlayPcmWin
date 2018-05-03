@@ -9,9 +9,9 @@
         </Grid.RowDefinitions>
         <TextBlock Text="Server status" HorizontalAlignment="Left" Margin="6,0,0,0" Name="tbStatus" VerticalAlignment="Center" TextWrapping="WrapWithOverflow" />
         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="4,0,0,0">
-            <Button Margin="4" Content=" Start PPWServer " HorizontalAlignment="Center" Name="buttonStartServer" VerticalAlignment="Center" Click="buttonStartServer_Click" />
-            <Button Margin="4" Content=" Stop PPWServer " HorizontalAlignment="Center" Name="buttonStopServer" VerticalAlignment="Center" Click="buttonStopServer_Click" />
-            <Button Margin="4" Content=" Just close this window " Name="buttonClose" HorizontalAlignment="Center" VerticalAlignment="Center" IsDefault="True" Click="buttonClose_Click" />
+            <Button Margin="4" Content=" _Start PPWServer " HorizontalAlignment="Center" Name="buttonStartServer" VerticalAlignment="Center" Click="buttonStartServer_Click" />
+            <Button Margin="4" Content=" Stop _PPWServer " HorizontalAlignment="Center" Name="buttonStopServer" VerticalAlignment="Center" Click="buttonStopServer_Click" />
+            <Button Margin="4" Content=" Just _Close This Window " Name="buttonClose" HorizontalAlignment="Center" VerticalAlignment="Center" IsDefault="True" Click="buttonClose_Click" />
         </StackPanel>
     </Grid>
 </Window>

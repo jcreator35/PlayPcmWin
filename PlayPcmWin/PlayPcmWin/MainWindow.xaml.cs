@@ -22,6 +22,7 @@ using Wasapi;
 using WasapiPcmUtil;
 using WWUtil;
 using System.Net.Sockets;
+using System.Windows.Threading;
 
 namespace PlayPcmWin
 {
@@ -2825,6 +2826,7 @@ namespace PlayPcmWin
                     // 次に再生する曲を選択状態にする。
                     dataGridPlayList.SelectedIndex =
                         GetPlayListIndexOfPcmDataId(m_taskAfterStop.PcmDataId);
+
                     UpdateUIStatus();
                 }
 
@@ -3877,17 +3879,24 @@ namespace PlayPcmWin
         }
 
         private void PPWServerRemoteCmdRecv(NetworkStream stream, RemoteCommand cmd) {
-            switch (cmd.cmd) {
-            case RemoteCommandType.PlaylistWant:
-                // 再生リストを送る。
-                var plCmd = new RemoteCommand(RemoteCommandType.PlaylistSend);
-                foreach (var a in m_playListItems) {
-                    var p = new RemoteCommandPlayListItem(a.PcmData().DurationMilliSec, a.ArtistName, a.Title, a.PcmData().PictureData);
-                    plCmd.playlist.Add(p);
-                }
-                mPPWServer.Send(stream, plCmd);
-                break;
-            }
+            Application.Current.Dispatcher.BeginInvoke(
+                DispatcherPriority.Background, new Action(() => {
+                    // ここはMainWindowのUIスレッド。
+
+                    switch (cmd.cmd) {
+                    case RemoteCommandType.PlaylistWant:
+                        // 再生リストを送る。
+                        var plCmd = new RemoteCommand(RemoteCommandType.PlaylistSend);
+                        plCmd.trackIdx = dataGridPlayList.SelectedIndex;
+                        foreach (var a in m_playListItems) {
+                            var p = new RemoteCommandPlayListItem(a.PcmData().DurationMilliSec, a.ArtistName, a.Title, a.PcmData().PictureData);
+                            plCmd.playlist.Add(p);
+                        }
+                        mPPWServer.SendAsync(plCmd);
+                        break;
+                    }
+                }));
+
         }
     }
 }

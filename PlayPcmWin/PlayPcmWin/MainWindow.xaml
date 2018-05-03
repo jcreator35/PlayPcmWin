@@ -40,8 +40,8 @@
                 <Separator x:Uid="Separator_3" />
                 <MenuItem x:Uid="menuItemPlayListItemEditMode" Name="menuItemPlayListItemEditMode" Header="Playlist item edit mode(_E)" Click="buttonPlayListItemEditMode_Click" IsCheckable="True" />
             </MenuItem>
-            <MenuItem Name="menuPPWServer" Header="PPWServer">
-                <MenuItem Name="menuItemPPWServerSettings" Header="Settings" Click="MenuItemPPWServerSettings_Click" />
+            <MenuItem Name="menuPPWServer" Header="PPWServer(_A)">
+                <MenuItem Name="menuItemPPWServerSettings" Header="Settings(_B)" Click="MenuItemPPWServerSettings_Click" />
             </MenuItem>
             <MenuItem x:Uid="menuHelp" Name="menuHelp" Header="_Help">
                 <MenuItem x:Uid="menuItemHelpAbout" Header="About(_V)" Click="MenuItemHelpAbout_Click" Name="menuItemHelpAbout"/>
