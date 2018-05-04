@@ -13,6 +13,9 @@ namespace PlayPcmWin {
         private const int RECV_TOO_LARGE = 10000;
         public const int VERSION = 100;
 
+        public const int PROGRESS_STARTED = 0;
+        public const int PROGRESS_REPORT = 10;
+
         public delegate void RemoteCmdRecvDelegate(RemoteCommand cmd);
         public string ListenIPAddress { get { return mListenIPAddress; } }
         public int ListenPort { get { return mListenPort; } }
@@ -133,110 +136,10 @@ namespace PlayPcmWin {
             return bContinue;
         }
 
-        private static byte[] ByteArrayListToByteArray(List<byte[]> a) {
-            int bytes = 0;
-            foreach (var item in a) {
-                bytes += item.Length;
-            }
-
-            var result = new byte[bytes];
-            int offs = 0;
-            foreach (var item in a) {
-                Array.Copy(item, 0, result, offs, item.Length);
-                offs += item.Length;
-            }
-
-            return result;
-        }
-
-        private static void AppendString(string s, ref List<byte[]> to) {
-            if (s.Length == 0) {
-                int v0 = 0;
-                to.Add(BitConverter.GetBytes(v0));
-                return;
-            }
-
-            var sBytes = System.Text.Encoding.UTF8.GetBytes(s);
-            to.Add(BitConverter.GetBytes(sBytes.Length));
-            to.Add(sBytes);
-        }
-
-        private static void AppendByteArray(byte [] b, ref List<byte[]> to) {
-            if (b == null || b.Length == 0) {
-                int v0 = 0;
-                to.Add(BitConverter.GetBytes(v0));
-                return;
-            }
-
-            to.Add(BitConverter.GetBytes(b.Length));
-            to.Add(b);
-        }
-
         private void Send(BinaryWriter bw, RemoteCommand cmd) {
-            switch (cmd.cmd) {
-            case RemoteCommandType.Exit:
-                Utility.StreamWriteInt32(bw, RemoteCommand.FOURCC_EXIT);
-                Utility.StreamWriteInt64(bw, 0);
-                break;
-            case RemoteCommandType.PlaylistSend:
-                /* send playlist
-                    * 
-                    * "PLLS"
-                    * Number of payload bytes (int64)
-                    * 
-                    * Number of tracks (int32)
-                    * if (0 < number of tracks) {
-                    *   selected track (int32)
-                    * 
-                    *   Track0 duration millisec (int32)
-                    *   Track0 sampleRate        (int32)
-                    *   Track0 bitdepth          (int32)
-                    *   Track0 albumName bytes (int32)
-                    *   Track0 albumName (utf8 string)
-                    *   Track0 artistName bytes (int32)
-                    *   Track0 artistName (utf8 string)
-                    *   Track0 titleName bytes (int32)
-                    *   Track0 titleName (utf8 string)
-                    *   Track0 albumCoverArt bytes (int32)
-                    *   Track0 albumCoverArt (binary)
-                    * 
-                    *   Track1 
-                    *   ...
-                    * }
-                */
+            Utility.StreamWriteBytes(bw, cmd.GenerateMessage());
 
-                List<byte[]> sendData = new List<byte[]>();
-
-                sendData.Add(BitConverter.GetBytes(cmd.playlist.Count));
-
-                if (0 < cmd.playlist.Count) {
-                    sendData.Add(BitConverter.GetBytes(cmd.trackIdx));
-
-                    int idx = 0;
-                    foreach (var pl in cmd.playlist) {
-                        sendData.Add(BitConverter.GetBytes(pl.durationMillsec));
-                        sendData.Add(BitConverter.GetBytes(pl.sampleRate));
-                        sendData.Add(BitConverter.GetBytes(pl.bitDepth));
-                        AppendString(pl.albumName, ref sendData);
-                        AppendString(pl.artistName, ref sendData);
-                        AppendString(pl.titleName, ref sendData);
-                        AppendByteArray(pl.albumCoverArt, ref sendData);
-                        ++idx;
-                    }
-                }
-
-                // stream output
-                byte[] dataBytes = ByteArrayListToByteArray(sendData);
-
-                Utility.StreamWriteInt32(bw, RemoteCommand.FOURCC_PLAYLIST_SEND);
-                Utility.StreamWriteInt64(bw, dataBytes.LongLength);
-                Utility.StreamWriteBytes(bw, dataBytes);
-                break;
-            default:
-                break;
-            }
-
-            // Hope this flushes buffers
+            // Hope this flushes buffers!
             bw.Flush();
         }
 
@@ -298,14 +201,14 @@ namespace PlayPcmWin {
 
                 if (greetResult != ReturnCode.OK) {
                     // 失敗したので接続を切る。
-                    mBgWorker.ReportProgress(1, string.Format("Connected from {0}\nPPWServer Error: {1}. Connection closed.\nWaiting PPWRemote on: IP address = {2}, Port = {3}\n",
+                    mBgWorker.ReportProgress(PROGRESS_REPORT, string.Format("Connected from {0}\nPPWServer Error: {1}. Connection closed.\nWaiting PPWRemote on: IP address = {2}, Port = {3}\n",
                         client.Client.RemoteEndPoint, greetResult, mListenIPAddress, mListenPort));
                     return true;
                 }
             }
             Console.WriteLine("InteractWithClient() Recv Greetings {0}", DateTime.Now.Second);
 
-            mBgWorker.ReportProgress(1, string.Format("Connected from {0}\n", client.Client.RemoteEndPoint));
+            mBgWorker.ReportProgress(PROGRESS_REPORT, string.Format("Connected from {0}\n", client.Client.RemoteEndPoint));
 
             bool result = true;
             using (var bw = new BinaryWriter(stream)) {
@@ -353,7 +256,7 @@ namespace PlayPcmWin {
 
                 UpdateListenIPandPort(port);
 
-                mBgWorker.ReportProgress(1,
+                mBgWorker.ReportProgress(PROGRESS_STARTED,
                     string.Format("PPWServer started. Waiting PPWRemote on:\n    IP address = {0}\n    Port = {1}\n", mListenIPAddress, mListenPort));
 
                 bool bContinue = true;
@@ -385,28 +288,28 @@ namespace PlayPcmWin {
                                 bContinue = InteractWithClient(client, stream);
 
                                 if (bContinue) {
-                                    bgWorker.ReportProgress(1, string.Format("Connection closed. Waiting another client to connect.\n"));
+                                    bgWorker.ReportProgress(PROGRESS_REPORT, string.Format("Connection closed. Waiting another client to connect on IP address = {0} Port = {1}\n", mListenIPAddress, mListenPort));
                                 }
                             }
                         }
                     } catch (IOException ex) {
-                        bgWorker.ReportProgress(1, string.Format("{0}\nConnection closed. Waiting another client to connect.\n", ex));
+                        bgWorker.ReportProgress(PROGRESS_REPORT, string.Format("{0}\nConnection closed. Waiting another client to connect on IP address = {1} Port = {2}\n", ex, mListenIPAddress, mListenPort));
                     }
 
                     lock (mLock) {
                         mStream = null;
                     }
                 }
-                bgWorker.ReportProgress(1, string.Format("PPWServer stopped.\n"));
+                bgWorker.ReportProgress(PROGRESS_REPORT, string.Format("PPWServer stopped.\n"));
             } catch (SocketException e) {
                 Console.WriteLine("SocketException: {0}\nPPWServer stopped.\n", e);
-                bgWorker.ReportProgress(1, string.Format("{0}.\n", e));
+                bgWorker.ReportProgress(PROGRESS_REPORT, string.Format("{0}.\n", e));
             } catch (IOException e) {
                 Console.WriteLine("IOException: {0}\nPPWServer stopped.\n", e);
-                bgWorker.ReportProgress(1, string.Format("{0}.\n", e));
+                bgWorker.ReportProgress(PROGRESS_REPORT, string.Format("{0}.\n", e));
             } catch (Exception e) {
                 Console.WriteLine("Exception: {0}\nPPWServer stopped.\n", e);
-                bgWorker.ReportProgress(1, string.Format("{0}.\n", e));
+                bgWorker.ReportProgress(10, string.Format("{0}.\n", e));
             } finally {
             }
 

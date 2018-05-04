@@ -2498,6 +2498,8 @@ namespace PlayPcmWin
                 if (0 <= hr) {
                     ChangeState(State.再生一時停止中);
                     UpdateUIStatus();
+                    PPWServerSendCommand(new RemoteCommand(
+                        RemoteCommandType.Pause, dataGridPlayList.SelectedIndex));
                 } else {
                     // Pause失敗＝すでに再生していない または再生一時停止ができない状況。ここで状態遷移する必要はない。
                 }
@@ -2744,6 +2746,21 @@ namespace PlayPcmWin
                     if (!mSliderSliding || playPos.TotalFrameNum <= slider1.Value) {
                         slider1.Value = playPos.PosFrame;
                     }
+
+                    int posMs = (int)(playPos.PosFrame * 1000 / pcmData.SampleRate);
+                    var cmd = new RemoteCommand(RemoteCommandType.PlayPositionUpdate, dataGridPlayList.SelectedIndex, posMs);
+                    // 大体の再生状態を送る。
+                    switch (m_state) {
+                    case State.再生中:
+                        cmd.state = RemoteCommand.PlaybackState.Playing; break;
+                    case State.再生一時停止中:
+                        cmd.state = RemoteCommand.PlaybackState.Paused; break;
+                    default:
+                        cmd.state = RemoteCommand.PlaybackState.Stopped; break;
+                    }
+                    Console.WriteLine("playposition track={0} state={1} pos={2}", cmd.trackIdx, cmd.state, cmd.positionMillisec);
+                    PPWServerSendCommand(cmd);
+
                     mLastSliderPositionUpdateTime = now;
                 }
 
@@ -3451,6 +3468,7 @@ namespace PlayPcmWin
                 m_playListItems.Count() <= dataGridPlayList.SelectedIndex) {
                 return;
             }
+            m_playListMouseDown = false;
 
             var pli = m_playListItems[dataGridPlayList.SelectedIndex];
             if (pli.PcmData() == null) {
@@ -3825,7 +3843,6 @@ namespace PlayPcmWin
         private const int PPWSERVER_LISTEN_PORT = 2002;
         private BackgroundWorker mBWPPWServer = new BackgroundWorker();
         private PPWServer mPPWServer = null;
-        private int mLastSendPlaylistItemCount = -1;
 
         private void MenuItemPPWServerSettings_Click(object sender, RoutedEventArgs e) {
             var sw = new PPWServerSettingsWindow();
@@ -3841,6 +3858,8 @@ namespace PlayPcmWin
             if (r != true) {
                 return;
             }
+
+            menuPPWServer.IsEnabled = false;
 
             if (mPPWServer == null) {
                 // サーバー起動。
@@ -3861,21 +3880,31 @@ namespace PlayPcmWin
                     System.Threading.Thread.Sleep(100);
                 }
                 mBWPPWServer = null;
+
+                menuPPWServer.IsEnabled = true;
             }
         }
 
         void mBWPPWServer_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
+            menuPPWServer.IsEnabled = true;
         }
 
+        // mPPWServer.Runの中から呼び出される。
+        // ReportProgress(0, ...)で、サーバー開始完了
+        // ReportProgress(10, ...)は、メッセージの表示。
         void  mBWPPWServer_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
+            if (e.ProgressPercentage == PPWServer.PROGRESS_STARTED) {
+                menuPPWServer.IsEnabled = true;
+            }
+
             string s = e.UserState as string;
             AddLogText(s);
         }
 
         void  mBWPPWServer_DoWork(object sender, DoWorkEventArgs e)
         {
-            mLastSendPlaylistItemCount = -1;
+
             mPPWServer = new PPWServer();
             mPPWServer.Run(new PPWServer.RemoteCmdRecvDelegate(PPWServerRemoteCmdRecv), mBWPPWServer, PPWSERVER_LISTEN_PORT);
             mPPWServer = null;
@@ -3885,11 +3914,41 @@ namespace PlayPcmWin
             Application.Current.Dispatcher.BeginInvoke(
                 DispatcherPriority.Background, new Action(() => {
                     // ここはMainWindowのUIスレッド。
+                    Console.WriteLine("PPWServerRemoteCmdRecv {0} trackIdx={1}", cmd.cmd, cmd.trackIdx);
 
                     switch (cmd.cmd) {
                     case RemoteCommandType.PlaylistWant:
                         // 再生リストを送る。
                         PPWServerSendPlaylist();
+                        break;
+                    case RemoteCommandType.Play:
+                        // 再生曲切り替え。
+                        if (buttonPlay.IsEnabled && !buttonStop.IsEnabled) {
+                            ButtonPlayClicked();
+                        } else if (m_state == State.再生一時停止中) {
+                            // 一時停止中は一時停止ボタンを押すと再生再開する。
+                            ButtonPauseClicked();
+                        }
+
+                        if (0 <= cmd.trackIdx && cmd.trackIdx < dataGridPlayList.Items.Count) {
+                            m_playListMouseDown = true;
+                            dataGridPlayList.SelectedIndex = cmd.trackIdx;
+                        }
+                        break;
+                    case RemoteCommandType.SelectTrack:
+                        // 再生曲切り替え。
+                        if (0 <= cmd.trackIdx && cmd.trackIdx < dataGridPlayList.Items.Count) {
+                            m_playListMouseDown = true;
+                            dataGridPlayList.SelectedIndex = cmd.trackIdx;
+                        }
+                        break;
+                    case RemoteCommandType.Pause:
+                        if (buttonPause.IsEnabled) {
+                            ButtonPauseClicked();
+                        }
+                        break;
+                    case RemoteCommandType.Seek:
+                        // TODO
                         break;
                     }
                 }));
@@ -3903,13 +3962,19 @@ namespace PlayPcmWin
                 return;
             }
 
-            if (mLastSendPlaylistItemCount == m_playListItems.Count) {
-                return;
-            }
-            mLastSendPlaylistItemCount = m_playListItems.Count;
+            var cmd = new RemoteCommand(RemoteCommandType.PlaylistData);
+            cmd.trackIdx = dataGridPlayList.SelectedIndex;
 
-            var plCmd = new RemoteCommand(RemoteCommandType.PlaylistSend);
-            plCmd.trackIdx = dataGridPlayList.SelectedIndex;
+            // 大体の再生状態。
+            switch (m_state) {
+            case State.再生中:
+                cmd.state = RemoteCommand.PlaybackState.Playing; break;
+            case State.再生一時停止中:
+                cmd.state = RemoteCommand.PlaybackState.Paused; break;
+            default:
+                cmd.state = RemoteCommand.PlaybackState.Stopped; break;
+            }
+
             foreach (var a in m_playListItems) {
                 int sampleRate = a.PcmData().SampleRate;
                 int bitDepth = a.PcmData().ValidBitsPerSample;
@@ -3920,11 +3985,21 @@ namespace PlayPcmWin
                 var p = new RemoteCommandPlayListItem(
                     a.PcmData().DurationMilliSec, sampleRate, bitDepth,
                     a.AlbumTitle, a.ArtistName, a.Title, a.PcmData().PictureData);
-                plCmd.playlist.Add(p);
+                cmd.playlist.Add(p);
             }
             Console.WriteLine("PPWServerSendPlaylist() SendAsync start {0}", DateTime.Now.Second);
-            mPPWServer.SendAsync(plCmd);
+            mPPWServer.SendAsync(cmd);
             Console.WriteLine("PPWServerSendPlaylist() SendAsync end {0}", DateTime.Now.Second);
+        }
+
+        // あらゆるスレッドから呼び出し可。
+        private void PPWServerSendCommand(RemoteCommand cmd) {
+            if (mPPWServer == null) {
+                return;
+            }
+
+            Console.WriteLine("PPWServerSendCommand() SendAsync start {0}", DateTime.Now.Second);
+            mPPWServer.SendAsync(cmd);
         }
     }
 }
