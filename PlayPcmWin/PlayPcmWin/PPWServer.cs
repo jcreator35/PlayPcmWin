@@ -129,7 +129,7 @@ namespace PlayPcmWin {
                 bContinue = false;
             }
 
-            Console.WriteLine("PPWServer RecvRequests {0} {1}", DateTime.Now.Second, cmd.cmd);
+            //Console.WriteLine("PPWServer RecvRequests {0} {1}", DateTime.Now.Second, cmd.cmd);
 
             mRemoteCmdRecvDelegate(cmd);
 
@@ -176,7 +176,7 @@ namespace PlayPcmWin {
                     rc = mCmdToSend[0];
                 }
 
-                Console.WriteLine("PPWServer SendQueuedMsg() {0} Sending {1}", DateTime.Now.Second, rc.cmd);
+                //Console.WriteLine("PPWServer SendQueuedMsg() {0} Sending {1}", DateTime.Now.Second, rc.cmd);
                 Send(bw, rc);
 
                 lock (mLock) {
@@ -188,7 +188,7 @@ namespace PlayPcmWin {
 
         /// <returns>true: listen and accept next client, false: abort and end!</returns>
         private bool InteractWithClient(TcpClient client, NetworkStream stream) {
-            Console.WriteLine("InteractWithClient() started {0}", DateTime.Now.Second);
+            //Console.WriteLine("InteractWithClient() started {0}", DateTime.Now.Second);
             stream.ReadTimeout = STREAM_READ_TIMEOUT;
             var br = new BinaryReader(stream);
 
@@ -206,7 +206,7 @@ namespace PlayPcmWin {
                     return true;
                 }
             }
-            Console.WriteLine("InteractWithClient() Recv Greetings {0}", DateTime.Now.Second);
+            //Console.WriteLine("InteractWithClient() Recv Greetings {0}", DateTime.Now.Second);
 
             mBgWorker.ReportProgress(PROGRESS_REPORT, string.Format("Connected from {0}\n", client.Client.RemoteEndPoint));
 

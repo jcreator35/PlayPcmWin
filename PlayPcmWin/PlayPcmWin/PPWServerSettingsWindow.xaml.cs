@@ -1,15 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+﻿using System.Windows;
 
 namespace PlayPcmWin {
     /// <summary>
@@ -53,6 +42,13 @@ namespace PlayPcmWin {
         private void buttonStopServer_Click(object sender, RoutedEventArgs e) {
             DialogResult = true;
             Close();
+        }
+
+        private void buttonVisitWebpage_Click(object sender, RoutedEventArgs e) {
+            try {
+                System.Diagnostics.Process.Start("https://sourceforge.net/p/playpcmwin/wiki/PPWRemote/");
+            } catch (System.ComponentModel.Win32Exception) {
+            }
         }
     }
 }

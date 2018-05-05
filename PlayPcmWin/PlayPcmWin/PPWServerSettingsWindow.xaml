@@ -1,14 +1,18 @@
 ﻿<Window x:Class="PlayPcmWin.PPWServerSettingsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="PPWServerSettingsWindow" Height="150" Width="500">
+        Title="PPWServerSettingsWindow" Height="200" Width="500">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="1*" />
             <RowDefinition Height="40" />
+            <RowDefinition Height="40" />
         </Grid.RowDefinitions>
         <TextBlock Text="Server status" HorizontalAlignment="Left" Margin="6,0,0,0" Name="tbStatus" VerticalAlignment="Center" TextWrapping="WrapWithOverflow" />
         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="4,0,0,0">
+            <Button Margin="4" Content=" _Visit PPWRemote Webpage " HorizontalAlignment="Center" Name="buttonVisitWebpage" VerticalAlignment="Center" Click="buttonVisitWebpage_Click" />
+        </StackPanel>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="4,0,0,0">
             <Button Margin="4" Content=" _Start PPWServer " HorizontalAlignment="Center" Name="buttonStartServer" VerticalAlignment="Center" Click="buttonStartServer_Click" />
             <Button Margin="4" Content=" Stop _PPWServer " HorizontalAlignment="Center" Name="buttonStopServer" VerticalAlignment="Center" Click="buttonStopServer_Click" />
             <Button Margin="4" Content=" Just _Close This Window " Name="buttonClose" HorizontalAlignment="Center" VerticalAlignment="Center" IsDefault="True" Click="buttonClose_Click" />

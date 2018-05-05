@@ -158,7 +158,7 @@ namespace PlayPcmWin {
         public byte[] GenerateMessage() {
             byte[] r = new byte[0];
 
-            Console.WriteLine("GenerateMessage({0})\n", cmd);
+            //Console.WriteLine("GenerateMessage({0})\n", cmd);
 
             switch (cmd) {
             case RemoteCommandType.Exit:

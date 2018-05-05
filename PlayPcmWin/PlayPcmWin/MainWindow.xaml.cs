@@ -1718,7 +1718,7 @@ namespace PlayPcmWin
 
         private void MenuItemHelpWeb_Click(object sender, RoutedEventArgs e) {
             try {
-                System.Diagnostics.Process.Start("http://sourceforge.net/projects/playpcmwin/");
+                System.Diagnostics.Process.Start("https://sourceforge.net/projects/playpcmwin/");
             } catch (System.ComponentModel.Win32Exception) {
             }
         }
@@ -2758,7 +2758,7 @@ namespace PlayPcmWin
                     default:
                         cmd.state = RemoteCommand.PlaybackState.Stopped; break;
                     }
-                    Console.WriteLine("playposition track={0} state={1} pos={2}", cmd.trackIdx, cmd.state, cmd.positionMillisec);
+                    //Console.WriteLine("playposition track={0} state={1} pos={2}", cmd.trackIdx, cmd.state, cmd.positionMillisec);
                     PPWServerSendCommand(cmd);
 
                     mLastSliderPositionUpdateTime = now;
@@ -3914,7 +3914,7 @@ namespace PlayPcmWin
             Application.Current.Dispatcher.BeginInvoke(
                 DispatcherPriority.Background, new Action(() => {
                     // ここはMainWindowのUIスレッド。
-                    Console.WriteLine("PPWServerRemoteCmdRecv {0} trackIdx={1}", cmd.cmd, cmd.trackIdx);
+                    //Console.WriteLine("PPWServerRemoteCmdRecv {0} trackIdx={1}", cmd.cmd, cmd.trackIdx);
 
                     switch (cmd.cmd) {
                     case RemoteCommandType.PlaylistWant:
@@ -3956,7 +3956,7 @@ namespace PlayPcmWin
 
         // MainWindowのUIスレッドから呼び出して下さい。
         private void PPWServerSendPlaylist() {
-            Console.WriteLine("PPWServerSendPlaylist() start {0}", DateTime.Now.Second);
+            //Console.WriteLine("PPWServerSendPlaylist() start {0}", DateTime.Now.Second);
 
             if (mPPWServer == null) {
                 return;
@@ -3987,9 +3987,9 @@ namespace PlayPcmWin
                     a.AlbumTitle, a.ArtistName, a.Title, a.PcmData().PictureData);
                 cmd.playlist.Add(p);
             }
-            Console.WriteLine("PPWServerSendPlaylist() SendAsync start {0}", DateTime.Now.Second);
+            //Console.WriteLine("PPWServerSendPlaylist() SendAsync start {0}", DateTime.Now.Second);
             mPPWServer.SendAsync(cmd);
-            Console.WriteLine("PPWServerSendPlaylist() SendAsync end {0}", DateTime.Now.Second);
+            //Console.WriteLine("PPWServerSendPlaylist() SendAsync end {0}", DateTime.Now.Second);
         }
 
         // あらゆるスレッドから呼び出し可。
@@ -3998,7 +3998,7 @@ namespace PlayPcmWin
                 return;
             }
 
-            Console.WriteLine("PPWServerSendCommand() SendAsync start {0}", DateTime.Now.Second);
+            //Console.WriteLine("PPWServerSendCommand() SendAsync start {0}", DateTime.Now.Second);
             mPPWServer.SendAsync(cmd);
         }
     }
