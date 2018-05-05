@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">PPWRemote6</string>
+    <string name="action_connect">Connect…</string>
+    <string name="action_disconnect">Disconnect</string>
+    <string name="desc_album_cover_art">Album cover art image</string>
+    <string name="desc_previous_track_button">previous track button</string>
+    <string name="desc_next_track_button">next track button</string>
+    <string name="desc_pause_button">pause button</string>
+    <string name="desc_play_button">play button</string>
+    <string name="hint_server_ip_address">Server IP Address such as 192.168.1.23</string>
+    <string name="hint_server_port">Server port number. In most cases, it is 2002</string>
+    <string name="play_list_is_empty">Playlist is empty</string>
+    <string name="connect_dialog_message">Please put PPWServer IP address and port number:</string>
+    <string name="connect_dialog_connect">Connect</string>
+    <!-- Strings related to Settings -->
+
+    <!-- Example General settings -->
+</resources>

@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">PPWRemote6</string>
+    <string name="action_connect">サーバーに接続…</string>
+    <string name="action_disconnect">サーバーとの接続を終了</string>
+    <string name="desc_album_cover_art">アルバムカバーアート画像</string>
+    <string name="desc_previous_track_button">前のトラックに戻るボタン</string>
+    <string name="desc_next_track_button">次のトラックに進むボタン</string>
+    <string name="desc_pause_button">ポーズボタン</string>
+    <string name="desc_play_button">再生ボタン</string>
+    <string name="hint_server_ip_address">サーバーのIPアドレス。例えば 192.168.1.23</string>
+    <string name="hint_server_port">サーバーのポート番号。ほとんどの場合 2002</string>
+    <string name="play_list_is_empty">再生リストは空です</string>
+    <string name="connect_dialog_message">PPWServerのIPアドレスとポート番号を入力して下さい:</string>
+    <string name="connect_dialog_connect">接続</string>
+
+    <!-- Strings related to Settings -->
+
+    <!-- Example General settings -->
+</resources>

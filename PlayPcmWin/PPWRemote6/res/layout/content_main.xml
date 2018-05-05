@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context=".MainActivity"
+    tools:showIn="@layout/activity_main">
+
+    <ListView
+        android:id="@+id/main_play_list_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:choiceMode="singleChoice"
+        app:layout_constraintBottom_toTopOf="@+id/main_image_view"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <ImageView
+        android:id="@+id/main_image_view"
+        android:contentDescription="@string/desc_album_cover_art"
+        android:layout_width="132dp"
+        android:layout_height="132dp"
+        android:layout_marginBottom="2dp"
+        android:layout_marginStart="2dp"
+        android:layout_marginTop="2dp"
+        android:src="@android:drawable/ic_menu_gallery"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/main_play_list_view" />
+
+    <ImageButton
+        android:id="@+id/main_button_prev"
+        android:contentDescription="@string/desc_previous_track_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="0dp"
+        android:src="@android:drawable/ic_media_previous"
+        app:layout_constraintStart_toEndOf="@+id/main_image_view"
+        app:layout_constraintTop_toBottomOf="@+id/main_play_list_view" />
+
+    <ImageButton
+        android:id="@+id/main_button_pause"
+        android:contentDescription="@string/desc_pause_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="0dp"
+        android:src="@android:drawable/ic_media_pause"
+        app:layout_constraintStart_toEndOf="@+id/main_button_prev"
+        app:layout_constraintTop_toBottomOf="@+id/main_play_list_view" />
+
+    <ImageButton
+        android:id="@+id/main_button_play"
+        android:contentDescription="@string/desc_play_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="0dp"
+        android:src="@android:drawable/ic_media_play"
+        app:layout_constraintStart_toEndOf="@+id/main_button_pause"
+        app:layout_constraintTop_toBottomOf="@+id/main_play_list_view" />
+
+    <ImageButton
+        android:id="@+id/main_button_next"
+        android:contentDescription="@string/desc_next_track_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="0dp"
+        android:src="@android:drawable/ic_media_next"
+        app:layout_constraintStart_toEndOf="@+id/main_button_play"
+        app:layout_constraintTop_toBottomOf="@+id/main_play_list_view" />
+
+    <SeekBar
+        android:id="@+id/main_seek_bar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="0dp"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/main_image_view"
+        app:layout_constraintTop_toBottomOf="@+id/main_button_prev" />
+
+    <TextView
+        android:id="@+id/main_text_view_album"
+        android:layout_width="0dp"
+        android:layout_height="16sp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="0sp"
+        android:ellipsize="end"
+        android:text="Album name will be displayed here. very lengthy album name test"
+        android:textSize="12sp"
+        app:layout_constraintStart_toEndOf="@+id/main_image_view"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/main_seek_bar" />
+
+    <TextView
+        android:id="@+id/main_text_view_artist"
+        android:layout_width="0dp"
+        android:layout_height="16sp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="0sp"
+        android:ellipsize="end"
+        android:text="Artist name will be displayed here. very lengthy artist name test"
+        android:textSize="12sp"
+        app:layout_constraintStart_toEndOf="@+id/main_image_view"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/main_text_view_album" />
+
+    <TextView
+        android:id="@+id/main_text_view_title"
+        android:layout_width="0dp"
+        android:layout_height="18sp"
+        android:layout_marginBottom="16sp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8sp"
+        android:text="Title name will be displayed here. very lengthy title name test"
+        android:ellipsize="end"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/main_image_view"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/main_text_view_artist" />
+
+    <ProgressBar
+        android:id="@+id/main_progressbar"
+        android:layout_width="96dp"
+        android:layout_height="96dp"
+        app:layout_constraintBottom_toTopOf="@+id/main_image_view"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/main_text_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView of main_text_message"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/main_image_view"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</android.support.constraint.ConstraintLayout>
