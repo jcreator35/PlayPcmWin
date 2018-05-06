@@ -49,7 +49,7 @@ class RemoteCommand(var cmd : CommandType, var trackIdx : Int = 0) {
     var playlist: MutableList<PlayListItem> = mutableListOf()
 
     companion object {
-        const val VERSION: Long = 100
+        const val VERSION: Long = 102
 
         const val STATE_STOPPED : Int = 0
         const val STATE_PLAYING : Int = 1

@@ -11,7 +11,7 @@ namespace PlayPcmWin {
         private const int STREAM_READ_TIMEOUT = 10000;
         private const int IDLE_SLEEP_MS = 100;
         private const int RECV_TOO_LARGE = 10000;
-        public const int VERSION = 100;
+        public const int VERSION = 102;
 
         public const int PROGRESS_STARTED = 0;
         public const int PROGRESS_REPORT = 10;
@@ -199,10 +199,15 @@ namespace PlayPcmWin {
 
                 greetResult = RecvGreetings(br);
 
+                if (greetResult == ReturnCode.PlayPcmWinVersionIsTooLow ||
+                        greetResult == ReturnCode.PPWRemoteVersionIsTooLow) {
+                    Send(new BinaryWriter(stream), new RemoteCommand(RemoteCommandType.Exit));
+                }
+
                 if (greetResult != ReturnCode.OK) {
                     // 失敗したので接続を切る。
-                    mBgWorker.ReportProgress(PROGRESS_REPORT, string.Format("Connected from {0}\nPPWServer Error: {1}. Connection closed.\nWaiting PPWRemote on: IP address = {2}, Port = {3}\n",
-                        client.Client.RemoteEndPoint, greetResult, mListenIPAddress, mListenPort));
+                    mBgWorker.ReportProgress(PROGRESS_REPORT, string.Format("Connected from {0}\nError: {1}.\n",
+                        client.Client.RemoteEndPoint, greetResult));
                     return true;
                 }
             }

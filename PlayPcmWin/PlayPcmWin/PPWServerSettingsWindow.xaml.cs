@@ -19,7 +19,7 @@ namespace PlayPcmWin {
             case ServerState.Started:
                 buttonStartServer.IsEnabled = false;
                 buttonStopServer.IsEnabled = true;
-                tbStatus.Text = string.Format("PPWServer is currently running on:\n    ・IP address = {0}\n    ・Port = {1}\nPlease use PPWRemote app to connect to.", ipaddr, port);
+                tbStatus.Text = string.Format("PPWServer is currently running on:\n    ・IP address = {0}\n    ・Port = {1}\nPlease use PPWRemote6v2 app to connect to.", ipaddr, port);
                 break;
             case ServerState.Stopped:
                 buttonStartServer.IsEnabled = true;
