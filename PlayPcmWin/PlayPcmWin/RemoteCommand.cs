@@ -89,6 +89,7 @@ namespace PlayPcmWin {
         public RemoteCommandType cmd;
         public int trackIdx;
         public int positionMillisec;
+        public int trackMillisec;
         public PlaybackState state;
         public List<RemoteCommandPlayListItem> playlist = new List<RemoteCommandPlayListItem>();
 
@@ -128,23 +129,23 @@ namespace PlayPcmWin {
                 }
                 break;
             case FOURCC_SEEK:
-                /* trackIdx (4bytes)
-                 * positionMillisec (4bytes)
+                /* positionMillisec (4bytes)
+                 * trackMillisec (4bytes)
                  */
                 if (payload.Length != 8) {
                     Console.WriteLine("D: RemoteCommand Seek and payload length is not 8 {0}.", payload.Length);
                     break;
                 }
-                trackIdx = BitConverter.ToInt32(payload, 0);
-                if (trackIdx < 0) {
-                    Console.WriteLine("D: RemoteCommand Play and trackIdx is negative value {0}.", trackIdx);
-                    trackIdx = 0;
-                    break;
-                }
-                positionMillisec = BitConverter.ToInt32(payload, 4);
+                positionMillisec = BitConverter.ToInt32(payload, 0);
                 if (positionMillisec < 0) {
                     Console.WriteLine("D: RemoteCommand Play and positionMillisec is negative value {0}.", positionMillisec);
                     positionMillisec = 0;
+                    break;
+                }
+                trackMillisec = BitConverter.ToInt32(payload, 4);
+                if (trackMillisec <= 0) {
+                    Console.WriteLine("D: RemoteCommand Play and positionMillisec is zero or negative value {0}.", trackMillisec);
+                    trackMillisec = 1;
                     break;
                 }
                 break;

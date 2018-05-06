@@ -32,6 +32,9 @@ class RemoteCommand(var cmd : CommandType, var trackIdx : Int = 0) {
     /// Play position on track. Used on Play Pause and Seek.
     var positionMillisec: Int = 0
 
+    /// used by Seek send
+    var trackMillisec : Int = 0
+
     class PlayListItem {
         var durationMillsec: Int = 0
         var sampleRate : Int = 0
@@ -83,7 +86,7 @@ class RemoteCommand(var cmd : CommandType, var trackIdx : Int = 0) {
             while (offs < bytes) {
                 if (0 == ins.available()) {
                     Thread.sleep(10)
-                    Log.i("RemoteCommand", "Sleep...")
+                    //Log.i("RemoteCommand", "Sleep...")
                     continue
                 }
                 val wantBytes = bytes - offs
@@ -106,7 +109,6 @@ class RemoteCommand(var cmd : CommandType, var trackIdx : Int = 0) {
             val buff = readBlocking(ins, 8)
             return byteArrayToLong(buff)
         }
-
 
         private fun readByteArray(ins : InputStream) : ByteArray {
             val bytes = readInt(ins)
@@ -190,7 +192,7 @@ class RemoteCommand(var cmd : CommandType, var trackIdx : Int = 0) {
                     }
 
                     for (i in 0 until nTracks) {
-                        Log.i("RemoteCommand", "Reading track $i of $nTracks")
+                        //Log.i("RemoteCommand", "Reading track $i of $nTracks")
 
                         val p = RemoteCommand.PlayListItem()
                         p.durationMillsec = readInt(ins)
@@ -308,6 +310,15 @@ class RemoteCommand(var cmd : CommandType, var trackIdx : Int = 0) {
                    trackIdx (4bytes)
                  */
                 r.add(intToByteArray(trackIdx))
+            }
+            CommandType.Seek -> {
+                /*
+                    total 8bytes
+                    positionMillisec (4bytes)
+                    trackMillisec (4bytes)
+                 */
+                r.add(intToByteArray(positionMillisec))
+                r.add(intToByteArray(trackMillisec))
             }
             else -> {
                 throw NotImplementedError("RemoteCommand.toByteArray")

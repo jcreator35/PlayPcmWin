@@ -73,10 +73,12 @@ class PPWTcpClient
         return bContinue
     }
 
+    /*
     fun abort() {
         mSocket?.close()
         mSocket = null
     }
+    */
 
     fun sendExitAsync() {
         sendMessageAsync(RemoteCommand(RemoteCommand.CommandType.Exit))
@@ -88,7 +90,7 @@ class PPWTcpClient
         var resultMsg = "Successfully disconnected."
 
         try {
-            Log.i("PPWTcpClient", "Connecting to $serverIpAddressStr:$serverPort ...")
+            //Log.i("PPWTcpClient", "Connecting to $serverIpAddressStr:$serverPort ...")
             val serverAddress = InetAddress.getByName(serverIpAddressStr)
             mSocket = Socket()
             mSocket!!.connect(InetSocketAddress(serverAddress, serverPort), SOCKET_CONNECT_TIMEOUT)
@@ -102,7 +104,7 @@ class PPWTcpClient
                 sendMessageBlocking(RemoteCommand(RemoteCommand.CommandType.PlaylistWant))
                 mOut!!.flush()
 
-                Log.i("PPWTcpClient", "PlaylistWant Sent.")
+                //Log.i("PPWTcpClient", "PlaylistWant Sent.")
 
                 mIs = mSocket!!.getInputStream()
 

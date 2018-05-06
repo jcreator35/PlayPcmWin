@@ -3902,9 +3902,7 @@ namespace PlayPcmWin
             AddLogText(s);
         }
 
-        void  mBWPPWServer_DoWork(object sender, DoWorkEventArgs e)
-        {
-
+        void  mBWPPWServer_DoWork(object sender, DoWorkEventArgs e) {
             mPPWServer = new PPWServer();
             mPPWServer.Run(new PPWServer.RemoteCmdRecvDelegate(PPWServerRemoteCmdRecv), mBWPPWServer, PPWSERVER_LISTEN_PORT);
             mPPWServer = null;
@@ -3948,6 +3946,12 @@ namespace PlayPcmWin
                         }
                         break;
                     case RemoteCommandType.Seek:
+                        if (!buttonPlay.IsEnabled) {
+                            double ratio = (double)cmd.positionMillisec / cmd.trackMillisec;
+                            long pos = (long)(ratio * slider1.Maximum);
+                            //Console.WriteLine("SEEK {0} {1} {2}", ratio, slider1.Maximum, pos);
+                            ap.wasapi.SetPosFrame(pos);
+                        }
                         // TODO
                         break;
                     }

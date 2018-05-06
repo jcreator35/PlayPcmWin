@@ -19,18 +19,21 @@ import android.view.View.VISIBLE
 import android.widget.Toast
 import android.graphics.drawable.Drawable
 import android.widget.ImageButton
+import android.widget.SeekBar
 
 interface NetworkEventHandler {
     fun onNetworkEventMessage(msg : String)
     fun onNetworkEventCommandReceived(cmd: RemoteCommand)
 }
 
-class MainActivity : AppCompatActivity(), NetworkEventHandler {
+class MainActivity : AppCompatActivity(), NetworkEventHandler, SeekBar.OnSeekBarChangeListener {
+
     private val mPlayList = mutableListOf<MusicItem>()
     private var mSelectedMusicItem : MusicItem? = null
     private lateinit var mPlayListViewAdapter : PlayListViewAdapter
     private lateinit var mPrefs : Prefs
     private var mConnectTask : ConnectTask? = null
+    private var mPlayPositionSkipCounter = 0
 
     private var mState = State.INITIAL_VOID
     private lateinit var mButtonIconNext : Drawable
@@ -41,6 +44,10 @@ class MainActivity : AppCompatActivity(), NetworkEventHandler {
     private lateinit var mGrayedButtonIconPrev : Drawable
     private lateinit var mGrayedButtonIconPlay : Drawable
     private lateinit var mGrayedButtonIconPause : Drawable
+
+    companion object {
+        const val PLAY_POSITION_SKIP_NUM = 2
+    }
 
     private enum class State {
         INITIAL_VOID,
@@ -68,6 +75,8 @@ class MainActivity : AppCompatActivity(), NetworkEventHandler {
         main_button_pause.setOnClickListener{ _ -> pauseButtonPressed() }
         main_button_play.setOnClickListener{ _ -> playButtonPressed() }
 
+        main_seek_bar.setOnSeekBarChangeListener(this)
+
         mPlayListViewAdapter = PlayListViewAdapter(this, mPlayList)
         main_play_list_view.adapter = mPlayListViewAdapter
 
@@ -76,6 +85,25 @@ class MainActivity : AppCompatActivity(), NetworkEventHandler {
         updateUIStatus()
 
         openConnectionDialog()
+    }
+
+    override fun onStopTrackingTouch(seekBar: SeekBar?) { }
+
+    override fun onStartTrackingTouch(seekBar: SeekBar?) { }
+
+    override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+        if (!fromUser || mSelectedMusicItem == null) {
+            return
+        }
+
+        mPlayPositionSkipCounter = PLAY_POSITION_SKIP_NUM
+
+        val cmd = RemoteCommand(RemoteCommand.CommandType.Seek, mSelectedMusicItem!!.idx)
+        cmd.positionMillisec = progress
+        cmd.trackMillisec = mSelectedMusicItem!!.durationMs
+
+        //Log.i("MainActivity", "progress changed ${cmd.positionMillisec} / ${cmd.trackMillisec}")
+        trySendMessageAsync(cmd)
     }
 
     private fun nextButtonPressed() {
@@ -284,11 +312,15 @@ class MainActivity : AppCompatActivity(), NetworkEventHandler {
     }
 
     private fun musicItemSelected(item : MusicItem, byUserOperation : Boolean) {
-        Log.i("PPWRemote6 MainActivity", "musicItemSelected ${item.idx} byUserOperation=$byUserOperation")
+        //Log.i("PPWRemote6 MainActivity", "musicItemSelected ${item.idx} byUserOperation=$byUserOperation")
 
-        // update display
-        mPlayListViewAdapter.selectedIdx = item.idx
-        mPlayListViewAdapter.notifyDataSetChanged()
+        if (item.idx != mPlayListViewAdapter.selectedIdx){
+            // update selected position of the playlist
+            mPlayListViewAdapter.selectedIdx = item.idx
+            mPlayListViewAdapter.notifyDataSetChanged()
+
+            main_play_list_view.smoothScrollToPosition(item.idx)
+        }
 
         main_text_view_album.text = item.albumName
         main_text_view_artist.text = item.artistName
@@ -306,6 +338,8 @@ class MainActivity : AppCompatActivity(), NetworkEventHandler {
         mSelectedMusicItem = item
 
         if (byUserOperation) {
+            mPlayPositionSkipCounter = PLAY_POSITION_SKIP_NUM
+
             trySendMessageAsync(RemoteCommand(RemoteCommand.CommandType.Play, item.idx))
         }
     }
@@ -386,9 +420,17 @@ class MainActivity : AppCompatActivity(), NetworkEventHandler {
                 musicItemSelected(item, false)
             }
             RemoteCommand.CommandType.PlayPositionUpdate -> {
+                if (0 < mPlayPositionSkipCounter) {
+                    // 過去の再生状態が遅れて届くために再生曲が一瞬戻ったように見える問題の修正。
+
+                    //Log.i("MainActivity", "skipped PlayPositionUpdate")
+                    --mPlayPositionSkipCounter
+                    return
+                }
+
                 playbackStateUpdated(cmd.state)
                 if (mPlayList.size <= cmd.trackIdx) {
-                    Log.e("MainActivity", "Error trackIdx  ${cmd.trackIdx} is larger than playlist size ${mPlayList.size}")
+                    //Log.i("MainActivity", "Error trackIdx  ${cmd.trackIdx} is larger than playlist size ${mPlayList.size}")
                     return
                 }
                 val item = mPlayList[cmd.trackIdx]
