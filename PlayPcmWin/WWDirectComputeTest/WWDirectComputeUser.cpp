@@ -197,7 +197,7 @@ WWDirectComputeUser::CreateComputeShader(
 //#if defined( DEBUG ) || defined( _DEBUG )
     // D3DCOMPILE_DEBUGフラグを指定すると、シェーダーにデバッグ情報を埋め込むが
     // 最適化はされるし、RELEASEと同等の動作をし、性能が落ちない…らしい。
-    dwShaderFlags |= D3DCOMPILE_DEBUG;
+    //dwShaderFlags |= D3DCOMPILE_DEBUG;
 //#endif
 
     // CSシェーダープロファイル5.0を指定。

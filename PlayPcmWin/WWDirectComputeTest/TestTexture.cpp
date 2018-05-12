@@ -40,7 +40,7 @@ TestTexture(void)
         nullptr, nullptr
     };
 
-    // HLSL ComputeShaderをコンパイルしてGPUに送る。
+    // HLSL ComputeShaderをコンパイル。
     HRG(c.CreateComputeShader(L"TextureFetchTest.hlsl", "CSMain", defines, &pCS));
     assert(pCS);
     
