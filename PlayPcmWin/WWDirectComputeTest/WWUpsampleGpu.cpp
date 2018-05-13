@@ -244,7 +244,7 @@ WWUpsampleGpu::Dispatch(
     shaderParams.c_convOffs = 0;
     shaderParams.c_dispatchCount = m_convolutionN*2/GROUP_THREAD_COUNT;
     shaderParams.c_sampleToStartPos = startPos;
-    HRGR(m_pDCU->Run(m_pCS, sizeof aRViews/sizeof aRViews[0], aRViews, m_pBufResultUav,
+    HRGR(m_pDCU->Run(m_pCS, sizeof aRViews/sizeof aRViews[0], aRViews, 1, &m_pBufResultUav,
         m_pBufConst, &shaderParams, sizeof shaderParams, count, 1, 1));
 #else
     // ’x‚¢

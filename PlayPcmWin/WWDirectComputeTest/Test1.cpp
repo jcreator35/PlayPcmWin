@@ -174,7 +174,7 @@ JitterAddGpu(
     // すこしだけ速い。中でループするようにした。
     shaderParams.c_convOffs = 0;
     shaderParams.c_dispatchCount = convolutionN*2/GROUP_THREAD_COUNT;
-    HRGR(pDCU->Run(pCS, sizeof aRViews/sizeof aRViews[0], aRViews, pBufResultUav,
+    HRGR(pDCU->Run(pCS, sizeof aRViews/sizeof aRViews[0], aRViews, 1, &pBufResultUav,
         pBufConst, &shaderParams, sizeof shaderParams, sampleN, 1, 1));
 #else
     // 遅い

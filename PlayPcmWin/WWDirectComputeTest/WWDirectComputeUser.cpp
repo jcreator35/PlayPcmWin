@@ -6,6 +6,7 @@
 #include <d3dcompiler.h>
 #include <assert.h>
 #include <d3dx11.h>
+#include <algorithm>
 
 WWDirectComputeUser::WWDirectComputeUser(void)
 {
@@ -36,8 +37,23 @@ WWDirectComputeUser::Term(void)
     SafeRelease( &m_pContext );
     SafeRelease( &m_pDevice );
 
-    assert(m_rwGpuBufInfo.size() == 0);
-    assert(m_readGpuBufInfo.size() == 0);
+    for (auto ite=m_rwGpuBufInfo.begin(); ite != m_rwGpuBufInfo.end(); ++ite) {
+        SAFE_RELEASE(ite->second.pUav);
+        SAFE_RELEASE(ite->second.pBuf);
+    }
+    m_rwGpuBufInfo.clear();
+
+    for (auto ite=m_readGpuBufInfo.begin(); ite != m_readGpuBufInfo.end(); ++ite) {
+        SAFE_RELEASE(ite->second.pSrv);
+        SAFE_RELEASE(ite->second.pBuf);
+    }
+    m_readGpuBufInfo.clear();
+
+    for (auto ite=m_computeShaderList.begin(); ite != m_computeShaderList.end(); ++ite) {
+        auto * p = *ite;
+        SAFE_RELEASE(p);
+    }
+    m_computeShaderList.clear();
 }
 
 static HRESULT
@@ -222,6 +238,9 @@ WWDirectComputeUser::CreateComputeShader(
 
     hr = m_pDevice->CreateComputeShader(
         pBlob->GetBufferPointer(), pBlob->GetBufferSize(), nullptr, ppCS);
+    if (SUCCEEDED(hr) && *ppCS) {
+        m_computeShaderList.push_back(*ppCS);
+    }
 
 #if defined(DEBUG) || defined(PROFILE)
     if (*ppCS) {
@@ -239,6 +258,11 @@ void
 WWDirectComputeUser::DestroyComputeShader(
         ID3D11ComputeShader *pCS)
 {
+    auto ite = std::find(m_computeShaderList.begin(), m_computeShaderList.end(), pCS);
+    if (ite != m_computeShaderList.end()) {
+        m_computeShaderList.erase(ite);
+    }
+
     SAFE_RELEASE(pCS);
 }
 
@@ -549,23 +573,26 @@ end:
 HRESULT
 WWDirectComputeUser::SetupDispatch(
         ID3D11ComputeShader * pComputeShader,
-        UINT nNumViews,
-        ID3D11ShaderResourceView ** pShaderResourceViews,
-        ID3D11UnorderedAccessView * pUnorderedAccessView)
+        UINT nNumSRV,
+        ID3D11ShaderResourceView * ppSRV[],
+        UINT nNumUAV,
+        ID3D11UnorderedAccessView * ppUAV[])
 {
     HRESULT hr = S_OK;
 
     assert(m_pDevice);
     assert(m_pContext);
     assert(pComputeShader);
-    assert(pShaderResourceViews);
-    assert(pUnorderedAccessView);
 
     // シェーダーとパラメータをセットする。
 
     m_pContext->CSSetShader(pComputeShader, nullptr, 0);
-    m_pContext->CSSetShaderResources(0, nNumViews, pShaderResourceViews);
-    m_pContext->CSSetUnorderedAccessViews(0, 1, &pUnorderedAccessView, nullptr);
+    if (0 < nNumSRV) {
+        m_pContext->CSSetShaderResources(0, nNumSRV, ppSRV);
+    }
+    if (0 < nNumUAV) {
+        m_pContext->CSSetUnorderedAccessViews(0, nNumUAV, ppUAV, nullptr);
+    }
 
     return hr;
 }
@@ -579,7 +606,6 @@ WWDirectComputeUser::Dispatch(
         UINT Y,
         UINT Z)
 {
-    bool result = true;
     HRESULT hr = S_OK;
     D3D11_MAPPED_SUBRESOURCE mr;
 
@@ -588,14 +614,12 @@ WWDirectComputeUser::Dispatch(
     assert(0 < Z);
 
     assert(m_pContext);
-    // pCBCS==nullptrでも可。
-    // pCSData==nullptrでも可。
 
     if (pCBCS) {
         assert(pCSData);
         ZeroMemory(&mr, sizeof mr);
 
-        HRGR(m_pContext->Map(pCBCS, 0, D3D11_MAP_WRITE_DISCARD, 0, &mr));
+        HRG(m_pContext->Map(pCBCS, 0, D3D11_MAP_WRITE_DISCARD, 0, &mr));
         assert(mr.pData);
 
         memcpy(mr.pData, pCSData, dwNumDataBytes);
@@ -609,20 +633,6 @@ WWDirectComputeUser::Dispatch(
 
 end:
     return hr;
-}
-
-void
-WWDirectComputeUser::Dispatch(
-        UINT X,
-        UINT Y,
-        UINT Z)
-{
-    assert(0 < X);
-    assert(0 < Y);
-    assert(0 < Z);
-
-    assert(m_pContext);
-    m_pContext->Dispatch(X, Y, Z);
 }
 
 void
@@ -645,9 +655,10 @@ WWDirectComputeUser::UnsetupDispatch(void)
 HRESULT
 WWDirectComputeUser::Run(
         ID3D11ComputeShader * pComputeShader,
-        UINT nNumViews,
-        ID3D11ShaderResourceView ** pShaderResourceViews,
-        ID3D11UnorderedAccessView * pUnorderedAccessView,
+        UINT nNumSRV,
+        ID3D11ShaderResourceView * ppSRV[],
+        UINT nNumUAV,
+        ID3D11UnorderedAccessView * ppUAV[],
         ID3D11Buffer * pCBCS,
         void * pCSData,
         DWORD dwNumDataBytes,
@@ -658,9 +669,8 @@ WWDirectComputeUser::Run(
     HRESULT hr = S_OK;
     bool result = true;
 
-    HRGR(SetupDispatch(
-        pComputeShader, nNumViews, pShaderResourceViews,
-        pUnorderedAccessView));
+    HRG(SetupDispatch(
+        pComputeShader, nNumSRV, ppSRV, nNumUAV, ppUAV));
 
     // 実行する。
     HRGR(Dispatch(

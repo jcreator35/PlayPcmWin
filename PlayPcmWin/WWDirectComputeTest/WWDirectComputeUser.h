@@ -4,6 +4,7 @@
 
 #include <d3d11.h>
 #include <map>
+#include <list>
 #include <stdint.h>
 
 /// 読み出し専用GPUメモリ管理情報
@@ -58,41 +59,19 @@ public:
     void DestroyDataAndUnorderedAccessView(
         ID3D11UnorderedAccessView * pUav);
 
-    // 実行。中でブロックする
+    // 実行。中でブロックする。
     HRESULT Run(
         ID3D11ComputeShader * pComputeShader,
-        UINT nNumViews,
-        ID3D11ShaderResourceView ** pShaderResourceViews,
-        ID3D11UnorderedAccessView * pUnorderedAccessView,
+        UINT nNumSRV,
+        ID3D11ShaderResourceView * ppSRV[],
+        UINT nNumUAV,
+        ID3D11UnorderedAccessView * ppUAV[],
         ID3D11Buffer * pCBCS,
         void * pCSData,
         DWORD dwNumDataBytes,
         UINT X,
         UINT Y,
         UINT Z);
-
-    // Runの代わりに、SetupDispatch() Dispatch() UnsetupDispatch()しても良い。
-    HRESULT SetupDispatch(
-        ID3D11ComputeShader * pComputeShader,
-        UINT nNumViews,
-        ID3D11ShaderResourceView ** pShaderResourceViews,
-        ID3D11UnorderedAccessView * pUnorderedAccessView);
-
-    HRESULT Dispatch(
-        ID3D11Buffer * pCBCS,
-        void * pCSData,
-        DWORD dwNumDataBytes,
-        UINT X,
-        UINT Y,
-        UINT Z);
-
-    /// Constant buffer無しバージョン。
-    void Dispatch(
-        UINT X,
-        UINT Y,
-        UINT Z);
-
-    void UnsetupDispatch(void);
 
     // 計算結果をGPUから取り出す。
     HRESULT RecvResultToCpuMemory(
@@ -158,7 +137,8 @@ private:
 
     std::map<ID3D11ShaderResourceView *, WWReadOnlyGpuBufferInfo> m_readGpuBufInfo;
     std::map<ID3D11UnorderedAccessView *, WWReadWriteGpuBufferInfo> m_rwGpuBufInfo;
-
+    std::list<ID3D11ComputeShader*> m_computeShaderList;
+    
     HRESULT CreateStructuredBuffer(
         unsigned int uElementSize,
         unsigned int uCount,
@@ -171,4 +151,28 @@ private:
         DXGI_FORMAT format,
         const char *name,
         ID3D11ShaderResourceView ** ppSrvOut);
+
+        // Runの代わりに、SetupDispatch() Dispatch() UnsetupDispatch()しても良い。
+    HRESULT SetupDispatch(
+        ID3D11ComputeShader * pComputeShader,
+        UINT nNumSRV,
+        ID3D11ShaderResourceView * ppSRV[],
+        UINT nNumUAV,
+        ID3D11UnorderedAccessView * ppUAV[]);
+
+    HRESULT Dispatch(
+        ID3D11Buffer * pCBCS,
+        void * pCSData,
+        DWORD dwNumDataBytes,
+        UINT X,
+        UINT Y,
+        UINT Z);
+
+    /// Constant buffer無しバージョン。
+    void Dispatch(
+        UINT X,
+        UINT Y,
+        UINT Z);
+
+    void UnsetupDispatch(void);
 };

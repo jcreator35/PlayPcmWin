@@ -178,6 +178,7 @@
     <None Include="SincConvolution.hlsl" />
     <None Include="SincConvolution2.hlsl" />
     <None Include="TextureFetchTest.hlsl" />
+    <None Include="Wave1DTest.hlsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

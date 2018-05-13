@@ -11,7 +11,6 @@
 void
 TestTexture(void)
 {
-    bool result = true;
     HRESULT hr = S_OK;
     float *textureIn = nullptr;
     float *output = nullptr;
@@ -35,46 +34,28 @@ TestTexture(void)
     output = new float[dataCount];
     assert(output);
 
+    // HLSL ComputeShaderをコンパイル。
     const D3D_SHADER_MACRO defines[] = {
         "GROUP_THREAD_COUNT", dataCountStr,
         nullptr, nullptr
     };
-
-    // HLSL ComputeShaderをコンパイル。
     HRG(c.CreateComputeShader(L"TextureFetchTest.hlsl", "CSMain", defines, &pCS));
     assert(pCS);
     
-    HRG(c.CreateTexture1DAndShaderResourceView(dataCount, 1, 1,
-        DXGI_FORMAT_R32_FLOAT, D3D11_USAGE_IMMUTABLE,
-        D3D11_BIND_SHADER_RESOURCE, 0,
-        0, textureIn, dataCount, "Tex1D_in", &pSRVTex1D));
+    HRG(c.CreateTexture1DAndShaderResourceView(dataCount, 1, 1, DXGI_FORMAT_R32_FLOAT, D3D11_USAGE_IMMUTABLE,
+        D3D11_BIND_SHADER_RESOURCE, 0, 0, textureIn, dataCount, "Tex1D_in", &pSRVTex1D));
     assert(pSRVTex1D);
 
-    HRG(c.CreateBufferAndUnorderedAccessView(
-        sizeof(float), dataCount, nullptr, "OutputBuffer", &pUAVOutput));
+    HRG(c.CreateBufferAndUnorderedAccessView(sizeof(float), dataCount, nullptr, "OutputBuffer", &pUAVOutput));
     assert(pUAVOutput);
 
     ID3D11ShaderResourceView* aRViews[] = { pSRVTex1D };
-
-    HRG(c.SetupDispatch(pCS, sizeof aRViews/sizeof aRViews[0],
-        aRViews, pUAVOutput));
-
-    c.Dispatch(dataCount, 1,1);
-    c.UnsetupDispatch();
+    HRG(c.Run(pCS, sizeof aRViews/sizeof aRViews[0], aRViews, 1, &pUAVOutput, nullptr, nullptr, 0, dataCount, 1, 1));
 
     // 計算結果をCPUメモリーに持ってくる。
     HRG(c.RecvResultToCpuMemory(pUAVOutput, output, dataCount * sizeof(float)));
 
 end:
-    c.DestroyDataAndUnorderedAccessView(pUAVOutput);
-    pUAVOutput = nullptr;
-
-    c.DestroyDataAndShaderResourceView(pSRVTex1D);
-    pSRVTex1D = nullptr;
-
-    c.DestroyComputeShader(pCS);
-    pCS = nullptr;
-
     delete [] output;
     output = nullptr;
 
