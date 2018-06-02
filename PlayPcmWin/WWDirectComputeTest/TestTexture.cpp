@@ -1,4 +1,4 @@
-#include "TestWWUpsample.h"
+#include "TestTexture.h"
 
 #include "WWDirectComputeUser.h"
 #include "WWUpsampleGpu.h"
@@ -42,15 +42,17 @@ TestTexture(void)
     HRG(c.CreateComputeShader(L"TextureFetchTest.hlsl", "CSMain", defines, &pCS));
     assert(pCS);
     
-    HRG(c.CreateTexture1DAndShaderResourceView(dataCount, 1, 1, DXGI_FORMAT_R32_FLOAT, D3D11_USAGE_IMMUTABLE,
-        D3D11_BIND_SHADER_RESOURCE, 0, 0, textureIn, dataCount, "Tex1D_in", &pSRVTex1D));
+    WWTexture1DParams params[1] = {
+        {dataCount, 1, 1, DXGI_FORMAT_R32_FLOAT, D3D11_USAGE_IMMUTABLE, D3D11_BIND_SHADER_RESOURCE, 0, 0, textureIn, dataCount, "Tex1D_in", &pSRVTex1D, nullptr},
+    };
+
+    HRG(c.CreateSeveralTexture1D(1, &params[0]));
     assert(pSRVTex1D);
 
     HRG(c.CreateBufferAndUnorderedAccessView(sizeof(float), dataCount, nullptr, "OutputBuffer", &pUAVOutput));
     assert(pUAVOutput);
 
-    ID3D11ShaderResourceView* aRViews[] = { pSRVTex1D };
-    HRG(c.Run(pCS, sizeof aRViews/sizeof aRViews[0], aRViews, 1, &pUAVOutput, nullptr, nullptr, 0, dataCount, 1, 1));
+    HRG(c.Run(pCS, 1, &pSRVTex1D, 1, &pUAVOutput, nullptr, nullptr, 0, dataCount, 1, 1));
 
     // åvéZåãâ ÇCPUÉÅÉÇÉäÅ[Ç…éùÇ¡ÇƒÇ≠ÇÈÅB
     HRG(c.RecvResultToCpuMemory(pUAVOutput, output, dataCount * sizeof(float)));

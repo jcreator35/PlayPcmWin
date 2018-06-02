@@ -173,7 +173,7 @@ WWDirectComputeUser::CreateComputeDevice(void)
     
     UINT uCreationFlags = D3D11_CREATE_DEVICE_SINGLETHREADED;
 //#if defined(DEBUG) || defined(_DEBUG)
-    uCreationFlags |= D3D11_CREATE_DEVICE_DEBUG;
+//    uCreationFlags |= D3D11_CREATE_DEVICE_DEBUG;
 //#endif
 
     D3D_FEATURE_LEVEL flOut;
@@ -514,10 +514,8 @@ WWDirectComputeUser::RecvResultToCpuMemory(
         int bytes)
 {
     HRESULT hr = S_OK;
-    ID3D11Buffer * pBuffer = nullptr;
-    ID3D11Buffer * pReturn = nullptr;
-    D3D11_BUFFER_DESC desc;
     D3D11_MAPPED_SUBRESOURCE mr;
+    D3D11_RESOURCE_DIMENSION dimen;
 
     assert(m_pDevice);
     assert(m_pContext);
@@ -531,42 +529,72 @@ WWDirectComputeUser::RecvResultToCpuMemory(
         goto end;
     }
 
-    pBuffer = ite->second.pBuf;
+    ite->second.pBuf->GetType(&dimen);
+    switch (dimen) {
+    case D3D11_RESOURCE_DIMENSION_BUFFER:
+        {
+            ID3D11Buffer * pBuffer = nullptr;
+            ID3D11Buffer * pReturn = nullptr;
+            D3D11_BUFFER_DESC desc;
 
-    assert(pBuffer);
+            pBuffer = (ID3D11Buffer*)ite->second.pBuf;
 
-    ZeroMemory(&desc, sizeof desc);
+            ZeroMemory(&desc, sizeof desc);
+            pBuffer->GetDesc(&desc);
+            desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+            desc.Usage = D3D11_USAGE_STAGING;
+            desc.BindFlags = 0;
+            desc.MiscFlags = 0;
+            HRG(m_pDevice->CreateBuffer(&desc, nullptr, &pReturn));
 
-    pBuffer->GetDesc(&desc);
-    desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
-    desc.Usage = D3D11_USAGE_STAGING;
-    desc.BindFlags = 0;
-    desc.MiscFlags = 0;
+            m_pContext->CopyResource(pReturn, pBuffer);
+            assert(pReturn);
 
-    HRG(m_pDevice->CreateBuffer(&desc, nullptr, &pReturn));
+            ZeroMemory(&mr, sizeof mr);
+            HRG(m_pContext->Map(pReturn, 0, D3D11_MAP_READ, 0, &mr));
+            assert(mr.pData);
+            // Unmap‚µ‚È‚¢‚Ågoto end‚µ‚Ä‚Í‚¢‚¯‚È‚¢
 
-#if defined(DEBUG) || defined(PROFILE)
-    if (pReturn) {
-        const char *name = "ResultRecv";
-        pReturn->SetPrivateData(WKPDID_D3DDebugObjectName, lstrlenA(name), name);
+            memcpy(dest, mr.pData, bytes);
+
+            m_pContext->Unmap(pReturn, 0);
+            SafeRelease(&pReturn);
+        }
+        break;
+    case D3D11_RESOURCE_DIMENSION_TEXTURE1D:
+        {
+            ID3D11Texture1D *pTex = nullptr;
+            ID3D11Texture1D *pReturn = nullptr;
+            D3D11_TEXTURE1D_DESC desc;
+
+            pTex = (ID3D11Texture1D*)ite->second.pBuf;
+
+            ZeroMemory(&desc, sizeof desc);
+            pTex->GetDesc(&desc);
+            desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+            desc.Usage = D3D11_USAGE_STAGING;
+            desc.BindFlags = 0;
+            desc.MiscFlags = 0;
+
+            HRG(m_pDevice->CreateTexture1D(&desc, nullptr, &pReturn));
+            assert(pReturn);
+            
+            m_pContext->CopyResource(pReturn, pTex);
+            assert(pReturn);
+
+            ZeroMemory(&mr, sizeof mr);
+            HRG(m_pContext->Map(pReturn, 0, D3D11_MAP_READ, 0, &mr));
+            assert(mr.pData);
+            // Unmap‚µ‚È‚¢‚Ågoto end‚µ‚Ä‚Í‚¢‚¯‚È‚¢
+
+            memcpy(dest, mr.pData, bytes);
+
+            m_pContext->Unmap(pReturn, 0);
+            SafeRelease(&pReturn);
+        }
     }
-#endif
-
-    m_pContext->CopyResource(pReturn, pBuffer);
-    assert(pReturn);
-
-    ZeroMemory(&mr, sizeof mr);
-    HRG(m_pContext->Map(pReturn, 0, D3D11_MAP_READ, 0, &mr));
-    assert(mr.pData);
-    // Unmap‚µ‚È‚¢‚Ågoto end‚µ‚Ä‚Í‚¢‚¯‚È‚¢
-
-    memcpy(dest, mr.pData, bytes);
-
-    m_pContext->Unmap(pReturn, 0);
 
 end:
-    SafeRelease(&pReturn);
-
     return hr;
 }
 
@@ -762,19 +790,53 @@ end:
 }
 
 HRESULT
+WWDirectComputeUser::CreateTexture1DUnorderedAccessView(
+        ID3D11Texture1D * pTex,
+        DXGI_FORMAT format,
+        const char *name,
+        ID3D11UnorderedAccessView ** ppUavOut)
+{
+    HRESULT hr = S_OK;
+
+    assert(m_pDevice);
+    assert(pTex);
+    assert(name);
+    assert(ppUavOut);
+    *ppUavOut = nullptr;
+
+    D3D11_UNORDERED_ACCESS_VIEW_DESC desc;
+    ZeroMemory( &desc, sizeof desc);
+    desc.Format = format;
+    desc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE1D;
+    desc.Texture1D.MipSlice = 0;
+
+    HRG(m_pDevice->CreateUnorderedAccessView(pTex, &desc, ppUavOut));
+
+#if defined(DEBUG) || defined(PROFILE)
+    if (*ppUavOut) {
+        (*ppUavOut)->SetPrivateData(WKPDID_D3DDebugObjectName, lstrlenA(name), name);
+    }
+#else
+    (void)name;
+#endif
+
+end:
+    return hr;
+}
+
+HRESULT
 WWDirectComputeUser::CreateTexture1D(
-    int Width,
-    int MipLevels,
-    int ArraySize,
-    DXGI_FORMAT Format,
-    D3D11_USAGE Usage,
-    int BindFlags,
-    int CPUAccessFlags,
-    int MiscFlags,
-    const void *pInitialData,
-    uint32_t initialDataBytes,
-    ID3D11Texture1D **ppTexOut
-    )
+        int Width,
+        int MipLevels,
+        int ArraySize,
+        DXGI_FORMAT Format,
+        D3D11_USAGE Usage,
+        int BindFlags,
+        int CPUAccessFlags,
+        int MiscFlags,
+        const void *pInitialData,
+        uint32_t initialDataBytes,
+        ID3D11Texture1D **ppTexOut)
 {
     HRESULT hr = S_OK;
     assert(ppTexOut);
@@ -804,7 +866,7 @@ end:
 
 void
 WWDirectComputeUser::DestroyTexture1D(
-    ID3D11Texture1D *pTex)
+        ID3D11Texture1D *pTex)
 {
     if (pTex == nullptr) {
         return;
@@ -857,3 +919,74 @@ end:
 
     return hr;
 }
+
+HRESULT
+WWDirectComputeUser::CreateTexture1DAndUnorderedAccessView(
+        int width,
+        int mipLevels,
+        int arraySize,
+        DXGI_FORMAT format,
+        D3D11_USAGE usage,
+        int bindFlags,
+        int cpuAccessFlags,
+        int miscFlags,
+        const float *data,
+        int dataCount,
+        const char *name,
+        ID3D11UnorderedAccessView **ppUav)
+{
+    HRESULT hr = S_OK;
+    ID3D11Texture1D *pTex = nullptr;
+
+    assert(ppUav);
+    *ppUav = nullptr;
+
+    HRG(CreateTexture1D(width, mipLevels, arraySize, format, usage, bindFlags,
+        cpuAccessFlags, miscFlags, data, dataCount * sizeof(float), &pTex));
+
+    assert(pTex);
+
+    HRG(CreateTexture1DUnorderedAccessView(pTex, format, name, ppUav));
+    assert(*ppUav);
+
+    WWReadWriteGpuBufferInfo info;
+    info.pBuf = pTex;
+    info.pUav = *ppUav;
+
+    m_rwGpuBufInfo[info.pUav] = info;
+
+end:
+    if (FAILED(hr)) {
+        SafeRelease(&pTex);
+    }
+
+    return hr;
+}
+
+HRESULT
+WWDirectComputeUser::CreateSeveralTexture1D(int n, WWTexture1DParams *params)
+{
+    HRESULT hr = E_FAIL;
+
+    for (int i=0; i<n; ++i) {
+        hr = E_FAIL;
+
+        auto &p = params[i];
+        if (p.pSrv != nullptr) {
+            hr = CreateTexture1DAndShaderResourceView(p.Width, p.MipLevels, p.ArraySize, p.Format, p.Usage, p.BindFlags, p.CPUAccessFlags,
+                p.MiscFlags, p.data, p.dataCount, p.name, p.pSrv);
+        } else if (p.pUav != nullptr) {
+            hr = CreateTexture1DAndUnorderedAccessView(p.Width, p.MipLevels, p.ArraySize, p.Format, p.Usage, p.BindFlags, p.CPUAccessFlags,
+                p.MiscFlags, p.data, p.dataCount, p.name, p.pUav);
+        } else {
+            assert(false);
+        }
+
+        if (FAILED(hr)) {
+            return hr;
+        }
+    }
+
+    return hr;
+}
+

@@ -15,8 +15,25 @@ struct WWReadOnlyGpuBufferInfo {
 
 /// 読み書き可能GPUメモリ管理情報
 struct WWReadWriteGpuBufferInfo {
-    ID3D11Buffer              *pBuf;
+    ID3D11Resource            *pBuf;
     ID3D11UnorderedAccessView *pUav;
+};
+
+/// Either pSrv or pUav is needed. nullptr == unneeded
+struct WWTexture1DParams {
+    int Width;
+    int MipLevels;
+    int ArraySize;
+    DXGI_FORMAT Format;
+    D3D11_USAGE Usage;
+    int BindFlags;
+    int CPUAccessFlags;
+    int MiscFlags;
+    const float * data;
+    int dataCount;
+    const char *name;
+    ID3D11ShaderResourceView **pSrv;
+    ID3D11UnorderedAccessView **pUav;
 };
 
 class WWDirectComputeUser {
@@ -89,35 +106,9 @@ public:
 
     void DestroyConstantBuffer(ID3D11Buffer * pBuf);
 
-    HRESULT CreateTexture1D(
-        int Width,
-        int MipLevels,
-        int ArraySize,
-        DXGI_FORMAT Format,
-        D3D11_USAGE Usage,
-        int BindFlags,
-        int CPUAccessFlags,
-        int MiscFlags,
-        const void *pInitialData,
-        uint32_t initialDataBytes,
-        ID3D11Texture1D **ppTexOut
-        );
-
     void DestroyTexture1D(ID3D11Texture1D *pTex);
 
-    HRESULT CreateTexture1DAndShaderResourceView(
-        int Width,
-        int MipLevels,
-        int ArraySize,
-        DXGI_FORMAT Format,
-        D3D11_USAGE Usage,
-        int BindFlags,
-        int CPUAccessFlags,
-        int MiscFlags,
-        const float * data,
-        int dataCount,
-        const char *name,
-        ID3D11ShaderResourceView **ppSrv);
+    HRESULT CreateSeveralTexture1D(int n, WWTexture1DParams *params);
 
 private:
     ID3D11Device*               m_pDevice;
@@ -146,11 +137,59 @@ private:
         const char *name,
         ID3D11Buffer ** ppBufOut);
 
+    HRESULT CreateTexture1D(
+        int Width,
+        int MipLevels,
+        int ArraySize,
+        DXGI_FORMAT Format,
+        D3D11_USAGE Usage,
+        int BindFlags,
+        int CPUAccessFlags,
+        int MiscFlags,
+        const void *pInitialData,
+        uint32_t initialDataBytes,
+        ID3D11Texture1D **ppTexOut
+        );
+
+    HRESULT CreateTexture1DAndShaderResourceView(
+        int Width,
+        int MipLevels,
+        int ArraySize,
+        DXGI_FORMAT Format,
+        D3D11_USAGE Usage,
+        int BindFlags,
+        int CPUAccessFlags,
+        int MiscFlags,
+        const float * data,
+        int dataCount,
+        const char *name,
+        ID3D11ShaderResourceView **ppSrv);
+
+    HRESULT CreateTexture1DAndUnorderedAccessView(
+        int Width,
+        int MipLevels,
+        int ArraySize,
+        DXGI_FORMAT Format,
+        D3D11_USAGE Usage,
+        int BindFlags,
+        int CPUAccessFlags,
+        int MiscFlags,
+        const float * data,
+        int dataCount,
+        const char *name,
+        ID3D11UnorderedAccessView **ppUav);
+
     HRESULT CreateTexture1DShaderResourceView(
         ID3D11Texture1D * pTex,
         DXGI_FORMAT format,
         const char *name,
         ID3D11ShaderResourceView ** ppSrvOut);
+
+    HRESULT CreateTexture1DUnorderedAccessView(
+        ID3D11Texture1D * pTex,
+        DXGI_FORMAT format,
+        const char *name,
+        ID3D11UnorderedAccessView ** ppUavOut);
 
         // Runの代わりに、SetupDispatch() Dispatch() UnsetupDispatch()しても良い。
     HRESULT SetupDispatch(

@@ -162,6 +162,7 @@
     <ClInclude Include="targetver.h" />
     <ClInclude Include="WWDirectComputeIOIF.h" />
     <ClInclude Include="WWDirectComputeUser.h" />
+    <ClInclude Include="WWFdtd2d.h" />
     <ClInclude Include="WWUpsampleGpu.h" />
     <ClInclude Include="WWUtil.h" />
   </ItemGroup>
@@ -186,8 +187,10 @@
     <ClCompile Include="WWUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="CSTest.hlsl" />
     <None Include="SincConvolution.hlsl" />
     <None Include="SincConvolution2.hlsl" />
+    <None Include="WWFdtd2d.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -159,6 +159,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Test1.cpp" />
     <ClCompile Include="TestTexture.cpp" />
+    <ClCompile Include="TestWave1D.cpp" />
     <ClCompile Include="TestWWUpsample.cpp" />
     <ClCompile Include="WWDirectComputeUser.cpp" />
     <ClCompile Include="WWUpsampleCpu.cpp" />
@@ -168,6 +169,7 @@
   <ItemGroup>
     <ClInclude Include="Test1.h" />
     <ClInclude Include="TestTexture.h" />
+    <ClInclude Include="TestWave1D.h" />
     <ClInclude Include="TestWWUpsample.h" />
     <ClInclude Include="WWDirectComputeUser.h" />
     <ClInclude Include="WWUpsampleCpu.h" />

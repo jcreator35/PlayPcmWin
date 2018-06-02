@@ -6,6 +6,7 @@
 #include "Test1.h"
 #include "TestWWUpsample.h"
 #include "TestTexture.h"
+#include "TestWave1D.h"
 #include <assert.h>
 #include <crtdbg.h>
 #include <stdint.h>
@@ -19,6 +20,8 @@ main(void)
 #endif
 
     TestTexture();
+
+    TestWave1D();
 
     return 0;
 }

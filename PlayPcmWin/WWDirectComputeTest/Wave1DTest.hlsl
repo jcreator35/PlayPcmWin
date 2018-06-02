@@ -1,19 +1,32 @@
 /*
 define
 "LENGTH" = "256"
-"REPEAT" = "1" (更新処理の繰り返し回数)
-"gSc"    = Scのfloat値
-"gC0"    = C0のfloat値
 
 THREAD_X==LENGTHでDispatchする。
 */
 
+// SRV
 Texture1D                 gLoss         : register(t0);
 Texture1D                 gRoh          : register(t1);
 Texture1D                 gCr           : register(t2);
 
-Texture1D                 gV            : register(u0);
-Texture1D                 gP            : register(u1);
+// UAV
+RWTexture1D                 gV            : register(u0);
+RWTexture1D                 gP            : register(u1);
+
+// 定数。16バイトの倍数のサイズの構造体。
+cbuffer consts {
+    // 更新処理の繰り返し回数。
+    uint cRepeat;
+
+    // パラメータSc
+    float cSc;
+    
+    // パラメータC0
+    float cC0;
+
+    uint dummy0;
+};
 
 void UpdateV(uint i)
 {
@@ -24,7 +37,7 @@ void UpdateV(uint i)
         // Update V (Schneider17, pp.328)
         float lastV = gV[i];
         float loss = gLoss[i];
-        float Cv = 2.0f * gSc / ((gRoh[i]+gRoh[i+1])*gC0);
+        float Cv = 2.0f * cSc / ((gRoh[i]+gRoh[i+1])*cC0);
         gV[i] = (1.0f - loss) / (1.0f + loss) * lastV - (Cv / (1.0f + loss)) * (gP[i + 1] - gP[i]);
     }
 }
@@ -38,7 +51,7 @@ void UpdateP(uint i)
         // Update P (Schneider17, pp.325)
         float lastP = gP[i];
         float loss = gLoss[i];
-        float Cp = gRoh[i] * gCr[i] * gCr[i] * gC0 * gSc;
+        float Cp = gRoh[i] * gCr[i] * gCr[i] * cC0 * cSc;
         gP[i] = (1.0f - loss) / (1.0f + loss) * lastP - (Cp / (1.0f + loss)) * (gV[i] - gV[i - 1]);
     }
 }
@@ -46,7 +59,7 @@ void UpdateP(uint i)
 [numthreads(LENGTH, 1, 1)]
 void CSMain(uint tid: SV_GroupIndex)
 {
-    for (int i=0; i<REPEAT; ++i) {
+    for (int i=0; i<cRepeat; ++i) {
         UpdateV(tid);
         UpdateP(tid);
     }
