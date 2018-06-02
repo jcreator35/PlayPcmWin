@@ -11,8 +11,8 @@ Texture1D                 gRoh          : register(t1);
 Texture1D                 gCr           : register(t2);
 
 // UAV
-RWTexture1D                 gV            : register(u0);
-RWTexture1D                 gP            : register(u1);
+RWTexture1D<float>        gV            : register(u0);
+RWTexture1D<float>        gP            : register(u1);
 
 // 定数。16バイトの倍数のサイズの構造体。
 cbuffer consts {
@@ -59,9 +59,16 @@ void UpdateP(uint i)
 [numthreads(LENGTH, 1, 1)]
 void CSMain(uint tid: SV_GroupIndex)
 {
+/*
     for (int i=0; i<cRepeat; ++i) {
         UpdateV(tid);
+        GroupMemoryBarrierWithGroupSync();
         UpdateP(tid);
+        GroupMemoryBarrierWithGroupSync();
     }
+*/
+
+    gV[tid] = tid;
+    gP[tid] = tid + 1000;
 }
 

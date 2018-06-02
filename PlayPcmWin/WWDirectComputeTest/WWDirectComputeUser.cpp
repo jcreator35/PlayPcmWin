@@ -697,13 +697,8 @@ WWDirectComputeUser::Run(
     HRESULT hr = S_OK;
     bool result = true;
 
-    HRG(SetupDispatch(
-        pComputeShader, nNumSRV, ppSRV, nNumUAV, ppUAV));
-
-    // é¿çsÇ∑ÇÈÅB
-    HRGR(Dispatch(
-        pCBCS, pCSData, dwNumDataBytes,
-        X, Y, Z));
+    HRG(SetupDispatch(pComputeShader, nNumSRV, ppSRV, nNumUAV, ppUAV));
+    HRGR(Dispatch(pCBCS, pCSData, dwNumDataBytes, X, Y, Z));
 
 end:
     UnsetupDispatch();
@@ -942,7 +937,7 @@ WWDirectComputeUser::CreateTexture1DAndUnorderedAccessView(
     *ppUav = nullptr;
 
     HRG(CreateTexture1D(width, mipLevels, arraySize, format, usage, bindFlags,
-        cpuAccessFlags, miscFlags, data, dataCount * sizeof(float), &pTex));
+            cpuAccessFlags, miscFlags, data, dataCount * sizeof(float), &pTex));
 
     assert(pTex);
 
