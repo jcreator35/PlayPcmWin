@@ -40,6 +40,7 @@ namespace WWDirectComputeCS {
         private extern static void
         WWDCUpsample_Term();
 
+
         /////////////////////////////////////////////////////////////////////
 
         /// <returns>HRESULT</returns>

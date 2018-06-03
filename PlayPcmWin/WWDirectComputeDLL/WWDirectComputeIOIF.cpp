@@ -1,6 +1,7 @@
 #include "WWDirectComputeIOIF.h"
 #include "WWDirectComputeUser.h"
 #include "WWUpsampleGpu.h"
+#include "WWWave1DGpu.h"
 #include "WWUtil.h"
 #include <assert.h>
 
@@ -77,4 +78,45 @@ WWDCUpsample_Term(void)
 {
     g_upsampleGpu.Unsetup();
     g_upsampleGpu.Term();
+}
+
+// Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°
+
+static WWWave1DGpu gWave1D;
+
+extern "C" __declspec(dllexport)
+void __stdcall
+WWDCWave1D_Init(void)
+{
+    gWave1D.Init();
+}
+
+extern "C" __declspec(dllexport)
+void __stdcall
+WWDCWave1D_Term(void)
+{
+    gWave1D.Term();
+}
+
+extern "C" __declspec(dllexport)
+int __stdcall
+WWDCWave1D_Run(int cRepeat, float sc, float c0, int stimCounter,
+        int stimPosX, float stimMagnitude, float stimHalfPeriod,
+        float stimWidth, int dataCount, float *loss,
+        float *roh, float *cr, float *v, float *p)
+{
+    return gWave1D.Run(cRepeat, sc, c0, stimCounter,
+        stimPosX, stimMagnitude, stimHalfPeriod,
+        stimWidth, dataCount, loss, roh, cr, v, p);
+}
+
+extern "C" __declspec(dllexport)
+int __stdcall
+WWDCWave1D_GetResultFromGpuMemory(
+        int outputToElemNum,
+        float * outputVTo,
+        float * outputPTo)
+{
+    gWave1D.CopyResultV(outputVTo, outputToElemNum);
+    return gWave1D.CopyResultP(outputPTo, outputToElemNum);
 }

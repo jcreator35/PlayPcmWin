@@ -37,7 +37,6 @@ WWUpsampleGpu::Init(void)
     m_pBuf2Srv = NULL;
     m_pBuf3Srv = NULL;
     m_pBufResultUav = NULL;
-    m_pBufConst = NULL;
 }
 
 void
@@ -205,9 +204,6 @@ WWUpsampleGpu::Setup(
         sizeof(float), sampleTotalTo, NULL, "OutputBuffer", &m_pBufResultUav));
     assert(m_pBufResultUav);
 
-    // 定数置き場をGPUに作成。
-    HRG(m_pDCU->CreateConstantBuffer(sizeof(ConstShaderParams), 1, "ConstShaderParams", &m_pBufConst));
-
 end:
     SAFE_DELETE(fractionArrayF);
     SAFE_DELETE(sinPreComputeArray);
@@ -283,9 +279,8 @@ WWUpsampleGpu::Dispatch(
     shaderParams.c_convOffs = 0;
     shaderParams.c_dispatchCount = m_convolutionN*2/GROUP_THREAD_COUNT;
     shaderParams.c_sampleToStartPos = startPos;
-    HRGR(m_pDCU->Run(m_pCS, sizeof aRViews/sizeof aRViews[0], aRViews,
-        m_pBufResultUav,
-        m_pBufConst, &shaderParams, sizeof shaderParams, count, 1, 1));
+    HRGR(m_pDCU->Run(m_pCS, sizeof aRViews/sizeof aRViews[0], aRViews, 1,
+        &m_pBufResultUav, &shaderParams, sizeof shaderParams, count, 1, 1));
 #else
     // 遅い
     for (int i=0; i<convolutionN*2/GROUP_THREAD_COUNT; ++i) {
@@ -293,8 +288,8 @@ WWUpsampleGpu::Dispatch(
         shaderParams.c_dispatchCount = convolutionN*2/GROUP_THREAD_COUNT;
         shaderParams.c_sampleToStartPos = startPos;
         HRGR(m_pDCU->Run(m_pCS, sizeof aRViews/sizeof aRViews[0], aRViews,
-            m_pBufResultUav,
-            m_pBufConst, &shaderParams, sizeof shaderParams, count, 1, 1));
+            1, &m_pBufResultUav,
+            &shaderParams, sizeof shaderParams, count, 1, 1));
     }
 #endif
 
@@ -336,9 +331,6 @@ void
 WWUpsampleGpu::Unsetup(void)
 {
     if (m_pDCU) {
-        m_pDCU->DestroyConstantBuffer(m_pBufConst);
-        m_pBufConst = NULL;
-
         m_pDCU->DestroyDataAndUnorderedAccessView(m_pBufResultUav);
         m_pBufResultUav = NULL;
 

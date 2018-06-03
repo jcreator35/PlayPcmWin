@@ -36,6 +36,9 @@
     <ClInclude Include="WWFdtd2d.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="WWWave1DGpu.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -53,6 +56,9 @@
     <ClCompile Include="WWUpsampleGpu.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="WWWave1DGpu.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="SincConvolution.hlsl">
@@ -64,8 +70,8 @@
     <None Include="CSTest.hlsl">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="WWFdtd2d.cpp">
-      <Filter>ソース ファイル</Filter>
+    <None Include="Wave1DShader.hlsl">
+      <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
 </Project>

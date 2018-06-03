@@ -1,13 +1,23 @@
 #include "WWUtil.h"
 
+double
+SincD(double sinx, double x)
+{
+    if (-0.000000001 < x && x < 0.000000001) {
+        return 1.0;
+    } else {
+        return sinx / x;
+    }
+}
+
 BYTE*
 WWStereo24ToStereo32(BYTE *data, int bytes)
 {
     int nData = bytes / 3; // 3==24bit
 
     BYTE *p = (BYTE *)malloc(nData * 4);
-    if (NULL == p) {
-        return NULL;
+    if (nullptr == p) {
+        return nullptr;
     }
 
     int fromPos = 0;
@@ -28,8 +38,8 @@ WWStereo24ToStereoFloat32(BYTE *data, int bytes)
     int nData = bytes / 3; // 3==24bit
 
     float *p = (float *)malloc(nData * 4);
-    if (NULL == p) {
-        return NULL;
+    if (nullptr == p) {
+        return nullptr;
     }
     int fromPos = 0;
     int toPos = 0;
@@ -53,8 +63,8 @@ WWStereo16ToStereoFloat32(BYTE *data, int bytes)
     int nData = bytes / 2; // 2==16bit
 
     float *p = (float *)malloc(nData * 4);
-    if (NULL == p) {
-        return NULL;
+    if (nullptr == p) {
+        return nullptr;
     }
     int fromPos = 0;
     int toPos = 0;

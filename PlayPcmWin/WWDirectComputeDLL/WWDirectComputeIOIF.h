@@ -2,7 +2,7 @@
 
 #include <Windows.h>
 
-/////////////////////////////////////////////////////////////////////////////
+// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 // アップサンプル GPU処理
 
 /// @result HRESULT
@@ -47,7 +47,33 @@ extern "C" __declspec(dllexport)
 void __stdcall
 WWDCUpsample_Term(void);
 
-/////////////////////////////////////////////////////////////////////////////
+// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// Wave1D GPU
+
+extern "C" __declspec(dllexport)
+void __stdcall
+WWDCWave1D_Init(void);
+
+extern "C" __declspec(dllexport)
+int __stdcall
+WWDCWave1D_Run(int cRepeat, float sc, float c0, int stimCounter,
+        int stimPosX, float stimMagnitude, float stimHalfPeriod,
+        float stimWidth, int dataCount, float *loss,
+        float *roh, float *cr, float *v, float *p);
+
+extern "C" __declspec(dllexport)
+int __stdcall
+WWDCWave1D_GetResultFromGpuMemory(
+        int outputToElemNum,
+        float * outputVTo,
+        float * outputPTo);
+
+extern "C" __declspec(dllexport)
+void __stdcall
+WWDCWave1D_Term(void);
+
+
+// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 // CPU処理
 
 extern "C" __declspec(dllexport)
