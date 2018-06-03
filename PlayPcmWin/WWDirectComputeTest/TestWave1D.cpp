@@ -66,7 +66,7 @@ TestWave1D1(ShaderConstants & shaderConstants, const int dataCount, float *loss,
     };
     HRG(c.CreateSeveralTexture1D(SRV_NUM + UAV_NUM, params));
 
-    HRG(c.Run(pCS, SRV_NUM, pSRVs, UAV_NUM, pUAVs, nullptr, &shaderConstants, sizeof(ShaderConstants), dataCount, 1, 1));
+    HRG(c.Run(pCS, SRV_NUM, pSRVs, UAV_NUM, pUAVs, &shaderConstants, sizeof(ShaderConstants), dataCount, 1, 1));
 
     // 計算結果をCPUメモリーに持ってくる。
     HRG(c.RecvResultToCpuMemory(pUAVs[0], v, dataCount * sizeof(float)));
@@ -90,12 +90,12 @@ TestWave1D(void)
         loss[i] = 0.0f;
         roh[i] = 1.0f;
         cr[i] = 1.0f;
-        v[i] = 1.0f;
-        p[i] = 2.0f;
+        v[i] = 0.0f;
+        p[i] = 0.0f;
     }
 
     ShaderConstants sc = {
-        1,    // cRepeat
+        100,    // cRepeat
         1.0f, // パラメータSc
         1.0f, // パラメータC0
         0,    // dummy

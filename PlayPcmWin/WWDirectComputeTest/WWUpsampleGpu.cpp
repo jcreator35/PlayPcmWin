@@ -57,7 +57,6 @@ WWUpsampleGpu::Init(void)
     m_pBuf2Srv = nullptr;
     m_pBuf3Srv = nullptr;
     m_pBufResultUav = nullptr;
-    m_pBufConst = nullptr;
 }
 
 void
@@ -71,7 +70,6 @@ WWUpsampleGpu::Term(void)
     assert(m_pBuf2Srv == nullptr);
     assert(m_pBuf3Srv == nullptr);
     assert(m_pBufResultUav == nullptr);
-    assert(m_pBufConst == nullptr);
 }
 
 HRESULT
@@ -211,9 +209,6 @@ WWUpsampleGpu::Setup(
         sizeof(float), sampleTotalTo, nullptr, "OutputBuffer", &m_pBufResultUav));
     assert(m_pBufResultUav);
 
-    // ’è”’u‚«ê‚ðGPU‚Éì¬B
-    HRG(m_pDCU->CreateConstantBuffer(sizeof(ConstShaderParams), 1, "ConstShaderParams", &m_pBufConst));
-
 end:
     delete [] sinPreComputeArray;
     sinPreComputeArray = nullptr;
@@ -245,7 +240,7 @@ WWUpsampleGpu::Dispatch(
     shaderParams.c_dispatchCount = m_convolutionN*2/GROUP_THREAD_COUNT;
     shaderParams.c_sampleToStartPos = startPos;
     HRGR(m_pDCU->Run(m_pCS, sizeof aRViews/sizeof aRViews[0], aRViews, 1, &m_pBufResultUav,
-        m_pBufConst, &shaderParams, sizeof shaderParams, count, 1, 1));
+        &shaderParams, sizeof shaderParams, count, 1, 1));
 #else
     // ’x‚¢
     for (int i=0; i<convolutionN*2/GROUP_THREAD_COUNT; ++i) {
@@ -253,7 +248,7 @@ WWUpsampleGpu::Dispatch(
         shaderParams.c_dispatchCount = convolutionN*2/GROUP_THREAD_COUNT;
         shaderParams.c_sampleToStartPos = startPos;
         HRGR(m_pDCU->Run(m_pCS, sizeof aRViews/sizeof aRViews[0], aRViews, m_pBufResultUav,
-            m_pBufConst, &shaderParams, sizeof shaderParams, count, 1, 1));
+            &shaderParams, sizeof shaderParams, count, 1, 1));
     }
 #endif
 
@@ -294,9 +289,6 @@ void
 WWUpsampleGpu::Unsetup(void)
 {
     if (m_pDCU) {
-        m_pDCU->DestroyConstantBuffer(m_pBufConst);
-        m_pBufConst = nullptr;
-
         m_pDCU->DestroyDataAndUnorderedAccessView(m_pBufResultUav);
         m_pBufResultUav = nullptr;
 

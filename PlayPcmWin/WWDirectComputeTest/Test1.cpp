@@ -53,7 +53,6 @@ JitterAddGpu(
     ID3D11ShaderResourceView*   pBuf1Srv = nullptr;
     ID3D11ShaderResourceView*   pBuf2Srv = nullptr;
     ID3D11UnorderedAccessView*  pBufResultUav = nullptr;
-    ID3D11Buffer * pBufConst = nullptr;
 
     assert(0 < sampleN);
     assert(0 < convolutionN);
@@ -165,7 +164,6 @@ JitterAddGpu(
     // 定数置き場をGPUに作成。
     ConstShaderParams shaderParams;
     ZeroMemory(&shaderParams, sizeof shaderParams);
-    HRG(pDCU->CreateConstantBuffer(sizeof shaderParams, 1, "ConstShaderParams", &pBufConst));
 
     // GPU上でComputeShader実行。
     ID3D11ShaderResourceView* aRViews[] = { pBuf0Srv, pBuf1Srv, pBuf2Srv };
@@ -175,7 +173,7 @@ JitterAddGpu(
     shaderParams.c_convOffs = 0;
     shaderParams.c_dispatchCount = convolutionN*2/GROUP_THREAD_COUNT;
     HRGR(pDCU->Run(pCS, sizeof aRViews/sizeof aRViews[0], aRViews, 1, &pBufResultUav,
-        pBufConst, &shaderParams, sizeof shaderParams, sampleN, 1, 1));
+        &shaderParams, sizeof shaderParams, sampleN, 1, 1));
 #else
     // 遅い
     for (int i=0; i<convolutionN*2/GROUP_THREAD_COUNT; ++i) {
@@ -198,9 +196,6 @@ end:
             dprintf("DXGI_ERROR_DEVICE_REMOVED reason=%08x\n",
                 pDCU->GetDevice()->GetDeviceRemovedReason());
         }
-
-        pDCU->DestroyConstantBuffer(pBufConst);
-        pBufConst = nullptr;
 
         pDCU->DestroyDataAndUnorderedAccessView(pBufResultUav);
         pBufResultUav = nullptr;

@@ -14,7 +14,7 @@ Texture1D                 gCr           : register(t2);
 RWTexture1D<float>        gV            : register(u0);
 RWTexture1D<float>        gP            : register(u1);
 
-// 定数。16バイトの倍数のサイズの構造体。
+// Shader Constant。16バイトの倍数のサイズの構造体。
 cbuffer consts {
     // 更新処理の繰り返し回数。
     uint cRepeat;
@@ -59,16 +59,11 @@ void UpdateP(uint i)
 [numthreads(LENGTH, 1, 1)]
 void CSMain(uint tid: SV_GroupIndex)
 {
-/*
     for (int i=0; i<cRepeat; ++i) {
         UpdateV(tid);
         GroupMemoryBarrierWithGroupSync();
         UpdateP(tid);
         GroupMemoryBarrierWithGroupSync();
     }
-*/
-
-    gV[tid] = tid;
-    gP[tid] = tid + 1000;
 }
 

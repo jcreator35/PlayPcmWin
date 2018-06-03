@@ -12,12 +12,14 @@ WWDirectComputeUser::WWDirectComputeUser(void)
 {
     m_pDevice = nullptr;
     m_pContext = nullptr;
+    m_pConstBuffer = nullptr;
 }
 
 WWDirectComputeUser::~WWDirectComputeUser(void)
 {
     assert(nullptr == m_pDevice);
     assert(nullptr == m_pContext);
+    assert(nullptr == m_pConstBuffer);
 }
 
 HRESULT
@@ -34,6 +36,7 @@ end:
 void
 WWDirectComputeUser::Term(void)
 {
+    SafeRelease( &m_pConstBuffer );
     SafeRelease( &m_pContext );
     SafeRelease( &m_pDevice );
 
@@ -604,13 +607,35 @@ WWDirectComputeUser::SetupDispatch(
         UINT nNumSRV,
         ID3D11ShaderResourceView * ppSRV[],
         UINT nNumUAV,
-        ID3D11UnorderedAccessView * ppUAV[])
+        ID3D11UnorderedAccessView * ppUAV[],
+        void *pCSData,
+        DWORD dwNumDataBytes)
 {
     HRESULT hr = S_OK;
+    D3D11_MAPPED_SUBRESOURCE mr;
 
     assert(m_pDevice);
     assert(m_pContext);
     assert(pComputeShader);
+
+    if (pCSData) {
+        assert(!m_pConstBuffer);
+        HRG(CreateConstantBuffer(dwNumDataBytes, 1, "ShaderConstants", &m_pConstBuffer));
+
+        ZeroMemory(&mr, sizeof mr);
+
+        HRG(m_pContext->Map(m_pConstBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mr));
+        assert(mr.pData);
+
+        memcpy(mr.pData, pCSData, dwNumDataBytes);
+        m_pContext->Unmap(m_pConstBuffer, 0);
+
+        ID3D11Buffer* ppCB[1] = { m_pConstBuffer };
+        m_pContext->CSSetConstantBuffers(0, 1, ppCB);
+    } else {
+        //ID3D11Buffer * ppCBNULL[1] = { nullptr };
+        //m_pContext->CSSetConstantBuffers(0, 1, ppCBNULL);
+    }
 
     // シェーダーとパラメータをセットする。
 
@@ -622,45 +647,24 @@ WWDirectComputeUser::SetupDispatch(
         m_pContext->CSSetUnorderedAccessViews(0, nNumUAV, ppUAV, nullptr);
     }
 
+end:
+
     return hr;
 }
 
-HRESULT
+void
 WWDirectComputeUser::Dispatch(
-        ID3D11Buffer * pCBCS,
-        void * pCSData,
-        DWORD dwNumDataBytes,
         UINT X,
         UINT Y,
         UINT Z)
 {
-    HRESULT hr = S_OK;
-    D3D11_MAPPED_SUBRESOURCE mr;
-
     assert(0 < X);
     assert(0 < Y);
     assert(0 < Z);
 
     assert(m_pContext);
 
-    if (pCBCS) {
-        assert(pCSData);
-        ZeroMemory(&mr, sizeof mr);
-
-        HRG(m_pContext->Map(pCBCS, 0, D3D11_MAP_WRITE_DISCARD, 0, &mr));
-        assert(mr.pData);
-
-        memcpy(mr.pData, pCSData, dwNumDataBytes);
-        m_pContext->Unmap(pCBCS, 0);
-
-        ID3D11Buffer* ppCB[1] = { pCBCS };
-        m_pContext->CSSetConstantBuffers(0, 1, ppCB);
-    }
-
     m_pContext->Dispatch(X, Y, Z);
-
-end:
-    return hr;
 }
 
 void
@@ -678,6 +682,8 @@ WWDirectComputeUser::UnsetupDispatch(void)
 
     ID3D11Buffer * ppCBNULL[1] = { nullptr };
     m_pContext->CSSetConstantBuffers(0, 1, ppCBNULL);
+
+    SAFE_RELEASE(m_pConstBuffer);
 }
 
 HRESULT
@@ -687,7 +693,6 @@ WWDirectComputeUser::Run(
         ID3D11ShaderResourceView * ppSRV[],
         UINT nNumUAV,
         ID3D11UnorderedAccessView * ppUAV[],
-        ID3D11Buffer * pCBCS,
         void * pCSData,
         DWORD dwNumDataBytes,
         UINT X,
@@ -697,8 +702,8 @@ WWDirectComputeUser::Run(
     HRESULT hr = S_OK;
     bool result = true;
 
-    HRG(SetupDispatch(pComputeShader, nNumSRV, ppSRV, nNumUAV, ppUAV));
-    HRGR(Dispatch(pCBCS, pCSData, dwNumDataBytes, X, Y, Z));
+    HRG(SetupDispatch(pComputeShader, nNumSRV, ppSRV, nNumUAV, ppUAV, pCSData, dwNumDataBytes));
+    Dispatch(X, Y, Z);
 
 end:
     UnsetupDispatch();

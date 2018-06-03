@@ -52,7 +52,7 @@ TestTexture(void)
     HRG(c.CreateBufferAndUnorderedAccessView(sizeof(float), dataCount, nullptr, "OutputBuffer", &pUAVOutput));
     assert(pUAVOutput);
 
-    HRG(c.Run(pCS, 1, &pSRVTex1D, 1, &pUAVOutput, nullptr, nullptr, 0, dataCount, 1, 1));
+    HRG(c.Run(pCS, 1, &pSRVTex1D, 1, &pUAVOutput, nullptr, 0, dataCount, 1, 1));
 
     // ŒvZŒ‹‰Ê‚ğCPUƒƒ‚ƒŠ[‚É‚Á‚Ä‚­‚éB
     HRG(c.RecvResultToCpuMemory(pUAVOutput, output, dataCount * sizeof(float)));

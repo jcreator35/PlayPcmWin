@@ -83,7 +83,6 @@ public:
         ID3D11ShaderResourceView * ppSRV[],
         UINT nNumUAV,
         ID3D11UnorderedAccessView * ppUAV[],
-        ID3D11Buffer * pCBCS,
         void * pCSData,
         DWORD dwNumDataBytes,
         UINT X,
@@ -113,6 +112,7 @@ public:
 private:
     ID3D11Device*               m_pDevice;
     ID3D11DeviceContext*        m_pContext;
+    ID3D11Buffer *m_pConstBuffer;
 
     HRESULT CreateComputeDevice(void);
 
@@ -197,15 +197,9 @@ private:
         UINT nNumSRV,
         ID3D11ShaderResourceView * ppSRV[],
         UINT nNumUAV,
-        ID3D11UnorderedAccessView * ppUAV[]);
-
-    HRESULT Dispatch(
-        ID3D11Buffer * pCBCS,
-        void * pCSData,
-        DWORD dwNumDataBytes,
-        UINT X,
-        UINT Y,
-        UINT Z);
+        ID3D11UnorderedAccessView * ppUAV[],
+        void *pCSData, //< constant buffer data on CPU memory
+        DWORD dwNumDataBytes);
 
     /// Constant buffer無しバージョン。
     void Dispatch(

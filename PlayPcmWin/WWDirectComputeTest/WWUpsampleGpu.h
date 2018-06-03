@@ -65,6 +65,4 @@ private:
     ID3D11ShaderResourceView*   m_pBuf2Srv;
     ID3D11ShaderResourceView*   m_pBuf3Srv;
     ID3D11UnorderedAccessView*  m_pBufResultUav;
-    ID3D11Buffer * m_pBufConst;
-    
 };
