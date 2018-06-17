@@ -18,7 +18,7 @@ namespace WWWaveSimulatorCS {
         public float mFreq;
         public float mMagnitude;
         public float mΔt;
-        private const float SINE_PERIOD = 1000000.0f;
+        public const float SINE_PERIOD = 1000000.0f;
         private const int GAUSSIAN_PERIOD = 200;
         private const int PULSE_PERIOD = 1;
 

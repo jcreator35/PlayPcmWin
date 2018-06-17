@@ -11,7 +11,7 @@ struct WWWave1DStim {
     float halfPeriod;
     float width;
     float freq;
-    int dummy1;
+    float sinePeriod;
 };
 
 enum WWWave1DSRVenum {
@@ -33,7 +33,7 @@ public:
     WWWave1DGpu(void);
     ~WWWave1DGpu(void);
 
-    HRESULT Init(const int dataCount, float sc, float c0, float *loss, float *roh, float *cr);
+    HRESULT Init(const int dataCount, float deltaT, float sc, float c0, float *loss, float *roh, float *cr);
 
     HRESULT Run(int cRepeat, int stimNum, WWWave1DStim stim[],
             float *v, float *p);

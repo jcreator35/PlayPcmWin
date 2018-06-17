@@ -54,7 +54,7 @@ WWDCUpsample_Term(void);
 
 extern "C" __declspec(dllexport)
 int __stdcall
-WWDCWave1D_Init(int dataCount, float sc, float c0, float *loss, float *roh, float *cr);
+WWDCWave1D_Init(int dataCount, float deltaT, float sc, float c0, float *loss, float *roh, float *cr);
 
 extern "C" __declspec(dllexport)
 int __stdcall

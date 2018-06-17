@@ -9,12 +9,10 @@ THREAD_X==LENGTHでDispatchする。
 
 #define PI (3.14159265358979f)
 
-/*
 // SRV
 StructuredBuffer<float>          gLoss         : register(t0);
 StructuredBuffer<float>          gRoh          : register(t1);
 StructuredBuffer<float>          gCr           : register(t2);
-*/
 
 // UAV
 RWStructuredBuffer<float> gVin            : register(u0);
@@ -28,17 +26,18 @@ void CSUpdateP(uint i: SV_GroupIndex)
         // ABC for P (Schneider17, pp.53)
         gPout[0] = gPin[1];
     } else {
-        // Update P (Schneider17, pp.325)
-#if 1
+#if 0
+        // For testing
         float lastP = gPin[i];
         float V = (gVin[i] - gVin[i-1]);
         gPout[i] = lastP - V;
 #else
-        float lastP = gP[i];
-        float V = gV[i] - gV[i-1];
+        // Update P (Schneider17, pp.325)
+        float lastP = gPin[i];
+        float V = gVin[i] - gVin[i-1];
         float loss = gLoss[i];
         float Cp = gRoh[i] * gCr[i] * gCr[i] * C0 * SC;
-        gP[i] = (1.0f - loss) *rcp(1.0f + loss) * lastP - (Cp *rcp(1.0f + loss)) * V;
+        gPout[i] = (1.0f - loss) *rcp(1.0f + loss) * lastP - (Cp *rcp(1.0f + loss)) * V;
 #endif
     }
 }

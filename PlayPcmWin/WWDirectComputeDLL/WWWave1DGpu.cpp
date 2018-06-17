@@ -52,14 +52,14 @@ struct ShaderConstants {
     /// stimの有効要素数。
     int nStim;
 
-    int dummy0;
+    int cSinePeriod;
     int dummy1;
 
     WWWave1DStim stim[STIM_COUNT];
 };
 
 HRESULT
-WWWave1DGpu::Init(const int dataCount, float sc, float c0, float *loss, float *roh, float *cr)
+WWWave1DGpu::Init(const int dataCount, float deltaT, float sc, float c0, float *loss, float *roh, float *cr)
 {
     HRESULT hr = S_OK;
 
@@ -79,6 +79,9 @@ WWWave1DGpu::Init(const int dataCount, float sc, float c0, float *loss, float *r
     char c0Str[16];
     sprintf_s(c0Str, "%f", c0);
 
+    char deltaTStr[16];
+    sprintf_s(deltaTStr, "%f", deltaT);
+
     mV = new float[mDataCount];
     mP = new float[mDataCount];
 
@@ -90,6 +93,7 @@ WWWave1DGpu::Init(const int dataCount, float sc, float c0, float *loss, float *r
         "STIM_COUNT", stimCountStr,
         "SC", scStr,
         "C0", c0Str,
+        "DELTA_T", deltaTStr,
         nullptr, nullptr
     };
 
@@ -191,8 +195,8 @@ WWWave1DGpu::Run(int cRepeat, int stimNum, WWWave1DStim stim[],
         }
 
         HRG(mCU.Run(mpCS[WWWave1DCS_UpdateStim], 0,               nullptr, 2, pUAVs_V, &shaderConstants, sizeof(ShaderConstants), 1,          1, 1));
-        HRG(mCU.Run(mpCS[WWWave1DCS_UpdateV],   0,nullptr,/* WWWave1DSRV_NUM, mpSRVs,*/  3, pUAVs_V, nullptr,          0,                       mDataCount, 1, 1));
-        HRG(mCU.Run(mpCS[WWWave1DCS_UpdateP],   0,nullptr,/* WWWave1DSRV_NUM, mpSRVs,*/  3, pUAVs_P, nullptr,          0,                       mDataCount, 1, 1));
+        HRG(mCU.Run(mpCS[WWWave1DCS_UpdateV],    WWWave1DSRV_NUM, mpSRVs,  3, pUAVs_V, nullptr,          0,                       mDataCount, 1, 1));
+        HRG(mCU.Run(mpCS[WWWave1DCS_UpdateP],    WWWave1DSRV_NUM, mpSRVs,  3, pUAVs_P, nullptr,          0,                       mDataCount, 1, 1));
     }
 
     // 計算結果をCPUメモリーに持ってくる。

@@ -13,14 +13,14 @@ namespace WWDirectComputeCS {
         public float magnitude;
         public float halfPeriod;
         public float width;
-        public float freq;
-        public int dummy1;
+        public float omega;
+        public float period;
     };
 
     public class WWWave1DGpu {
         [DllImport("WWDirectComputeDLL.dll")]
         private extern static int
-        WWDCWave1D_Init(int dataCount, float sc, float c0, float [] loss, float [] roh, float [] cr);
+        WWDCWave1D_Init(int dataCount, float deltaT, float sc, float c0, float [] loss, float [] roh, float [] cr);
 
         [DllImport("WWDirectComputeDLL.dll")]
         private extern static int
@@ -39,8 +39,8 @@ namespace WWDirectComputeCS {
 
         public bool Available { get; set; }
 
-        public int Init(int dataCount, float sc, float c0, float[] loss, float[] roh, float[] cr) {
-            int hr = WWDCWave1D_Init(dataCount, sc, c0, loss, roh, cr);
+        public int Init(int dataCount, float deltaT, float sc, float c0, float[] loss, float[] roh, float[] cr) {
+            int hr = WWDCWave1D_Init(dataCount, deltaT, sc, c0, loss, roh, cr);
 
             Available = 0 <= hr;
             return hr;

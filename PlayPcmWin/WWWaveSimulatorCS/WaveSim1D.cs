@@ -58,7 +58,7 @@ namespace WWWaveSimulatorCS {
 
             Reset();
             mCS = new WWWave1DGpu();
-            int rv = mCS.Init(gridW, mSc, mC0, mLoss, mRoh, mCr);
+            int rv = mCS.Init(gridW, mΔt, mSc, mC0, mLoss, mRoh, mCr);
             if (rv < 0) {
                 Console.WriteLine("E: WWWave1DGpu::Init() failed {0:X8}", rv);
             }
@@ -188,7 +188,8 @@ namespace WWWaveSimulatorCS {
                 stim[i].magnitude = w.mMagnitude;
                 stim[i].halfPeriod = w.HalfPeriod;
                 stim[i].width = w.GaussianWidth;
-                stim[i].freq = w.mFreq;
+                stim[i].omega = (float)(2.0f * Math.PI * w.mFreq);
+                stim[i].period = WaveEvent.SINE_PERIOD;
             }
 
             mCS.Run(nTimes, nStim, stim, mV, mP);

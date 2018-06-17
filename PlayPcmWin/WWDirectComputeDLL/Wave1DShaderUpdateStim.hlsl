@@ -1,12 +1,13 @@
 /* 日本語UTF-8
 define
 "STIM_COUNT" == "4"
+"SC" == mC0 * mΔt / mΔx
+"DELTA_T" == mΔt
 で
 THREAD_X==1でDispatchする。
 
 */
 
-#define PI (3.14159265358979f)
 #define STIM_GAUSSIAN 0
 #define STIM_SINE     1
 
@@ -21,8 +22,8 @@ struct Stim {
     float magnitude;
     float halfPeriod;
     float width;
-    float freq;
-    int dummy1;
+    float omega;
+    float sinePeriod;
 };
 
 
@@ -31,9 +32,9 @@ cbuffer consts {
     // stimの有効要素数。
     int nStim;
 
-    int dummy0;
-    int dummy1;
-    int dummy2;
+    int cDummy0;
+    int cDummy1;
+    int cDummy2;
 
     Stim stim[STIM_COUNT];
 };
@@ -64,8 +65,9 @@ void CSUpdateStim()
 
                     int c = stim[i].counter;
 
-                    float omega = 2.0f * PI * stim[i].freq;
-                    float a = sin(omega * c);
+                    float elapsedTime = ((int)(stim[i].sinePeriod/SC) - c) * DELTA_T;
+                    float omega = stim[i].omega * elapsedTime;
+                    float a = sin(omega);
 
                     gP[x] = prevP + stim[i].magnitude * a;
                 }

@@ -87,9 +87,9 @@ static WWWave1DGpu gWave1D;
 
 extern "C" __declspec(dllexport)
 int __stdcall
-WWDCWave1D_Init(int dataCount, float sc, float c0, float *loss, float *roh, float *cr)
+WWDCWave1D_Init(int dataCount, float deltaT, float sc, float c0, float *loss, float *roh, float *cr)
 {
-    return gWave1D.Init(dataCount, sc, c0, loss, roh, cr);
+    return gWave1D.Init(dataCount, deltaT, sc, c0, loss, roh, cr);
 }
 
 extern "C" __declspec(dllexport)
