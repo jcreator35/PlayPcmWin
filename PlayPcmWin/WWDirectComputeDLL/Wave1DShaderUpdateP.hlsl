@@ -26,7 +26,7 @@ void CSUpdateP(uint i: SV_GroupIndex)
 {
     if (i==0) {
         // ABC for P (Schneider17, pp.53)
-        gPin[0] = gPin[1];
+        gPout[0] = gPin[1];
     } else {
         // Update P (Schneider17, pp.325)
 #if 1
