@@ -5,9 +5,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WWDirectComputeCS;
 
 namespace WWWaveSimulatorCS {
     public class WaveSim1D {
+        WWWave1DGpu mCS;
+
         /// <summary>
         /// 気圧P スカラー場
         /// </summary>
@@ -54,6 +57,15 @@ namespace WWWaveSimulatorCS {
             mSc = mC0 * mΔt / mΔx;
 
             Reset();
+            mCS = new WWWave1DGpu();
+            int rv = mCS.Init(gridW, mSc, mC0, mLoss, mRoh, mCr);
+            if (rv < 0) {
+                Console.WriteLine("E: WWWave1DGpu::Init() failed {0:X8}", rv);
+            }
+        }
+
+        public void Term() {
+            mCS.Term();
         }
 
         public void Reset() {
@@ -115,19 +127,82 @@ namespace WWWaveSimulatorCS {
             return mMagnitude;
         }
 
-        public int Update() {
-            int nStimuli = 0;
+        public int Update(int nTimes) {
+            if (mCS.Available) {
+                UpdateGPU(nTimes);
 
-            // Stimuli
+                // Stimuli更新
+                for (int i = 0; i < nTimes; ++i) {
+                    var toRemove = new List<WaveEvent>();
+                    foreach (var v in mWaveEventList) {
+                        if (v.UpdateTime()) {
+                            toRemove.Add(v);
+                        }
+                    }
+                    if (0 < toRemove.Count) {
+                        foreach (var v in toRemove) {
+                            mWaveEventList.Remove(v);
+                        }
+                    }
+                }
+
+                mTimeTick += nTimes;
+            } else {
+                for (int i = 0; i < nTimes; ++i) {
+                    UpdateCPU1();
+                }
+            }
+
+            // mMagnitude計算。
+            float pMax = 0.0f;
+            for (int i = 1; i < mP.Length; ++i) {
+                if (pMax < Math.Abs(mP[i])) {
+                    pMax = Math.Abs(mP[i]);
+                }
+            }
+
+            mMagnitude = pMax;
+
+            return mWaveEventList.Count;
+        }
+
+        const int N_STIM = 4;
+
+        public void UpdateGPU(int nTimes) {
+
+            WWWave1DStim[] stim = new WWWave1DStim[N_STIM];
+            for (int i = 0; i < N_STIM; ++i) {
+                stim[i] = new WWWave1DStim();
+            }
+
+            int nStim = N_STIM;
+            if (mWaveEventList.Count < nStim) {
+                nStim = mWaveEventList.Count;
+            }
+
+            for (int i=0; i<nStim; ++i) {
+                var w = mWaveEventList[i];
+                stim[i].type = (int)w.mType;
+                stim[i].counter = w.mTime;
+                stim[i].posX = w.mX;
+                stim[i].magnitude = w.mMagnitude;
+                stim[i].halfPeriod = w.HalfPeriod;
+                stim[i].width = w.GaussianWidth;
+                stim[i].freq = w.mFreq;
+            }
+
+            mCS.Run(nTimes, nStim, stim, mV, mP);
+            mCS.GetResultVP(mGridW, mV, mP);
+        }
+
+        public void UpdateCPU1() {
+            // Stimuli更新。
             var toRemove = new List<WaveEvent>();
             foreach (var v in mWaveEventList) {
                 if (v.Update(mP)) {
                     toRemove.Add(v);
                 }
-
-                ++nStimuli;
             }
-
             if (0 < toRemove.Count) {
                 foreach (var v in toRemove) {
                     mWaveEventList.Remove(v);
@@ -140,9 +215,12 @@ namespace WWWaveSimulatorCS {
 
 #if true
             Parallel.For(0, mV.Length-1,  i => {
+                /*
                 float loss = mLoss[i];
                 float Cv = 2.0f * mSc / ((mRoh[i] + mRoh[i + 1]) * mC0);
                 mV[i] = (1.0f - loss) / (1.0f + loss) * mV[i] - (Cv / (1.0f + loss)) * (mP[i + 1] - mP[i]);
+                 */
+                mV[i] = mV[i] - (mP[i + 1] - mP[i]);
             });
 #else
             for (int i = 0; i < mV.Length-1; ++i) {
@@ -157,9 +235,12 @@ namespace WWWaveSimulatorCS {
             // Update P (Schneider17, pp.325)
 #if true
             Parallel.For(1, mP.Length, i => {
+                /*
                 float loss = mLoss[i];
                 float Cp = mRoh[i] * mCr[i] * mCr[i] * mC0 * mSc;
                 mP[i] = (1.0f - loss) / (1.0f + loss) * mP[i] - (Cp / (1.0f + loss)) * (mV[i] - mV[i - 1]);
+                 */
+                mP[i] = mP[i] - (mV[i] - mV[i - 1]);
             });
 #else
             for (int i = 1; i < mP.Length; ++i) {
@@ -169,18 +250,7 @@ namespace WWWaveSimulatorCS {
             }
 #endif
 
-            float pMax = 0.0f;
-            for (int i = 1; i < mP.Length; ++i) {
-                if (pMax < Math.Abs(mP[i])) {
-                    pMax = Math.Abs(mP[i]);
-                }
-            }
-
-            mMagnitude = pMax;
-
             ++mTimeTick;
-
-            return nStimuli;
         }
 
         public float[] P() {

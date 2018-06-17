@@ -71,7 +71,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>bin\x64\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)bin\x64\$(Configuration)\</OutDir>
     <IntDir>obj\x64\$(Configuration)\</IntDir>
     <IncludePath>$(DXSDK_DIR)Include;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include;</IncludePath>
     <LibraryPath>$(DXSDK_DIR)Lib\x64;$(VCInstallDir)lib\amd64;$(VCInstallDir)atlmfc\lib\amd64;$(WindowsSdkDir)lib\x64;</LibraryPath>
@@ -85,7 +85,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>bin\x64\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)bin\x64\$(Configuration)\</OutDir>
     <IntDir>obj\x64\$(Configuration)\</IntDir>
     <IncludePath>$(DXSDK_DIR)Include;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include;</IncludePath>
     <LibraryPath>$(DXSDK_DIR)Lib\x64;$(VCInstallDir)lib\amd64;$(VCInstallDir)atlmfc\lib\amd64;$(WindowsSdkDir)lib\x64;</LibraryPath>
@@ -119,6 +119,10 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>d3dcompiler.lib;d3dx11d.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PreBuildEvent>
+      <Command>copy *.hlsl $(SolutionDir)bin\x64\$(Configuration)</Command>
+      <Message>Copy HLSL to output directory.</Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -157,6 +161,10 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>d3dcompiler.lib;d3dx11.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PreBuildEvent>
+      <Command>copy *.hlsl $(SolutionDir)bin\x64\$(Configuration)</Command>
+      <Message>Copy HLSL to output directory.</Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h" />
@@ -192,7 +200,33 @@
     <None Include="CSTest.hlsl" />
     <None Include="SincConvolution.hlsl" />
     <None Include="SincConvolution2.hlsl" />
-    <None Include="Wave1DShader.hlsl" />
+    <CustomBuild Include="Wave1DShaderUpdateV.hlsl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(FullPath) $(SolutionDir)bin\x64\$(Configuration)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(FullPath) $(SolutionDir)bin\x64\$(Configuration)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy Wave1DShaderUpdateV.hlsl to output dir</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)bin\x64\$(Configuration)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy Wave1DShaderUpdateV.hlsl to output dir</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)bin\x64\$(Configuration)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="Wave1DShaderUpdateStim.hlsl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(FullPath) $(SolutionDir)bin\x64\$(Configuration)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(FullPath) $(SolutionDir)bin\x64\$(Configuration)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy Wave1DShaderUpdateStim.hlsl to output</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)bin\x64\$(Configuration)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy Wave1DShaderUpdateStim.hlsl to output</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)bin\x64\$(Configuration)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="Wave1DShaderUpdateP.hlsl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(FullPath) $(SolutionDir)bin\x64\$(Configuration)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(FullPath) $(SolutionDir)bin\x64\$(Configuration)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy Wave1DShaderUpdateP.hlsl to output dir</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy Wave1DShaderUpdateP.hlsl to output dir</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)bin\x64\$(Configuration)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)bin\x64\$(Configuration)</Outputs>
+    </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

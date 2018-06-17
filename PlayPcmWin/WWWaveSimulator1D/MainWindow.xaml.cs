@@ -30,6 +30,8 @@ namespace WWWaveSimulator1D {
         private double mCenterY = 127;
         private double mMagnitude = 128;
 
+        private int mTimeStep = 32;
+
         private DispatcherTimer mDT;
 
         private object mLock = new object();
@@ -78,13 +80,18 @@ namespace WWWaveSimulator1D {
             textBlockFull.Text = string.Format("{0}", mΔx * 1024);
 
             lock (mLock) {
+                if (mSim != null) {
+                    mSim.Term();
+                    mSim = null;
+                }
+
                 mSim = new WaveSim1D(mW, mC0, mΔt, mΔx);
             }
         }
 
         private void dispatcherTimer_Tick(object sender, EventArgs e) {
             lock (mLock) {
-                int nStimuli = mSim.Update();
+                int nStimuli = mSim.Update(mTimeStep);
                 //Console.Write("{0} ", nStimuli);
 
                 UpdateUI();
@@ -157,17 +164,13 @@ namespace WWWaveSimulator1D {
 
         private void buttonFastForward_Click(object sender, RoutedEventArgs e) {
             lock (mLock) {
-                for (int i = 0; i < 1000; ++i) {
-                    mSim.Update();
-                }
+                mSim.Update(mTimeStep*10);
             }
         }
 
         private void buttonFastForward10_Click(object sender, RoutedEventArgs e) {
             lock (mLock) {
-                for (int i = 0; i < 10000; ++i) {
-                    mSim.Update();
-                }
+                mSim.Update(mTimeStep*100);
             }
         }
 
@@ -193,6 +196,20 @@ namespace WWWaveSimulator1D {
                 System.Diagnostics.Debug.Assert(false);
                 break;
             }
+        }
+
+        private void Window_Closed(object sender, EventArgs e) {
+            mSim.Term();
+            mSim = null;
+        }
+
+        private void sliderTimeStep_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) {
+            if (!mInitialized) {
+                return;
+            }
+
+            mTimeStep = (int)Math.Pow(2.0, e.NewValue);
+            labelTimeStepNumber.Content = string.Format("{0}", mTimeStep);
         }
     
     }

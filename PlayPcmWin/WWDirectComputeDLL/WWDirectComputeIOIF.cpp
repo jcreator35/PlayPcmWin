@@ -1,3 +1,4 @@
+//ã€€æ—¥æœ¬èª
 #include "WWDirectComputeIOIF.h"
 #include "WWDirectComputeUser.h"
 #include "WWUpsampleGpu.h"
@@ -66,7 +67,7 @@ WWDCUpsample_GetResultFromGpuMemory(
         return hr;
     }
 
-    // ‰½”{‚ÉƒXƒP[ƒ‹‚µ‚½‚©‚í‚©‚ç‚È‚­‚È‚é‚Ì‚Å•Ê‚ÌŠÖ”‚É•ª‚¯‚½B
+    // ä½•å€ã«ã‚¹ã‚±ãƒ¼ãƒ«ã—ãŸã‹ã‚ã‹ã‚‰ãªããªã‚‹ã®ã§åˆ¥ã®é–¢æ•°ã«åˆ†ã‘ãŸã€‚
     //WWUpsampleGpu::LimitSampleData(outputTo, outputToElemNum);
 
     return hr;
@@ -80,15 +81,15 @@ WWDCUpsample_Term(void)
     g_upsampleGpu.Term();
 }
 
-// ¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡
+// â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– 
 
 static WWWave1DGpu gWave1D;
 
 extern "C" __declspec(dllexport)
-void __stdcall
-WWDCWave1D_Init(void)
+int __stdcall
+WWDCWave1D_Init(int dataCount, float sc, float c0, float *loss, float *roh, float *cr)
 {
-    gWave1D.Init();
+    return gWave1D.Init(dataCount, sc, c0, loss, roh, cr);
 }
 
 extern "C" __declspec(dllexport)
@@ -100,19 +101,14 @@ WWDCWave1D_Term(void)
 
 extern "C" __declspec(dllexport)
 int __stdcall
-WWDCWave1D_Run(int cRepeat, float sc, float c0, int stimCounter,
-        int stimPosX, float stimMagnitude, float stimHalfPeriod,
-        float stimWidth, int dataCount, float *loss,
-        float *roh, float *cr, float *v, float *p)
+WWDCWave1D_Run(int cRepeat, int stimNum, WWWave1DStim *stim, float *v, float *p)
 {
-    return gWave1D.Run(cRepeat, sc, c0, stimCounter,
-        stimPosX, stimMagnitude, stimHalfPeriod,
-        stimWidth, dataCount, loss, roh, cr, v, p);
+    return gWave1D.Run(cRepeat, stimNum, stim, v, p);
 }
 
 extern "C" __declspec(dllexport)
 int __stdcall
-WWDCWave1D_GetResultFromGpuMemory(
+WWDCWave1D_GetResult(
         int outputToElemNum,
         float * outputVTo,
         float * outputPTo)

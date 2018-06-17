@@ -10,6 +10,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WWDirectComputeDLL", "..\WWDirectComputeDLL\WWDirectComputeDLL.vcxproj", "{3938D3BD-54DD-42B9-B316-6283BFB21D5B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WWDirectComputeCS", "..\WWDirectComputeCS\WWDirectComputeCS.csproj", "{01EAC382-2F85-4FAE-ACC0-970298B17FF3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3938D3BD-54DD-42B9-B316-6283BFB21D5B} = {3938D3BD-54DD-42B9-B316-6283BFB21D5B}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

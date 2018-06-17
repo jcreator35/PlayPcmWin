@@ -1,5 +1,5 @@
-// ì˙ñ{åÍ SJIS
-// éQçlÅFBasicCompute11.cpp
+// Êó•Êú¨Ë™û
+// ÂèÇËÄÉÔºöBasicCompute11.cpp
 
 #include "WWDirectComputeUser.h"
 #include "WWUtil.h"
@@ -77,12 +77,12 @@ CreateDeviceInternal(
     *ppDevice           = nullptr;
     *ppImmediateContext = nullptr;
 
-    // ï°êîâÒÉfÉoÉCÉXÇçÏê¨ÇµÇΩèÍçáÇ…D3D11Ç™Ç†ÇËÇ‹ÇπÇÒÇ∆Ç¢Ç§ÉGÉâÅ[ÇÇPâÒÇæÇØèoÇ∑ÇÊÇ§Ç…Ç∑ÇÈÉtÉâÉOÅB
+    // Ë§áÊï∞Âõû„Éá„Éê„Ç§„Çπ„Çí‰ΩúÊàê„Åó„ÅüÂ†¥Âêà„Å´D3D11„Åå„ÅÇ„Çä„Åæ„Åõ„Çì„Å®„ÅÑ„ÅÜ„Ç®„É©„Éº„ÇíÔºëÂõû„Å†„ÅëÂá∫„Åô„Çà„ÅÜ„Å´„Åô„Çã„Éï„É©„Ç∞„ÄÇ
     static bool bMessageAlreadyShown = false;
 
     HMODULE hModD3D11 = LoadLibrary( L"d3d11.dll" );
     if ( hModD3D11 == nullptr ) {
-        // D3D11Ç™Ç»Ç¢ÅB
+        // D3D11„Åå„Å™„ÅÑ„ÄÇ
 
         if ( !bMessageAlreadyShown ) {
             OSVERSIONINFOEX osv;
@@ -94,28 +94,28 @@ CreateDeviceInternal(
                 || ( osv.dwMajorVersion == 6 && osv.dwMinorVersion >= 1 ) 
                 || ( osv.dwMajorVersion == 6 && osv.dwMinorVersion == 0 && osv.dwBuildNumber > 6002 ) ) {
                 MessageBox(0,
-                    L"ÉGÉâÅ[: Direct3D 11 ÉRÉìÉ|Å[ÉlÉìÉgÇ™å©Ç¬Ç©ÇËÇ‹ÇπÇÒÇ≈ÇµÇΩÅB",
+                    L"Error: Direct3D 11 component is not found.",
                     L"Error",
                     MB_ICONEXCLAMATION );
                 // This should not happen, but is here for completeness as the system could be
                 // corrupted or some future OS version could pull D3D11.DLL for some reason
             } else if ( osv.dwMajorVersion == 6 && osv.dwMinorVersion == 0 && osv.dwBuildNumber == 6002 ) {
                 MessageBox(0,
-                    L"ÉGÉâÅ[: Direct3D 11 ÉRÉìÉ|Å[ÉlÉìÉgÇ™å©Ç¬Ç©ÇËÇ‹ÇπÇÒÇ≈ÇµÇΩÇ™ÅA"
-                    L"Ç±ÇÃWindowsópÇÃDirect3D 11 ÉRÉìÉ|Å[ÉlÉìÉgÇÕì¸éËâ¬î\Ç≈Ç∑ÅB\n"
-                    L"É}ÉCÉNÉçÉ\ÉtÉgKB #971644ÇÇ≤óóÇ≠ÇæÇ≥Ç¢ÅB\n"
+                    L"Error: Direct3D 11 component is not found. While"
+                    L"Direct3D 11 component is available.\n"
+                    L"Please refer Microsoft KB #971644.\n"
                     L" http://support.microsoft.com/default.aspx/kb/971644/",
                     L"Error", MB_ICONEXCLAMATION );
             } else if ( osv.dwMajorVersion == 6 && osv.dwMinorVersion == 0 ) {
                 MessageBox(0,
-                    L"ÉGÉâÅ[: Direct3D 11 ÉRÉìÉ|Å[ÉlÉìÉgÇ™å©Ç¬Ç©ÇËÇ‹ÇπÇÒÇ≈ÇµÇΩÅB"
-                    L"ç≈êVÇÃÉTÅ[ÉrÉXÉpÉbÉNÇìKópÇµÇƒÇ≠ÇæÇ≥Ç¢ÅB\n"
-                    L"è⁄ÇµÇ≠ÇÕÉ}ÉCÉNÉçÉ\ÉtÉgKB #935791ÇÇ≤óóÇ≠ÇæÇ≥Ç¢ÅB\n"
+                    L"Error: Direct3D 11 component is not found."
+                    L"Please apply the latest service pack.\n"
+                    L"For more info, please refer Microsoft KB #935791.\n"
                     L" http://support.microsoft.com/default.aspx/kb/935791",
                     L"Error", MB_ICONEXCLAMATION );
             } else {
                 MessageBox(0,
-                    L"ÉGÉâÅ[: Ç±ÇÃÉoÅ[ÉWÉáÉìÇÃWindowså¸ÇØÇÃDirect3D 11 ÇÕÇ†ÇËÇ‹ÇπÇÒÅB",
+                    L"Error: Direct3D 11 component for this version of Windows is not available!",
                     L"Error", MB_ICONEXCLAMATION);
             }
 
@@ -126,7 +126,7 @@ CreateDeviceInternal(
         goto end;
     }
 
-    // D3D11ÉfÉoÉCÉXÇ™ë∂ç›Ç∑ÇÈèÍçáÅB
+    // D3D11„Éá„Éê„Ç§„Çπ„ÅåÂ≠òÂú®„Åô„ÇãÂ†¥Âêà„ÄÇ
 
     typedef HRESULT (WINAPI * LPD3D11CREATEDEVICE)(
         IDXGIAdapter*, D3D_DRIVER_TYPE, HMODULE, UINT32,
@@ -137,7 +137,8 @@ CreateDeviceInternal(
         (LPD3D11CREATEDEVICE)GetProcAddress( hModD3D11, "D3D11CreateDevice" );
 
     HRG(pDynamicD3D11CreateDevice(
-        pAdapter, DriverType, Software, Flags, pFeatureLevels, FeatureLevels,
+        pAdapter, DriverType, Software, Flags, pFeatureLevels,
+		FeatureLevels,
         SDKVersion, ppDevice, pFeatureLevel, ppImmediateContext));
 
     assert(*ppDevice);
@@ -153,8 +154,7 @@ CreateDeviceInternal(
     if ( !hwopts.DoublePrecisionFloatShaderOps ) {
         if ( !bMessageAlreadyShown ) {
             MessageBox(0,
-                L"ÉGÉâÅ[: Ç±ÇÃGPUÇÕComputeShader5.0ÇÃî{ê∏ìxïÇìÆè¨êîì_êîÉIÉvÉVÉáÉì"
-                L"(double-precision support)Ç™égópÇ≈Ç´Ç‹ÇπÇÒÅB",
+                L"Error: This GPU does not have ComputeShader5.0 double-precision capability.",
                 L"Error", MB_ICONEXCLAMATION);
             bMessageAlreadyShown = true;
         }
@@ -165,6 +165,9 @@ CreateDeviceInternal(
 end:
     return hr;
 }
+
+// ‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†
+// Compute Shader Compile
 
 HRESULT
 WWDirectComputeUser::CreateComputeDevice(void)
@@ -214,26 +217,31 @@ WWDirectComputeUser::CreateComputeShader(
 
     DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
 //#if defined( DEBUG ) || defined( _DEBUG )
-    // D3DCOMPILE_DEBUGÉtÉâÉOÇéwíËÇ∑ÇÈÇ∆ÅAÉVÉFÅ[É_Å[Ç…ÉfÉoÉbÉOèÓïÒÇñÑÇﬂçûÇﬁÇ™
-    // ç≈ìKâªÇÕÇ≥ÇÍÇÈÇµÅARELEASEÇ∆ìØìôÇÃìÆçÏÇÇµÅAê´î\Ç™óéÇøÇ»Ç¢ÅcÇÁÇµÇ¢ÅB
+    // D3DCOMPILE_DEBUG„Éï„É©„Ç∞„ÇíÊåáÂÆö„Åô„Çã„Å®„ÄÅ„Ç∑„Çß„Éº„ÉÄ„Éº„Å´„Éá„Éê„ÉÉ„Ç∞ÊÉÖÂ†±„ÇíÂüã„ÇÅËæº„ÇÄ„Åå
+    // ÊúÄÈÅ©Âåñ„ÅØ„Åï„Çå„Çã„Åó„ÄÅRELEASE„Å®ÂêåÁ≠â„ÅÆÂãï‰Ωú„Çí„Åó„ÄÅÊÄßËÉΩ„ÅåËêΩ„Å°„Å™„ÅÑ‚Ä¶„Çâ„Åó„ÅÑ„ÄÇ
     //dwShaderFlags |= D3DCOMPILE_DEBUG;
 //#endif
 
-    // CSÉVÉFÅ[É_Å[ÉvÉçÉtÉ@ÉCÉã5.0ÇéwíËÅB
+    // CS„Ç∑„Çß„Éº„ÉÄ„Éº„Éó„É≠„Éï„Ç°„Ç§„É´5.0„ÇíÊåáÂÆö„ÄÇ
     LPCSTR pProfile = "cs_5_0";
 
     hr = D3DX11CompileFromFile(path, defines, nullptr, entryPoint, pProfile,
         dwShaderFlags, 0, nullptr, &pBlob, &pErrorBlob, nullptr );
     if (FAILED(hr)) {
+        WCHAR erTitle[256];
+        swprintf_s(erTitle, L"D3DX11CompileFromFile failed with %x", hr);
+
         WCHAR erStr[65536];
         ZeroMemory(erStr, sizeof erStr);
-
         if (pErrorBlob) {
             const char *s = (const char *)pErrorBlob->GetBufferPointer();
             MultiByteToWideChar(CP_ACP, 0, s, -1,
                 erStr, sizeof erStr/sizeof erStr[0]-1);
+        } else {
+            wcsncpy_s(erStr, erTitle, 256);
         }
-        MessageBox(0, erStr, L"D3DX11CompileFromFileé∏îs", MB_ICONEXCLAMATION);
+
+        MessageBox(0, erStr, erTitle, MB_ICONEXCLAMATION);
         goto end;
     }
 
@@ -269,6 +277,257 @@ WWDirectComputeUser::DestroyComputeShader(
     SAFE_RELEASE(pCS);
 }
 
+// ‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†
+// GPU ‚Üí CPU
+
+HRESULT
+WWDirectComputeUser::RecvResultToCpuMemory(
+        ID3D11UnorderedAccessView * pUav,
+        void *dest,
+        int bytes)
+{
+    HRESULT hr = S_OK;
+    D3D11_MAPPED_SUBRESOURCE mr;
+    D3D11_RESOURCE_DIMENSION dimen;
+
+    assert(m_pDevice);
+    assert(m_pContext);
+    assert(pUav);
+    assert(dest);
+
+    std::map<ID3D11UnorderedAccessView *, WWReadWriteGpuBufferInfo>::iterator
+        ite = m_rwGpuBufInfo.find(pUav);
+    if (ite == m_rwGpuBufInfo.end()) {
+        hr = E_FAIL;
+        goto end;
+    }
+
+    ite->second.pBuf->GetType(&dimen);
+    switch (dimen) {
+    case D3D11_RESOURCE_DIMENSION_BUFFER:
+        {
+            ID3D11Buffer * pBuffer = nullptr;
+            ID3D11Buffer * pReturn = nullptr;
+            D3D11_BUFFER_DESC desc;
+
+            pBuffer = (ID3D11Buffer*)ite->second.pBuf;
+
+            ZeroMemory(&desc, sizeof desc);
+            pBuffer->GetDesc(&desc);
+            desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+            desc.Usage = D3D11_USAGE_STAGING;
+            desc.BindFlags = 0;
+            desc.MiscFlags = 0;
+            HRG(m_pDevice->CreateBuffer(&desc, nullptr, &pReturn));
+
+            m_pContext->CopyResource(pReturn, pBuffer);
+            assert(pReturn);
+
+            ZeroMemory(&mr, sizeof mr);
+            HRG(m_pContext->Map(pReturn, 0, D3D11_MAP_READ, 0, &mr));
+            assert(mr.pData);
+            // Unmap„Åó„Å™„ÅÑ„Åßgoto end„Åó„Å¶„ÅØ„ÅÑ„Åë„Å™„ÅÑ
+
+            memcpy(dest, mr.pData, bytes);
+
+            m_pContext->Unmap(pReturn, 0);
+            SafeRelease(&pReturn);
+        }
+        break;
+    case D3D11_RESOURCE_DIMENSION_TEXTURE1D:
+        {
+            ID3D11Texture1D *pTex = nullptr;
+            ID3D11Texture1D *pReturn = nullptr;
+            D3D11_TEXTURE1D_DESC desc;
+
+            pTex = (ID3D11Texture1D*)ite->second.pBuf;
+
+            ZeroMemory(&desc, sizeof desc);
+            pTex->GetDesc(&desc);
+            desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+            desc.Usage = D3D11_USAGE_STAGING;
+            desc.BindFlags = 0;
+            desc.MiscFlags = 0;
+
+            HRG(m_pDevice->CreateTexture1D(&desc, nullptr, &pReturn));
+            assert(pReturn);
+            
+            m_pContext->CopyResource(pReturn, pTex);
+            assert(pReturn);
+
+            ZeroMemory(&mr, sizeof mr);
+            HRG(m_pContext->Map(pReturn, 0, D3D11_MAP_READ, 0, &mr));
+            assert(mr.pData);
+            // Unmap„Åó„Å™„ÅÑ„Åßgoto end„Åó„Å¶„ÅØ„ÅÑ„Åë„Å™„ÅÑ
+
+            memcpy(dest, mr.pData, bytes);
+
+            m_pContext->Unmap(pReturn, 0);
+            SafeRelease(&pReturn);
+        }
+    }
+
+end:
+    return hr;
+}
+
+// ‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†
+// Run
+
+HRESULT
+WWDirectComputeUser::SetupDispatch(
+        ID3D11ComputeShader * pComputeShader,
+        UINT nNumSRV,
+        ID3D11ShaderResourceView * ppSRV[],
+        UINT nNumUAV,
+        ID3D11UnorderedAccessView * ppUAV[],
+        void *pCSData,
+        DWORD dwNumDataBytes)
+{
+    HRESULT hr = S_OK;
+    D3D11_MAPPED_SUBRESOURCE mr;
+
+    assert(m_pDevice);
+    assert(m_pContext);
+    assert(pComputeShader);
+
+    if (pCSData) {
+        assert(!m_pConstBuffer);
+        HRG(CreateConstantBuffer(dwNumDataBytes, 1, "ShaderConstants", &m_pConstBuffer));
+
+        ZeroMemory(&mr, sizeof mr);
+
+        HRG(m_pContext->Map(m_pConstBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mr));
+        assert(mr.pData);
+
+        memcpy(mr.pData, pCSData, dwNumDataBytes);
+        m_pContext->Unmap(m_pConstBuffer, 0);
+
+        ID3D11Buffer* ppCB[1] = { m_pConstBuffer };
+        m_pContext->CSSetConstantBuffers(0, 1, ppCB);
+    } else {
+        //ID3D11Buffer * ppCBNULL[1] = { nullptr };
+        //m_pContext->CSSetConstantBuffers(0, 1, ppCBNULL);
+    }
+
+    // „Ç∑„Çß„Éº„ÉÄ„Éº„Å®„Éë„É©„É°„Éº„Çø„Çí„Çª„ÉÉ„Éà„Åô„Çã„ÄÇ
+
+    m_pContext->CSSetShader(pComputeShader, nullptr, 0);
+    if (0 < nNumSRV) {
+        m_pContext->CSSetShaderResources(0, nNumSRV, ppSRV);
+    }
+    if (0 < nNumUAV) {
+        m_pContext->CSSetUnorderedAccessViews(0, nNumUAV, ppUAV, nullptr);
+    }
+
+end:
+
+    return hr;
+}
+
+void
+WWDirectComputeUser::Dispatch(
+        UINT X,
+        UINT Y,
+        UINT Z)
+{
+    assert(0 < X);
+    assert(0 < Y);
+    assert(0 < Z);
+
+    assert(m_pContext);
+
+    m_pContext->Dispatch(X, Y, Z);
+}
+
+void
+WWDirectComputeUser::UnsetupDispatch(void)
+{
+    assert(m_pContext);
+
+    m_pContext->CSSetShader(nullptr, nullptr, 0);
+
+    ID3D11UnorderedAccessView * ppUAViewNULL[1] = { nullptr };
+    m_pContext->CSSetUnorderedAccessViews(0, 1, ppUAViewNULL, nullptr);
+
+    ID3D11ShaderResourceView * ppSRVNULL[2] = { nullptr, nullptr };
+    m_pContext->CSSetShaderResources(0, 2, ppSRVNULL);
+
+    ID3D11Buffer * ppCBNULL[1] = { nullptr };
+    m_pContext->CSSetConstantBuffers(0, 1, ppCBNULL);
+
+    SAFE_RELEASE(m_pConstBuffer);
+}
+
+HRESULT
+WWDirectComputeUser::Run(
+        ID3D11ComputeShader * pComputeShader,
+        UINT nNumSRV,
+        ID3D11ShaderResourceView * ppSRV[],
+        UINT nNumUAV,
+        ID3D11UnorderedAccessView * ppUAV[],
+        void * pCSData,
+        DWORD dwNumDataBytes,
+        UINT X,
+        UINT Y,
+        UINT Z)
+{
+    HRESULT hr = S_OK;
+    bool result = true;
+
+    HRG(SetupDispatch(pComputeShader, nNumSRV, ppSRV, nNumUAV, ppUAV, pCSData, dwNumDataBytes));
+    Dispatch(X, Y, Z);
+
+end:
+    UnsetupDispatch();
+
+    return hr;
+}
+
+// ‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†
+// Constant Buffer
+
+HRESULT
+WWDirectComputeUser::CreateConstantBuffer(
+        unsigned int uElementSize,
+        unsigned int uCount,
+        const char *name,
+        ID3D11Buffer **ppBufOut)
+{
+    HRESULT hr = S_OK;
+
+    // uElementSize„ÅØ16„ÅÆÂÄçÊï∞„Åß„Å™„ÅÑ„Å®„ÅÑ„Åë„Å™„ÅÑ„Çâ„Åó„ÅÑ„ÄÇ
+    assert((uElementSize%16) ==0);
+    assert(0<uCount);
+    assert(ppBufOut);
+    *ppBufOut = nullptr;
+    assert(m_pDevice);
+
+    D3D11_BUFFER_DESC desc;
+    ZeroMemory(&desc, sizeof desc);
+
+    desc.BindFlags      = D3D11_BIND_CONSTANT_BUFFER;
+    desc.Usage          = D3D11_USAGE_DYNAMIC;
+    desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+    desc.MiscFlags      = 0;
+    desc.ByteWidth      = uElementSize * uCount;
+    desc.StructureByteStride = 0;
+
+    HRG(m_pDevice->CreateBuffer(&desc, nullptr, ppBufOut));
+
+end:
+    return hr;
+}
+
+void
+WWDirectComputeUser::DestroyConstantBuffer(ID3D11Buffer * pBuf)
+{
+    SAFE_RELEASE(pBuf);
+}
+
+// ‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†
+// Structured Buffer
+
 HRESULT
 WWDirectComputeUser::CreateStructuredBuffer(
         unsigned int uElementSize,
@@ -282,8 +541,8 @@ WWDirectComputeUser::CreateStructuredBuffer(
     assert(m_pDevice);
     assert(uElementSize);
     assert(0 < uCount);
-    // name==nullptrÇ≈Ç‡â¬ÅB
-    // pInitData==nullptrÇ≈Ç‡â¬ÅB
+    // name==nullptr„Åß„ÇÇÂèØ„ÄÇ
+    // pInitData==nullptr„Åß„ÇÇÂèØ„ÄÇ
 
     *ppBufOut = nullptr;
 
@@ -318,12 +577,6 @@ WWDirectComputeUser::CreateStructuredBuffer(
 end:
 
     return hr;
-}
-
-void
-WWDirectComputeUser::DestroyConstantBuffer(ID3D11Buffer * pBuf)
-{
-    SAFE_RELEASE(pBuf);
 }
 
 HRESULT
@@ -411,7 +664,7 @@ end:
 }
 
 HRESULT
-WWDirectComputeUser::SendReadOnlyDataAndCreateShaderResourceView(
+WWDirectComputeUser::CreateBufferAndShaderResourceView(
         unsigned int uElementSize,
         unsigned int uCount,
         void * pSendData,
@@ -511,239 +764,31 @@ WWDirectComputeUser::DestroyDataAndUnorderedAccessView(
 }
 
 HRESULT
-WWDirectComputeUser::RecvResultToCpuMemory(
-        ID3D11UnorderedAccessView * pUav,
-        void *dest,
-        int bytes)
+WWDirectComputeUser::CreateSeveralStructuredBuffer(int n, WWStructuredBufferParams *params)
 {
-    HRESULT hr = S_OK;
-    D3D11_MAPPED_SUBRESOURCE mr;
-    D3D11_RESOURCE_DIMENSION dimen;
+    HRESULT hr = E_FAIL;
 
-    assert(m_pDevice);
-    assert(m_pContext);
-    assert(pUav);
-    assert(dest);
-
-    std::map<ID3D11UnorderedAccessView *, WWReadWriteGpuBufferInfo>::iterator
-        ite = m_rwGpuBufInfo.find(pUav);
-    if (ite == m_rwGpuBufInfo.end()) {
+    for (int i=0; i<n; ++i) {
         hr = E_FAIL;
-        goto end;
-    }
 
-    ite->second.pBuf->GetType(&dimen);
-    switch (dimen) {
-    case D3D11_RESOURCE_DIMENSION_BUFFER:
-        {
-            ID3D11Buffer * pBuffer = nullptr;
-            ID3D11Buffer * pReturn = nullptr;
-            D3D11_BUFFER_DESC desc;
-
-            pBuffer = (ID3D11Buffer*)ite->second.pBuf;
-
-            ZeroMemory(&desc, sizeof desc);
-            pBuffer->GetDesc(&desc);
-            desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
-            desc.Usage = D3D11_USAGE_STAGING;
-            desc.BindFlags = 0;
-            desc.MiscFlags = 0;
-            HRG(m_pDevice->CreateBuffer(&desc, nullptr, &pReturn));
-
-            m_pContext->CopyResource(pReturn, pBuffer);
-            assert(pReturn);
-
-            ZeroMemory(&mr, sizeof mr);
-            HRG(m_pContext->Map(pReturn, 0, D3D11_MAP_READ, 0, &mr));
-            assert(mr.pData);
-            // UnmapÇµÇ»Ç¢Ç≈goto endÇµÇƒÇÕÇ¢ÇØÇ»Ç¢
-
-            memcpy(dest, mr.pData, bytes);
-
-            m_pContext->Unmap(pReturn, 0);
-            SafeRelease(&pReturn);
+        auto &p = params[i];
+        if (p.pSrv != nullptr) {
+            hr = CreateBufferAndShaderResourceView(p.uElementSize, p.uCount, p.pInitData, p.name, p.pSrv);
+        } else if (p.pUav != nullptr) {
+            hr = CreateBufferAndUnorderedAccessView(p.uElementSize, p.uCount, p.pInitData, p.name, p.pUav);
+        } else {
+            assert(false);
         }
-        break;
-    case D3D11_RESOURCE_DIMENSION_TEXTURE1D:
-        {
-            ID3D11Texture1D *pTex = nullptr;
-            ID3D11Texture1D *pReturn = nullptr;
-            D3D11_TEXTURE1D_DESC desc;
 
-            pTex = (ID3D11Texture1D*)ite->second.pBuf;
-
-            ZeroMemory(&desc, sizeof desc);
-            pTex->GetDesc(&desc);
-            desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
-            desc.Usage = D3D11_USAGE_STAGING;
-            desc.BindFlags = 0;
-            desc.MiscFlags = 0;
-
-            HRG(m_pDevice->CreateTexture1D(&desc, nullptr, &pReturn));
-            assert(pReturn);
-            
-            m_pContext->CopyResource(pReturn, pTex);
-            assert(pReturn);
-
-            ZeroMemory(&mr, sizeof mr);
-            HRG(m_pContext->Map(pReturn, 0, D3D11_MAP_READ, 0, &mr));
-            assert(mr.pData);
-            // UnmapÇµÇ»Ç¢Ç≈goto endÇµÇƒÇÕÇ¢ÇØÇ»Ç¢
-
-            memcpy(dest, mr.pData, bytes);
-
-            m_pContext->Unmap(pReturn, 0);
-            SafeRelease(&pReturn);
+        if (FAILED(hr)) {
+            return hr;
         }
     }
 
-end:
     return hr;
 }
 
-HRESULT
-WWDirectComputeUser::SetupDispatch(
-        ID3D11ComputeShader * pComputeShader,
-        UINT nNumSRV,
-        ID3D11ShaderResourceView * ppSRV[],
-        UINT nNumUAV,
-        ID3D11UnorderedAccessView * ppUAV[],
-        void *pCSData,
-        DWORD dwNumDataBytes)
-{
-    HRESULT hr = S_OK;
-    D3D11_MAPPED_SUBRESOURCE mr;
-
-    assert(m_pDevice);
-    assert(m_pContext);
-    assert(pComputeShader);
-
-    if (pCSData) {
-        assert(!m_pConstBuffer);
-        HRG(CreateConstantBuffer(dwNumDataBytes, 1, "ShaderConstants", &m_pConstBuffer));
-
-        ZeroMemory(&mr, sizeof mr);
-
-        HRG(m_pContext->Map(m_pConstBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mr));
-        assert(mr.pData);
-
-        memcpy(mr.pData, pCSData, dwNumDataBytes);
-        m_pContext->Unmap(m_pConstBuffer, 0);
-
-        ID3D11Buffer* ppCB[1] = { m_pConstBuffer };
-        m_pContext->CSSetConstantBuffers(0, 1, ppCB);
-    } else {
-        //ID3D11Buffer * ppCBNULL[1] = { nullptr };
-        //m_pContext->CSSetConstantBuffers(0, 1, ppCBNULL);
-    }
-
-    // ÉVÉFÅ[É_Å[Ç∆ÉpÉâÉÅÅ[É^ÇÉZÉbÉgÇ∑ÇÈÅB
-
-    m_pContext->CSSetShader(pComputeShader, nullptr, 0);
-    if (0 < nNumSRV) {
-        m_pContext->CSSetShaderResources(0, nNumSRV, ppSRV);
-    }
-    if (0 < nNumUAV) {
-        m_pContext->CSSetUnorderedAccessViews(0, nNumUAV, ppUAV, nullptr);
-    }
-
-end:
-
-    return hr;
-}
-
-void
-WWDirectComputeUser::Dispatch(
-        UINT X,
-        UINT Y,
-        UINT Z)
-{
-    assert(0 < X);
-    assert(0 < Y);
-    assert(0 < Z);
-
-    assert(m_pContext);
-
-    m_pContext->Dispatch(X, Y, Z);
-}
-
-void
-WWDirectComputeUser::UnsetupDispatch(void)
-{
-    assert(m_pContext);
-
-    m_pContext->CSSetShader(nullptr, nullptr, 0);
-
-    ID3D11UnorderedAccessView * ppUAViewNULL[1] = { nullptr };
-    m_pContext->CSSetUnorderedAccessViews(0, 1, ppUAViewNULL, nullptr);
-
-    ID3D11ShaderResourceView * ppSRVNULL[2] = { nullptr, nullptr };
-    m_pContext->CSSetShaderResources(0, 2, ppSRVNULL);
-
-    ID3D11Buffer * ppCBNULL[1] = { nullptr };
-    m_pContext->CSSetConstantBuffers(0, 1, ppCBNULL);
-
-    SAFE_RELEASE(m_pConstBuffer);
-}
-
-HRESULT
-WWDirectComputeUser::Run(
-        ID3D11ComputeShader * pComputeShader,
-        UINT nNumSRV,
-        ID3D11ShaderResourceView * ppSRV[],
-        UINT nNumUAV,
-        ID3D11UnorderedAccessView * ppUAV[],
-        void * pCSData,
-        DWORD dwNumDataBytes,
-        UINT X,
-        UINT Y,
-        UINT Z)
-{
-    HRESULT hr = S_OK;
-    bool result = true;
-
-    HRG(SetupDispatch(pComputeShader, nNumSRV, ppSRV, nNumUAV, ppUAV, pCSData, dwNumDataBytes));
-    Dispatch(X, Y, Z);
-
-end:
-    UnsetupDispatch();
-
-    return hr;
-}
-
-HRESULT
-WWDirectComputeUser::CreateConstantBuffer(
-        unsigned int uElementSize,
-        unsigned int uCount,
-        const char *name,
-        ID3D11Buffer **ppBufOut)
-{
-    HRESULT hr = S_OK;
-
-    // uElementSizeÇÕ16ÇÃî{êîÇ≈Ç»Ç¢Ç∆Ç¢ÇØÇ»Ç¢ÇÁÇµÇ¢ÅB
-    assert((uElementSize%16) ==0);
-    assert(0<uCount);
-    assert(ppBufOut);
-    *ppBufOut = nullptr;
-    assert(m_pDevice);
-
-    D3D11_BUFFER_DESC desc;
-    ZeroMemory(&desc, sizeof desc);
-
-    desc.BindFlags      = D3D11_BIND_CONSTANT_BUFFER;
-    desc.Usage          = D3D11_USAGE_DYNAMIC;
-    desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    desc.MiscFlags      = 0;
-    desc.ByteWidth      = uElementSize * uCount;
-    desc.StructureByteStride = 0;
-
-    HRG(m_pDevice->CreateBuffer(&desc, nullptr, ppBufOut));
-
-end:
-    return hr;
-}
-
-// Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°
+// ‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†
 // Texture1D
 
 HRESULT
@@ -762,7 +807,7 @@ WWDirectComputeUser::CreateTexture1DShaderResourceView(
     *ppSrvOut = nullptr;
 
 /*
-    Ç±ÇÍÇÕabortÇ∑ÇÈÅB
+    „Åì„Çå„ÅØabort„Åô„Çã„ÄÇ
     D3D11_TEXTURE1D_DESC descBuf;
     ZeroMemory(&descBuf, sizeof descBuf);
     pTex->GetDesc(&descBuf);
@@ -773,7 +818,7 @@ WWDirectComputeUser::CreateTexture1DShaderResourceView(
     desc.Format = format;
     desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE1D;
     desc.Texture1D.MostDetailedMip = 0;
-    desc.Texture1D.MipLevels = -1; //< ëSÇƒégópÇ∑ÇÈÅB
+    desc.Texture1D.MipLevels = -1; //< ÂÖ®„Å¶‰ΩøÁî®„Åô„Çã„ÄÇ
 
     HRG(m_pDevice->CreateShaderResourceView(pTex, &desc, ppSrvOut));
 
@@ -873,7 +918,7 @@ WWDirectComputeUser::DestroyTexture1D(
     }
 
     pTex->Release();
-    pTex = nullptr; //< Ç†Ç‹ÇËà”ñ°Ç»Ç¢ÅB
+    pTex = nullptr; //< „ÅÇ„Åæ„ÇäÊÑèÂë≥„Å™„ÅÑ„ÄÇ
     return;
 }
 

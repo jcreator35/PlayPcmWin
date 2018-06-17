@@ -1,3 +1,4 @@
+// 日本語
 #include "WWUpsampleGpu.h"
 #include "WWUtil.h"
 #include <assert.h>
@@ -50,7 +51,6 @@ WWUpsampleGpu::Term(void)
     assert(m_pBuf2Srv == NULL);
     assert(m_pBuf3Srv == NULL);
     assert(m_pBufResultUav == NULL);
-    assert(m_pBufConst == NULL);
 }
 
 static void
@@ -182,26 +182,20 @@ WWUpsampleGpu::Setup(
     HRG(m_pDCU->CreateComputeShader(L"SincConvolution2.hlsl", "CSMain", defines, &m_pCS));
     assert(m_pCS);
 
-    // 入力データをGPUメモリーに送る
-    HRG(m_pDCU->SendReadOnlyDataAndCreateShaderResourceView(
-        sizeof sampleFrom[0], sampleTotalFrom, sampleFrom, "SampleFromBuffer", &m_pBuf0Srv));
+    // 入出力バッファの準備。
+    WWStructuredBufferParams sb[] = {
+        {sizeof sampleFrom[0], sampleTotalFrom, sampleFrom, "SampleFromBuffer", &m_pBuf0Srv, nullptr},
+        {sizeof resamplePosArray[0], sampleTotalTo, resamplePosArray, "ResamplePosBuffer", &m_pBuf1Srv, nullptr},
+        {sizeof fractionArrayF[0], sampleTotalTo, fractionArrayF, "FractionBuffer", &m_pBuf2Srv, nullptr},
+        {sizeof sinPreComputeArray[0], sampleTotalTo, sinPreComputeArray, "SinPreComputeBuffer", &m_pBuf3Srv, nullptr},
+        {sizeof(float), sampleTotalTo, NULL, "OutputBuffer", nullptr, &m_pBufResultUav},
+    };
+    HRG(m_pDCU->CreateSeveralStructuredBuffer(sizeof sb/sizeof sb[0], sb));
+
     assert(m_pBuf0Srv);
-
-    HRG(m_pDCU->SendReadOnlyDataAndCreateShaderResourceView(
-        sizeof resamplePosArray[0], sampleTotalTo, resamplePosArray, "ResamplePosBuffer", &m_pBuf1Srv));
     assert(m_pBuf1Srv);
-
-    HRG(m_pDCU->SendReadOnlyDataAndCreateShaderResourceView(
-        sizeof fractionArrayF[0], sampleTotalTo, fractionArrayF, "FractionBuffer", &m_pBuf2Srv));
     assert(m_pBuf2Srv);
-
-    HRG(m_pDCU->SendReadOnlyDataAndCreateShaderResourceView(
-        sizeof sinPreComputeArray[0], sampleTotalTo, sinPreComputeArray, "SinPreComputeBuffer", &m_pBuf3Srv));
     assert(m_pBuf3Srv);
-    
-    // 結果出力領域をGPUに作成。
-    HRG(m_pDCU->CreateBufferAndUnorderedAccessView(
-        sizeof(float), sampleTotalTo, NULL, "OutputBuffer", &m_pBufResultUav));
     assert(m_pBufResultUav);
 
 end:

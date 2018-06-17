@@ -36,6 +36,16 @@ struct WWTexture1DParams {
     ID3D11UnorderedAccessView **pUav;
 };
 
+/// Either pSrv or pUav is needed. nullptr == unneeded
+struct WWStructuredBufferParams {
+    uint32_t uElementSize;
+    uint32_t uCount;
+    void * pInitData;
+    const char *name;
+    ID3D11ShaderResourceView **pSrv;  //< inout
+    ID3D11UnorderedAccessView **pUav; //< inout
+};
+
 class WWDirectComputeUser {
 public:
     WWDirectComputeUser(void);
@@ -52,29 +62,6 @@ public:
         ID3D11ComputeShader **ppCS);
 
     void DestroyComputeShader(ID3D11ComputeShader *pCS);
-
-    // 入力データ(読み出し専用)をGPUメモリに送る
-    HRESULT SendReadOnlyDataAndCreateShaderResourceView(
-        unsigned int uElementSize,
-        unsigned int uCount,
-        void * pSendData,
-        const char *name,
-        ID3D11ShaderResourceView **ppSrv);
-
-    void DestroyDataAndShaderResourceView(
-        ID3D11ShaderResourceView * pSrv);
-
-    /// 入出力可能データをGPUメモリに作成。
-    /// @param pSendData nullptrでも可。
-    HRESULT CreateBufferAndUnorderedAccessView(
-        unsigned int uElementSize,
-        unsigned int uCount,
-        void *pSendData,
-        const char *name,
-        ID3D11UnorderedAccessView **ppUav);
-
-    void DestroyDataAndUnorderedAccessView(
-        ID3D11UnorderedAccessView * pUav);
 
     // 実行。中でブロックする。
     HRESULT Run(
@@ -97,17 +84,19 @@ public:
 
     ID3D11Device *GetDevice(void) { return m_pDevice; }
 
-    HRESULT CreateConstantBuffer(
-        unsigned int uElementSize,
-        unsigned int uCount,
-        const char *name,
-        ID3D11Buffer **ppBufOut);
+    HRESULT CreateSeveralStructuredBuffer(int n, WWStructuredBufferParams *params);
+    HRESULT CreateSeveralTexture1D(int n, WWTexture1DParams *params);
+    HRESULT CreateConstantBuffer(unsigned int uElementSize, unsigned int uCount, const char *name, ID3D11Buffer **ppBufOut);
 
     void DestroyConstantBuffer(ID3D11Buffer * pBuf);
 
-    void DestroyTexture1D(ID3D11Texture1D *pTex);
+    void DestroyDataAndShaderResourceView(
+        ID3D11ShaderResourceView * pSrv);
 
-    HRESULT CreateSeveralTexture1D(int n, WWTexture1DParams *params);
+    void DestroyDataAndUnorderedAccessView(
+        ID3D11UnorderedAccessView * pUav);
+
+    void DestroyTexture1D(ID3D11Texture1D *pTex);
 
 private:
     ID3D11Device*               m_pDevice;
@@ -136,6 +125,23 @@ private:
         void * pInitData,
         const char *name,
         ID3D11Buffer ** ppBufOut);
+
+    // 入力データ(読み出し専用)をGPUメモリに送る
+    HRESULT CreateBufferAndShaderResourceView(
+        unsigned int uElementSize,
+        unsigned int uCount,
+        void * pSendData,
+        const char *name,
+        ID3D11ShaderResourceView **ppSrv);
+
+    /// 入出力可能データをGPUメモリに作成。
+    /// @param pSendData nullptrでも可。
+    HRESULT CreateBufferAndUnorderedAccessView(
+        unsigned int uElementSize,
+        unsigned int uCount,
+        void *pSendData,
+        const char *name,
+        ID3D11UnorderedAccessView **ppUav);
 
     HRESULT CreateTexture1D(
         int Width,

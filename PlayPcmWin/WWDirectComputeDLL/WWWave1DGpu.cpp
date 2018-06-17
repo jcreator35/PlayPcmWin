@@ -1,13 +1,15 @@
+// æ—¥æœ¬èªž
 #include "WWWave1DGpu.h"
-
 #include "WWDirectComputeUser.h"
 #include "WWUtil.h"
 #include <assert.h>
 #include <stdint.h>
 
 WWWave1DGpu::WWWave1DGpu(void)
-    : mCount(0), mV(nullptr), mP(nullptr)
+    : mDataCount(0), mV(nullptr), mP(nullptr)
 {
+    memset(mpCS, 0, sizeof mpCS);
+    memset(mpSRVs, 0, sizeof mpSRVs);
 }
 
 WWWave1DGpu::~WWWave1DGpu(void)
@@ -17,130 +19,200 @@ WWWave1DGpu::~WWWave1DGpu(void)
 }
 
 void
-WWWave1DGpu::Init(void)
-{
-    assert(nullptr == mV);
-    assert(nullptr == mP);
-}
-
-void
 WWWave1DGpu::Term(void)
 {
+    mCU.Term();
+    for (int i=0; i<WWWave1DCS_NUM;++i) {
+        mpCS[i] = nullptr;
+    }
+    for (int i=0; i<WWWave1DSRV_NUM; ++i) {
+        mpSRVs[i] = nullptr;
+    }
     SAFE_DELETE(mP);
     SAFE_DELETE(mV);
 }
 
-enum SRVenum {
-    SRV_LOSS,
-    SRV_ROH,
-    SRV_CR,
-    SRV_NUM
-};
-
 enum UAVenum {
-    UAV_V,
-    UAV_P,
+    UAV_V0,
+    UAV_P0,
+    UAV_V1,
+    UAV_P1,
     UAV_NUM
 };
 
-// ’è”B16ƒoƒCƒg‚Ì”{”‚ÌƒTƒCƒY‚Ì\‘¢‘ÌB
+#define STIM_COUNT (4)
+
+
+
+// å®šæ•°ã€‚16ãƒã‚¤ãƒˆã®å€æ•°ã®ã‚µã‚¤ã‚ºã®æ§‹é€ ä½“ã€‚
 struct ShaderConstants {
-    // XVˆ—‚ÌŒJ‚è•Ô‚µ‰ñ”B
+    /// æ›´æ–°å‡¦ç†ã®ç¹°ã‚Šè¿”ã—å›žæ•°ã€‚
     int cRepeat;
 
-    // ƒpƒ‰ƒ[ƒ^Sc
-    float cSc;
-    
-    // ƒpƒ‰ƒ[ƒ^C0
-    float cC0;
+    /// stimã®æœ‰åŠ¹è¦ç´ æ•°ã€‚
+    int nStim;
 
-    int   cStimCounter;
-    int   cStimPosX;
-    float cStimMagnitude;
-    float cStimHalfPeriod;
-    float cStimWidth;
+    int dummy0;
+    int dummy1;
+
+    WWWave1DStim stim[STIM_COUNT];
 };
 
-static HRESULT
-Wave1D1(ShaderConstants & shaderConstants, const int dataCount,
-        float *loss, float *roh, float *cr,
-        float *v, float *p)
+HRESULT
+WWWave1DGpu::Init(const int dataCount, float sc, float c0, float *loss, float *roh, float *cr)
 {
     HRESULT hr = S_OK;
-    ID3D11ShaderResourceView *pSRVs[SRV_NUM];
-    ID3D11UnorderedAccessView *pUAVs[UAV_NUM];
-    ID3D11ComputeShader *pCS  = nullptr;
-    WWDirectComputeUser c;
 
-    // Å‘å‚Å‘å‘Ì10i10Œ…B
+    mDataCount = dataCount;
+    const int dataBytes = sizeof(float)*mDataCount;
+
+    // æœ€å¤§ã§å¤§ä½“10é€²10æ¡ã€‚
     char dataCountStr[16];
-    sprintf_s(dataCountStr, "%d", dataCount);
+    sprintf_s(dataCountStr, "%d", mDataCount);
 
-    c.Init();
+    char stimCountStr[16];
+    sprintf_s(stimCountStr, "%d", STIM_COUNT);
 
-    // HLSL ComputeShader‚ðƒRƒ“ƒpƒCƒ‹B
+    char scStr[16];
+    sprintf_s(scStr, "%f", sc);
+
+    char c0Str[16];
+    sprintf_s(c0Str, "%f", c0);
+
+    mV = new float[mDataCount];
+    mP = new float[mDataCount];
+
+    mCU.Init();
+
+    // HLSL ComputeShaderã‚’ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«ã€‚
     const D3D_SHADER_MACRO defines[] = {
         "LENGTH", dataCountStr,
+        "STIM_COUNT", stimCountStr,
+        "SC", scStr,
+        "C0", c0Str,
         nullptr, nullptr
     };
-    HRG(c.CreateComputeShader(L"Wave1DShader.hlsl", "CSMain", defines, &pCS));
-    assert(pCS);
 
-    WWTexture1DParams params[SRV_NUM + UAV_NUM] = {
-        {dataCount, 1, 1, DXGI_FORMAT_R32_FLOAT, D3D11_USAGE_IMMUTABLE, D3D11_BIND_SHADER_RESOURCE, 0, 0, loss, dataCount, "loss", &pSRVs[0], nullptr},
-        {dataCount, 1, 1, DXGI_FORMAT_R32_FLOAT, D3D11_USAGE_IMMUTABLE, D3D11_BIND_SHADER_RESOURCE, 0, 0, roh, dataCount, "roh", &pSRVs[1], nullptr},
-        {dataCount, 1, 1, DXGI_FORMAT_R32_FLOAT, D3D11_USAGE_IMMUTABLE, D3D11_BIND_SHADER_RESOURCE, 0, 0, cr, dataCount, "cr", &pSRVs[2], nullptr},
-        {dataCount, 1, 1, DXGI_FORMAT_R32_FLOAT, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE|D3D11_BIND_UNORDERED_ACCESS, 0, 0, v, dataCount, "v", nullptr, &pUAVs[0]},
-        {dataCount, 1, 1, DXGI_FORMAT_R32_FLOAT, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE|D3D11_BIND_UNORDERED_ACCESS, 0, 0, p, dataCount, "p", nullptr, &pUAVs[1]},
+    HRG(mCU.CreateComputeShader(L"Wave1DShaderUpdateStim.hlsl", "CSUpdateStim", defines, &mpCS[WWWave1DCS_UpdateStim]));
+    assert(mpCS[WWWave1DCS_UpdateStim]);
+
+    HRG(mCU.CreateComputeShader(L"Wave1DShaderUpdateV.hlsl", "CSUpdateV", defines, &mpCS[WWWave1DCS_UpdateV]));
+    assert(mpCS[WWWave1DCS_UpdateV]);
+
+    HRG(mCU.CreateComputeShader(L"Wave1DShaderUpdateP.hlsl", "CSUpdateP", defines, &mpCS[WWWave1DCS_UpdateP]));
+    assert(mpCS[WWWave1DCS_UpdateP]);
+
+#if 1
+    WWStructuredBufferParams params[WWWave1DSRV_NUM] = {
+        {sizeof(float), mDataCount, loss, "loss", &mpSRVs[0], nullptr},
+        {sizeof(float), mDataCount, roh,  "roh",  &mpSRVs[1], nullptr},
+        {sizeof(float), mDataCount, cr,   "cr",   &mpSRVs[2], nullptr},
     };
-    HRG(c.CreateSeveralTexture1D(SRV_NUM + UAV_NUM, params));
-
-    HRG(c.Run(pCS, SRV_NUM, pSRVs, UAV_NUM, pUAVs, &shaderConstants, sizeof(ShaderConstants), dataCount, 1, 1));
-
-    // ŒvŽZŒ‹‰Ê‚ðCPUƒƒ‚ƒŠ[‚ÉŽ‚Á‚Ä‚­‚éB
-    HRG(c.RecvResultToCpuMemory(pUAVs[0], v, dataCount * sizeof(float)));
-    HRG(c.RecvResultToCpuMemory(pUAVs[1], p, dataCount * sizeof(float)));
+    HRG(mCU.CreateSeveralStructuredBuffer(WWWave1DSRV_NUM, params));
+#else
+    WWTexture1DParams params[WWWave1DSRV_NUM] = {
+        {mDataCount, 1, 1, DXGI_FORMAT_R32_FLOAT, D3D11_USAGE_IMMUTABLE, D3D11_BIND_SHADER_RESOURCE, 0, 0, loss, mDataCount, "loss", &mpSRVs[0], nullptr},
+        {mDataCount, 1, 1, DXGI_FORMAT_R32_FLOAT, D3D11_USAGE_IMMUTABLE, D3D11_BIND_SHADER_RESOURCE, 0, 0, roh, mDataCount, "roh", &mpSRVs[1], nullptr},
+        {mDataCount, 1, 1, DXGI_FORMAT_R32_FLOAT, D3D11_USAGE_IMMUTABLE, D3D11_BIND_SHADER_RESOURCE, 0, 0, cr, mDataCount, "cr", &mpSRVs[2], nullptr},
+    };
+    HRG(mCU.CreateSeveralTexture1D(WWWave1DSRV_NUM, params));
+#endif
+    assert(mpSRVs[0]);
+    assert(mpSRVs[1]);
+    assert(mpSRVs[2]);
 
 end:
-    c.Term();
     return hr;
 }
 
 HRESULT
-WWWave1DGpu::Run(int cRepeat, float sc, float c0, int stimCounter,
-        int stimPosX, float stimMagnitude, float stimHalfPeriod,
-        float stimWidth, int dataCount, float *loss,
-        float *roh, float *cr, float *v, float *p)
+WWWave1DGpu::Run(int cRepeat, int stimNum, WWWave1DStim stim[],
+        float *v, float *p)
 {
-    ShaderConstants c = {
-        cRepeat,
-        sc,
-        c0,
-        stimCounter,
-        stimPosX,
-        stimMagnitude,
-        stimHalfPeriod,
-        stimWidth,
+    HRESULT hr = S_OK;
+
+    if (STIM_COUNT < stimNum) {
+        printf("Error: stimNum is too large!\n");
+        return E_FAIL;
+    }
+
+    // èª­ã¿è¾¼ã¿ç”¨VPã¨æ›¸ãè¾¼ã¿ç”¨VPãŒã‚ã‚Šã€Vã¨Pã§å…¥ã‚Œæ›¿ã‚ã‚‹ã€‚
+    ID3D11UnorderedAccessView *pUAVs[UAV_NUM];
+    ID3D11UnorderedAccessView *pUAVs_V[3];
+    ID3D11UnorderedAccessView *pUAVs_P[3];
+
+    const int dataBytes = sizeof(float)*mDataCount;
+
+    WWStructuredBufferParams params[UAV_NUM] = {
+        {sizeof(float), mDataCount, v, "v0", nullptr, &pUAVs[0]},
+        {sizeof(float), mDataCount, p, "p0", nullptr, &pUAVs[1]},
+        {sizeof(float), mDataCount, v, "v1", nullptr, &pUAVs[2]},
+        {sizeof(float), mDataCount, p, "p1", nullptr, &pUAVs[3]},
     };
+    HRG(mCU.CreateSeveralStructuredBuffer(UAV_NUM, params));
+    assert(pUAVs[0]);
+    assert(pUAVs[1]);
+    assert(pUAVs[2]);
+    assert(pUAVs[3]);
 
-    assert(nullptr == mV);
-    assert(nullptr == mP);
+    for (int i=0; i<cRepeat; ++i) {
+        ShaderConstants shaderConstants = {
+            stimNum,
+            0,
+            0,
+            0,
+        };
+        for (int j=0; j<STIM_COUNT; ++j) {
+            if (0 < stim[j].counter) {
+                --stim[j].counter;
+            }
 
-    mCount = dataCount;
+            shaderConstants.stim[j] = stim[j];
+        }
 
-    mV = new float[dataCount];
-    memcpy(mV, v, sizeof(float)*dataCount);
-    mP = new float[dataCount];
-    memcpy(mP, p, sizeof(float)*dataCount);
+        if ((i&1)==0) {
+            // Vã¯ãƒãƒƒãƒ•ã‚¡2ã«å‡ºåŠ›ã€‚
+            // Pã¯ãƒãƒƒãƒ•ã‚¡3ã«å‡ºåŠ›ã€‚
+            pUAVs_V[0] = pUAVs[0];
+            pUAVs_V[1] = pUAVs[1];
+            pUAVs_V[2] = pUAVs[2];
+            pUAVs_P[0] = pUAVs[2];
+            pUAVs_P[1] = pUAVs[1];
+            pUAVs_P[2] = pUAVs[3];
+        } else {
+            // Vã¯ãƒãƒƒãƒ•ã‚¡0ã«å‡ºåŠ›ã€‚
+            // Pã¯ãƒãƒƒãƒ•ã‚¡1ã«å‡ºåŠ›ã€‚
+            pUAVs_V[0] = pUAVs[2];
+            pUAVs_V[1] = pUAVs[3];
+            pUAVs_V[2] = pUAVs[0];
+            pUAVs_P[0] = pUAVs[0];
+            pUAVs_P[1] = pUAVs[3];
+            pUAVs_P[2] = pUAVs[1];
+        }
 
-    return Wave1D1(c, dataCount, loss, roh, cr, mV, mP);
+        HRG(mCU.Run(mpCS[WWWave1DCS_UpdateStim], 0,               nullptr, 2, pUAVs_V, &shaderConstants, sizeof(ShaderConstants), 1,          1, 1));
+        HRG(mCU.Run(mpCS[WWWave1DCS_UpdateV],   0,nullptr,/* WWWave1DSRV_NUM, mpSRVs,*/  3, pUAVs_V, nullptr,          0,                       mDataCount, 1, 1));
+        HRG(mCU.Run(mpCS[WWWave1DCS_UpdateP],   0,nullptr,/* WWWave1DSRV_NUM, mpSRVs,*/  3, pUAVs_P, nullptr,          0,                       mDataCount, 1, 1));
+    }
+
+    // è¨ˆç®—çµæžœã‚’CPUãƒ¡ãƒ¢ãƒªãƒ¼ã«æŒã£ã¦ãã‚‹ã€‚
+    HRG(mCU.RecvResultToCpuMemory(pUAVs_V[2], mV, dataBytes));
+    HRG(mCU.RecvResultToCpuMemory(pUAVs_P[2], mP, dataBytes));
+
+    mCU.DestroyDataAndUnorderedAccessView(pUAVs[3]);
+    mCU.DestroyDataAndUnorderedAccessView(pUAVs[2]);
+    mCU.DestroyDataAndUnorderedAccessView(pUAVs[1]);
+    mCU.DestroyDataAndUnorderedAccessView(pUAVs[0]);
+
+end:
+    return hr;
 }
 
 int
 WWWave1DGpu::CopyResultV(float *vTo, int count)
 {
-    if (mCount < count) {
-        count = mCount;
+    if (mDataCount < count) {
+        count = mDataCount;
     }
 
     memcpy(vTo, mV, count * sizeof(float));
@@ -150,8 +222,8 @@ WWWave1DGpu::CopyResultV(float *vTo, int count)
 int
 WWWave1DGpu::CopyResultP(float *pTo, int count)
 {
-    if (mCount < count) {
-        count = mCount;
+    if (mDataCount < count) {
+        count = mDataCount;
     }
 
     memcpy(pTo, mP, count * sizeof(float));

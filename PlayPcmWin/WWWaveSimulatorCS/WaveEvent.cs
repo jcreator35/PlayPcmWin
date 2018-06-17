@@ -11,13 +11,13 @@ namespace WWWaveSimulatorCS {
             Pulse,
         };
 
-        private EventType mType;
-        private int mTime;
-        private int mX;
-        private float mSc;
-        private float mFreq;
-        private float mMagnitude;
-        private float mΔt;
+        public EventType mType;
+        public int mTime;
+        public int mX;
+        public float mSc;
+        public float mFreq;
+        public float mMagnitude;
+        public float mΔt;
         private const float SINE_PERIOD = 1000000.0f;
         private const int GAUSSIAN_PERIOD = 200;
         private const int PULSE_PERIOD = 1;
@@ -44,41 +44,57 @@ namespace WWWaveSimulatorCS {
             mX = (int)x;
         }
 
+        /// <summary>
+        /// 時間を進める。
+        /// </summary>
+        /// <returns>true: 処理完了。</returns>
+        public bool UpdateTime() {
+            if (IsFinished()) {
+                return true;
+            }
+            --mTime;
+
+            return IsFinished();
+        }
+
         /// <returns>true: 更新完了。false:まだ続く。</returns>
         public bool Update(float[] P) {
             if (IsFinished()) {
                 return true;
             }
 
-            bool result = true;
             switch (mType) {
             case EventType.Gaussian:
-                result = UpdateGaussian(P);
+                UpdateGaussian(P);
                 break;
             case EventType.Sine:
-                result = UpdateSine(P);
+                UpdateSine(P);
                 break;
             case EventType.Pulse:
-                result = UpdatePulse(P);
+                UpdatePulse(P);
                 break;
             }
 
-            return result;
+            return UpdateTime();
         }
 
-        private bool UpdateGaussian(float[] P) {
-            float halfPeriod = (float)(GAUSSIAN_PERIOD/mSc/2);
-            float width = 0.001f;
+        public float HalfPeriod {
+            get {
+                return (float)(GAUSSIAN_PERIOD / mSc / 2);
+            }
+        }
 
-            float fr = (float)Math.Exp(-(mTime - halfPeriod) * (mTime - halfPeriod) * width);
+        public float GaussianWidth {
+            get { return 0.001f; }
+        }
+
+        private void UpdateGaussian(float[] P) {
+            float fr = (float)Math.Exp(-(mTime - HalfPeriod) * (mTime - HalfPeriod) * GaussianWidth);
 
             P[mX] += mMagnitude * fr;
-
-            --mTime;
-            return IsFinished();
         }
 
-        private bool UpdateSine(float[] P) {
+        private void UpdateSine(float[] P) {
             // ω: 角周波数
             // f: 周波数
             // T: 周期
@@ -87,16 +103,10 @@ namespace WWWaveSimulatorCS {
             var ω = 2.0f * Math.PI * mFreq;
 
             P[mX] += mMagnitude * (float)Math.Sin(ω * ElapsedTime());
-
-            --mTime;
-            return IsFinished();
         }
 
-        private bool UpdatePulse(float[] P) {
+        private void UpdatePulse(float[] P) {
             P[mX] += mMagnitude;
-
-            --mTime;
-            return IsFinished();
         }
 
         /// <summary>

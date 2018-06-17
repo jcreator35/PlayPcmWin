@@ -1,9 +1,11 @@
+// Êó•Êú¨Ë™û
 #pragma once
 
 #include <Windows.h>
+#include "WWWave1DGpu.h"
 
-// Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°
-// ÉAÉbÉvÉTÉìÉvÉã GPUèàóù
+// ‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†
+// „Ç¢„ÉÉ„Éó„Çµ„É≥„Éó„É´ GPUÂá¶ÁêÜ
 
 /// @result HRESULT
 extern "C" __declspec(dllexport)
@@ -47,23 +49,20 @@ extern "C" __declspec(dllexport)
 void __stdcall
 WWDCUpsample_Term(void);
 
-// Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°
+// ‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†
 // Wave1D GPU
 
 extern "C" __declspec(dllexport)
-void __stdcall
-WWDCWave1D_Init(void);
+int __stdcall
+WWDCWave1D_Init(int dataCount, float sc, float c0, float *loss, float *roh, float *cr);
 
 extern "C" __declspec(dllexport)
 int __stdcall
-WWDCWave1D_Run(int cRepeat, float sc, float c0, int stimCounter,
-        int stimPosX, float stimMagnitude, float stimHalfPeriod,
-        float stimWidth, int dataCount, float *loss,
-        float *roh, float *cr, float *v, float *p);
+WWDCWave1D_Run(int cRepeat, int stimNum, WWWave1DStim *stim, float *v, float *p);
 
 extern "C" __declspec(dllexport)
 int __stdcall
-WWDCWave1D_GetResultFromGpuMemory(
+WWDCWave1D_GetResult(
         int outputToElemNum,
         float * outputVTo,
         float * outputPTo);
@@ -73,8 +72,8 @@ void __stdcall
 WWDCWave1D_Term(void);
 
 
-// Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°Å°
-// CPUèàóù
+// ‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†‚ñ†
+// CPUÂá¶ÁêÜ
 
 extern "C" __declspec(dllexport)
 int __stdcall

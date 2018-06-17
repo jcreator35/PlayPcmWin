@@ -70,8 +70,16 @@
     <None Include="CSTest.hlsl">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="Wave1DShader.hlsl">
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Wave1DShaderUpdateStim.hlsl">
       <Filter>Shaders</Filter>
-    </None>
+    </CustomBuild>
+    <CustomBuild Include="Wave1DShaderUpdateV.hlsl">
+      <Filter>Shaders</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Wave1DShaderUpdateP.hlsl">
+      <Filter>Shaders</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>
