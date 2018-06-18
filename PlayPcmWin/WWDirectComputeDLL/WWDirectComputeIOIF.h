@@ -54,7 +54,24 @@ WWDCUpsample_Term(void);
 
 extern "C" __declspec(dllexport)
 int __stdcall
-WWDCWave1D_Init(int dataCount, float deltaT, float sc, float c0, float *loss, float *roh, float *cr);
+WWDCWave1D_EnumAdapter(void);
+
+struct WWDirectComputeAdapterDesc {
+    wchar_t name[256];
+    int64_t videoMemoryBytes;
+};
+
+extern "C" __declspec(dllexport)
+int __stdcall
+WWDCWave1D_GetAdapterDesc(int idx, WWDirectComputeAdapterDesc *desc);
+
+extern "C" __declspec(dllexport)
+int __stdcall
+WWDCWave1D_ChooseAdapter(int idx);
+
+extern "C" __declspec(dllexport)
+int __stdcall
+WWDCWave1D_Setup(int dataCount, float deltaT, float sc, float c0, float *loss, float *roh, float *cr);
 
 extern "C" __declspec(dllexport)
 int __stdcall

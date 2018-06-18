@@ -6,6 +6,7 @@
 #include <map>
 #include <list>
 #include <stdint.h>
+#include <vector>
 
 /// 読み出し専用GPUメモリ管理情報
 struct WWReadOnlyGpuBufferInfo {
@@ -46,6 +47,11 @@ struct WWStructuredBufferParams {
     ID3D11UnorderedAccessView **pUav; //< inout
 };
 
+struct WWDirectComputeAdapter {
+    IDXGIAdapter* adapter;
+    DXGI_ADAPTER_DESC desc;
+};
+
 class WWDirectComputeUser {
 public:
     WWDirectComputeUser(void);
@@ -53,6 +59,11 @@ public:
 
     HRESULT Init(void);
     void    Term(void);
+
+    int GetNumOfAdapters(void);
+    HRESULT GetAdapterDesc(int idx, wchar_t *desc, int descBytes);
+    HRESULT GetAdapterVideoMemoryBytes(int idx, int64_t *videoMemoryBytes);
+    HRESULT ChooseAdapter(int idx);
 
     // ComputeShaderをコンパイルしてGPUに送る
     HRESULT CreateComputeShader(
@@ -102,6 +113,9 @@ private:
     ID3D11Device*               m_pDevice;
     ID3D11DeviceContext*        m_pContext;
     ID3D11Buffer *m_pConstBuffer;
+    std::vector <WWDirectComputeAdapter> m_vAdapters;
+
+    HRESULT EnumAdapters(void);
 
     HRESULT CreateComputeDevice(void);
 

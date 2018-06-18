@@ -177,6 +177,7 @@ WWUpsampleGpu::Setup(
     assert(m_pDCU);
 
     HRG(m_pDCU->Init());
+    HRG(m_pDCU->ChooseAdapter(0));
 
     // HLSL ComputeShaderをコンパイルしてGPUに送る。
     HRG(m_pDCU->CreateComputeShader(L"SincConvolution2.hlsl", "CSMain", defines, &m_pCS));

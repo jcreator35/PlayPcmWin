@@ -49,6 +49,8 @@ namespace WWWaveSimulatorCS {
         private List<WaveEvent> mWaveEventList = new List<WaveEvent>();
 
         public WaveSim1D(int gridW, float c0, float Δt, float Δx) {
+            int hr = 0;
+
             mGridW = gridW;
             mC0 = c0;
             mΔt = Δt;
@@ -58,9 +60,35 @@ namespace WWWaveSimulatorCS {
 
             Reset();
             mCS = new WWWave1DGpu();
-            int rv = mCS.Init(gridW, mΔt, mSc, mC0, mLoss, mRoh, mCr);
-            if (rv < 0) {
-                Console.WriteLine("E: WWWave1DGpu::Init() failed {0:X8}", rv);
+
+            do {
+                hr = mCS.EnumAdapter();
+                if (hr <= 0) {
+                    break;
+                }
+
+                var cw = new ChooseGPUWindow();
+                for (int i = 0; i < hr; ++i) {
+                    string desc;
+                    long videoMemoryBytes;
+                    mCS.GetAdapterDesc(i, out desc, out videoMemoryBytes);
+                    string s = string.Format("{0}, dedicated video memory={1}MB",
+                        desc, videoMemoryBytes / 1024 / 1024);
+
+                    cw.Add(s);
+                }
+                cw.ShowDialog();
+
+                hr = mCS.ChooseAdapter(cw.SelectedAdapterIdx);
+                if (hr < 0) {
+                    break;
+                }
+
+                hr = mCS.Setup(gridW, mΔt, mSc, mC0, mLoss, mRoh, mCr);
+            } while (false);
+
+            if (hr < 0) {
+                Console.WriteLine("E: WWWave1DGpu::Init() failed {0:X8}", hr);
             }
         }
 

@@ -58,8 +58,38 @@ struct ShaderConstants {
     WWWave1DStim stim[STIM_COUNT];
 };
 
+int
+WWWave1DGpu::EnumAdapter(void)
+{
+    int hr = S_OK;
+    
+    HRG(mCU.Init());
+
+    hr = mCU.GetNumOfAdapters();
+end:
+    return hr;
+}
+
 HRESULT
-WWWave1DGpu::Init(const int dataCount, float deltaT, float sc, float c0, float *loss, float *roh, float *cr)
+WWWave1DGpu::GetAdapterDesc(int idx, wchar_t *desc, int descBytes)
+{
+    return mCU.GetAdapterDesc(idx, desc, descBytes);
+}
+HRESULT
+WWWave1DGpu::GetAdapterVideoMemoryBytes(int idx, int64_t *videoMemoryBytes)
+{
+    return mCU.GetAdapterVideoMemoryBytes(idx, videoMemoryBytes);
+}
+
+HRESULT
+WWWave1DGpu::ChooseAdapter(int idx)
+{
+    return mCU.ChooseAdapter(idx);
+}
+
+
+HRESULT
+WWWave1DGpu::Setup(const int dataCount, float deltaT, float sc, float c0, float *loss, float *roh, float *cr)
 {
     HRESULT hr = S_OK;
 
@@ -84,8 +114,6 @@ WWWave1DGpu::Init(const int dataCount, float deltaT, float sc, float c0, float *
 
     mV = new float[mDataCount];
     mP = new float[mDataCount];
-
-    mCU.Init();
 
     // HLSL ComputeShaderをコンパイル。
     const D3D_SHADER_MACRO defines[] = {

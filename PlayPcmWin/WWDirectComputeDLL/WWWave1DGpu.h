@@ -33,7 +33,12 @@ public:
     WWWave1DGpu(void);
     ~WWWave1DGpu(void);
 
-    HRESULT Init(const int dataCount, float deltaT, float sc, float c0, float *loss, float *roh, float *cr);
+    int EnumAdapter(void);
+    HRESULT GetAdapterDesc(int idx, wchar_t *desc, int descBytes);
+    HRESULT GetAdapterVideoMemoryBytes(int idx, int64_t *videoMemoryBytes);
+    HRESULT ChooseAdapter(int idx);
+
+    HRESULT Setup(const int dataCount, float deltaT, float sc, float c0, float *loss, float *roh, float *cr);
 
     HRESULT Run(int cRepeat, int stimNum, WWWave1DStim stim[],
             float *v, float *p);

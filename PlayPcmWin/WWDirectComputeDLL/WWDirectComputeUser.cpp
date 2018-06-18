@@ -7,6 +7,60 @@
 #include <assert.h>
 #include <d3dx11.h>
 #include <algorithm>
+#include <DXGI.h>
+
+#if 0
+static HRESULT
+CreateDeviceInternal(
+        IDXGIAdapter* pAdapter,
+        D3D_DRIVER_TYPE DriverType,
+        HMODULE Software,
+        UINT32 Flags,
+        CONST D3D_FEATURE_LEVEL* pFeatureLevels,
+        UINT FeatureLevels,
+        UINT32 SDKVersion,
+        ID3D11Device** ppDevice,
+        D3D_FEATURE_LEVEL* pFeatureLevel,
+        ID3D11DeviceContext** ppImmediateContext )
+{
+    HRESULT hr;
+
+    *ppDevice           = nullptr;
+    *ppImmediateContext = nullptr;
+
+    HRG(D3D11CreateDevice(
+        pAdapter, DriverType, Software, Flags, pFeatureLevels,
+        FeatureLevels,
+        SDKVersion, ppDevice, pFeatureLevel, ppImmediateContext));
+
+    assert(*ppDevice);
+    assert(*ppImmediateContext);
+
+    // A hardware accelerated device has been created, so check for Compute Shader support.
+    // If we have a device >= D3D_FEATURE_LEVEL_11_0 created,
+    // full CS5.0 support is guaranteed, no need for further checks.
+
+#if 0
+    // Double-precision support is an optional feature of CS 5.0.
+    D3D11_FEATURE_DATA_DOUBLES hwopts;
+    (*ppDevice)->CheckFeatureSupport( D3D11_FEATURE_DOUBLES, &hwopts, sizeof(hwopts) );
+    if ( !hwopts.DoublePrecisionFloatShaderOps ) {
+        static bool bMessageAlreadyShown = false;
+        if ( !bMessageAlreadyShown ) {
+            MessageBox(0,
+                L"Error: This GPU does not have ComputeShader5.0 double-precision capability.",
+                L"Error", MB_ICONEXCLAMATION);
+            bMessageAlreadyShown = true;
+        }
+        hr = E_FAIL;
+        goto end;
+    }
+#endif
+
+end:
+    return hr;
+}
+#endif
 
 WWDirectComputeUser::WWDirectComputeUser(void)
 {
@@ -27,8 +81,105 @@ WWDirectComputeUser::Init(void)
 {
     HRESULT hr = S_OK;
 
-    HRG(CreateComputeDevice());
+    HRG(EnumAdapters());
+end:
+    return hr;
+}
 
+HRESULT
+WWDirectComputeUser::EnumAdapters(void)
+{
+    HRESULT hr = S_OK;
+    UINT i = 0;
+    IDXGIAdapter * pAdapter;
+    IDXGIFactory1* pFactory = nullptr;
+
+    HRG(CreateDXGIFactory1(__uuidof(IDXGIFactory1) ,(void**)&pFactory));
+
+    while (pFactory->EnumAdapters(i, &pAdapter) != DXGI_ERROR_NOT_FOUND) {
+        WWDirectComputeAdapter a;
+        a.adapter = pAdapter;
+        pAdapter->GetDesc(&a.desc);
+        m_vAdapters.push_back(a);
+
+        printf("    Adapter %d, %S, video memory = %d MB\n", i, a.desc.Description, a.desc.DedicatedVideoMemory/1024/1024);
+
+        ++i;
+    }
+
+end:
+    SAFE_RELEASE(pFactory);
+    SAFE_RELEASE(m_pContext);
+    SAFE_RELEASE(m_pDevice);
+    return hr;
+}
+
+int
+WWDirectComputeUser::GetNumOfAdapters(void)
+{
+    return (int)m_vAdapters.size();
+}
+
+HRESULT
+WWDirectComputeUser::GetAdapterDesc(int idx, wchar_t *desc, int descBytes)
+{
+    memset(desc, 0, descBytes);
+    if (idx < 0 || m_vAdapters.size() <= idx) {
+        return E_FAIL;
+    }
+
+    wcsncpy_s(desc, descBytes/2-1, m_vAdapters[idx].desc.Description, descBytes/2-1);
+    return S_OK;
+}
+
+HRESULT
+WWDirectComputeUser::GetAdapterVideoMemoryBytes(int idx, int64_t *videoMemoryBytes)
+{
+    if (idx < 0 || m_vAdapters.size() <= idx) {
+        return E_FAIL;
+    }
+    *videoMemoryBytes = m_vAdapters[idx].desc.DedicatedVideoMemory;
+    return S_OK;
+}
+
+
+HRESULT
+WWDirectComputeUser::ChooseAdapter(int idx)
+{
+    if (idx < 0 || m_vAdapters.size() <= idx) {
+        printf("%s:%d E: idx is out of range\n", __FILE__, __LINE__);
+        return E_FAIL;
+    }
+
+    IDXGIAdapter* pAdapter = m_vAdapters[idx].adapter;
+
+    HRESULT hr = S_OK;
+
+    assert(nullptr == m_pDevice);
+    assert(nullptr == m_pContext);
+    
+    UINT uCreationFlags = D3D11_CREATE_DEVICE_SINGLETHREADED;
+//#if defined(DEBUG) || defined(_DEBUG)
+//    uCreationFlags |= D3D11_CREATE_DEVICE_DEBUG;
+//#endif
+
+    D3D_FEATURE_LEVEL flOut;
+    static const D3D_FEATURE_LEVEL flvl[] = { D3D_FEATURE_LEVEL_11_0 };
+    
+
+    HRG(D3D11CreateDevice(
+        pAdapter,
+        D3D_DRIVER_TYPE_UNKNOWN, // Should be UNKNOWN when pAdapter != nullptr !!!
+        nullptr,                     // Do not use external software rasterizer module
+        uCreationFlags,              // Device creation flags
+        flvl,
+        sizeof flvl / sizeof flvl[0],
+        D3D11_SDK_VERSION,           // SDK version
+        &m_pDevice,                  // Device out
+        &flOut,                      // Actual feature level created
+        &m_pContext));
+
+    assert(flOut == D3D_FEATURE_LEVEL_11_0);
 end:
     return hr;
 }
@@ -39,6 +190,11 @@ WWDirectComputeUser::Term(void)
     SafeRelease( &m_pConstBuffer );
     SafeRelease( &m_pContext );
     SafeRelease( &m_pDevice );
+
+    for (auto ite=m_vAdapters.begin(); ite != m_vAdapters.end(); ++ite) {
+        SAFE_RELEASE(ite->adapter);
+    }
+    m_vAdapters.clear();
 
     for (auto ite=m_rwGpuBufInfo.begin(); ite != m_rwGpuBufInfo.end(); ++ite) {
         SAFE_RELEASE(ite->second.pUav);
@@ -59,148 +215,9 @@ WWDirectComputeUser::Term(void)
     m_computeShaderList.clear();
 }
 
-static HRESULT
-CreateDeviceInternal(
-        IDXGIAdapter* pAdapter,
-        D3D_DRIVER_TYPE DriverType,
-        HMODULE Software,
-        UINT32 Flags,
-        CONST D3D_FEATURE_LEVEL* pFeatureLevels,
-        UINT FeatureLevels,
-        UINT32 SDKVersion,
-        ID3D11Device** ppDevice,
-        D3D_FEATURE_LEVEL* pFeatureLevel,
-        ID3D11DeviceContext** ppImmediateContext )
-{
-    HRESULT hr;
-
-    *ppDevice           = nullptr;
-    *ppImmediateContext = nullptr;
-
-    // 複数回デバイスを作成した場合にD3D11がありませんというエラーを１回だけ出すようにするフラグ。
-    static bool bMessageAlreadyShown = false;
-
-    HMODULE hModD3D11 = LoadLibrary( L"d3d11.dll" );
-    if ( hModD3D11 == nullptr ) {
-        // D3D11がない。
-
-        if ( !bMessageAlreadyShown ) {
-            OSVERSIONINFOEX osv;
-            memset( &osv, 0, sizeof(osv) );
-            osv.dwOSVersionInfoSize = sizeof(osv);
-            GetVersionEx( (LPOSVERSIONINFO)&osv );
-
-            if ( ( osv.dwMajorVersion > 6 )
-                || ( osv.dwMajorVersion == 6 && osv.dwMinorVersion >= 1 ) 
-                || ( osv.dwMajorVersion == 6 && osv.dwMinorVersion == 0 && osv.dwBuildNumber > 6002 ) ) {
-                MessageBox(0,
-                    L"Error: Direct3D 11 component is not found.",
-                    L"Error",
-                    MB_ICONEXCLAMATION );
-                // This should not happen, but is here for completeness as the system could be
-                // corrupted or some future OS version could pull D3D11.DLL for some reason
-            } else if ( osv.dwMajorVersion == 6 && osv.dwMinorVersion == 0 && osv.dwBuildNumber == 6002 ) {
-                MessageBox(0,
-                    L"Error: Direct3D 11 component is not found. While"
-                    L"Direct3D 11 component is available.\n"
-                    L"Please refer Microsoft KB #971644.\n"
-                    L" http://support.microsoft.com/default.aspx/kb/971644/",
-                    L"Error", MB_ICONEXCLAMATION );
-            } else if ( osv.dwMajorVersion == 6 && osv.dwMinorVersion == 0 ) {
-                MessageBox(0,
-                    L"Error: Direct3D 11 component is not found."
-                    L"Please apply the latest service pack.\n"
-                    L"For more info, please refer Microsoft KB #935791.\n"
-                    L" http://support.microsoft.com/default.aspx/kb/935791",
-                    L"Error", MB_ICONEXCLAMATION );
-            } else {
-                MessageBox(0,
-                    L"Error: Direct3D 11 component for this version of Windows is not available!",
-                    L"Error", MB_ICONEXCLAMATION);
-            }
-
-            bMessageAlreadyShown = true;
-        }
-
-        hr = E_FAIL;
-        goto end;
-    }
-
-    // D3D11デバイスが存在する場合。
-
-    typedef HRESULT (WINAPI * LPD3D11CREATEDEVICE)(
-        IDXGIAdapter*, D3D_DRIVER_TYPE, HMODULE, UINT32,
-        CONST D3D_FEATURE_LEVEL*, UINT, UINT32, ID3D11Device**,
-        D3D_FEATURE_LEVEL*, ID3D11DeviceContext** );
-
-    LPD3D11CREATEDEVICE pDynamicD3D11CreateDevice =
-        (LPD3D11CREATEDEVICE)GetProcAddress( hModD3D11, "D3D11CreateDevice" );
-
-    HRG(pDynamicD3D11CreateDevice(
-        pAdapter, DriverType, Software, Flags, pFeatureLevels,
-		FeatureLevels,
-        SDKVersion, ppDevice, pFeatureLevel, ppImmediateContext));
-
-    assert(*ppDevice);
-    assert(*ppImmediateContext);
-
-    // A hardware accelerated device has been created, so check for Compute Shader support.
-    // If we have a device >= D3D_FEATURE_LEVEL_11_0 created,
-    // full CS5.0 support is guaranteed, no need for further checks.
-
-    // Double-precision support is an optional feature of CS 5.0.
-    D3D11_FEATURE_DATA_DOUBLES hwopts;
-    (*ppDevice)->CheckFeatureSupport( D3D11_FEATURE_DOUBLES, &hwopts, sizeof(hwopts) );
-    if ( !hwopts.DoublePrecisionFloatShaderOps ) {
-        if ( !bMessageAlreadyShown ) {
-            MessageBox(0,
-                L"Error: This GPU does not have ComputeShader5.0 double-precision capability.",
-                L"Error", MB_ICONEXCLAMATION);
-            bMessageAlreadyShown = true;
-        }
-        hr = E_FAIL;
-        goto end;
-    }
-
-end:
-    return hr;
-}
 
 // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 // Compute Shader Compile
-
-HRESULT
-WWDirectComputeUser::CreateComputeDevice(void)
-{
-    HRESULT hr = S_OK;
-
-    assert(nullptr == m_pDevice);
-    assert(nullptr == m_pContext);
-    
-    UINT uCreationFlags = D3D11_CREATE_DEVICE_SINGLETHREADED;
-//#if defined(DEBUG) || defined(_DEBUG)
-//    uCreationFlags |= D3D11_CREATE_DEVICE_DEBUG;
-//#endif
-
-    D3D_FEATURE_LEVEL flOut;
-    static const D3D_FEATURE_LEVEL flvl[] = { D3D_FEATURE_LEVEL_11_0 };
-    
-    HRG(CreateDeviceInternal(
-        nullptr,                        // Use default graphics card
-        D3D_DRIVER_TYPE_HARDWARE,    // Try to create a hardware accelerated device
-        nullptr,                        // Do not use external software rasterizer module
-        uCreationFlags,              // Device creation flags
-        flvl,
-        sizeof(flvl) / sizeof(D3D_FEATURE_LEVEL),
-        D3D11_SDK_VERSION,           // SDK version
-        &m_pDevice,                  // Device out
-        &flOut,                      // Actual feature level created
-        &m_pContext));
-
-    assert(flOut == D3D_FEATURE_LEVEL_11_0);
-end:
-    return hr;
-}
 
 HRESULT
 WWDirectComputeUser::CreateComputeShader(

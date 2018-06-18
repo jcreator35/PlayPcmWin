@@ -20,7 +20,26 @@ namespace WWDirectComputeCS {
     public class WWWave1DGpu {
         [DllImport("WWDirectComputeDLL.dll")]
         private extern static int
-        WWDCWave1D_Init(int dataCount, float deltaT, float sc, float c0, float [] loss, float [] roh, float [] cr);
+        WWDCWave1D_EnumAdapter();
+
+        [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet=CharSet.Unicode)]
+        internal struct AdapterDesc {
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+            public String name;
+            public long videoMemoryBytes;
+        };
+
+        [DllImport("WWDirectComputeDLL.dll")]
+        private extern static int
+        WWDCWave1D_GetAdapterDesc(int idx, out AdapterDesc desc);
+        
+        [DllImport("WWDirectComputeDLL.dll")]
+        private extern static int
+        WWDCWave1D_ChooseAdapter(int idx);
+
+        [DllImport("WWDirectComputeDLL.dll")]
+        private extern static int
+        WWDCWave1D_Setup(int dataCount, float deltaT, float sc, float c0, float [] loss, float [] roh, float [] cr);
 
         [DllImport("WWDirectComputeDLL.dll")]
         private extern static int
@@ -39,8 +58,30 @@ namespace WWDirectComputeCS {
 
         public bool Available { get; set; }
 
-        public int Init(int dataCount, float deltaT, float sc, float c0, float[] loss, float[] roh, float[] cr) {
-            int hr = WWDCWave1D_Init(dataCount, deltaT, sc, c0, loss, roh, cr);
+        public int EnumAdapter() {
+            return WWDCWave1D_EnumAdapter();
+        }
+
+        public int GetAdapterDesc(int idx, out string desc, out long videoMemoryBytes) {
+            desc = "Unknown Adapter";
+            videoMemoryBytes = 0;
+            AdapterDesc ad;
+            int hr = WWDCWave1D_GetAdapterDesc(idx, out ad);
+            if (hr < 0) {
+                return hr;
+            }
+
+            desc = ad.name;
+            videoMemoryBytes = ad.videoMemoryBytes;
+            return 0;
+        }
+
+        public int ChooseAdapter(int idx) {
+            return WWDCWave1D_ChooseAdapter(idx);
+        }
+
+        public int Setup(int dataCount, float deltaT, float sc, float c0, float[] loss, float[] roh, float[] cr) {
+            int hr = WWDCWave1D_Setup(dataCount, deltaT, sc, c0, loss, roh, cr);
 
             Available = 0 <= hr;
             return hr;

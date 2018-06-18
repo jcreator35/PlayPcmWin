@@ -6,6 +6,8 @@
 #include "WWUtil.h"
 #include <assert.h>
 
+// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
 static WWUpsampleGpu g_upsampleGpu;
 
 /// @result HRESULT
@@ -87,9 +89,34 @@ static WWWave1DGpu gWave1D;
 
 extern "C" __declspec(dllexport)
 int __stdcall
-WWDCWave1D_Init(int dataCount, float deltaT, float sc, float c0, float *loss, float *roh, float *cr)
+WWDCWave1D_EnumAdapter(void)
 {
-    return gWave1D.Init(dataCount, deltaT, sc, c0, loss, roh, cr);
+    return gWave1D.EnumAdapter();
+}
+
+extern "C" __declspec(dllexport)
+int __stdcall
+WWDCWave1D_GetAdapterDesc(int idx, WWDirectComputeAdapterDesc *desc)
+{
+    int hr =  gWave1D.GetAdapterDesc(idx, desc->name, sizeof desc->name);
+    if (hr < 0) {
+        return hr;
+    }
+    return gWave1D.GetAdapterVideoMemoryBytes(idx, &desc->videoMemoryBytes);
+}
+
+extern "C" __declspec(dllexport)
+int __stdcall
+WWDCWave1D_ChooseAdapter(int idx)
+{
+    return gWave1D.ChooseAdapter(idx);
+}
+
+extern "C" __declspec(dllexport)
+int __stdcall
+WWDCWave1D_Setup(int dataCount, float deltaT, float sc, float c0, float *loss, float *roh, float *cr)
+{
+    return gWave1D.Setup(dataCount, deltaT, sc, c0, loss, roh, cr);
 }
 
 extern "C" __declspec(dllexport)
