@@ -79,6 +79,8 @@
                         <RowDefinition Height="1*" />
                     </Grid.RowDefinitions>
                     <Label Content="Magnitude: 0" HorizontalAlignment="Left" Margin="6,0,0,0" Name="labelMagnitude" VerticalAlignment="Center" />
+                    <Label Grid.Row="1" Content="Peak Magnitude: 0" HorizontalAlignment="Left" Margin="6,0,0,0" Name="labelPeakMagnitude" VerticalAlignment="Center" />
+                    <Button Content="_Reset" Grid.Row="1" HorizontalAlignment="Left" Margin="171,0,0,0" Name="buttonResetPeakMagnitude" VerticalAlignment="Center" Width="75" Click="buttonResetPeakMagnitude_Click" />
                 </Grid>
             </GroupBox>
         </StackPanel>

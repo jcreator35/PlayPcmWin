@@ -62,33 +62,16 @@ namespace WWWaveSimulatorCS {
             mCS = new WWWave1DGpu();
 
             do {
-                hr = mCS.EnumAdapter();
-                if (hr <= 0) {
-                    break;
-                }
-
-                var cw = new ChooseGPUWindow();
-                for (int i = 0; i < hr; ++i) {
-                    string desc;
-                    long videoMemoryBytes;
-                    mCS.GetAdapterDesc(i, out desc, out videoMemoryBytes);
-                    string s = string.Format("{0}, dedicated video memory={1}MB",
-                        desc, videoMemoryBytes / 1024 / 1024);
-
-                    cw.Add(s);
-                }
-                cw.ShowDialog();
-
-                hr = mCS.ChooseAdapter(cw.SelectedAdapterIdx);
+                hr = mCS.Init();
                 if (hr < 0) {
-                    break;
+                    return;
                 }
 
                 hr = mCS.Setup(gridW, mΔt, mSc, mC0, mLoss, mRoh, mCr);
             } while (false);
 
             if (hr < 0) {
-                Console.WriteLine("E: WWWave1DGpu::Init() failed {0:X8}", hr);
+                Console.WriteLine("E: WaveSim1D DirectCompute failed {0:X8}", hr);
             }
         }
 

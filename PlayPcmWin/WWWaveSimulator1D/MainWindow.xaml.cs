@@ -1,20 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using WWWaveSimulatorCS;
-using System.ComponentModel;
-using System.Threading;
 using System.Windows.Threading;
+using WWWaveSimulatorCS;
 
 namespace WWWaveSimulator1D {
     /// <summary>
@@ -48,7 +37,7 @@ namespace WWWaveSimulator1D {
         private void Window_Loaded(object sender, RoutedEventArgs e) {
             mInitialized = true;
 
-            UpdateSimulator();
+            CreateSimulator();
 
             mDT = new System.Windows.Threading.DispatcherTimer();
             mDT.Tick += new EventHandler(dispatcherTimer_Tick);
@@ -62,7 +51,7 @@ namespace WWWaveSimulator1D {
             textBoxFreq.IsEnabled = false;
         }
 
-        private void UpdateSimulator() {
+        private void CreateSimulator() {
             if (!float.TryParse(textBoxSoundSpeed.Text, out mC0)) {
                 MessageBox.Show("E: parse Sound Speed failed");
                 return;
@@ -79,6 +68,10 @@ namespace WWWaveSimulator1D {
             textBlockHalf.Text = string.Format("{0}", mΔx * 512);
             textBlockFull.Text = string.Format("{0}", mΔx * 1024);
 
+            if (null != mDT) {
+                mDT.Stop();
+            }
+
             lock (mLock) {
                 if (mSim != null) {
                     mSim.Term();
@@ -87,14 +80,20 @@ namespace WWWaveSimulator1D {
 
                 mSim = new WaveSim1D(mW, mC0, mΔt, mΔx);
             }
+
+            if (null != mDT) {
+                mDT.Start();
+            }
         }
 
         private void dispatcherTimer_Tick(object sender, EventArgs e) {
             lock (mLock) {
-                int nStimuli = mSim.Update(mTimeStep);
-                //Console.Write("{0} ", nStimuli);
+                if (mDT.IsEnabled) {
+                    int nStimuli = mSim.Update(mTimeStep);
+                    //Console.Write("{0} ", nStimuli);
 
-                UpdateUI();
+                    UpdateUI();
+                }
             }
 
             // Forcing the CommandManager to raise the RequerySuggested event
@@ -120,6 +119,12 @@ namespace WWWaveSimulator1D {
 
             labelSec.Content = string.Format("{0:F4}", mSim.ElapsedTime());
             labelMagnitude.Content = string.Format("Magnitude: {0:F4}", mSim.Magnitude());
+
+            // update Peak Magnitude
+            if (mPeakMagnitude < mSim.Magnitude()) {
+                mPeakMagnitude = mSim.Magnitude();
+            }
+            labelPeakMagnitude.Content = string.Format("PeakMagnitude: {0:F4}", mPeakMagnitude);
         }
 
         private void canvasP_MouseUp(object sender, MouseButtonEventArgs e) {
@@ -153,7 +158,7 @@ namespace WWWaveSimulator1D {
                 return;
             }
 
-            UpdateSimulator();
+            CreateSimulator();
         }
 
         private void sliderFreq_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) {
@@ -210,6 +215,12 @@ namespace WWWaveSimulator1D {
 
             mTimeStep = (int)Math.Pow(2.0, e.NewValue);
             labelTimeStepNumber.Content = string.Format("{0}", mTimeStep);
+        }
+
+        static float mPeakMagnitude = 0.0f;
+
+        private void buttonResetPeakMagnitude_Click(object sender, RoutedEventArgs e) {
+            mPeakMagnitude = 0.0f;
         }
     
     }

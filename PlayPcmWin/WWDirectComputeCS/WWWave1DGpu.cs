@@ -58,11 +58,49 @@ namespace WWDirectComputeCS {
 
         public bool Available { get; set; }
 
-        public int EnumAdapter() {
+        static int sAdapterIdx = -1;
+
+        public int Init() {
+            int hr = 0;
+
+            do {
+                hr = EnumAdapter();
+                if (hr <= 0) {
+                    break;
+                }
+
+                if (sAdapterIdx < 0) {
+                    var cw = new ChooseGPUWindow();
+                    for (int i = 0; i < hr; ++i) {
+                        string desc;
+                        long videoMemoryBytes;
+                        GetAdapterDesc(i, out desc, out videoMemoryBytes);
+                        string s = string.Format("{0}, dedicated video memory={1}MB",
+                            desc, videoMemoryBytes / 1024 / 1024);
+
+                        cw.Add(s);
+                    }
+                    cw.ShowDialog();
+                    sAdapterIdx = cw.SelectedAdapterIdx;
+                }
+
+                hr = ChooseAdapter(sAdapterIdx);
+                if (hr < 0) {
+                    break;
+                }
+            } while (false);
+
+            if (hr < 0) {
+                Console.WriteLine("E: WWWave1DGpu::Init() failed {0:X8}", hr);
+            }
+            return hr;
+        }
+
+        private int EnumAdapter() {
             return WWDCWave1D_EnumAdapter();
         }
 
-        public int GetAdapterDesc(int idx, out string desc, out long videoMemoryBytes) {
+        private int GetAdapterDesc(int idx, out string desc, out long videoMemoryBytes) {
             desc = "Unknown Adapter";
             videoMemoryBytes = 0;
             AdapterDesc ad;
@@ -76,7 +114,7 @@ namespace WWDirectComputeCS {
             return 0;
         }
 
-        public int ChooseAdapter(int idx) {
+        private int ChooseAdapter(int idx) {
             return WWDCWave1D_ChooseAdapter(idx);
         }
 

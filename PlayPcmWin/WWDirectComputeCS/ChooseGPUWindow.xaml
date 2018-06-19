@@ -1,0 +1,15 @@
+﻿<Window x:Class="WWDirectComputeCS.ChooseGPUWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="ChooseGpuWindow" Height="246" Width="358" Loaded="Window_Loaded">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="32" />
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="32" />
+        </Grid.RowDefinitions>
+        <ListBox Name="listBoxAdapters" SelectionChanged="listBoxAdapters_SelectionChanged" Grid.Row="1" />
+        <Button Content="_Select Adapter" Grid.Row="2" Name="button1" VerticalAlignment="Center" Margin="80,0,80,0" Click="button1_Click" />
+        <Label Content="Please choose GPU for computation:" HorizontalAlignment="Left" VerticalAlignment="Center" />
+    </Grid>
+</Window>
