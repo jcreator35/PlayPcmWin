@@ -21,6 +21,14 @@ enum WWWave1DSRVenum {
     WWWave1DSRV_NUM
 };
 
+enum WWWave1DUAVenum {
+    WWWave1DUAV_V0,
+    WWWave1DUAV_P0,
+    WWWave1DUAV_V1,
+    WWWave1DUAV_P1,
+    WWWave1DUAV_NUM,
+};
+
 enum WWWave1DCSenum {
     WWWave1DCS_UpdateStim,
     WWWave1DCS_UpdateV,
@@ -53,9 +61,10 @@ public:
 private:
     WWDirectComputeUser mCU;
     ID3D11ComputeShader *mpCS[WWWave1DCS_NUM];
-    ID3D11ShaderResourceView *mpSRVs[WWWave1DSRV_NUM];
+    ID3D11ShaderResourceView  *mpSRVs[WWWave1DSRV_NUM];
+    ID3D11UnorderedAccessView *mpUAVs[WWWave1DUAV_NUM];
     int    mDataCount;
     float *mV;
     float *mP;
-
+    int64_t mTickTotal;
 };
