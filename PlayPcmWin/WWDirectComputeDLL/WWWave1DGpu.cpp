@@ -110,8 +110,15 @@ WWWave1DGpu::Setup(const int dataCount, float deltaT, float sc, float c0, float 
     char deltaTStr[16];
     sprintf_s(deltaTStr, "%f", deltaT);
 
+    assert(nullptr == mV);
+    assert(nullptr == mP);
+
     mV = new float[mDataCount];
     mP = new float[mDataCount];
+
+    // This is surely necessary!
+    memset(mV,0,dataBytes);
+    memset(mP,0,dataBytes);
 
     // HLSL ComputeShaderをコンパイル。
     const D3D_SHADER_MACRO defines[] = {
