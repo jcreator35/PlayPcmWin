@@ -45,7 +45,7 @@ namespace WWWaveSimulator1D {
             mDT.Start();
 
             buttonRewind.IsEnabled = true;
-            buttonFastForward.IsEnabled = true;
+            buttonPause.IsEnabled = true;
 
             labelFreq.IsEnabled = false;
             textBoxFreq.IsEnabled = false;
@@ -148,9 +148,6 @@ namespace WWWaveSimulator1D {
             mSim.AddStimulus(t, (float)(p.X), freq, magnitude);
         }
 
-        private void buttonRewind_Click(object sender, RoutedEventArgs e) {
-            mSim.Reset();
-        }
 
 
         private void buttonUpdateSimulator_Click(object sender, RoutedEventArgs e) {
@@ -164,18 +161,6 @@ namespace WWWaveSimulator1D {
         private void sliderFreq_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) {
             if (!mInitialized) {
                 return;
-            }
-        }
-
-        private void buttonFastForward_Click(object sender, RoutedEventArgs e) {
-            lock (mLock) {
-                mSim.Update(mTimeStep*10);
-            }
-        }
-
-        private void buttonFastForward10_Click(object sender, RoutedEventArgs e) {
-            lock (mLock) {
-                mSim.Update(mTimeStep*100);
             }
         }
 
@@ -222,6 +207,28 @@ namespace WWWaveSimulator1D {
         private void buttonResetPeakMagnitude_Click(object sender, RoutedEventArgs e) {
             mPeakMagnitude = 0.0f;
         }
-    
+
+        private void buttonPause_Click(object sender, RoutedEventArgs e) {
+            if (mDT.IsEnabled) {
+                mDT.Stop();
+            } else {
+                mDT.Start();
+            }
+        }
+
+        private void buttonRewind_Click(object sender, RoutedEventArgs e) {
+            mSim.Reset();
+            if (!mDT.IsEnabled) {
+                mDT.Start();
+            }
+        }
+
+        private void buttonFastForward10_Click(object sender, RoutedEventArgs e) {
+            lock (mLock) {
+                mSim.Update(mTimeStep * 100);
+            }
+        }
+
+
     }
 }
