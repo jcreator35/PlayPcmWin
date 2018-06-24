@@ -76,14 +76,10 @@ WWDirectComputeUser::~WWDirectComputeUser(void)
     assert(nullptr == m_pConstBuffer);
 }
 
-HRESULT
+void
 WWDirectComputeUser::Init(void)
 {
-    HRESULT hr = S_OK;
-
-    HRG(EnumAdapters());
-end:
-    return hr;
+    m_vAdapters.clear();
 }
 
 HRESULT
@@ -91,12 +87,16 @@ WWDirectComputeUser::EnumAdapters(void)
 {
     HRESULT hr = S_OK;
     UINT i = 0;
-    IDXGIAdapter * pAdapter;
+    IDXGIAdapter * pAdapter = nullptr;
     IDXGIFactory1* pFactory = nullptr;
+
+    m_vAdapters.clear();
 
     HRG(CreateDXGIFactory1(__uuidof(IDXGIFactory1) ,(void**)&pFactory));
 
     while (pFactory->EnumAdapters(i, &pAdapter) != DXGI_ERROR_NOT_FOUND) {
+        assert(pAdapter);
+
         WWDirectComputeAdapter a;
         a.adapter = pAdapter;
         pAdapter->GetDesc(&a.desc);
@@ -104,6 +104,7 @@ WWDirectComputeUser::EnumAdapters(void)
 
         printf("    Adapter %d, %S, video memory = %d MB\n", i, a.desc.Description, a.desc.DedicatedVideoMemory/1024/1024);
 
+        pAdapter = nullptr;
         ++i;
     }
 

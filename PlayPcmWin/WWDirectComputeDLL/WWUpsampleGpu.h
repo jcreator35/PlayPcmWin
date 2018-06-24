@@ -6,7 +6,23 @@
 
 class WWUpsampleGpu {
 public:
+    /* 使い方。
+    Init()
+    GetCU().EnumAdapter()
+    GetCU().GetAdapterDesc()
+    GetCU().GetAdapterVideoMemoryBytes()
+    GetCU().ChooseAdaper()
+    Setup()
+    Dispatch(), GetResultFromGpuMemory()
+    Dispatch(), GetResultFromGpuMemory()
+    ...
+    Unsetup()
+    Term()
+    */
     void Init(void);
+
+    WWDirectComputeUser &GetCU(void) { return mCU; }
+
     void Term(void);
 
     HRESULT Setup(
@@ -72,7 +88,7 @@ private:
     int m_sampleRateTo;
     int m_sampleTotalTo;
 
-    WWDirectComputeUser *m_pDCU;
+    WWDirectComputeUser mCU;
     ID3D11ComputeShader *m_pCS;
 
     ID3D11ShaderResourceView*   m_pBuf0Srv;

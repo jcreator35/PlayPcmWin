@@ -20,22 +20,14 @@ WWWave1DGpu::~WWWave1DGpu(void)
 }
 
 void
+WWWave1DGpu::Init(void)
+{
+}
+
+void
 WWWave1DGpu::Term(void)
 {
     mCU.Term();
-
-    // mCU.TermがReleaseするので、ここでReleaseする必要は無い。
-    for (int i=0; i<WWWave1DCS_NUM;++i) {
-        mpCS[i] = nullptr;
-    }
-    for (int i=0; i<WWWave1DSRV_NUM; ++i) {
-        mpSRVs[i] = nullptr;
-    }
-    for (int i=0; i<WWWave1DUAV_NUM; ++i) {
-        mpUAVs[i] = nullptr;
-    }
-    SAFE_DELETE(mP);
-    SAFE_DELETE(mV);
 }
 
 #define STIM_COUNT (4)
@@ -55,36 +47,6 @@ struct ShaderConstants {
 
     WWWave1DStim stim[STIM_COUNT];
 };
-
-int
-WWWave1DGpu::EnumAdapter(void)
-{
-    int hr = S_OK;
-    
-    HRG(mCU.Init());
-
-    hr = mCU.GetNumOfAdapters();
-end:
-    return hr;
-}
-
-HRESULT
-WWWave1DGpu::GetAdapterDesc(int idx, wchar_t *desc, int descBytes)
-{
-    return mCU.GetAdapterDesc(idx, desc, descBytes);
-}
-HRESULT
-WWWave1DGpu::GetAdapterVideoMemoryBytes(int idx, int64_t *videoMemoryBytes)
-{
-    return mCU.GetAdapterVideoMemoryBytes(idx, videoMemoryBytes);
-}
-
-HRESULT
-WWWave1DGpu::ChooseAdapter(int idx)
-{
-    return mCU.ChooseAdapter(idx);
-}
-
 
 HRESULT
 WWWave1DGpu::Setup(const int dataCount, float deltaT, float sc, float c0, float *loss, float *roh, float *cr)
@@ -179,6 +141,25 @@ WWWave1DGpu::Setup(const int dataCount, float deltaT, float sc, float c0, float 
 
 end:
     return hr;
+}
+
+void
+WWWave1DGpu::Unsetup(void)
+{
+    for (int i=WWWave1DUAV_NUM-1; 0<=i; --i) {
+        mCU.DestroyDataAndUnorderedAccessView(mpUAVs[i]);
+        mpUAVs[i] = nullptr;
+    }
+    for (int i=WWWave1DSRV_NUM-1; 0<=i; --i) {
+        mCU.DestroyDataAndShaderResourceView(mpSRVs[i]);
+        mpSRVs[i] = nullptr;
+    }
+    for (int i=WWWave1DCS_NUM-1; 0<=i; --i) {
+        mCU.DestroyComputeShader(mpCS[i]);
+        mpCS[i] = nullptr;
+    }
+    SAFE_DELETE(mP);
+    SAFE_DELETE(mV);
 }
 
 HRESULT

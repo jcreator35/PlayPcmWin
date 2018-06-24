@@ -24,33 +24,31 @@ void
 WWUpsampleGpu::Init(void)
 {
     int m_convolutionN = 0;
-    float * m_sampleFrom = NULL;
+    float * m_sampleFrom = nullptr;
     int m_sampleTotalFrom = 0;
     int m_sampleRateFrom = 0;
     int m_sampleRateTo = 0;
     int m_sampleTotalTo = 0;
 
-    m_pDCU = NULL;
-    m_pCS  = NULL;
+    m_pCS  = nullptr;
 
-    m_pBuf0Srv = NULL;
-    m_pBuf1Srv = NULL;
-    m_pBuf2Srv = NULL;
-    m_pBuf3Srv = NULL;
-    m_pBufResultUav = NULL;
+    m_pBuf0Srv = nullptr;
+    m_pBuf1Srv = nullptr;
+    m_pBuf2Srv = nullptr;
+    m_pBuf3Srv = nullptr;
+    m_pBufResultUav = nullptr;
 }
 
 void
 WWUpsampleGpu::Term(void)
 {
-    assert(m_pDCU == NULL);
-    assert(m_pCS  == NULL);
+    assert(m_pCS  == nullptr);
 
-    assert(m_pBuf0Srv == NULL);
-    assert(m_pBuf1Srv == NULL);
-    assert(m_pBuf2Srv == NULL);
-    assert(m_pBuf3Srv == NULL);
-    assert(m_pBufResultUav == NULL);
+    assert(m_pBuf0Srv == nullptr);
+    assert(m_pBuf1Srv == nullptr);
+    assert(m_pBuf2Srv == nullptr);
+    assert(m_pBuf3Srv == nullptr);
+    assert(m_pBufResultUav == nullptr);
 }
 
 static void
@@ -102,7 +100,7 @@ WWUpsampleGpu::Setup(
         double *fractionArrayD)
 {
     HRESULT hr = S_OK;
-    float * sinPreComputeArray = NULL;
+    float * sinPreComputeArray = nullptr;
 
     assert(0 < convolutionN);
     assert(sampleFrom);
@@ -170,17 +168,11 @@ WWUpsampleGpu::Setup(
             "SAMPLE_RATE_TO", sampleRateToStr,
             "ITERATE_N", iterateNStr,
             "GROUP_THREAD_COUNT", groupThreadCountStr,
-            NULL, NULL
+            nullptr, nullptr
         };
 
-    m_pDCU = new WWDirectComputeUser();
-    assert(m_pDCU);
-
-    HRG(m_pDCU->Init());
-    HRG(m_pDCU->ChooseAdapter(0));
-
     // HLSL ComputeShaderをコンパイルしてGPUに送る。
-    HRG(m_pDCU->CreateComputeShader(L"SincConvolution2.hlsl", "CSMain", defines, &m_pCS));
+    HRG(mCU.CreateComputeShader(L"SincConvolution2.hlsl", "CSMain", defines, &m_pCS));
     assert(m_pCS);
 
     // 入出力バッファの準備。
@@ -189,9 +181,9 @@ WWUpsampleGpu::Setup(
         {sizeof resamplePosArray[0], sampleTotalTo, resamplePosArray, "ResamplePosBuffer", &m_pBuf1Srv, nullptr},
         {sizeof fractionArrayF[0], sampleTotalTo, fractionArrayF, "FractionBuffer", &m_pBuf2Srv, nullptr},
         {sizeof sinPreComputeArray[0], sampleTotalTo, sinPreComputeArray, "SinPreComputeBuffer", &m_pBuf3Srv, nullptr},
-        {sizeof(float), sampleTotalTo, NULL, "OutputBuffer", nullptr, &m_pBufResultUav},
+        {sizeof(float), sampleTotalTo, nullptr, "OutputBuffer", nullptr, &m_pBufResultUav},
     };
-    HRG(m_pDCU->CreateSeveralStructuredBuffer(sizeof sb/sizeof sb[0], sb));
+    HRG(mCU.CreateSeveralStructuredBuffer(sizeof sb/sizeof sb[0], sb));
 
     assert(m_pBuf0Srv);
     assert(m_pBuf1Srv);
@@ -274,7 +266,7 @@ WWUpsampleGpu::Dispatch(
     shaderParams.c_convOffs = 0;
     shaderParams.c_dispatchCount = m_convolutionN*2/GROUP_THREAD_COUNT;
     shaderParams.c_sampleToStartPos = startPos;
-    HRGR(m_pDCU->Run(m_pCS, sizeof aRViews/sizeof aRViews[0], aRViews, 1,
+    HRGR(mCU.Run(m_pCS, sizeof aRViews/sizeof aRViews[0], aRViews, 1,
         &m_pBufResultUav, &shaderParams, sizeof shaderParams, count, 1, 1));
 #else
     // 遅い
@@ -282,7 +274,7 @@ WWUpsampleGpu::Dispatch(
         shaderParams.c_convOffs = i * GROUP_THREAD_COUNT;
         shaderParams.c_dispatchCount = convolutionN*2/GROUP_THREAD_COUNT;
         shaderParams.c_sampleToStartPos = startPos;
-        HRGR(m_pDCU->Run(m_pCS, sizeof aRViews/sizeof aRViews[0], aRViews,
+        HRGR(mCU.Run(m_pCS, sizeof aRViews/sizeof aRViews[0], aRViews,
             1, &m_pBufResultUav,
             &shaderParams, sizeof shaderParams, count, 1, 1));
     }
@@ -291,7 +283,7 @@ WWUpsampleGpu::Dispatch(
 end:
     if (hr == DXGI_ERROR_DEVICE_REMOVED) {
         dprintf("DXGI_ERROR_DEVICE_REMOVED reason=%08x\n",
-            m_pDCU->GetDevice()->GetDeviceRemovedReason());
+            mCU.GetDevice()->GetDeviceRemovedReason());
     }
 
     return hr;
@@ -304,19 +296,18 @@ WWUpsampleGpu::GetResultFromGpuMemory(
 {
     HRESULT hr = S_OK;
 
-    assert(m_pDCU);
     assert(m_pBufResultUav);
 
     assert(outputTo);
     assert(outputToElemNum <= m_sampleTotalTo);
 
     // 計算結果をCPUメモリーに持ってくる。
-    HRG(m_pDCU->RecvResultToCpuMemory(m_pBufResultUav, outputTo,
+    HRG(mCU.RecvResultToCpuMemory(m_pBufResultUav, outputTo,
         outputToElemNum * sizeof(float)));
 end:
     if (hr == DXGI_ERROR_DEVICE_REMOVED) {
         dprintf("DXGI_ERROR_DEVICE_REMOVED reason=%08x\n",
-            m_pDCU->GetDevice()->GetDeviceRemovedReason());
+            mCU.GetDevice()->GetDeviceRemovedReason());
     }
 
     return hr;
@@ -325,29 +316,25 @@ end:
 void
 WWUpsampleGpu::Unsetup(void)
 {
-    if (m_pDCU) {
-        m_pDCU->DestroyDataAndUnorderedAccessView(m_pBufResultUav);
-        m_pBufResultUav = NULL;
+    mCU.DestroyDataAndUnorderedAccessView(m_pBufResultUav);
+    m_pBufResultUav = nullptr;
 
-        m_pDCU->DestroyDataAndShaderResourceView(m_pBuf3Srv);
-        m_pBuf3Srv = NULL;
+    mCU.DestroyDataAndShaderResourceView(m_pBuf3Srv);
+    m_pBuf3Srv = nullptr;
 
-        m_pDCU->DestroyDataAndShaderResourceView(m_pBuf2Srv);
-        m_pBuf2Srv = NULL;
+    mCU.DestroyDataAndShaderResourceView(m_pBuf2Srv);
+    m_pBuf2Srv = nullptr;
 
-        m_pDCU->DestroyDataAndShaderResourceView(m_pBuf1Srv);
-        m_pBuf1Srv = NULL;
+    mCU.DestroyDataAndShaderResourceView(m_pBuf1Srv);
+    m_pBuf1Srv = nullptr;
 
-        m_pDCU->DestroyDataAndShaderResourceView(m_pBuf0Srv);
-        m_pBuf0Srv = NULL;
+    mCU.DestroyDataAndShaderResourceView(m_pBuf0Srv);
+    m_pBuf0Srv = nullptr;
 
-        if (m_pCS) {
-            m_pDCU->DestroyComputeShader(m_pCS);
-            m_pCS = NULL;
-        }
-
-        m_pDCU->Term();
+    if (m_pCS) {
+        mCU.DestroyComputeShader(m_pCS);
+        m_pCS = nullptr;
     }
 
-    SAFE_DELETE(m_pDCU);
+    mCU.Term();
 }

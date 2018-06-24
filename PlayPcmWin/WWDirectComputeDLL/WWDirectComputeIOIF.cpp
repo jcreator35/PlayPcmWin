@@ -6,14 +6,80 @@
 #include "WWUtil.h"
 #include <assert.h>
 
-// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+static WWUpsampleGpu gUpsample;
+static WWWave1DGpu   gWave1D;
 
-static WWUpsampleGpu g_upsampleGpu;
+// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// 共通初期化処理。
+
+#define GET_CU(x)               \
+    switch (t) {                \
+    case WWDCT_Upsample:        \
+        x = &gUpsample.GetCU(); \
+        break;                  \
+    case WWDCT_Wave1D:          \
+        x = &gWave1D.GetCU();   \
+        break;                  \
+    default:                    \
+        break;                  \
+    }
+
+extern "C" __declspec(dllexport)
+int __stdcall
+WWDC_EnumAdapter(WWDirectComputeType t)
+{
+    WWDirectComputeUser *pCU = nullptr;
+    GET_CU(pCU);
+    assert(pCU);
+
+    int hr = pCU->EnumAdapters();
+    if (hr < 0) {
+        return hr;
+    }
+
+    return pCU->GetNumOfAdapters();
+}
+
+extern "C" __declspec(dllexport)
+int __stdcall
+WWDC_GetAdapterDesc(WWDirectComputeType t, int idx, WWDirectComputeAdapterDesc *desc)
+{
+    WWDirectComputeUser *pCU = nullptr;
+    GET_CU(pCU);
+    assert(pCU);
+
+    int hr =  pCU->GetAdapterDesc(idx, desc->name, sizeof desc->name);
+    if (hr < 0) {
+        return hr;
+    }
+    return pCU->GetAdapterVideoMemoryBytes(idx, &desc->videoMemoryBytes);
+}
+
+extern "C" __declspec(dllexport)
+int __stdcall
+WWDC_ChooseAdapter(WWDirectComputeType t, int idx)
+{
+    WWDirectComputeUser *pCU = nullptr;
+    GET_CU(pCU);
+    assert(pCU);
+
+    return pCU->ChooseAdapter(idx);
+}
+
+// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// アップサンプル。
+
+extern "C" __declspec(dllexport)
+void __stdcall
+WWDCUpsample_Init(void)
+{
+    gUpsample.Init();
+}
 
 /// @result HRESULT
 extern "C" __declspec(dllexport)
 int __stdcall
-WWDCUpsample_Init(
+WWDCUpsample_Setup(
         int convolutionN,
         float * sampleFrom,
         int sampleTotalFrom,
@@ -21,8 +87,7 @@ WWDCUpsample_Init(
         int sampleRateTo,
         int sampleTotalTo)
 {
-    g_upsampleGpu.Init();
-    return g_upsampleGpu.Setup(
+    return gUpsample.Setup(
         convolutionN, sampleFrom, sampleTotalFrom,
         sampleRateFrom, sampleRateTo, sampleTotalTo);
 }
@@ -30,7 +95,7 @@ WWDCUpsample_Init(
 /// @result HRESULT
 extern "C" __declspec(dllexport)
 int __stdcall
-WWDCUpsample_InitWithResamplePosArray(
+WWDCUpsample_SetupWithResamplePosArray(
         int convolutionN,
         float * sampleFrom,
         int sampleTotalFrom,
@@ -40,8 +105,7 @@ WWDCUpsample_InitWithResamplePosArray(
         int * resamplePosArray,
         double *fractionArray)
 {
-    g_upsampleGpu.Init();
-    return g_upsampleGpu.Setup(
+    return gUpsample.Setup(
         convolutionN, sampleFrom, sampleTotalFrom,
         sampleRateFrom, sampleRateTo, sampleTotalTo,
         resamplePosArray, fractionArray);
@@ -54,7 +118,7 @@ WWDCUpsample_Dispatch(
         int startPos,
         int count)
 {
-    return g_upsampleGpu.Dispatch(startPos, count);
+    return gUpsample.Dispatch(startPos, count);
 }
 
 /// @result HRESULT
@@ -64,7 +128,7 @@ WWDCUpsample_GetResultFromGpuMemory(
         float * outputTo,
         int outputToElemNum)
 {
-    int hr = g_upsampleGpu.GetResultFromGpuMemory(outputTo, outputToElemNum);
+    int hr = gUpsample.GetResultFromGpuMemory(outputTo, outputToElemNum);
     if (hr < 0) {
         return hr;
     }
@@ -79,37 +143,25 @@ extern "C" __declspec(dllexport)
 void __stdcall
 WWDCUpsample_Term(void)
 {
-    g_upsampleGpu.Unsetup();
-    g_upsampleGpu.Term();
+    gUpsample.Unsetup();
+    gUpsample.Term();
 }
 
 // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
-
-static WWWave1DGpu gWave1D;
-
+// Wave1D
 extern "C" __declspec(dllexport)
-int __stdcall
-WWDCWave1D_EnumAdapter(void)
+void __stdcall
+WWDCWave1D_Init(void)
 {
-    return gWave1D.EnumAdapter();
+    gWave1D.Init();
 }
 
 extern "C" __declspec(dllexport)
-int __stdcall
-WWDCWave1D_GetAdapterDesc(int idx, WWDirectComputeAdapterDesc *desc)
+void __stdcall
+WWDCWave1D_Term(void)
 {
-    int hr =  gWave1D.GetAdapterDesc(idx, desc->name, sizeof desc->name);
-    if (hr < 0) {
-        return hr;
-    }
-    return gWave1D.GetAdapterVideoMemoryBytes(idx, &desc->videoMemoryBytes);
-}
-
-extern "C" __declspec(dllexport)
-int __stdcall
-WWDCWave1D_ChooseAdapter(int idx)
-{
-    return gWave1D.ChooseAdapter(idx);
+    gWave1D.Unsetup();
+    gWave1D.Term();
 }
 
 extern "C" __declspec(dllexport)
@@ -117,13 +169,6 @@ int __stdcall
 WWDCWave1D_Setup(int dataCount, float deltaT, float sc, float c0, float *loss, float *roh, float *cr)
 {
     return gWave1D.Setup(dataCount, deltaT, sc, c0, loss, roh, cr);
-}
-
-extern "C" __declspec(dllexport)
-void __stdcall
-WWDCWave1D_Term(void)
-{
-    gWave1D.Term();
 }
 
 extern "C" __declspec(dllexport)

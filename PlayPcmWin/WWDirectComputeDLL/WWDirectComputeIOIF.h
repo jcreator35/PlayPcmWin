@@ -5,12 +5,57 @@
 #include "WWWave1DGpu.h"
 
 // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// 共通デバイス選択処理。
+
+enum WWDirectComputeType {
+    WWDCT_Upsample,
+    WWDCT_Wave1D,
+};
+
+struct WWDirectComputeAdapterDesc {
+    wchar_t name[256];
+    int64_t videoMemoryBytes;
+};
+
+/// アダプターの個数が戻る。
+/// 0の時一つも無い。負の時エラーコード HRESULT。
+extern "C" __declspec(dllexport)
+int __stdcall
+WWDC_EnumAdapter(WWDirectComputeType t);
+
+extern "C" __declspec(dllexport)
+int __stdcall
+WWDC_GetAdapterDesc(WWDirectComputeType t, int idx, WWDirectComputeAdapterDesc *desc);
+
+extern "C" __declspec(dllexport)
+int __stdcall
+WWDC_ChooseAdapter(WWDirectComputeType t, int idx);
+
+// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 // アップサンプル GPU処理
+
+/* 使い方。
+    Init()
+    WWDC_EnumAdapter()
+    WWDC_GetAdapterDesc()
+    WWDC_GetAdapterVideoMemoryBytes()
+    WWDC_ChooseAdaper()
+    Setup() or SetupWithResamplePosArray()
+    Dispatch(), GetResultFromGpuMemory()
+    Dispatch(), GetResultFromGpuMemory()
+    ...
+    Term()
+*/
+
+/// @result HRESULT
+extern "C" __declspec(dllexport)
+void __stdcall
+WWDCUpsample_Init(void);
 
 /// @result HRESULT
 extern "C" __declspec(dllexport)
 int __stdcall
-WWDCUpsample_Init(
+WWDCUpsample_Setup(
         int convolutionN,
         float * sampleFrom,
         int sampleTotalFrom,
@@ -21,7 +66,7 @@ WWDCUpsample_Init(
 /// @result HRESULT
 extern "C" __declspec(dllexport)
 int __stdcall
-WWDCUpsample_InitWithResamplePosArray(
+WWDCUpsample_SetupWithResamplePosArray(
         int convolutionN,
         float * sampleFrom,
         int sampleTotalFrom,
@@ -52,22 +97,23 @@ WWDCUpsample_Term(void);
 // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 // Wave1D GPU
 
-extern "C" __declspec(dllexport)
-int __stdcall
-WWDCWave1D_EnumAdapter(void);
+/*
+    WWWave1DGpu 使い方
+    Init()
+    WWDC_EnumAdapter()
+    WWDC_GetAdapterDesc()
+    WWDC_GetAdapterVideoMemoryBytes()
+    WWDC_ChooseAdaper()
+    Setup()
+    Run(), GetResult()
+    Run(), GetResult()
+    ...
+    Term()
+*/
 
-struct WWDirectComputeAdapterDesc {
-    wchar_t name[256];
-    int64_t videoMemoryBytes;
-};
-
 extern "C" __declspec(dllexport)
-int __stdcall
-WWDCWave1D_GetAdapterDesc(int idx, WWDirectComputeAdapterDesc *desc);
-
-extern "C" __declspec(dllexport)
-int __stdcall
-WWDCWave1D_ChooseAdapter(int idx);
+void __stdcall
+WWDCWave1D_Init(void);
 
 extern "C" __declspec(dllexport)
 int __stdcall

@@ -43,12 +43,27 @@ public:
     WWWave1DGpu(void);
     ~WWWave1DGpu(void);
 
-    int EnumAdapter(void);
-    HRESULT GetAdapterDesc(int idx, wchar_t *desc, int descBytes);
-    HRESULT GetAdapterVideoMemoryBytes(int idx, int64_t *videoMemoryBytes);
-    HRESULT ChooseAdapter(int idx);
+    /*
+    WWWave1DGpu 使い方
+    Init()
+    GetCU().EnumAdapter()
+    GetCU().GetAdapterDesc()
+    GetCU().GetAdapterVideoMemoryBytes()
+    GetCU().ChooseAdaper()
+    Setup()
+    Run(), CopyResultV(), CopyResultP()
+    Run(), CopyResultV(), CopyResultP()
+    ...
+    Term()
+     */
+
+    void Init(void);
+    void Term(void);
+
+    WWDirectComputeUser &GetCU(void) { return mCU; }
 
     HRESULT Setup(const int dataCount, float deltaT, float sc, float c0, float *loss, float *roh, float *cr);
+    void Unsetup(void);
 
     HRESULT Run(int cRepeat, int stimNum, WWWave1DStim stim[],
             float *v, float *p);
@@ -58,7 +73,6 @@ public:
     // @return コピーした要素数。
     int CopyResultP(float *pTo, int count);
 
-    void Term(void);
 
 private:
     WWDirectComputeUser mCU;

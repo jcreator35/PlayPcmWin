@@ -3,8 +3,12 @@
 namespace WWDirectComputeCS {
     public class WWUpsampleGpu {
         [DllImport("WWDirectComputeDLL.dll")]
+        private extern static void
+        WWDCUpsample_Init();
+
+        [DllImport("WWDirectComputeDLL.dll")]
         private extern static int
-        WWDCUpsample_Init(
+        WWDCUpsample_Setup(
             int convolutionN,
             float[] sampleFrom,
             int sampleTotalFrom,
@@ -14,7 +18,7 @@ namespace WWDirectComputeCS {
 
         [DllImport("WWDirectComputeDLL.dll")]
         private extern static int
-        WWDCUpsample_InitWithResamplePosArray(
+        WWDCUpsample_SetupWithResamplePosArray(
             int convolutionN,
             float[] sampleFrom,
             int sampleTotalFrom,
@@ -51,7 +55,14 @@ namespace WWDirectComputeCS {
                 int sampleRateFrom,
                 int sampleRateTo,
                 int sampleTotalTo) {
-            return WWDCUpsample_Init(convolutionN, sampleFrom,
+            WWDCUpsample_Init();
+                
+            int hr = new WWDirectCompute(WWDirectCompute.InstanceTypeEnum.Wave1D).ChooseAdapter();
+            if (hr < 0) {
+                return hr;
+            }
+
+            return WWDCUpsample_Setup(convolutionN, sampleFrom,
                 sampleTotalFrom, sampleRateFrom, sampleRateTo, sampleTotalTo);
         }
 
@@ -65,7 +76,14 @@ namespace WWDirectComputeCS {
                 int sampleTotalTo,
                 int[] resamplePosArray,
                 double[] fractionArray) {
-            return WWDCUpsample_InitWithResamplePosArray(convolutionN, sampleFrom,
+            WWDCUpsample_Init();
+
+            int hr = new WWDirectCompute(WWDirectCompute.InstanceTypeEnum.Wave1D).ChooseAdapter();
+            if (hr < 0) {
+                return hr;
+            }
+
+            return WWDCUpsample_SetupWithResamplePosArray(convolutionN, sampleFrom,
                 sampleTotalFrom, sampleRateFrom, sampleRateTo, sampleTotalTo,
                 resamplePosArray, fractionArray);
         }

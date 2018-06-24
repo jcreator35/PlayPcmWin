@@ -57,9 +57,10 @@ public:
     WWDirectComputeUser(void);
     ~WWDirectComputeUser(void);
 
-    HRESULT Init(void);
-    void    Term(void);
+    void Init(void);
+    void Term(void);
 
+    HRESULT EnumAdapters(void);
     int GetNumOfAdapters(void);
     HRESULT GetAdapterDesc(int idx, wchar_t *desc, int descBytes);
     HRESULT GetAdapterVideoMemoryBytes(int idx, int64_t *videoMemoryBytes);
@@ -114,8 +115,6 @@ private:
     ID3D11DeviceContext*        m_pContext;
     ID3D11Buffer *m_pConstBuffer;
     std::vector <WWDirectComputeAdapter> m_vAdapters;
-
-    HRESULT EnumAdapters(void);
 
     HRESULT CreateComputeDevice(void);
 
