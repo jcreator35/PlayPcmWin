@@ -1,4 +1,4 @@
-// 日本語
+//　日本語
 // 参考：BasicCompute11.cpp
 
 #include "WWDirectComputeUser.h"

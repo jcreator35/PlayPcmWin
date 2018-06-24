@@ -1,4 +1,4 @@
-// 日本語
+//　日本語
 #include "WWWave1DGpu.h"
 #include "WWDirectComputeUser.h"
 #include "WWUtil.h"

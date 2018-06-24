@@ -1,4 +1,4 @@
-// 日本語
+//　日本語
 #include "WWUpsampleGpu.h"
 #include "WWUtil.h"
 #include <assert.h>
