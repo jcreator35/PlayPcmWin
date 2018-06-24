@@ -1,3 +1,5 @@
+// æ—¥æœ¬èª
+
 #pragma once
 
 #include <Windows.h>
@@ -17,7 +19,7 @@
 double
 SincD(double sinx, double x);
 
-// ³í‚àdprintf‚ªo‚éƒo[ƒWƒ‡ƒ“BHRGR‚àQÆB
+// æ­£å¸¸æ™‚ã‚‚dprintfãŒå‡ºã‚‹ãƒãƒ¼ã‚¸ãƒ§ãƒ³ã€‚HRGRã‚‚å‚ç…§ã€‚
 #define HRG(x)                                    \
 {                                                 \
     dprintf("D: %s\n", #x);                       \
@@ -29,7 +31,7 @@ SincD(double sinx, double x);
     }                                             \
 }                                                 \
 
-// ƒGƒ‰[‚Égoto end;‚Å‚Í‚È‚­return hr;‚·‚éHRGB
+// ã‚¨ãƒ©ãƒ¼æ™‚ã«goto end;ã§ã¯ãªãreturn hr;ã™ã‚‹HRGã€‚
 #define HRR(x)                                    \
 {                                                 \
     dprintf("D: %s\n", #x);                       \
@@ -41,7 +43,7 @@ SincD(double sinx, double x);
     }                                             \
 }                                                 \
 
-// ³í‚Ìdprintf‚ğ—}§‚µ‚½HRGB¸”s‚·‚é‚Æresult=false;‚·‚éB
+// æ­£å¸¸æ™‚ã®dprintfã‚’æŠ‘åˆ¶ã—ãŸHRGã€‚å¤±æ•—ã™ã‚‹ã¨result=false;ã™ã‚‹ã€‚
 #define HRGR(x)                                   \
 {                                                 \
     hr = x;                                       \

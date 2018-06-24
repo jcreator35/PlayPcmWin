@@ -1,3 +1,5 @@
+// æ—¥æœ¬èª
+
 #pragma once
 
 #include <Windows.h>
@@ -51,9 +53,9 @@ public:
     HRESULT Run(int cRepeat, int stimNum, WWWave1DStim stim[],
             float *v, float *p);
 
-    // @return ƒRƒs[‚µ‚½—v‘f”B
+    // @return ã‚³ãƒ”ãƒ¼ã—ãŸè¦ç´ æ•°ã€‚
     int CopyResultV(float *vTo, int count);
-    // @return ƒRƒs[‚µ‚½—v‘f”B
+    // @return ã‚³ãƒ”ãƒ¼ã—ãŸè¦ç´ æ•°ã€‚
     int CopyResultP(float *pTo, int count);
 
     void Term(void);

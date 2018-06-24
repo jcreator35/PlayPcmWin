@@ -1,8 +1,4 @@
+// æ—¥æœ¬èªž
 #pragma once
-
-// SDKDDKVer.h ‚ðƒCƒ“ƒNƒ‹[ƒh‚·‚é‚ÆA—˜—p‚Å‚«‚éÅ‚àãˆÊ‚Ì Windows ƒvƒ‰ƒbƒgƒtƒH[ƒ€‚ª’è‹`‚³‚ê‚Ü‚·B
-
-// ˆÈ‘O‚Ì Windows ƒvƒ‰ƒbƒgƒtƒH[ƒ€—p‚ÉƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚ðƒrƒ‹ƒh‚·‚éê‡‚ÍAWinSDKVer.h ‚ðƒCƒ“ƒNƒ‹[ƒh‚µA
-// SDKDDKVer.h ‚ðƒCƒ“ƒNƒ‹[ƒh‚·‚é‘O‚ÉAƒTƒ|[ƒg‘ÎÛ‚Æ‚·‚éƒvƒ‰ƒbƒgƒtƒH[ƒ€‚ðŽ¦‚·‚æ‚¤‚É _WIN32_WINNT ƒ}ƒNƒ‚ðÝ’è‚µ‚Ü‚·B
 
 #include <SDKDDKVer.h>

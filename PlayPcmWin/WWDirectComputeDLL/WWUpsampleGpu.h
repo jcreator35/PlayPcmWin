@@ -1,3 +1,5 @@
+// æ—¥æœ¬èª
+
 #pragma once
 
 #include "WWDirectComputeUser.h"
@@ -55,7 +57,7 @@ public:
         int * resamplePosArray,
         double *fractionArrayD);
 
-    // output[0]`output[count-1]‚É‘‚«‚Ş
+    // output[0]ï½output[count-1]ã«æ›¸ãè¾¼ã‚€
     HRESULT UpsampleCpuDo(
         int startPos,
         int count,
@@ -79,7 +81,7 @@ private:
     ID3D11ShaderResourceView*   m_pBuf3Srv;
     ID3D11UnorderedAccessView*  m_pBufResultUav;
 
-    //CPUˆ——p
+    //CPUå‡¦ç†ç”¨
     float        * m_sampleFrom;
     int          * m_resamplePosArray;
     double       * m_fractionArray;

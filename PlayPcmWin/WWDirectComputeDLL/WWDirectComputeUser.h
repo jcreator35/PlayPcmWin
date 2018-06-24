@@ -1,6 +1,6 @@
-#pragma once
+// 日本語
 
-// 日本語UTF-8
+#pragma once
 
 #include <d3d11.h>
 #include <map>
