@@ -49,11 +49,11 @@ struct ShaderConstants {
 };
 
 HRESULT
-WWWave1DGpu::Setup(const int dataCount, float deltaT, float sc, float c0, float *loss, float *roh, float *cr)
+WWWave1DGpu::Setup(const WWWave1DParams &p, float *loss, float *roh, float *cr)
 {
     HRESULT hr = S_OK;
 
-    mDataCount = dataCount;
+    mDataCount = p.dataCount;
     const int dataBytes = sizeof(float)*mDataCount;
 
     // 最大で大体10進10桁。
@@ -64,13 +64,13 @@ WWWave1DGpu::Setup(const int dataCount, float deltaT, float sc, float c0, float 
     sprintf_s(stimCountStr, "%d", STIM_COUNT);
 
     char scStr[16];
-    sprintf_s(scStr, "%f", sc);
+    sprintf_s(scStr, "%f", p.sc);
 
     char c0Str[16];
-    sprintf_s(c0Str, "%f", c0);
+    sprintf_s(c0Str, "%f", p.c0);
 
     char deltaTStr[16];
-    sprintf_s(deltaTStr, "%f", deltaT);
+    sprintf_s(deltaTStr, "%f", p.deltaT);
 
     assert(nullptr == mV);
     assert(nullptr == mP);

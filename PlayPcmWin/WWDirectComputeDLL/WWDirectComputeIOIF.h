@@ -117,7 +117,7 @@ WWDCWave1D_Init(void);
 
 extern "C" __declspec(dllexport)
 int __stdcall
-WWDCWave1D_Setup(int dataCount, float deltaT, float sc, float c0, float *loss, float *roh, float *cr);
+WWDCWave1D_Setup(const WWWave1DParams &p, float *loss, float *roh, float *cr);
 
 extern "C" __declspec(dllexport)
 int __stdcall

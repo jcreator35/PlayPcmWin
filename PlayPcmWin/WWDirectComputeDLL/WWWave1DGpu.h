@@ -16,6 +16,13 @@ struct WWWave1DStim {
     float sinePeriod;
 };
 
+struct WWWave1DParams {
+    int dataCount;
+    float deltaT;
+    float sc;
+    float c0;
+};
+
 enum WWWave1DSRVenum {
     WWWave1DSRV_LOSS,
     WWWave1DSRV_ROH,
@@ -62,7 +69,7 @@ public:
 
     WWDirectComputeUser &GetCU(void) { return mCU; }
 
-    HRESULT Setup(const int dataCount, float deltaT, float sc, float c0, float *loss, float *roh, float *cr);
+    HRESULT Setup(const WWWave1DParams &p, float *loss, float *roh, float *cr);
     void Unsetup(void);
 
     HRESULT Run(int cRepeat, int stimNum, WWWave1DStim stim[],

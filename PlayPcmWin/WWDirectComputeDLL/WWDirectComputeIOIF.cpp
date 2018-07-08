@@ -166,9 +166,9 @@ WWDCWave1D_Term(void)
 
 extern "C" __declspec(dllexport)
 int __stdcall
-WWDCWave1D_Setup(int dataCount, float deltaT, float sc, float c0, float *loss, float *roh, float *cr)
+WWDCWave1D_Setup(const WWWave1DParams &p, float *loss, float *roh, float *cr)
 {
-    return gWave1D.Setup(dataCount, deltaT, sc, c0, loss, roh, cr);
+    return gWave1D.Setup(p, loss, roh, cr);
 }
 
 extern "C" __declspec(dllexport)

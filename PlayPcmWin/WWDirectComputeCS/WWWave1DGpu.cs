@@ -17,6 +17,14 @@ namespace WWDirectComputeCS {
         public float period;
     };
 
+    [StructLayout(LayoutKind.Sequential)]
+    public struct WWWave1DParams {
+        public int dataCount;
+        public float deltaT;
+        public float sc;
+        public float c0;
+    };
+
     public class WWWave1DGpu {
         [DllImport("WWDirectComputeDLL.dll")]
         private extern static void
@@ -24,7 +32,7 @@ namespace WWDirectComputeCS {
 
         [DllImport("WWDirectComputeDLL.dll")]
         private extern static int
-        WWDCWave1D_Setup(int dataCount, float deltaT, float sc, float c0, float [] loss, float [] roh, float [] cr);
+        WWDCWave1D_Setup(WWWave1DParams p, float [] loss, float [] roh, float [] cr);
 
         [DllImport("WWDirectComputeDLL.dll")]
         private extern static int
@@ -48,8 +56,8 @@ namespace WWDirectComputeCS {
             return new WWDirectCompute(WWDirectCompute.InstanceTypeEnum.Wave1D).ChooseAdapter();
         }
 
-        public int Setup(int dataCount, float deltaT, float sc, float c0, float[] loss, float[] roh, float[] cr) {
-            int hr = WWDCWave1D_Setup(dataCount, deltaT, sc, c0, loss, roh, cr);
+        public int Setup(WWWave1DParams p, float[] loss, float[] roh, float[] cr) {
+            int hr = WWDCWave1D_Setup(p, loss, roh, cr);
 
             Available = 0 <= hr;
             return hr;

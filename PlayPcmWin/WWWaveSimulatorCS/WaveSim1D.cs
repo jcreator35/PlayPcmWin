@@ -67,7 +67,13 @@ namespace WWWaveSimulatorCS {
                     return;
                 }
 
-                hr = mCS.Setup(gridW, mΔt, mSc, mC0, mLoss, mRoh, mCr);
+                WWWave1DParams p;
+                p.dataCount = gridW;
+                p.deltaT = mΔt;
+                p.sc = mSc;
+                p.c0 = mC0;
+
+                hr = mCS.Setup(p, mLoss, mRoh, mCr);
             } while (false);
 
             if (hr < 0) {
