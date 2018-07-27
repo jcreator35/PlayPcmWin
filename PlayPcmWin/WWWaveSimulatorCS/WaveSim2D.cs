@@ -4,9 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WWUtil;
+using WWDirectComputeCS;
 
 namespace WWWaveSimulatorCS {
     public class WaveSim2D {
+        WWWave2DGpu mCS;
+
         /// <summary>
         /// 気圧P スカラー場
         /// </summary>
@@ -35,8 +38,6 @@ namespace WWWaveSimulatorCS {
         int mGridCount; // x * y
 
         private Delay [] mDelayArray;
-
-      //  private float [] mAbcCoef;
 
         /// <summary>
         /// シミュレーションtick。Δtを掛けると時間になる。
@@ -191,9 +192,8 @@ namespace WWWaveSimulatorCS {
                 }
             }
 
-#if true
-            // 2nd order ABC (pp.159)
-#else
+#if false
+            // これはうまくいかない。
             // ABC for V (Schneider17, pp.53)
             for (int y = 0; y < mGridH; ++y) {
                 SetV(mGridW - 1, y, V(mGridW - 2, y));

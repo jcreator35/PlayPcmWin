@@ -111,6 +111,7 @@
     <Compile Include="WWUpsampleCpu.cs" />
     <Compile Include="WWUpsampleGpu.cs" />
     <Compile Include="WWWave1DGpu.cs" />
+    <Compile Include="WWWave2DGpu.cs" />
     <Compile Include="WWWindowFunc.cs" />
   </ItemGroup>
   <ItemGroup>

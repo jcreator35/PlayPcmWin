@@ -6,7 +6,7 @@
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{F9A7AE9E-26E9-4465-B455-792B00B87142}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>FlacIntegrityCheck</RootNamespace>
     <AssemblyName>FlacIntegrityCheck</AssemblyName>

@@ -31,6 +31,9 @@
 
 #define FLACENCODE_READFRAMES (4096)
 
+
+//#define TEST_INSPECT_VOLUME (1)
+
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 static HANDLE g_mutex = nullptr;
@@ -84,6 +87,13 @@ struct FlacCuesheetTrackInfo {
     std::vector<FlacCuesheetIndexInfo> indices;
 };
 
+enum WWVolumeLevelState {
+    WWVLS_Silent,
+    WWVLS_Loud,
+    WWVLS_SuddenLoud,
+};
+
+
 struct FlacDecodeInfo {
     wchar_t path[MAX_PATH];
 
@@ -134,6 +144,10 @@ struct FlacDecodeInfo {
     uint8_t *pictureData;
     FILE    *fp;
 
+    float lastVolumeLevel;
+    WWVolumeLevelState volumeLevelState;
+    int volumeLevelStateCounter;
+
     std::vector<FlacCuesheetTrackInfo> cueSheetTracks;
 
     FlacDecodeInfo(void) {
@@ -183,6 +197,10 @@ struct FlacDecodeInfo {
         pictureData = nullptr;
 
         fp = nullptr;
+
+        lastVolumeLevel = 0;
+        volumeLevelState = WWVLS_Silent;
+        volumeLevelStateCounter = 0;
 
         cueSheetTracks.clear();
     }
@@ -1584,6 +1602,128 @@ WWFlacRW_EncodeEnd(int id)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+// FLAC VolumeLevel check
+
+#ifdef TEST_INSPECT_VOLUME
+
+static FLAC__StreamDecoderWriteStatus
+VolumeLevelCheck_WriteCallback(const FLAC__StreamDecoder *decoder,
+        const FLAC__Frame *frame, const FLAC__int32 * const buffer[],
+        void *clientData)
+{
+    // チャンネル0を調べる。
+    FlacDecodeInfo *fdi = (FlacDecodeInfo*)clientData;
+    (void)decoder;
+
+    if (fdi->errorCode != FRT_Success) {
+        return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
+    }
+
+    if(fdi->totalSamples == 0) {
+        return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
+    }
+
+    if (fdi->numFramesPerBlock != (int)frame->header.blocksize) {
+        // dprintf(fdi->logFP, "%s fdi->numFramesPerBlock changed %d to %d\n", __FUNCTION__, fdi->numFramesPerBlock, frame->header.blocksize);
+        fdi->numFramesPerBlock = frame->header.blocksize;
+    }
+
+    {
+        const int bytesPerSample = fdi->bitsPerSample / 8;
+        const int bytesPerFrame  = bytesPerSample * fdi->channels;
+
+        fdi->retrievedFrames += fdi->numFramesPerBlock;
+
+        {
+            int64_t sumLevel = 0;
+            int ch = 0;
+
+            // 5秒間のフレーム数。
+            const int relativelyLongSeconds = 5;
+            const int relativelyLongPeriod = relativelyLongSeconds * fdi->sampleRate / fdi->numFramesPerBlock;
+            const int SILENCE_LEVEL = 1600;
+
+            for (int nFrame=0; nFrame<fdi->numFramesPerBlock; ++nFrame) {
+                sumLevel += std::abs(buffer[ch][nFrame]);
+            }
+
+            float avgLevel = (float)(sumLevel / fdi->numFramesPerBlock);
+
+            switch (fdi->volumeLevelState) {
+            case WWVLS_Silent:
+                if (avgLevel < SILENCE_LEVEL) {
+                    // 静かな状態が続いている。
+                    ++fdi->volumeLevelStateCounter;
+                } else {
+                    if (relativelyLongPeriod < fdi->volumeLevelStateCounter && 128 < fdi->lastVolumeLevel) {
+                        // 静かな状態が一定以上の長さ続いた後、ある程度うるさくなった。
+
+                        float logPrev = std::log10(fdi->lastVolumeLevel);
+                        float logCur  = std::log10(avgLevel);
+
+                        if (0.5 < logCur - logPrev) {
+                            // 急激にうるさくなった。
+                            fdi->volumeLevelState = WWVLS_SuddenLoud;
+                            fdi->volumeLevelStateCounter = 0;
+                            //printf("SuddenLoud %f to %f\n", fdi->lastVolumeLevel, avgLevel);
+                        } else {
+                            // ゆっくりとうるさくなった。
+                            fdi->volumeLevelStateCounter = 0;
+                            fdi->volumeLevelState = WWVLS_Loud;
+                        }
+                    } else {
+                        // 静かな時間が短く、すぐにうるさくなった。
+                        fdi->volumeLevelStateCounter = 0;
+                        fdi->volumeLevelState = WWVLS_Loud;
+                    }
+                }
+                break;
+            case WWVLS_Loud:
+                if (avgLevel < SILENCE_LEVEL) {
+                    // 静かになった。
+                    fdi->volumeLevelStateCounter = 0;
+                    fdi->volumeLevelState = WWVLS_Silent;
+                } else {
+                    // うるさいままである。
+                }
+                break;
+            case WWVLS_SuddenLoud:
+                if (avgLevel < SILENCE_LEVEL) {
+                    // 静かになった。
+                    fdi->volumeLevelStateCounter = 0;
+                    fdi->volumeLevelState = WWVLS_Silent;
+                } else {
+                    // 突然うるさくなり、うるさい状態が続いている。
+                    ++fdi->volumeLevelStateCounter;
+                    if (relativelyLongPeriod < fdi->volumeLevelStateCounter) {
+                        // 突然うるさくなり、うるさい状態が一定時間続いた。
+                        int seconds = (int)(fdi->retrievedFrames / fdi->sampleRate) - relativelyLongSeconds;
+                        int minutes = seconds / 60;
+                        seconds -= minutes * 60;
+
+                        char path[512];
+                        memset(path,0,sizeof path);
+                        WideCharToMultiByte(CP_ACP, 0, fdi->path, sizeof(fdi->path)/sizeof(fdi->path[0]),path,sizeof(path)-1,0,0);
+
+                        printf("Sound Level increased in %d:%2d of %s\n", minutes, seconds, path);
+
+                        fdi->volumeLevelStateCounter = 0;
+                        fdi->volumeLevelState = WWVLS_Loud;
+                    }
+                }
+                break;
+            }
+
+            fdi->lastVolumeLevel = avgLevel;
+        }
+    }
+
+    return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;
+}
+
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////
 // FLAC Integrity check
 
 static FLAC__StreamDecoderWriteStatus
@@ -1661,11 +1801,25 @@ WWFlacRW_CheckIntegrity(const wchar_t *path)
         goto end;
     }
 
+#if TEST_INSPECT_VOLUME
+    FlacDecodeInfo *fdi = FlacTInfoNew<FlacDecodeInfo>(g_flacDecodeInfoMap);
+    if (nullptr == fdi) {
+        return FRT_OtherError;
+    }
+    fdi->errorCode = FRT_Success;
+    wcsncpy_s(fdi->path, path, (sizeof fdi->path)/2-1);
+    initStatus = FLAC__stream_decoder_init_FILE(
+            decoder, fp,
+            VolumeLevelCheck_WriteCallback,
+            MetadataCallback,
+            ErrorCallback, fdi);
+#else
     initStatus = FLAC__stream_decoder_init_FILE(
             decoder, fp,
             IntegrityCheck_WriteCallback,
             IntegrityCheck_MetadataCallback,
             IntegrityCheck_ErrorCallback, &result);
+#endif
 
     if(initStatus != FLAC__STREAM_DECODER_INIT_STATUS_OK) {
         result = FRT_FlacStreamDecoderInitFailed;
@@ -1673,7 +1827,7 @@ WWFlacRW_CheckIntegrity(const wchar_t *path)
                 __FUNCTION__, result);
         goto end;
     }
-    
+
     ok = FLAC__stream_decoder_process_until_end_of_metadata(decoder);
     if (!ok) {
         if (StatusIsSuccess(result)) {
@@ -1721,6 +1875,11 @@ end:
         fclose(fp);
         fp = nullptr;
     }
+
+#if TEST_INSPECT_VOLUME
+    FlacTInfoDelete<FlacDecodeInfo>(g_flacDecodeInfoMap, fdi);
+    fdi = nullptr;
+#endif
 
     return result;
 }
