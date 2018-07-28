@@ -3,25 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Runtime.InteropServices;
+using WWMath;
 
 namespace WWDirectComputeCS {
     [StructLayout(LayoutKind.Sequential)]
-    public struct WWWave2DStim {
-        public int type; //< STIM_GAUSSIAN or STIM_SINE
-        public int counter;
-        public int posX;
-        public int posY;
-        public float magnitude;
-        public float halfPeriod;
-        public float width;
-        public float height;
-        public float omega;
-        public float period;
-    };
-
-    [StructLayout(LayoutKind.Sequential)]
     public struct WWWave2DParams {
-        public int dataCount;
+        public int fieldW;
+        public int fieldH;
         public float deltaT;
         public float sc;
         public float c0;
@@ -55,7 +43,7 @@ namespace WWDirectComputeCS {
 
         public int Init() {
             WWDCWave2D_Init();
-            return new WWDirectCompute(WWDirectCompute.InstanceTypeEnum.Wave1D).ChooseAdapter();
+            return new WWDirectCompute(WWDirectCompute.InstanceTypeEnum.Wave2D).ChooseAdapter();
         }
 
         public int Setup(WWWave2DParams p, float[] loss, float[] roh, float[] cr) {
@@ -65,29 +53,38 @@ namespace WWDirectComputeCS {
             return hr;
         }
 
-        const int STIM_BYTES = 40;
-        const int N_STIM = 4;
-
         public int Run(int cRepeat, int stimNum,
-               WWWave2DStim [] stim, float[] v, float[] p) {
+               WWWave1DStim [] stim, WWVectorF2[] v, float[] p) {
 
-            IntPtr ptr = Marshal.AllocHGlobal(STIM_BYTES * N_STIM);
-            long longPtr = ptr.ToInt64();
-            for (int i = 0; i < N_STIM; ++i) {
-                IntPtr rectPtr = new IntPtr(longPtr);
-                Marshal.StructureToPtr(stim[i], rectPtr, false);
-                longPtr += STIM_BYTES;
+            IntPtr ptr = WWWave1DStim.ToIntPtr(stim);
+
+            float[] vF = new float[v.Length * 2];
+            for (int i = 0; i < v.Length; ++i) {
+                vF[i * 2 + 0] = v[i].X;
+                vF[i * 2 + 1] = v[i].Y;
             }
 
-            int hr = WWDCWave2D_Run(cRepeat, stimNum, ptr, v, p);
+            int hr = WWDCWave2D_Run(cRepeat, stimNum, ptr, vF, p);
 
             Marshal.FreeHGlobal(ptr);
 
             return hr;
         }
 
-        public int GetResultVP(int dataCount, float[] v, float[] p) {
-            return WWDCWave2D_GetResult(dataCount, v, p);
+        public int GetResultVP(int dataCount, WWVectorF2[] v, float[] p) {
+            float[] vF = new float[v.Length * 2];
+            for (int i = 0; i < v.Length; ++i) {
+                vF[i] = 0;
+            }
+
+            int rv = WWDCWave2D_GetResult(dataCount, vF, p);
+            if (0 <= rv) {
+                for (int i = 0; i < v.Length; ++i) {
+                    v[i] = new WWVectorF2(vF[i*2+0], vF[i*2+1]);
+                }
+            }
+
+            return rv;
         }
 
         public void Term() {

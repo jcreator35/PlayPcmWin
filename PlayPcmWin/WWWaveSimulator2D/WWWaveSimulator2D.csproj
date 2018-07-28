@@ -43,7 +43,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>x64</PlatformTarget>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
   </PropertyGroup>
@@ -119,6 +119,10 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\WWMath\WWMath.csproj">
+      <Project>{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}</Project>
+      <Name>WWMath</Name>
+    </ProjectReference>
     <ProjectReference Include="..\WWWaveSimulatorCS\WWWaveSimulatorCS.csproj">
       <Project>{229AEA53-DD52-4B88-82FE-3D9525EBF33D}</Project>
       <Name>WWWaveSimulatorCS</Name>

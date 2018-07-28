@@ -31,6 +31,7 @@ namespace WWDirectComputeCS {
         public enum InstanceTypeEnum {
             Upsample,
             Wave1D,
+            Wave2D,
         };
 
         private InstanceTypeEnum mInstanceType;

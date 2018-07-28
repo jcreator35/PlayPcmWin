@@ -10,6 +10,11 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WWDirectComputeDLL", "..\WWDirectComputeDLL\WWDirectComputeDLL.vcxproj", "{3938D3BD-54DD-42B9-B316-6283BFB21D5B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WWDirectComputeCS", "..\WWDirectComputeCS\WWDirectComputeCS.csproj", "{01EAC382-2F85-4FAE-ACC0-970298B17FF3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3938D3BD-54DD-42B9-B316-6283BFB21D5B} = {3938D3BD-54DD-42B9-B316-6283BFB21D5B}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WWMath", "..\WWMath\WWMath.csproj", "{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -87,6 +92,18 @@ Global
 		{01EAC382-2F85-4FAE-ACC0-970298B17FF3}.Release|x64.Build.0 = Release|x64
 		{01EAC382-2F85-4FAE-ACC0-970298B17FF3}.Release|x86.ActiveCfg = Release|x86
 		{01EAC382-2F85-4FAE-ACC0-970298B17FF3}.Release|x86.Build.0 = Release|x86
+		{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}.Debug|Win32.ActiveCfg = Debug|x86
+		{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}.Debug|x64.ActiveCfg = Debug|x64
+		{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}.Debug|x64.Build.0 = Debug|x64
+		{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}.Debug|x86.ActiveCfg = Debug|x86
+		{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}.Debug|x86.Build.0 = Debug|x86
+		{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}.Release|Any CPU.ActiveCfg = Release|x86
+		{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}.Release|Win32.ActiveCfg = Release|x86
+		{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}.Release|x64.ActiveCfg = Release|x64
+		{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}.Release|x64.Build.0 = Release|x64
+		{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}.Release|x86.ActiveCfg = Release|x86
+		{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -38,6 +38,9 @@
     <ClInclude Include="WWWave2DGpu.h">
       <Filter>Header files</Filter>
     </ClInclude>
+    <ClInclude Include="WWWave1DStim.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -72,9 +75,6 @@
     <None Include="CSTest.hlsl">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="Wave2DShaderUpdateP.hlsl">
-      <Filter>Shaders</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="Wave1DShaderUpdateStim.hlsl">
@@ -84,6 +84,12 @@
       <Filter>Shaders</Filter>
     </CustomBuild>
     <CustomBuild Include="Wave1DShaderUpdateP.hlsl">
+      <Filter>Shaders</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Wave2DShaderUpdateP.hlsl">
+      <Filter>Shaders</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Wave2DShaderUpdateV.hlsl">
       <Filter>Shaders</Filter>
     </CustomBuild>
   </ItemGroup>

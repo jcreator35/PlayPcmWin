@@ -4,17 +4,7 @@
 
 #include <Windows.h>
 #include "WWDirectComputeUser.h"
-
-struct WWWave1DStim {
-    int type; //< STIM_GAUSSIAN or STIM_SINE
-    int counter;
-    int posX;
-    float magnitude;
-    float halfPeriod;
-    float width;
-    float freq;
-    float sinePeriod;
-};
+#include "WWWave1DStim.h"
 
 struct WWWave1DParams {
     int dataCount;

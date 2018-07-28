@@ -145,7 +145,7 @@ namespace WWWaveSimulator1D {
                 return;
             }
 
-            mSim.AddStimulus(t, (float)(p.X), freq, magnitude);
+            mSim.AddStimulus(t, (int)(p.X), freq, magnitude);
         }
 
 

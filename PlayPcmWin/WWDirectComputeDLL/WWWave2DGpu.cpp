@@ -8,8 +8,11 @@
 // 2次元。
 #define DIMENSION (2)
 
+static const int THREAD_W = 16;
+static const int THREAD_H = 16;
+
 WWWave2DGpu::WWWave2DGpu(void)
-    : mDataCount(0), mV(nullptr), mP(nullptr), mTickTotal(0)
+    : mV(nullptr), mP(nullptr), mTickTotal(0)
 {
     memset(mpCS, 0, sizeof mpCS);
     memset(mpSRVs, 0, sizeof mpSRVs);
@@ -35,8 +38,6 @@ WWWave2DGpu::Term(void)
 
 #define STIM_COUNT (4)
 
-
-
 // 定数。16バイトの倍数のサイズの構造体。
 struct ShaderConstants {
     /// 更新処理の繰り返し回数。
@@ -48,7 +49,7 @@ struct ShaderConstants {
     int cSinePeriod;
     int dummy1;
 
-    WWWave2DStim stim[STIM_COUNT];
+    WWWave1DStim stim[STIM_COUNT];
 };
 
 HRESULT
@@ -56,12 +57,38 @@ WWWave2DGpu::Setup(const WWWave2DParams &p, float *loss, float *roh, float *cr)
 {
     HRESULT hr = S_OK;
 
-    mDataCount = p.dataCount;
-    const int dataBytes = sizeof(float)*mDataCount;
+    mParams = p;
 
-    // 最大で大体10進10桁。
-    char dataCountStr[16];
-    sprintf_s(dataCountStr, "%d", mDataCount);
+    assert(nullptr == mP);
+    assert(nullptr == mV);
+
+    mNumOfPoints = p.fieldW * p.fieldH;
+
+    /* 圧力pはスカラー場。
+     * 速度vはベクトル場。
+     */
+    const int pBytes = sizeof(float) * mNumOfPoints;
+    const int vBytes = sizeof(float) * mNumOfPoints * DIMENSION;
+
+    mP = new float[mNumOfPoints];
+    mV = new float[mNumOfPoints * DIMENSION];
+
+    // This is surely necessary!
+    memset(mP, 0, pBytes);
+    memset(mV, 0, vBytes);
+
+    // 最大で大体10進10桁なので16bytes有れば良いでしょう。
+    char fieldWStr[16];
+    sprintf_s(fieldWStr, "%d", p.fieldW);
+
+    char fieldHStr[16];
+    sprintf_s(fieldHStr, "%d", p.fieldH);
+
+    char threadWStr[16];
+    sprintf_s(threadWStr, "%d", THREAD_W);
+
+    char threadHStr[16];
+    sprintf_s(threadHStr, "%d", THREAD_H);
 
     char stimCountStr[16];
     sprintf_s(stimCountStr, "%d", STIM_COUNT);
@@ -75,19 +102,12 @@ WWWave2DGpu::Setup(const WWWave2DParams &p, float *loss, float *roh, float *cr)
     char deltaTStr[16];
     sprintf_s(deltaTStr, "%f", p.deltaT);
 
-    assert(nullptr == mV);
-    assert(nullptr == mP);
-
-    mV = new float[mDataCount*DIMENSION];
-    mP = new float[mDataCount];
-
-    // This is surely necessary!
-    memset(mV,0,dataBytes*2);
-    memset(mP,0,dataBytes);
-
     // HLSL ComputeShaderをコンパイル。
     const D3D_SHADER_MACRO defines[] = {
-        "LENGTH", dataCountStr,
+        "FIELD_W", fieldWStr,
+        "FIELD_H", fieldHStr,
+        "THREAD_W", threadWStr,
+        "THREAD_H", threadHStr,
         "STIM_COUNT", stimCountStr,
         "SC", scStr,
         "C0", c0Str,
@@ -95,7 +115,8 @@ WWWave2DGpu::Setup(const WWWave2DParams &p, float *loss, float *roh, float *cr)
         nullptr, nullptr
     };
 
-    HRG(mCU.CreateComputeShader(L"Wave2DShaderUpdateStim.hlsl", "CSUpdateStim", defines, &mpCS[WWWave2DCS_UpdateStim]));
+    // 1DのStimシェーダーをそのまま使用。
+    HRG(mCU.CreateComputeShader(L"Wave1DShaderUpdateStim.hlsl", "CSUpdateStim", defines, &mpCS[WWWave2DCS_UpdateStim]));
     assert(mpCS[WWWave2DCS_UpdateStim]);
 
     HRG(mCU.CreateComputeShader(L"Wave2DShaderUpdateV.hlsl", "CSUpdateV", defines, &mpCS[WWWave2DCS_UpdateV]));
@@ -105,21 +126,12 @@ WWWave2DGpu::Setup(const WWWave2DParams &p, float *loss, float *roh, float *cr)
     assert(mpCS[WWWave2DCS_UpdateP]);
 
     {
-#if 1
         WWStructuredBufferParams params[WWWave2DSRV_NUM] = {
-            {sizeof(float), mDataCount, loss, "loss", &mpSRVs[0], nullptr},
-            {sizeof(float), mDataCount, roh,  "roh",  &mpSRVs[1], nullptr},
-            {sizeof(float), mDataCount, cr,   "cr",   &mpSRVs[2], nullptr},
+            {sizeof(float), mNumOfPoints, loss, "loss", &mpSRVs[0], nullptr},
+            {sizeof(float), mNumOfPoints, roh,  "roh",  &mpSRVs[1], nullptr},
+            {sizeof(float), mNumOfPoints, cr,   "cr",   &mpSRVs[2], nullptr},
         };
         HRG(mCU.CreateSeveralStructuredBuffer(WWWave2DSRV_NUM, params));
-#else
-        WWTexture1DParams params[WWWave2DSRV_NUM] = {
-            {mDataCount, 1, 1, DXGI_FORMAT_R32_FLOAT, D3D11_USAGE_IMMUTABLE, D3D11_BIND_SHADER_RESOURCE, 0, 0, loss, mDataCount, "loss", &mpSRVs[0], nullptr},
-            {mDataCount, 1, 1, DXGI_FORMAT_R32_FLOAT, D3D11_USAGE_IMMUTABLE, D3D11_BIND_SHADER_RESOURCE, 0, 0, roh, mDataCount, "roh", &mpSRVs[1], nullptr},
-            {mDataCount, 1, 1, DXGI_FORMAT_R32_FLOAT, D3D11_USAGE_IMMUTABLE, D3D11_BIND_SHADER_RESOURCE, 0, 0, cr, mDataCount, "cr", &mpSRVs[2], nullptr},
-        };
-        HRG(mCU.CreateSeveralTexture1D(WWWave2DSRV_NUM, params));
-#endif
         assert(mpSRVs[0]);
         assert(mpSRVs[1]);
         assert(mpSRVs[2]);
@@ -128,10 +140,10 @@ WWWave2DGpu::Setup(const WWWave2DParams &p, float *loss, float *roh, float *cr)
     {
         // 読み込み用VPと書き込み用V,Pがあるので倍の数がある。
         WWStructuredBufferParams params[WWWave2DUAV_NUM] = {
-            {sizeof(float)*DIMENSION, mDataCount, mV, "v0", nullptr, &mpUAVs[0]},
-            {sizeof(float), mDataCount, mP, "p0", nullptr, &mpUAVs[1]},
-            {sizeof(float)*DIMENSION, mDataCount, mV, "v1", nullptr, &mpUAVs[2]},
-            {sizeof(float), mDataCount, mP, "p1", nullptr, &mpUAVs[3]},
+            {sizeof(float)*DIMENSION, mNumOfPoints, mV, "v0", nullptr, &mpUAVs[0]},
+            {sizeof(float),           mNumOfPoints, mP, "p0", nullptr, &mpUAVs[1]},
+            {sizeof(float)*DIMENSION, mNumOfPoints, mV, "v1", nullptr, &mpUAVs[2]},
+            {sizeof(float),           mNumOfPoints, mP, "p1", nullptr, &mpUAVs[3]},
         };
         HRG(mCU.CreateSeveralStructuredBuffer(WWWave2DUAV_NUM, params));
         assert(mpUAVs[0]);
@@ -166,7 +178,7 @@ WWWave2DGpu::Unsetup(void)
 }
 
 HRESULT
-WWWave2DGpu::Run(int cRepeat, int stimNum, WWWave2DStim stim[],
+WWWave2DGpu::Run(int cRepeat, int stimNum, WWWave1DStim stim[],
         float *v, float *p)
 {
     HRESULT hr = S_OK;
@@ -176,7 +188,8 @@ WWWave2DGpu::Run(int cRepeat, int stimNum, WWWave2DStim stim[],
         return E_FAIL;
     }
 
-    const int dataBytes = sizeof(float)*mDataCount;
+    const int pBytes = sizeof(float) * mNumOfPoints;
+    const int vBytes = sizeof(float) * mNumOfPoints * DIMENSION;
     ID3D11UnorderedAccessView *pUAVs_V[3];
     ID3D11UnorderedAccessView *pUAVs_P[3];
 
@@ -211,15 +224,19 @@ WWWave2DGpu::Run(int cRepeat, int stimNum, WWWave2DStim stim[],
             pUAVs_P[2] = mpUAVs[1]; //< pOut
         }
 
-        HRG(mCU.Run(mpCS[WWWave2DCS_UpdateStim], 0,               nullptr, 2, pUAVs_V, &shaderConstants, sizeof(ShaderConstants), 1,          1, 1));
-        HRG(mCU.Run(mpCS[WWWave2DCS_UpdateV],    WWWave2DSRV_NUM, mpSRVs,  3, pUAVs_V, nullptr,          0,                       mDataCount, 1, 1));
-        HRG(mCU.Run(mpCS[WWWave2DCS_UpdateP],    WWWave2DSRV_NUM, mpSRVs,  3, pUAVs_P, nullptr,          0,                       mDataCount, 1, 1));
+        const int dispatchX = mParams.fieldW / THREAD_W;
+        const int dispatchY = mParams.fieldH / THREAD_H;
+
+        //                                                                    pIn
+        HRG(mCU.Run(mpCS[WWWave2DCS_UpdateStim], 0,               nullptr, 1, &pUAVs_V[1], &shaderConstants, sizeof(ShaderConstants), 1,         1,         1));
+        HRG(mCU.Run(mpCS[WWWave2DCS_UpdateV],    WWWave2DSRV_NUM, mpSRVs,  3, pUAVs_V,     nullptr,          0,                       dispatchX, dispatchY, 1));
+        HRG(mCU.Run(mpCS[WWWave2DCS_UpdateP],    WWWave2DSRV_NUM, mpSRVs,  3, pUAVs_P,     nullptr,          0,                       dispatchX, dispatchY, 1));
         ++mTickTotal;
     }
 
     // 計算結果をCPUメモリーに持ってくる。
-    HRG(mCU.RecvResultToCpuMemory(pUAVs_V[2], mV, dataBytes*DIMENSION));
-    HRG(mCU.RecvResultToCpuMemory(pUAVs_P[2], mP, dataBytes));
+    HRG(mCU.RecvResultToCpuMemory(pUAVs_V[2], mV, vBytes));
+    HRG(mCU.RecvResultToCpuMemory(pUAVs_P[2], mP, pBytes));
 
 end:
     return hr;
@@ -228,22 +245,22 @@ end:
 int
 WWWave2DGpu::CopyResultV(float *vTo, int count)
 {
-    if (mDataCount < count) {
-        count = mDataCount;
+    if (mNumOfPoints < count) {
+        count = mNumOfPoints;
     }
 
-    memcpy(vTo, mV, count * sizeof(float) * DIMENSION);
+    memcpy(vTo, mV, sizeof(float) * count * DIMENSION);
     return count;
 }
 
 int
 WWWave2DGpu::CopyResultP(float *pTo, int count)
 {
-    if (mDataCount < count) {
-        count = mDataCount;
+    if (mNumOfPoints < count) {
+        count = mNumOfPoints;
     }
 
-    memcpy(pTo, mP, count * sizeof(float));
+    memcpy(pTo, mP, sizeof(float) * count);
     return count;
 }
 

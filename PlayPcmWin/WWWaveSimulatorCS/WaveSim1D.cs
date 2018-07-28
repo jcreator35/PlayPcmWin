@@ -133,7 +133,7 @@ namespace WWWaveSimulatorCS {
             mTimeTick = 0;
         }
 
-        public void AddStimulus(WaveEvent.EventType t, float x, float freq, float magnitude) {
+        public void AddStimulus(WaveEvent.EventType t, int x, float freq, float magnitude) {
             var ev = new WaveEvent(t, mSc, x, freq, magnitude, mΔt);
             mWaveEventList.Add(ev);
         }
@@ -201,7 +201,7 @@ namespace WWWaveSimulatorCS {
                 var w = mWaveEventList[i];
                 stim[i].type = (int)w.mType;
                 stim[i].counter = w.mTime;
-                stim[i].posX = w.mX;
+                stim[i].pos = w.mPos;
                 stim[i].magnitude = w.mMagnitude;
                 stim[i].halfPeriod = w.HalfPeriod;
                 stim[i].width = w.GaussianWidth;
@@ -267,8 +267,6 @@ namespace WWWaveSimulatorCS {
                 mP[i] = (1.0f-loss)/(1.0f+loss) * mP[i] - (Cp/(1.0f+loss)) * (mV[i] - mV[i - 1]);
             }
 #endif
-
-            ++mTimeTick;
         }
 
         public float[] P() {

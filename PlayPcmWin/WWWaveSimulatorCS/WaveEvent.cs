@@ -13,7 +13,7 @@ namespace WWWaveSimulatorCS {
 
         public EventType mType;
         public int mTime;
-        public int mX;
+        public int mPos;
         public float mSc;
         public float mFreq;
         public float mMagnitude;
@@ -22,7 +22,7 @@ namespace WWWaveSimulatorCS {
         private const int GAUSSIAN_PERIOD = 200;
         private const int PULSE_PERIOD = 1;
 
-        public WaveEvent(EventType t, float Sc, float x, float freq, float magnitude, float Δt) {
+        public WaveEvent(EventType t, float Sc, int pos, float freq, float magnitude, float Δt) {
             mType = t;
             mSc = Sc;
             mFreq = freq;
@@ -41,7 +41,7 @@ namespace WWWaveSimulatorCS {
                 break;
             }
 
-            mX = (int)x;
+            mPos = pos;
         }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace WWWaveSimulatorCS {
         private void UpdateGaussian(float[] P) {
             float fr = (float)Math.Exp(-(mTime - HalfPeriod) * (mTime - HalfPeriod) * GaussianWidth);
 
-            P[mX] += mMagnitude * fr;
+            P[mPos] += mMagnitude * fr;
         }
 
         private void UpdateSine(float[] P) {
@@ -102,11 +102,11 @@ namespace WWWaveSimulatorCS {
 
             var ω = 2.0f * Math.PI * mFreq;
 
-            P[mX] += mMagnitude * (float)Math.Sin(ω * ElapsedTime());
+            P[mPos] += mMagnitude * (float)Math.Sin(ω * ElapsedTime());
         }
 
         private void UpdatePulse(float[] P) {
-            P[mX] += mMagnitude;
+            P[mPos] += mMagnitude;
         }
 
         /// <summary>

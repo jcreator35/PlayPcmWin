@@ -90,12 +90,15 @@
     <Compile Include="WaveEvent.cs" />
     <Compile Include="WaveSim1D.cs" />
     <Compile Include="WaveSim2D.cs" />
-    <Compile Include="WWVectorF2.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WWDirectComputeCS\WWDirectComputeCS.csproj">
       <Project>{01EAC382-2F85-4FAE-ACC0-970298B17FF3}</Project>
       <Name>WWDirectComputeCS</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WWMath\WWMath.csproj">
+      <Project>{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}</Project>
+      <Name>WWMath</Name>
     </ProjectReference>
     <ProjectReference Include="..\WWUtil\WWUtil.csproj">
       <Project>{FC57308E-CF56-4B3E-B920-4093660D0A4A}</Project>

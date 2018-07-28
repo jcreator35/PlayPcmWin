@@ -12,12 +12,13 @@ THREAD_X==1でDispatchする。
 #define STIM_SINE     1
 
 // UAV
-RWStructuredBuffer<float> gP            : register(u0);
+RWStructuredBuffer<float2> gV            : register(u0);
+RWStructuredBuffer<float>  gP            : register(u1);
 
 struct Stim {
     int type; //< STIM_GAUSSIAN or STIM_SINE
     int counter;
-    int pos;
+    int pos;          //< 配列の要素番号。pos = x + y * W
     float magnitude;
     float halfPeriod;
     float width;
@@ -46,7 +47,7 @@ void CSUpdateStim()
             switch (stim[i].type) {
             case STIM_GAUSSIAN:
                 {
-                    int x = stim[i].pos;
+                    int x = stim[i].posX;
                     float prevP = gP[x];
 
                     int c = stim[i].counter;
@@ -59,7 +60,7 @@ void CSUpdateStim()
                 break;
             case STIM_SINE:
                 {
-                    int x = stim[i].pos;
+                    int x = stim[i].posX;
                     float prevP = gP[x];
 
                     int c = stim[i].counter;

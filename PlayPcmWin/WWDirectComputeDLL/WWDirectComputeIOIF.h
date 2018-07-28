@@ -3,6 +3,7 @@
 
 #include <Windows.h>
 #include "WWWave1DGpu.h"
+#include "WWWave2DGpu.h"
 
 // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 // 共通デバイス選択処理。
@@ -10,6 +11,7 @@
 enum WWDirectComputeType {
     WWDCT_Upsample,
     WWDCT_Wave1D,
+    WWDCT_Wave2D,
 };
 
 struct WWDirectComputeAdapterDesc {
@@ -134,6 +136,35 @@ extern "C" __declspec(dllexport)
 void __stdcall
 WWDCWave1D_Term(void);
 
+// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// Wave2D GPU
+
+/*
+    WWWave2DGpuの使い方はWWWave1DGpuと同様。
+*/
+
+extern "C" __declspec(dllexport)
+void __stdcall
+WWDCWave2D_Init(void);
+
+extern "C" __declspec(dllexport)
+int __stdcall
+WWDCWave2D_Setup(const WWWave2DParams &p, float *loss, float *roh, float *cr);
+
+extern "C" __declspec(dllexport)
+int __stdcall
+WWDCWave2D_Run(int cRepeat, int stimNum, WWWave1DStim *stim, float *v, float *p);
+
+extern "C" __declspec(dllexport)
+int __stdcall
+WWDCWave2D_GetResult(
+        int outputToElemNum,
+        float * outputVTo,
+        float * outputPTo);
+
+extern "C" __declspec(dllexport)
+void __stdcall
+WWDCWave1D_Term(void);
 
 // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 // CPU処理

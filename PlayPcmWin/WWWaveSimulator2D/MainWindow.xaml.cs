@@ -64,7 +64,7 @@ namespace WWWaveSimulator2D {
 
         private void dispatcherTimer_Tick(object sender, EventArgs e) {
             lock (mLock) {
-                int nStimuli = mSim.Update();
+                int nStimuli = mSim.Update(20);
                 //Console.Write("{0} ", nStimuli);
 
                 UpdateUI();
@@ -88,17 +88,13 @@ namespace WWWaveSimulator2D {
 
         private void buttonFastForward_Click(object sender, RoutedEventArgs e) {
             lock (mLock) {
-                for (int i = 0; i < 1000; ++i) {
-                    mSim.Update();
-                }
+                mSim.Update(1000);
             }
         }
 
         private void buttonFastForward10_Click(object sender, RoutedEventArgs e) {
             lock (mLock) {
-                for (int i = 0; i < 10000; ++i) {
-                    mSim.Update();
-                }
+                mSim.Update(10000);
             }
         }
 
@@ -129,6 +125,12 @@ namespace WWWaveSimulator2D {
         private void canvasP_MouseUp(object sender, MouseButtonEventArgs e) {
             Point p = Mouse.GetPosition(canvasP);
 
+            int canvasW = (int)canvasP.ActualWidth;
+            int canvasH = (int)canvasP.ActualHeight;
+
+            float canvasToSimX = (float)mW / canvasW;
+            float canvasToSimY = (float)mH / canvasH;
+
             WaveEvent.EventType t =
                 (WaveEvent.EventType)comboBoxSourceType.SelectedIndex;
             
@@ -144,7 +146,7 @@ namespace WWWaveSimulator2D {
                 return;
             }
 
-            mSim.AddStimulus(t, (float)(p.X), (float)(p.Y), freq, magnitude);
+            mSim.AddStimulus(t, (int)(p.X * canvasToSimX), (int)(p.Y * canvasToSimY), freq, magnitude);
         }
     }
 }

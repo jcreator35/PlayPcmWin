@@ -3,11 +3,13 @@
 #include "WWDirectComputeUser.h"
 #include "WWUpsampleGpu.h"
 #include "WWWave1DGpu.h"
+#include "WWWave2DGpu.h"
 #include "WWUtil.h"
 #include <assert.h>
 
 static WWUpsampleGpu gUpsample;
 static WWWave1DGpu   gWave1D;
+static WWWave2DGpu   gWave2D;
 
 // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 // 共通初期化処理。
@@ -19,6 +21,9 @@ static WWWave1DGpu   gWave1D;
         break;                  \
     case WWDCT_Wave1D:          \
         x = &gWave1D.GetCU();   \
+        break;                  \
+    case WWDCT_Wave2D:          \
+        x = &gWave2D.GetCU();   \
         break;                  \
     default:                    \
         break;                  \
@@ -187,4 +192,46 @@ WWDCWave1D_GetResult(
 {
     gWave1D.CopyResultV(outputVTo, outputToElemNum);
     return gWave1D.CopyResultP(outputPTo, outputToElemNum);
+}
+
+// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// Wave2D
+extern "C" __declspec(dllexport)
+void __stdcall
+WWDCWave2D_Init(void)
+{
+    gWave2D.Init();
+}
+
+extern "C" __declspec(dllexport)
+void __stdcall
+WWDCWave2D_Term(void)
+{
+    gWave2D.Unsetup();
+    gWave2D.Term();
+}
+
+extern "C" __declspec(dllexport)
+int __stdcall
+WWDCWave2D_Setup(const WWWave2DParams &p, float *loss, float *roh, float *cr)
+{
+    return gWave2D.Setup(p, loss, roh, cr);
+}
+
+extern "C" __declspec(dllexport)
+int __stdcall
+WWDCWave2D_Run(int cRepeat, int stimNum, WWWave1DStim *stim, float *v, float *p)
+{
+    return gWave2D.Run(cRepeat, stimNum, stim, v, p);
+}
+
+extern "C" __declspec(dllexport)
+int __stdcall
+WWDCWave2D_GetResult(
+        int outputToElemNum,
+        float * outputVTo,
+        float * outputPTo)
+{
+    gWave2D.CopyResultV(outputVTo, outputToElemNum);
+    return gWave2D.CopyResultP(outputPTo, outputToElemNum);
 }

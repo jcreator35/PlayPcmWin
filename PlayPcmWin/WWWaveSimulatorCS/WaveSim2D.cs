@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WWUtil;
 using WWDirectComputeCS;
+using WWMath;
 
 namespace WWWaveSimulatorCS {
     public class WaveSim2D {
@@ -52,6 +53,8 @@ namespace WWWaveSimulatorCS {
         private List<WaveEvent> mWaveEventList = new List<WaveEvent>();
 
         public WaveSim2D(int gridW, int gridH, float c0, float Δt, float Δx) {
+            int hr = 0;
+
             mGridW = gridW;
             mGridH = gridH;
             mGridCount = mGridW * mGridH;
@@ -72,6 +75,22 @@ namespace WWWaveSimulatorCS {
             }
 
             Reset();
+            mCS = new WWWave2DGpu();
+            do {
+                hr = mCS.Init();
+                if (hr < 0) {
+                    return;
+                }
+
+                WWWave2DParams p;
+                p.fieldW = gridW;
+                p.fieldH = gridH;
+                p.deltaT = mΔt;
+                p.sc = mSc;
+                p.c0 = mC0;
+
+                hr = mCS.Setup(p, mLoss, mRoh, mCr);
+            } while (false);
         }
 
         public void Reset() {
@@ -162,8 +181,8 @@ namespace WWWaveSimulatorCS {
             mTimeTick = 0;
         }
 
-        public void AddStimulus(WaveEvent.EventType t, float x, float y, float freq, float magnitude) {
-            int pos = ((int)x) + ((int)y) * mGridW;
+        public void AddStimulus(WaveEvent.EventType t, int x, int y, float freq, float magnitude) {
+            int pos = x + y * mGridW;
 
             var ev = new WaveEvent(t, mSc, pos, freq, magnitude, mΔt);
             mWaveEventList.Add(ev);
@@ -175,7 +194,77 @@ namespace WWWaveSimulatorCS {
             return mMagnitude;
         }
 
-        public int Update() {
+        public int Update(int nTimes) {
+            if (mCS.Available) {
+                UpdateGPU(nTimes);
+
+                // Stimuli更新
+                for (int i = 0; i < nTimes; ++i) {
+                    var toRemove = new List<WaveEvent>();
+                    foreach (var v in mWaveEventList) {
+                        if (v.UpdateTime()) {
+                            toRemove.Add(v);
+                        }
+                    }
+                    if (0 < toRemove.Count) {
+                        foreach (var v in toRemove) {
+                            mWaveEventList.Remove(v);
+                        }
+                    }
+                }
+
+                mTimeTick += nTimes;
+            } else {
+                for (int i = 0; i < nTimes; ++i) {
+                    UpdateCPU1();
+                    ++mTimeTick;
+                }
+            }
+
+            // mMagnitude計算。
+            float pMax = 0.0f;
+            for (int i = 1; i < mP.Length; ++i) {
+                if (pMax < Math.Abs(mP[i])) {
+                    pMax = Math.Abs(mP[i]);
+                }
+            }
+
+            mMagnitude = pMax;
+
+            return mWaveEventList.Count;
+        }
+        
+        const int N_STIM = 4;
+
+        public void UpdateGPU(int nTimes) {
+
+            WWWave1DStim[] stim = new WWWave1DStim[N_STIM];
+            for (int i = 0; i < N_STIM; ++i) {
+                stim[i] = new WWWave1DStim();
+            }
+
+            int nStim = N_STIM;
+            if (mWaveEventList.Count < nStim) {
+                nStim = mWaveEventList.Count;
+            }
+
+            for (int i = 0; i < nStim; ++i) {
+                var w = mWaveEventList[i];
+                stim[i].type = (int)w.mType;
+                stim[i].counter = w.mTime;
+                stim[i].pos = w.mPos;
+                stim[i].magnitude = w.mMagnitude;
+                stim[i].halfPeriod = w.HalfPeriod;
+                stim[i].width = w.GaussianWidth;
+                stim[i].omega = (float)(2.0f * Math.PI * w.mFreq);
+                stim[i].period = WaveEvent.SINE_PERIOD;
+            }
+
+            mCS.Run(nTimes, nStim, stim, mV, mP);
+            mCS.GetResultVP(mGridCount, mV, mP);
+        }
+        
+        public int UpdateCPU1() {
             int nStimuli = 0;
             // Stimuli
             var toRemove = new List<WaveEvent>();
@@ -336,7 +425,8 @@ namespace WWWaveSimulatorCS {
             }
 #endif
 
-#if true
+#if false
+# if true
             {   // Ricker wavelet
                 float length = 20.0f;
                 var p = (float)Math.PI * ((mSc * mTimeTick) / length - 1.0f);
@@ -345,7 +435,7 @@ namespace WWWaveSimulatorCS {
                 p = (1.0f - 2.0f * p) * (float)Math.Exp(-p);
                 SetP(mGridW / 5, mGridH / 2, p);
             }
-#else
+# else
             {
                 // 平面波
                 float d = 0.2f * (float)Math.Sin(2.0f * Math.PI * mTimeTick * 0.01f);
@@ -356,18 +446,8 @@ namespace WWWaveSimulatorCS {
                     SetP(x, y, d);
                 }
             }
+# endif
 #endif
-
-            float pMax = 0.0f;
-            for (int i = 1; i < mP.Length; ++i) {
-                if (pMax < Math.Abs(mP[i])) {
-                    pMax = Math.Abs(mP[i]);
-                }
-            }
-
-            mMagnitude = pMax;
-
-            ++mTimeTick;
 
             return nStimuli;
         }

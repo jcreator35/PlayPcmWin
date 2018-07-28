@@ -208,9 +208,10 @@ WWWave1DGpu::Run(int cRepeat, int stimNum, WWWave1DStim stim[],
             pUAVs_P[2] = mpUAVs[1]; //< pOut
         }
 
-        HRG(mCU.Run(mpCS[WWWave1DCS_UpdateStim], 0,               nullptr, 2, pUAVs_V, &shaderConstants, sizeof(ShaderConstants), 1,          1, 1));
-        HRG(mCU.Run(mpCS[WWWave1DCS_UpdateV],    WWWave1DSRV_NUM, mpSRVs,  3, pUAVs_V, nullptr,          0,                       mDataCount, 1, 1));
-        HRG(mCU.Run(mpCS[WWWave1DCS_UpdateP],    WWWave1DSRV_NUM, mpSRVs,  3, pUAVs_P, nullptr,          0,                       mDataCount, 1, 1));
+        //                                                                    pIn
+        HRG(mCU.Run(mpCS[WWWave1DCS_UpdateStim], 0,               nullptr, 1, &pUAVs_V[1], &shaderConstants, sizeof(ShaderConstants), 1,          1, 1));
+        HRG(mCU.Run(mpCS[WWWave1DCS_UpdateV],    WWWave1DSRV_NUM, mpSRVs,  3, pUAVs_V,     nullptr,          0,                       mDataCount, 1, 1));
+        HRG(mCU.Run(mpCS[WWWave1DCS_UpdateP],    WWWave1DSRV_NUM, mpSRVs,  3, pUAVs_P,     nullptr,          0,                       mDataCount, 1, 1));
         ++mTickTotal;
     }
 

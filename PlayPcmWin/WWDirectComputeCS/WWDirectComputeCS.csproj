@@ -111,6 +111,7 @@
     <Compile Include="WWUpsampleCpu.cs" />
     <Compile Include="WWUpsampleGpu.cs" />
     <Compile Include="WWWave1DGpu.cs" />
+    <Compile Include="WWWave1DStim.cs" />
     <Compile Include="WWWave2DGpu.cs" />
     <Compile Include="WWWindowFunc.cs" />
   </ItemGroup>
@@ -122,6 +123,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WWMath\WWMath.csproj">
+      <Project>{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}</Project>
+      <Name>WWMath</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

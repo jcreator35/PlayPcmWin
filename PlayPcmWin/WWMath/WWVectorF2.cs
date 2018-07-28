@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace WWWaveSimulatorCS {
+namespace WWMath {
     public class WWVectorF2 {
 
         private float[] v = new float[2];
