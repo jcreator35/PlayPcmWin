@@ -54,35 +54,19 @@ namespace WWDirectComputeCS {
         }
 
         public int Run(int cRepeat, int stimNum,
-               WWWave1DStim [] stim, WWVectorF2[] v, float[] p) {
+               WWWave1DStim [] stim, float[] v, float[] p) {
 
             IntPtr ptr = WWWave1DStim.ToIntPtr(stim);
 
-            float[] vF = new float[v.Length * 2];
-            for (int i = 0; i < v.Length; ++i) {
-                vF[i * 2 + 0] = v[i].X;
-                vF[i * 2 + 1] = v[i].Y;
-            }
-
-            int hr = WWDCWave2D_Run(cRepeat, stimNum, ptr, vF, p);
+            int hr = WWDCWave2D_Run(cRepeat, stimNum, ptr, v, p);
 
             Marshal.FreeHGlobal(ptr);
 
             return hr;
         }
 
-        public int GetResultVP(int dataCount, WWVectorF2[] v, float[] p) {
-            float[] vF = new float[v.Length * 2];
-            for (int i = 0; i < v.Length; ++i) {
-                vF[i] = 0;
-            }
-
-            int rv = WWDCWave2D_GetResult(dataCount, vF, p);
-            if (0 <= rv) {
-                for (int i = 0; i < v.Length; ++i) {
-                    v[i] = new WWVectorF2(vF[i*2+0], vF[i*2+1]);
-                }
-            }
+        public int GetResultVP(int dataCount, float[] v, float[] p) {
+            int rv = WWDCWave2D_GetResult(dataCount, v, p);
 
             return rv;
         }

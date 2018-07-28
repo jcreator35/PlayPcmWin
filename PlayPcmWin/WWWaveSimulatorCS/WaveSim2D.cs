@@ -17,9 +17,9 @@ namespace WWWaveSimulatorCS {
         float[] mP;
 
         /// <summary>
-        /// 速度V 2要素ベクトル場
+        /// 速度V 2要素ベクトル場 (Array of Structure)
         /// </summary>
-        WWVectorF2[] mV;
+        float[] mV;
 
         /// <summary>
         /// 密度ρ
@@ -95,10 +95,7 @@ namespace WWWaveSimulatorCS {
 
         public void Reset() {
             mP = new float[mGridCount];
-            mV = new WWVectorF2[mGridCount];
-            for (int i = 0; i < mGridCount; ++i) {
-                mV[i] = new WWVectorF2();
-            }
+            mV = new float[mGridCount * 2];
 
             mRoh = new float[mGridCount];
             mCr = new float[mGridCount];
@@ -454,11 +451,12 @@ namespace WWWaveSimulatorCS {
 
         private WWVectorF2 V(int x, int y) {
             int pos = x + y * mGridW;
-            return mV[pos];
+            return new WWVectorF2(mV[pos*2], mV[pos*2+1]);
         }
         private void SetV(int x, int y, WWVectorF2 v) {
             int pos = x + y * mGridW;
-            mV[pos] = v;
+            mV[pos * 2 + 0] = v.X;
+            mV[pos * 2 + 1] = v.Y;
         }
         private float P(int x, int y) {
             int pos = x + y * mGridW;
