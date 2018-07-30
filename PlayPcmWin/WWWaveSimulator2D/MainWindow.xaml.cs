@@ -29,6 +29,7 @@ namespace WWWaveSimulator2D {
         private float mC0 = 334; // 334m/s
         private float mΔt = 0.01f * 0.001f; // 0.01ms
         private float mΔx;
+        private int mSimRepeatCount = 16;
 
         public MainWindow() {
             InitializeComponent();
@@ -49,6 +50,8 @@ namespace WWWaveSimulator2D {
 
             labelFreq.IsEnabled = false;
             textBoxFreq.IsEnabled = false;
+
+            sliderStep.Value = 4;
         }
 
         private void UpdateSimulator() {
@@ -60,14 +63,23 @@ namespace WWWaveSimulator2D {
             lock (mLock) {
                 mSim = new WaveSim2D(mW, mH, mC0, mΔt, mΔx);
             }
+
+            {
+                var lossShow = mSim.LossShow();
+                var bitmapLoss = BitmapSource.Create(mW, mH, 96, 96, PixelFormats.Gray32Float, null, lossShow, mW * 4);
+                bitmapLoss.Freeze();
+                mImageLoss.Source = bitmapLoss;
+            }
         }
 
         private void dispatcherTimer_Tick(object sender, EventArgs e) {
             lock (mLock) {
-                int nStimuli = mSim.Update(20);
-                //Console.Write("{0} ", nStimuli);
+                if (0 < mSimRepeatCount) {
+                    int nStimuli = mSim.Update(mSimRepeatCount);
+                    //Console.Write("{0} ", nStimuli);
 
-                UpdateUI();
+                    UpdateUI();
+                }
             }
         }
 
@@ -76,7 +88,7 @@ namespace WWWaveSimulator2D {
             var Pshow = mSim.Pshow();
             var bitmap = BitmapSource.Create(mW, mH, 96,96, PixelFormats.Gray32Float, null, Pshow, mW*4);
             bitmap.Freeze();
-            mImage.Source = bitmap;
+            mImagePressure.Source = bitmap;
 
             labelSec.Content = string.Format("{0:F4}", mSim.ElapsedTime());
             labelMagnitude.Content = string.Format("Magnitude: {0:F4}", mSim.Magnitude());
@@ -121,9 +133,29 @@ namespace WWWaveSimulator2D {
                 break;
             }
         }
-    
+
         private void canvasP_MouseUp(object sender, MouseButtonEventArgs e) {
             Point p = Mouse.GetPosition(canvasP);
+
+            {
+                var l1 = new Line();
+                l1.X1 = p.X - 3;
+                l1.Y1 = p.Y - 3;
+                l1.X2 = p.X + 3;
+                l1.Y2 = p.Y + 3;
+                l1.Stroke = Brushes.Yellow;
+                l1.StrokeThickness = 1;
+                canvasP.Children.Add(l1);
+
+                var l2 = new Line();
+                l2.X1 = p.X - 3;
+                l2.Y1 = p.Y + 3;
+                l2.X2 = p.X + 3;
+                l2.Y2 = p.Y - 3;
+                l2.Stroke = Brushes.Yellow;
+                l2.StrokeThickness = 1;
+                canvasP.Children.Add(l2);
+            }
 
             int canvasW = (int)canvasP.ActualWidth;
             int canvasH = (int)canvasP.ActualHeight;
@@ -133,7 +165,7 @@ namespace WWWaveSimulator2D {
 
             WaveEvent.EventType t =
                 (WaveEvent.EventType)comboBoxSourceType.SelectedIndex;
-            
+
             float freq;
             if (!float.TryParse(textBoxFreq.Text, out freq)) {
                 MessageBox.Show("Parse error : Frequency");
@@ -147,6 +179,39 @@ namespace WWWaveSimulator2D {
             }
 
             mSim.AddStimulus(t, (int)(p.X * canvasToSimX), (int)(p.Y * canvasToSimY), freq, magnitude);
+        }
+
+        private void radioButtonShowPressure_Checked(object sender, RoutedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            }
+
+            mImageLoss.Visibility = System.Windows.Visibility.Hidden;
+            mImagePressure.Visibility = System.Windows.Visibility.Visible;
+        }
+
+        private void radioButtonShowLoss_Checked(object sender, RoutedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            }
+
+            mImageLoss.Visibility = System.Windows.Visibility.Visible;
+            mImagePressure.Visibility = System.Windows.Visibility.Hidden;
+        }
+
+        private void sliderStep_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) {
+            if (!mInitialized) {
+                return;
+            }
+
+            int v = (int)e.NewValue;
+            if (v == -1) {
+                mSimRepeatCount = 0;
+            } else {
+                mSimRepeatCount = (int)Math.Pow(2, v);
+            }
+
+            labelStepNum.Content = string.Format("{0}", mSimRepeatCount);
         }
     }
 }

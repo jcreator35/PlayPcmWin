@@ -75,6 +75,9 @@
     <None Include="CSTest.hlsl">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Wave2DShaderUpdatePEdgeABC.hlsl">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="Wave1DShaderUpdateStim.hlsl">

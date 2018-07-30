@@ -18,6 +18,8 @@ enum WWWave2DUAVenum {
     WWWave2DUAV_P0,
     WWWave2DUAV_V1,
     WWWave2DUAV_P1,
+    WWWave2DUAV_EdgeABC0,
+    WWWave2DUAV_EdgeABC1,
     WWWave2DUAV_NUM,
 };
 
@@ -90,7 +92,9 @@ private:
     ID3D11UnorderedAccessView *mpUAVs[WWWave2DUAV_NUM];
     WWWave2DParams mParams;
     int mNumOfPoints;
+    int mEdgeABCPoints;
     float *mV;
     float *mP;
+    float *mEdgeABC;
     int64_t mTickTotal;
 };

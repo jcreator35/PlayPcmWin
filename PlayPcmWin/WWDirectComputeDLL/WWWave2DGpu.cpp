@@ -63,19 +63,23 @@ WWWave2DGpu::Setup(const WWWave2DParams &p, float *loss, float *roh, float *cr)
     assert(nullptr == mV);
 
     mNumOfPoints = p.fieldW * p.fieldH;
+    mEdgeABCPoints = (p.fieldW + p.fieldH)*2;
 
     /* 圧力pはスカラー場。
      * 速度vはベクトル場。
      */
     const int pBytes = sizeof(float) * mNumOfPoints;
     const int vBytes = sizeof(float) * mNumOfPoints * DIMENSION;
+    const int edgeABCBytes = sizeof(float)*mEdgeABCPoints;
 
     mP = new float[mNumOfPoints];
     mV = new float[mNumOfPoints * DIMENSION];
+    mEdgeABC = new float[mEdgeABCPoints];
 
     // This is surely necessary!
     memset(mP, 0, pBytes);
     memset(mV, 0, vBytes);
+    memset(mEdgeABC, 0, edgeABCBytes);
 
     // 最大で大体10進10桁なので16bytes有れば良いでしょう。
     char fieldWStr[16];
@@ -127,9 +131,9 @@ WWWave2DGpu::Setup(const WWWave2DParams &p, float *loss, float *roh, float *cr)
 
     {
         WWStructuredBufferParams params[WWWave2DSRV_NUM] = {
-            {sizeof(float), mNumOfPoints, loss, "loss", &mpSRVs[0], nullptr},
-            {sizeof(float), mNumOfPoints, roh,  "roh",  &mpSRVs[1], nullptr},
-            {sizeof(float), mNumOfPoints, cr,   "cr",   &mpSRVs[2], nullptr},
+            {sizeof(float), mNumOfPoints, loss, "loss", &mpSRVs[WWWave2DSRV_LOSS], nullptr},
+            {sizeof(float), mNumOfPoints, roh,  "roh",  &mpSRVs[WWWave2DSRV_ROH], nullptr},
+            {sizeof(float), mNumOfPoints, cr,   "cr",   &mpSRVs[WWWave2DSRV_CR], nullptr},
         };
         HRG(mCU.CreateSeveralStructuredBuffer(WWWave2DSRV_NUM, params));
         assert(mpSRVs[0]);
@@ -140,16 +144,20 @@ WWWave2DGpu::Setup(const WWWave2DParams &p, float *loss, float *roh, float *cr)
     {
         // 読み込み用VPと書き込み用V,Pがあるので倍の数がある。
         WWStructuredBufferParams params[WWWave2DUAV_NUM] = {
-            {sizeof(float)*DIMENSION, mNumOfPoints, mV, "v0", nullptr, &mpUAVs[0]},
-            {sizeof(float),           mNumOfPoints, mP, "p0", nullptr, &mpUAVs[1]},
-            {sizeof(float)*DIMENSION, mNumOfPoints, mV, "v1", nullptr, &mpUAVs[2]},
-            {sizeof(float),           mNumOfPoints, mP, "p1", nullptr, &mpUAVs[3]},
+            {sizeof(float)*DIMENSION, mNumOfPoints, mV, "v0", nullptr, &mpUAVs[WWWave2DUAV_V0]},
+            {sizeof(float),           mNumOfPoints, mP, "p0", nullptr, &mpUAVs[WWWave2DUAV_P0]},
+            {sizeof(float)*DIMENSION, mNumOfPoints, mV, "v1", nullptr, &mpUAVs[WWWave2DUAV_V1]},
+            {sizeof(float),           mNumOfPoints, mP, "p1", nullptr, &mpUAVs[WWWave2DUAV_P1]},
+            {sizeof(float),           mEdgeABCPoints, mEdgeABC, "edgeABC0", nullptr, &mpUAVs[WWWave2DUAV_EdgeABC0]},
+            {sizeof(float),           mEdgeABCPoints, mEdgeABC, "edgeABC1", nullptr, &mpUAVs[WWWave2DUAV_EdgeABC1]},
         };
         HRG(mCU.CreateSeveralStructuredBuffer(WWWave2DUAV_NUM, params));
         assert(mpUAVs[0]);
         assert(mpUAVs[1]);
         assert(mpUAVs[2]);
         assert(mpUAVs[3]);
+        assert(mpUAVs[4]);
+        assert(mpUAVs[5]);
     }
 
     mTickTotal = 0;
@@ -209,19 +217,21 @@ WWWave2DGpu::Run(int cRepeat, int stimNum, WWWave1DStim stim[],
         }
 
         if ((mTickTotal&1)==0) {
-            pUAVs_V[0] = mpUAVs[0]; //< vIn
-            pUAVs_V[1] = mpUAVs[1]; //< pIn
-            pUAVs_V[2] = mpUAVs[2]; //< vOut
-            pUAVs_P[0] = mpUAVs[2]; //< vIn
-            pUAVs_P[1] = mpUAVs[1]; //< pIn
-            pUAVs_P[2] = mpUAVs[3]; //< pOut
+            pUAVs_V[0] = mpUAVs[WWWave2DUAV_V0]; //< vIn
+            pUAVs_V[1] = mpUAVs[WWWave2DUAV_P0]; //< pIn
+            pUAVs_V[2] = mpUAVs[WWWave2DUAV_V1]; //< vOut
+
+            pUAVs_P[0] = mpUAVs[WWWave2DUAV_V1]; //< vIn
+            pUAVs_P[1] = mpUAVs[WWWave2DUAV_P0]; //< pIn
+            pUAVs_P[2] = mpUAVs[WWWave2DUAV_P1]; //< pOut
         } else {
-            pUAVs_V[0] = mpUAVs[2]; //< vIn
-            pUAVs_V[1] = mpUAVs[3]; //< pIn
-            pUAVs_V[2] = mpUAVs[0]; //< vOut
-            pUAVs_P[0] = mpUAVs[0]; //< vIn
-            pUAVs_P[1] = mpUAVs[3]; //< pIn
-            pUAVs_P[2] = mpUAVs[1]; //< pOut
+            pUAVs_V[0] = mpUAVs[WWWave2DUAV_V1]; //< vIn
+            pUAVs_V[1] = mpUAVs[WWWave2DUAV_P1]; //< pIn
+            pUAVs_V[2] = mpUAVs[WWWave2DUAV_V0]; //< vOut
+
+            pUAVs_P[0] = mpUAVs[WWWave2DUAV_V0]; //< vIn
+            pUAVs_P[1] = mpUAVs[WWWave2DUAV_P1]; //< pIn
+            pUAVs_P[2] = mpUAVs[WWWave2DUAV_P0]; //< pOut
         }
 
         const int dispatchX = mParams.fieldW / THREAD_W;

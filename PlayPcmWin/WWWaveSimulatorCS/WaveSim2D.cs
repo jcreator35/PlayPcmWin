@@ -47,7 +47,7 @@ namespace WWWaveSimulatorCS {
 
         private float mC0 = 1.0f; // 334.0f;             // 334 (m/s)
         private float mΔt = 1.0f; // 1.0e-5f;            // 1x10^-5 (s)
-        private float mΔx = 1.0f; // 334.0f * 1.0e-5f;   // 334 * 10^-5 (m)
+        //private float mΔx = 1.0f; // 334.0f * 1.0e-5f;   // 334 * 10^-5 (m)
         private float mSc = 1.0f; // クーラント数は1.0/sqrt(2)     c0 * Δt / Δx;
 
         private List<WaveEvent> mWaveEventList = new List<WaveEvent>();
@@ -75,6 +75,7 @@ namespace WWWaveSimulatorCS {
             }
 
             Reset();
+
             mCS = new WWWave2DGpu();
             do {
                 hr = mCS.Init();
@@ -179,6 +180,8 @@ namespace WWWaveSimulatorCS {
         }
 
         public void AddStimulus(WaveEvent.EventType t, int x, int y, float freq, float magnitude) {
+            
+
             int pos = x + y * mGridW;
 
             var ev = new WaveEvent(t, mSc, pos, freq, magnitude, mΔt);
@@ -486,6 +489,42 @@ namespace WWWaveSimulatorCS {
             });
 
             return p;
+        }
+
+        public float[] LossShow() {
+            var l = new float[mGridCount];
+            int pos = 0;
+
+#if true
+            float maxL = 1.0f;
+#else
+            // 最大値を探す。
+            float maxL = 0;
+            for (int y = 0; y < mGridH; ++y) {
+                for (int x = 0; x < mGridW; ++x) {
+                    if (maxL < mLoss[pos]) {
+                        maxL = mLoss[pos];
+                    }
+
+                    ++pos;
+                }
+            }
+            if (maxL < 0.000001f) {
+                maxL = 1.0f;
+            }
+#endif
+
+            pos = 0;
+            for (int y = 0; y < mGridH; ++y) {
+                for (int x = 0; x < mGridW; ++x) {
+                    // 表示用の加工をしてコピーする。
+                    l[pos] = mLoss[pos] / maxL;
+
+                    ++pos;
+                }
+            }
+
+            return l;
         }
 
         public float ElapsedTime() {

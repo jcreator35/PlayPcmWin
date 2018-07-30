@@ -8,9 +8,10 @@
             <ColumnDefinition Width="1*" />
         </Grid.ColumnDefinitions>
         <StackPanel Name="stackPanel1">
-            <GroupBox Header="Control" Height="116" Name="groupBox2" >
+            <GroupBox Header="Control" Height="130" Name="groupBox2" >
                 <Grid>
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="2*" />
                         <RowDefinition Height="1*" />
                         <RowDefinition Height="1*" />
                     </Grid.RowDefinitions>
@@ -22,10 +23,12 @@
                     </Grid.ColumnDefinitions>
                     <Button Content="⏮" HorizontalAlignment="Center" Name="buttonRewind" VerticalAlignment="Center" Width="50" Height="40" FontSize="20" Click="buttonRewind_Click" />
                     <Button Content="⏩" HorizontalAlignment="Center" Grid.Column="1" Name="buttonFastForward" VerticalAlignment="Center" Width="50" Height="40" FontSize="20" Click="buttonFastForward_Click" />
-                    <Button Content="⏩x10" HorizontalAlignment="Center" Grid.Column="2" Name="buttonFastForward10" VerticalAlignment="Center" Width="80" Height="40" FontSize="20" Click="buttonFastForward10_Click" Grid.ColumnSpan="2" Margin="6,3,36,3" />
-                    <Label Content="Time:" Grid.Row="1" HorizontalAlignment="Right" Name="labelTime" VerticalAlignment="Center" />
-                    <Label Content="0.0" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Right" Name="labelSec" VerticalAlignment="Center" />
-                    <Label Content="ms" Grid.Row="1" Grid.Column="3" HorizontalAlignment="Left" Name="labelSecUnit" VerticalAlignment="Center" />
+                    <Label Content="Sim step" Grid.Row="1" HorizontalAlignment="Right" Name="labelStep" VerticalAlignment="Center" />
+                    <Label Content="1234" Grid.Row="1" Grid.Column="3" Name="labelStepNum" VerticalAlignment="Center" HorizontalContentAlignment="Center" />
+                    <Label Content="Time:" Grid.Row="2" HorizontalAlignment="Right" Name="labelTime" VerticalAlignment="Center" />
+                    <Label Content="0.0" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Right" Name="labelSec" VerticalAlignment="Center" />
+                    <Label Content="ms" Grid.Row="2" Grid.Column="3" HorizontalAlignment="Left" Name="labelSecUnit" VerticalAlignment="Center" />
+                    <Slider Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" Height="23" Name="sliderStep" VerticalAlignment="Center" Margin="0,0" Minimum="-1" SmallChange="1" TickFrequency="1" TickPlacement="BottomRight" ValueChanged="sliderStep_ValueChanged" Value="0" />
                 </Grid>
             </GroupBox>
             <GroupBox Header="Stimulus" Height="100" Name="groupBoxSourceControl" >
@@ -50,6 +53,16 @@
                     <TextBox Grid.Row="2" Grid.Column="1" HorizontalAlignment="Left" Name="textBoxStimulationMagnitude" VerticalAlignment="Center" Width="60" Text="0.2" HorizontalContentAlignment="Right" />
                 </Grid>
             </GroupBox>
+            <GroupBox Header="Show" Name="groupBoxShow" >
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                    </Grid.RowDefinitions>
+                    <RadioButton Content="Pressure" HorizontalAlignment="Left" Margin="6,4,0,4" Name="radioButtonShowPressure" VerticalAlignment="Center" IsChecked="True" Checked="radioButtonShowPressure_Checked" />
+                    <RadioButton Content="Loss (static)" Grid.Row="1" HorizontalAlignment="Left" Margin="6,4,0,4" Name="radioButtonShowLoss" VerticalAlignment="Center" Checked="radioButtonShowLoss_Checked" />
+                </Grid>
+            </GroupBox>
             <GroupBox Header="Statistics" Height="100" Name="groupBoxStatistics" >
                 <Grid>
                     <Grid.RowDefinitions>
@@ -62,7 +75,8 @@
         </StackPanel>
         <ScrollViewer Grid.Column="1" Name="scrollViewer1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
             <Canvas Height="1024" HorizontalAlignment="Left" Name="canvasP" VerticalAlignment="Top" Width="1024" MouseUp="canvasP_MouseUp" Background="White">
-                <Image Width="1024" Height="1024" Name="mImage" />
+                <Image Width="1024" Height="1024" Name="mImagePressure" />
+                <Image Width="1024" Height="1024" Name="mImageLoss" Visibility="Hidden" />
                 <Line X1="512" X2="512" Y1="0" Y2="6" Stroke="Black" />
                 <TextBlock Canvas.Left="0" Canvas.Top="5" Name="textBlockZero" Text="0"  />
                 <TextBlock Canvas.Left="509" Canvas.Top="5" Name="textBlockHalf" Text="Half"  />
