@@ -290,7 +290,8 @@ MainWindow::Loop(void)
         mD3DDeviceCtx->ClearRenderTargetView(mMainRTV, (float*)&clear_color);
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-        // VSYNCに同期(待機)して再描画
+        // VSYNCに同期(待機)してフロントバッファーとバックバッファーをスワップする。
+        // これによりScreen tearingを防ぐ。
         HRGS(mSwapChain->Present(1, 0));
     }
 
