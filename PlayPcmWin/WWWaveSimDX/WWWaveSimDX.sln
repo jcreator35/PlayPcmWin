@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WWWaveSimDX", "WWWaveSimDX.vcxproj", "{21767F80-2652-4E49-8B65-FA8FA4E1BFCD}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WWDirectX", "..\WWDirectX\WWDirectX.vcxproj", "{98863AB0-7AFB-42F4-8C69-F578B12DC006}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
+		Release|Win32 = Release|Win32
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{21767F80-2652-4E49-8B65-FA8FA4E1BFCD}.Debug|Win32.ActiveCfg = Debug|Win32
+		{21767F80-2652-4E49-8B65-FA8FA4E1BFCD}.Debug|Win32.Build.0 = Debug|Win32
+		{21767F80-2652-4E49-8B65-FA8FA4E1BFCD}.Debug|x64.ActiveCfg = Debug|x64
+		{21767F80-2652-4E49-8B65-FA8FA4E1BFCD}.Debug|x64.Build.0 = Debug|x64
+		{21767F80-2652-4E49-8B65-FA8FA4E1BFCD}.Release|Win32.ActiveCfg = Release|Win32
+		{21767F80-2652-4E49-8B65-FA8FA4E1BFCD}.Release|Win32.Build.0 = Release|Win32
+		{21767F80-2652-4E49-8B65-FA8FA4E1BFCD}.Release|x64.ActiveCfg = Release|x64
+		{21767F80-2652-4E49-8B65-FA8FA4E1BFCD}.Release|x64.Build.0 = Release|x64
+		{98863AB0-7AFB-42F4-8C69-F578B12DC006}.Debug|Win32.ActiveCfg = Debug|Win32
+		{98863AB0-7AFB-42F4-8C69-F578B12DC006}.Debug|Win32.Build.0 = Debug|Win32
+		{98863AB0-7AFB-42F4-8C69-F578B12DC006}.Debug|x64.ActiveCfg = Debug|x64
+		{98863AB0-7AFB-42F4-8C69-F578B12DC006}.Debug|x64.Build.0 = Debug|x64
+		{98863AB0-7AFB-42F4-8C69-F578B12DC006}.Release|Win32.ActiveCfg = Release|Win32
+		{98863AB0-7AFB-42F4-8C69-F578B12DC006}.Release|Win32.Build.0 = Release|Win32
+		{98863AB0-7AFB-42F4-8C69-F578B12DC006}.Release|x64.ActiveCfg = Release|x64
+		{98863AB0-7AFB-42F4-8C69-F578B12DC006}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
