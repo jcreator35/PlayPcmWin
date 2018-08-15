@@ -21,13 +21,36 @@ static const int WINDOW_W = 1280;
 static const int WINDOW_H = 1080;
 
 //                                 R     G     B     A
-static ImVec4 clear_color = ImVec4(0.2f, 0.2f, 0.2f, 1.00f);
+static ImVec4 gClearColor = ImVec4(0.2f, 0.2f, 0.2f, 1.00f);
+
+static const char *WindowDpiToStr(WindowDpi a)
+{
+    switch (a) {
+    case WD_96: return "96 dpi";
+    case WD_120: return "120 dpi";
+    case WD_144: return "144 dpi";
+    case WD_168: return "168 dpi";
+    case WD_192: return "192 dpi";
+    case WD_240: return "240 dpi";
+    default:
+        assert(0);
+        return "Unknown";
+    }
+}
+
+static const int WindowDpiToDpi(WindowDpi a)
+{
+    assert(0 <= (int)a && (int)a < WD_NUM);
+
+    const int table[] = { 96, 120, 144, 168, 192, 240 };
+    return table[(int)a];
+}
 
 MainWindow * MainWindow::mInstance = nullptr;
 
 MainWindow::MainWindow(void)
     : mD3DDevice(nullptr), mD3DDeviceCtx(nullptr), mSwapChain(nullptr),
-      mMainRTV(nullptr), mHWnd(nullptr)
+      mMainRTV(nullptr), mHWnd(nullptr), mDpi(WD_96)
 {
     assert(mInstance == nullptr);
     mInstance = this;
@@ -210,7 +233,6 @@ MainWindow::Setup(void)
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
-    (void)io;
 
     // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
@@ -218,24 +240,6 @@ MainWindow::Setup(void)
     ImGui_ImplWin32_Init(mHWnd);
     ImGui_ImplDX11_Init(mD3DDevice, mD3DDeviceCtx);
     ImGui::StyleColorsDark();
-
-    // Load Fonts
-    // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them. 
-    // - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple. 
-    // - If the file cannot be loaded, the function will return nullptr. Please handle those errors in your application (e.g. use an assertion, or display an error and quit).
-    // - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
-    // - Read 'misc/fonts/README.txt' for more instructions and details.
-    // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
-    //io.Fonts->AddFontDefault();
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/ProggyTiny.ttf", 10.0f);
-    //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());
-    //IM_ASSERT(font != nullptr);
-
-    //ImFont* font = io.Fonts->AddFontFromFileTTF("../../misc/mplus/mplus-1m-regular.ttf", 16.0f);
-    //IM_ASSERT(font != nullptr);
 
     return hr;
 }
@@ -287,7 +291,7 @@ MainWindow::Loop(void)
 
         ImGui::Render();
         mD3DDeviceCtx->OMSetRenderTargets(1, &mMainRTV, nullptr);
-        mD3DDeviceCtx->ClearRenderTargetView(mMainRTV, (float*)&clear_color);
+        mD3DDeviceCtx->ClearRenderTargetView(mMainRTV, (float*)&gClearColor);
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
         // VSYNCに同期(待機)してフロントバッファーとバックバッファーをスワップする。
@@ -304,7 +308,9 @@ MainWindow::UpdateGUI(void)
 {
     ImGui::Begin("Settings");
     ImGui::Text("%.1f Frames/s", ImGui::GetIO().Framerate);
-    
+
+    UpdateDpi();
+
     if (ImGui::Button("Update")) {
 
     }
@@ -312,3 +318,24 @@ MainWindow::UpdateGUI(void)
     ImGui::End();
 }
 
+void
+MainWindow::UpdateDpi(void)
+{
+    if (ImGui::TreeNode("UI Scaling")) {
+        // DPIの設定。
+        for (int i=0; i<WD_NUM; ++i) {
+            bool bDpi = (int)mDpi == i;
+            if (ImGui::Checkbox(WindowDpiToStr((WindowDpi)i), &bDpi) && ((int)mDpi != i)) {
+                // DPI変更。
+                mDpi = (WindowDpi)i;
+
+                int dpi = WindowDpiToDpi(mDpi);
+
+                float scale = (float)dpi / USER_DEFAULT_SCREEN_DPI;
+                ImGui::SetWindowFontScale(scale);
+            }
+        }
+
+        ImGui::TreePop();
+    }
+}
