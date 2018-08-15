@@ -2,6 +2,8 @@
 
 #pragma once
 #include <d3d11.h>
+#include "WWSettings.h"
+#include <stdint.h>
 
 enum WindowDpi {
     WD_96,  //< 1x
@@ -34,6 +36,8 @@ private:
     HWND                     mHWnd;
     WNDCLASSEX               mWC;
     WindowDpi                mDpi;
+    WWSettings               mSettings;
+    int64_t                  mFrameCount;
 
     HRESULT CreateDeviceAndSwapChain(void);
     void DestroyDeviceAndSwapChain(void);
@@ -47,5 +51,7 @@ private:
     void UpdateGUI(void);
 
     void UpdateDpi(void);
+
+    void ChangeDpi(void);
 };
 

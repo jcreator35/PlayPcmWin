@@ -5,6 +5,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WWWaveSimDX", "WWWaveSimDX.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WWDirectX", "..\WWDirectX\WWDirectX.vcxproj", "{98863AB0-7AFB-42F4-8C69-F578B12DC006}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WWSettings", "..\WWSettings\WWSettings.vcxproj", "{0C7C6892-DCD9-4064-861F-F302F60D1820}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -29,6 +31,14 @@ Global
 		{98863AB0-7AFB-42F4-8C69-F578B12DC006}.Release|Win32.Build.0 = Release|Win32
 		{98863AB0-7AFB-42F4-8C69-F578B12DC006}.Release|x64.ActiveCfg = Release|x64
 		{98863AB0-7AFB-42F4-8C69-F578B12DC006}.Release|x64.Build.0 = Release|x64
+		{0C7C6892-DCD9-4064-861F-F302F60D1820}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0C7C6892-DCD9-4064-861F-F302F60D1820}.Debug|Win32.Build.0 = Debug|Win32
+		{0C7C6892-DCD9-4064-861F-F302F60D1820}.Debug|x64.ActiveCfg = Debug|x64
+		{0C7C6892-DCD9-4064-861F-F302F60D1820}.Debug|x64.Build.0 = Debug|x64
+		{0C7C6892-DCD9-4064-861F-F302F60D1820}.Release|Win32.ActiveCfg = Release|Win32
+		{0C7C6892-DCD9-4064-861F-F302F60D1820}.Release|Win32.Build.0 = Release|Win32
+		{0C7C6892-DCD9-4064-861F-F302F60D1820}.Release|x64.ActiveCfg = Release|x64
+		{0C7C6892-DCD9-4064-861F-F302F60D1820}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

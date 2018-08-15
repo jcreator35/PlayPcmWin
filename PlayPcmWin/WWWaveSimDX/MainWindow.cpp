@@ -16,9 +16,13 @@
 // We should extern this function to call it for some reason! Please refer imgui_imple_win32.h
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-static const wchar_t *gProgramName = L"DirectXTest";
+static const wchar_t *gProgramName = L"WWWaveSimDX";
 static const int WINDOW_W = 1280;
 static const int WINDOW_H = 1080;
+
+static const int DEFAULT_DPI = 96;
+
+static const wchar_t *SETTINGS_DPI = L"DPI";
 
 //                                 R     G     B     A
 static ImVec4 gClearColor = ImVec4(0.2f, 0.2f, 0.2f, 1.00f);
@@ -46,11 +50,25 @@ static const int WindowDpiToDpi(WindowDpi a)
     return table[(int)a];
 }
 
+static WindowDpi DpiToWindowDpi(int iDpi)
+{
+    switch (iDpi) {
+    case 96:
+    default:
+        return WD_96;
+    case 120: return WD_120;
+    case 144: return WD_144;
+    case 168: return WD_168;
+    case 192: return WD_192;
+    case 240: return WD_240;
+    }
+}
+
 MainWindow * MainWindow::mInstance = nullptr;
 
 MainWindow::MainWindow(void)
     : mD3DDevice(nullptr), mD3DDeviceCtx(nullptr), mSwapChain(nullptr),
-      mMainRTV(nullptr), mHWnd(nullptr), mDpi(WD_96)
+      mMainRTV(nullptr), mHWnd(nullptr), mDpi(WD_96), mFrameCount(0)
 {
     assert(mInstance == nullptr);
     mInstance = this;
@@ -210,6 +228,12 @@ MainWindow::Setup(void)
     assert(mHWnd == nullptr);
     assert(mWC.hInstance == nullptr);
 
+    // 設定を読み出します。
+    mSettings.Init(gProgramName);
+
+    //mSettings.GetInt(L"Version", 1);
+    //mSettings.SetInt(L"Version", 1);
+
     HRESULT hr = S_OK;
     WNDCLASSEX mWC = { sizeof(WNDCLASSEX), CS_CLASSDC, SWndProc, 0L, 0L,
             GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, gProgramName, nullptr };
@@ -241,6 +265,12 @@ MainWindow::Setup(void)
     ImGui_ImplDX11_Init(mD3DDevice, mD3DDeviceCtx);
     ImGui::StyleColorsDark();
 
+    {
+        int iDpi = mSettings.GetInt(SETTINGS_DPI, DEFAULT_DPI);
+        mDpi = DpiToWindowDpi(iDpi);
+
+    }
+
     return hr;
 }
 
@@ -262,6 +292,10 @@ MainWindow::Unsetup(void)
         UnregisterClass(gProgramName, mWC.hInstance);
         mWC.hInstance = nullptr;
     }
+
+    // 設定を保存する。
+    mSettings.SetInt(SETTINGS_DPI, WindowDpiToDpi(mDpi));
+    mSettings.Term();
 }
 
 HRESULT
@@ -297,6 +331,8 @@ MainWindow::Loop(void)
         // VSYNCに同期(待機)してフロントバッファーとバックバッファーをスワップする。
         // これによりScreen tearingを防ぐ。
         HRGS(mSwapChain->Present(1, 0));
+
+        ++mFrameCount;
     }
 
 end:
@@ -321,6 +357,10 @@ MainWindow::UpdateGUI(void)
 void
 MainWindow::UpdateDpi(void)
 {
+    if (mFrameCount == 0) {
+        ChangeDpi();
+    }
+
     if (ImGui::TreeNode("UI Scaling")) {
         // DPIの設定。
         for (int i=0; i<WD_NUM; ++i) {
@@ -328,14 +368,20 @@ MainWindow::UpdateDpi(void)
             if (ImGui::Checkbox(WindowDpiToStr((WindowDpi)i), &bDpi) && ((int)mDpi != i)) {
                 // DPI変更。
                 mDpi = (WindowDpi)i;
-
-                int dpi = WindowDpiToDpi(mDpi);
-
-                float scale = (float)dpi / USER_DEFAULT_SCREEN_DPI;
-                ImGui::SetWindowFontScale(scale);
+                ChangeDpi();
             }
         }
 
         ImGui::TreePop();
     }
 }
+
+void
+MainWindow::ChangeDpi(void)
+{
+    int dpi = WindowDpiToDpi(mDpi);
+
+    float scale = (float)dpi / DEFAULT_DPI;
+    ImGui::SetWindowFontScale(scale);
+}
+
