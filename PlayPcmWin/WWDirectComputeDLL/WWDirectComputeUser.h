@@ -66,7 +66,7 @@ public:
     HRESULT GetAdapterVideoMemoryBytes(int idx, int64_t *videoMemoryBytes);
     HRESULT ChooseAdapter(int idx);
 
-    // ComputeShaderをコンパイルしてGPUに送る
+    // ComputeShaderをコンパイルしてGPUに送る。
     HRESULT CreateComputeShader(
         LPCWSTR path,
         LPCSTR entryPoint,

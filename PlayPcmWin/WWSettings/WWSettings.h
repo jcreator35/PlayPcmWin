@@ -1,5 +1,6 @@
 #pragma once
 
+// prevent SimpleIni header to be exposed here
 class WWSettingsImpl;
 
 class WWSettings {

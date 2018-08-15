@@ -1,7 +1,7 @@
 ﻿// 日本語
 
 #pragma once
-#include <d3d11.h>
+#include "WWWave2DGpu.h"
 #include "WWSettings.h"
 #include <stdint.h>
 
@@ -38,6 +38,7 @@ private:
     WindowDpi                mDpi;
     WWSettings               mSettings;
     int64_t                  mFrameCount;
+    WWWave2DGpu              mWave2D;
 
     HRESULT CreateDeviceAndSwapChain(void);
     void DestroyDeviceAndSwapChain(void);

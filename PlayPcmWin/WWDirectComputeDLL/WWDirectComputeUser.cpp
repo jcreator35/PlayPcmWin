@@ -125,7 +125,7 @@ HRESULT
 WWDirectComputeUser::GetAdapterDesc(int idx, wchar_t *desc, int descBytes)
 {
     memset(desc, 0, descBytes);
-    if (idx < 0 || m_vAdapters.size() <= idx) {
+    if (idx < 0 || (int)m_vAdapters.size() <= idx) {
         return E_FAIL;
     }
 
@@ -136,7 +136,7 @@ WWDirectComputeUser::GetAdapterDesc(int idx, wchar_t *desc, int descBytes)
 HRESULT
 WWDirectComputeUser::GetAdapterVideoMemoryBytes(int idx, int64_t *videoMemoryBytes)
 {
-    if (idx < 0 || m_vAdapters.size() <= idx) {
+    if (idx < 0 || (int)m_vAdapters.size() <= idx) {
         return E_FAIL;
     }
     *videoMemoryBytes = m_vAdapters[idx].desc.DedicatedVideoMemory;
@@ -147,7 +147,7 @@ WWDirectComputeUser::GetAdapterVideoMemoryBytes(int idx, int64_t *videoMemoryByt
 HRESULT
 WWDirectComputeUser::ChooseAdapter(int idx)
 {
-    if (idx < 0 || m_vAdapters.size() <= idx) {
+    if (idx < 0 || (int)m_vAdapters.size() <= idx) {
         printf("%s:%d E: idx is out of range\n", __FILE__, __LINE__);
         return E_FAIL;
     }

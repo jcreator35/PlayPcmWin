@@ -27,21 +27,6 @@ static const wchar_t *SETTINGS_DPI = L"DPI";
 //                                 R     G     B     A
 static ImVec4 gClearColor = ImVec4(0.2f, 0.2f, 0.2f, 1.00f);
 
-static const char *WindowDpiToStr(WindowDpi a)
-{
-    switch (a) {
-    case WD_96: return "96 dpi";
-    case WD_120: return "120 dpi";
-    case WD_144: return "144 dpi";
-    case WD_168: return "168 dpi";
-    case WD_192: return "192 dpi";
-    case WD_240: return "240 dpi";
-    default:
-        assert(0);
-        return "Unknown";
-    }
-}
-
 static const int WindowDpiToDpi(WindowDpi a)
 {
     assert(0 <= (int)a && (int)a < WD_NUM);
@@ -231,9 +216,6 @@ MainWindow::Setup(void)
     // 設定を読み出します。
     mSettings.Init(gProgramName);
 
-    //mSettings.GetInt(L"Version", 1);
-    //mSettings.SetInt(L"Version", 1);
-
     HRESULT hr = S_OK;
     WNDCLASSEX mWC = { sizeof(WNDCLASSEX), CS_CLASSDC, SWndProc, 0L, 0L,
             GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, gProgramName, nullptr };
@@ -271,12 +253,16 @@ MainWindow::Setup(void)
 
     }
 
+    mWave2D.Init();
+
     return hr;
 }
 
 void
 MainWindow::Unsetup(void)
 {
+    mWave2D.Term();
+
     ImGui_ImplDX11_Shutdown();
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
@@ -365,7 +351,11 @@ MainWindow::UpdateDpi(void)
         // DPIの設定。
         for (int i=0; i<WD_NUM; ++i) {
             bool bDpi = (int)mDpi == i;
-            if (ImGui::Checkbox(WindowDpiToStr((WindowDpi)i), &bDpi) && ((int)mDpi != i)) {
+
+            char s[256];
+            sprintf_s(s, "%d dpi", WindowDpiToDpi((WindowDpi)i));
+
+            if (ImGui::Checkbox(s, &bDpi) && ((int)mDpi != i)) {
                 // DPI変更。
                 mDpi = (WindowDpi)i;
                 ChangeDpi();

@@ -14,7 +14,7 @@ static const wchar_t * DEFAULT_SECTION = L"Common";
 
 WWSettings::~WWSettings(void)
 {
-    assert(mImpl == nullptr);
+    assert(mImpl == nullptr); //< Term‚ðŒÄ‚Ñ–Y‚ê‚é‚Æ”­¶‚·‚éB
 }
 
 int
