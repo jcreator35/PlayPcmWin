@@ -43,7 +43,7 @@
                     <Button Content="⏸" HorizontalAlignment="Center" Grid.Column="1" Name="buttonPause" VerticalAlignment="Center" Width="50" Height="40" FontSize="20" Click="buttonPause_Click" IsEnabled="True" />
                     <Button Content="⏩" HorizontalAlignment="Center" Grid.Column="2" Name="buttonFastForward10" VerticalAlignment="Center" Width="50" Height="40" FontSize="20" Click="buttonFastForward10_Click" IsEnabled="True" />
                     <Label Content="Time Step:" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left" VerticalAlignment="Center" />
-                    <Slider Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Center" Margin="7,0,0,0" Name="sliderTimeStep" VerticalAlignment="Top" Width="50" ValueChanged="sliderTimeStep_ValueChanged" Minimum="0" SmallChange="0.1" Maximum="16" TickPlacement="BottomRight" Value="5" />
+                    <Slider Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Center" Margin="7,0,0,0" Name="sliderTimeStep" VerticalAlignment="Top" Width="50" ValueChanged="sliderTimeStep_ValueChanged" Minimum="1" SmallChange="0.1" Maximum="16" TickPlacement="BottomRight" Value="5" LargeChange="1" />
                     <Label Content="32" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Right" Name="labelTimeStepNumber" VerticalAlignment="Center" />
                     <Label Content="Time:" Grid.Row="2" HorizontalAlignment="Right" Name="labelTime" VerticalAlignment="Center" />
                     <Label Content="0.0" Grid.Row="2" Grid.Column="2" HorizontalAlignment="Right" Name="labelSec" VerticalAlignment="Center" />

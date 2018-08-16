@@ -62,8 +62,7 @@ public:
     HRESULT Setup(const WWWave1DParams &p, float *loss, float *roh, float *cr);
     void Unsetup(void);
 
-    HRESULT Run(int cRepeat, int stimNum, WWWave1DStim stim[],
-            float *v, float *p);
+    HRESULT Run(int cRepeat, int stimNum, WWWave1DStim stim[]);
 
     // @return コピーした要素数。
     int CopyResultV(float *vTo, int count);

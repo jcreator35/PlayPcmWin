@@ -26,7 +26,7 @@ namespace WWDirectComputeCS {
 
         [DllImport("WWDirectComputeDLL.dll")]
         private extern static int
-        WWDCWave2D_Run(int cRepeat, int stimNum, IntPtr stim, float[] v, float[] p);
+        WWDCWave2D_Run(int cRepeat, int stimNum, IntPtr stim);
 
         [DllImport("WWDirectComputeDLL.dll")]
         private extern static int
@@ -54,11 +54,11 @@ namespace WWDirectComputeCS {
         }
 
         public int Run(int cRepeat, int stimNum,
-               WWWave1DStim [] stim, float[] v, float[] p) {
+               WWWave1DStim [] stim) {
 
             IntPtr ptr = WWWave1DStim.ToIntPtr(stim);
 
-            int hr = WWDCWave2D_Run(cRepeat, stimNum, ptr, v, p);
+            int hr = WWDCWave2D_Run(cRepeat, stimNum, ptr);
 
             Marshal.FreeHGlobal(ptr);
 

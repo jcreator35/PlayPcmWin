@@ -147,11 +147,11 @@ void
 WWWave1DGpu::Unsetup(void)
 {
     for (int i=WWWave1DUAV_NUM-1; 0<=i; --i) {
-        mCU.DestroyDataAndUnorderedAccessView(mpUAVs[i]);
+        mCU.DestroyDataAndUAV(mpUAVs[i]);
         mpUAVs[i] = nullptr;
     }
     for (int i=WWWave1DSRV_NUM-1; 0<=i; --i) {
-        mCU.DestroyDataAndShaderResourceView(mpSRVs[i]);
+        mCU.DestroyDataAndSRV(mpSRVs[i]);
         mpSRVs[i] = nullptr;
     }
     for (int i=WWWave1DCS_NUM-1; 0<=i; --i) {
@@ -163,9 +163,11 @@ WWWave1DGpu::Unsetup(void)
 }
 
 HRESULT
-WWWave1DGpu::Run(int cRepeat, int stimNum, WWWave1DStim stim[],
-        float *v, float *p)
+WWWave1DGpu::Run(int cRepeat, int stimNum, WWWave1DStim stim[])
 {
+    // cRepeatは2の倍数。
+    assert((cRepeat & 1) == 0);
+
     HRESULT hr = S_OK;
 
     if (STIM_COUNT < stimNum) {

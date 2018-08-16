@@ -12,7 +12,7 @@ static const int THREAD_W = 16;
 static const int THREAD_H = 16;
 
 WWWave2DGpu::WWWave2DGpu(void)
-    : mV(nullptr), mP(nullptr), mTickTotal(0)
+    : mResultPTex2D(nullptr), mV(nullptr), mP(nullptr), mTickTotal(0)
 {
     memset(mpCS, 0, sizeof mpCS);
     memset(mpSRVs, 0, sizeof mpSRVs);
@@ -21,6 +21,7 @@ WWWave2DGpu::WWWave2DGpu(void)
 
 WWWave2DGpu::~WWWave2DGpu(void)
 {
+    assert(nullptr == mResultPTex2D);
     assert(nullptr == mV);
     assert(nullptr == mP);
 }
@@ -160,6 +161,15 @@ WWWave2DGpu::Setup(const WWWave2DParams &p, float *loss, float *roh, float *cr)
         assert(mpUAVs[5]);
     }
 
+    {
+        // 結果書き出し用のテクスチャー。
+        WWTexture2DParams params = {
+                p.fieldW, p.fieldH, 0, 1, DXGI_FORMAT_R32_FLOAT, {1, 0}, D3D11_USAGE_DEFAULT,
+                D3D11_BIND_UNORDERED_ACCESS, 0, 0, nullptr, 0, "ResultP", nullptr, &mResultPTex2D};
+        HRG(mCU.CreateSeveralTexture2D(1, &params));
+        assert(mResultPTex2D);
+    }
+
     mTickTotal = 0;
 
 end:
@@ -169,12 +179,15 @@ end:
 void
 WWWave2DGpu::Unsetup(void)
 {
+    mCU.DestroyDataAndUAV(mResultPTex2D);
+    mResultPTex2D = nullptr;
+
     for (int i=WWWave2DUAV_NUM-1; 0<=i; --i) {
-        mCU.DestroyDataAndUnorderedAccessView(mpUAVs[i]);
+        mCU.DestroyDataAndUAV(mpUAVs[i]);
         mpUAVs[i] = nullptr;
     }
     for (int i=WWWave2DSRV_NUM-1; 0<=i; --i) {
-        mCU.DestroyDataAndShaderResourceView(mpSRVs[i]);
+        mCU.DestroyDataAndSRV(mpSRVs[i]);
         mpSRVs[i] = nullptr;
     }
     for (int i=WWWave2DCS_NUM-1; 0<=i; --i) {
@@ -186,10 +199,12 @@ WWWave2DGpu::Unsetup(void)
 }
 
 HRESULT
-WWWave2DGpu::Run(int cRepeat, int stimNum, WWWave1DStim stim[],
-        float *v, float *p)
+WWWave2DGpu::Run(int cRepeat, int stimNum, WWWave1DStim stim[])
 {
     HRESULT hr = S_OK;
+
+    // cRepeatは2の倍数。
+    assert((cRepeat & 1) == 0);
 
     if (STIM_COUNT < stimNum) {
         printf("Error: stimNum is too large!\n");

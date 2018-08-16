@@ -76,20 +76,29 @@ public:
     HRESULT Setup(const WWWave2DParams &p, float *loss, float *roh, float *cr);
     void Unsetup(void);
 
-    HRESULT Run(int cRepeat, int stimNum, WWWave1DStim stim[],
-            float *v, float *p);
+    /// CPUメモリに結果mVとmPを書き込む。
+    HRESULT Run(int cRepeat, int stimNum, WWWave1DStim stim[]);
 
-    // @return コピーした要素数。
+    /// Run()の結果のVを取得。
+    /// @return コピーした要素数。
     int CopyResultV(float *vTo, int count);
-    // @return コピーした要素数。
+
+    /// Run()の結果のPを取得。
+    /// @return コピーした要素数。
     int CopyResultP(float *pTo, int count);
 
+    /// GPUメモリ上のUAVのvとpを更新。結果のpを2DテクスチャーmResultPTex2Dにする。
+    HRESULT RunGPU(int cRepeat, int stimNum, WWWave1DStim stim[]);
+
+    /// RunGPU()の結果のPテクスチャーを取得。
+    ID3D11UnorderedAccessView *GetPTexture(void) const { return mResultPTex2D; }
 
 private:
     WWDirectComputeUser mCU;
     ID3D11ComputeShader *mpCS[WWWave2DCS_NUM];
     ID3D11ShaderResourceView  *mpSRVs[WWWave2DSRV_NUM];
     ID3D11UnorderedAccessView *mpUAVs[WWWave2DUAV_NUM];
+    ID3D11UnorderedAccessView *mResultPTex2D;
     WWWave2DParams mParams;
     int mNumOfPoints;
     int mEdgeABCPoints;

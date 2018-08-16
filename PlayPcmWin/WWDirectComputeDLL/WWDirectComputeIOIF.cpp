@@ -178,9 +178,9 @@ WWDCWave1D_Setup(const WWWave1DParams &p, float *loss, float *roh, float *cr)
 
 extern "C" __declspec(dllexport)
 int __stdcall
-WWDCWave1D_Run(int cRepeat, int stimNum, WWWave1DStim *stim, float *v, float *p)
+WWDCWave1D_Run(int cRepeat, int stimNum, WWWave1DStim *stim)
 {
-    return gWave1D.Run(cRepeat, stimNum, stim, v, p);
+    return gWave1D.Run(cRepeat, stimNum, stim);
 }
 
 extern "C" __declspec(dllexport)
@@ -220,9 +220,9 @@ WWDCWave2D_Setup(const WWWave2DParams &p, float *loss, float *roh, float *cr)
 
 extern "C" __declspec(dllexport)
 int __stdcall
-WWDCWave2D_Run(int cRepeat, int stimNum, WWWave1DStim *stim, float *v, float *p)
+WWDCWave2D_Run(int cRepeat, int stimNum, WWWave1DStim *stim)
 {
-    return gWave2D.Run(cRepeat, stimNum, stim, v, p);
+    return gWave2D.Run(cRepeat, stimNum, stim);
 }
 
 extern "C" __declspec(dllexport)

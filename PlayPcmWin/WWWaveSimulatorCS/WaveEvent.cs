@@ -19,7 +19,7 @@ namespace WWWaveSimulatorCS {
         public float mMagnitude;
         public float mΔt;
         public const float SINE_PERIOD = 1000000.0f;
-        private const int GAUSSIAN_PERIOD = 50;
+        private const int GAUSSIAN_PERIOD = 150;
         private const int PULSE_PERIOD = 1;
 
         public WaveEvent(EventType t, float Sc, int pos, float freq, float magnitude, float Δt) {

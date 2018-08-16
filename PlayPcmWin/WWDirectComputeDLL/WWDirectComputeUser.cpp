@@ -598,7 +598,7 @@ end:
 }
 
 HRESULT
-WWDirectComputeUser::CreateBufferShaderResourceView(
+WWDirectComputeUser::CreateBufferSRV(
         ID3D11Buffer * pBuffer,
         const char *name,
         ID3D11ShaderResourceView ** ppSrvOut)
@@ -640,7 +640,7 @@ end:
 
 
 HRESULT
-WWDirectComputeUser::CreateBufferUnorderedAccessView(
+WWDirectComputeUser::CreateBufferUAV(
         ID3D11Buffer * pBuffer,
         const char *name,
         ID3D11UnorderedAccessView ** ppUavOut)
@@ -682,7 +682,7 @@ end:
 }
 
 HRESULT
-WWDirectComputeUser::CreateBufferAndShaderResourceView(
+WWDirectComputeUser::CreateBufferAndSRV(
         unsigned int uElementSize,
         unsigned int uCount,
         void * pSendData,
@@ -698,7 +698,7 @@ WWDirectComputeUser::CreateBufferAndShaderResourceView(
     HRG(CreateStructuredBuffer(uElementSize, uCount, pSendData, nullptr, &pBuf));
     assert(pBuf);
 
-    HRG(CreateBufferShaderResourceView(pBuf, name, ppSrv));
+    HRG(CreateBufferSRV(pBuf, name, ppSrv));
     assert(*ppSrv);
 
     WWReadOnlyGpuBufferInfo info;
@@ -716,7 +716,7 @@ end:
 }
 
 void
-WWDirectComputeUser::DestroyDataAndShaderResourceView(
+WWDirectComputeUser::DestroyDataAndSRV(
         ID3D11ShaderResourceView *pSrv)
 {
     std::map<ID3D11ShaderResourceView *, WWReadOnlyGpuBufferInfo>::iterator
@@ -732,7 +732,7 @@ WWDirectComputeUser::DestroyDataAndShaderResourceView(
 }
 
 HRESULT
-WWDirectComputeUser::CreateBufferAndUnorderedAccessView(
+WWDirectComputeUser::CreateBufferAndUAV(
         unsigned int uElementSize,
         unsigned int uCount,
         void *pSendData,
@@ -748,7 +748,7 @@ WWDirectComputeUser::CreateBufferAndUnorderedAccessView(
     HRG(CreateStructuredBuffer(uElementSize, uCount, pSendData, nullptr, &pBuf));
     assert(pBuf);
 
-    HRG(CreateBufferUnorderedAccessView(pBuf, name, ppUav));
+    HRG(CreateBufferUAV(pBuf, name, ppUav));
     assert(*ppUav);
 
     WWReadWriteGpuBufferInfo info;
@@ -766,7 +766,7 @@ end:
 }
 
 void
-WWDirectComputeUser::DestroyDataAndUnorderedAccessView(
+WWDirectComputeUser::DestroyDataAndUAV(
         ID3D11UnorderedAccessView * pUav)
 {
     std::map<ID3D11UnorderedAccessView *, WWReadWriteGpuBufferInfo>::iterator
@@ -791,9 +791,9 @@ WWDirectComputeUser::CreateSeveralStructuredBuffer(int n, WWStructuredBufferPara
 
         auto &p = params[i];
         if (p.pSrv != nullptr) {
-            hr = CreateBufferAndShaderResourceView(p.uElementSize, p.uCount, p.pInitData, p.name, p.pSrv);
+            hr = CreateBufferAndSRV(p.uElementSize, p.uCount, p.pInitData, p.name, p.pSrv);
         } else if (p.pUav != nullptr) {
-            hr = CreateBufferAndUnorderedAccessView(p.uElementSize, p.uCount, p.pInitData, p.name, p.pUav);
+            hr = CreateBufferAndUAV(p.uElementSize, p.uCount, p.pInitData, p.name, p.pUav);
         } else {
             assert(false);
         }
@@ -810,7 +810,7 @@ WWDirectComputeUser::CreateSeveralStructuredBuffer(int n, WWStructuredBufferPara
 // Texture1D
 
 HRESULT
-WWDirectComputeUser::CreateTexture1DShaderResourceView(
+WWDirectComputeUser::CreateTexture1DSRV(
         ID3D11Texture1D * pTex,
         DXGI_FORMAT format,
         const char *name,
@@ -853,7 +853,7 @@ end:
 }
 
 HRESULT
-WWDirectComputeUser::CreateTexture1DUnorderedAccessView(
+WWDirectComputeUser::CreateTexture1DUAV(
         ID3D11Texture1D * pTex,
         DXGI_FORMAT format,
         const char *name,
@@ -916,12 +916,18 @@ WWDirectComputeUser::CreateTexture1D(
     desc.CPUAccessFlags = CPUAccessFlags;
     desc.MiscFlags = MiscFlags;
 
+    assert(Usage != D3D11_USAGE_IMMUTABLE || pInitialData != nullptr);
+    D3D11_SUBRESOURCE_DATA *pSrd = nullptr;
     D3D11_SUBRESOURCE_DATA srd;
-    memset(&srd, 0, sizeof srd);
-    srd.pSysMem = pInitialData;
-    srd.SysMemPitch = 0;
+    if (pInitialData) {
+        memset(&srd, 0, sizeof srd);
+        srd.pSysMem          = pInitialData;
+        srd.SysMemPitch      = 0;
+        srd.SysMemSlicePitch = 0;
+        pSrd = &srd;
+    }
 
-    HRG(m_pDevice->CreateTexture1D(&desc, &srd, ppTexOut));
+    HRG(m_pDevice->CreateTexture1D(&desc, pSrd, ppTexOut));
 
 end:
     return hr;
@@ -941,7 +947,7 @@ WWDirectComputeUser::DestroyTexture1D(
 }
 
 HRESULT
-WWDirectComputeUser::CreateTexture1DAndShaderResourceView(
+WWDirectComputeUser::CreateTexture1DAndSRV(
         int width,
         int mipLevels,
         int arraySize,
@@ -966,7 +972,7 @@ WWDirectComputeUser::CreateTexture1DAndShaderResourceView(
 
     assert(pTex);
 
-    HRG(CreateTexture1DShaderResourceView(pTex, format, name, ppSrv));
+    HRG(CreateTexture1DSRV(pTex, format, name, ppSrv));
     assert(*ppSrv);
 
     WWReadOnlyGpuBufferInfo info;
@@ -984,7 +990,7 @@ end:
 }
 
 HRESULT
-WWDirectComputeUser::CreateTexture1DAndUnorderedAccessView(
+WWDirectComputeUser::CreateTexture1DAndUAV(
         int width,
         int mipLevels,
         int arraySize,
@@ -1009,7 +1015,7 @@ WWDirectComputeUser::CreateTexture1DAndUnorderedAccessView(
 
     assert(pTex);
 
-    HRG(CreateTexture1DUnorderedAccessView(pTex, format, name, ppUav));
+    HRG(CreateTexture1DUAV(pTex, format, name, ppUav));
     assert(*ppUav);
 
     WWReadWriteGpuBufferInfo info;
@@ -1036,10 +1042,276 @@ WWDirectComputeUser::CreateSeveralTexture1D(int n, WWTexture1DParams *params)
 
         auto &p = params[i];
         if (p.pSrv != nullptr) {
-            hr = CreateTexture1DAndShaderResourceView(p.Width, p.MipLevels, p.ArraySize, p.Format, p.Usage, p.BindFlags, p.CPUAccessFlags,
+            hr = CreateTexture1DAndSRV(p.Width, p.MipLevels, p.ArraySize, p.Format, p.Usage, p.BindFlags, p.CPUAccessFlags,
                 p.MiscFlags, p.data, p.dataCount, p.name, p.pSrv);
         } else if (p.pUav != nullptr) {
-            hr = CreateTexture1DAndUnorderedAccessView(p.Width, p.MipLevels, p.ArraySize, p.Format, p.Usage, p.BindFlags, p.CPUAccessFlags,
+            hr = CreateTexture1DAndUAV(p.Width, p.MipLevels, p.ArraySize, p.Format, p.Usage, p.BindFlags, p.CPUAccessFlags,
+                p.MiscFlags, p.data, p.dataCount, p.name, p.pUav);
+        } else {
+            assert(false);
+        }
+
+        if (FAILED(hr)) {
+            return hr;
+        }
+    }
+
+    return hr;
+}
+
+// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+// Texture2D
+
+HRESULT
+WWDirectComputeUser::CreateTexture2D(
+        int Width,
+        int Height,
+        int MipLevels,
+        int ArraySize,
+        DXGI_FORMAT Format,
+        DXGI_SAMPLE_DESC SampleDesc,
+        D3D11_USAGE Usage,
+        int BindFlags,
+        int CPUAccessFlags,
+        int MiscFlags,
+        const void *pInitialData,
+        uint32_t initialDataBytes,
+        ID3D11Texture2D **ppTexOut)
+{
+    HRESULT hr = S_OK;
+    assert(ppTexOut);
+    *ppTexOut = nullptr;
+
+    D3D11_TEXTURE2D_DESC desc;
+    memset(&desc,0,sizeof desc);
+    desc.Width = Width;
+    desc.Height = Height;
+    desc.MipLevels = MipLevels;
+    desc.ArraySize = ArraySize;
+    desc.Format = Format;
+
+    desc.SampleDesc = SampleDesc;
+    desc.Usage = Usage;
+    desc.BindFlags = BindFlags;
+    desc.CPUAccessFlags = CPUAccessFlags;
+    desc.MiscFlags = MiscFlags;
+
+    assert(Usage != D3D11_USAGE_IMMUTABLE || pInitialData != nullptr);
+    D3D11_SUBRESOURCE_DATA *pSrd = nullptr;
+    D3D11_SUBRESOURCE_DATA srd;
+    if (pInitialData) {
+        memset(&srd, 0, sizeof srd);
+        srd.pSysMem          = pInitialData;
+        srd.SysMemPitch      = 0;
+        srd.SysMemSlicePitch = 0;
+        pSrd = &srd;
+    }
+
+    HRG(m_pDevice->CreateTexture2D(&desc, pSrd, ppTexOut));
+
+end:
+    return hr;
+}
+
+HRESULT
+WWDirectComputeUser::CreateTexture2DSRV(
+        ID3D11Texture2D * pTex,
+        DXGI_FORMAT format,
+        const char *name,
+        ID3D11ShaderResourceView ** ppSrvOut)
+{
+    HRESULT hr = S_OK;
+
+    assert(m_pDevice);
+    assert(pTex);
+    assert(name);
+    assert(ppSrvOut);
+    *ppSrvOut = nullptr;
+
+/*
+    これはabortする。
+    D3D11_TEXTURE1D_DESC descBuf;
+    ZeroMemory(&descBuf, sizeof descBuf);
+    pTex->GetDesc(&descBuf);
+*/
+
+    D3D11_SHADER_RESOURCE_VIEW_DESC desc;
+    ZeroMemory( &desc, sizeof desc);
+    desc.Format = format;
+    desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+    desc.Texture2D.MostDetailedMip = 0;
+    desc.Texture2D.MipLevels = -1; //< 全て使用する。
+
+    HRG(m_pDevice->CreateShaderResourceView(pTex, &desc, ppSrvOut));
+
+#if defined(DEBUG) || defined(PROFILE)
+    if (*ppSrvOut) {
+        (*ppSrvOut)->SetPrivateData(WKPDID_D3DDebugObjectName, lstrlenA(name), name);
+    }
+#else
+    (void)name;
+#endif
+
+end:
+    return hr;
+}
+
+HRESULT
+WWDirectComputeUser::CreateTexture2DUAV(
+        ID3D11Texture2D * pTex,
+        DXGI_FORMAT format,
+        const char *name,
+        ID3D11UnorderedAccessView ** ppUavOut)
+{
+    HRESULT hr = S_OK;
+
+    assert(m_pDevice);
+    assert(pTex);
+    assert(name);
+    assert(ppUavOut);
+    *ppUavOut = nullptr;
+
+    D3D11_UNORDERED_ACCESS_VIEW_DESC desc;
+    ZeroMemory( &desc, sizeof desc);
+    desc.Format = format;
+    desc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+    desc.Texture1D.MipSlice = 0;
+
+    HRG(m_pDevice->CreateUnorderedAccessView(pTex, &desc, ppUavOut));
+
+#if defined(DEBUG) || defined(PROFILE)
+    if (*ppUavOut) {
+        (*ppUavOut)->SetPrivateData(WKPDID_D3DDebugObjectName, lstrlenA(name), name);
+    }
+#else
+    (void)name;
+#endif
+
+end:
+    return hr;
+}
+
+void
+WWDirectComputeUser::DestroyTexture2D(
+        ID3D11Texture2D *pTex)
+{
+    if (pTex == nullptr) {
+        return;
+    }
+
+    pTex->Release();
+    pTex = nullptr; //< あまり意味ない。
+    return;
+}
+
+HRESULT
+WWDirectComputeUser::CreateTexture2DAndSRV(
+        int width,
+        int height,
+        int mipLevels,
+        int arraySize,
+        DXGI_FORMAT format,
+        DXGI_SAMPLE_DESC sampleDesc,
+        D3D11_USAGE usage,
+        int bindFlags,
+        int cpuAccessFlags,
+        int miscFlags,
+        const float *data,
+        int dataCount,
+        const char *name,
+        ID3D11ShaderResourceView **ppSrv)
+{
+    HRESULT hr = S_OK;
+    ID3D11Texture2D *pTex = nullptr;
+
+    assert(ppSrv);
+    *ppSrv = nullptr;
+
+    HRG(CreateTexture2D(width, height, mipLevels, arraySize, format, sampleDesc,
+            usage, bindFlags,
+            cpuAccessFlags, miscFlags, data, dataCount * sizeof(float), &pTex));
+
+    assert(pTex);
+
+    HRG(CreateTexture2DSRV(pTex, format, name, ppSrv));
+    assert(*ppSrv);
+
+    WWReadOnlyGpuBufferInfo info;
+    info.pBuf = pTex;
+    info.pSrv = *ppSrv;
+
+    m_readGpuBufInfo[info.pSrv] = info;
+
+end:
+    if (FAILED(hr)) {
+        SafeRelease(&pTex);
+    }
+
+    return hr;
+}
+
+HRESULT
+WWDirectComputeUser::CreateTexture2DAndUAV(
+        int width,
+        int height,
+        int mipLevels,
+        int arraySize,
+        DXGI_FORMAT format,
+        DXGI_SAMPLE_DESC sampleDesc,
+        D3D11_USAGE usage,
+        int bindFlags,
+        int cpuAccessFlags,
+        int miscFlags,
+        const float *data,
+        int dataCount,
+        const char *name,
+        ID3D11UnorderedAccessView **ppUav)
+{
+    HRESULT hr = S_OK;
+    ID3D11Texture2D *pTex = nullptr;
+
+    assert(ppUav);
+    *ppUav = nullptr;
+
+    HRG(CreateTexture2D(width, height, mipLevels, arraySize, format, sampleDesc,
+            usage, bindFlags,
+            cpuAccessFlags, miscFlags, data, dataCount * sizeof(float), &pTex));
+
+    assert(pTex);
+
+    HRG(CreateTexture2DUAV(pTex, format, name, ppUav));
+    assert(*ppUav);
+
+    WWReadWriteGpuBufferInfo info;
+    info.pBuf = pTex;
+    info.pUav = *ppUav;
+
+    m_rwGpuBufInfo[info.pUav] = info;
+
+end:
+    if (FAILED(hr)) {
+        SafeRelease(&pTex);
+    }
+
+    return hr;
+}
+
+HRESULT
+WWDirectComputeUser::CreateSeveralTexture2D(int n, WWTexture2DParams *params)
+{
+    HRESULT hr = E_FAIL;
+
+    for (int i=0; i<n; ++i) {
+        hr = E_FAIL;
+
+        auto &p = params[i];
+        if (p.pSrv != nullptr) {
+            hr = CreateTexture2DAndSRV(p.Width, p.Height, p.MipLevels, p.ArraySize,
+                p.Format, p.SampleDesc, p.Usage, p.BindFlags, p.CPUAccessFlags,
+                p.MiscFlags, p.data, p.dataCount, p.name, p.pSrv);
+        } else if (p.pUav != nullptr) {
+            hr = CreateTexture2DAndUAV(p.Width, p.Height, p.MipLevels, p.ArraySize,
+                p.Format, p.SampleDesc, p.Usage, p.BindFlags, p.CPUAccessFlags,
                 p.MiscFlags, p.data, p.dataCount, p.name, p.pUav);
         } else {
             assert(false);

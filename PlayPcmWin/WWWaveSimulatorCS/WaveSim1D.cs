@@ -209,7 +209,7 @@ namespace WWWaveSimulatorCS {
                 stim[i].period = WaveEvent.SINE_PERIOD;
             }
 
-            mCS.Run(nTimes, nStim, stim, mV, mP);
+            mCS.Run(nTimes, nStim, stim);
             mCS.GetResultVP(mGridW, mV, mP);
         }
 
