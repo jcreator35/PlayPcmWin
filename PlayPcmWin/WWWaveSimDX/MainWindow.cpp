@@ -19,6 +19,12 @@ extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam
 static const wchar_t *gProgramName = L"WWWaveSimDX";
 static const int WINDOW_W = 1280;
 static const int WINDOW_H = 1080;
+static const int GRID_W = 512;
+static const int GRID_H = 512;
+static const float C0     = 1.0f; // 334.0f;             // 334 (m/s)
+static const float DeltaT = 1.0f; // 1.0e-5f;            // 1x10^-5 (s)
+//private float mΔx = 1.0f; // 334.0f * 1.0e-5f;   // 334 * 10^-5 (m)
+static const float Sc     = 1.0f; // クーラント数は1.0/sqrt(2)     c0 * Δt / Δx;
 
 static const int DEFAULT_DPI = 96;
 
@@ -250,10 +256,9 @@ MainWindow::Setup(void)
     {
         int iDpi = mSettings.GetInt(SETTINGS_DPI, DEFAULT_DPI);
         mDpi = DpiToWindowDpi(iDpi);
-
     }
 
-    mWave2D.Init();
+    hr = mWaveSim2D.Init(GRID_W, GRID_H, C0, DeltaT, Sc);
 
     return hr;
 }
@@ -261,7 +266,7 @@ MainWindow::Setup(void)
 void
 MainWindow::Unsetup(void)
 {
-    mWave2D.Term();
+    mWaveSim2D.Term();
 
     ImGui_ImplDX11_Shutdown();
     ImGui_ImplWin32_Shutdown();
@@ -302,6 +307,8 @@ MainWindow::Loop(void)
             DispatchMessage(&msg);
             continue;
         }
+
+        mWaveSim2D.Update();
 
         ImGui_ImplDX11_NewFrame();
         ImGui_ImplWin32_NewFrame();

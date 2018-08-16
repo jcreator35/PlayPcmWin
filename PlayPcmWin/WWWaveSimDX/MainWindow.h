@@ -1,7 +1,7 @@
 ﻿// 日本語
 
 #pragma once
-#include "WWWave2DGpu.h"
+#include "WaveSim2D.h"
 #include "WWSettings.h"
 #include <stdint.h>
 
@@ -38,21 +38,17 @@ private:
     WindowDpi                mDpi;
     WWSettings               mSettings;
     int64_t                  mFrameCount;
-    WWWave2DGpu              mWave2D;
+    WaveSim2D                mWaveSim2D;
 
     HRESULT CreateDeviceAndSwapChain(void);
     void DestroyDeviceAndSwapChain(void);
-
     HRESULT CreateRenderTarget(void);
     void DestroyRenderTarget(void);
-
     HRESULT SetupD3D(void);
     void UnsetupD3D(void);
-
     void UpdateGUI(void);
-
     void UpdateDpi(void);
-
     void ChangeDpi(void);
+
 };
 

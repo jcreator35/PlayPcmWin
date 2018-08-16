@@ -102,7 +102,8 @@ WWDirectComputeUser::EnumAdapters(void)
         pAdapter->GetDesc(&a.desc);
         m_vAdapters.push_back(a);
 
-        printf("    Adapter %d, %S, video memory = %d MB\n", i, a.desc.Description, a.desc.DedicatedVideoMemory/1024/1024);
+        printf("    Adapter %d, %S, video memory = %d MB\n", i, a.desc.Description,
+                a.desc.DedicatedVideoMemory/1024/1024);
 
         pAdapter = nullptr;
         ++i;
@@ -166,7 +167,6 @@ WWDirectComputeUser::ChooseAdapter(int idx)
 
     D3D_FEATURE_LEVEL flOut;
     static const D3D_FEATURE_LEVEL flvl[] = { D3D_FEATURE_LEVEL_11_0 };
-    
 
     HRG(D3D11CreateDevice(
         pAdapter,

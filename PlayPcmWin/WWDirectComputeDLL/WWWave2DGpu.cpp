@@ -12,7 +12,7 @@ static const int THREAD_W = 16;
 static const int THREAD_H = 16;
 
 WWWave2DGpu::WWWave2DGpu(void)
-    : mResultPTex2D(nullptr), mV(nullptr), mP(nullptr), mTickTotal(0)
+    : mResultPTex2D(nullptr), mV(nullptr), mP(nullptr), mTickTotal(-1)
 {
     memset(mpCS, 0, sizeof mpCS);
     memset(mpSRVs, 0, sizeof mpSRVs);
@@ -26,9 +26,10 @@ WWWave2DGpu::~WWWave2DGpu(void)
     assert(nullptr == mP);
 }
 
-void
+HRESULT
 WWWave2DGpu::Init(void)
 {
+    return S_OK;
 }
 
 void
@@ -130,6 +131,9 @@ WWWave2DGpu::Setup(const WWWave2DParams &p, float *loss, float *roh, float *cr)
     HRG(mCU.CreateComputeShader(L"Wave2DShaderUpdateP.hlsl", "CSUpdateP", defines, &mpCS[WWWave2DCS_UpdateP]));
     assert(mpCS[WWWave2DCS_UpdateP]);
 
+    HRG(mCU.CreateComputeShader(L"Wave2DShaderCopyP.hlsl", "CSCopyP", defines, &mpCS[WWWave2DCS_CopyP]));
+    assert(mpCS[WWWave2DCS_UpdateP]);
+
     {
         WWStructuredBufferParams params[WWWave2DSRV_NUM] = {
             {sizeof(float), mNumOfPoints, loss, "loss", &mpSRVs[WWWave2DSRV_LOSS], nullptr},
@@ -199,12 +203,9 @@ WWWave2DGpu::Unsetup(void)
 }
 
 HRESULT
-WWWave2DGpu::Run(int cRepeat, int stimNum, WWWave1DStim stim[])
+WWWave2DGpu::Run_(int cRepeat, int stimNum, WWWave1DStim stim[])
 {
     HRESULT hr = S_OK;
-
-    // cRepeatは2の倍数。
-    assert((cRepeat & 1) == 0);
 
     if (STIM_COUNT < stimNum) {
         printf("Error: stimNum is too large!\n");
@@ -217,13 +218,16 @@ WWWave2DGpu::Run(int cRepeat, int stimNum, WWWave1DStim stim[])
     ID3D11UnorderedAccessView *pUAVs_P[3];
 
     for (int i=0; i<cRepeat; ++i) {
+        ++mTickTotal;
+        // 最初の1回目はmTickTotal == 0になる。
+
         ShaderConstants shaderConstants = {
             stimNum,
             0,
             0,
             0,
         };
-        for (int j=0; j<STIM_COUNT; ++j) {
+        for (int j=0; j<stimNum; ++j) {
             if (0 < stim[j].counter) {
                 --stim[j].counter;
             }
@@ -256,12 +260,60 @@ WWWave2DGpu::Run(int cRepeat, int stimNum, WWWave1DStim stim[])
         HRG(mCU.Run(mpCS[WWWave2DCS_UpdateStim], 0,               nullptr, 1, &pUAVs_V[1], &shaderConstants, sizeof(ShaderConstants), 1,         1,         1));
         HRG(mCU.Run(mpCS[WWWave2DCS_UpdateV],    WWWave2DSRV_NUM, mpSRVs,  3, pUAVs_V,     nullptr,          0,                       dispatchX, dispatchY, 1));
         HRG(mCU.Run(mpCS[WWWave2DCS_UpdateP],    WWWave2DSRV_NUM, mpSRVs,  3, pUAVs_P,     nullptr,          0,                       dispatchX, dispatchY, 1));
-        ++mTickTotal;
     }
 
+end:
+    return hr;
+}
+
+HRESULT
+WWWave2DGpu::Run(int cRepeat, int stimNum, WWWave1DStim stim[])
+{
+    HRESULT hr = S_OK;
+    ID3D11UnorderedAccessView *pP = nullptr;
+    ID3D11UnorderedAccessView *pV = nullptr;
+    const int pBytes = sizeof(float) * mNumOfPoints;
+    const int vBytes = sizeof(float) * mNumOfPoints * DIMENSION;
+
+    HRG(Run_(cRepeat, stimNum, stim));
+
     // 計算結果をCPUメモリーに持ってくる。
-    HRG(mCU.RecvResultToCpuMemory(pUAVs_V[2], mV, vBytes));
-    HRG(mCU.RecvResultToCpuMemory(pUAVs_P[2], mP, pBytes));
+    // mTickTotalはRun1()で更新されるので順番に注意。
+    if ((mTickTotal&1)==0) {
+        pV = mpUAVs[WWWave2DUAV_V1]; //< vOut
+        pP = mpUAVs[WWWave2DUAV_P1]; //< pOut
+    } else {
+        pV = mpUAVs[WWWave2DUAV_V0]; //< vOut
+        pP = mpUAVs[WWWave2DUAV_P0]; //< pOut
+    }
+    HRG(mCU.RecvResultToCpuMemory(pV, mV, vBytes));
+    HRG(mCU.RecvResultToCpuMemory(pP, mP, pBytes));
+
+end:
+    return hr;
+}
+
+HRESULT
+WWWave2DGpu::Run2(int cRepeat, int stimNum, WWWave1DStim stim[])
+{
+    HRESULT hr = S_OK;
+    ID3D11UnorderedAccessView *pUAVs_P[2];
+    const int dispatchX = mParams.fieldW / THREAD_W;
+    const int dispatchY = mParams.fieldH / THREAD_H;
+    
+    HRG(Run_(cRepeat, stimNum, stim));
+
+    // 計算結果をテクスチャーに持ってくる。
+    // mTickTotalはRun1()で更新されるので順番に注意。
+    if ((mTickTotal&1)==0) {
+        pUAVs_P[0] = mpUAVs[WWWave2DUAV_P1]; //< pOut
+    } else {
+        pUAVs_P[0] = mpUAVs[WWWave2DUAV_P0]; //< pOut
+    }
+    pUAVs_P[1] = mResultPTex2D;
+
+    HRG(mCU.Run(mpCS[WWWave2DCS_CopyP], 0, nullptr,  2, pUAVs_P, nullptr, 0,
+            dispatchX, dispatchY, 1));
 
 end:
     return hr;

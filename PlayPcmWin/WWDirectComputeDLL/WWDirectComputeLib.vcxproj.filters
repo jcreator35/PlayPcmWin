@@ -46,13 +46,16 @@
     <CustomBuild Include="Wave2DShaderUpdateP.hlsl">
       <Filter>Shaders</Filter>
     </CustomBuild>
-    <CustomBuild Include="Wave2DShaderUpdateStim.hlsl">
-      <Filter>Shaders</Filter>
-    </CustomBuild>
     <CustomBuild Include="Wave2DShaderUpdateV.hlsl">
       <Filter>Shaders</Filter>
     </CustomBuild>
     <CustomBuild Include="Wave2DShaderUpdatePEdgeABC.hlsl">
+      <Filter>Shaders</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Wave2DShaderCopyP.hlsl">
+      <Filter>Shaders</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Wave1DShaderUpdateStim.hlsl">
       <Filter>Shaders</Filter>
     </CustomBuild>
   </ItemGroup>

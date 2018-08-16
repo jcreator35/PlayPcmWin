@@ -178,6 +178,7 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainWindow.cpp" />
+    <ClCompile Include="WaveSim2D.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WWDirectComputeDLL\WWDirectComputeLib.vcxproj">
@@ -192,6 +193,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainWindow.h" />
+    <ClInclude Include="WaveSim2D.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

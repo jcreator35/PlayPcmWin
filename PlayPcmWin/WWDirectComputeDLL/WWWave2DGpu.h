@@ -23,10 +23,12 @@ enum WWWave2DUAVenum {
     WWWave2DUAV_NUM,
 };
 
+// Compute Shaders
 enum WWWave2DCSenum {
     WWWave2DCS_UpdateStim,
     WWWave2DCS_UpdateV,
     WWWave2DCS_UpdateP,
+    WWWave2DCS_CopyP,
     WWWave2DCS_NUM
 };
 
@@ -68,7 +70,7 @@ public:
     Term()
      */
 
-    void Init(void);
+    HRESULT Init(void);
     void Term(void);
 
     WWDirectComputeUser &GetCU(void) { return mCU; }
@@ -76,7 +78,7 @@ public:
     HRESULT Setup(const WWWave2DParams &p, float *loss, float *roh, float *cr);
     void Unsetup(void);
 
-    /// CPUメモリに結果mVとmPを書き込む。
+    /// GPUで計算し、CPUメモリに結果mVとmPを書き込む。
     HRESULT Run(int cRepeat, int stimNum, WWWave1DStim stim[]);
 
     /// Run()の結果のVを取得。
@@ -88,7 +90,7 @@ public:
     int CopyResultP(float *pTo, int count);
 
     /// GPUメモリ上のUAVのvとpを更新。結果のpを2DテクスチャーmResultPTex2Dにする。
-    HRESULT RunGPU(int cRepeat, int stimNum, WWWave1DStim stim[]);
+    HRESULT Run2(int cRepeat, int stimNum, WWWave1DStim stim[]);
 
     /// RunGPU()の結果のPテクスチャーを取得。
     ID3D11UnorderedAccessView *GetPTexture(void) const { return mResultPTex2D; }
@@ -106,4 +108,7 @@ private:
     float *mP;
     float *mEdgeABC;
     int64_t mTickTotal;
+
+    /// GPUメモリ上のVとPを更新。
+    HRESULT Run_(int cRepeat, int stimNum, WWWave1DStim stim[]);
 };
