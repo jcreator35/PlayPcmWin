@@ -12,6 +12,7 @@
 #include <tchar.h>
 #include <assert.h>
 #include "WWWinUtil.h"
+#include <d3dx11.h>
 
 // We should extern this function to call it for some reason! Please refer imgui_imple_win32.h
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -59,7 +60,7 @@ MainWindow * MainWindow::mInstance = nullptr;
 
 MainWindow::MainWindow(void)
     : mD3DDevice(nullptr), mD3DDeviceCtx(nullptr), mSwapChain(nullptr),
-      mMainRTV(nullptr), mHWnd(nullptr), mDpi(WD_96), mFrameCount(0)
+      mMainRTV(nullptr), mHWnd(nullptr), mDpi(WD_96), mFrameCount(0), mResultTexSRV(nullptr)
 {
     assert(mInstance == nullptr);
     mInstance = this;
@@ -258,7 +259,18 @@ MainWindow::Setup(void)
         mDpi = DpiToWindowDpi(iDpi);
     }
 
-    hr = mWaveSim2D.Init(GRID_W, GRID_H, C0, DeltaT, Sc);
+    hr = mWaveSim2D.Init(mD3DDeviceCtx, mD3DDevice, GRID_W, GRID_H, C0, DeltaT, Sc);
+    if (FAILED(hr)) {
+        printf("Error: mWaveSim2D.Init failed!\n");
+        return hr;
+    }
+
+    hr = D3DX11CreateShaderResourceViewFromFile(mD3DDevice, L"seafloor.dds",
+            nullptr, nullptr, &mResultTexSRV, nullptr);
+    if (FAILED(hr)) {
+        printf("Error: load seafloor.dds failed!\n");
+        return hr;
+    }
 
     return hr;
 }
@@ -266,6 +278,7 @@ MainWindow::Setup(void)
 void
 MainWindow::Unsetup(void)
 {
+    SAFE_RELEASE(mResultTexSRV);
     mWaveSim2D.Term();
 
     ImGui_ImplDX11_Shutdown();
@@ -335,16 +348,24 @@ end:
 void
 MainWindow::UpdateGUI(void)
 {
-    ImGui::Begin("Settings");
-    ImGui::Text("%.1f Frames/s", ImGui::GetIO().Framerate);
+    {
+        ImGui::Begin("Settings");
+        ImGui::Text("%.1f Frames/s", ImGui::GetIO().Framerate);
 
-    UpdateDpi();
+        UpdateDpi();
 
-    if (ImGui::Button("Update")) {
+        if (ImGui::Button("Update")) {
 
+        }
+
+        ImGui::End();
     }
 
-    ImGui::End();
+    {
+        ImGui::Begin("Simulation Window");
+        ImGui::Image(mWaveSim2D.GetResultTexSRV(), ImVec2(GRID_W, GRID_H));
+        ImGui::End();
+    }
 }
 
 void

@@ -64,22 +64,22 @@ end:
 
 WWDirectComputeUser::WWDirectComputeUser(void)
 {
-    m_pDevice = nullptr;
-    m_pContext = nullptr;
-    m_pConstBuffer = nullptr;
+    mDevice = nullptr;
+    mCtx = nullptr;
+    mConstBuffer = nullptr;
 }
 
 WWDirectComputeUser::~WWDirectComputeUser(void)
 {
-    assert(nullptr == m_pDevice);
-    assert(nullptr == m_pContext);
-    assert(nullptr == m_pConstBuffer);
+    assert(nullptr == mDevice);
+    assert(nullptr == mCtx);
+    assert(nullptr == mConstBuffer);
 }
 
 void
 WWDirectComputeUser::Init(void)
 {
-    m_vAdapters.clear();
+    mAdapters.clear();
 }
 
 HRESULT
@@ -90,7 +90,7 @@ WWDirectComputeUser::EnumAdapters(void)
     IDXGIAdapter * pAdapter = nullptr;
     IDXGIFactory1* pFactory = nullptr;
 
-    m_vAdapters.clear();
+    mAdapters.clear();
 
     HRG(CreateDXGIFactory1(__uuidof(IDXGIFactory1) ,(void**)&pFactory));
 
@@ -100,7 +100,7 @@ WWDirectComputeUser::EnumAdapters(void)
         WWDirectComputeAdapter a;
         a.adapter = pAdapter;
         pAdapter->GetDesc(&a.desc);
-        m_vAdapters.push_back(a);
+        mAdapters.push_back(a);
 
         printf("    Adapter %d, %S, video memory = %d MB\n", i, a.desc.Description,
                 a.desc.DedicatedVideoMemory/1024/1024);
@@ -111,36 +111,36 @@ WWDirectComputeUser::EnumAdapters(void)
 
 end:
     SAFE_RELEASE(pFactory);
-    SAFE_RELEASE(m_pContext);
-    SAFE_RELEASE(m_pDevice);
+    SAFE_RELEASE(mCtx);
+    SAFE_RELEASE(mDevice);
     return hr;
 }
 
 int
 WWDirectComputeUser::GetNumOfAdapters(void)
 {
-    return (int)m_vAdapters.size();
+    return (int)mAdapters.size();
 }
 
 HRESULT
 WWDirectComputeUser::GetAdapterDesc(int idx, wchar_t *desc, int descBytes)
 {
     memset(desc, 0, descBytes);
-    if (idx < 0 || (int)m_vAdapters.size() <= idx) {
+    if (idx < 0 || (int)mAdapters.size() <= idx) {
         return E_FAIL;
     }
 
-    wcsncpy_s(desc, descBytes/2-1, m_vAdapters[idx].desc.Description, descBytes/2-1);
+    wcsncpy_s(desc, descBytes/2-1, mAdapters[idx].desc.Description, descBytes/2-1);
     return S_OK;
 }
 
 HRESULT
 WWDirectComputeUser::GetAdapterVideoMemoryBytes(int idx, int64_t *videoMemoryBytes)
 {
-    if (idx < 0 || (int)m_vAdapters.size() <= idx) {
+    if (idx < 0 || (int)mAdapters.size() <= idx) {
         return E_FAIL;
     }
-    *videoMemoryBytes = m_vAdapters[idx].desc.DedicatedVideoMemory;
+    *videoMemoryBytes = mAdapters[idx].desc.DedicatedVideoMemory;
     return S_OK;
 }
 
@@ -148,17 +148,17 @@ WWDirectComputeUser::GetAdapterVideoMemoryBytes(int idx, int64_t *videoMemoryByt
 HRESULT
 WWDirectComputeUser::ChooseAdapter(int idx)
 {
-    if (idx < 0 || (int)m_vAdapters.size() <= idx) {
+    if (idx < 0 || (int)mAdapters.size() <= idx) {
         printf("%s:%d E: idx is out of range\n", __FILE__, __LINE__);
         return E_FAIL;
     }
 
-    IDXGIAdapter* pAdapter = m_vAdapters[idx].adapter;
+    IDXGIAdapter* pAdapter = mAdapters[idx].adapter;
 
     HRESULT hr = S_OK;
 
-    assert(nullptr == m_pDevice);
-    assert(nullptr == m_pContext);
+    assert(nullptr == mDevice);
+    assert(nullptr == mCtx);
     
     UINT uCreationFlags = D3D11_CREATE_DEVICE_SINGLETHREADED;
 //#if defined(DEBUG) || defined(_DEBUG)
@@ -176,11 +176,13 @@ WWDirectComputeUser::ChooseAdapter(int idx)
         flvl,
         sizeof flvl / sizeof flvl[0],
         D3D11_SDK_VERSION,           // SDK version
-        &m_pDevice,                  // Device out
+        &mDevice,                  // Device out
         &flOut,                      // Actual feature level created
-        &m_pContext));
+        &mCtx));
 
     assert(flOut == D3D_FEATURE_LEVEL_11_0);
+
+    printf("ChooseAdapter(%d)\n", idx);
 end:
     return hr;
 }
@@ -188,32 +190,32 @@ end:
 void
 WWDirectComputeUser::Term(void)
 {
-    SafeRelease( &m_pConstBuffer );
-    SafeRelease( &m_pContext );
-    SafeRelease( &m_pDevice );
+    SafeRelease( &mConstBuffer );
+    SafeRelease( &mCtx );
+    SafeRelease( &mDevice );
 
-    for (auto ite=m_vAdapters.begin(); ite != m_vAdapters.end(); ++ite) {
+    for (auto ite=mAdapters.begin(); ite != mAdapters.end(); ++ite) {
         SAFE_RELEASE(ite->adapter);
     }
-    m_vAdapters.clear();
+    mAdapters.clear();
 
-    for (auto ite=m_rwGpuBufInfo.begin(); ite != m_rwGpuBufInfo.end(); ++ite) {
+    for (auto ite=m_rwGpuBufMap.begin(); ite != m_rwGpuBufMap.end(); ++ite) {
         SAFE_RELEASE(ite->second.pUav);
         SAFE_RELEASE(ite->second.pBuf);
     }
-    m_rwGpuBufInfo.clear();
+    m_rwGpuBufMap.clear();
 
-    for (auto ite=m_readGpuBufInfo.begin(); ite != m_readGpuBufInfo.end(); ++ite) {
+    for (auto ite=mReadGpuBufMap.begin(); ite != mReadGpuBufMap.end(); ++ite) {
         SAFE_RELEASE(ite->second.pSrv);
         SAFE_RELEASE(ite->second.pBuf);
     }
-    m_readGpuBufInfo.clear();
+    mReadGpuBufMap.clear();
 
-    for (auto ite=m_computeShaderList.begin(); ite != m_computeShaderList.end(); ++ite) {
+    for (auto ite=mComputeShaderList.begin(); ite != mComputeShaderList.end(); ++ite) {
         auto * p = *ite;
         SAFE_RELEASE(p);
     }
-    m_computeShaderList.clear();
+    mComputeShaderList.clear();
 }
 
 
@@ -231,7 +233,7 @@ WWDirectComputeUser::CreateComputeShader(
     ID3DBlob * pErrorBlob = nullptr;
     ID3DBlob * pBlob      = nullptr;
 
-    assert(m_pDevice);
+    assert(mDevice);
 
     DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
 //#if defined( DEBUG ) || defined( _DEBUG )
@@ -265,10 +267,10 @@ WWDirectComputeUser::CreateComputeShader(
 
     assert(pBlob);
 
-    hr = m_pDevice->CreateComputeShader(
+    hr = mDevice->CreateComputeShader(
         pBlob->GetBufferPointer(), pBlob->GetBufferSize(), nullptr, ppCS);
     if (SUCCEEDED(hr) && *ppCS) {
-        m_computeShaderList.push_back(*ppCS);
+        mComputeShaderList.push_back(*ppCS);
     }
 
 #if defined(DEBUG) || defined(PROFILE)
@@ -287,9 +289,9 @@ void
 WWDirectComputeUser::DestroyComputeShader(
         ID3D11ComputeShader *pCS)
 {
-    auto ite = std::find(m_computeShaderList.begin(), m_computeShaderList.end(), pCS);
-    if (ite != m_computeShaderList.end()) {
-        m_computeShaderList.erase(ite);
+    auto ite = std::find(mComputeShaderList.begin(), mComputeShaderList.end(), pCS);
+    if (ite != mComputeShaderList.end()) {
+        mComputeShaderList.erase(ite);
     }
 
     SAFE_RELEASE(pCS);
@@ -308,14 +310,14 @@ WWDirectComputeUser::RecvResultToCpuMemory(
     D3D11_MAPPED_SUBRESOURCE mr;
     D3D11_RESOURCE_DIMENSION dimen;
 
-    assert(m_pDevice);
-    assert(m_pContext);
+    assert(mDevice);
+    assert(mCtx);
     assert(pUav);
     assert(dest);
 
     std::map<ID3D11UnorderedAccessView *, WWReadWriteGpuBufferInfo>::iterator
-        ite = m_rwGpuBufInfo.find(pUav);
-    if (ite == m_rwGpuBufInfo.end()) {
+        ite = m_rwGpuBufMap.find(pUav);
+    if (ite == m_rwGpuBufMap.end()) {
         hr = E_FAIL;
         goto end;
     }
@@ -336,19 +338,19 @@ WWDirectComputeUser::RecvResultToCpuMemory(
             desc.Usage = D3D11_USAGE_STAGING;
             desc.BindFlags = 0;
             desc.MiscFlags = 0;
-            HRG(m_pDevice->CreateBuffer(&desc, nullptr, &pReturn));
+            HRG(mDevice->CreateBuffer(&desc, nullptr, &pReturn));
 
-            m_pContext->CopyResource(pReturn, pBuffer);
+            mCtx->CopyResource(pReturn, pBuffer);
             assert(pReturn);
 
             ZeroMemory(&mr, sizeof mr);
-            HRG(m_pContext->Map(pReturn, 0, D3D11_MAP_READ, 0, &mr));
+            HRG(mCtx->Map(pReturn, 0, D3D11_MAP_READ, 0, &mr));
             assert(mr.pData);
             // Unmapしないでgoto endしてはいけない
 
             memcpy(dest, mr.pData, bytes);
 
-            m_pContext->Unmap(pReturn, 0);
+            mCtx->Unmap(pReturn, 0);
             SafeRelease(&pReturn);
         }
         break;
@@ -367,20 +369,20 @@ WWDirectComputeUser::RecvResultToCpuMemory(
             desc.BindFlags = 0;
             desc.MiscFlags = 0;
 
-            HRG(m_pDevice->CreateTexture1D(&desc, nullptr, &pReturn));
+            HRG(mDevice->CreateTexture1D(&desc, nullptr, &pReturn));
             assert(pReturn);
             
-            m_pContext->CopyResource(pReturn, pTex);
+            mCtx->CopyResource(pReturn, pTex);
             assert(pReturn);
 
             ZeroMemory(&mr, sizeof mr);
-            HRG(m_pContext->Map(pReturn, 0, D3D11_MAP_READ, 0, &mr));
+            HRG(mCtx->Map(pReturn, 0, D3D11_MAP_READ, 0, &mr));
             assert(mr.pData);
             // Unmapしないでgoto endしてはいけない
 
             memcpy(dest, mr.pData, bytes);
 
-            m_pContext->Unmap(pReturn, 0);
+            mCtx->Unmap(pReturn, 0);
             SafeRelease(&pReturn);
         }
     }
@@ -405,37 +407,37 @@ WWDirectComputeUser::SetupDispatch(
     HRESULT hr = S_OK;
     D3D11_MAPPED_SUBRESOURCE mr;
 
-    assert(m_pDevice);
-    assert(m_pContext);
+    assert(mDevice);
+    assert(mCtx);
     assert(pComputeShader);
 
     if (pCSData) {
-        assert(!m_pConstBuffer);
-        HRG(CreateConstantBuffer(dwNumDataBytes, 1, "ShaderConstants", &m_pConstBuffer));
+        assert(!mConstBuffer);
+        HRG(CreateConstantBuffer(dwNumDataBytes, 1, "ShaderConstants", &mConstBuffer));
 
         ZeroMemory(&mr, sizeof mr);
 
-        HRG(m_pContext->Map(m_pConstBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mr));
+        HRG(mCtx->Map(mConstBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mr));
         assert(mr.pData);
 
         memcpy(mr.pData, pCSData, dwNumDataBytes);
-        m_pContext->Unmap(m_pConstBuffer, 0);
+        mCtx->Unmap(mConstBuffer, 0);
 
-        ID3D11Buffer* ppCB[1] = { m_pConstBuffer };
-        m_pContext->CSSetConstantBuffers(0, 1, ppCB);
+        ID3D11Buffer* ppCB[1] = { mConstBuffer };
+        mCtx->CSSetConstantBuffers(0, 1, ppCB);
     } else {
         //ID3D11Buffer * ppCBNULL[1] = { nullptr };
-        //m_pContext->CSSetConstantBuffers(0, 1, ppCBNULL);
+        //mCtx->CSSetConstantBuffers(0, 1, ppCBNULL);
     }
 
     // シェーダーとパラメータをセットする。
 
-    m_pContext->CSSetShader(pComputeShader, nullptr, 0);
+    mCtx->CSSetShader(pComputeShader, nullptr, 0);
     if (0 < nNumSRV) {
-        m_pContext->CSSetShaderResources(0, nNumSRV, ppSRV);
+        mCtx->CSSetShaderResources(0, nNumSRV, ppSRV);
     }
     if (0 < nNumUAV) {
-        m_pContext->CSSetUnorderedAccessViews(0, nNumUAV, ppUAV, nullptr);
+        mCtx->CSSetUnorderedAccessViews(0, nNumUAV, ppUAV, nullptr);
     }
 
 end:
@@ -453,28 +455,28 @@ WWDirectComputeUser::Dispatch(
     assert(0 < Y);
     assert(0 < Z);
 
-    assert(m_pContext);
+    assert(mCtx);
 
-    m_pContext->Dispatch(X, Y, Z);
+    mCtx->Dispatch(X, Y, Z);
 }
 
 void
 WWDirectComputeUser::UnsetupDispatch(void)
 {
-    assert(m_pContext);
+    assert(mCtx);
 
-    m_pContext->CSSetShader(nullptr, nullptr, 0);
+    mCtx->CSSetShader(nullptr, nullptr, 0);
 
     ID3D11UnorderedAccessView * ppUAViewNULL[1] = { nullptr };
-    m_pContext->CSSetUnorderedAccessViews(0, 1, ppUAViewNULL, nullptr);
+    mCtx->CSSetUnorderedAccessViews(0, 1, ppUAViewNULL, nullptr);
 
     ID3D11ShaderResourceView * ppSRVNULL[2] = { nullptr, nullptr };
-    m_pContext->CSSetShaderResources(0, 2, ppSRVNULL);
+    mCtx->CSSetShaderResources(0, 2, ppSRVNULL);
 
     ID3D11Buffer * ppCBNULL[1] = { nullptr };
-    m_pContext->CSSetConstantBuffers(0, 1, ppCBNULL);
+    mCtx->CSSetConstantBuffers(0, 1, ppCBNULL);
 
-    SAFE_RELEASE(m_pConstBuffer);
+    SAFE_RELEASE(mConstBuffer);
 }
 
 HRESULT
@@ -502,6 +504,62 @@ end:
     return hr;
 }
 
+ID3D11Resource *
+WWDirectComputeUser::FindResourceOfSRV(ID3D11ShaderResourceView * pSrv)
+{
+    std::map<ID3D11ShaderResourceView *, WWReadOnlyGpuBufferInfo>::iterator
+        ite = mReadGpuBufMap.find(pSrv);
+    if (ite == mReadGpuBufMap.end()) {
+        return nullptr;
+    }
+
+    return ite->second.pBuf;
+}
+
+ID3D11Resource *
+WWDirectComputeUser::FindResourceOfUAV(ID3D11UnorderedAccessView * pUav)
+{
+    std::map<ID3D11UnorderedAccessView *, WWReadWriteGpuBufferInfo>::iterator
+        ite = m_rwGpuBufMap.find(pUav);
+    if (ite == m_rwGpuBufMap.end()) {
+        return nullptr;
+    }
+
+    return ite->second.pBuf;
+}
+
+void
+WWDirectComputeUser::DestroyResourceAndSRV(
+        ID3D11ShaderResourceView *pSrv)
+{
+    std::map<ID3D11ShaderResourceView *, WWReadOnlyGpuBufferInfo>::iterator
+        ite = mReadGpuBufMap.find(pSrv);
+    if (ite == mReadGpuBufMap.end()) {
+        return;
+    }
+
+    SAFE_RELEASE(ite->second.pSrv);
+    SAFE_RELEASE(ite->second.pBuf);
+
+    mReadGpuBufMap.erase(pSrv);
+}
+
+void
+WWDirectComputeUser::DestroyResourceAndUAV(
+        ID3D11UnorderedAccessView * pUav)
+{
+    std::map<ID3D11UnorderedAccessView *, WWReadWriteGpuBufferInfo>::iterator
+        ite = m_rwGpuBufMap.find(pUav);
+    if (ite == m_rwGpuBufMap.end()) {
+        return;
+    }
+
+    SAFE_RELEASE(ite->second.pUav);
+    SAFE_RELEASE(ite->second.pBuf);
+
+    m_rwGpuBufMap.erase(pUav);
+}
+
 // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 // Constant Buffer
 
@@ -519,7 +577,7 @@ WWDirectComputeUser::CreateConstantBuffer(
     assert(0<uCount);
     assert(ppBufOut);
     *ppBufOut = nullptr;
-    assert(m_pDevice);
+    assert(mDevice);
 
     D3D11_BUFFER_DESC desc;
     ZeroMemory(&desc, sizeof desc);
@@ -531,7 +589,7 @@ WWDirectComputeUser::CreateConstantBuffer(
     desc.ByteWidth      = uElementSize * uCount;
     desc.StructureByteStride = 0;
 
-    HRG(m_pDevice->CreateBuffer(&desc, nullptr, ppBufOut));
+    HRG(mDevice->CreateBuffer(&desc, nullptr, ppBufOut));
 
 end:
     return hr;
@@ -556,7 +614,7 @@ WWDirectComputeUser::CreateStructuredBuffer(
 {
     HRESULT hr = S_OK;
 
-    assert(m_pDevice);
+    assert(mDevice);
     assert(uElementSize);
     assert(0 < uCount);
     // name==nullptrでも可。
@@ -576,9 +634,9 @@ WWDirectComputeUser::CreateStructuredBuffer(
         ZeroMemory(&initData, sizeof initData);
         initData.pSysMem = pInitData;
 
-        hr = m_pDevice->CreateBuffer(&desc, &initData, ppBufOut);
+        hr = mDevice->CreateBuffer(&desc, &initData, ppBufOut);
     } else {
-        hr = m_pDevice->CreateBuffer(&desc, nullptr, ppBufOut);
+        hr = mDevice->CreateBuffer(&desc, nullptr, ppBufOut);
     }
 
     if (FAILED(hr)) {
@@ -605,7 +663,7 @@ WWDirectComputeUser::CreateBufferSRV(
 {
     HRESULT hr = S_OK;
 
-    assert(m_pDevice);
+    assert(mDevice);
     assert(pBuffer);
     assert(name);
     assert(ppSrvOut);
@@ -624,7 +682,7 @@ WWDirectComputeUser::CreateBufferSRV(
     desc.Format = DXGI_FORMAT_UNKNOWN;
     desc.BufferEx.NumElements = descBuf.ByteWidth / descBuf.StructureByteStride;
 
-    HRG(m_pDevice->CreateShaderResourceView(pBuffer, &desc, ppSrvOut));
+    HRG(mDevice->CreateShaderResourceView(pBuffer, &desc, ppSrvOut));
 
 #if defined(DEBUG) || defined(PROFILE)
     if (*ppSrvOut) {
@@ -647,7 +705,7 @@ WWDirectComputeUser::CreateBufferUAV(
 {
     HRESULT hr = S_OK;
 
-    assert(m_pDevice);
+    assert(mDevice);
     assert(pBuffer);
     assert(name);
     assert(ppUavOut);
@@ -667,7 +725,7 @@ WWDirectComputeUser::CreateBufferUAV(
     desc.Format = DXGI_FORMAT_UNKNOWN;
     desc.Buffer.NumElements = descBuf.ByteWidth / descBuf.StructureByteStride;
     
-    HRG(m_pDevice->CreateUnorderedAccessView(pBuffer, &desc, ppUavOut));
+    HRG(mDevice->CreateUnorderedAccessView(pBuffer, &desc, ppUavOut));
 
 #if defined(DEBUG) || defined(PROFILE)
     if (*ppUavOut) {
@@ -705,7 +763,7 @@ WWDirectComputeUser::CreateBufferAndSRV(
     info.pBuf = pBuf;
     info.pSrv = *ppSrv;
 
-    m_readGpuBufInfo[info.pSrv] = info;
+    mReadGpuBufMap[info.pSrv] = info;
 
 end:
     if (FAILED(hr)) {
@@ -713,22 +771,6 @@ end:
     }
 
     return hr;
-}
-
-void
-WWDirectComputeUser::DestroyDataAndSRV(
-        ID3D11ShaderResourceView *pSrv)
-{
-    std::map<ID3D11ShaderResourceView *, WWReadOnlyGpuBufferInfo>::iterator
-        ite = m_readGpuBufInfo.find(pSrv);
-    if (ite == m_readGpuBufInfo.end()) {
-        return;
-    }
-
-    SAFE_RELEASE(ite->second.pSrv);
-    SAFE_RELEASE(ite->second.pBuf);
-
-    m_readGpuBufInfo.erase(pSrv);
 }
 
 HRESULT
@@ -755,7 +797,7 @@ WWDirectComputeUser::CreateBufferAndUAV(
     info.pBuf = pBuf;
     info.pUav = *ppUav;
 
-    m_rwGpuBufInfo[info.pUav] = info;
+    m_rwGpuBufMap[info.pUav] = info;
 
 end:
     if (FAILED(hr)) {
@@ -763,22 +805,6 @@ end:
     }
 
     return hr;
-}
-
-void
-WWDirectComputeUser::DestroyDataAndUAV(
-        ID3D11UnorderedAccessView * pUav)
-{
-    std::map<ID3D11UnorderedAccessView *, WWReadWriteGpuBufferInfo>::iterator
-        ite = m_rwGpuBufInfo.find(pUav);
-    if (ite == m_rwGpuBufInfo.end()) {
-        return;
-    }
-
-    SAFE_RELEASE(ite->second.pUav);
-    SAFE_RELEASE(ite->second.pBuf);
-
-    m_rwGpuBufInfo.erase(pUav);
 }
 
 HRESULT
@@ -818,7 +844,7 @@ WWDirectComputeUser::CreateTexture1DSRV(
 {
     HRESULT hr = S_OK;
 
-    assert(m_pDevice);
+    assert(mDevice);
     assert(pTex);
     assert(name);
     assert(ppSrvOut);
@@ -838,7 +864,7 @@ WWDirectComputeUser::CreateTexture1DSRV(
     desc.Texture1D.MostDetailedMip = 0;
     desc.Texture1D.MipLevels = -1; //< 全て使用する。
 
-    HRG(m_pDevice->CreateShaderResourceView(pTex, &desc, ppSrvOut));
+    HRG(mDevice->CreateShaderResourceView(pTex, &desc, ppSrvOut));
 
 #if defined(DEBUG) || defined(PROFILE)
     if (*ppSrvOut) {
@@ -861,7 +887,7 @@ WWDirectComputeUser::CreateTexture1DUAV(
 {
     HRESULT hr = S_OK;
 
-    assert(m_pDevice);
+    assert(mDevice);
     assert(pTex);
     assert(name);
     assert(ppUavOut);
@@ -873,7 +899,7 @@ WWDirectComputeUser::CreateTexture1DUAV(
     desc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE1D;
     desc.Texture1D.MipSlice = 0;
 
-    HRG(m_pDevice->CreateUnorderedAccessView(pTex, &desc, ppUavOut));
+    HRG(mDevice->CreateUnorderedAccessView(pTex, &desc, ppUavOut));
 
 #if defined(DEBUG) || defined(PROFILE)
     if (*ppUavOut) {
@@ -927,7 +953,7 @@ WWDirectComputeUser::CreateTexture1D(
         pSrd = &srd;
     }
 
-    HRG(m_pDevice->CreateTexture1D(&desc, pSrd, ppTexOut));
+    HRG(mDevice->CreateTexture1D(&desc, pSrd, ppTexOut));
 
 end:
     return hr;
@@ -935,7 +961,7 @@ end:
 
 void
 WWDirectComputeUser::DestroyTexture1D(
-        ID3D11Texture1D *pTex)
+        ID3D11Texture1D *pTex) const
 {
     if (pTex == nullptr) {
         return;
@@ -979,7 +1005,7 @@ WWDirectComputeUser::CreateTexture1DAndSRV(
     info.pBuf = pTex;
     info.pSrv = *ppSrv;
 
-    m_readGpuBufInfo[info.pSrv] = info;
+    mReadGpuBufMap[info.pSrv] = info;
 
 end:
     if (FAILED(hr)) {
@@ -1022,7 +1048,7 @@ WWDirectComputeUser::CreateTexture1DAndUAV(
     info.pBuf = pTex;
     info.pUav = *ppUav;
 
-    m_rwGpuBufInfo[info.pUav] = info;
+    m_rwGpuBufMap[info.pUav] = info;
 
 end:
     if (FAILED(hr)) {
@@ -1107,7 +1133,7 @@ WWDirectComputeUser::CreateTexture2D(
         pSrd = &srd;
     }
 
-    HRG(m_pDevice->CreateTexture2D(&desc, pSrd, ppTexOut));
+    HRG(mDevice->CreateTexture2D(&desc, pSrd, ppTexOut));
 
 end:
     return hr;
@@ -1122,7 +1148,7 @@ WWDirectComputeUser::CreateTexture2DSRV(
 {
     HRESULT hr = S_OK;
 
-    assert(m_pDevice);
+    assert(mDevice);
     assert(pTex);
     assert(name);
     assert(ppSrvOut);
@@ -1142,7 +1168,7 @@ WWDirectComputeUser::CreateTexture2DSRV(
     desc.Texture2D.MostDetailedMip = 0;
     desc.Texture2D.MipLevels = -1; //< 全て使用する。
 
-    HRG(m_pDevice->CreateShaderResourceView(pTex, &desc, ppSrvOut));
+    HRG(mDevice->CreateShaderResourceView(pTex, &desc, ppSrvOut));
 
 #if defined(DEBUG) || defined(PROFILE)
     if (*ppSrvOut) {
@@ -1165,7 +1191,7 @@ WWDirectComputeUser::CreateTexture2DUAV(
 {
     HRESULT hr = S_OK;
 
-    assert(m_pDevice);
+    assert(mDevice);
     assert(pTex);
     assert(name);
     assert(ppUavOut);
@@ -1177,7 +1203,7 @@ WWDirectComputeUser::CreateTexture2DUAV(
     desc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
     desc.Texture1D.MipSlice = 0;
 
-    HRG(m_pDevice->CreateUnorderedAccessView(pTex, &desc, ppUavOut));
+    HRG(mDevice->CreateUnorderedAccessView(pTex, &desc, ppUavOut));
 
 #if defined(DEBUG) || defined(PROFILE)
     if (*ppUavOut) {
@@ -1193,7 +1219,7 @@ end:
 
 void
 WWDirectComputeUser::DestroyTexture2D(
-        ID3D11Texture2D *pTex)
+        ID3D11Texture2D *pTex) const
 {
     if (pTex == nullptr) {
         return;
@@ -1240,7 +1266,7 @@ WWDirectComputeUser::CreateTexture2DAndSRV(
     info.pBuf = pTex;
     info.pSrv = *ppSrv;
 
-    m_readGpuBufInfo[info.pSrv] = info;
+    mReadGpuBufMap[info.pSrv] = info;
 
 end:
     if (FAILED(hr)) {
@@ -1286,7 +1312,7 @@ WWDirectComputeUser::CreateTexture2DAndUAV(
     info.pBuf = pTex;
     info.pUav = *ppUav;
 
-    m_rwGpuBufInfo[info.pUav] = info;
+    m_rwGpuBufMap[info.pUav] = info;
 
 end:
     if (FAILED(hr)) {

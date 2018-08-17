@@ -39,6 +39,7 @@ private:
     WWSettings               mSettings;
     int64_t                  mFrameCount;
     WaveSim2D                mWaveSim2D;
+    ID3D11ShaderResourceView *mResultTexSRV;
 
     HRESULT CreateDeviceAndSwapChain(void);
     void DestroyDeviceAndSwapChain(void);

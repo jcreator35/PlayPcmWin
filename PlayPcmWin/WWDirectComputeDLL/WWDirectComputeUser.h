@@ -115,7 +115,7 @@ public:
             void *dest,
             int bytes);
 
-    ID3D11Device *GetDevice(void) { return m_pDevice; }
+    ID3D11Device *GetDevice(void) { return mDevice; }
 
     HRESULT CreateSeveralStructuredBuffer(int n, WWStructuredBufferParams *params);
     HRESULT CreateSeveralTexture1D(int n, WWTexture1DParams *params);
@@ -125,20 +125,28 @@ public:
 
     void DestroyConstantBuffer(ID3D11Buffer * pBuf);
 
-    void DestroyDataAndSRV(ID3D11ShaderResourceView * pSrv);
-    void DestroyDataAndUAV(ID3D11UnorderedAccessView * pUav);
+    void DestroyResourceAndSRV(ID3D11ShaderResourceView * pSrv);
+    void DestroyResourceAndUAV(ID3D11UnorderedAccessView * pUav);
 
-    void DestroyTexture1D(ID3D11Texture1D *pTex);
-    void DestroyTexture2D(ID3D11Texture2D *pTex);
+    ID3D11Resource *FindResourceOfUAV(ID3D11UnorderedAccessView * pUav);
+    ID3D11Resource *FindResourceOfSRV(ID3D11ShaderResourceView * pSrv);
+
+    /// 単にReleaseするだけ。
+    void DestroyTexture1D(ID3D11Texture1D *pTex) const;
+    /// 単にReleaseするだけ。
+    void DestroyTexture2D(ID3D11Texture2D *pTex) const;
+
+    ID3D11Device *Device(void) { return mDevice; }
+    ID3D11DeviceContext *DeviceCtx(void) { return mCtx; }
 
 private:
-    ID3D11Device*               m_pDevice;
-    ID3D11DeviceContext*        m_pContext;
-    ID3D11Buffer *m_pConstBuffer;
-    std::vector <WWDirectComputeAdapter> m_vAdapters;
-    std::map<ID3D11ShaderResourceView *, WWReadOnlyGpuBufferInfo> m_readGpuBufInfo;
-    std::map<ID3D11UnorderedAccessView *, WWReadWriteGpuBufferInfo> m_rwGpuBufInfo;
-    std::list<ID3D11ComputeShader*> m_computeShaderList;
+    ID3D11Device*                         mDevice;
+    ID3D11DeviceContext*                  mCtx;
+    ID3D11Buffer                         *mConstBuffer;
+    std::vector <WWDirectComputeAdapter>  mAdapters;
+    std::list<ID3D11ComputeShader*>       mComputeShaderList;
+    std::map<ID3D11ShaderResourceView *, WWReadOnlyGpuBufferInfo>   mReadGpuBufMap;
+    std::map<ID3D11UnorderedAccessView *, WWReadWriteGpuBufferInfo> m_rwGpuBufMap;
     
     HRESULT CreateComputeDevice(void);
 

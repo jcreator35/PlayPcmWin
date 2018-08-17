@@ -81,26 +81,32 @@ public:
     /// GPUで計算し、CPUメモリに結果mVとmPを書き込む。
     HRESULT Run(int cRepeat, int stimNum, WWWave1DStim stim[]);
 
-    /// Run()の結果のVを取得。
+    /// Run()の結果のVのコピーを取得。
     /// @return コピーした要素数。
     int CopyResultV(float *vTo, int count);
 
-    /// Run()の結果のPを取得。
+    /// Run()の結果のPのコピーを取得。
     /// @return コピーした要素数。
     int CopyResultP(float *pTo, int count);
+
+    /// Run()の結果のPのポインタを取得。
+    float *GetPptr(void) { return mP; }
+
+    // 以下の方式はCPUに持っていかないので少し速いと思うが、試していない。
 
     /// GPUメモリ上のUAVのvとpを更新。結果のpを2DテクスチャーmResultPTex2Dにする。
     HRESULT Run2(int cRepeat, int stimNum, WWWave1DStim stim[]);
 
     /// RunGPU()の結果のPテクスチャーを取得。
-    ID3D11UnorderedAccessView *GetPTexture(void) const { return mResultPTex2D; }
+    ID3D11Texture2D *GetPTexture(void) const { return mResultPTex2D; }
 
 private:
     WWDirectComputeUser mCU;
     ID3D11ComputeShader *mpCS[WWWave2DCS_NUM];
     ID3D11ShaderResourceView  *mpSRVs[WWWave2DSRV_NUM];
     ID3D11UnorderedAccessView *mpUAVs[WWWave2DUAV_NUM];
-    ID3D11UnorderedAccessView *mResultPTex2D;
+    ID3D11Texture2D           *mResultPTex2D;
+    ID3D11UnorderedAccessView *mResultPTex2DUAV;
     WWWave2DParams mParams;
     int mNumOfPoints;
     int mEdgeABCPoints;

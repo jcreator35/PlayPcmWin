@@ -1,9 +1,11 @@
 #include "WaveSim2D.h"
-
-
+#include "WWWinUtil.h"
+#include <assert.h>
 
 WaveSim2D::WaveSim2D(void) :
-        mRoh(nullptr), mCr(nullptr), mLoss(nullptr), mGridCount(0)
+        mRoh(nullptr), mCr(nullptr), mLoss(nullptr), mGridCount(0),
+        mResultTex(nullptr), mResultTexSRV(nullptr), mDisplayCtx(nullptr),
+        mDisplayDevice(nullptr)
 {
 }
 
@@ -12,10 +14,14 @@ WaveSim2D::~WaveSim2D(void)
 }
 
 HRESULT
-WaveSim2D::Init(int gridW, int gridH, float c0, float deltaT, float sc)
+WaveSim2D::Init(ID3D11DeviceContext *displayCtx,
+        ID3D11Device *displayDevice, int gridW, int gridH,
+        float c0, float deltaT, float sc)
 {
     HRESULT hr = S_OK;
 
+    mDisplayCtx    = displayCtx;
+    mDisplayDevice = displayDevice;
     mGridW  = gridW;
     mGridH  = gridH;
     mC0     = c0;
@@ -133,6 +139,12 @@ WaveSim2D::Init(int gridW, int gridH, float c0, float deltaT, float sc)
         }
     }
 
+    hr = CreateResultTex();
+    if (FAILED(hr)) {
+        printf("Error: CreateResultTex failed %08x\n", hr);
+        return hr;
+    }
+
     return hr;
 }
 
@@ -154,6 +166,13 @@ WaveSim2D::SetLoss(int x, int y, float v)
 void
 WaveSim2D::Term(void)
 {
+    // これらは、参照を持っているだけ。
+    mDisplayCtx = nullptr;
+    mDisplayDevice = nullptr;
+
+    SAFE_RELEASE(mResultTexSRV);
+    SAFE_RELEASE(mResultTex);
+
     mWave2D.Unsetup();
     mWave2D.Term();
 }
@@ -161,6 +180,90 @@ WaveSim2D::Term(void)
 HRESULT
 WaveSim2D::Update(void)
 {
-    return mWave2D.Run2(2, 0, nullptr);
+    HRESULT hr = S_OK;
+
+    HRG(mWave2D.Run(2, 0, nullptr));
+
+    HRG(CopyMemoryToTexture2D());
+
+end:
+
+    return hr;
 }
 
+WWDirectComputeUser &
+WaveSim2D::GetCU(void)
+{
+    return mWave2D.GetCU();
+}
+
+HRESULT
+WaveSim2D::CreateResultTex(void)
+{
+    assert(nullptr == mResultTex);
+    assert(nullptr == mResultTexSRV);
+
+    HRESULT hr = S_OK;
+    D3D11_TEXTURE2D_DESC desc;
+    D3D11_SHADER_RESOURCE_VIEW_DESC sdesc;
+    
+    const char *name = "ResultTex";
+
+    memset(&desc, 0, sizeof desc);
+    desc.Width     = mGridW;
+    desc.Height    = mGridH;
+    desc.MipLevels = desc.ArraySize = 1;
+    desc.Format    = DXGI_FORMAT_R32_FLOAT;
+
+    // マルチサンプル無し。
+    desc.SampleDesc.Count   = 1;
+    desc.SampleDesc.Quality = 0;
+
+    // Dynamic: GPU: Read only, CPU: Write only
+    desc.Usage     = D3D11_USAGE_DYNAMIC;
+    desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+
+    // テクスチャーを作った後にCPUから内容を更新するので。
+    desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+    desc.MiscFlags      = 0;
+
+    HRG(mDisplayDevice->CreateTexture2D(&desc, nullptr, &mResultTex));
+
+    ZeroMemory( &sdesc, sizeof sdesc);
+    sdesc.Format = DXGI_FORMAT_R32_FLOAT;
+    sdesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+    sdesc.Texture2D.MostDetailedMip = 0;
+    sdesc.Texture2D.MipLevels = -1; //< 全て使用する。
+
+    HRG(mDisplayDevice->CreateShaderResourceView(mResultTex, &sdesc, &mResultTexSRV));
+#if !defined(NDEBUG)
+    if (mResultTexSRV) {
+        mResultTexSRV->SetPrivateData(WKPDID_D3DDebugObjectName, lstrlenA(name), name);
+    }
+#else
+    (void)name;
+#endif
+
+end:
+    return hr;
+}
+
+HRESULT
+WaveSim2D::CopyMemoryToTexture2D(void)
+{
+    HRESULT hr = S_OK;
+    const float *from = mWave2D.GetPptr();
+    D3D11_MAPPED_SUBRESOURCE res;
+    memset(&res, 0, sizeof res);
+
+    const int copyBytes = sizeof(float) * mGridW * mGridH;
+
+    HRG(mDisplayCtx->Map(mResultTex, 0, D3D11_MAP_WRITE_DISCARD, 0, &res));
+
+    memcpy(res.pData, from, copyBytes);
+
+    mDisplayCtx->Unmap(mResultTex, 0);
+
+end:
+    return hr;
+}

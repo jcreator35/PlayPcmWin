@@ -12,7 +12,7 @@ static const int THREAD_W = 16;
 static const int THREAD_H = 16;
 
 WWWave2DGpu::WWWave2DGpu(void)
-    : mResultPTex2D(nullptr), mV(nullptr), mP(nullptr), mTickTotal(-1)
+    : mResultPTex2D(nullptr), mResultPTex2DUAV(nullptr), mV(nullptr), mP(nullptr), mTickTotal(-1)
 {
     memset(mpCS, 0, sizeof mpCS);
     memset(mpSRVs, 0, sizeof mpSRVs);
@@ -22,6 +22,7 @@ WWWave2DGpu::WWWave2DGpu(void)
 WWWave2DGpu::~WWWave2DGpu(void)
 {
     assert(nullptr == mResultPTex2D);
+    assert(nullptr == mResultPTex2DUAV);
     assert(nullptr == mV);
     assert(nullptr == mP);
 }
@@ -169,9 +170,10 @@ WWWave2DGpu::Setup(const WWWave2DParams &p, float *loss, float *roh, float *cr)
         // 結果書き出し用のテクスチャー。
         WWTexture2DParams params = {
                 p.fieldW, p.fieldH, 0, 1, DXGI_FORMAT_R32_FLOAT, {1, 0}, D3D11_USAGE_DEFAULT,
-                D3D11_BIND_UNORDERED_ACCESS, 0, 0, nullptr, 0, "ResultP", nullptr, &mResultPTex2D};
+                D3D11_BIND_UNORDERED_ACCESS, 0, 0, nullptr, 0, "ResultP", nullptr, &mResultPTex2DUAV};
         HRG(mCU.CreateSeveralTexture2D(1, &params));
-        assert(mResultPTex2D);
+        assert(mResultPTex2DUAV);
+
     }
 
     mTickTotal = 0;
@@ -183,15 +185,16 @@ end:
 void
 WWWave2DGpu::Unsetup(void)
 {
-    mCU.DestroyDataAndUAV(mResultPTex2D);
-    mResultPTex2D = nullptr;
+    mCU.DestroyResourceAndUAV(mResultPTex2DUAV);
+    mResultPTex2D    = nullptr;
+    mResultPTex2DUAV = nullptr;
 
     for (int i=WWWave2DUAV_NUM-1; 0<=i; --i) {
-        mCU.DestroyDataAndUAV(mpUAVs[i]);
+        mCU.DestroyResourceAndUAV(mpUAVs[i]);
         mpUAVs[i] = nullptr;
     }
     for (int i=WWWave2DSRV_NUM-1; 0<=i; --i) {
-        mCU.DestroyDataAndSRV(mpSRVs[i]);
+        mCU.DestroyResourceAndSRV(mpSRVs[i]);
         mpSRVs[i] = nullptr;
     }
     for (int i=WWWave2DCS_NUM-1; 0<=i; --i) {
@@ -310,7 +313,7 @@ WWWave2DGpu::Run2(int cRepeat, int stimNum, WWWave1DStim stim[])
     } else {
         pUAVs_P[0] = mpUAVs[WWWave2DUAV_P0]; //< pOut
     }
-    pUAVs_P[1] = mResultPTex2D;
+    pUAVs_P[1] = mResultPTex2DUAV;
 
     HRG(mCU.Run(mpCS[WWWave2DCS_CopyP], 0, nullptr,  2, pUAVs_P, nullptr, 0,
             dispatchX, dispatchY, 1));
