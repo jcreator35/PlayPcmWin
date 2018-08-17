@@ -22,6 +22,8 @@ static const int WINDOW_W = 1280;
 static const int WINDOW_H = 1080;
 static const int GRID_W = 512;
 static const int GRID_H = 512;
+static const int BUTTON_EDGE_PIXEL = 4;
+
 static const float C0     = 1.0f; // 334.0f;             // 334 (m/s)
 static const float DeltaT = 1.0f; // 1.0e-5f;            // 1x10^-5 (s)
 //private float mΔx = 1.0f; // 334.0f * 1.0e-5f;   // 334 * 10^-5 (m)
@@ -57,6 +59,12 @@ static WindowDpi DpiToWindowDpi(int iDpi)
 }
 
 MainWindow * MainWindow::mInstance = nullptr;
+
+static LRESULT WINAPI
+SWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    return MainWindow::Instance()->WndProc(hWnd, msg, wParam, lParam);
+}
 
 MainWindow::MainWindow(void)
     : mD3DDevice(nullptr), mD3DDeviceCtx(nullptr), mSwapChain(nullptr),
@@ -166,61 +174,6 @@ MainWindow::UnsetupD3D(void)
     DestroyDeviceAndSwapChain();
 }
 
-static LRESULT WINAPI
-SWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
-{
-    return MainWindow::Instance()->WndProc(hWnd, msg, wParam, lParam);
-}
-
-// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
-
-LRESULT
-MainWindow::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
-{
-    if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam)) {
-        return true;
-    }
-
-    switch (msg) {
-    case WM_SIZE:
-        if (mD3DDevice != nullptr && wParam != SIZE_MINIMIZED) {
-            UINT newW = (UINT)LOWORD(lParam);
-            UINT newH = (UINT)HIWORD(lParam);
-
-            dprintf("WM_SIZE %u x %u\n", newW, newH);
-
-            ImGui_ImplDX11_InvalidateDeviceObjects();
-            DestroyRenderTarget();
-            mSwapChain->ResizeBuffers(0, newW, newH, DXGI_FORMAT_UNKNOWN, 0);
-            CreateRenderTarget();
-            ImGui_ImplDX11_CreateDeviceObjects();
-        }
-        return 0;
-    case WM_SYSCOMMAND:
-        // Disable ALT application menu
-        if ((wParam & 0xfff0) == SC_KEYMENU) {
-            return 0;
-        }
-        break;
-    case WM_KEYDOWN:
-        switch (wParam) {
-        case VK_ESCAPE:
-            dprintf("WM_KEYDOWN ESC\n");
-            // 上品に終了する。
-            PostMessage(hWnd, WM_CLOSE, 0, 0);
-            break;
-        default:
-            break;
-        }
-        break;
-
-    case WM_DESTROY:
-        PostQuitMessage(0);
-        return 0;
-    }
-    return DefWindowProc(hWnd, msg, wParam, lParam);
-}
-
 HRESULT
 MainWindow::Setup(void)
 {
@@ -311,6 +264,53 @@ MainWindow::Unsetup(void)
     mSettings.Term();
 }
 
+LRESULT
+MainWindow::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam)) {
+        return true;
+    }
+
+    switch (msg) {
+    case WM_SIZE:
+        if (mD3DDevice != nullptr && wParam != SIZE_MINIMIZED) {
+            UINT newW = (UINT)LOWORD(lParam);
+            UINT newH = (UINT)HIWORD(lParam);
+
+            dprintf("WM_SIZE %u x %u\n", newW, newH);
+
+            ImGui_ImplDX11_InvalidateDeviceObjects();
+            DestroyRenderTarget();
+            mSwapChain->ResizeBuffers(0, newW, newH, DXGI_FORMAT_UNKNOWN, 0);
+            CreateRenderTarget();
+            ImGui_ImplDX11_CreateDeviceObjects();
+        }
+        return 0;
+    case WM_SYSCOMMAND:
+        // Disable ALT application menu
+        if ((wParam & 0xfff0) == SC_KEYMENU) {
+            return 0;
+        }
+        break;
+    case WM_KEYDOWN:
+        switch (wParam) {
+        case VK_ESCAPE:
+            dprintf("WM_KEYDOWN ESC\n");
+            // 上品に終了する。
+            PostMessage(hWnd, WM_CLOSE, 0, 0);
+            break;
+        default:
+            break;
+        }
+        break;
+
+    case WM_DESTROY:
+        PostQuitMessage(0);
+        return 0;
+    }
+    return DefWindowProc(hWnd, msg, wParam, lParam);
+}
+
 HRESULT
 MainWindow::Loop(void)
 {
@@ -357,9 +357,9 @@ end:
 void
 MainWindow::UpdateGUI(void)
 {
-    {
+    {   // 設定画面。
         ImGui::Begin("Settings");
-        ImGui::Text("ALT-Enter to switch Fullscreen mode");
+        ImGui::BulletText("ALT-Enter to switch Fullscreen mode");
         ImGui::Text("%.1f Frames/s", ImGui::GetIO().Framerate);
 
         UpdateDpi();
@@ -371,9 +371,28 @@ MainWindow::UpdateGUI(void)
         ImGui::End();
     }
 
-    {
+    {   // シミュレーション画面。
         ImGui::Begin("Simulation Window");
-        ImGui::Image(mWaveSim2D.GetResultTexSRV(), ImVec2(GRID_W, GRID_H));
+
+        auto leftTop = ImGui::GetCursorScreenPos();
+        leftTop.x += BUTTON_EDGE_PIXEL;
+        leftTop.y += BUTTON_EDGE_PIXEL;
+        if (ImGui::ImageButton(mWaveSim2D.GetResultTexSRV(), ImVec2(GRID_W, GRID_H),
+                ImVec2(0,0), ImVec2(1,1), BUTTON_EDGE_PIXEL)) {
+            // clicked
+            auto xyAbs = ImGui::GetMousePos();
+            ImVec2 xyRel(xyAbs.x - leftTop.x, xyAbs.y - leftTop.y);
+
+            // 枠の部分の4 pixにも当たるのでマイナス値等範囲外の値が戻ることがある。
+            if (xyRel.x < 0) { xyRel.x = 0; }
+            if (GRID_W <= xyRel.x) { xyRel.x = GRID_W-1; }
+            if (xyRel.y < 0) { xyRel.y = 0; }
+            if (GRID_H <= xyRel.y) { xyRel.y = GRID_H-1; }
+
+            printf("pressed (%d %d)\n",
+                (int)xyRel.x, (int)xyRel.y);
+        }
+
         ImGui::End();
     }
 }
