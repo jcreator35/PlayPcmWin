@@ -118,7 +118,10 @@ MainWindow::CreateDeviceAndSwapChain(void)
     sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
     sd.BufferDesc.RefreshRate.Numerator = 60;
     sd.BufferDesc.RefreshRate.Denominator = 1;
+
+    // ALT+Enterでフルスクリーンに切り替わる。
     sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+
     sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
     sd.OutputWindow = mHWnd;
     sd.SampleDesc.Count = 1;
@@ -129,6 +132,7 @@ MainWindow::CreateDeviceAndSwapChain(void)
     HRG(D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, createDeviceFlags,
             fLvCandidates, sizeof fLvCandidates/sizeof fLvCandidates[0], D3D11_SDK_VERSION,
             &sd, &mSwapChain, &mD3DDevice, &featureLevel, &mD3DDeviceCtx));
+
 end:
     return hr;
 }
@@ -136,6 +140,9 @@ end:
 void
 MainWindow::DestroyDeviceAndSwapChain(void)
 {
+    if (mSwapChain) {
+        mSwapChain->SetFullscreenState(FALSE, nullptr);
+    }
     SAFE_RELEASE(mSwapChain);
     SAFE_RELEASE(mD3DDeviceCtx);
     SAFE_RELEASE(mD3DDevice);
@@ -250,6 +257,8 @@ MainWindow::Setup(void)
     // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
+    io.MouseDrawCursor = true;
+
     ImGui_ImplWin32_Init(mHWnd);
     ImGui_ImplDX11_Init(mD3DDevice, mD3DDeviceCtx);
     ImGui::StyleColorsDark();
@@ -350,6 +359,7 @@ MainWindow::UpdateGUI(void)
 {
     {
         ImGui::Begin("Settings");
+        ImGui::Text("ALT-Enter to switch Fullscreen mode");
         ImGui::Text("%.1f Frames/s", ImGui::GetIO().Framerate);
 
         UpdateDpi();
@@ -401,5 +411,6 @@ MainWindow::ChangeDpi(void)
 
     float scale = (float)dpi / DEFAULT_DPI;
     ImGui::SetWindowFontScale(scale);
+    ImGui::GetStyle().MouseCursorScale = scale;
 }
 
