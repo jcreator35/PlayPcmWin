@@ -22,8 +22,8 @@ static const int WINDOW_W = 1280;
 static const int WINDOW_H = 1080;
 static const int GRID_W = 512;
 static const int GRID_H = 512;
-static const int SIM_WINDOW_W = 1024;
-static const int SIM_WINDOW_H = 1024;
+static const float SIM_WINDOW_W = 1024.0f;
+static const float SIM_WINDOW_H = 1024.0f;
 static const int BUTTON_EDGE_PIXEL = 4;
 
 static const float C0     = 1.0f; // 334.0f;             // 334 (m/s)
@@ -73,7 +73,7 @@ SWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 MainWindow::MainWindow(void)
     : mD3DDevice(nullptr), mD3DDeviceCtx(nullptr), mSwapChain(nullptr),
-      mMainRTV(nullptr), mHWnd(nullptr), mDpi(WD_96), mFrameCount(0), mResultTexSRV(nullptr), mGridW(GRID_W), mGridH(GRID_H)
+      mMainRTV(nullptr), mHWnd(nullptr), mDpi(WD_96), mFrameCount(0), mGridW(GRID_W), mGridH(GRID_H)
 {
     assert(mInstance == nullptr);
     mInstance = this;
@@ -235,20 +235,12 @@ MainWindow::Setup(void)
         return hr;
     }
 
-    hr = D3DX11CreateShaderResourceViewFromFile(mD3DDevice, L"seafloor.dds",
-            nullptr, nullptr, &mResultTexSRV, nullptr);
-    if (FAILED(hr)) {
-        printf("Error: load seafloor.dds failed!\n");
-        return hr;
-    }
-
     return hr;
 }
 
 void
 MainWindow::Unsetup(void)
 {
-    SAFE_RELEASE(mResultTexSRV);
     mWaveSim2D.Term();
 
     ImGui_ImplDX11_Shutdown();

@@ -41,7 +41,6 @@ private:
     WaveSim2D                mWaveSim2D;
     int                      mGridW;
     int                      mGridH;
-    ID3D11ShaderResourceView *mResultTexSRV;
 
     HRESULT CreateDeviceAndSwapChain(void);
     void DestroyDeviceAndSwapChain(void);
