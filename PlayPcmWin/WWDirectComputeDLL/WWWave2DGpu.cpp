@@ -12,7 +12,7 @@ static const int THREAD_W = 16;
 static const int THREAD_H = 16;
 
 WWWave2DGpu::WWWave2DGpu(void)
-    : mResultPTex2D(nullptr), mResultPTex2DUAV(nullptr), mV(nullptr), mP(nullptr), mTickTotal(-1)
+    : mV(nullptr), mP(nullptr), mTickTotal(-1)
 {
     memset(mpCS, 0, sizeof mpCS);
     memset(mpSRVs, 0, sizeof mpSRVs);
@@ -21,8 +21,6 @@ WWWave2DGpu::WWWave2DGpu(void)
 
 WWWave2DGpu::~WWWave2DGpu(void)
 {
-    assert(nullptr == mResultPTex2D);
-    assert(nullptr == mResultPTex2DUAV);
     assert(nullptr == mV);
     assert(nullptr == mP);
 }
@@ -132,9 +130,6 @@ WWWave2DGpu::Setup(const WWWave2DParams &p, float *loss, float *roh, float *cr)
     HRG(mCU.CreateComputeShader(L"Wave2DShaderUpdateP.hlsl", "CSUpdateP", defines, &mpCS[WWWave2DCS_UpdateP]));
     assert(mpCS[WWWave2DCS_UpdateP]);
 
-    HRG(mCU.CreateComputeShader(L"Wave2DShaderCopyP.hlsl", "CSCopyP", defines, &mpCS[WWWave2DCS_CopyP]));
-    assert(mpCS[WWWave2DCS_UpdateP]);
-
     {
         WWStructuredBufferParams params[WWWave2DSRV_NUM] = {
             {sizeof(float), mNumOfPoints, loss, "loss", &mpSRVs[WWWave2DSRV_LOSS], nullptr},
@@ -166,6 +161,7 @@ WWWave2DGpu::Setup(const WWWave2DParams &p, float *loss, float *roh, float *cr)
         assert(mpUAVs[5]);
     }
 
+    /*
     {
         // 結果書き出し用のテクスチャー。
         WWTexture2DParams params = {
@@ -173,8 +169,8 @@ WWWave2DGpu::Setup(const WWWave2DParams &p, float *loss, float *roh, float *cr)
                 D3D11_BIND_UNORDERED_ACCESS, 0, 0, nullptr, 0, "ResultP", nullptr, &mResultPTex2DUAV};
         HRG(mCU.CreateSeveralTexture2D(1, &params));
         assert(mResultPTex2DUAV);
-
     }
+    */
 
     mTickTotal = 0;
 
@@ -185,10 +181,6 @@ end:
 void
 WWWave2DGpu::Unsetup(void)
 {
-    mCU.DestroyResourceAndUAV(mResultPTex2DUAV);
-    mResultPTex2D    = nullptr;
-    mResultPTex2DUAV = nullptr;
-
     for (int i=WWWave2DUAV_NUM-1; 0<=i; --i) {
         mCU.DestroyResourceAndUAV(mpUAVs[i]);
         mpUAVs[i] = nullptr;
@@ -291,32 +283,6 @@ WWWave2DGpu::Run(int cRepeat, int stimNum, WWWave1DStim stim[])
     }
     HRG(mCU.RecvResultToCpuMemory(pV, mV, vBytes));
     HRG(mCU.RecvResultToCpuMemory(pP, mP, pBytes));
-
-end:
-    return hr;
-}
-
-HRESULT
-WWWave2DGpu::Run2(int cRepeat, int stimNum, WWWave1DStim stim[])
-{
-    HRESULT hr = S_OK;
-    ID3D11UnorderedAccessView *pUAVs_P[2];
-    const int dispatchX = mParams.fieldW / THREAD_W;
-    const int dispatchY = mParams.fieldH / THREAD_H;
-    
-    HRG(Run_(cRepeat, stimNum, stim));
-
-    // 計算結果をテクスチャーに持ってくる。
-    // mTickTotalはRun1()で更新されるので順番に注意。
-    if ((mTickTotal&1)==0) {
-        pUAVs_P[0] = mpUAVs[WWWave2DUAV_P1]; //< pOut
-    } else {
-        pUAVs_P[0] = mpUAVs[WWWave2DUAV_P0]; //< pOut
-    }
-    pUAVs_P[1] = mResultPTex2DUAV;
-
-    HRG(mCU.Run(mpCS[WWWave2DCS_CopyP], 0, nullptr,  2, pUAVs_P, nullptr, 0,
-            dispatchX, dispatchY, 1));
 
 end:
     return hr;

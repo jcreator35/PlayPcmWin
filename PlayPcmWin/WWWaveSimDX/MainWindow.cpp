@@ -22,16 +22,21 @@ static const int WINDOW_W = 1280;
 static const int WINDOW_H = 1080;
 static const int GRID_W = 512;
 static const int GRID_H = 512;
+static const int SIM_WINDOW_W = 1024;
+static const int SIM_WINDOW_H = 1024;
 static const int BUTTON_EDGE_PIXEL = 4;
 
 static const float C0     = 1.0f; // 334.0f;             // 334 (m/s)
 static const float DeltaT = 1.0f; // 1.0e-5f;            // 1x10^-5 (s)
 //private float mΔx = 1.0f; // 334.0f * 1.0e-5f;   // 334 * 10^-5 (m)
-static const float Sc     = 1.0f; // クーラント数は1.0/sqrt(2)     c0 * Δt / Δx;
+static const float Sc     = 1.0f / sqrt(2.0f) / 10; // クーラント数は1.0/sqrt(2)     c0 * Δt / Δx;
 
-static const int DEFAULT_DPI = 96;
+static const int DEFAULT_DPI          = 96;
+static const int DEFAULT_REPEAT_COUNT = 32;
 
 static const wchar_t *SETTINGS_DPI = L"DPI";
+static const wchar_t *SETTINGS_GRID_W = L"GridW";
+static const wchar_t *SETTINGS_GRID_H = L"GridH";
 
 //                                 R     G     B     A
 static ImVec4 gClearColor = ImVec4(0.2f, 0.2f, 0.2f, 1.00f);
@@ -68,7 +73,7 @@ SWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 MainWindow::MainWindow(void)
     : mD3DDevice(nullptr), mD3DDeviceCtx(nullptr), mSwapChain(nullptr),
-      mMainRTV(nullptr), mHWnd(nullptr), mDpi(WD_96), mFrameCount(0), mResultTexSRV(nullptr)
+      mMainRTV(nullptr), mHWnd(nullptr), mDpi(WD_96), mFrameCount(0), mResultTexSRV(nullptr), mGridW(GRID_W), mGridH(GRID_H)
 {
     assert(mInstance == nullptr);
     mInstance = this;
@@ -219,9 +224,12 @@ MainWindow::Setup(void)
     {
         int iDpi = mSettings.GetInt(SETTINGS_DPI, DEFAULT_DPI);
         mDpi = DpiToWindowDpi(iDpi);
+
+        mGridW = mSettings.GetInt(SETTINGS_GRID_W, GRID_W);
+        mGridH = mSettings.GetInt(SETTINGS_GRID_H, GRID_H);
     }
 
-    hr = mWaveSim2D.Init(mD3DDeviceCtx, mD3DDevice, GRID_W, GRID_H, C0, DeltaT, Sc);
+    hr = mWaveSim2D.Init(mD3DDeviceCtx, mD3DDevice, mGridW, mGridH, C0, DeltaT, Sc);
     if (FAILED(hr)) {
         printf("Error: mWaveSim2D.Init failed!\n");
         return hr;
@@ -330,7 +338,7 @@ MainWindow::Loop(void)
             continue;
         }
 
-        mWaveSim2D.Update();
+        mWaveSim2D.Update(DEFAULT_REPEAT_COUNT);
 
         ImGui_ImplDX11_NewFrame();
         ImGui_ImplWin32_NewFrame();
@@ -377,7 +385,7 @@ MainWindow::UpdateGUI(void)
         auto leftTop = ImGui::GetCursorScreenPos();
         leftTop.x += BUTTON_EDGE_PIXEL;
         leftTop.y += BUTTON_EDGE_PIXEL;
-        if (ImGui::ImageButton(mWaveSim2D.GetResultTexSRV(), ImVec2(GRID_W, GRID_H),
+        if (ImGui::ImageButton(mWaveSim2D.GetResultTexSRV(), ImVec2(SIM_WINDOW_W, SIM_WINDOW_H),
                 ImVec2(0,0), ImVec2(1,1), BUTTON_EDGE_PIXEL)) {
             // clicked
             auto xyAbs = ImGui::GetMousePos();
@@ -385,12 +393,18 @@ MainWindow::UpdateGUI(void)
 
             // 枠の部分の4 pixにも当たるのでマイナス値等範囲外の値が戻ることがある。
             if (xyRel.x < 0) { xyRel.x = 0; }
-            if (GRID_W <= xyRel.x) { xyRel.x = GRID_W-1; }
+            if (SIM_WINDOW_W <= xyRel.x) { xyRel.x = SIM_WINDOW_W-1; }
             if (xyRel.y < 0) { xyRel.y = 0; }
-            if (GRID_H <= xyRel.y) { xyRel.y = GRID_H-1; }
+            if (SIM_WINDOW_H <= xyRel.y) { xyRel.y = SIM_WINDOW_H-1; }
 
-            printf("pressed (%d %d)\n",
-                (int)xyRel.x, (int)xyRel.y);
+            printf("pressed (%d %d)\n", (int)xyRel.x, (int)xyRel.y);
+
+            int x = (int)(xyRel.x * mGridW / SIM_WINDOW_W);
+            int y = (int)(xyRel.y * mGridH / SIM_WINDOW_H);
+
+            int pos1D = x + y * mGridW;
+            WWWave1DStim stim = { 0, 2121, pos1D, 5, 1060, 0.001, 1704 };
+            mWaveSim2D.AddStimulus(stim);
         }
 
         ImGui::End();

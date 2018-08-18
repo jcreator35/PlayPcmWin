@@ -48,7 +48,7 @@ namespace WWWaveSimulatorCS {
         private float mC0 = 1.0f; // 334.0f;             // 334 (m/s)
         private float mΔt = 1.0f; // 1.0e-5f;            // 1x10^-5 (s)
         //private float mΔx = 1.0f; // 334.0f * 1.0e-5f;   // 334 * 10^-5 (m)
-        private float mSc = 1.0f; // クーラント数は1.0/sqrt(2)     c0 * Δt / Δx;
+        private float mSc = 1.0f / (float)Math.Sqrt(2.0) / 10; // クーラント数は1.0/sqrt(2)     c0 * Δt / Δx;
 
         private List<WaveEvent> mWaveEventList = new List<WaveEvent>();
 
@@ -58,8 +58,6 @@ namespace WWWaveSimulatorCS {
             mGridW = gridW;
             mGridH = gridH;
             mGridCount = mGridW * mGridH;
-
-            mSc = 1.0f / (float)Math.Sqrt(2.0)/10;
 
 #if false
             mC0 = c0;

@@ -1,5 +1,6 @@
 #pragma once
 #include "WWWave2DGpu.h"
+#include <list>
 
 class WaveSim2D {
 public:
@@ -10,11 +11,13 @@ public:
             int gridW, int gridH, float c0, float deltaT, float sc);
     void Term(void);
 
-    HRESULT Update(void);
+    HRESULT Update(int repeatCount);
 
     WWDirectComputeUser &GetCU(void);
 
     ID3D11ShaderResourceView *GetResultTexSRV(void) { return mResultTexSRV; }
+
+    HRESULT AddStimulus(const WWWave1DStim &a);
 
 private:
     WWWave2DGpu mWave2D;
@@ -31,6 +34,7 @@ private:
     ID3D11ShaderResourceView *mResultTexSRV;
     ID3D11DeviceContext *mDisplayCtx;
     ID3D11Device *mDisplayDevice;
+    std::list<WWWave1DStim> mStimList;
 
     void SetRoh(int x, int y, float v);
     void SetLoss(int x, int y, float v);

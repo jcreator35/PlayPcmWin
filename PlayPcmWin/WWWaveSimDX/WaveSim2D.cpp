@@ -2,6 +2,8 @@
 #include "WWWinUtil.h"
 #include <assert.h>
 
+static const int STIM_NUM = 4;
+
 WaveSim2D::WaveSim2D(void) :
         mRoh(nullptr), mCr(nullptr), mLoss(nullptr), mGridCount(0),
         mResultTex(nullptr), mResultTexSRV(nullptr), mDisplayCtx(nullptr),
@@ -167,7 +169,7 @@ void
 WaveSim2D::Term(void)
 {
     // これらは、参照を持っているだけ。
-    mDisplayCtx = nullptr;
+    mDisplayCtx    = nullptr;
     mDisplayDevice = nullptr;
 
     SAFE_RELEASE(mResultTexSRV);
@@ -178,13 +180,32 @@ WaveSim2D::Term(void)
 }
 
 HRESULT
-WaveSim2D::Update(void)
+WaveSim2D::Update(int repeatCount)
 {
+    assert(0 < repeatCount);
+
     HRESULT hr = S_OK;
+    int nStim = 0;
+    WWWave1DStim stims[STIM_NUM];
 
-    HRG(mWave2D.Run(2, 0, nullptr));
+    for (auto ite=mStimList.begin(); ite!=mStimList.end(); ++ite) {
+        stims[nStim] = *ite;
+        ++nStim;
+        if (STIM_NUM <= nStim) {
+            break;
+        }
+    }
 
+    HRG(mWave2D.Run(repeatCount, nStim, stims));
     HRG(CopyMemoryToTexture2D());
+
+    // 刺激の更新。
+    for (auto ite=mStimList.begin(); ite!=mStimList.end(); ++ite) {
+        ite->counter -= repeatCount;
+        if (ite->counter <= 0) {
+            ite = mStimList.erase(ite);
+        }
+    }
 
 end:
 
@@ -266,4 +287,11 @@ WaveSim2D::CopyMemoryToTexture2D(void)
 
 end:
     return hr;
+}
+
+HRESULT
+WaveSim2D::AddStimulus(const WWWave1DStim &a)
+{
+    mStimList.push_back(a);
+    return S_OK;
 }

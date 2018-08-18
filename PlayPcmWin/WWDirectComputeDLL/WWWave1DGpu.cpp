@@ -147,11 +147,11 @@ void
 WWWave1DGpu::Unsetup(void)
 {
     for (int i=WWWave1DUAV_NUM-1; 0<=i; --i) {
-        mCU.DestroyDataAndUAV(mpUAVs[i]);
+        mCU.DestroyResourceAndUAV(mpUAVs[i]);
         mpUAVs[i] = nullptr;
     }
     for (int i=WWWave1DSRV_NUM-1; 0<=i; --i) {
-        mCU.DestroyDataAndSRV(mpSRVs[i]);
+        mCU.DestroyResourceAndSRV(mpSRVs[i]);
         mpSRVs[i] = nullptr;
     }
     for (int i=WWWave1DCS_NUM-1; 0<=i; --i) {

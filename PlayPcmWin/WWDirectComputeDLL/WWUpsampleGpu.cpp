@@ -316,19 +316,19 @@ end:
 void
 WWUpsampleGpu::Unsetup(void)
 {
-    mCU.DestroyDataAndUAV(m_pBufResultUav);
+    mCU.DestroyResourceAndUAV(m_pBufResultUav);
     m_pBufResultUav = nullptr;
 
-    mCU.DestroyDataAndSRV(m_pBuf3Srv);
+    mCU.DestroyResourceAndSRV(m_pBuf3Srv);
     m_pBuf3Srv = nullptr;
 
-    mCU.DestroyDataAndSRV(m_pBuf2Srv);
+    mCU.DestroyResourceAndSRV(m_pBuf2Srv);
     m_pBuf2Srv = nullptr;
 
-    mCU.DestroyDataAndSRV(m_pBuf1Srv);
+    mCU.DestroyResourceAndSRV(m_pBuf1Srv);
     m_pBuf1Srv = nullptr;
 
-    mCU.DestroyDataAndSRV(m_pBuf0Srv);
+    mCU.DestroyResourceAndSRV(m_pBuf0Srv);
     m_pBuf0Srv = nullptr;
 
     if (m_pCS) {
