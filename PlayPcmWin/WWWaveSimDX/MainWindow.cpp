@@ -357,20 +357,6 @@ end:
 void
 MainWindow::UpdateGUI(void)
 {
-    {   // 設定画面。
-        ImGui::Begin("Settings");
-        ImGui::BulletText("ALT-Enter to switch Fullscreen mode");
-        ImGui::Text("%.1f Frames/s", ImGui::GetIO().Framerate);
-
-        UpdateDpi();
-
-        if (ImGui::Button("Update")) {
-
-        }
-
-        ImGui::End();
-    }
-
     {   // シミュレーション画面。
         ImGui::Begin("Simulation Window");
 
@@ -397,6 +383,20 @@ MainWindow::UpdateGUI(void)
             int pos1D = x + y * mGridW;
             WWWave1DStim stim = { 0, 2121, pos1D, 5, 1060, 0.001, 1704 };
             mWaveSim2D.AddStimulus(stim);
+        }
+
+        ImGui::End();
+    }
+
+    {   // 設定画面。
+        ImGui::Begin("Settings");
+        ImGui::BulletText("ALT-Enter to switch Fullscreen mode");
+        ImGui::Text("%.1f Frames/s", ImGui::GetIO().Framerate);
+
+        UpdateDpi();
+
+        if (ImGui::Button("Update")) {
+
         }
 
         ImGui::End();

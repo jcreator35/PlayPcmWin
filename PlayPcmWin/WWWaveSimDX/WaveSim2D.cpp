@@ -200,10 +200,12 @@ WaveSim2D::Update(int repeatCount)
     HRG(CopyMemoryToTexture2D());
 
     // hŒƒ‚ÌXVB
-    for (auto ite=mStimList.begin(); ite!=mStimList.end(); ++ite) {
+    for (auto ite=mStimList.begin(); ite!=mStimList.end();) {
         ite->counter -= repeatCount;
         if (ite->counter <= 0) {
             ite = mStimList.erase(ite);
+        } else {
+            ++ite;
         }
     }
 
