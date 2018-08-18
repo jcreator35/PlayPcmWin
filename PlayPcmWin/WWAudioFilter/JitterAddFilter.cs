@@ -223,6 +223,7 @@ namespace WWAudioFilter {
                 return false;
             }
 
+            // Uses Left channel of Timing Error audio file
             mTimingErrorFromAudioFile = ad.pcm[0].GetPcmInDouble(mTotalSamples);
 
             return true;
