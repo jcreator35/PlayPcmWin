@@ -575,6 +575,24 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Error: Timing Error audio data should have the same or more sample count than Input PCM data.
+        /// </summary>
+        internal static string ErrorTimingErrorFile {
+            get {
+                return ResourceManager.GetString("ErrorTimingErrorFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error: Jitter Timing Error scaling value should be a number.
+        /// </summary>
+        internal static string ErrorTimingErrorNanosec {
+            get {
+                return ResourceManager.GetString("ErrorTimingErrorNanosec", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to TPDF Jitter Amount must be 0 or larger value.
         /// </summary>
         internal static string ErrorTpdfJitterAmount {
@@ -710,7 +728,7 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Add Jitter : Sinusoidal={0}Hz {1}ns, TPDF={2}ns,  RPDF={3}ns, Filter Length={4}.
+        ///   Looks up a localized string similar to Add Jitter : FilterLen={4}, Sine={0}Hz {1}ns, TPDF={2}ns,  RPDF={3}ns,  TEF={5}ns {6}.
         /// </summary>
         internal static string FilterJitterAddDesc {
             get {

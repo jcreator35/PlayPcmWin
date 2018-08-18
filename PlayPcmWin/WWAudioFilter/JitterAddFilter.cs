@@ -1,8 +1,11 @@
-﻿using System;
+﻿// 日本語
+
+using System;
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Windows;
+using WWFlacRWCS;
 
 namespace WWAudioFilter {
     public class JitterAddFilter : FilterBase {
@@ -14,6 +17,8 @@ namespace WWAudioFilter {
         public double TpdfJitterNanosec { get; set; }
         public double RpdfJitterNanosec { get; set; }
         public int ConvolutionLengthMinus1 { get; set; }
+        public string TimingErrorFile { get; set; }
+        public double TimingErrorFileNanosec { get; set; }
 
         // Setup()で計算する
         private long   mTotalSamples;
@@ -22,12 +27,15 @@ namespace WWAudioFilter {
         private double mTpdfJitterAmp;
         private double mRpdfJitterAmp;
 
+        private WWUtil.LargeArray<double> mTimingErrorFromAudioFile = null;
+
         // ジッターによって揺さぶられたクロックが生成した再サンプリング時刻。
         // PrepareResamplePosArray()で計算する
         private int[]    mResamplePosArray;
         private double[] mFractionArray;
 
-        public JitterAddFilter(double sineJitterFreq, double sineJitterNanosec, double tpdfJitterNanosec, double rpdfJitterNanosec, int convolutionLengthMinus1)
+        public JitterAddFilter(double sineJitterFreq, double sineJitterNanosec, double tpdfJitterNanosec,
+                double rpdfJitterNanosec, int convolutionLengthMinus1, string timingErrorFile, double timingErrorFileNanosec)
                 : base(FilterType.JitterAdd) {
             if (sineJitterFreq < 0) {
                 throw new ArgumentOutOfRangeException("sineJitterFreq");
@@ -53,24 +61,30 @@ namespace WWAudioFilter {
                 throw new ArgumentOutOfRangeException("convolutionLengthMinus1");
             }
             ConvolutionLengthMinus1 = convolutionLengthMinus1;
+
+            TimingErrorFile = timingErrorFile;
+            TimingErrorFileNanosec = timingErrorFileNanosec;
         }
 
         public override FilterBase CreateCopy() {
-            return new JitterAddFilter(SineJitterFreq, SineJitterNanosec, TpdfJitterNanosec, RpdfJitterNanosec, ConvolutionLengthMinus1);
+            return new JitterAddFilter(SineJitterFreq, SineJitterNanosec, TpdfJitterNanosec,
+                    RpdfJitterNanosec, ConvolutionLengthMinus1, TimingErrorFile, TimingErrorFileNanosec);
         }
 
         public override string ToDescriptionText() {
             return string.Format(CultureInfo.CurrentCulture, Properties.Resources.FilterJitterAddDesc,
-                SineJitterFreq, SineJitterNanosec, TpdfJitterNanosec, RpdfJitterNanosec, ConvolutionLengthMinus1+1);
+                    SineJitterFreq, SineJitterNanosec, TpdfJitterNanosec, RpdfJitterNanosec, ConvolutionLengthMinus1+1,
+                    TimingErrorFileNanosec, TimingErrorFile);
         }
 
         public override string ToSaveText() {
-            return string.Format(CultureInfo.InvariantCulture, "{0} {1} {2} {3} {4}",
-                SineJitterFreq, SineJitterNanosec, TpdfJitterNanosec, RpdfJitterNanosec, ConvolutionLengthMinus1);
+            return string.Format(CultureInfo.InvariantCulture, "{0} {1} {2} {3} {4} {5} {6}",
+                SineJitterFreq, SineJitterNanosec, TpdfJitterNanosec, RpdfJitterNanosec,
+                ConvolutionLengthMinus1, TimingErrorFileNanosec, WWAFUtil.EscapeString(TimingErrorFile));
         }
 
         public static FilterBase Restore(string[] tokens) {
-            if (tokens.Length != 6) {
+            if (tokens.Length != 6 && tokens.Length != 8) {
                 return null;
             }
 
@@ -99,7 +113,18 @@ namespace WWAudioFilter {
                 return null;
             }
 
-            return new JitterAddFilter(sineJitterFreq, sineJitterNanosec, tpdfJitterNanosec, rpdfJitterNanosec, convolutionN);
+            double timingErrorNanosec = 0;
+            string timingErrorFile = "";
+
+            if (8 <= tokens.Length) {
+                if (!Double.TryParse(tokens[6], out timingErrorNanosec)) {
+                    return null;
+                }
+                timingErrorFile = tokens[7];
+            }
+
+            return new JitterAddFilter(sineJitterFreq, sineJitterNanosec, tpdfJitterNanosec,
+                    rpdfJitterNanosec, convolutionN, timingErrorFile, timingErrorNanosec);
         }
 
         private static double
@@ -133,6 +158,8 @@ namespace WWAudioFilter {
                 * Math.Sin((sineJitterThetaCoefficient * offs) % (2.0 * Math.PI));
             double tpdfJitter = 0.0;
             double rpdfJitter = 0.0;
+            double timingErrFromFile = 0.0;
+            
             if (0.0 < mTpdfJitterAmp) {
                 double r = GenRandom0to1(mRand) + GenRandom0to1(mRand) - 1.0;
                 tpdfJitter = mTpdfJitterAmp * r;
@@ -140,7 +167,14 @@ namespace WWAudioFilter {
             if (0.0 < mRpdfJitterAmp) {
                 rpdfJitter = mRpdfJitterAmp * (GenRandom0to1(mRand) * 2.0 - 1.0);
             }
-            double jitter = sineJitter + tpdfJitter + rpdfJitter;
+
+            if (mTimingErrorFromAudioFile != null) {
+                timingErrFromFile = 1.0e-9 * TimingErrorFileNanosec * mSampleRate
+                    * mTimingErrorFromAudioFile.At(offs);
+            }
+
+            double jitter = sineJitter + tpdfJitter + rpdfJitter + timingErrFromFile;
+
             return jitter;
         }
 
@@ -153,7 +187,7 @@ namespace WWAudioFilter {
             mResamplePosArray = new int[sampleTotal];
             mFractionArray    = new double[sampleTotal];
             for (int i = 0; i < sampleTotal; ++i) {
-                double resamplePos = (double)i + GenerateJitter(i); //< ここでiが大きいときに値の精度がいくらか低下する
+                double resamplePos = (double)i + GenerateJitter(i); //< ここでiが大きいときに値の精度がいくらか低下する!
 
                 // -0.5 <= fraction < +0.5になるようにresamplePosを選ぶ。
                 // 最後のほうで範囲外を指さないようにする。
@@ -171,6 +205,29 @@ namespace WWAudioFilter {
                 }
             }
         }
+
+        private bool SetupTimingErrorFile() {
+            if (TimingErrorFile == null || TimingErrorFile.Length == 0) {
+                TimingErrorFileNanosec = 0.0;
+                return true;
+            }
+
+            AudioData ad;
+            int rv = AudioDataIO.Read(TimingErrorFile, out ad);
+            if (rv < 0) {
+                return false;
+            }
+
+            if (ad.meta.totalSamples < mTotalSamples) {
+                MessageBox.Show(Properties.Resources.ErrorTimingErrorFile);
+                return false;
+            }
+
+            mTimingErrorFromAudioFile = ad.pcm[0].GetPcmInDouble(mTotalSamples);
+
+            return true;
+        }
+
 
         public override PcmFormat Setup(PcmFormat inputFormat) {
             if (Int32.MaxValue <= inputFormat.NumSamples) {
@@ -209,6 +266,11 @@ namespace WWAudioFilter {
             mSineJitterAmp = 1.0e-9 * SineJitterNanosec * inputFormat.SampleRate * Math.Sqrt(2);
             mTpdfJitterAmp = 1.0e-9 * TpdfJitterNanosec * inputFormat.SampleRate * 2;
             mRpdfJitterAmp = 1.0e-9 * RpdfJitterNanosec * inputFormat.SampleRate;
+
+            if (!SetupTimingErrorFile()) {
+                //MessageBox.Show("Error: JitterAddFilter::Setup() failed!");
+                return null;
+            }
 
             PrepareResamplePosArray(inputFormat.SampleRate, (int)inputFormat.NumSamples);
             return new PcmFormat(inputFormat);

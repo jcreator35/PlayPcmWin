@@ -421,7 +421,7 @@ Processing...
     <value>TPDF Jitter Amount must be 0 or larger value</value>
   </data>
   <data name="FilterJitterAddDesc" xml:space="preserve">
-    <value>Add Jitter : Sinusoidal={0}Hz {1}ns, TPDF={2}ns,  RPDF={3}ns, Filter Length={4}</value>
+    <value>Add Jitter : FilterLen={4}, Sine={0}Hz {1}ns, TPDF={2}ns,  RPDF={3}ns,  TEF={5}ns {6}</value>
   </data>
   <data name="ErrorGaussianNoiseLevel" xml:space="preserve">
     <value>Gaussian noise level parse error.</value>
@@ -569,5 +569,11 @@ Processing...
   </data>
   <data name="CbItemCicType3rdStage" xml:space="preserve">
     <value>3rd stage CIC</value>
+  </data>
+  <data name="ErrorTimingErrorNanosec" xml:space="preserve">
+    <value>Error: Jitter Timing Error scaling value should be a number</value>
+  </data>
+  <data name="ErrorTimingErrorFile" xml:space="preserve">
+    <value>Error: Timing Error audio data should have the same or more sample count than Input PCM data</value>
   </data>
 </root>

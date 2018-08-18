@@ -821,7 +821,14 @@ using WWMath;
                     convolutionN = mConvolutionLengthArray[comboBoxFilterLength.SelectedIndex];
                 }
 
-                mFilter = new JitterAddFilter(sineJitterFreq, sineJitterNanosec, tpdfJitterNanosec, rpdfJitterNanosec, convolutionN);
+                double timingErrorNanosec;
+                if (!Double.TryParse(textBoxTimingErrorNanosec.Text, out timingErrorNanosec)) {
+                    MessageBox.Show(Properties.Resources.ErrorTimingErrorNanosec);
+                    return;
+                }
+
+                mFilter = new JitterAddFilter(sineJitterFreq, sineJitterNanosec, tpdfJitterNanosec,
+                        rpdfJitterNanosec, convolutionN, textBoxTimingErrorFile.Text, timingErrorNanosec);
 
                 DialogResult = true;
                 Close();
@@ -1001,6 +1008,18 @@ using WWMath;
                     comboBoxDownsampleLen.IsEnabled = true;
                     break;
                 }
+            }
+
+            private void buttonBrowseTimingErrorFile_Click(object sender, RoutedEventArgs e) {
+                var dlg = new OpenFileDialog();
+                dlg.Filter = Properties.Resources.FilterReadAudioFiles;
+                dlg.CheckFileExists = true;
+                var result = dlg.ShowDialog();
+                if (result != true) {
+                    return;
+                }
+
+                textBoxTimingErrorFile.Text = dlg.FileName;
             }
         }
     }
