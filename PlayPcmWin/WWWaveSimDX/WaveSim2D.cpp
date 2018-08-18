@@ -1,3 +1,5 @@
+// æ—¥æœ¬èª
+
 #include "WaveSim2D.h"
 #include "WWWinUtil.h"
 #include <assert.h>
@@ -36,34 +38,34 @@ WaveSim2D::Init(ID3D11DeviceContext *displayCtx,
     mLoss = new float[mGridCount];
 
     /*
-        * ‰¹‹¿ƒCƒ“ƒs[ƒ_ƒ“ƒXƒÅ=ƒÏ*Ca (Schneider17, pp.63, pp.325)
-        * ƒÅ1‚©‚ç‘Oi‚µƒÅ2‚ÌŠE–Ê‚É’B‚µ‚½”g‚ªŠE–Ê‚Å”½Ë‚·‚é‚Æ‚«
+        * éŸ³éŸ¿ã‚¤ãƒ³ãƒ”ãƒ¼ãƒ€ãƒ³ã‚¹Î·=Ï*Ca (Schneider17, pp.63, pp.325)
+        * Î·1ã‹ã‚‰å‰é€²ã—Î·2ã®ç•Œé¢ã«é”ã—ãŸæ³¢ãŒç•Œé¢ã§åå°„ã™ã‚‹ã¨ã
         *
-        *             ƒÅ2-ƒÅ1
-        * ”½Ë—¦ r = „Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ
-        *             ƒÅ2+ƒÅ1
+        *             Î·2-Î·1
+        * åå°„ç‡ r = â”€â”€â”€â”€â”€â”€â”€â”€
+        *             Î·2+Î·1
         * 
-        * ”}¿1‚ÌƒCƒ“ƒs[ƒ_ƒ“ƒXƒÅ1‚Æ”½Ë—¦¨”}¿2‚ÌƒCƒ“ƒs[ƒ_ƒ“ƒXƒÅ2‚ğ“¾‚é®:
+        * åª’è³ª1ã®ã‚¤ãƒ³ãƒ”ãƒ¼ãƒ€ãƒ³ã‚¹Î·1ã¨åå°„ç‡â†’åª’è³ª2ã®ã‚¤ãƒ³ãƒ”ãƒ¼ãƒ€ãƒ³ã‚¹Î·2ã‚’å¾—ã‚‹å¼:
         *
-        *       -(r+1)ƒÅ1
-        * ƒÅ2 = „Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ
+        *       -(r+1)Î·1
+        * Î·2 = â”€â”€â”€â”€â”€â”€â”€â”€â”€
         *         r-1
         *         
-        * Courant number Sc = c0 ƒ¢t / ƒ¢x
+        * Courant number Sc = c0 Î”t / Î”x
         */
 
     for (int i = 0; i < mGridCount; ++i) {
-        // ‘Š‘Î–§“xB
+        // ç›¸å¯¾å¯†åº¦ã€‚
         mRoh[i] = 1.0f;
 
-        // ‘Š‘Î‰¹‘¬B0 < Cr < 1
+        // ç›¸å¯¾éŸ³é€Ÿã€‚0 < Cr < 1
         mCr[i] = 1.0f;
 
         mLoss[i] = 0.0f;
     }
 
 #if 1
-    // ã‰º¶‰E’[—Ìˆæ‚Í”½Ë—¦80“‚Ì•Ç‚É‚È‚Á‚Ä‚¢‚éB
+    // ä¸Šä¸‹å·¦å³ç«¯é ˜åŸŸã¯åå°„ç‡80ï¼…ã®å£ã«ãªã£ã¦ã„ã‚‹ã€‚
     float r = 0.8f; // 0.8 == 80%
     float roh2 = -(r + 1) * 1.0f / (r - 1);
     float loss2 = 0.1f;
@@ -90,13 +92,13 @@ WaveSim2D::Init(ID3D11DeviceContext *displayCtx,
     }
 #endif
 
-    // 2Ÿ‚ÌABC—p‚Ì‰ß‹ƒf[ƒ^’u‚«êB
+    // 2æ¬¡ã®ABCç”¨ã®éå»ãƒ‡ãƒ¼ã‚¿ç½®ãå ´ã€‚
     //for (int i = 0; i < mDelayArray.Length; ++i) {
     //    mDelayArray[i].FillZeroes();
     //}
 
     //{
-    //    // ABC‚ÌŒW”B
+    //    // ABCã®ä¿‚æ•°ã€‚
 
     //    float Cp = mRoh[0] * mCr[0] * mCr[0] * mC0 * mSc;
     //    float Cv = 2.0f * mSc / ((mRoh[0] + mRoh[0 + 1]) * mC0);
@@ -168,7 +170,7 @@ WaveSim2D::SetLoss(int x, int y, float v)
 void
 WaveSim2D::Term(void)
 {
-    // ‚±‚ê‚ç‚ÍAQÆ‚ğ‚Á‚Ä‚¢‚é‚¾‚¯B
+    // ã“ã‚Œã‚‰ã¯ã€å‚ç…§ã‚’æŒã£ã¦ã„ã‚‹ã ã‘ã€‚
     mDisplayCtx    = nullptr;
     mDisplayDevice = nullptr;
 
@@ -199,7 +201,7 @@ WaveSim2D::Update(int repeatCount)
     HRG(mWave2D.Run(repeatCount, nStim, stims));
     HRG(CopyMemoryToTexture2D());
 
-    // hŒƒ‚ÌXVB
+    // åˆºæ¿€ã®æ›´æ–°ã€‚
     for (auto ite=mStimList.begin(); ite!=mStimList.end();) {
         ite->counter -= repeatCount;
         if (ite->counter <= 0) {
@@ -238,7 +240,7 @@ WaveSim2D::CreateResultTex(void)
     desc.MipLevels = desc.ArraySize = 1;
     desc.Format    = DXGI_FORMAT_R32_FLOAT;
 
-    // ƒ}ƒ‹ƒ`ƒTƒ“ƒvƒ‹–³‚µB
+    // ãƒãƒ«ãƒã‚µãƒ³ãƒ—ãƒ«ç„¡ã—ã€‚
     desc.SampleDesc.Count   = 1;
     desc.SampleDesc.Quality = 0;
 
@@ -246,7 +248,7 @@ WaveSim2D::CreateResultTex(void)
     desc.Usage     = D3D11_USAGE_DYNAMIC;
     desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 
-    // ƒeƒNƒXƒ`ƒƒ[‚ğì‚Á‚½Œã‚ÉCPU‚©‚ç“à—e‚ğXV‚·‚é‚Ì‚ÅB
+    // ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ¼ã‚’ä½œã£ãŸå¾Œã«CPUã‹ã‚‰å†…å®¹ã‚’æ›´æ–°ã™ã‚‹ã®ã§ã€‚
     desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
     desc.MiscFlags      = 0;
 
@@ -256,7 +258,7 @@ WaveSim2D::CreateResultTex(void)
     sdesc.Format = DXGI_FORMAT_R32_FLOAT;
     sdesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
     sdesc.Texture2D.MostDetailedMip = 0;
-    sdesc.Texture2D.MipLevels = -1; //< ‘S‚Äg—p‚·‚éB
+    sdesc.Texture2D.MipLevels = -1; //< å…¨ã¦ä½¿ç”¨ã™ã‚‹ã€‚
 
     HRG(mDisplayDevice->CreateShaderResourceView(mResultTex, &sdesc, &mResultTexSRV));
 #if !defined(NDEBUG)

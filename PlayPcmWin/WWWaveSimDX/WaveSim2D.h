@@ -1,3 +1,5 @@
+// 日本語
+
 #pragma once
 #include "WWWave2DGpu.h"
 #include <list>
