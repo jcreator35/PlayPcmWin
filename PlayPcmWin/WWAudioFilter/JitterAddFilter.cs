@@ -269,6 +269,8 @@ namespace WWAudioFilter {
 
             mTotalSamples = inputFormat.NumSamples;
             mSampleRate    = inputFormat.SampleRate;
+
+            // SineJitterNanosecはRMS値で与えられる。振幅は √2 倍。
             mSineJitterAmp = 1.0e-9 * SineJitterNanosec * inputFormat.SampleRate * Math.Sqrt(2);
             mTpdfJitterAmp = 1.0e-9 * TpdfJitterNanosec * inputFormat.SampleRate * 2;
             mRpdfJitterAmp = 1.0e-9 * RpdfJitterNanosec * inputFormat.SampleRate;
