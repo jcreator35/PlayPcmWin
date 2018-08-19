@@ -150,10 +150,13 @@ namespace WWAudioFilter {
 
         /// <summary>
         /// Returns jitter added resample position
+        /// retval unit is sample, difference from the ideal resample position of no jitter
         /// </summary>
         private double GenerateJitter(int offs) {
             double sineJitterThetaCoefficient = 2 * Math.PI * SineJitterFreq / mSampleRate;
 
+            // 以下のsineJitterの計算、offsを掛けるのではなくて、前回の計算結果にcoeffを足してから %で
+            // 剰余を計算する方が精度が良いかもしれない。両方作って比べると良いでしょう。
             double sineJitter = mSineJitterAmp
                 * Math.Sin((sineJitterThetaCoefficient * offs) % (2.0 * Math.PI));
             double tpdfJitter = 0.0;
@@ -187,7 +190,9 @@ namespace WWAudioFilter {
             mResamplePosArray = new int[sampleTotal];
             mFractionArray    = new double[sampleTotal];
             for (int i = 0; i < sampleTotal; ++i) {
-                double resamplePos = (double)i + GenerateJitter(i); //< ここでiが大きいときに値の精度がいくらか低下する!
+                // FIXME: ここでiが大きいときに値の精度がいくらか低下する!
+                // resamplePosを経由せずに整数部と小数部を算出するように変えたら良い。
+                double resamplePos = (double)i + GenerateJitter(i);
 
                 // -0.5 <= fraction < +0.5になるようにresamplePosを選ぶ。
                 // 最後のほうで範囲外を指さないようにする。
