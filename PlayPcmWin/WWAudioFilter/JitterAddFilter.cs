@@ -5,7 +5,6 @@ using System.Globalization;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Windows;
-using WWFlacRWCS;
 
 namespace WWAudioFilter {
     public class JitterAddFilter : FilterBase {
@@ -148,6 +147,30 @@ namespace WWAudioFilter {
             return d;
         }
 
+        private bool SetupTimingErrorFile() {
+            if (TimingErrorFile == null || TimingErrorFile.Length == 0) {
+                TimingErrorFileNanosec = 0.0;
+                return true;
+            }
+
+            AudioData ad;
+            int rv = AudioDataIO.Read(TimingErrorFile, out ad);
+            if (rv < 0) {
+                return false;
+            }
+
+            if (ad.meta.totalSamples < mTotalSamples) {
+                MessageBox.Show(Properties.Resources.ErrorTimingErrorFile);
+                return false;
+            }
+
+            // Uses Left channel of Timing Error audio file.
+            // sample value range is -1.0 ≦ v < +1.0
+            mTimingErrorFromAudioFile = ad.pcm[0].GetPcmInDouble(mTotalSamples);
+
+            return true;
+        }
+
         /// <summary>
         /// Returns jitter added resample position
         /// retval unit is sample, difference from the ideal resample position of no jitter
@@ -211,30 +234,6 @@ namespace WWAudioFilter {
             }
         }
 
-        private bool SetupTimingErrorFile() {
-            if (TimingErrorFile == null || TimingErrorFile.Length == 0) {
-                TimingErrorFileNanosec = 0.0;
-                return true;
-            }
-
-            AudioData ad;
-            int rv = AudioDataIO.Read(TimingErrorFile, out ad);
-            if (rv < 0) {
-                return false;
-            }
-
-            if (ad.meta.totalSamples < mTotalSamples) {
-                MessageBox.Show(Properties.Resources.ErrorTimingErrorFile);
-                return false;
-            }
-
-            // Uses Left channel of Timing Error audio file
-            mTimingErrorFromAudioFile = ad.pcm[0].GetPcmInDouble(mTotalSamples);
-
-            return true;
-        }
-
-
         public override PcmFormat Setup(PcmFormat inputFormat) {
             if (Int32.MaxValue <= inputFormat.NumSamples) {
                 MessageBox.Show("Input PCM data is too long");
@@ -270,7 +269,7 @@ namespace WWAudioFilter {
             mTotalSamples = inputFormat.NumSamples;
             mSampleRate    = inputFormat.SampleRate;
 
-            // SineJitterNanosecはRMS値で与えられる。振幅は √2 倍。
+            // SineJitterNanosecはRMS値で与えられる。振幅は√2倍。
             mSineJitterAmp = 1.0e-9 * SineJitterNanosec * inputFormat.SampleRate * Math.Sqrt(2);
             mTpdfJitterAmp = 1.0e-9 * TpdfJitterNanosec * inputFormat.SampleRate * 2;
             mRpdfJitterAmp = 1.0e-9 * RpdfJitterNanosec * inputFormat.SampleRate;
@@ -285,6 +284,7 @@ namespace WWAudioFilter {
         }
 
         public override long NumOfSamplesNeeded() {
+            // inputデータを一度のFilterDo()で全て処理する(手抜き)。
             return mTotalSamples;
         }
 
