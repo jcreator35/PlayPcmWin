@@ -1,29 +1,134 @@
 ﻿<Window x:Class="WWTaskManagerText.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="WWTaskManagerText" Height="350" Width="525" Closing="Window_Closing">
+        Title="WWTaskManagerText" Height="600" Width="525" Closing="Window_Closing" Loaded="Window_Loaded">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="100" />
+            <RowDefinition Height="300" />
             <RowDefinition Height="36" />
             <RowDefinition Height="175*" />
         </Grid.RowDefinitions>
         <GroupBox Header="Settings" >
             <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="150" />
-                    <ColumnDefinition Width="1*" />
-                    <ColumnDefinition Width="1*" />
-                </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="1*" />
+                    <RowDefinition Height="3*" />
                     <RowDefinition Height="1*" />
+                    <RowDefinition Height="8*" />
                 </Grid.RowDefinitions>
-                <Label Content="Text:" HorizontalAlignment="Right" Name="labelText" VerticalAlignment="Center" />
-                <TextBox Grid.Column="1" Margin="6,0,6,0" Name="textBoxText" VerticalAlignment="Center" Grid.ColumnSpan="2" Text="Lorem ipsum" />
-                <Label Content="Update interval:" Grid.Row="1" HorizontalAlignment="Right" Name="labelUpdateInterval" VerticalAlignment="Center" />
-                <TextBox Grid.Column="1" Grid.Row="1" Margin="6,0,6,0" Name="textBoxInterval" VerticalAlignment="Center" Text="1.0" HorizontalContentAlignment="Right" />
-                <Label Content="sec" Grid.Column="2" Grid.Row="1" HorizontalAlignment="Left" Name="labelSec" VerticalAlignment="Center" />
+
+                <RadioButton Content="Text Banner Marquee" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonTextBannerMarquee" VerticalAlignment="Center" IsChecked="True" Checked="radioButtonTextBannerMarquee_Checked" />
+                <GroupBox Grid.Row="1" Name="gbTextBannerMarquee" >
+                    <Grid >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                        </Grid.RowDefinitions>
+                        <Label Grid.Row="0" Grid.Column="0" Content="Text:" HorizontalAlignment="Right" Name="labelText" VerticalAlignment="Center" />
+                        <TextBox Grid.Row="0" Grid.Column="1" Margin="6,0" Name="textBoxText" VerticalAlignment="Center" Grid.ColumnSpan="2" Text="Lorem ipsum" />
+                        <Label Grid.Row="1" Content="Update interval:" HorizontalAlignment="Right" Name="labelUpdateInterval" VerticalAlignment="Center" />
+                        <TextBox Grid.Row="1" Grid.Column="1" Margin="6,0,6,0" Name="textBoxInterval" VerticalAlignment="Center" Text="1.0" HorizontalContentAlignment="Right" />
+                        <Label Grid.Row="1" Content="sec" Grid.Column="2" HorizontalAlignment="Left" Name="labelSec" VerticalAlignment="Center" Margin="0,6" />
+                    </Grid>
+                </GroupBox>
+                <RadioButton Grid.Row="2" Content="Static Bitmap Pattern" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonStaticBitmapPattern" VerticalAlignment="Center" Checked="radioButtonStaticBitmapPattern_Checked" />
+                <GroupBox Grid.Row="4" Name="gbStaticBitmapPattern" IsEnabled="False">
+                    <Grid>
+                        <Grid Grid.Row="4" Width="160" Height="160" Grid.ColumnSpan="3" HorizontalAlignment="Left" Margin="60,0,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                            </Grid.RowDefinitions>
+                            <CheckBox Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" Name="checkBox0" VerticalAlignment="Center" IsChecked="True" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" Name="checkBox1" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center" Name="checkBox2" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="0" Grid.Column="3" HorizontalAlignment="Center" Name="checkBox3" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="0" Grid.Column="4" HorizontalAlignment="Center" Name="checkBox4" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="0" Grid.Column="5" HorizontalAlignment="Center" Name="checkBox5" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="0" Grid.Column="6" HorizontalAlignment="Center" Name="checkBox6" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="0" Grid.Column="7" HorizontalAlignment="Center" Name="checkBox7" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="1" Grid.Column="0" HorizontalAlignment="Center" Name="checkBox8" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center" Name="checkBox9" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="1" Grid.Column="2" HorizontalAlignment="Center" Name="checkBox10" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="1" Grid.Column="3" HorizontalAlignment="Center" Name="checkBox11" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="1" Grid.Column="4" HorizontalAlignment="Center" Name="checkBox12" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="1" Grid.Column="5" HorizontalAlignment="Center" Name="checkBox13" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="1" Grid.Column="6" HorizontalAlignment="Center" Name="checkBox14" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="1" Grid.Column="7" HorizontalAlignment="Center" Name="checkBox15" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="2" Grid.Column="0" HorizontalAlignment="Center" Name="checkBox16" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center" Name="checkBox17" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="2" Grid.Column="2" HorizontalAlignment="Center" Name="checkBox18" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="2" Grid.Column="3" HorizontalAlignment="Center" Name="checkBox19" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="2" Grid.Column="4" HorizontalAlignment="Center" Name="checkBox20" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="2" Grid.Column="5" HorizontalAlignment="Center" Name="checkBox21" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="2" Grid.Column="6" HorizontalAlignment="Center" Name="checkBox22" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="2" Grid.Column="7" HorizontalAlignment="Center" Name="checkBox23" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="3" Grid.Column="0" HorizontalAlignment="Center" Name="checkBox24" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="3" Grid.Column="1" HorizontalAlignment="Center" Name="checkBox25" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="3" Grid.Column="2" HorizontalAlignment="Center" Name="checkBox26" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="3" Grid.Column="3" HorizontalAlignment="Center" Name="checkBox27" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="3" Grid.Column="4" HorizontalAlignment="Center" Name="checkBox28" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="3" Grid.Column="5" HorizontalAlignment="Center" Name="checkBox29" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="3" Grid.Column="6" HorizontalAlignment="Center" Name="checkBox30" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="3" Grid.Column="7" HorizontalAlignment="Center" Name="checkBox31" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="4" Grid.Column="0" HorizontalAlignment="Center" Name="checkBox32" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="4" Grid.Column="1" HorizontalAlignment="Center" Name="checkBox33" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="4" Grid.Column="2" HorizontalAlignment="Center" Name="checkBox34" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="4" Grid.Column="3" HorizontalAlignment="Center" Name="checkBox35" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="4" Grid.Column="4" HorizontalAlignment="Center" Name="checkBox36" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="4" Grid.Column="5" HorizontalAlignment="Center" Name="checkBox37" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="4" Grid.Column="6" HorizontalAlignment="Center" Name="checkBox38" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="4" Grid.Column="7" HorizontalAlignment="Center" Name="checkBox39" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="5" Grid.Column="0" HorizontalAlignment="Center" Name="checkBox40" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="5" Grid.Column="1" HorizontalAlignment="Center" Name="checkBox41" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="5" Grid.Column="2" HorizontalAlignment="Center" Name="checkBox42" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="5" Grid.Column="3" HorizontalAlignment="Center" Name="checkBox43" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="5" Grid.Column="4" HorizontalAlignment="Center" Name="checkBox44" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="5" Grid.Column="5" HorizontalAlignment="Center" Name="checkBox45" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="5" Grid.Column="6" HorizontalAlignment="Center" Name="checkBox46" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="5" Grid.Column="7" HorizontalAlignment="Center" Name="checkBox47" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="6" Grid.Column="0" HorizontalAlignment="Center" Name="checkBox48" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="6" Grid.Column="1" HorizontalAlignment="Center" Name="checkBox49" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="6" Grid.Column="2" HorizontalAlignment="Center" Name="checkBox50" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="6" Grid.Column="3" HorizontalAlignment="Center" Name="checkBox51" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="6" Grid.Column="4" HorizontalAlignment="Center" Name="checkBox52" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="6" Grid.Column="5" HorizontalAlignment="Center" Name="checkBox53" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="6" Grid.Column="6" HorizontalAlignment="Center" Name="checkBox54" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="6" Grid.Column="7" HorizontalAlignment="Center" Name="checkBox55" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="7" Grid.Column="0" HorizontalAlignment="Center" Name="checkBox56" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="7" Grid.Column="1" HorizontalAlignment="Center" Name="checkBox57" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="7" Grid.Column="2" HorizontalAlignment="Center" Name="checkBox58" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="7" Grid.Column="3" HorizontalAlignment="Center" Name="checkBox59" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="7" Grid.Column="4" HorizontalAlignment="Center" Name="checkBox60" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="7" Grid.Column="5" HorizontalAlignment="Center" Name="checkBox61" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="7" Grid.Column="6" HorizontalAlignment="Center" Name="checkBox62" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                            <CheckBox Grid.Row="7" Grid.Column="7" HorizontalAlignment="Center" Name="checkBox63" VerticalAlignment="Center" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" />
+                        </Grid>
+                        <Button Content="Clear" HorizontalAlignment="Left" Margin="244,12,0,0" Name="buttonClear" VerticalAlignment="Top" Width="116" Click="buttonClear_Click" />
+                        <Button Content="Set All" HorizontalAlignment="Left" Margin="244,42,0,0" Name="buttonSetAll" VerticalAlignment="Top" Width="116" Click="buttonSetAll_Click" />
+                    </Grid>
+                </GroupBox>
             </Grid>
         </GroupBox>
         <GroupBox Header="Now Shows" Grid.Row="2" >
@@ -33,5 +138,6 @@
         </GroupBox>
         <Button Content="_Start" Grid.Row="1" HorizontalAlignment="Left" Margin="6,0,0,0" Name="buttonStart" VerticalAlignment="Center" Width="75" Click="buttonStart_Click" />
         <Button Content="S_top" Grid.Row="1" HorizontalAlignment="Left" Margin="90,0,0,0" Name="buttonStop" VerticalAlignment="Center" Width="75" IsEnabled="False" Click="buttonStop_Click" />
+        <Border BorderBrush="Silver" BorderThickness="1" Grid.RowSpan="2" Height="100" HorizontalAlignment="Left" Margin="802,203,0,0" Name="border1" VerticalAlignment="Top" Width="200" />
     </Grid>
 </Window>

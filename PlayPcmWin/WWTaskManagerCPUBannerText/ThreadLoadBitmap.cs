@@ -9,9 +9,11 @@ using System.Runtime.InteropServices;
 
 namespace WWTaskManagerText {
     class ThreadLoadBitmap {
-        BackgroundWorker [] mBW = new BackgroundWorker[8*8];
-
+        const int W = 8;
+        const int H = 8;
         const int SLEEP_MS = 100;
+
+        BackgroundWorker[] mBW = new BackgroundWorker[W * H];
 
         [DllImport("kernel32.dll")]
         public static extern int GetCurrentThreadId();
@@ -22,6 +24,9 @@ namespace WWTaskManagerText {
             mPattern = 0;
 
             int numProcessors = Environment.ProcessorCount;
+            if (W*H < numProcessors) {
+                numProcessors = W * H;
+            }
 
             for (int i = 0; i < numProcessors; ++i) {
                 mBW[i] = new BackgroundWorker();
@@ -37,9 +42,9 @@ namespace WWTaskManagerText {
 
         public void UpdatePattern(byte[] mGrayImage8x8) {
             mPattern = 0;
-            for (int y = 0; y < 8; ++y) {
-                for (int x = 0; x < 8; ++x) {
-                    int pos = x + y * 8;
+            for (int y = 0; y < H; ++y) {
+                for (int x = 0; x < W; ++x) {
+                    int pos = x + y * W;
                     if (mGrayImage8x8[pos] < 128) {
                         mPattern |= 1UL << pos;
                     }
@@ -48,7 +53,7 @@ namespace WWTaskManagerText {
         }
 
         public void Stop() {
-            for (int i = 0; i < 64; ++i) {
+            for (int i = 0; i < W*H; ++i) {
                 mBW[i].CancelAsync();
             }
         }
