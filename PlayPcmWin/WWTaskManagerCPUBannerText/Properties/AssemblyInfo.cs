@@ -8,11 +8,11 @@ using System.Windows;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("WWTaskManagerCPUBannerText")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Task Manager CPU Load Graph Text Marquee")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Yamamoto2002")]
 [assembly: AssemblyProduct("WWTaskManagerCPUBannerText")]
-[assembly: AssemblyCopyright("Copyright ©  2018")]
+[assembly: AssemblyCopyright("Copyright © 2018 Yamamoto2002")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

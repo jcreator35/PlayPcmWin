@@ -19,6 +19,17 @@ namespace WWTaskManagerText {
         public static extern int GetCurrentThreadId();
 
         private ulong mPattern = 0;
+
+        private readonly int[] mTaskManagerLogicalProcessorIdxToProcessThreadId = new int[] {
+             0,  1,  2,  3,  4,  5,  6,  7,
+             8,  9, 10, 11, 12, 13, 14, 15,
+            32, 33, 34, 35, 36, 37, 38, 39,
+            40, 41, 42, 43, 44, 45, 46, 47,
+            16, 17, 18, 19, 20, 21, 22, 23,
+            24, 25, 26, 27, 28, 29, 30, 31,
+            48, 49, 50, 51, 52, 53, 54, 55,
+            56, 57, 58, 59, 60, 61, 62, 63,
+        };
         
         public void Start() {
             mPattern = 0;
@@ -54,7 +65,10 @@ namespace WWTaskManagerText {
 
         public void Stop() {
             for (int i = 0; i < W*H; ++i) {
-                mBW[i].CancelAsync();
+                if (mBW[i] != null) {
+                    mBW[i].CancelAsync();
+                    mBW[i] = null;
+                }
             }
         }
 
@@ -78,7 +92,6 @@ namespace WWTaskManagerText {
             sw.Stop();
         }
 
-
         void BwRunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
             // nothing to do.
         }
@@ -99,7 +112,8 @@ namespace WWTaskManagerText {
         };
 
         void BwDoWork(object sender, DoWorkEventArgs e) {
-            var args = (WorkerArgs)e.Argument;
+            var bw = sender as BackgroundWorker; 
+            var args = e.Argument as WorkerArgs;
 
             try {
                 Thread.BeginThreadAffinity();
@@ -107,14 +121,18 @@ namespace WWTaskManagerText {
                 ulong affinity = 1UL << args.threadIdx;
                 CurrentThread.ProcessorAffinity = (IntPtr)affinity;
 
-                while (!e.Cancel) {
-                    if (0 != (mPattern & (1UL << args.threadIdx))) {
+                while (!bw.CancellationPending) {
+                    int taskManagerBitmapIdx = mTaskManagerLogicalProcessorIdxToProcessThreadId[args.threadIdx];
+                    if (0 != (mPattern & (1UL << taskManagerBitmapIdx))) {
                         HeavyLifting(args.threadIdx);
                     } else {
                         Thread.Sleep(SLEEP_MS);
                     }
                 }
 
+                e.Cancel = true;
+
+                //Console.WriteLine("{0} Canceled", args.threadIdx);
             } finally {
                 Thread.EndThreadAffinity();
             }

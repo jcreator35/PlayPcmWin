@@ -116,6 +116,7 @@ namespace WWTaskManagerText {
         private void buttonStart_Click(object sender, RoutedEventArgs e) {
             if (radioButtonTextBannerMarquee.IsChecked == true) {
                 SetupBanner();
+                Update();
             }
             if (radioButtonStaticBitmapPattern.IsChecked == true) {
                 mBMS = null;
@@ -166,19 +167,25 @@ namespace WWTaskManagerText {
             mTimer.Enabled = true;
         }
 
-        void TimerElapsed(object sender, ElapsedEventArgs e) {
+        private void Update() {
             var bs = mBMS.Update();
             mTLB.UpdatePattern(bs);
 
             Console.WriteLine("TimerElapsed()");
             int pos = 0;
-            for (int y = 0; y < HEIGHT; ++y) {
-                for (int x = 0; x < WIDTH; ++x) {
+            for (int y = 0; y < HEIGHT; ++y)
+            {
+                for (int x = 0; x < WIDTH; ++x)
+                {
                     Console.Write("{0}", bs[pos] != 0 ? 'X' : ' ');
                     ++pos;
                 }
                 Console.WriteLine("");
             }
+        }
+
+        void TimerElapsed(object sender, ElapsedEventArgs e) {
+            Update();
         }
 
         private void UpdateStaticBitmap() {
