@@ -27,6 +27,8 @@ Open Visual Studio x64 Win64 command prompt and enter following commands to crea
  sn -k WWMFReaderCs\WWMFReaderCs.snk
  sn -k AiffHeaderRead\AiffHeaderRead.snk
  sn -k WWDirectComputeCS\WWDirectComputeCS.snk
+ sn -k WWAudioFilterCore\WWAudioFilterCore.snk
+ sn -k WWSNR\WWSNR.snk
 
 Open PlayPcmWin\PlayPcmWin.sln to build/run PlayPcmWin (choose Release x64 build target)
 
