@@ -304,7 +304,7 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Error.
+        ///   Looks up a localized string similar to Error .
         /// </summary>
         internal static string Error {
             get {
@@ -620,245 +620,11 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Add octave bass unison of the sound below 80Hz: Gain={0:0.00}dB.
-        /// </summary>
-        internal static string FilterAddFundamentalsDesc {
-            get {
-                return ResourceManager.GetString("FilterAddFundamentalsDesc", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to CIC Filter: Order={0}, Comb delay={1}.
-        /// </summary>
-        internal static string FilterCicFilterDesc {
-            get {
-                return ResourceManager.GetString("FilterCicFilterDesc", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Crossfeed: ConfigFile={0}.
-        /// </summary>
-        internal static string FilterCrossfeedDesc {
-            get {
-                return ResourceManager.GetString("FilterCrossfeedDesc", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Cubic Hermite Spline upsample: {0}x.
-        /// </summary>
-        internal static string FilterCubicHermiteSplineDesc {
-            get {
-                return ResourceManager.GetString("FilterCubicHermiteSplineDesc", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Downsample: {0}x, pick {1} th sample.
-        /// </summary>
-        internal static string FilterDownsamplerDesc {
-            get {
-                return ResourceManager.GetString("FilterDownsamplerDesc", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Dynamic range compression: 24bit LSB gain= {0} dB.
-        /// </summary>
-        internal static string FilterDynamicRangeCompressionDesc {
-            get {
-                return ResourceManager.GetString("FilterDynamicRangeCompressionDesc", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to FFT upsample: {0}x, FFT length={1}, Overlap={2}.
-        /// </summary>
-        internal static string FilterFftUpsampleDesc {
-            get {
-                return ResourceManager.GetString("FilterFftUpsampleDesc", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to First Order All-pass IIR Filter: a={0}.
-        /// </summary>
-        internal static string FilterFirstOrderAllPassIIRDesc {
-            get {
-                return ResourceManager.GetString("FilterFirstOrderAllPassIIRDesc", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to FLAC files|*.flac.
-        /// </summary>
-        internal static string FilterFlacFiles {
-            get {
-                return ResourceManager.GetString("FilterFlacFiles", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Gain : {0}x ({1:0.00}dB).
-        /// </summary>
-        internal static string FilterGainDesc {
-            get {
-                return ResourceManager.GetString("FilterGainDesc", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Half-band Filter: taps={0}.
-        /// </summary>
-        internal static string FilterHalfbandDesc {
-            get {
-                return ResourceManager.GetString("FilterHalfbandDesc", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Insert Zeroes Upsampler: {0}x.
-        /// </summary>
-        internal static string FilterInsertZeroesDesc {
-            get {
-                return ResourceManager.GetString("FilterInsertZeroesDesc", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Add Jitter : FilterLen={4}, Sine={0}Hz {1}ns, TPDF={2}ns,  RPDF={3}ns,  TEF={5}ns {6}.
-        /// </summary>
-        internal static string FilterJitterAddDesc {
-            get {
-                return ResourceManager.GetString("FilterJitterAddDesc", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Linear inerpolation upsample: {0}x.
-        /// </summary>
-        internal static string FilterLineDrawDesc {
-            get {
-                return ResourceManager.GetString("FilterLineDrawDesc", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to LPF : Cutoff={0}Hz, slope={1}db/oct, FIR length={2}.
-        /// </summary>
-        internal static string FilterLpfDesc {
-            get {
-                return ResourceManager.GetString("FilterLpfDesc", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to 2nd order MASH noise shaping: targetBitsPerSample={0}.
-        /// </summary>
-        internal static string FilterMashDesc {
-            get {
-                return ResourceManager.GetString("FilterMashDesc", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to 4th order noise shaping: targetBitsPerSample={0}.
-        /// </summary>
-        internal static string FilterNoiseShaping4thDesc {
-            get {
-                return ResourceManager.GetString("FilterNoiseShaping4thDesc", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Noise shaping: order={0}, targetBitsPerSample={1}.
-        /// </summary>
-        internal static string FilterNoiseShapingDesc {
-            get {
-                return ResourceManager.GetString("FilterNoiseShapingDesc", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Normalize signal level max={0}dBFS.
-        /// </summary>
-        internal static string FilterNormalizeDesc {
-            get {
-                return ResourceManager.GetString("FilterNormalizeDesc", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Audio files(*.wav, *.flac, *.dsf)|*.wav;*.flac;*.dsf.
         /// </summary>
         internal static string FilterReadAudioFiles {
             get {
                 return ResourceManager.GetString("FilterReadAudioFiles", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Reduce bit depth to {0} bit.
-        /// </summary>
-        internal static string FilterReduceBitDepthDesc {
-            get {
-                return ResourceManager.GetString("FilterReduceBitDepthDesc", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Second Order All-pass IIR Filter: r={0}, θ={1}°.
-        /// </summary>
-        internal static string FilterSecondOrderAllPassIIRDesc {
-            get {
-                return ResourceManager.GetString("FilterSecondOrderAllPassIIRDesc", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Edit Tag : {0} = &quot;{1}&quot;.
-        /// </summary>
-        internal static string FilterTagEdit {
-            get {
-                return ResourceManager.GetString("FilterTagEdit", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Time Reversal Filter.
-        /// </summary>
-        internal static string FilterTimeReversalDesc {
-            get {
-                return ResourceManager.GetString("FilterTimeReversalDesc", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Uneven bit DAC simulation. 16bit LSB unevenness +{0} dB.
-        /// </summary>
-        internal static string FilterUnevenBitDacDesc {
-            get {
-                return ResourceManager.GetString("FilterUnevenBitDacDesc", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Windowed Sinc downsample: {0}x, window length={1}.
-        /// </summary>
-        internal static string FilterWindowedSincDownsampleDesc {
-            get {
-                return ResourceManager.GetString("FilterWindowedSincDownsampleDesc", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Windowed Sinc upsample: {0}x, window length={1}.
-        /// </summary>
-        internal static string FilterWindowedSincUpsampleDesc {
-            get {
-                return ResourceManager.GetString("FilterWindowedSincUpsampleDesc", resourceCulture);
             }
         }
         
@@ -877,33 +643,6 @@ namespace WWAudioFilter.Properties {
         internal static string FilterWWAFilterFiles {
             get {
                 return ResourceManager.GetString("FilterWWAFilterFiles", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Zero order hold upsample: {0}x.
-        /// </summary>
-        internal static string FilterZOHDesc {
-            get {
-                return ResourceManager.GetString("FilterZOHDesc", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to ZOH NOSDAC Compensation FIR Filter: taps={0}.
-        /// </summary>
-        internal static string FilterZohNosdacCompensationDesc {
-            get {
-                return ResourceManager.GetString("FilterZohNosdacCompensationDesc", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Add Gaussian noise: {0} dB.
-        /// </summary>
-        internal static string GaussianNoiseDesc {
-            get {
-                return ResourceManager.GetString("GaussianNoiseDesc", resourceCulture);
             }
         }
         
@@ -1413,15 +1152,6 @@ namespace WWAudioFilter.Properties {
         internal static string NothingToStore {
             get {
                 return ResourceManager.GetString("NothingToStore", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Subsonic filter: Cutoff freq={0}Hz.
-        /// </summary>
-        internal static string SubsonicFilterDesc {
-            get {
-                return ResourceManager.GetString("SubsonicFilterDesc", resourceCulture);
             }
         }
     }

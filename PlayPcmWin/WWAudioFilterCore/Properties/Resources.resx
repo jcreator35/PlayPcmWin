@@ -117,254 +117,8 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ButtonAddNewFilter" xml:space="preserve">
-    <value>Add new filter</value>
-  </data>
-  <data name="ButtonBrowseB" xml:space="preserve">
-    <value>_Browse...</value>
-  </data>
-  <data name="ButtonDeleteSelected" xml:space="preserve">
-    <value>Delete selected</value>
-  </data>
-  <data name="ButtonEditSelected" xml:space="preserve">
-    <value>Edit selected</value>
-  </data>
-  <data name="ButtonLoadSettings" xml:space="preserve">
-    <value>_Load settings...</value>
-  </data>
-  <data name="ButtonMoveDownSelected" xml:space="preserve">
-    <value>Move down selected</value>
-  </data>
-  <data name="ButtonMoveUpSelected" xml:space="preserve">
-    <value>Move up selected</value>
-  </data>
-  <data name="ButtonSaveSettingsAs" xml:space="preserve">
-    <value>Save settings as...</value>
-  </data>
-  <data name="ButtonStartConversion" xml:space="preserve">
-    <value>_Start conversion</value>
-  </data>
-  <data name="ButtonUseThisFilter" xml:space="preserve">
-    <value>Use this filter</value>
-  </data>
-  <data name="ButtonBrowseR" xml:space="preserve">
-    <value>B_rowse...</value>
-  </data>
-  <data name="CbItemFftUpsampler" xml:space="preserve">
-    <value>FFT Upsampler</value>
-  </data>
-  <data name="CbItemZohUpsampler" xml:space="preserve">
-    <value>Zero-Order Hold Upsampler</value>
-  </data>
-  <data name="DroppedDataIsNotFile" xml:space="preserve">
-    <value>Dropped data is not file</value>
-  </data>
-  <data name="CbItemNoiseShaping2nd" xml:space="preserve">
-    <value>2nd order</value>
-  </data>
-  <data name="CbItemNoiseShaping4th" xml:space="preserve">
-    <value>4th order</value>
-  </data>
-  <data name="CbItemDownsamplerOption0" xml:space="preserve">
-    <value>pick 1st sample from incoming f samples</value>
-  </data>
-  <data name="CbItemDownsamplerOption1" xml:space="preserve">
-    <value>pick 2nd sample from incoming f samples</value>
-  </data>
-  <data name="CbItemDownsamplerType2x" xml:space="preserve">
-    <value>2x</value>
-  </data>
-  <data name="CbItemCicTypeSingleStage" xml:space="preserve">
-    <value>Single stage CIC</value>
-  </data>
-  <data name="CbItemInsertZeroesUpsampler" xml:space="preserve">
-    <value>Insert Zeroes Upsampler</value>
-  </data>
-  <data name="CrossfeedDefaultExt" xml:space="preserve">
-    <value>.txt</value>
-  </data>
-  <data name="CrossfeedFileFilter" xml:space="preserve">
-    <value>Crossfeed Filter|*.cfeed</value>
-  </data>
-  <data name="CbItemLineDrawUpsampler" xml:space="preserve">
-    <value>Linear interpolation Upsampler</value>
-  </data>
-  <data name="CbIteCubicHermiteSplineUpsampler" xml:space="preserve">
-    <value>Cubic Hermite Spline upsampler</value>
-  </data>
-  <data name="cbItemWindowedSincUpsampler" xml:space="preserve">
-    <value>Windowed Sinc Upsampler</value>
-  </data>
-  <data name="CbItemCicType3rdStage" xml:space="preserve">
-    <value>3rd stage CIC</value>
-  </data>
   <data name="Error" xml:space="preserve">
     <value>Error </value>
-  </data>
-  <data name="FilterReadAudioFiles" xml:space="preserve">
-    <value>Audio files(*.wav, *.flac, *.dsf)|*.wav;*.flac;*.dsf</value>
-  </data>
-  <data name="FilterWriteAudioFiles" xml:space="preserve">
-    <value>FLAC files|*.flac|DSF files|*.dsf|WAV files|*.wav</value>
-  </data>
-  <data name="FilterWWAFilterFiles" xml:space="preserve">
-    <value>WWAudioFilter files|*.wwaf</value>
-  </data>
-  <data name="GroupAddFundamentals" xml:space="preserve">
-    <value>Add octave bass unison of the sound below 80Hz</value>
-  </data>
-  <data name="GroupAddGaussianNoise" xml:space="preserve">
-    <value>Add Gaussian noise</value>
-  </data>
-  <data name="GroupAddJitter" xml:space="preserve">
-    <value>Add Jitter</value>
-  </data>
-  <data name="GroupCic" xml:space="preserve">
-    <value>CIC Filter</value>
-  </data>
-  <data name="GroupDownsampler" xml:space="preserve">
-    <value>Downsampler</value>
-  </data>
-  <data name="GroupDynamicRangeCompression" xml:space="preserve">
-    <value>Dynamic Range Compression</value>
-  </data>
-  <data name="GroupFilterSettings" xml:space="preserve">
-    <value>Filter settings</value>
-  </data>
-  <data name="GroupFirstOrderAllPassIIR" xml:space="preserve">
-    <value>First-order All-pass IIR Filter</value>
-  </data>
-  <data name="GroupGain" xml:space="preserve">
-    <value>Gain</value>
-  </data>
-  <data name="GroupHalfbandFilter" xml:space="preserve">
-    <value>Half-band Filter</value>
-  </data>
-  <data name="GroupInputFile" xml:space="preserve">
-    <value>Input file</value>
-  </data>
-  <data name="GroupLog" xml:space="preserve">
-    <value>Log</value>
-  </data>
-  <data name="GroupLPF" xml:space="preserve">
-    <value>FIR Linear-Phase Low pass Filter</value>
-  </data>
-  <data name="GroupNoiseShaping" xml:space="preserve">
-    <value>Noise Shaping</value>
-  </data>
-  <data name="GroupNormalizeFilter" xml:space="preserve">
-    <value>Normalize</value>
-  </data>
-  <data name="GroupNosdacCompensationFilter" xml:space="preserve">
-    <value>ZOH NOSDAC Frequency Response Compensation Filter</value>
-  </data>
-  <data name="GroupOutputFile" xml:space="preserve">
-    <value>Output File</value>
-  </data>
-  <data name="GroupReduceBitDepth" xml:space="preserve">
-    <value>Reduce bit depth</value>
-  </data>
-  <data name="GroupSecondOrderAllPassIIR" xml:space="preserve">
-    <value>Second-order All-pass IIR Filter</value>
-  </data>
-  <data name="GroupSubsonicFilter" xml:space="preserve">
-    <value>Subsonic Filter</value>
-  </data>
-  <data name="GroupTagEdit" xml:space="preserve">
-    <value>Edit Tag</value>
-  </data>
-  <data name="GroupTimeReversalFilter" xml:space="preserve">
-    <value>Time Reversal Filter</value>
-  </data>
-  <data name="GroupUpsampler" xml:space="preserve">
-    <value>Upsampler</value>
-  </data>
-  <data name="LabelCicDelay" xml:space="preserve">
-    <value>Delay:</value>
-  </data>
-  <data name="LabelCicDelaySamples" xml:space="preserve">
-    <value>samples</value>
-  </data>
-  <data name="LabelCicFilterType" xml:space="preserve">
-    <value>Type:</value>
-  </data>
-  <data name="LabelCutoffFreq" xml:space="preserve">
-    <value>Cutoff frequency:</value>
-  </data>
-  <data name="LabelDownsamplerFactor" xml:space="preserve">
-    <value>Factor (f) :</value>
-  </data>
-  <data name="LabelDownsamplerType" xml:space="preserve">
-    <value>Type:</value>
-  </data>
-  <data name="LabelFilterLength" xml:space="preserve">
-    <value>FIR filter length:</value>
-  </data>
-  <data name="LabelGainInAmplitude" xml:space="preserve">
-    <value>Gain in Amplitude:</value>
-  </data>
-  <data name="LabelGainInDb" xml:space="preserve">
-    <value>Gain in dB:</value>
-  </data>
-  <data name="LabelGainRolloffSlopes" xml:space="preserve">
-    <value>Gain roll off slopes:</value>
-  </data>
-  <data name="LabelHalfBandFilterTaps" xml:space="preserve">
-    <value>Filter taps:</value>
-  </data>
-  <data name="LabelInputFile" xml:space="preserve">
-    <value>Input file:</value>
-  </data>
-  <data name="LabelNoiseShapingMethod" xml:space="preserve">
-    <value>Noise shaping method:</value>
-  </data>
-  <data name="LabelNoiseShapingTargetBit" xml:space="preserve">
-    <value>Target Quantized Bit Rate:</value>
-  </data>
-  <data name="LabelNormalizeAmplitude" xml:space="preserve">
-    <value>Normalized amplitude (dBFS):</value>
-  </data>
-  <data name="LabelNosdacCompensationTaps" xml:space="preserve">
-    <value>FIR filter taps:</value>
-  </data>
-  <data name="LabelOutputFile" xml:space="preserve">
-    <value>Output file:</value>
-  </data>
-  <data name="LabelSamples" xml:space="preserve">
-    <value>samples</value>
-  </data>
-  <data name="LabelSecondAllPassIirT" xml:space="preserve">
-    <value>θ (degrees, -180 ≤ θ &lt; 180):</value>
-  </data>
-  <data name="LabelSubsonicFilterCutoffFrequency" xml:space="preserve">
-    <value>Cutoff Frequency (Hz)</value>
-  </data>
-  <data name="LabelTagText" xml:space="preserve">
-    <value>Text:</value>
-  </data>
-  <data name="LabelTagType" xml:space="preserve">
-    <value>Tag type:</value>
-  </data>
-  <data name="LabelTargetBitDepth" xml:space="preserve">
-    <value>Target bit depth (bit)</value>
-  </data>
-  <data name="LabelUpsamplerLength" xml:space="preserve">
-    <value>Length:</value>
-  </data>
-  <data name="LabelUpsamplerType" xml:space="preserve">
-    <value>Upsampler Type:</value>
-  </data>
-  <data name="LabelUpsamplingFactor" xml:space="preserve">
-    <value>Upsampling factor:</value>
-  </data>
-  <data name="labelWindowedSincMethod" xml:space="preserve">
-    <value>Windowed Sinc Method</value>
-  </data>
-  <data name="LabelX" xml:space="preserve">
-    <value>x</value>
-  </data>
-  <data name="NothingToStore" xml:space="preserve">
-    <value>Nothing to store.</value>
   </data>
   <data name="ErrorCicDelay" xml:space="preserve">
     <value>Please input Cic delay value in larger than 1 integer</value>
@@ -468,6 +222,108 @@
   </data>
   <data name="ErrorWriteToReadFile" xml:space="preserve">
     <value>Please specify different file to write. WWAudioFilter cannot write to input file.</value>
+  </data>
+  <data name="FilterAddFundamentalsDesc" xml:space="preserve">
+    <value>Add octave bass unison of the sound below 80Hz: Gain={0:0.00}dB</value>
+  </data>
+  <data name="FilterCicFilterDesc" xml:space="preserve">
+    <value>CIC Filter: Order={0}, Comb delay={1}</value>
+  </data>
+  <data name="FilterCrossfeedDesc" xml:space="preserve">
+    <value>Crossfeed: ConfigFile={0}</value>
+  </data>
+  <data name="FilterCubicHermiteSplineDesc" xml:space="preserve">
+    <value>Cubic Hermite Spline upsample: {0}x</value>
+  </data>
+  <data name="FilterDownsamplerDesc" xml:space="preserve">
+    <value>Downsample: {0}x, pick {1} th sample</value>
+  </data>
+  <data name="FilterDynamicRangeCompressionDesc" xml:space="preserve">
+    <value>Dynamic range compression: 24bit LSB gain= {0} dB</value>
+  </data>
+  <data name="FilterFftUpsampleDesc" xml:space="preserve">
+    <value>FFT upsample: {0}x, FFT length={1}, Overlap={2}</value>
+  </data>
+  <data name="FilterFirstOrderAllPassIIRDesc" xml:space="preserve">
+    <value>First Order All-pass IIR Filter: a={0}</value>
+  </data>
+  <data name="FilterFlacFiles" xml:space="preserve">
+    <value>FLAC files|*.flac</value>
+  </data>
+  <data name="FilterGainDesc" xml:space="preserve">
+    <value>Gain : {0}x ({1:0.00}dB)</value>
+  </data>
+  <data name="FilterHalfbandDesc" xml:space="preserve">
+    <value>Half-band Filter: taps={0}</value>
+  </data>
+  <data name="FilterInsertZeroesDesc" xml:space="preserve">
+    <value>Insert Zeroes Upsampler: {0}x</value>
+  </data>
+  <data name="FilterJitterAddDesc" xml:space="preserve">
+    <value>Add Jitter : FilterLen={4}, Sine={0}Hz {1}ns, TPDF={2}ns,  RPDF={3}ns,  TEF={5}ns {6}</value>
+  </data>
+  <data name="FilterLineDrawDesc" xml:space="preserve">
+    <value>Linear inerpolation upsample: {0}x</value>
+  </data>
+  <data name="FilterLpfDesc" xml:space="preserve">
+    <value>LPF : Cutoff={0}Hz, slope={1}db/oct, FIR length={2}</value>
+  </data>
+  <data name="FilterMashDesc" xml:space="preserve">
+    <value>2nd order MASH noise shaping: targetBitsPerSample={0}</value>
+  </data>
+  <data name="FilterNoiseShaping4thDesc" xml:space="preserve">
+    <value>4th order noise shaping: targetBitsPerSample={0}</value>
+  </data>
+  <data name="FilterNoiseShapingDesc" xml:space="preserve">
+    <value>Noise shaping: order={0}, targetBitsPerSample={1}</value>
+  </data>
+  <data name="FilterNormalizeDesc" xml:space="preserve">
+    <value>Normalize signal level max={0}dBFS</value>
+  </data>
+  <data name="FilterReadAudioFiles" xml:space="preserve">
+    <value>Audio files(*.wav, *.flac, *.dsf)|*.wav;*.flac;*.dsf</value>
+  </data>
+  <data name="FilterReduceBitDepthDesc" xml:space="preserve">
+    <value>Reduce bit depth to {0} bit</value>
+  </data>
+  <data name="FilterSecondOrderAllPassIIRDesc" xml:space="preserve">
+    <value>Second Order All-pass IIR Filter: r={0}, θ={1}°</value>
+  </data>
+  <data name="FilterTagEdit" xml:space="preserve">
+    <value>Edit Tag : {0} = "{1}"</value>
+  </data>
+  <data name="FilterTimeReversalDesc" xml:space="preserve">
+    <value>Time Reversal Filter</value>
+  </data>
+  <data name="FilterUnevenBitDacDesc" xml:space="preserve">
+    <value>Uneven bit DAC simulation. 16bit LSB unevenness +{0} dB</value>
+  </data>
+  <data name="FilterWindowedSincDownsampleDesc" xml:space="preserve">
+    <value>Windowed Sinc downsample: {0}x, window length={1}</value>
+  </data>
+  <data name="FilterWindowedSincUpsampleDesc" xml:space="preserve">
+    <value>Windowed Sinc upsample: {0}x, window length={1}</value>
+  </data>
+  <data name="FilterWriteAudioFiles" xml:space="preserve">
+    <value>FLAC files|*.flac|DSF files|*.dsf|WAV files|*.wav</value>
+  </data>
+  <data name="FilterWWAFilterFiles" xml:space="preserve">
+    <value>WWAudioFilter files|*.wwaf</value>
+  </data>
+  <data name="FilterZOHDesc" xml:space="preserve">
+    <value>Zero order hold upsample: {0}x</value>
+  </data>
+  <data name="FilterZohNosdacCompensationDesc" xml:space="preserve">
+    <value>ZOH NOSDAC Compensation FIR Filter: taps={0}</value>
+  </data>
+  <data name="GaussianNoiseDesc" xml:space="preserve">
+    <value>Add Gaussian noise: {0} dB</value>
+  </data>
+  <data name="NothingToStore" xml:space="preserve">
+    <value>Nothing to store.</value>
+  </data>
+  <data name="SubsonicFilterDesc" xml:space="preserve">
+    <value>Subsonic filter: Cutoff freq={0}Hz</value>
   </data>
   <data name="LogCompleted" xml:space="preserve">
     <value>Completed. Elapsed time: {0}

@@ -1,0 +1,450 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="DroppedFileIsNotFile" xml:space="preserve">
+    <value>ファイルではないものがドロップされました。何もできません。</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>エラー</value>
+  </data>
+  <data name="ErrorCicDelay" xml:space="preserve">
+    <value>Cicディレイ値は1以上の整数の値を入力してください</value>
+  </data>
+  <data name="ErrorFilterEmpty" xml:space="preserve">
+    <value>フィルターを1つ以上追加して下さい</value>
+  </data>
+  <data name="ErrorFilterFileVersionMismatch" xml:space="preserve">
+    <value>フィルター定義ファイルのバージョンが新しすぎるか古すぎるかして読めませんでした。 プログラムが読めるバージョン={0}, ファイルのバージョン={1}</value>
+  </data>
+  <data name="ErrorFirstOrderAllPassIIR" xml:space="preserve">
+    <value>エラー: 1次オールパスIIRフィルターのパラメーター a  </value>
+  </data>
+  <data name="ErrorGainValueIsNan" xml:space="preserve">
+    <value>ゲインの欄に数字を入力して下さい</value>
+  </data>
+  <data name="ErrorGainValueIsTooSmall" xml:space="preserve">
+    <value>ゲインの倍率の欄に0.0よりも大きい数字を入力して下さい</value>
+  </data>
+  <data name="ErrorHalfbandTaps" xml:space="preserve">
+    <value>フィルタータップ数Nは、1足すと4の倍数になる整数値を入力して下さい。</value>
+  </data>
+  <data name="ErrorLpfCutoffFreqIsNan" xml:space="preserve">
+    <value>カットオフ周波数の欄に数字を入力して下さい</value>
+  </data>
+  <data name="ErrorLpfCutoffFreqIsNegative" xml:space="preserve">
+    <value>カットオフ周波数の欄に0以上の数字を入力して下さい</value>
+  </data>
+  <data name="ErrorLpfSlopeIsNan" xml:space="preserve">
+    <value>ローパスフィルターの傾斜の欄に数字を入力して下さい</value>
+  </data>
+  <data name="ErrorLpfSlopeIsTooSmall" xml:space="preserve">
+    <value>ローパスフィルターの傾斜の欄に1以上の数字を入力して下さい</value>
+  </data>
+  <data name="ErrorNoiseShapingBitIsNan" xml:space="preserve">
+    <value>出力量子化ビット数の欄に数字を入れて下さい</value>
+  </data>
+  <data name="ErrorNoiseShapingBitIsOutOfRange" xml:space="preserve">
+    <value>出力量子化ビット数の欄に1～23の範囲の整数を入れて下さい</value>
+  </data>
+  <data name="ErrorNotImplementedUpsampler" xml:space="preserve">
+    <value>エラー: 以下の種類のアップサンプラーは2の乗数ではない倍数のアップサンプル対応が未実装です: FFT. 以下の種類のアップサンプラーを使用して下さい: CubicHermiteSpline, LineDraw, InsertZeroes, WindowedSinc or ZOH. </value>
+  </data>
+  <data name="ErrorOutputDataTooLarge" xml:space="preserve">
+    <value>出力データが大きくなり過ぎます。{0} Gバイト</value>
+  </data>
+  <data name="ErrorSampleRateTooHigh" xml:space="preserve">
+    <value>エラー: サンプルレートが高すぎます({0}Hz)。FLACの上限は655,350HzでWAVの上限は2,147,483,647Hzです。</value>
+  </data>
+  <data name="ErrorSampleValueClipped" xml:space="preserve">
+    <value>サンプル値が大きくなりすぎてクリップしました! チャンネル={0}, 大きさ={1:0.000}
+</value>
+  </data>
+  <data name="ErrorSecondOrderAllPassIirR" xml:space="preserve">
+    <value>エラー: 2次のオールパスIIRフィルターのrパラメータ</value>
+  </data>
+  <data name="ErrorSecondOrderAllPassIirT" xml:space="preserve">
+    <value>エラー: 2次のオールパスIIRフィルターのθパラメータ</value>
+  </data>
+  <data name="ErrorSubsonicFilterCutoffFrequency" xml:space="preserve">
+    <value>エラー: サブソニックフィルターのカットオフ周波数は1.0以上の値を指定して下さい。</value>
+  </data>
+  <data name="ErrorTargetBitDepth" xml:space="preserve">
+    <value>エラー: 量子化ビット数bは 1 ≤ b ≤ 23 の範囲の整数値を指定して下さい。</value>
+  </data>
+  <data name="ErrorWriteToReadFile" xml:space="preserve">
+    <value>書き込むファイルと読み込むファイルを別のファイルにして下さい。</value>
+  </data>
+  <data name="FilterAddFundamentalsDesc" xml:space="preserve">
+    <value>80Hz以下の音の1オクターブ低いユニゾンを追加する: ゲイン={0:0.00}dB</value>
+  </data>
+  <data name="FilterCicFilterDesc" xml:space="preserve">
+    <value>CICフィルター: Order={0}, Combディレイ={1}</value>
+  </data>
+  <data name="FilterCubicHermiteSplineDesc" xml:space="preserve">
+    <value>キュービック エルミート スプライン アップサンプル: {0}x</value>
+  </data>
+  <data name="FilterDownsamplerDesc" xml:space="preserve">
+    <value>ダウンサンプル: {0}倍, {1}番目のサンプルを取り出す</value>
+  </data>
+  <data name="FilterFftUpsampleDesc" xml:space="preserve">
+    <value>FFTアップサンプル: {0}倍, FFT長={1}, オーバーラップ={2}</value>
+  </data>
+  <data name="FilterFirstOrderAllPassIIRDesc" xml:space="preserve">
+    <value>1次のオールパスIIRフィルター: a={0}</value>
+  </data>
+  <data name="FilterFlacFiles" xml:space="preserve">
+    <value>FLACファイル|*.flac</value>
+  </data>
+  <data name="FilterGainDesc" xml:space="preserve">
+    <value>ゲイン: {0}倍 ({1:0.00}dB)</value>
+  </data>
+  <data name="FilterHalfbandDesc" xml:space="preserve">
+    <value>ハーフバンドフィルター: タップ数={0}</value>
+  </data>
+  <data name="FilterInsertZeroesDesc" xml:space="preserve">
+    <value>零挿入アップサンプラー: {0}x</value>
+  </data>
+  <data name="FilterLineDrawDesc" xml:space="preserve">
+    <value>直線補間アップサンプル: {0}x</value>
+  </data>
+  <data name="FilterLpfDesc" xml:space="preserve">
+    <value>ローパスフィルター: カットオフ周波数={0}Hz, 傾斜={1}db/oct, FIRフィルター長={2}</value>
+  </data>
+  <data name="FilterMashDesc" xml:space="preserve">
+    <value>2次MASHノイズシェイピング: 出力量子化ビット数={0}</value>
+  </data>
+  <data name="FilterNoiseShaping4thDesc" xml:space="preserve">
+    <value>4次のノイズシェイピング: 出力量子化ビット数={0}</value>
+  </data>
+  <data name="FilterNoiseShapingDesc" xml:space="preserve">
+    <value>ノイズシェイピング: {0}次, 出力量子化ビット数={1}</value>
+  </data>
+  <data name="FilterNormalizeDesc" xml:space="preserve">
+    <value>ノーマライズ 最大レベル={0}dBFS</value>
+  </data>
+  <data name="FilterReadAudioFiles" xml:space="preserve">
+    <value>音声ファイル(*.wav,*.flac,*.dsf)|*.wav;*.flac;*.dsf</value>
+  </data>
+  <data name="FilterReduceBitDepthDesc" xml:space="preserve">
+    <value>量子化ビット数を減らす: {0}ビット</value>
+  </data>
+  <data name="FilterSecondOrderAllPassIIRDesc" xml:space="preserve">
+    <value>2次のオールパスIIRフィルター: r={0}, θ={1}°</value>
+  </data>
+  <data name="FilterTagEdit" xml:space="preserve">
+    <value>タグ編集 : {0} = "{1}"</value>
+  </data>
+  <data name="FilterTimeReversalDesc" xml:space="preserve">
+    <value>タイムリバーサルフィルター</value>
+  </data>
+  <data name="FilterWindowedSincDownsampleDesc" xml:space="preserve">
+    <value>Windowed Sinc ダウンサンプラー: {0}倍, 窓の長さ={1}</value>
+  </data>
+  <data name="FilterWindowedSincUpsampleDesc" xml:space="preserve">
+    <value>Windowed Sincアップサンプル: {0}倍, ウィンドウの長さ={1}</value>
+  </data>
+  <data name="FilterWriteAudioFiles" xml:space="preserve">
+    <value>FLACファイル|*.flac|DSFファイル|*.dsf|WAVファイル|*.wav</value>
+  </data>
+  <data name="FilterWWAFilterFiles" xml:space="preserve">
+    <value>WWAudioFilterファイル|*.wwaf</value>
+  </data>
+  <data name="FilterZOHDesc" xml:space="preserve">
+    <value>零次ホールドアップサンプリング: {0}倍</value>
+  </data>
+  <data name="FilterZohNosdacCompensationDesc" xml:space="preserve">
+    <value>ZOH NOSDACハイ落ち補正FIRフィルター: タップ数={0}</value>
+  </data>
+  <data name="FlacErrorOutputFileTooLarge" xml:space="preserve">
+    <value>出力データのサイズが1チャンネルあたり2GBを超えたため計算を続行できませんでした。</value>
+  </data>
+  <data name="GroupAddFundamentals" xml:space="preserve">
+    <value>80Hz以下の音の1オクターブ低いユニゾンを追加する</value>
+  </data>
+  <data name="GroupAddGaussianNoise" xml:space="preserve">
+    <value>ガウス雑音を加算</value>
+  </data>
+  <data name="GroupAddJitter" xml:space="preserve">
+    <value>ジッターを増やす</value>
+  </data>
+  <data name="GroupCic" xml:space="preserve">
+    <value>CICフィルター</value>
+  </data>
+  <data name="GroupDownsampler" xml:space="preserve">
+    <value>ダウンサンプラー</value>
+  </data>
+  <data name="GroupDynamicRangeCompression" xml:space="preserve">
+    <value>ダイナミックレンジ圧縮</value>
+  </data>
+  <data name="GroupFilterSettings" xml:space="preserve">
+    <value>フィルターの設定</value>
+  </data>
+  <data name="GroupFirstOrderAllPassIIR" xml:space="preserve">
+    <value>1次のオールパスIIRフィルター</value>
+  </data>
+  <data name="GroupGain" xml:space="preserve">
+    <value>ゲイン調整</value>
+  </data>
+  <data name="GroupHalfbandFilter" xml:space="preserve">
+    <value>ハーフバンドフィルター</value>
+  </data>
+  <data name="GroupInputFile" xml:space="preserve">
+    <value>入力ファイルの選択</value>
+  </data>
+  <data name="GroupLog" xml:space="preserve">
+    <value>ログ</value>
+  </data>
+  <data name="GroupLPF" xml:space="preserve">
+    <value>直線位相FIRローパスフィルター</value>
+  </data>
+  <data name="GroupNoiseShaping" xml:space="preserve">
+    <value>ノイズシェイピング</value>
+  </data>
+  <data name="GroupNormalizeFilter" xml:space="preserve">
+    <value>ノーマライズ</value>
+  </data>
+  <data name="GroupNosdacCompensationFilter" xml:space="preserve">
+    <value>ZOH NOSDACハイ落ち補正FIRフィルター</value>
+  </data>
+  <data name="GroupOutputFile" xml:space="preserve">
+    <value>出力ファイルの選択</value>
+  </data>
+  <data name="GroupReduceBitDepth" xml:space="preserve">
+    <value>量子化ビット数を減らす</value>
+  </data>
+  <data name="GroupSecondOrderAllPassIIR" xml:space="preserve">
+    <value>2次のオールパスIIRフィルター</value>
+  </data>
+  <data name="GroupSubsonicFilter" xml:space="preserve">
+    <value>サブソニックフィルター</value>
+  </data>
+  <data name="GroupTagEdit" xml:space="preserve">
+    <value>タグ編集</value>
+  </data>
+  <data name="GroupTimeReversalFilter" xml:space="preserve">
+    <value>タイムリバーサルフィルター</value>
+  </data>
+  <data name="GroupUpsampler" xml:space="preserve">
+    <value>アップサンプリング</value>
+  </data>
+  <data name="LabelCicDelay" xml:space="preserve">
+    <value>ディレイ:</value>
+  </data>
+  <data name="LabelCicDelaySamples" xml:space="preserve">
+    <value>サンプル</value>
+  </data>
+  <data name="LabelCicFilterType" xml:space="preserve">
+    <value>種類:</value>
+  </data>
+  <data name="LabelCutoffFreq" xml:space="preserve">
+    <value>カットオフ周波数:</value>
+  </data>
+  <data name="LabelDownsamplerFactor" xml:space="preserve">
+    <value>倍率 (f):</value>
+  </data>
+  <data name="LabelDownsamplerType" xml:space="preserve">
+    <value>種類:</value>
+  </data>
+  <data name="LabelFilterLength" xml:space="preserve">
+    <value>FIRフィルタ長:</value>
+  </data>
+  <data name="LabelGainInAmplitude" xml:space="preserve">
+    <value>ゲインを倍率で指定:</value>
+  </data>
+  <data name="LabelGainInDb" xml:space="preserve">
+    <value>ゲインをデシベルで指定:</value>
+  </data>
+  <data name="LabelGainRolloffSlopes" xml:space="preserve">
+    <value>周波数応答の傾斜:</value>
+  </data>
+  <data name="LabelHalfBandFilterTaps" xml:space="preserve">
+    <value>フィルタータップ数:</value>
+  </data>
+  <data name="LabelInputFile" xml:space="preserve">
+    <value>入力ファイル:</value>
+  </data>
+  <data name="LabelNoiseShapingMethod" xml:space="preserve">
+    <value>方式:</value>
+  </data>
+  <data name="LabelNoiseShapingTargetBit" xml:space="preserve">
+    <value>出力量子化ビット数:</value>
+  </data>
+  <data name="LabelNormalizeAmplitude" xml:space="preserve">
+    <value>最大レベル (dBFS):</value>
+  </data>
+  <data name="LabelNosdacCompensationTaps" xml:space="preserve">
+    <value>FIRフィルタータップ数:</value>
+  </data>
+  <data name="LabelOutputFile" xml:space="preserve">
+    <value>出力ファイル:</value>
+  </data>
+  <data name="LabelSamples" xml:space="preserve">
+    <value>サンプル</value>
+  </data>
+  <data name="LabelSecondAllPassIirT" xml:space="preserve">
+    <value>θ (度, -180 ≤ θ &lt; 180):</value>
+  </data>
+  <data name="LabelSubsonicFilterCutoffFrequency" xml:space="preserve">
+    <value>カットオフ周波数 (Hz)</value>
+  </data>
+  <data name="LabelTagText" xml:space="preserve">
+    <value>設定文字列:</value>
+  </data>
+  <data name="LabelTagType" xml:space="preserve">
+    <value>タグ項目:</value>
+  </data>
+  <data name="LabelUpsamplerLength" xml:space="preserve">
+    <value>長さ:</value>
+  </data>
+  <data name="LabelUpsamplerType" xml:space="preserve">
+    <value>アップサンプル方法:</value>
+  </data>
+  <data name="LabelUpsamplingFactor" xml:space="preserve">
+    <value>倍率:</value>
+  </data>
+  <data name="labelWindowedSincMethod" xml:space="preserve">
+    <value>Windowed Sinc 方法</value>
+  </data>
+  <data name="LabelX" xml:space="preserve">
+    <value>倍</value>
+  </data>
+  <data name="LogCompleted" xml:space="preserve">
+    <value>全て正常に終了。所要時間: {0}
+</value>
+  </data>
+  <data name="LogFileReadCompleted" xml:space="preserve">
+    <value>読み込み完了。
+信号処理中…
+</value>
+  </data>
+  <data name="LogFileReadStarted" xml:space="preserve">
+    <value>ファイル読み込み中: {0} …
+</value>
+  </data>
+  <data name="LogfileWriteStarted" xml:space="preserve">
+    <value>信号処理終了。ファイル書込み中: {0} …
+</value>
+  </data>
+  <data name="NothingToStore" xml:space="preserve">
+    <value>保存するものがありません。</value>
+  </data>
+  <data name="SubsonicFilterDesc" xml:space="preserve">
+    <value>サブソニックフィルター: カットオフ周波数={0}Hz</value>
+  </data>
+</root>

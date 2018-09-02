@@ -13,44 +13,158 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>WWAudioFilterCore.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+    <CodeAnalysisFailOnMissingRules>true</CodeAnalysisFailOnMissingRules>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+    <CodeAnalysisFailOnMissingRules>true</CodeAnalysisFailOnMissingRules>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+  </PropertyGroup>
   <ItemGroup>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
+    <Compile Include="AddFundamentalsFilter.cs" />
+    <Compile Include="AudioData.cs" />
+    <Compile Include="AudioDataPerChannel.cs" />
+    <Compile Include="ButterworthFilter.cs" />
+    <Compile Include="CicFilter.cs" />
+    <Compile Include="CrossfeedFilter.cs" />
+    <Compile Include="CubicHermiteSplineUpsampler.cs" />
+    <Compile Include="Downsampler.cs" />
+    <Compile Include="DynamicRangeCompressionFilter.cs" />
+    <Compile Include="FftUpsampler.cs" />
+    <Compile Include="FilterBase.cs" />
+    <Compile Include="FilterFactory.cs" />
+    <Compile Include="FirstOrderAllPassIIRFilter.cs" />
+    <Compile Include="GainFilter.cs" />
+    <Compile Include="GaussianNoiseFilter.cs" />
+    <Compile Include="GaussianNoiseGenerator.cs" />
+    <Compile Include="HalfbandFilter.cs" />
+    <Compile Include="InsertZeroesUpsampler.cs" />
+    <Compile Include="JitterAddFilter.cs" />
+    <Compile Include="LineDrawUpsampler.cs" />
+    <Compile Include="LowpassFilter.cs" />
+    <Compile Include="MashFilter.cs" />
+    <Compile Include="MovingAverager.cs" />
+    <Compile Include="NoiseShaping4thFilter.cs" />
+    <Compile Include="NoiseShapingFilter.cs" />
+    <Compile Include="NormalizeFilter.cs" />
+    <Compile Include="OverlappedFft.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.ja-JP.Designer.cs">
+      <DependentUpon>Resources.ja-JP.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="ReduceBitDepth.cs" />
+    <Compile Include="SecondOrderAllPassIIRFilter.cs" />
+    <Compile Include="SubsonicFilter.cs" />
+    <Compile Include="TagEditFilter.cs" />
+    <Compile Include="TimeReversalFilter.cs" />
+    <Compile Include="UnevenBitDacFilter.cs" />
+    <Compile Include="WindowedSincDownsampler.cs" />
+    <Compile Include="WindowedSincUpsampler.cs" />
+    <Compile Include="WWAudioFilterCore.cs" />
+    <Compile Include="WWComplex.cs" />
+    <Compile Include="WWConvolution.cs" />
+    <Compile Include="WWRadix2Fft.cs" />
+    <Compile Include="WWRadix2FftLargeArray.cs" />
+    <Compile Include="WWUtil.cs" />
+    <Compile Include="WWWindowFunc.cs" />
+    <Compile Include="ZeroOrderHoldUpsampler.cs" />
+    <Compile Include="ZohNosdacCompensationFilter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="WWAudioFilterCore.snk" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PcmData\PcmDataLib.csproj">
+      <Project>{7AF36E7B-839D-4C2F-AAFD-6D8319714D66}</Project>
+      <Name>PcmDataLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WavRWLib2\WavRWLib2.csproj">
+      <Project>{77005090-E2C5-4063-9681-0D0EED33A2B2}</Project>
+      <Name>WavRWLib2</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WWDsfRW\WWDsfRW.csproj">
+      <Project>{385ADACB-85D6-430A-9691-3A75C639C2AA}</Project>
+      <Name>WWDsfRW</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WWFlacRWCS\WWFlacRWCS.csproj">
+      <Project>{DA071B6A-B2E2-4567-84D1-5A9122DAB75C}</Project>
+      <Name>WWFlacRWCS</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WWMath\WWMath.csproj">
+      <Project>{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}</Project>
+      <Name>WWMath</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WWUtil\WWUtil.csproj">
+      <Project>{FC57308E-CF56-4B3E-B920-4093660D0A4A}</Project>
+      <Name>WWUtil</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.ja-JP.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.ja-JP.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

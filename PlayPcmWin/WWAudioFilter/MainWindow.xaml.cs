@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using WWAudioFilterCore;
 
 namespace WWAudioFilter {
     /// <summary>
@@ -177,14 +178,14 @@ namespace WWAudioFilter {
             }
         };
 
-        void ProgressReportCallback(int percentage, WWAudioFilterCore.ProgressArgs args) {
+        void ProgressReportCallback(int percentage, WWAudioFilterCore.WWAudioFilterCore.ProgressArgs args) {
             mBackgroundWorker.ReportProgress(percentage, args);
         }
 
         void Background_DoWork(object sender, DoWorkEventArgs e) {
             var args = e.Argument as RunWorkerArgs;
 
-            var af = new WWAudioFilterCore();
+            var af = new WWAudioFilterCore.WWAudioFilterCore();
 
             int rv = af.Run(args.FromPath, mFilters, args.ToPath, ProgressReportCallback);
             if (rv < 0) {
@@ -192,12 +193,12 @@ namespace WWAudioFilter {
                 return;
             }
 
-            mBackgroundWorker.ReportProgress(100, new WWAudioFilterCore.ProgressArgs("", rv));
+            mBackgroundWorker.ReportProgress(100, new WWAudioFilterCore.WWAudioFilterCore.ProgressArgs("", rv));
             e.Result = rv;
         }
 
         void Background_ProgressChanged(object sender, ProgressChangedEventArgs e) {
-            var args = e.UserState as WWAudioFilterCore.ProgressArgs;
+            var args = e.UserState as WWAudioFilterCore.WWAudioFilterCore.ProgressArgs;
 
             if (0 <= e.ProgressPercentage) {
                 progressBar1.Value = e.ProgressPercentage;
@@ -311,7 +312,7 @@ namespace WWAudioFilter {
                 return;
             }
 
-            WWAudioFilterCore.SaveFilteresToFile(mFilters, dlg.FileName);
+            WWAudioFilterCore.WWAudioFilterCore.SaveFilteresToFile(mFilters, dlg.FileName);
         }
 
         private void buttonFilterLoad_Click(object sender, RoutedEventArgs e) {
@@ -324,7 +325,7 @@ namespace WWAudioFilter {
                 return;
             }
 
-            var filters = WWAudioFilterCore.LoadFiltersFromFile(dlg.FileName);
+            var filters = WWAudioFilterCore.WWAudioFilterCore.LoadFiltersFromFile(dlg.FileName);
             if (filters == null) {
                 return;
             }

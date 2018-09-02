@@ -88,49 +88,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="AudioData.cs" />
-    <Compile Include="AudioDataPerChannel.cs" />
-    <Compile Include="ButterworthFilter.cs" />
-    <Compile Include="CicFilter.cs" />
-    <Compile Include="AddFundamentalsFilter.cs" />
-    <Compile Include="MovingAverager.cs" />
-    <Compile Include="SubsonicFilter.cs" />
-    <Compile Include="TimeReversalFilter.cs" />
-    <Compile Include="WindowedSincDownsampler.cs" />
-    <Compile Include="WindowedSincUpsampler.cs" />
-    <Compile Include="FirstOrderAllPassIIRFilter.cs" />
-    <Compile Include="ReduceBitDepth.cs" />
-    <Compile Include="CubicHermiteSplineUpsampler.cs" />
-    <Compile Include="LineDrawUpsampler.cs" />
-    <Compile Include="CrossfeedFilter.cs" />
-    <Compile Include="Downsampler.cs" />
-    <Compile Include="DynamicRangeCompressionFilter.cs" />
-    <Compile Include="FftUpsampler.cs" />
     <Compile Include="FilterState.cs" />
-    <Compile Include="GaussianNoiseFilter.cs" />
-    <Compile Include="GaussianNoiseGenerator.cs" />
-    <Compile Include="HalfbandFilter.cs" />
-    <Compile Include="JitterAddFilter.cs" />
-    <Compile Include="MashFilter.cs" />
-    <Compile Include="NormalizeFilter.cs" />
-    <Compile Include="OverlappedFft.cs" />
-    <Compile Include="SecondOrderAllPassIIRFilter.cs" />
-    <Compile Include="TagEditFilter.cs" />
-    <Compile Include="NoiseShaping4thFilter.cs" />
-    <Compile Include="NoiseShapingFilter.cs" />
-    <Compile Include="UnevenBitDacFilter.cs" />
     <Compile Include="WWAudioFilterCommandLine.cs" />
-    <Compile Include="WWAudioFilterCore.cs" />
-    <Compile Include="WWComplex.cs" />
-    <Compile Include="LowpassFilter.cs" />
-    <Compile Include="WWConvolution.cs" />
-    <Compile Include="WWRadix2Fft.cs" />
-    <Compile Include="WWRadix2FftLargeArray.cs" />
-    <Compile Include="WWUtil.cs" />
-    <Compile Include="InsertZeroesUpsampler.cs" />
-    <Compile Include="WWWindowFunc.cs" />
-    <Compile Include="ZeroOrderHoldUpsampler.cs" />
-    <Compile Include="ZohNosdacCompensationFilter.cs" />
     <Page Include="FilterConfiguration.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -143,12 +102,9 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="FilterBase.cs" />
     <Compile Include="FilterConfiguration.xaml.cs">
       <DependentUpon>FilterConfiguration.xaml</DependentUpon>
     </Compile>
-    <Compile Include="FilterFactory.cs" />
-    <Compile Include="GainFilter.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -191,6 +147,10 @@
     <ProjectReference Include="..\WavRWLib2\WavRWLib2.csproj">
       <Project>{77005090-E2C5-4063-9681-0D0EED33A2B2}</Project>
       <Name>WavRWLib2</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WWAudioFilterCore\WWAudioFilterCore.csproj">
+      <Project>{6F084186-D7CD-426F-BA48-0728F1EDF9FC}</Project>
+      <Name>WWAudioFilterCore</Name>
     </ProjectReference>
     <ProjectReference Include="..\WWDsfRW\WWDsfRW.csproj">
       <Project>{385ADACB-85D6-430A-9691-3A75C639C2AA}</Project>
