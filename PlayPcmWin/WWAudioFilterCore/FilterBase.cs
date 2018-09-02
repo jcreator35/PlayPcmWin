@@ -41,6 +41,7 @@ namespace WWAudioFilterCore {
         TimeReversal,
         ZohNosdacCompensation,
         WindowedSincDownsampler,
+        AWeighting,
     }
 
     public struct TagData {

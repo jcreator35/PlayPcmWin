@@ -1,15 +1,13 @@
 ﻿<Window x:Class="WWSNR.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:wwuc="clr-namespace:WWUserControls;assembly=WWUserControls"
-        Title="WWSNR" Height="750" Width="600">
+        Title="WWSNR" Height="750" Width="600" Loaded="Window_Loaded">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="160" />
             <RowDefinition Height="30" />
-            <RowDefinition Height="60" />
-            <RowDefinition Height="100" />
             <RowDefinition Height="1*" />
+            <RowDefinition Height="30" />
         </Grid.RowDefinitions>
         <GroupBox Header="Settings" Name="groupBoxInput" >
             <Grid>
@@ -31,7 +29,7 @@
                 <Button Content="_Browse..." Grid.Column="3" HorizontalAlignment="Center" Name="buttonBrowseS" VerticalAlignment="Center" Width="75" Click="buttonBrowse_Click" />
                 <Label Grid.Row="1" Content="Signal+Noise File:" HorizontalAlignment="Right" Name="labelSNFile" VerticalAlignment="Center" />
                 <TextBox Grid.Row="1" Grid.Column="1" Name="textBoxSNFile" VerticalAlignment="Center" Grid.ColumnSpan="2" Margin="0,5" Text="C:\audio\output.flac" />
-                <Button Grid.Row="1" Content="B_rowse..." Grid.Column="3" HorizontalAlignment="Center" Name="buttonBrowseSN" VerticalAlignment="Center" Width="75" Click="buttonBrowse_Click" />
+                <Button Grid.Row="1" Content="B_rowse..." Grid.Column="3" HorizontalAlignment="Center" Name="buttonBrowseSN" VerticalAlignment="Center" Width="75" Click="buttonBrowseSN_Click" />
                 <GroupBox Grid.Column="2" Grid.ColumnSpan="2" Grid.Row="2" Header="Noise Weighting Method" Name="groupBoxNoiseWeighting" Grid.RowSpan="3">
                     <Grid>
                         <Grid.RowDefinitions>
@@ -39,35 +37,17 @@
                             <RowDefinition Height="1*" />
                         </Grid.RowDefinitions>
                         <RadioButton Content="A-Weighting" HorizontalAlignment="Left" Name="radioButtonACurve" VerticalAlignment="Center" IsChecked="True" />
-                        <RadioButton Grid.Row="1" Content="ITU-R 468" HorizontalAlignment="Left" Name="radioButton468Curve" VerticalAlignment="Center" />
+                        <RadioButton Grid.Row="1" Content="ITU-R 468" HorizontalAlignment="Left" Name="radioButton468Curve" VerticalAlignment="Center" IsEnabled="False" />
                     </Grid>
                 </GroupBox>
             </Grid>
         </GroupBox>
         <Button Content="Read _Files" Grid.Row="1" Margin="6,0" Name="buttonStart" VerticalAlignment="Center" Click="buttonStart_Click" />
-        <GroupBox Grid.Row="2" Header="Time/Duration" Name="groupBoxTimeDuration" >
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*" />
-                    <ColumnDefinition Width="140" />
-                </Grid.ColumnDefinitions>
-                <Slider Name="sliderTime" VerticalAlignment="Center" Margin="6,0,6,0" />
-                <Label Content="00:00:00 / 00:00:00" Grid.Column="1" HorizontalAlignment="Center" Name="labelTimeDuration" VerticalAlignment="Center" />
-            </Grid>
-        </GroupBox>
-        <GroupBox Grid.Row="3" Header="Statistics" Height="100" Name="groupBoxStatistics" VerticalAlignment="Top">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="1*" />
-                    <RowDefinition Height="1*" />
-                </Grid.RowDefinitions>
-                <Label Content="SNR = " HorizontalAlignment="Left" Margin="6,0,0,0" Name="labelSNR" VerticalAlignment="Center" />
-            </Grid>
-        </GroupBox>
-        <GroupBox Grid.Row="4" Header="Log" Name="groupBoxLog" >
+        <GroupBox Grid.Row="2" Header="Log" Name="groupBoxLog" >
             <Grid>
                 <TextBox Name="textBoxLog" IsReadOnly="True" AcceptsTab="True" AcceptsReturn="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Visible" />
             </Grid>
         </GroupBox>
+        <ProgressBar Grid.Row="3" Name="progressBar1" />
     </Grid>
 </Window>

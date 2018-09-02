@@ -342,4 +342,7 @@ Processing...
     <value>Process completed. Writing to {0} ...
 </value>
   </data>
+  <data name="FilterAWeightingDesc" xml:space="preserve">
+    <value>A-Weighting fs={0}Hz</value>
+  </data>
 </root>

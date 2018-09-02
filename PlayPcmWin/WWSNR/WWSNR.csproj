@@ -81,8 +81,6 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="AWeightingFilter.cs" />
-    <Compile Include="BiquadFilter2T.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -113,21 +111,13 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\WasapiCS\WasapiCS.csproj">
-      <Project>{0D9C1283-4DA5-4C3F-8A4E-AD8194381DE4}</Project>
-      <Name>WasapiCS</Name>
+    <ProjectReference Include="..\WWAudioFilterCore\WWAudioFilterCore.csproj">
+      <Project>{6F084186-D7CD-426F-BA48-0728F1EDF9FC}</Project>
+      <Name>WWAudioFilterCore</Name>
     </ProjectReference>
     <ProjectReference Include="..\WWFlacRWCS\WWFlacRWCS.csproj">
       <Project>{DA071B6A-B2E2-4567-84D1-5A9122DAB75C}</Project>
       <Name>WWFlacRWCS</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\WWMath\WWMath.csproj">
-      <Project>{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}</Project>
-      <Name>WWMath</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\WWUserControls\WWUserControls.csproj">
-      <Project>{2721D7F3-8A5A-4059-A619-BB5ED7ACCC0C}</Project>
-      <Name>WWUserControls</Name>
     </ProjectReference>
     <ProjectReference Include="..\WWUtil\WWUtil.csproj">
       <Project>{FC57308E-CF56-4B3E-B920-4093660D0A4A}</Project>

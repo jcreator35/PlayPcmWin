@@ -90,6 +90,11 @@ namespace WWAudioFilterCore {
             return result.ToArray();
         }
 
+        /// <summary>
+        /// Filter Factory
+        /// </summary>
+        /// <param name="s">space separated filter desc. such as "Gain 0.5"</param>
+        /// <returns>created filter</returns>
         public static FilterBase Create(string s) {
             var tokens = Split(s);
             if (tokens == null || tokens.Length < 1) {
@@ -157,6 +162,8 @@ namespace WWAudioFilterCore {
                 return ZohNosdacCompensationFilter.Restore(tokens);
             case "WindowedSincDownsampler":
                 return WindowedSincDownsampler.Restore(tokens);
+            case "AWeighting":
+                return AWeightingFilter.Restore(tokens);
             default:
                 return null;
             }
