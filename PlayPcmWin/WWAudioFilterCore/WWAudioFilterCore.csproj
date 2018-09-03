@@ -91,6 +91,7 @@
     <Compile Include="GaussianNoiseGenerator.cs" />
     <Compile Include="HalfbandFilter.cs" />
     <Compile Include="InsertZeroesUpsampler.cs" />
+    <Compile Include="ITUR4684WeightingFilter.cs" />
     <Compile Include="JitterAddFilter.cs" />
     <Compile Include="LineDrawUpsampler.cs" />
     <Compile Include="LowpassFilter.cs" />
@@ -114,6 +115,7 @@
     <Compile Include="ReduceBitDepth.cs" />
     <Compile Include="SecondOrderAllPassIIRFilter.cs" />
     <Compile Include="SubsonicFilter.cs" />
+    <Compile Include="SymmetricalFIR.cs" />
     <Compile Include="TagEditFilter.cs" />
     <Compile Include="TimeReversalFilter.cs" />
     <Compile Include="UnevenBitDacFilter.cs" />

@@ -42,6 +42,7 @@ namespace WWAudioFilterCore {
         ZohNosdacCompensation,
         WindowedSincDownsampler,
         AWeighting,
+        ITUR4684Weighting,
     }
 
     public struct TagData {

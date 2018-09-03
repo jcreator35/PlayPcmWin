@@ -14,6 +14,7 @@ using System.Windows.Shapes;
 using WWAudioFilterCore;
 using WWFlacRWCS;
 using System.ComponentModel;
+using System.Diagnostics;
 
 namespace WWSNR {
     /// <summary>
@@ -21,6 +22,11 @@ namespace WWSNR {
     /// </summary>
     public partial class MainWindow : Window {
         private bool mInitialized = false;
+
+        enum WeightingType {
+            AWeighting,
+            ITUR4684,
+        };
 
         public MainWindow() {
             InitializeComponent();
@@ -65,9 +71,9 @@ namespace WWSNR {
             }
 
             if (bReady) {
-                buttonStart.IsEnabled = true;
+                buttonProcess.IsEnabled = true;
             } else {
-                buttonStart.IsEnabled = false;
+                buttonProcess.IsEnabled = false;
             }
         }
 
@@ -81,31 +87,47 @@ namespace WWSNR {
         BackgroundWorker mBW;
 
         class BWArgs {
+            public WeightingType wt;
             public string sFile;
             public string snFile;
-            public BWArgs(string aS, string aSN) {
+            public BWArgs(WeightingType aWT, string aS, string aSN) {
+                wt = aWT;
                 sFile = aS;
                 snFile = aSN;
             }
         };
 
         class BWResult {
+            public WeightingType wt;
+            public string sFile;
+            public string snFile;
             public string result;
             public List<double> snr = new List<double>();
-            public BWResult(string r) {
+            public BWResult(WeightingType aWT, string aS, string aSN, string r) {
+                wt = aWT;
+                sFile = aS;
+                snFile = aSN;
                 result = r;
             }
         };
 
-        private void buttonStart_Click(object sender, RoutedEventArgs e) {
-            AddLog("Started\n");
+        private void buttonProcess_Click(object sender, RoutedEventArgs e) {
+            AddLog("Process started.\n");
+
+            var wt = WeightingType.AWeighting;
+            if (radioButton468Curve.IsChecked==true) {
+                wt = WeightingType.ITUR4684;
+            }
+
+            groupBoxSettings.IsEnabled = false;
+            buttonProcess.IsEnabled = false;
 
             mBW = new BackgroundWorker();
             mBW.DoWork += new DoWorkEventHandler(mBW_DoWork);
             mBW.RunWorkerCompleted += new RunWorkerCompletedEventHandler(mBW_RunWorkerCompleted);
             mBW.WorkerReportsProgress = true;
             mBW.ProgressChanged += new ProgressChangedEventHandler(mBW_ProgressChanged);
-            mBW.RunWorkerAsync(new BWArgs(textBoxSFile.Text, textBoxSNFile.Text));
+            mBW.RunWorkerAsync(new BWArgs(wt, textBoxSFile.Text, textBoxSNFile.Text));
         }
 
         void mBW_ProgressChanged(object sender, ProgressChangedEventArgs e) {
@@ -116,24 +138,48 @@ namespace WWSNR {
             var r = e.Result as BWResult;
 
             for (int ch = 0; ch < r.snr.Count; ++ch) {
+                AddLog(string.Format("    S File = {0}\n", r.sFile));
+                AddLog(string.Format("    S+N File = {0}\n", r.snFile));
+
+                AddLog(string.Format("    Weighting type = {0}\n", r.wt));
                 if (r.snr[ch] == 0) {
                     AddLog(string.Format("    SNR of ch{0} = Undetermined\n", ch + 1));
                 } else {
                     double snr = 20 * Math.Log10(r.snr[ch]);
-                    AddLog(string.Format("    SNR of ch{0} = {1:0.000} dB\n", ch + 1, snr));
+                    AddLog(string.Format("    SNR of ch{0} = {1:0.00} dB\n", ch + 1, snr));
                 }
             }
 
             AddLog(r.result);
 
             progressBar1.Value = 0;
+            groupBoxSettings.IsEnabled = true;
+            buttonProcess.IsEnabled = true;
+        }
+
+        private long mLastReport;
+
+        /// <summary>
+        /// 1秒に1回以上の頻度でBackgroundWorker.ReportProgressすると詰まるので呼び出し頻度を制限する。
+        /// </summary>
+        void ReportProgress(BackgroundWorker bw, Stopwatch sw, int percent) {
+            if (sw.ElapsedMilliseconds - mLastReport < 1000) {
+                return;
+            }
+
+            bw.ReportProgress(percent);
+            mLastReport = sw.ElapsedMilliseconds;
         }
 
         void mBW_DoWork(object sender, DoWorkEventArgs e) {
             var bw = sender as BackgroundWorker;
             var args = e.Argument as BWArgs;
-            var r = new BWResult("Process succeeded.\n");
+            var r = new BWResult(args.wt, args.sFile, args.snFile, "Process succeeded.\n");
             e.Result = r;
+
+            var sw = new Stopwatch();
+            sw.Start();
+            mLastReport = sw.ElapsedMilliseconds;
 
             AudioData audioS;
             AudioData audioSN;
@@ -147,14 +193,14 @@ namespace WWSNR {
                     return;
                 }
 
-                bw.ReportProgress(30);
+                ReportProgress(bw, sw, 20);
 
                 if (0 != WWAudioFilterCore.AudioDataIO.Read(args.snFile, out audioSN)) {
                     r.result = string.Format("Error: signal+noise file read error. {0}", textBoxSNFile.Text);
                     return;
                 }
 
-                bw.ReportProgress(50);
+                ReportProgress(bw, sw, 30);
 
                 int fs = audioS.meta.sampleRate;
                 if (fs != audioSN.meta.sampleRate) {
@@ -177,8 +223,21 @@ namespace WWSNR {
                     return;
                 }
 
-                var filterS = new AWeightingFilter(fs);
-                var filterSN = new AWeightingFilter(fs);
+                FilterBase filterS;
+                FilterBase filterSN;
+
+                switch (args.wt) {
+                case WeightingType.AWeighting:
+                    filterS = new AWeightingFilter(fs);
+                    filterSN = new AWeightingFilter(fs);
+                    break;
+                case WeightingType.ITUR4684:
+                    filterS = new ITUR4684WeightingFilter(fs);
+                    filterSN = new ITUR4684WeightingFilter(fs);
+                    break;
+                default:
+                    throw new NotImplementedException("Weighting Type");
+                }
 
                 int step = (int)audioS.pcm[0].mTotalSamples / 100;
                 if (step <= 0) {
@@ -216,6 +275,9 @@ namespace WWSNR {
                             double diff = Math.Abs(sf.At(i) - snf.At(i));
                             noiseSum += diff;
                         }
+
+                        int percent = (int)(30 + 70 * (ch + (double)pos / audioS.pcm[0].mTotalSamples) / numCh);
+                        ReportProgress(bw, sw, percent);
                     }
 
                     if (noiseSum <= 0.00000001f) {
@@ -226,12 +288,15 @@ namespace WWSNR {
 
                     filterSN.FilterEnd();
                     filterS.FilterEnd();
-
-                    bw.ReportProgress(50 + 50 * (ch + 1) / numCh);
                 }
             } catch (Exception ex) {
                 r.result = ex.ToString();
             }
+
+            sw.Stop();
+            sw = null;
+
+            bw.ReportProgress(100);
         }
 
     }

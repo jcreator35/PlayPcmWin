@@ -345,4 +345,7 @@ Processing...
   <data name="FilterAWeightingDesc" xml:space="preserve">
     <value>A-Weighting fs={0}Hz</value>
   </data>
+  <data name="FilterITUR4684WeightingDesc" xml:space="preserve">
+    <value>ITU-R 468-4 Weighting fs={0}Hz</value>
+  </data>
 </root>

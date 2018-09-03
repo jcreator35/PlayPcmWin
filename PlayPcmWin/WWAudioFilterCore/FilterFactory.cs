@@ -164,6 +164,8 @@ namespace WWAudioFilterCore {
                 return WindowedSincDownsampler.Restore(tokens);
             case "AWeighting":
                 return AWeightingFilter.Restore(tokens);
+            case "ITUR4684Weighting":
+                return ITUR4684WeightingFilter.Restore(tokens);
             default:
                 return null;
             }
