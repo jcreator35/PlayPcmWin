@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿// 日本語
 
 namespace WWAudioFilterCore {
     public class SymmetricalFIR {
         private double[] mHalfCoeffs;
-        private WWUtil.Delay mDelay;
 
         /// <summary>
         /// 係数の数が奇数か偶数か。
         /// </summary>
         private WWMath.WWParity mParity;
+
+        private WWUtil.Delay mDelay;
 
         /// <summary>
         /// 偶関数のFIRフィルター。
@@ -25,7 +23,7 @@ namespace WWAudioFilterCore {
             mHalfCoeffs = halfCoeffs;
             mParity = parity;
 
-            if (parity == WWMath.WWParity.Odd) {
+            if (mParity == WWMath.WWParity.Odd) {
                 mDelay = new WWUtil.Delay(mHalfCoeffs.Length * 2 - 1);
             } else {
                 mDelay = new WWUtil.Delay(mHalfCoeffs.Length * 2);
@@ -37,12 +35,25 @@ namespace WWAudioFilterCore {
             mDelay.FillZeroes();
         }
 
+        public int FilterLength {
+            get {
+                if (mParity == WWMath.WWParity.Odd) {
+                    return mHalfCoeffs.Length * 2 - 1;
+                } else {
+                    return mHalfCoeffs.Length * 2;
+                }
+            }
+        }
+
+        /// <summary>
+        /// この直線位相FIRフィルターのディレイ。(サンプル)
+        /// </summary>
         public double FilterDelay {
             get {
                 if (mParity == WWMath.WWParity.Odd) {
                     return mHalfCoeffs.Length - 1;
                 } else {
-                    return mHalfCoeffs.Length - 0.5;
+                    return mHalfCoeffs.Length + 0.5;
                 }
             }
         }
@@ -61,7 +72,7 @@ namespace WWAudioFilterCore {
                     double y = 0;
                     for (int i = 0; i < mHalfCoeffs.Length - 1; ++i) {
                         y += mHalfCoeffs[i] * (mDelay.GetNthDelayedSampleValue(i)
-                                               + mDelay.GetNthDelayedSampleValue(lastOffs - i));
+                                             + mDelay.GetNthDelayedSampleValue(lastOffs - i));
                     }
                     y += mHalfCoeffs[mHalfCoeffs.Length - 1] * mDelay.GetNthDelayedSampleValue(mHalfCoeffs.Length - 1);
 
@@ -78,7 +89,7 @@ namespace WWAudioFilterCore {
                     double y = 0;
                     for (int i = 0; i < mHalfCoeffs.Length; ++i) {
                         y += mHalfCoeffs[i] * (mDelay.GetNthDelayedSampleValue(i)
-                                               + mDelay.GetNthDelayedSampleValue(lastOffs - i));
+                                             + mDelay.GetNthDelayedSampleValue(lastOffs - i));
                     }
 
                     outPcm[pos] = y;

@@ -1,4 +1,6 @@
-﻿using System;
+﻿// 日本語
+
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 

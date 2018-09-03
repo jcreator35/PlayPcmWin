@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿// 日本語
+
+using System;
 using System.Globalization;
 
 namespace WWAudioFilterCore {
