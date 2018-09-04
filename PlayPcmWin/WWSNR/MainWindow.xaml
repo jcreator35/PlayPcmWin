@@ -36,8 +36,8 @@
                             <RowDefinition Height="1*" />
                             <RowDefinition Height="1*" />
                         </Grid.RowDefinitions>
-                        <RadioButton Content="A-Weighting" HorizontalAlignment="Left" Name="radioButtonACurve" VerticalAlignment="Center" />
-                        <RadioButton Grid.Row="1" Content="ITU-R 468-4" HorizontalAlignment="Left" Name="radioButton468Curve" VerticalAlignment="Center" IsChecked="True" />
+                        <RadioButton Content="_A-Weighting" HorizontalAlignment="Left" Name="radioButtonACurve" VerticalAlignment="Center" />
+                        <RadioButton Grid.Row="1" Content="_ITU-R 468-4" HorizontalAlignment="Left" Name="radioButton468Curve" VerticalAlignment="Center" IsChecked="True" />
                     </Grid>
                 </GroupBox>
             </Grid>

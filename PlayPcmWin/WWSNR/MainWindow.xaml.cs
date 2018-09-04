@@ -141,6 +141,8 @@ namespace WWSNR {
 
             AddLog(r.result);
 
+            AddLog("\n");
+
             progressBar1.Value = 0;
             groupBoxSettings.IsEnabled = true;
             buttonProcess.IsEnabled = true;
