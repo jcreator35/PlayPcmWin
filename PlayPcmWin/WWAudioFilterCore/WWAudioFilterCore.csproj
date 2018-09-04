@@ -75,9 +75,10 @@
     <Compile Include="AudioData.cs" />
     <Compile Include="AudioDataPerChannel.cs" />
     <Compile Include="AWeightingFilter.cs" />
-    <Compile Include="BiquadFilter2T.cs" />
+    <Compile Include="BiquadFilterD2.cs" />
     <Compile Include="ButterworthFilter.cs" />
     <Compile Include="CicFilter.cs" />
+    <Compile Include="BiquadFilter2T.cs" />
     <Compile Include="CrossfeedFilter.cs" />
     <Compile Include="CubicHermiteSplineUpsampler.cs" />
     <Compile Include="Downsampler.cs" />
