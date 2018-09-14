@@ -12,6 +12,10 @@ namespace WWSNR {
     public partial class MainWindow : Window {
         private bool mInitialized = false;
 
+        private static string AssemblyVersion {
+            get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); }
+        }
+
         enum WeightingType {
             AWeighting,
             ITUR4684,
@@ -24,6 +28,7 @@ namespace WWSNR {
         private void Window_Loaded(object sender, RoutedEventArgs e) {
             mInitialized = true;
             TextBoxUpdated();
+            AddLog(string.Format("WWSNR version {0}\n", AssemblyVersion));
         }
 
         private string OpenFileDialogAndAsk(string s) {
