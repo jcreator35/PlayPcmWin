@@ -6,15 +6,14 @@ using System.Windows;
 using WWAudioFilterCore;
 
 namespace WWSNR {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window {
-        private bool mInitialized = false;
 
         private static string AssemblyVersion {
             get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); }
         }
+
+        private long mLastReport;
+        private BackgroundWorker mBW;
 
         enum WeightingType {
             AWeighting,
@@ -23,12 +22,6 @@ namespace WWSNR {
 
         public MainWindow() {
             InitializeComponent();
-        }
-
-        private void Window_Loaded(object sender, RoutedEventArgs e) {
-            mInitialized = true;
-            TextBoxUpdated();
-            AddLog(string.Format("WWSNR version {0}\n", AssemblyVersion));
         }
 
         private string OpenFileDialogAndAsk(string s) {
@@ -43,44 +36,15 @@ namespace WWSNR {
             return dlg.FileName;
         }
 
-        private void buttonBrowse_Click(object sender, RoutedEventArgs e) {
-            textBoxSFile.Text = OpenFileDialogAndAsk(textBoxSFile.Text);
-            TextBoxUpdated();
-        }
-
-        private void buttonBrowseSN_Click(object sender, RoutedEventArgs e) {
-            textBoxSNFile.Text = OpenFileDialogAndAsk(textBoxSNFile.Text);
-            TextBoxUpdated();
-        }
-
-        private void TextBoxUpdated() {
-            bool bReady = false;
-            try {
-                if (textBoxSFile.Text.Length != 0 && System.IO.File.Exists(textBoxSFile.Text)
-                        && textBoxSNFile.Text.Length != 0 && System.IO.File.Exists(textBoxSNFile.Text)) {
-                    bReady = true;
-                }
-            } catch (Exception ex) {
-                Console.WriteLine(ex);
-            }
-
-            if (bReady) {
-                buttonProcess.IsEnabled = true;
-            } else {
-                buttonProcess.IsEnabled = false;
-            }
-        }
-
-        // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
-
         private void AddLog(string s) {
             textBoxLog.Text += s;
             textBoxLog.ScrollToEnd();
         }
 
-        BackgroundWorker mBW;
+        // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+        // process file
 
-        class BWArgs {
+        private class BWArgs {
             public WeightingType wt;
             public string sFile;
             public string snFile;
@@ -91,7 +55,7 @@ namespace WWSNR {
             }
         };
 
-        class BWResult {
+        private class BWResult {
             public WeightingType wt;
             public string sFile;
             public string snFile;
@@ -105,30 +69,11 @@ namespace WWSNR {
             }
         };
 
-        private void buttonProcess_Click(object sender, RoutedEventArgs e) {
-            AddLog("Process started.\n");
-
-            var wt = WeightingType.AWeighting;
-            if (radioButton468Curve.IsChecked==true) {
-                wt = WeightingType.ITUR4684;
-            }
-
-            groupBoxSettings.IsEnabled = false;
-            buttonProcess.IsEnabled = false;
-
-            mBW = new BackgroundWorker();
-            mBW.DoWork += new DoWorkEventHandler(mBW_DoWork);
-            mBW.RunWorkerCompleted += new RunWorkerCompletedEventHandler(mBW_RunWorkerCompleted);
-            mBW.WorkerReportsProgress = true;
-            mBW.ProgressChanged += new ProgressChangedEventHandler(mBW_ProgressChanged);
-            mBW.RunWorkerAsync(new BWArgs(wt, textBoxSFile.Text, textBoxSNFile.Text));
-        }
-
-        void mBW_ProgressChanged(object sender, ProgressChangedEventArgs e) {
+        private void mBW_ProgressChanged(object sender, ProgressChangedEventArgs e) {
             progressBar1.Value = e.ProgressPercentage;
         }
 
-        void mBW_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
+        private void mBW_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
             var r = e.Result as BWResult;
 
             for (int ch = 0; ch < r.snr.Count; ++ch) {
@@ -153,12 +98,10 @@ namespace WWSNR {
             buttonProcess.IsEnabled = true;
         }
 
-        private long mLastReport;
-
         /// <summary>
         /// 1秒に1回以上の頻度でBackgroundWorker.ReportProgressすると詰まるので呼び出し頻度を制限する。
         /// </summary>
-        void ReportProgress(BackgroundWorker bw, Stopwatch sw, int percent) {
+        private void ReportProgress(BackgroundWorker bw, Stopwatch sw, int percent) {
             if (sw.ElapsedMilliseconds - mLastReport < 1000) {
                 return;
             }
@@ -167,7 +110,7 @@ namespace WWSNR {
             mLastReport = sw.ElapsedMilliseconds;
         }
 
-        void mBW_DoWork(object sender, DoWorkEventArgs e) {
+        private void mBW_DoWork(object sender, DoWorkEventArgs e) {
             var bw = sender as BackgroundWorker;
             var args = e.Argument as BWArgs;
             var r = new BWResult(args.wt, args.sFile, args.snFile, "Process succeeded.\n");
@@ -295,5 +238,60 @@ namespace WWSNR {
             bw.ReportProgress(100);
         }
 
+        // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+        // Event handlers
+
+        private void buttonProcess_Click(object sender, RoutedEventArgs e) {
+            AddLog("Process started.\n");
+
+            var wt = WeightingType.AWeighting;
+            if (radioButton468Curve.IsChecked == true) {
+                wt = WeightingType.ITUR4684;
+            }
+
+            groupBoxSettings.IsEnabled = false;
+            buttonProcess.IsEnabled = false;
+
+            mBW = new BackgroundWorker();
+            mBW.DoWork += new DoWorkEventHandler(mBW_DoWork);
+            mBW.RunWorkerCompleted += new RunWorkerCompletedEventHandler(mBW_RunWorkerCompleted);
+            mBW.WorkerReportsProgress = true;
+            mBW.ProgressChanged += new ProgressChangedEventHandler(mBW_ProgressChanged);
+            mBW.RunWorkerAsync(new BWArgs(wt, textBoxSFile.Text, textBoxSNFile.Text));
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e) {
+            AddLog(string.Format("WWSNR version {0}\n", AssemblyVersion));
+        }
+
+        private void buttonBrowse_Click(object sender, RoutedEventArgs e) {
+            textBoxSFile.Text = OpenFileDialogAndAsk(textBoxSFile.Text);
+        }
+
+        private void buttonBrowseSN_Click(object sender, RoutedEventArgs e) {
+            textBoxSNFile.Text = OpenFileDialogAndAsk(textBoxSNFile.Text);
+        }
+
+        private void TextBox_PreviewDragOver(object sender, DragEventArgs e) {
+            e.Handled = true;
+        }
+
+        private void textBox_DragEnter(object sender, DragEventArgs e) {
+            e.Effects = DragDropEffects.Copy;
+        }
+
+        private void textBoxSFile_Drop(object sender, DragEventArgs e) {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop)) {
+                var files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                textBoxSFile.Text = files[0];
+            }
+        }
+
+        private void textBoxSNFile_Drop(object sender, DragEventArgs e) {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop)) {
+                var files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                textBoxSNFile.Text = files[0];
+            }
+        }
     }
 }
