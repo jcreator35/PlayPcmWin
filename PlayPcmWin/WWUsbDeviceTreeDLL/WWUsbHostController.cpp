@@ -90,24 +90,90 @@ end:
 }
 
 static HRESULT
-FillUUCI(
-        HANDLE hHCDev,
-        WWHostController &hc)
+GetControllerInf0(HANDLE h, USB_CONTROLLER_INFO_0 &ci0_r)
 {
     HRESULT hr = E_FAIL;
-    DWORD dwBytes = 0;
+    DWORD bytes = 0;
+    USBUSER_CONTROLLER_INFO_0 p;
 
-    memset(&hc.uuci, 0, sizeof hc.uuci);
-    hc.uuci.Header.UsbUserRequest = USBUSER_GET_CONTROLLER_INFO_0;
-    hc.uuci.Header.RequestBufferLength = sizeof hc.uuci;
-
-    BHRG(DeviceIoControl(hHCDev, IOCTL_USB_USER_REQUEST, &hc.uuci, sizeof hc.uuci,
-        &hc.uuci, sizeof hc.uuci, &dwBytes, nullptr));
+    memset(&p, 0, sizeof p);
+    p.Header.UsbUserRequest = USBUSER_GET_CONTROLLER_INFO_0;
+    p.Header.RequestBufferLength = sizeof ci0_r;
+    BHRG(DeviceIoControl(h, IOCTL_USB_USER_REQUEST, &p, sizeof p, &p, sizeof p, &bytes, nullptr));
+    ci0_r = p.Info0;
     hr = S_OK;
 end:
     return hr;
 }
 
+static HRESULT
+GetBandwidthInf(HANDLE h, USB_BANDWIDTH_INFO &bir_r)
+{
+    HRESULT hr = E_FAIL;
+    DWORD bytes = 0;
+    USBUSER_BANDWIDTH_INFO_REQUEST p;
+
+    memset(&p, 0, sizeof p);
+    p.Header.UsbUserRequest = USBUSER_GET_BANDWIDTH_INFORMATION;
+    p.Header.RequestBufferLength = sizeof bir_r;
+    BHRG(DeviceIoControl(h, IOCTL_USB_USER_REQUEST, &p, sizeof p, &p, sizeof p, &bytes, nullptr));
+    bir_r = p.BandwidthInformation;
+    hr = S_OK;
+end:
+    return hr;
+}
+
+static HRESULT
+GetBusStatistics0(HANDLE h, USB_BUS_STATISTICS_0 &bs0_r)
+{
+    HRESULT hr = E_FAIL;
+    DWORD bytes = 0;
+    USBUSER_BUS_STATISTICS_0_REQUEST p;
+
+    memset(&p, 0, sizeof p);
+    p.Header.UsbUserRequest = USBUSER_GET_BUS_STATISTICS_0;
+    p.Header.RequestBufferLength = sizeof bs0_r;
+    BHRG(DeviceIoControl(h, IOCTL_USB_USER_REQUEST, &p, sizeof p, &p, sizeof p, &bytes, nullptr));
+    bs0_r = p.BusStatistics0;
+    hr = S_OK;
+end:
+    return hr;
+}
+
+static HRESULT
+GetPowerInf(HANDLE h, USB_POWER_INFO &pir_r)
+{
+    HRESULT hr = E_FAIL;
+    DWORD bytes = 0;
+    USBUSER_POWER_INFO_REQUEST p;
+
+    memset(&p, 0, sizeof p);
+    p.Header.UsbUserRequest = USBUSER_GET_POWER_STATE_MAP;
+    p.Header.RequestBufferLength = sizeof pir_r;
+    BHRG(DeviceIoControl(h, IOCTL_USB_USER_REQUEST, &p, sizeof p, &p, sizeof p, &bytes, nullptr));
+    pir_r = p.PowerInformation;
+    hr = S_OK;
+end:
+    return hr;
+}
+
+static HRESULT
+GetDriverVersionInf(HANDLE h, USB_DRIVER_VERSION_PARAMETERS &dvp_r)
+{
+    HRESULT hr = E_FAIL;
+    USBUSER_GET_DRIVER_VERSION p;
+    DWORD bytes = 0;
+
+    memset(&p, 0, sizeof p);
+    p.Header.UsbUserRequest = USBUSER_GET_USB_DRIVER_VERSION;
+    p.Header.RequestBufferLength = sizeof p;
+    BHRG(DeviceIoControl(h, IOCTL_USB_USER_REQUEST, &p, sizeof p, &p, sizeof p, &bytes, nullptr));
+    dvp_r = p.Parameters;
+    hr = S_OK;
+end:
+
+    return hr;
+}
 
 HRESULT
 WWGetHostControllerInf(
@@ -148,12 +214,18 @@ WWGetHostControllerInf(
     hc.busDevice = devFunc >> 16;
     hc.busFunction = devFunc & 0xffff;
 
-    HRG(FillUUCI(hDev, hc));
+    HRG(GetControllerInf0(hDev, hc.ci0));
+    HRG(GetBandwidthInf(hDev, hc.bir));
+    HRG(GetBusStatistics0(hDev, hc.bs0));
+    HRG(GetPowerInf(hDev, hc.pir));
+    HRG(GetDriverVersionInf(hDev, hc.dvp));
 
     hc.idx = (int)mHCs.size();
 
-    // hc.uuci.Info0.NumberOfRootPortsはHighSpeed以下のポートの総数が入る。
-    printf("Host Controller #%d %S %S\n", hc.idx, WWUsbVendorIdToStr(hc.vendorID), hc.devStr.deviceDesc.c_str());
+    // hc.ci0.Info0.NumberOfRootPortsはHighSpeed以下のポートの総数が入る。
+    printf("Host Controller #%d %S %S curUsbFrames=%u\n",
+        hc.idx, WWUsbVendorIdToStr(hc.vendorID), hc.devStr.deviceDesc.c_str(),
+        hc.bs0.CurrentUsbFrame);
     mHCs.push_back(hc);
 
     HRG(GetRootHubName(hDev, rootHubName));

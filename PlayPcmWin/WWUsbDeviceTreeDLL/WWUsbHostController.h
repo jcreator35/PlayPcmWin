@@ -19,7 +19,11 @@ struct WWHostController
     USHORT                              busDevice;
     USHORT                              busFunction;
     WWUsbDeviceStrings                  devStr;
-    USBUSER_CONTROLLER_INFO_0           uuci;
+    USB_CONTROLLER_INFO_0               ci0;
+    USB_BANDWIDTH_INFO                  bir;
+    USB_BUS_STATISTICS_0                bs0;
+    USB_POWER_INFO                      pir;
+    USB_DRIVER_VERSION_PARAMETERS       dvp;
 };
 
 extern std::vector<WWHostController> mHCs;
