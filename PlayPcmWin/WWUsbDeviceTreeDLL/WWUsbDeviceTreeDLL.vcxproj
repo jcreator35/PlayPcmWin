@@ -160,17 +160,25 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="WWUsbBuildDeviceTree.cpp" />
     <ClCompile Include="WWUsbDeviceGuidDefines.cpp" />
     <ClCompile Include="WWUsbDeviceTreeDLL.cpp" />
+    <ClCompile Include="WWUsbHostController.cpp" />
     <ClCompile Include="WWUsbHub.cpp" />
     <ClCompile Include="WWUsbHubPorts.cpp" />
     <ClCompile Include="WWUsbCommon.cpp" />
+    <ClCompile Include="WWUsbVendorIdStr.cpp" />
+    <ClCompile Include="WWUsbVendorIdToStr.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="WWUsbBuildDeviceTree.h" />
     <ClInclude Include="WWUsbDeviceTreeDLL.h" />
+    <ClInclude Include="WWUsbHostController.h" />
     <ClInclude Include="WWUsbHub.h" />
     <ClInclude Include="WWUsbHubPorts.h" />
     <ClInclude Include="WWUsbCommon.h" />
+    <ClInclude Include="WWUsbVendorIdStr.h" />
+    <ClInclude Include="WWUsbVendorIdToStr.h" />
     <ClInclude Include="WWUtil.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

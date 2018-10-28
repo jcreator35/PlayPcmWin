@@ -4,6 +4,8 @@
 
 #include "WWUsbCommon.h"
 
+void WWHubsClear(void);
+
 struct WWHub
 {
     int idx;
@@ -18,4 +20,4 @@ struct WWHub
 extern std::vector<WWHub> mHubs;
 
 HRESULT
-WWEnumHub(std::wstring hubName);
+WWGetHubInf(int level, std::wstring hubName);

@@ -22,8 +22,14 @@
 
 std::vector<WWHub> mHubs;
 
+void
+WWHubsClear(void)
+{
+    mHubs.clear();
+}
+
 HRESULT
-WWEnumHub(std::wstring hubName)
+WWGetHubInf(int level, std::wstring hubName)
 {
     HRESULT hr = E_FAIL;
     HANDLE hHub = INVALID_HANDLE_VALUE;
@@ -54,13 +60,17 @@ WWEnumHub(std::wstring hubName)
     hub.name = hubName;
     hub.numPorts = ni.u.HubInformation.HubDescriptor.bNumberOfPorts;
     hub.hubType = WWUsbHubTypeToWWUsbDeviceBusSpeed(hi.HubType);
-    hub.isBusPowered = hc.CapabilityFlags.HubIsBusPowered;
+    hub.isBusPowered = ni.u.HubInformation.HubIsBusPowered;
     hub.isRoot = hc.CapabilityFlags.HubIsRoot;
     hub.speed = WWUDB_RootHub;
     hub.idx = (int)mHubs.size();
     mHubs.push_back(hub);
+    for (int i = 0; i < level; ++i) {
+        printf("  ");
+    }
+    printf("UsbHub : %d ports %S %S\n", hub.numPorts, hub.isBusPowered ? L"BusPowered" : L"SelfPowered", WWUsbDeviceBusSpeedToStr(hub.hubType));
 
-    HRG(WWEnumHubPorts(hHub, hub.idx, hub.numPorts));
+    HRG(WWEnumHubPorts(level+1, hHub, hub.idx, hub.numPorts));
 
     hr = S_OK;
 end:

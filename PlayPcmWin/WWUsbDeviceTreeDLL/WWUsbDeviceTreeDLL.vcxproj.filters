@@ -33,6 +33,18 @@
     <ClCompile Include="WWUsbHub.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="WWUsbHostController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WWUsbBuildDeviceTree.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WWUsbVendorIdStr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WWUsbVendorIdToStr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WWUsbDeviceTreeDLL.h">
@@ -48,6 +60,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="WWUsbHub.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWUsbHostController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWUsbBuildDeviceTree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWUsbVendorIdStr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWUsbVendorIdToStr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

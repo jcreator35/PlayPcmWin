@@ -16,6 +16,7 @@
 #include <vector>
 #include <assert.h>
 
+#define WW_SIZEOF_USB_INTERFACE_DESCRIPTOR2 (11)
 
 enum WWUsbDeviceType {
     WWUD_HostController,
@@ -60,105 +61,7 @@ struct WWStringDesc {
 HRESULT
 WWDriverKeyNameToDeviceStrings(std::wstring driverName, WWUsbDeviceStrings &uds_r);
 
-struct WWUsbDevice {
-    int idx;
-    std::vector<int> children;
-    std::wstring name;
-
-    WWUsbDeviceType deviceType;
-    std::wstring driverKeyName;
-    ULONG  vendorID;
-    ULONG  deviceID;
-    ULONG  subSysID;
-    ULONG  revision;
-    BOOL   busDeviceFunctionValid;
-    ULONG  busNumber;
-    USHORT busDevice;
-    USHORT busFunction;
-    
-    // connection index
-    int connIdx;
-
-    // USB_NODE_CONNECTION_INFORMATION_EX
-    WWUsbDeviceBusSpeed speed;
-    UCHAR currentConfigurationValue;
-    BOOL deviceIsHub;
-    USHORT deviceAddress;
-    ULONG numOfOpenPipes;
-    USB_CONNECTION_STATUS connStat;
-
-    WWUsbDeviceStrings devStr;
-    std::vector<WWStringDesc> sds;
-    USB_DEVICE_DESCRIPTOR devDesc;
-    USB_CONFIGURATION_DESCRIPTOR        confDesc;
-    USB_BOS_DESCRIPTOR                  bosDesc;
-
-    WWUsbDevice(int aIdx, std::wstring aName) {
-        idx = aIdx;
-        name = aName;
-    }
-
-    WWUsbDevice(int aIdx) {
-        idx = aIdx;
-    }
-    ~WWUsbDevice(void) {
-    }
-};
-
-extern std::vector<WWUsbDevice>  mDevices;
-
-struct WWHostController
-{
-    int idx;
-    std::vector<int> children;
-
-    WWUsbDeviceType deviceType;
-    std::wstring                        driverKey;
-    ULONG                               vendorID;
-    ULONG                               deviceID;
-    ULONG                               subSysID;
-    ULONG                               revision;
-    ULONG                               busNumber;
-    USHORT                              busDevice;
-    USHORT                              busFunction;
-    WWUsbDeviceStrings                  devStr;
-    USBUSER_CONTROLLER_INFO_0           uuci;
-};
-
-
-
-struct WWHubPort
-{
-    int idx;
-    std::wstring name;
-    WWUsbDeviceBusSpeed speed;
-};
-
-
-// @return pdr_r free()で開放して下さい。
-HRESULT
-WWGetConfigDescriptor(
-    HANDLE  hHub,
-    ULONG   connIdx,
-    UCHAR   descIdx,
-    PUSB_DESCRIPTOR_REQUEST *pdr_r);
 
 HRESULT
-WWGetBOSDescriptor(
-    HANDLE  hHub,
-    ULONG   connIdx,
-    PUSB_DESCRIPTOR_REQUEST *pdr_r);
-
-bool
-WWStringDescAvailable(
-    PUSB_DEVICE_DESCRIPTOR          dd,
-    PUSB_CONFIGURATION_DESCRIPTOR   cd);
-
-HRESULT
-WWGetAllStringDescs(
-    HANDLE                          hHub,
-    ULONG                           connIdx,
-    PUSB_DEVICE_DESCRIPTOR          dd,
-    PUSB_CONFIGURATION_DESCRIPTOR   cd,
-    std::vector<WWStringDesc> &desc_r);
+WWGetTransportCharacteristics(HANDLE h, USB_TRANSPORT_CHARACTERISTICS & tc_r);
 
