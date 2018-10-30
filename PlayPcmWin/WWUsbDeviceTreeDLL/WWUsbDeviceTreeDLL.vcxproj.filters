@@ -45,6 +45,9 @@
     <ClCompile Include="WWUsbVendorIdToStr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="WWPrintStructs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WWUsbDeviceTreeDLL.h">
@@ -72,6 +75,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="WWUsbVendorIdToStr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWPrintStructs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

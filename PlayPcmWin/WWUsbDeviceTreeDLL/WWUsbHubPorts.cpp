@@ -19,6 +19,7 @@
 #include <assert.h>
 #include "WWUtil.h"
 #include "WWUsbHub.h"
+#include "WWPrintStructs.h"
 
 std::vector<WWHubPort> mHPs;
 
@@ -600,10 +601,8 @@ GetHubPortInf(int level, HANDLE hHub, int hubIdx, int connIdx, WWHubPort & hp_r)
     }
 
     if (cie->ConnectionStatus == DeviceConnected) {
-        for (int i = 0; i < level; ++i) {
-            printf("  ");
-        }
-        printf("%S port %S %S ", hp_r.pcp->UsbPortProperties.PortConnectorIsTypeC ? L"TypeC" : L"TypeA",
+        WWPrintIndentSpace(level);
+        printf("%S %S %S ", hp_r.pcp->UsbPortProperties.PortConnectorIsTypeC ? L"TypeC" : L"TypeA",
             WWUsbDeviceBusSpeedToStr(hp_r.speed), hp_r.devStr.deviceDesc.c_str());
         if (hp_r.confDesc->bmAttributes & 0x80) {
             printf("MaxPower=%dmW ", hp_r.confDesc->MaxPower * 2);
@@ -612,6 +611,8 @@ GetHubPortInf(int level, HANDLE hHub, int hubIdx, int connIdx, WWHubPort & hp_r)
             printf("%S ", hp_r.sds[i].s.c_str());
         }
         printf("\n");
+
+        WWPrintConfDesc(level+1, (int)WWUDB_SuperSpeed <= (int)hp_r.speed, hp_r.confDesc);
 
         hr = S_OK;
     } else {

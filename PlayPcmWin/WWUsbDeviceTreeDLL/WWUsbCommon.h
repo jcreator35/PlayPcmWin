@@ -61,7 +61,11 @@ struct WWStringDesc {
 HRESULT
 WWDriverKeyNameToDeviceStrings(std::wstring driverName, WWUsbDeviceStrings &uds_r);
 
-
 HRESULT
 WWGetTransportCharacteristics(HANDLE h, USB_TRANSPORT_CHARACTERISTICS & tc_r);
 
+HRESULT
+WWGetDeviceCharacteristics(HANDLE h, USB_DEVICE_CHARACTERISTICS &dc_r);
+
+void
+WWPrintIndentSpace(int level);

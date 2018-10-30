@@ -160,6 +160,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="WWPrintStructs.cpp" />
     <ClCompile Include="WWUsbBuildDeviceTree.cpp" />
     <ClCompile Include="WWUsbDeviceGuidDefines.cpp" />
     <ClCompile Include="WWUsbDeviceTreeDLL.cpp" />
@@ -171,6 +172,7 @@
     <ClCompile Include="WWUsbVendorIdToStr.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="WWPrintStructs.h" />
     <ClInclude Include="WWUsbBuildDeviceTree.h" />
     <ClInclude Include="WWUsbDeviceTreeDLL.h" />
     <ClInclude Include="WWUsbHostController.h" />

@@ -39,6 +39,7 @@ WWGetHubInf(int level, std::wstring hubName)
     ULONG bytes = 0;
     WWHub hub;
 
+
     std::wstring header(L"\\\\.\\");
     std::wstring deviceName = header + hubName;
 
@@ -57,6 +58,7 @@ WWGetHubInf(int level, std::wstring hubName)
     memset(&hc, 0, sizeof hc);
     BHRG(DeviceIoControl(hHub, IOCTL_USB_GET_HUB_CAPABILITIES_EX, &hc, sizeof hc, &hc, sizeof hc, &bytes, nullptr));
 
+
     hub.name = hubName;
     hub.numPorts = ni.u.HubInformation.HubDescriptor.bNumberOfPorts;
     hub.hubType = WWUsbHubTypeToWWUsbDeviceBusSpeed(hi.HubType);
@@ -65,9 +67,8 @@ WWGetHubInf(int level, std::wstring hubName)
     hub.speed = WWUDB_RootHub;
     hub.idx = (int)mHubs.size();
     mHubs.push_back(hub);
-    for (int i = 0; i < level; ++i) {
-        printf("  ");
-    }
+
+    WWPrintIndentSpace(level);
     printf("UsbHub : %d ports %S %S\n", hub.numPorts, hub.isBusPowered ? L"BusPowered" : L"SelfPowered", WWUsbDeviceBusSpeedToStr(hub.hubType));
 
     HRG(WWEnumHubPorts(level+1, hHub, hub.idx, hub.numPorts));

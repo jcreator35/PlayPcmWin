@@ -232,3 +232,36 @@ WWGetTransportCharacteristics(HANDLE h, USB_TRANSPORT_CHARACTERISTICS & tc_r)
 
     return hr;
 }
+
+HRESULT
+WWGetDeviceCharacteristics(HANDLE h, USB_DEVICE_CHARACTERISTICS &dc_r)
+{
+    HRESULT hr = E_FAIL;
+    BOOL brv = FALSE;
+    DWORD bytes = 0;
+
+    memset(&dc_r, 0, sizeof dc_r);
+    dc_r.Version = USB_DEVICE_CHARACTERISTICS_VERSION_1;
+    brv = DeviceIoControl(h, IOCTL_USB_GET_DEVICE_CHARACTERISTICS,
+        &dc_r, sizeof dc_r, &dc_r, sizeof dc_r, &bytes, nullptr);
+    if (!brv) {
+        printf("Error: Get Device Characteristics failed\n");
+
+    } else {
+        printf("dc MaxSendPathDelay=%ums MaxCompPathDelay=%ums\n",
+            dc_r.MaximumSendPathDelayInMilliSeconds,
+            dc_r.MaximumCompletionPathDelayInMilliSeconds);
+        hr = S_OK;
+    }
+
+    return hr;
+}
+
+void
+WWPrintIndentSpace(int level)
+{
+    for (int i = 0; i < level; ++i) {
+        printf("  ");
+    }
+}
+
