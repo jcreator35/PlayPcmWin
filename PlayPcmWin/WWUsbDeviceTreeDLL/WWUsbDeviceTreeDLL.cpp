@@ -5,6 +5,7 @@
 #include <SDKDDKVer.h>
 
 #include "WWUsbDeviceTreeDLL.h"
+#include "WWUsbCommon.h"
 #include "WWUsbHub.h"
 #include "WWUsbHostController.h"
 #include "WWUsbBuildDeviceTree.h"
@@ -26,6 +27,7 @@ __declspec(dllexport)
 int __stdcall
 WWUsbDeviceTreeDLL_Refresh(void)
 {
+    WWUsbIdGeneratorReset();
     WWHubsClear();
     WWHubPortsClear();
     WWHostControllersClear();

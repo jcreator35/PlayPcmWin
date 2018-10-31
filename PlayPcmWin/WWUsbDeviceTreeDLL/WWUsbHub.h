@@ -9,6 +9,7 @@ void WWHubsClear(void);
 struct WWHub
 {
     int idx;
+    int parentIdx;
     std::wstring name;
     int  numPorts;
     BOOL isBusPowered; //< TRUE: Bus powered, FALSE: Self powered
@@ -20,4 +21,4 @@ struct WWHub
 extern std::vector<WWHub> mHubs;
 
 HRESULT
-WWGetHubInf(int level, std::wstring hubName);
+WWGetHubInf(int level, int parentIdx, std::wstring hubName);

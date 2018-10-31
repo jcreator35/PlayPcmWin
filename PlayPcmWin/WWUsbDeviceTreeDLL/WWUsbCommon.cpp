@@ -265,3 +265,19 @@ WWPrintIndentSpace(int level)
     }
 }
 
+static int gNextId = -1;
+
+void
+WWUsbIdGeneratorReset(void)
+{
+    gNextId = -1;
+}
+
+int
+WWUsbIdGetNextId(void)
+{
+    ++gNextId;
+    return gNextId;
+}
+
+

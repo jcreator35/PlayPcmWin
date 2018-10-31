@@ -482,7 +482,7 @@ end:
 
 /// @return E_FAIL ポートに何もつながっていない。
 static HRESULT
-GetHubPortInf(int level, HANDLE hHub, int hubIdx, int connIdx, WWHubPort & hp_r)
+GetHubPortInf(int level, int parentIdx, HANDLE hHub, int hubIdx, int connIdx, WWHubPort & hp_r)
 {
     BOOL brv = FALSE;
     HRESULT hr = E_FAIL;
@@ -601,8 +601,13 @@ GetHubPortInf(int level, HANDLE hHub, int hubIdx, int connIdx, WWHubPort & hp_r)
     }
 
     if (cie->ConnectionStatus == DeviceConnected) {
+        // 使用されているポート。
+        // リストに追加する。
+        hp_r.idx = WWUsbIdGetNextId();
+        hp_r.parentIdx = parentIdx;
+
         WWPrintIndentSpace(level);
-        printf("%S %S %S ", hp_r.pcp->UsbPortProperties.PortConnectorIsTypeC ? L"TypeC" : L"TypeA",
+        printf("#%d %S %S %S ", hp_r.idx, hp_r.pcp->UsbPortProperties.PortConnectorIsTypeC ? L"TypeC" : L"TypeA",
             WWUsbDeviceBusSpeedToStr(hp_r.speed), hp_r.devStr.deviceDesc.c_str());
         if (hp_r.confDesc->bmAttributes & 0x80) {
             printf("MaxPower=%dmW ", hp_r.confDesc->MaxPower * 2);
@@ -639,7 +644,7 @@ end:
 }
 
 HRESULT
-WWEnumHubPorts(int level, HANDLE hHub, int hubIdx, int numPorts)
+WWEnumHubPorts(int level, int parentIdx, HANDLE hHub, int hubIdx, int numPorts)
 {
     HRESULT hr = E_FAIL;
 
@@ -647,7 +652,7 @@ WWEnumHubPorts(int level, HANDLE hHub, int hubIdx, int numPorts)
     for (int connIdx = 1; connIdx <= numPorts; ++connIdx) {
         WWHubPort hp;
 
-        hr = GetHubPortInf(level, hHub, hubIdx, connIdx, hp);
+        hr = GetHubPortInf(level, parentIdx, hHub, hubIdx, connIdx, hp);
         if (FAILED(hr)) {
             continue;
         }
@@ -655,7 +660,7 @@ WWEnumHubPorts(int level, HANDLE hHub, int hubIdx, int numPorts)
         mHPs.push_back(hp);
 
         if (hp.deviceIsHub) {
-            WWGetHubInf(level + 1, hp.extHubName);
+            WWGetHubInf(level + 1, hp.idx, hp.extHubName);
         }
     }
 

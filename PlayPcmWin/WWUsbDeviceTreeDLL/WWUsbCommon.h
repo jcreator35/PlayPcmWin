@@ -34,6 +34,12 @@ enum WWUsbDeviceBusSpeed {
     WWUDB_SuperSpeedPlus,
 };
 
+int
+WWUsbIdGetNextId(void);
+
+void
+WWUsbIdGeneratorReset(void);
+
 const wchar_t *
 WWUsbDeviceBusSpeedToStr(WWUsbDeviceBusSpeed t);
 

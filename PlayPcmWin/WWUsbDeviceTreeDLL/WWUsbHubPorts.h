@@ -9,6 +9,7 @@ void WWHubPortsClear(void);
 struct WWHubPort
 {
     int idx;
+    int parentIdx;
     int connIdx;
     WWUsbDeviceBusSpeed speed;
     USB_DEVICE_DESCRIPTOR devDesc;
@@ -39,4 +40,4 @@ struct WWHubPort
 
 extern std::vector<WWHubPort> mHPs;
 
-HRESULT WWEnumHubPorts(int level, HANDLE hHub, int hubIdx, int numPorts);
+HRESULT WWEnumHubPorts(int level, int parentIdx, HANDLE hHub, int hubIdx, int numPorts);

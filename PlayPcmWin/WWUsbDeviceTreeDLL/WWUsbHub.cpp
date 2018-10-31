@@ -29,7 +29,7 @@ WWHubsClear(void)
 }
 
 HRESULT
-WWGetHubInf(int level, std::wstring hubName)
+WWGetHubInf(int level, int parentIdx, std::wstring hubName)
 {
     HRESULT hr = E_FAIL;
     HANDLE hHub = INVALID_HANDLE_VALUE;
@@ -65,13 +65,14 @@ WWGetHubInf(int level, std::wstring hubName)
     hub.isBusPowered = ni.u.HubInformation.HubIsBusPowered;
     hub.isRoot = hc.CapabilityFlags.HubIsRoot;
     hub.speed = WWUDB_RootHub;
-    hub.idx = (int)mHubs.size();
+    hub.idx = WWUsbIdGetNextId();
+    hub.parentIdx = parentIdx;
     mHubs.push_back(hub);
 
     WWPrintIndentSpace(level);
-    printf("UsbHub : %d ports %S %S\n", hub.numPorts, hub.isBusPowered ? L"BusPowered" : L"SelfPowered", WWUsbDeviceBusSpeedToStr(hub.hubType));
+    printf("#%d UsbHub : %d ports %S %S\n", hub.idx, hub.numPorts, hub.isBusPowered ? L"BusPowered" : L"SelfPowered", WWUsbDeviceBusSpeedToStr(hub.hubType));
 
-    HRG(WWEnumHubPorts(level+1, hHub, hub.idx, hub.numPorts));
+    HRG(WWEnumHubPorts(level+1, hub.idx, hHub, hub.idx, hub.numPorts));
 
     hr = S_OK;
 end:
