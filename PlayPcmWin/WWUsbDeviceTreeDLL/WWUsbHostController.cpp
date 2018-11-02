@@ -200,7 +200,6 @@ WWGetHostControllerInf(
         }
     }
 
-    hc.deviceType = WWUD_HostController;
     HRG(WWDriverKeyNameToDeviceStrings(hc.driverKey, uds));
     hc.devStr = uds;
     if (swscanf_s(uds.deviceId.c_str(), L"PCI\\VEN_%x&DEV_%x&SUBSYS_%x&REV_%x",

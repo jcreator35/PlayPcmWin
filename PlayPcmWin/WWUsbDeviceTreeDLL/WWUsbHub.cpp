@@ -67,10 +67,15 @@ WWGetHubInf(int level, int parentIdx, std::wstring hubName)
     hub.speed = WWUDB_RootHub;
     hub.idx = WWUsbIdGetNextId();
     hub.parentIdx = parentIdx;
+    hub.ni = ni;
+    hub.hi = hi;
+    hub.hc = hc;
     mHubs.push_back(hub);
 
     WWPrintIndentSpace(level);
-    printf("#%d UsbHub : %d ports %S %S\n", hub.idx, hub.numPorts, hub.isBusPowered ? L"BusPowered" : L"SelfPowered", WWUsbDeviceBusSpeedToStr(hub.hubType));
+    printf("#%d UsbHub : %d ports %S %S\n", hub.idx, hub.numPorts,
+        hub.isBusPowered ? L"BusPowered" : L"SelfPowered",
+        WWUsbDeviceBusSpeedToStr(hub.hubType));
 
     HRG(WWEnumHubPorts(level+1, hub.idx, hHub, hub.idx, hub.numPorts));
 

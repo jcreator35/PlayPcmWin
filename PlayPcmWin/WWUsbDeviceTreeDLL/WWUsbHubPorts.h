@@ -29,6 +29,8 @@ struct WWHubPort
     // freeする必要あり。
     PUSB_NODE_CONNECTION_INFORMATION_EX cie;
 
+    USB_NODE_CONNECTION_INFORMATION_EX_V2 ci2;
+
     // freeする必要あり。
     PUSB_PORT_CONNECTOR_PROPERTIES pcp;
 

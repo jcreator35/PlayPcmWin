@@ -18,13 +18,6 @@
 
 #define WW_SIZEOF_USB_INTERFACE_DESCRIPTOR2 (11)
 
-enum WWUsbDeviceType {
-    WWUD_HostController,
-    WWUD_RootHub,
-    WWUD_ExternalHub,
-    WWUD_Device
-};
-
 enum WWUsbDeviceBusSpeed {
     WWUDB_RootHub, //< RootHubは別格の扱い。
     WWUDB_LowSpeed,
@@ -32,6 +25,11 @@ enum WWUsbDeviceBusSpeed {
     WWUDB_HighSpeed,
     WWUDB_SuperSpeed,
     WWUDB_SuperSpeedPlus,
+};
+
+enum WWUsbPortConnectorType {
+    WWUPC_TypeA,
+    WWUPC_TypeC,
 };
 
 int

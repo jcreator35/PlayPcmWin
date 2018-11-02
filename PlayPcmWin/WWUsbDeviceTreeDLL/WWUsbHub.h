@@ -16,6 +16,9 @@ struct WWHub
     BOOL isRoot;
     WWUsbDeviceBusSpeed hubType;
     WWUsbDeviceBusSpeed speed;
+    USB_NODE_INFORMATION ni;
+    USB_HUB_INFORMATION_EX hi;
+    USB_HUB_CAPABILITIES_EX hc;
 };
 
 extern std::vector<WWHub> mHubs;

@@ -565,6 +565,7 @@ GetHubPortInf(int level, int parentIdx, HANDLE hHub, int hubIdx, int connIdx, WW
     hp_r.deviceAddress = cie->DeviceAddress;
     hp_r.numOfOpenPipes = cie->NumberOfOpenPipes;
     hp_r.connStat = cie->ConnectionStatus;
+    hp_r.ci2 = ci2;
 
     if (cie->ConnectionStatus != NoDeviceConnected) {
         HRG(GetDriverKeyName(hHub, connIdx, hp_r.driverKey));
@@ -607,9 +608,10 @@ GetHubPortInf(int level, int parentIdx, HANDLE hHub, int hubIdx, int connIdx, WW
         hp_r.parentIdx = parentIdx;
 
         WWPrintIndentSpace(level);
-        printf("#%d %S %S %S ", hp_r.idx, hp_r.pcp->UsbPortProperties.PortConnectorIsTypeC ? L"TypeC" : L"TypeA",
-            WWUsbDeviceBusSpeedToStr(hp_r.speed), hp_r.devStr.deviceDesc.c_str());
-        if (hp_r.confDesc->bmAttributes & 0x80) {
+        printf("#%d %S %S %S %04x ", hp_r.idx,
+            hp_r.pcp->UsbPortProperties.PortConnectorIsTypeC ? L"TypeC" : L"TypeA",
+            WWUsbDeviceBusSpeedToStr(hp_r.speed), hp_r.devStr.deviceDesc.c_str(), hp_r.devDesc.idVendor);
+        if (hp_r.confDesc->bmAttributes & USB_CONFIG_BUS_POWERED) {
             printf("MaxPower=%dmW ", hp_r.confDesc->MaxPower * 2);
         }
         for (int i = 0; i < hp_r.sds.size(); ++i) {

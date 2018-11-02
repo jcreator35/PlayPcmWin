@@ -9,7 +9,6 @@ void WWHostControllersClear(void);
 struct WWHostController
 {
     int idx;
-    WWUsbDeviceType deviceType;
     std::wstring                        driverKey;
     ULONG                               vendorID;
     ULONG                               deviceID;

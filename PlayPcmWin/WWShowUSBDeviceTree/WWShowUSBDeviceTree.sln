@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2041
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WWShowUSBDeviceTree", "WWShowUSBDeviceTree.csproj", "{AAD2F595-431F-4B99-826E-46EB8406F13B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WWUsbDeviceTreeDLL", "..\WWUsbDeviceTreeDLL\WWUsbDeviceTreeDLL.vcxproj", "{BA53FE9C-71AC-41C0-A085-1CFDB94206A4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AAD2F595-431F-4B99-826E-46EB8406F13B}.Debug|x64.ActiveCfg = Debug|x64
+		{AAD2F595-431F-4B99-826E-46EB8406F13B}.Debug|x64.Build.0 = Debug|x64
+		{AAD2F595-431F-4B99-826E-46EB8406F13B}.Release|x64.ActiveCfg = Release|x64
+		{AAD2F595-431F-4B99-826E-46EB8406F13B}.Release|x64.Build.0 = Release|x64
+		{BA53FE9C-71AC-41C0-A085-1CFDB94206A4}.Debug|x64.ActiveCfg = Debug|x64
+		{BA53FE9C-71AC-41C0-A085-1CFDB94206A4}.Debug|x64.Build.0 = Debug|x64
+		{BA53FE9C-71AC-41C0-A085-1CFDB94206A4}.Release|x64.ActiveCfg = Release|x64
+		{BA53FE9C-71AC-41C0-A085-1CFDB94206A4}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {20ADC68D-F614-4C8E-83FF-C0773D18AE77}
+	EndGlobalSection
+EndGlobal
