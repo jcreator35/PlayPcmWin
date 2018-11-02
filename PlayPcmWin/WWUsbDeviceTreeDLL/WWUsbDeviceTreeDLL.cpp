@@ -79,7 +79,11 @@ WWUsbDeviceTreeDLL_GetHostControllerInf(int nth, WWUsbHostControllerCs &hc_r)
     auto &hc = mHCs[nth];
     hc_r.idx = hc.idx;
     memset(hc_r.name, 0, sizeof hc_r.name);
-    wcsncpy_s(hc_r.name, hc.devStr.deviceDesc.c_str(), WWUSB_STRING_COUNT - 1);
+    wcsncpy_s(hc_r.name, hc.devStr.friendlyName.c_str(), WWUSB_STRING_COUNT - 1);
+
+    memset(hc_r.desc, 0, sizeof hc_r.desc);
+    wcsncpy_s(hc_r.desc, hc.devStr.deviceDesc.c_str(), WWUSB_STRING_COUNT - 1);
+
 
     memset(hc_r.vendor, 0, sizeof hc_r.vendor);
     wcsncpy_s(hc_r.vendor, WWUsbVendorIdToStr(hc.vendorID), WWUSB_STRING_COUNT - 1);

@@ -59,5 +59,21 @@ namespace WWShowUSBDeviceTree.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to LowSpeed interconnect : 0.19MB/s signaling bit rate. Yellow Colored.
+        ///FullSpeed interconnect : 1.5MB/s signaling bit rate. Yellow Colored.
+        ///HighSpeed interconnect : 60MB/s signaling bit rate. White Colored.
+        ///SuperSpeed interconnect : 625MB/s signaling bit rate. Cyan Colored.
+        ///SuperSpeed+ interconnect : 1.25GB/s or 2.5GB/s signaling bit rate. Magenta Colored.
+        ///USB1.x supports LowSpeed and FullSpeed. Yellow Colored.
+        ///USB2.0 supports LowSpeed, FullSpeed and HighSpeed. White Colored.
+        ///USB3.0 supports LowSpeed,  [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string DescriptionText {
+            get {
+                return ResourceManager.GetString("DescriptionText", resourceCulture);
+            }
+        }
     }
 }

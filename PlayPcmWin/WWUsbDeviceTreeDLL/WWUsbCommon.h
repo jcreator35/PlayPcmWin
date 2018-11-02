@@ -33,7 +33,7 @@ enum WWUsbPortConnectorType {
 };
 
 int
-WWUsbIdGetNextId(void);
+WWUsbIdGenerate(void);
 
 void
 WWUsbIdGeneratorReset(void);
@@ -53,6 +53,8 @@ struct WWUsbDeviceStrings {
     std::wstring hwId;
     std::wstring service;
     std::wstring deviceClass;
+    std::wstring friendlyName;
+    std::wstring manufacturer;
 };
 
 struct WWStringDesc {

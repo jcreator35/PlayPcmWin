@@ -69,6 +69,8 @@ namespace WWShowUSBDeviceTree {
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
             public string name;
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+            public string desc;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
             public string vendor;
         };
 

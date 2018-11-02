@@ -13,9 +13,13 @@
         </Grid.RowDefinitions>
         <Menu >
             <Button x:Name="mButtonRefresh" Content="_Refresh" Click="mButtonRefresh_Click"/>
+            <CheckBox x:Name="mCBShowDesc" Content="_Show Description" IsChecked="True" Checked="mCBShowDesc_Checked" Unchecked="mCBShowDesc_Unchecked" />
         </Menu>
         <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Visible">
-            <Canvas x:Name="mCanvas" Background="#ff1e1e1e" />
+            <Canvas x:Name="mCanvas" Background="#ff1e1e1e" >
+            </Canvas>
         </ScrollViewer>
+        <TextBox x:Name="mTextBoxDescription" Grid.Row="1" Width="384" Height="320" TextWrapping="Wrap" Text="TextBox" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,50" Background="Black" Foreground="White" BorderThickness="2" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" AcceptsReturn="True" AcceptsTab="True" />
+
     </Grid>
 </Window>

@@ -604,7 +604,7 @@ GetHubPortInf(int level, int parentIdx, HANDLE hHub, int hubIdx, int connIdx, WW
     if (cie->ConnectionStatus == DeviceConnected) {
         // 使用されているポート。
         // リストに追加する。
-        hp_r.idx = WWUsbIdGetNextId();
+        hp_r.idx = WWUsbIdGenerate();
         hp_r.parentIdx = parentIdx;
 
         WWPrintIndentSpace(level);

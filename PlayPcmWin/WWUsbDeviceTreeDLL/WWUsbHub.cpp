@@ -65,7 +65,7 @@ WWGetHubInf(int level, int parentIdx, std::wstring hubName)
     hub.isBusPowered = ni.u.HubInformation.HubIsBusPowered;
     hub.isRoot = hc.CapabilityFlags.HubIsRoot;
     hub.speed = WWUDB_RootHub;
-    hub.idx = WWUsbIdGetNextId();
+    hub.idx = WWUsbIdGenerate();
     hub.parentIdx = parentIdx;
     hub.ni = ni;
     hub.hi = hi;

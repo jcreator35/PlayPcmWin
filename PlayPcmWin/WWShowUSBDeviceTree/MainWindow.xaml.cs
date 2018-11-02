@@ -15,7 +15,7 @@ using System.Windows.Shapes;
 
 namespace WWShowUSBDeviceTree {
     public partial class MainWindow : Window {
-
+        private bool mInitialized = false;
         private WWUsbDeviceTreeCs mUDT = new WWUsbDeviceTreeCs();
         private UsbDeviceTreeCanvas mUSBCanvas;
 
@@ -28,6 +28,10 @@ namespace WWShowUSBDeviceTree {
 
             mUDT.Init();
             Refresh();
+
+            mTextBoxDescription.Text = Properties.Resources.DescriptionText;
+
+            mInitialized = true;
         }
 
         private void mButtonRefresh_Click(object sender, RoutedEventArgs e) {
@@ -48,17 +52,19 @@ namespace WWShowUSBDeviceTree {
                 mUSBCanvas.AddNode(UsbDevice.NodeType.HostController, hc.idx, -1,
                     WWUsbDeviceTreeCs.BusSpeed.RootHub,
                     WWUsbDeviceTreeCs.BusSpeed.RootHub,
-                    string.Format("Host Controller\n{0}\n{1}",
-                    hc.name, hc.vendor));
+                    string.Format("{0}\n{1}\n{2}",
+                    hc.name, hc.vendor, hc.desc));
             }
 
             int nHub = mUDT.Hubs.Count;
             for (int i=0; i< mUDT.Hubs.Count; ++i) {
                 var hub = mUDT.Hubs[i];
                 var speed = (WWUsbDeviceTreeCs.BusSpeed)hub.speed;
+                var speedStr = (speed == WWUsbDeviceTreeCs.BusSpeed.RootHub) ? "Root hub" :
+                    string.Format("Max : {0}", WWUsbDeviceTreeCs.WWUsbDeviceBusSpeedToStr(speed));
                 mUSBCanvas.AddNode(UsbDevice.NodeType.Hub, hub.idx, hub.parentIdx,
-                    speed, speed, string.Format("{0} ports\nMax={1}",
-                    hub.numPorts, WWUsbDeviceTreeCs.WWUsbDeviceBusSpeedToStr(speed)));
+                    speed, speed, string.Format("{0} ports\n{1}",
+                    hub.numPorts, speedStr));
             }
 
             foreach (var hp in mUDT.HPs) {
@@ -75,6 +81,20 @@ namespace WWShowUSBDeviceTree {
             }
 
             mUSBCanvas.Update();
+        }
+
+        private void mCBShowDesc_Checked(object sender, RoutedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            }
+            mTextBoxDescription.Visibility = Visibility.Visible;
+        }
+
+        private void mCBShowDesc_Unchecked(object sender, RoutedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            }
+            mTextBoxDescription.Visibility = Visibility.Collapsed;
         }
     }
 }

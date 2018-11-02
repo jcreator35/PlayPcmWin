@@ -9,6 +9,7 @@ extern "C" {
     struct WWUsbHostControllerCs {
         int idx;
         wchar_t name[WWUSB_STRING_COUNT];
+        wchar_t desc[WWUSB_STRING_COUNT];
         wchar_t vendor[WWUSB_STRING_COUNT];
     };
 

@@ -198,7 +198,8 @@ WWDriverKeyNameToDeviceStrings(std::wstring driverName, WWUsbDeviceStrings &uds_
     GetDeviceProperty(devInf, sdd, SPDRP_HARDWAREID, uds_r.hwId);
     GetDeviceProperty(devInf, sdd, SPDRP_SERVICE, uds_r.service);
     GetDeviceProperty(devInf, sdd, SPDRP_CLASS, uds_r.deviceClass);
-
+    GetDeviceProperty(devInf, sdd, SPDRP_FRIENDLYNAME, uds_r.friendlyName);
+    GetDeviceProperty(devInf, sdd, SPDRP_MFG, uds_r.manufacturer);
     hr = S_OK;
 end:
 
@@ -274,7 +275,7 @@ WWUsbIdGeneratorReset(void)
 }
 
 int
-WWUsbIdGetNextId(void)
+WWUsbIdGenerate(void)
 {
     ++gNextId;
     return gNextId;

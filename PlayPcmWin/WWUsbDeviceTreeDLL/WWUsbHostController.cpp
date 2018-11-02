@@ -219,11 +219,11 @@ WWGetHostControllerInf(
     HRG(GetPowerInf(hDev, hc.pir));
     HRG(GetDriverVersionInf(hDev, hc.dvp));
 
-    hc.idx = WWUsbIdGetNextId();
+    hc.idx = WWUsbIdGenerate();
 
     // hc.ci0.Info0.NumberOfRootPortsはHighSpeed以下のポートの総数が入る。
-    printf("#%d Host Controller %S %S curUsbFrames=%u\n",
-        hc.idx, WWUsbVendorIdToStr(hc.vendorID), hc.devStr.deviceDesc.c_str(),
+    printf("#%d %S %S %S curUsbFrames=%u\n",
+        hc.idx, hc.devStr.friendlyName, WWUsbVendorIdToStr(hc.vendorID), hc.devStr.deviceDesc.c_str(),
         hc.bs0.CurrentUsbFrame);
     mHCs.push_back(hc);
 
