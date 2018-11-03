@@ -5,8 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WWShowUSBDeviceTree"
         mc:Ignorable="d"
-        Title="WWShowUSBDeviceTree" Height="1080" Width="1920" Loaded="Window_Loaded" Closing="Window_Closing">
-    <Grid>
+        Title="WWShowUSBDeviceTree" Height="1080" Width="1920" Loaded="Window_Loaded" Closing="Window_Closing" MouseWheel="Window_MouseWheel" PreviewMouseWheel="Window_PreviewMouseWheel">
+    <Grid RenderTransformOrigin="0.0,0.0" >
+        <Grid.LayoutTransform>
+            <TransformGroup x:Uid="TransformGroup_1">
+                <ScaleTransform 
+                    x:Uid="ScaleTransform_1" ScaleY="{Binding ElementName=sliderWindowScaling, Path=Value}" 
+                    ScaleX="{Binding ElementName=sliderWindowScaling, Path=Value}"/>
+            </TransformGroup>
+        </Grid.LayoutTransform>
         <Grid.RowDefinitions>
             <RowDefinition Height="24"/>
             <RowDefinition Height="1*"/>
@@ -15,11 +22,11 @@
             <Button x:Name="mButtonRefresh" Content="_Refresh" Click="mButtonRefresh_Click"/>
             <CheckBox x:Name="mCBShowDesc" Content="_Show Description" IsChecked="True" Checked="mCBShowDesc_Checked" Unchecked="mCBShowDesc_Unchecked" />
         </Menu>
-        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Visible">
-            <Canvas x:Name="mCanvas" Background="#ff1e1e1e" >
+        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Visible" Background="#FF1E1E1E">
+            <Canvas x:Name="mCanvas" Background="#ff1e1e1e" HorizontalAlignment="Left" VerticalAlignment="Top" >
             </Canvas>
         </ScrollViewer>
         <TextBox x:Name="mTextBoxDescription" Grid.Row="1" Width="384" Height="320" TextWrapping="Wrap" Text="TextBox" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,50" Background="Black" Foreground="White" BorderThickness="2" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" AcceptsReturn="True" AcceptsTab="True" />
-
+        <Slider x:Uid="sliderWindowScaling" Margin="0,0,1,1" Name="sliderWindowScaling" VerticalAlignment="Bottom" Maximum="2.0" Minimum="0.8" Value="1" Visibility="Hidden" Grid.Column="1" HorizontalAlignment="Right" Width="52" SmallChange="0.0048828125" LargeChange="0.0625" />
     </Grid>
 </Window>

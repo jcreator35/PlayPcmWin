@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using static WWShowUSBDeviceTree.WWUsbDeviceTreeCs;
 
 namespace WWShowUSBDeviceTree {
     public class UsbDeviceTreeCanvas {
@@ -29,10 +30,46 @@ namespace WWShowUSBDeviceTree {
             mNodeListByLayer.Clear();
         }
 
+        private void AddNode(UsbDevice node) {
+            mNodeList.Add(node);
+            mCanvas.Children.Add(node.uiElement);
+        }
+
+        public void AddNode(WWUsbHostControllerCs hc) {
+            string s = string.Format("{0}\n{1}\n{2}",
+                    hc.name, hc.vendor, hc.desc);
+            var node = new UsbDevice(UsbDevice.NodeType.HostController,
+                hc.idx, -1, BusSpeed.RootHub, BusSpeed.RootHub, s);
+            AddNode(node);
+        }
+        public void AddNode(WWUsbHubCs hub) {
+            var speed = (WWUsbDeviceTreeCs.BusSpeed)hub.speed;
+            var speedStr = (speed == WWUsbDeviceTreeCs.BusSpeed.RootHub) ? "Root hub" :
+                string.Format("Max : {0}", WWUsbDeviceTreeCs.WWUsbDeviceBusSpeedToStr(speed));
+            var s = string.Format("{0} ports\n{1}", hub.numPorts, speedStr);
+            var node = new UsbDevice(UsbDevice.NodeType.Hub, hub.idx, hub.parentIdx, speed, speed, s);
+            AddNode(node);
+        }
+        public void AddNode(WWUsbHubPortCs hp) {
+            var nodeType = UsbDevice.NodeType.HubPort;
+            if (hp.deviceIsHub != 0) {
+                nodeType = UsbDevice.NodeType.HubPortHub;
+            }
+            var speed = (WWUsbDeviceTreeCs.BusSpeed)hp.speed;
+            var version = (WWUsbDeviceTreeCs.BusSpeed)hp.usbVersion;
+
+            var s = string.Format("{0}\n{1}\n{2} {3} {4}\n{5}",
+                    hp.name, hp.vendor, hp.ConnectorTypeStr(), hp.VersionStr(), hp.SpeedStr(),
+                    hp.PowerStr());
+
+            var node = new UsbDevice(nodeType, hp.idx, hp.parentIdx, speed, version, s);
+            AddNode(node);
+        }
+
         public void AddNode(UsbDevice.NodeType nodeType, int idx, int parentIdx,
-            WWUsbDeviceTreeCs.BusSpeed speed,
-            WWUsbDeviceTreeCs.BusSpeed usbVersion,
-            string text) {
+                WWUsbDeviceTreeCs.BusSpeed speed,
+                WWUsbDeviceTreeCs.BusSpeed usbVersion,
+                string text) {
             var node = new UsbDevice(nodeType, idx, parentIdx, speed, usbVersion, text);
             mNodeList.Add(node);
             mCanvas.Children.Add(node.uiElement);
@@ -134,6 +171,10 @@ namespace WWShowUSBDeviceTree {
         /// 表示位置を確定する。
         /// </summary>
         private void ResolvePositions() {
+
+            double canvasW = 0;
+            double canvasH = 0;
+
             double portFitX = 40;
             double spacingX = 50;
             double spacingY = 10;
@@ -167,6 +208,13 @@ namespace WWShowUSBDeviceTree {
                         y += node.H + spacingY;
                     }
 
+                    if (canvasW < node.X + node.W) {
+                        canvasW = node.X + node.W;
+                    }
+                    if (canvasH < node.Y + node.H) {
+                        canvasH = node.Y + node.H;
+                    }
+
                     // 次のlayerの位置計算のための最大幅。
                     if (maxW < node.W) {
                         maxW = node.W;
@@ -179,6 +227,8 @@ namespace WWShowUSBDeviceTree {
                     xOffs += maxW + spacingX;
                 }
             }
+            mCanvas.Width = canvasW + spacingX;
+            mCanvas.Height = canvasH + spacingX;
         }
 
         private UsbDevice FindNode(int idx) {

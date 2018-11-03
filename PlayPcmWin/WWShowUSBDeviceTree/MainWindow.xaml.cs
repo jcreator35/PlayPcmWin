@@ -46,38 +46,16 @@ namespace WWShowUSBDeviceTree {
             mUDT.Refresh();
 
             mUSBCanvas.Clear();
-            int nHC = mUDT.HCs.Count;
-            for (int i = 0; i < nHC; ++i) {
-                var hc = mUDT.HCs[i];
-                mUSBCanvas.AddNode(UsbDevice.NodeType.HostController, hc.idx, -1,
-                    WWUsbDeviceTreeCs.BusSpeed.RootHub,
-                    WWUsbDeviceTreeCs.BusSpeed.RootHub,
-                    string.Format("{0}\n{1}\n{2}",
-                    hc.name, hc.vendor, hc.desc));
+            foreach (var hc in mUDT.HCs) {
+                mUSBCanvas.AddNode(hc);
             }
 
-            int nHub = mUDT.Hubs.Count;
-            for (int i=0; i< mUDT.Hubs.Count; ++i) {
-                var hub = mUDT.Hubs[i];
-                var speed = (WWUsbDeviceTreeCs.BusSpeed)hub.speed;
-                var speedStr = (speed == WWUsbDeviceTreeCs.BusSpeed.RootHub) ? "Root hub" :
-                    string.Format("Max : {0}", WWUsbDeviceTreeCs.WWUsbDeviceBusSpeedToStr(speed));
-                mUSBCanvas.AddNode(UsbDevice.NodeType.Hub, hub.idx, hub.parentIdx,
-                    speed, speed, string.Format("{0} ports\n{1}",
-                    hub.numPorts, speedStr));
+            foreach (var hub in mUDT.Hubs) {
+                mUSBCanvas.AddNode(hub);
             }
 
             foreach (var hp in mUDT.HPs) {
-                var nodeType = UsbDevice.NodeType.HubPort;
-                if (hp.deviceIsHub != 0) {
-                    nodeType = UsbDevice.NodeType.HubPortHub;
-                }
-                var speed = (WWUsbDeviceTreeCs.BusSpeed)hp.speed;
-                var version = (WWUsbDeviceTreeCs.BusSpeed)hp.usbVersion;
-                mUSBCanvas.AddNode(nodeType, hp.idx, hp.parentIdx,
-                    speed, version, string.Format("{0}\n{1}\n{2} {3} {4}\n{5}",
-                        hp.name, hp.vendor, hp.ConnectorTypeStr(), hp.VersionStr(), hp.SpeedStr(),
-                        hp.PowerStr()));
+                mUSBCanvas.AddNode(hp);
             }
 
             mUSBCanvas.Update();
@@ -95,6 +73,22 @@ namespace WWShowUSBDeviceTree {
                 return;
             }
             mTextBoxDescription.Visibility = Visibility.Collapsed;
+        }
+
+        private void Window_MouseWheel(object sender, MouseWheelEventArgs e) {
+            // 原因を調べていないが、ここには来ない。PreviewMouseWheel
+            // には来る。
+        }
+
+        private void Window_PreviewMouseWheel(object sender, MouseWheelEventArgs e) {
+            var scaling = sliderWindowScaling.Value;
+            if (e.Delta < 0) {
+                // 1.25の16乗根 = 1.0140441776855
+                scaling /= 1.0140441776855;
+            } else {
+                scaling *= 1.0140441776855;
+            }
+            sliderWindowScaling.Value = scaling;
         }
     }
 }
