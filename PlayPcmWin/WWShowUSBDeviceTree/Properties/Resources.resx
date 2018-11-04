@@ -133,4 +133,10 @@ UHCI(Universal Host Controller Interface) and OHCI(Open Host Controller Interfac
 EHCI(Enhanced Host Controller Interface) is USB2.0.
 xHCI(eXtensible Host Controller Interface) is USB3.0 or higher version.</value>
   </data>
+  <data name="StreamForPlayback" xml:space="preserve">
+    <value>Stream input for Playback</value>
+  </data>
+  <data name="StreamForRecording" xml:space="preserve">
+    <value>Stream output for Recording</value>
+  </data>
 </root>

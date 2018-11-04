@@ -75,5 +75,23 @@ namespace WWShowUSBDeviceTree.Properties {
                 return ResourceManager.GetString("DescriptionText", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Stream input for Playback.
+        /// </summary>
+        internal static string StreamForPlayback {
+            get {
+                return ResourceManager.GetString("StreamForPlayback", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Stream output for Recording.
+        /// </summary>
+        internal static string StreamForRecording {
+            get {
+                return ResourceManager.GetString("StreamForRecording", resourceCulture);
+            }
+        }
     }
 }
