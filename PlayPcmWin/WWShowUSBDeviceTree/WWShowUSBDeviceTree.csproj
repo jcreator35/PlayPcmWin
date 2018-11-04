@@ -64,7 +64,10 @@
     </Compile>
     <Compile Include="UsbDevice.cs" />
     <Compile Include="UsbDeviceTreeCanvas.cs" />
-    <Compile Include="WWUsbDeviceTreeCs.cs" />
+    <Compile Include="UsbCommonDescriptor.cs" />
+    <Compile Include="UsbConfDescReader.cs" />
+    <Compile Include="UsbConfDescType.cs" />
+    <Compile Include="UsbDeviceTreeCs.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 
 namespace WWShowUSBDeviceTree {
-    public class WWUsbDeviceTreeCs {
+    public class UsbDeviceTreeCs {
         public enum BusSpeed {
             RootHub, //< RootHubは別格の扱い。
             LowSpeed,
@@ -45,6 +45,59 @@ namespace WWShowUSBDeviceTree {
             }
         }
 
+        [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Unicode)]
+        public struct WWUsbHostControllerCs {
+            public int idx;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+            public string name;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+            public string desc;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+            public string vendor;
+        };
+
+        [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Unicode)]
+        public struct WWUsbHubCs {
+            public int idx;
+            public int parentIdx;
+            public int numPorts;
+            public int isBusPowered; //< TRUE: Bus powered, FALSE: Self powered
+            public int isRoot;
+            public int speed; //< WWUsbDeviceBusSpeed
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+            public string name;
+        };
+
+        [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Unicode)]
+        public struct WWUsbHubPortNative {
+            public int idx;
+            public int parentIdx;
+            public int deviceIsHub;
+            public int bmAttributes; //< USB config descriptor bmAttributes
+            public int powerMilliW;
+
+            public int speed; //< WWUsbDeviceBusSpeed
+            public int usbVersion; //< WWUsbDeviceBusSpeed
+            public int portConnectorType; //< PortConnectorType
+            public int confDescBytes;
+            public int numStringDesc;
+
+            public IntPtr confDesc;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+            public string name;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+            public string vendor;
+        };
+
+        [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Unicode)]
+        public struct WWUsbStringDescCs {
+            public int descIdx;
+            public int langId;
+            public int descType;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+            public string name;
+        };
+
 
         #region native methods
         [DllImport("WWUsbDeviceTreeDLL.dll")]
@@ -63,17 +116,6 @@ namespace WWShowUSBDeviceTree {
         private extern static int
         WWUsbDeviceTreeDLL_GetNumOfHostControllers();
 
-        [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Unicode)]
-        public struct WWUsbHostControllerCs {
-            public int idx;
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
-            public string name;
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
-            public string desc;
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
-            public string vendor;
-        };
-
         [DllImport("WWUsbDeviceTreeDLL.dll")]
         private extern static int
         WWUsbDeviceTreeDLL_GetHostControllerInf(int nth, out WWUsbHostControllerCs hub_r);
@@ -82,24 +124,26 @@ namespace WWShowUSBDeviceTree {
         private extern static int
         WWUsbDeviceTreeDLL_GetNumOfHubs();
 
-        [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Unicode)]
-        public struct WWUsbHubCs {
-            public int idx;
-            public int parentIdx;
-            public int numPorts;
-            public int isBusPowered; //< TRUE: Bus powered, FALSE: Self powered
-            public int isRoot;
-            public int speed; //< WWUsbDeviceBusSpeed
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
-            public string name;
-        };
-
         [DllImport("WWUsbDeviceTreeDLL.dll")]
             private extern static int
         WWUsbDeviceTreeDLL_GetHubInf(int nth, out WWUsbHubCs hub_r);
 
-        [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Unicode)]
-        public struct WWUsbHubPortCs {
+        [DllImport("WWUsbDeviceTreeDLL.dll")]
+        private extern static int
+        WWUsbDeviceTreeDLL_GetNumOfHubPorts();
+
+        [DllImport("WWUsbDeviceTreeDLL.dll")]
+        private extern static int
+        WWUsbDeviceTreeDLL_GetHubPortInf(int nth, out WWUsbHubPortNative hp_r);
+
+        [DllImport("WWUsbDeviceTreeDLL.dll")]
+        private extern static int
+        WWUsbDeviceTreeDLL_GetStringDesc(int nth, int idx, out WWUsbStringDescCs sd_r);
+
+        // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+        #endregion
+
+        public class WWUsbHubPortCs {
             public int idx;
             public int parentIdx;
             public int deviceIsHub;
@@ -108,26 +152,27 @@ namespace WWShowUSBDeviceTree {
             public int speed; //< WWUsbDeviceBusSpeed
             public int usbVersion; //< WWUsbDeviceBusSpeed
             public int portConnectorType; //< PortConnectorType
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
             public string name;
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
             public string vendor;
+            public byte[] confDesc;
+            public int numStringDesc;
 
-            public string PowerStr() {
-                string power = "Bus powered";
+            public List<WWUsbStringDescCs> stringDescList = new List<WWUsbStringDescCs>();
 
-                switch (bmAttributes & USB_CONFIG_POWERED_MASK) {
-                case USB_CONFIG_BUS_POWERED:
-                    power = "Bus powered";
-                    break;
-                case USB_CONFIG_SELF_POWERED:
-                    power = "Self powered";
-                    break;
-                case USB_CONFIG_BUS_POWERED | USB_CONFIG_SELF_POWERED:
-                    power = "Bus powered or Self powered";
-                    break;
-                }
-                return string.Format("{0}\nMax {1} mW", power, powerMilliW);
+            public WWUsbHubPortCs(WWUsbHubPortNative n) {
+                idx = n.idx;
+                parentIdx = n.parentIdx;
+                deviceIsHub = n.deviceIsHub;
+                bmAttributes = n.bmAttributes;
+                powerMilliW = n.powerMilliW;
+                speed = n.speed;
+                usbVersion = n.usbVersion;
+                portConnectorType = n.portConnectorType;
+                name = n.name;
+                vendor = n.vendor;
+                confDesc = new byte[n.confDescBytes];
+                Marshal.Copy(n.confDesc, confDesc, 0, n.confDescBytes);
+                numStringDesc = n.numStringDesc;
             }
 
             public string VersionStr() {
@@ -146,31 +191,15 @@ namespace WWShowUSBDeviceTree {
             }
         };
 
-        [DllImport("WWUsbDeviceTreeDLL.dll")]
-        private extern static int
-        WWUsbDeviceTreeDLL_GetNumOfHubPorts();
-
-        [DllImport("WWUsbDeviceTreeDLL.dll")]
-        private extern static int
-        WWUsbDeviceTreeDLL_GetHubPortInf(int nth, out WWUsbHubPortCs hp_r);
-
-
-        #endregion
 
         public const int USB_CONFIG_POWERED_MASK = 0xC0;
         public const int USB_CONFIG_BUS_POWERED = 0x80;
         public const int USB_CONFIG_SELF_POWERED = 0x40;
         public const int USB_CONFIG_REMOTE_WAKEUP = 0x20;
         public const int USB_CONFIG_RESERVED = 0x1F;
-
-        private List<WWUsbHubCs> mHubs = new List<WWUsbHubCs>();
-        public List<WWUsbHubCs> Hubs { get { return mHubs; } }
-
-        private List<WWUsbHostControllerCs> mHCs = new List<WWUsbHostControllerCs>();
-        public List<WWUsbHostControllerCs> HCs { get { return mHCs; } }
-
-        private List<WWUsbHubPortCs> mHPs = new List<WWUsbHubPortCs>();
-        public List<WWUsbHubPortCs> HPs { get { return mHPs; } }
+        public List<WWUsbHubCs> Hubs { get; } = new List<WWUsbHubCs>();
+        public List<WWUsbHostControllerCs> HCs { get; } = new List<WWUsbHostControllerCs>();
+        public List<WWUsbHubPortCs> HPs { get; } = new List<WWUsbHubPortCs>();
 
         public int Init() {
             return WWUsbDeviceTreeDLL_Init();
@@ -190,7 +219,7 @@ namespace WWShowUSBDeviceTree {
                 return rv;
             }
 
-            mHCs.Clear();
+            HCs.Clear();
             n = WWUsbDeviceTreeDLL_GetNumOfHostControllers();
             for (int i=0; i<n; ++i) {
                 WWUsbHostControllerCs hc;
@@ -200,10 +229,10 @@ namespace WWShowUSBDeviceTree {
                     return rv;
                 }
 
-                mHCs.Add(hc);
+                HCs.Add(hc);
             }
 
-            mHubs.Clear();
+            Hubs.Clear();
             n = WWUsbDeviceTreeDLL_GetNumOfHubs();
             for (int i = 0; i < n; ++i) {
                 WWUsbHubCs hub;
@@ -212,19 +241,27 @@ namespace WWShowUSBDeviceTree {
                     Console.WriteLine("Error: WWUsbDeviceTreeCs::Update HUB failed {0}", rv);
                     return rv;
                 }
-                mHubs.Add(hub);
+                Hubs.Add(hub);
             }
 
-            mHPs.Clear();
+            HPs.Clear();
             n = WWUsbDeviceTreeDLL_GetNumOfHubPorts();
             for (int i = 0; i < n; ++i) {
-                WWUsbHubPortCs hp;
-                rv = WWUsbDeviceTreeDLL_GetHubPortInf(i, out hp);
+                WWUsbHubPortNative hpn;
+                rv = WWUsbDeviceTreeDLL_GetHubPortInf(i, out hpn);
                 if (rv < 0) {
                     Console.WriteLine("Error: WWUsbDeviceTreeCs::Update HubPort failed {0}", rv);
                     return rv;
                 }
-                mHPs.Add(hp);
+
+                WWUsbHubPortCs hp = new WWUsbHubPortCs(hpn);
+                for (int j=0; j<hpn.numStringDesc; ++j) {
+                    WWUsbStringDescCs sdc;
+                    WWUsbDeviceTreeDLL_GetStringDesc(i, j, out sdc);
+                    hp.stringDescList.Add(sdc);
+                }
+
+                HPs.Add(hp);
             }
 
             return 0;

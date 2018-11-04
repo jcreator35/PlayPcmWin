@@ -7,7 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using static WWShowUSBDeviceTree.WWUsbDeviceTreeCs;
+using static WWShowUSBDeviceTree.UsbDeviceTreeCs;
 
 namespace WWShowUSBDeviceTree {
     public class UsbDeviceTreeCanvas {
@@ -43,9 +43,9 @@ namespace WWShowUSBDeviceTree {
             AddNode(node);
         }
         public void AddNode(WWUsbHubCs hub) {
-            var speed = (WWUsbDeviceTreeCs.BusSpeed)hub.speed;
-            var speedStr = (speed == WWUsbDeviceTreeCs.BusSpeed.RootHub) ? "Root hub" :
-                string.Format("Max : {0}", WWUsbDeviceTreeCs.WWUsbDeviceBusSpeedToStr(speed));
+            var speed = (UsbDeviceTreeCs.BusSpeed)hub.speed;
+            var speedStr = (speed == UsbDeviceTreeCs.BusSpeed.RootHub) ? "Root hub" :
+                string.Format("Max : {0}", UsbDeviceTreeCs.WWUsbDeviceBusSpeedToStr(speed));
             var s = string.Format("{0} ports\n{1}", hub.numPorts, speedStr);
             var node = new UsbDevice(UsbDevice.NodeType.Hub, hub.idx, hub.parentIdx, speed, speed, s);
             AddNode(node);
@@ -55,20 +55,23 @@ namespace WWShowUSBDeviceTree {
             if (hp.deviceIsHub != 0) {
                 nodeType = UsbDevice.NodeType.HubPortHub;
             }
-            var speed = (WWUsbDeviceTreeCs.BusSpeed)hp.speed;
-            var version = (WWUsbDeviceTreeCs.BusSpeed)hp.usbVersion;
+            var speed = (UsbDeviceTreeCs.BusSpeed)hp.speed;
+            var version = (UsbDeviceTreeCs.BusSpeed)hp.usbVersion;
+
+            var confReader = new UsbConfDescReader();
+            var confS = confReader.Read(hp);
 
             var s = string.Format("{0}\n{1}\n{2} {3} {4}\n{5}",
                     hp.name, hp.vendor, hp.ConnectorTypeStr(), hp.VersionStr(), hp.SpeedStr(),
-                    hp.PowerStr());
+                    confS);
 
             var node = new UsbDevice(nodeType, hp.idx, hp.parentIdx, speed, version, s);
             AddNode(node);
         }
 
         public void AddNode(UsbDevice.NodeType nodeType, int idx, int parentIdx,
-                WWUsbDeviceTreeCs.BusSpeed speed,
-                WWUsbDeviceTreeCs.BusSpeed usbVersion,
+                UsbDeviceTreeCs.BusSpeed speed,
+                UsbDeviceTreeCs.BusSpeed usbVersion,
                 string text) {
             var node = new UsbDevice(nodeType, idx, parentIdx, speed, usbVersion, text);
             mNodeList.Add(node);
@@ -175,7 +178,6 @@ namespace WWShowUSBDeviceTree {
             double canvasW = 0;
             double canvasH = 0;
 
-            double portFitX = 40;
             double spacingX = 50;
             double spacingY = 10;
 
@@ -189,7 +191,7 @@ namespace WWShowUSBDeviceTree {
                     if ((layer & 1) == 1) {
 
                         // 補足的なポート詳細情報。親に重ねて表示。
-                        double x = node.parent.X + node.parent.W - portFitX;
+                        double x = node.parent.X + node.parent.W - UsbDevice.PADDING_RIGHT;
                         y = node.parent.Y + node.parent.H/2 - node.H/2;
                         node.X = x;
                         node.Y = y;
@@ -222,7 +224,7 @@ namespace WWShowUSBDeviceTree {
                 }
 
                 if ((layer & 1) == 0) {
-                    xOffs += maxW - portFitX;
+                    xOffs += maxW - UsbDevice.PADDING_RIGHT;
                 } else {
                     xOffs += maxW + spacingX;
                 }

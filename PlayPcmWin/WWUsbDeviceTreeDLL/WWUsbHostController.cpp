@@ -223,7 +223,9 @@ WWGetHostControllerInf(
 
     // hc.ci0.Info0.NumberOfRootPortsはHighSpeed以下のポートの総数が入る。
     printf("#%d %S %S %S curUsbFrames=%u\n",
-        hc.idx, hc.devStr.friendlyName, WWUsbVendorIdToStr(hc.vendorID), hc.devStr.deviceDesc.c_str(),
+        hc.idx, hc.devStr.friendlyName.c_str(),
+        WWUsbVendorIdToStr(hc.vendorID),
+        hc.devStr.deviceDesc.c_str(),
         hc.bs0.CurrentUsbFrame);
     mHCs.push_back(hc);
 

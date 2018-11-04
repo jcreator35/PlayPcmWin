@@ -16,7 +16,7 @@ using System.Windows.Shapes;
 namespace WWShowUSBDeviceTree {
     public partial class MainWindow : Window {
         private bool mInitialized = false;
-        private WWUsbDeviceTreeCs mUDT = new WWUsbDeviceTreeCs();
+        private UsbDeviceTreeCs mUDT = new UsbDeviceTreeCs();
         private UsbDeviceTreeCanvas mUSBCanvas;
 
         public MainWindow() {
@@ -46,6 +46,7 @@ namespace WWShowUSBDeviceTree {
             mUDT.Refresh();
 
             mUSBCanvas.Clear();
+
             foreach (var hc in mUDT.HCs) {
                 mUSBCanvas.AddNode(hc);
             }

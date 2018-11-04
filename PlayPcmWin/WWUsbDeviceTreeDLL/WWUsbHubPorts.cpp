@@ -619,7 +619,7 @@ GetHubPortInf(int level, int parentIdx, HANDLE hHub, int hubIdx, int connIdx, WW
         }
         printf("\n");
 
-        WWPrintConfDesc(level+1, (int)WWUDB_SuperSpeed <= (int)hp_r.speed, hp_r.confDesc);
+        WWPrintConfDesc(level+1, (int)WWUDB_SuperSpeed <= (int)hp_r.speed, hp_r.confDesc, hp_r.sds);
 
         hr = S_OK;
     } else {

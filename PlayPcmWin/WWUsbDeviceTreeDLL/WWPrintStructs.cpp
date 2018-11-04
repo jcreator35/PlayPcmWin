@@ -190,11 +190,11 @@ InterfaceClassToStr(int c)
     }
 }
 
-static PUSB_COMMON_DESCRIPTOR
+static void
 ProcInterfaceDesc(int level, bool isSS, PUSB_CONFIGURATION_DESCRIPTOR cd, PUSB_COMMON_DESCRIPTOR commD)
 {
     if (commD->bLength != sizeof(USB_INTERFACE_DESCRIPTOR)) {
-        return commD;
+        return;
     }
 
     PUSB_INTERFACE_DESCRIPTOR id = (PUSB_INTERFACE_DESCRIPTOR)commD;
@@ -202,19 +202,67 @@ ProcInterfaceDesc(int level, bool isSS, PUSB_CONFIGURATION_DESCRIPTOR cd, PUSB_C
     WWPrintIndentSpace(level);
     printf("Interface #%d alt#%d endpoint#%d %S\n", id->bInterfaceNumber, id->bAlternateSetting,
         id->bNumEndpoints, InterfaceClassToStr(id->bInterfaceClass));
+}
 
-    return commD;
+static const wchar_t *
+DescriptorTypeToStr(int c)
+{
+    switch (c) {
+    case USB_DEVICE_DESCRIPTOR_TYPE: return L"Device";
+    case USB_CONFIGURATION_DESCRIPTOR_TYPE: return L"Configuration";
+    case USB_STRING_DESCRIPTOR_TYPE: return L"String"; 
+    case USB_INTERFACE_DESCRIPTOR_TYPE: return L"Interface";
+    case USB_ENDPOINT_DESCRIPTOR_TYPE: return L"Endpoint";         
+    case USB_DEVICE_QUALIFIER_DESCRIPTOR_TYPE: return L"DeviceQualifier";              
+    case USB_OTHER_SPEED_CONFIGURATION_DESCRIPTOR_TYPE: return L"OtherSpeedConfiguration";    
+    case USB_INTERFACE_POWER_DESCRIPTOR_TYPE: return L"InterfacePower";        
+    case USB_OTG_DESCRIPTOR_TYPE: return L"OTG";                               
+    case USB_DEBUG_DESCRIPTOR_TYPE: return L"Debug";                              
+    case USB_INTERFACE_ASSOCIATION_DESCRIPTOR_TYPE: return L"InterfaceAssociation";           
+    case USB_BOS_DESCRIPTOR_TYPE: return L"BOS";                  
+    case USB_DEVICE_CAPABILITY_DESCRIPTOR_TYPE: return L"DeviceCapability";                  
+    case USB_SUPERSPEED_ENDPOINT_COMPANION_DESCRIPTOR_TYPE: return L"SuperspeedEndpointCompanion";        
+    case USB_SUPERSPEEDPLUS_ISOCH_ENDPOINT_COMPANION_DESCRIPTOR_TYPE : return L"SuperspeedPlusIsochEndpointCompanion";
+    default:
+        return L"Unknown";
+    }
+}
+
+static const wchar_t *
+FindString(std::vector<WWStringDesc> &sds, int idx) {
+    for (int i = 0; i < sds.size(); ++i) {
+        if (sds[i].descIdx == idx) {
+            return sds[i].s.c_str();
+        }
+    }
+    return L"";
+}
+
+static void
+ProcConfDesc(int level, PUSB_COMMON_DESCRIPTOR commD, std::vector<WWStringDesc> &sds)
+{
+    if (commD->bLength < sizeof(USB_CONFIGURATION_DESCRIPTOR)) {
+        return;
+    }
+
+    PUSB_CONFIGURATION_DESCRIPTOR p = (PUSB_CONFIGURATION_DESCRIPTOR)commD;
+    WWPrintIndentSpace(level);
+    printf("Configuration #%d %S nInterfaces=%d\n",
+        p->bConfigurationValue, FindString(sds, p->iConfiguration), p->bNumInterfaces);
 }
 
 void
-WWPrintConfDesc(int level, bool isSS, PUSB_CONFIGURATION_DESCRIPTOR cd)
+WWPrintConfDesc(int level, bool isSS, PUSB_CONFIGURATION_DESCRIPTOR cd, std::vector<WWStringDesc> &sds)
 {
     PUSB_COMMON_DESCRIPTOR commD = (PUSB_COMMON_DESCRIPTOR)cd;
 
     do {
         switch (commD->bDescriptorType) {
+        case USB_CONFIGURATION_DESCRIPTOR_TYPE:
+            ProcConfDesc(level, commD, sds);
+            break;
         case USB_INTERFACE_DESCRIPTOR_TYPE:
-            commD = ProcInterfaceDesc(level, isSS, cd, commD);
+            ProcInterfaceDesc(level, isSS, cd, commD);
             break;
         }
 

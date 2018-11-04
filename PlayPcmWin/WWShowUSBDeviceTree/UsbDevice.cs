@@ -9,6 +9,8 @@ using System.Windows.Media;
 
 namespace WWShowUSBDeviceTree {
     public class UsbDevice {
+
+        public const double PADDING_RIGHT = 50;
         public enum NodeType {
             HostController,
             Hub,
@@ -19,8 +21,8 @@ namespace WWShowUSBDeviceTree {
         public int idx;
         public int parentIdx;
 
-        public WWUsbDeviceTreeCs.BusSpeed speed;
-        public WWUsbDeviceTreeCs.BusSpeed usbVersion;
+        public UsbDeviceTreeCs.BusSpeed speed;
+        public UsbDeviceTreeCs.BusSpeed usbVersion;
         public Brush borderBrush;
 
         public UsbDevice parent;
@@ -32,19 +34,12 @@ namespace WWShowUSBDeviceTree {
         public string text;
         public UIElement uiElement;
         public double fontSize = 12;
-        public double W {
-            get { return width; }
-        }
+        public double W { get; private set; }
 
-        public double H {
-            get { return height; }
-        }
+        public double H { get; private set; }
 
         public double X { get; set; }
         public double Y { get; set; }
-
-        private double width;
-        private double height;
 
         private void CreateUIElem() {
             // UI elementを作ります
@@ -66,28 +61,28 @@ namespace WWShowUSBDeviceTree {
 
             if (nodeType == NodeType.HostController
                 || nodeType == NodeType.HubPortHub) {
-                tb.Padding = new Thickness(4, 4, 50, 4);
+                tb.Padding = new Thickness(4, 4, PADDING_RIGHT+4, 4);
             }
 
             // UI Elementのサイズを確定します。ActualWidthとActualHeightで取得できる。
             bd.Measure(new Size(Double.PositiveInfinity, Double.PositiveInfinity));
             bd.Arrange(new Rect(bd.DesiredSize));
-            width = bd.ActualWidth;
-            height = bd.ActualHeight;
+            W = bd.ActualWidth;
+            H = bd.ActualHeight;
 
             uiElement = bd;
         }
 
-        public static Brush SpeedToBrush(WWUsbDeviceTreeCs.BusSpeed speed) {
+        public static Brush SpeedToBrush(UsbDeviceTreeCs.BusSpeed speed) {
             switch (speed) {
-            case WWUsbDeviceTreeCs.BusSpeed.HighSpeed:
+            case UsbDeviceTreeCs.BusSpeed.HighSpeed:
                 return new SolidColorBrush(Colors.White);
-            case WWUsbDeviceTreeCs.BusSpeed.SuperSpeed:
+            case UsbDeviceTreeCs.BusSpeed.SuperSpeed:
                 return new SolidColorBrush(Color.FromRgb(0x40, 0xc0, 0xff));
-            case WWUsbDeviceTreeCs.BusSpeed.SuperSpeedPlus:
+            case UsbDeviceTreeCs.BusSpeed.SuperSpeedPlus:
                 return new SolidColorBrush(Color.FromRgb(0xff, 0, 0xff));
-            case WWUsbDeviceTreeCs.BusSpeed.LowSpeed:
-            case WWUsbDeviceTreeCs.BusSpeed.FullSpeed:
+            case UsbDeviceTreeCs.BusSpeed.LowSpeed:
+            case UsbDeviceTreeCs.BusSpeed.FullSpeed:
                 return new SolidColorBrush(Color.FromRgb(0xff, 0xff, 0));
             default:
                 return new SolidColorBrush(Colors.White);
@@ -95,8 +90,8 @@ namespace WWShowUSBDeviceTree {
         }
 
         public UsbDevice(NodeType nodeType, int idx, int parentIdx,
-            WWUsbDeviceTreeCs.BusSpeed speed,
-            WWUsbDeviceTreeCs.BusSpeed usbVersion,
+            UsbDeviceTreeCs.BusSpeed speed,
+            UsbDeviceTreeCs.BusSpeed usbVersion,
             string text) {
             this.nodeType = nodeType;
             this.idx = idx;
@@ -104,7 +99,7 @@ namespace WWShowUSBDeviceTree {
             this.text = text;
             this.speed = speed;
             this.usbVersion = usbVersion;
-            this.borderBrush = SpeedToBrush(usbVersion);
+            borderBrush = SpeedToBrush(usbVersion);
 
             CreateUIElem();
         }

@@ -29,12 +29,25 @@ extern "C" {
         int deviceIsHub;
         int bmAttributes; //< USB config descriptor bmAttributes. 0x80: BUS_POWERED flag
         int powerMilliW;
+
         int speed; //< WWUsbDeviceBusSpeed
         int usbVersion; //< WWUsbDeviceBusSpeed
         int portConnectorType; //< WWUsbPortConnectorType
+        int confDescBytes;
+        int numStringDesc;
+
+        UCHAR *confDesc;
         wchar_t name[WWUSB_STRING_COUNT];
         wchar_t vendor[WWUSB_STRING_COUNT];
     };
+
+    struct WWUsbStringDescCs {
+        int descIdx;
+        int langId;
+        int descType;
+        wchar_t name[WWUSB_STRING_COUNT];
+    };
+
 #pragma pack(pop)
 
 __declspec(dllexport)
@@ -72,6 +85,10 @@ WWUsbDeviceTreeDLL_GetNumOfHubPorts(void);
 __declspec(dllexport)
 int __stdcall
 WWUsbDeviceTreeDLL_GetHubPortInf(int nth, WWUsbHubPortCs &hp_r);
+
+__declspec(dllexport)
+int __stdcall
+WWUsbDeviceTreeDLL_GetStringDesc(int nth, int idx, WWUsbStringDescCs &sd_r);
 
 }; // Extern "C"
 

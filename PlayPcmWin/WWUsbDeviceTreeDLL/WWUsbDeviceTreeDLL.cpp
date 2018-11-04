@@ -84,7 +84,6 @@ WWUsbDeviceTreeDLL_GetHostControllerInf(int nth, WWUsbHostControllerCs &hc_r)
     memset(hc_r.desc, 0, sizeof hc_r.desc);
     wcsncpy_s(hc_r.desc, hc.devStr.deviceDesc.c_str(), WWUSB_STRING_COUNT - 1);
 
-
     memset(hc_r.vendor, 0, sizeof hc_r.vendor);
     wcsncpy_s(hc_r.vendor, WWUsbVendorIdToStr(hc.vendorID), WWUSB_STRING_COUNT - 1);
     return S_OK;
@@ -147,7 +146,36 @@ WWUsbDeviceTreeDLL_GetHubPortInf(int nth, WWUsbHubPortCs &hp_r)
     memset(hp_r.vendor, 0, sizeof hp_r.vendor);
     wcsncpy_s(hp_r.vendor, WWUsbVendorIdToStr(hp.devDesc.idVendor), WWUSB_STRING_COUNT - 1);
 
+    hp_r.confDesc = (UCHAR*)hp.confDesc;
+    hp_r.confDescBytes = hp.confDesc->wTotalLength;
+
+    hp_r.numStringDesc = (int)hp.sds.size();
     return S_OK;
+}
+
+__declspec(dllexport)
+int __stdcall
+WWUsbDeviceTreeDLL_GetStringDesc(int nth, int idx, WWUsbStringDescCs &sd_r)
+{
+    if (nth < 0 || mHPs.size() <= nth) {
+        return E_INVALIDARG;
+    }
+
+    auto &hp = mHPs[nth];
+
+    if (idx < 0 || hp.sds.size() <= idx) {
+        return E_INVALIDARG;
+    }
+
+    auto &sd = hp.sds[idx];
+
+    sd_r.descIdx = sd.descIdx;
+    sd_r.descType = sd.descType;
+    sd_r.langId = sd.langId;
+    memset(sd_r.name, 0, sizeof sd_r.name);
+    wcsncpy_s(sd_r.name, sd.s.c_str(), WWUSB_STRING_COUNT - 1);
+
+    return 0;
 }
 
 
