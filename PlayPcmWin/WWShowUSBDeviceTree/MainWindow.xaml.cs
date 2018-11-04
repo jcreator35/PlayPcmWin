@@ -40,6 +40,8 @@ namespace WWShowUSBDeviceTree {
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
             mUDT.Term();
+
+            e.Cancel = false;
         }
 
         private void Refresh() {
@@ -84,10 +86,10 @@ namespace WWShowUSBDeviceTree {
         private void Window_PreviewMouseWheel(object sender, MouseWheelEventArgs e) {
             var scaling = sliderWindowScaling.Value;
             if (e.Delta < 0) {
-                // 1.25の16乗根 = 1.0140441776855
-                scaling /= 1.0140441776855;
+                // 1.25の4乗根 = 1.0573712634406
+                scaling /= 1.0573712634406;
             } else {
-                scaling *= 1.0140441776855;
+                scaling *= 1.0573712634406;
             }
             sliderWindowScaling.Value = scaling;
         }

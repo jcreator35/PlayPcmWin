@@ -118,15 +118,17 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="DescriptionText" xml:space="preserve">
-    <value>LowSpeed interconnect : 0.19MB/s signaling bit rate. Yellow Colored.
-FullSpeed interconnect : 1.5MB/s signaling bit rate. Yellow Colored.
-HighSpeed interconnect : 60MB/s signaling bit rate. White Colored.
-SuperSpeed interconnect : 625MB/s signaling bit rate. Cyan Colored.
-SuperSpeed+ interconnect : 1.25GB/s or 2.5GB/s signaling bit rate. Magenta Colored.
+    <value>LowSpeed interconnect : 0.19MB/s signaling bit rate, Half duplex. Yellow Colored.
+FullSpeed interconnect : 1.5MB/s signaling bit rate, Half duplex. Yellow Colored.
+HighSpeed interconnect : 60MB/s signaling bit rate, Half duplex. White Colored.
+SuperSpeed interconnect : 625MB/s signaling bit rate, Full duplex. Cyan Colored.
+SuperSpeed+ interconnect : 1.25GB/s or 2.5GB/s signaling bit rate, Full duplex. Magenta Colored.
+
 USB1.x supports LowSpeed and FullSpeed. Yellow Colored.
 USB2.0 supports LowSpeed, FullSpeed and HighSpeed. White Colored.
 USB3.0 supports LowSpeed, FullSpeed, HighSpeed and SuperSpeed. Cyan Colored.
 USB3.x supports LowSpeed, FullSpeed, HighSpeed, SuperSpeed and SuperSpeed+. Magenta Colored.
+
 UHCI(Universal Host Controller Interface) and OHCI(Open Host Controller Interface) is USB1.x.
 EHCI(Enhanced Host Controller Interface) is USB2.0.
 xHCI(eXtensible Host Controller Interface) is USB3.0 or higher version.</value>

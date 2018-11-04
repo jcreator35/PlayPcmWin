@@ -178,7 +178,7 @@ namespace WWShowUSBDeviceTree {
             double canvasW = 0;
             double canvasH = 0;
 
-            double spacingX = 50;
+            double spacingX = 100;
             double spacingY = 10;
 
             double xOffs = spacingY;

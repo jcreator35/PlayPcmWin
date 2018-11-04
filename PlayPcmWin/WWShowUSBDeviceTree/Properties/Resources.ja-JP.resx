@@ -118,15 +118,17 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="DescriptionText" xml:space="preserve">
-    <value>Low Speed : 0.19MB/sのシグナリングビットレート。黄色表示。
-FullSpeed interconnect : 1.5MB/sのシグナリングビットレート。黄色表示。
-HighSpeed interconnect : 60MB/sのシグナリングビットレート。白色表示。
-SuperSpeed interconnect : 625MB/sのシグナリングビットレート。水色表示。
-SuperSpeed+ interconnect : 1.25GB/s か 2.5GB/sのシグナリングビットレート。紫色表示。
+    <value>Low Speed : 0.19MB/sのシグナリングビットレート、半二重。黄色表示。
+FullSpeed interconnect : 1.5MB/sのシグナリングビットレート、半二重。黄色表示。
+HighSpeed interconnect : 60MB/sのシグナリングビットレート、半二重。白色表示。
+SuperSpeed interconnect : 625MB/sのシグナリングビットレート、全二重。水色表示。
+SuperSpeed+ interconnect : 1.25GB/s か 2.5GB/sのシグナリングビットレート、全二重。紫色表示。
+
 USB1.xはLowSpeedとFullSpeedをサポート。黄色表示。
 USB2.0はLowSpeedとFullSpeedとHighSpeedをサポート。白色表示。
 USB3.0はLowSpeedとFullSpeedとHighSpeedとSuperSpeedをサポート。水色表示。
 USB3.xはLowSpeedとFullSpeedとHighSpeedとSuperSpeedとSuperSpeed+をサポート。紫色表示。
+
 UHCI(Universal Host Controller Interface)とOHCI(Open Host Controller Interface)はUSB1.x。
 EHCI(Enhanced Host Controller Interface)はUSB2.0。
 xHCI(eXtensible Host Controller Interface)はUSB3.0以上。

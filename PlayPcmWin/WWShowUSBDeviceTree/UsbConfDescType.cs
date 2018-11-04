@@ -21,6 +21,7 @@ namespace WWShowUSBDeviceTree
         InterfaceAssociation = 0xb,
         BOS = 0xf,
         DeviceCapability = 0x10,
+        Hid = 0x21,
         SuperspeedEndpointCompanion = 0x30,
         SuperspeedPlusIsochEndpointCompanion = 0x31,
     }
