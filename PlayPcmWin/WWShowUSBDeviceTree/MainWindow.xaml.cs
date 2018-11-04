@@ -46,7 +46,10 @@ namespace WWShowUSBDeviceTree {
 
         private void Refresh() {
             mUDT.Refresh();
+            Redraw();
+        }
 
+        private void Redraw() {
             mUSBCanvas.Clear();
 
             foreach (var hc in mUDT.HCs) {
@@ -58,7 +61,7 @@ namespace WWShowUSBDeviceTree {
             }
 
             foreach (var hp in mUDT.HPs) {
-                mUSBCanvas.AddNode(hp);
+                mUSBCanvas.AddNode(hp, mCBShowDetail.IsChecked == true);
             }
 
             mUSBCanvas.Update();
@@ -84,14 +87,31 @@ namespace WWShowUSBDeviceTree {
         }
 
         private void Window_PreviewMouseWheel(object sender, MouseWheelEventArgs e) {
-            var scaling = sliderWindowScaling.Value;
-            if (e.Delta < 0) {
-                // 1.25の4乗根 = 1.0573712634406
-                scaling /= 1.0573712634406;
-            } else {
-                scaling *= 1.0573712634406;
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) ||
+                Keyboard.IsKeyDown(Key.RightCtrl)) {
+                var scaling = sliderWindowScaling.Value;
+                if (e.Delta < 0) {
+                    // 1.25の4乗根 = 1.0573712634406
+                    scaling /= 1.0573712634406;
+                } else {
+                    scaling *= 1.0573712634406;
+                }
+                sliderWindowScaling.Value = scaling;
             }
-            sliderWindowScaling.Value = scaling;
+        }
+
+        private void mCBShowDetail_Checked(object sender, RoutedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            }
+            Redraw();
+        }
+
+        private void mCBShowDetail_Unchecked(object sender, RoutedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            }
+            Redraw();
         }
     }
 }

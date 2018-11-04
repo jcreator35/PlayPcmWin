@@ -50,7 +50,7 @@ namespace WWShowUSBDeviceTree {
             var node = new UsbDevice(UsbDevice.NodeType.Hub, hub.idx, hub.parentIdx, speed, speed, s);
             AddNode(node);
         }
-        public void AddNode(WWUsbHubPortCs hp) {
+        public void AddNode(WWUsbHubPortCs hp, bool showDetail) {
             var nodeType = UsbDevice.NodeType.HubPort;
             if (hp.deviceIsHub != 0) {
                 nodeType = UsbDevice.NodeType.HubPortHub;
@@ -58,12 +58,19 @@ namespace WWShowUSBDeviceTree {
             var speed = (UsbDeviceTreeCs.BusSpeed)hp.speed;
             var version = (UsbDeviceTreeCs.BusSpeed)hp.usbVersion;
 
-            var confReader = new UsbConfDescReader();
-            var confS = confReader.Read(hp);
+            string s = "";
 
-            var s = string.Format("{0}\n{1}\n{2} {3} {4}\n{5}",
-                    hp.name, hp.vendor, hp.ConnectorTypeStr(), hp.VersionStr(), hp.SpeedStr(),
-                    confS);
+            if (showDetail) {
+                var confReader = new UsbConfDescReader();
+                var confS = confReader.Read(hp);
+
+                s = string.Format("{0}\n{1}\n{2} {3} {4}\n{5}",
+                        hp.name, hp.vendor, hp.ConnectorTypeStr(), hp.VersionStr(), hp.SpeedStr(),
+                        confS);
+            } else {
+                s = string.Format("{0}\n{1}\n{2} {3} {4}",
+                        hp.name, hp.vendor, hp.ConnectorTypeStr(), hp.VersionStr(), hp.SpeedStr());
+            }
 
             var node = new UsbDevice(nodeType, hp.idx, hp.parentIdx, speed, version, s);
             AddNode(node);

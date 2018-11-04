@@ -612,6 +612,95 @@ namespace WWShowUSBDeviceTree {
             return sb.ToString();
         }
 
+        private string BmChannelConfigToStr(uint b) {
+            var sb = new StringBuilder();
+            if (0 != (b & (1<<0))) {
+                sb.Append("FL ");
+            }
+            if (0 != (b & (1 << 1))) {
+                sb.Append("FR ");
+            }
+            if (0 != (b & (1 << 2))) {
+                sb.Append("FC ");
+            }
+            if (0 != (b & (1 << 3))) {
+                sb.Append("LFE ");
+            }
+            if (0 != (b & (1 << 4))) {
+                sb.Append("BL ");
+            }
+            if (0 != (b & (1 << 5))) {
+                sb.Append("BR ");
+            }
+            if (0 != (b & (1 << 6))) {
+                sb.Append("FLC ");
+            }
+            if (0 != (b & (1 << 7))) {
+                sb.Append("FRC ");
+            }
+            if (0 != (b & (1 << 8))) {
+                sb.Append("BC ");
+            }
+            if (0 != (b & (1 << 9))) {
+                sb.Append("SL ");
+            }
+            if (0 != (b & (1 << 10))) {
+                sb.Append("SR ");
+            }
+            if (0 != (b & (1 << 11))) {
+                sb.Append("TC ");
+            }
+            if (0 != (b & (1 << 12))) {
+                sb.Append("TFL ");
+            }
+            if (0 != (b & (1 << 13))) {
+                sb.Append("TFC ");
+            }
+            if (0 != (b & (1 << 14))) {
+                sb.Append("TFR ");
+            }
+            if (0 != (b & (1 << 15))) {
+                sb.Append("TBL ");
+            }
+            if (0 != (b & (1 << 16))) {
+                sb.Append("TBC ");
+            }
+            if (0 != (b & (1 << 17))) {
+                sb.Append("TBR ");
+            }
+            if (0 != (b & (1 << 18))) {
+                sb.Append("TFLC ");
+            }
+            if (0 != (b & (1 << 19))) {
+                sb.Append("TFRC ");
+            }
+            if (0 != (b & (1 << 20))) {
+                sb.Append("LLFE ");
+            }
+            if (0 != (b & (1 << 21))) {
+                sb.Append("RLFE ");
+            }
+            if (0 != (b & (1 << 22))) {
+                sb.Append("TSL ");
+            }
+            if (0 != (b & (1 << 23))) {
+                sb.Append("TSR ");
+            }
+            if (0 != (b & (1 << 24))) {
+                sb.Append("BC ");
+            }
+            if (0 != (b & (1 << 25))) {
+                sb.Append("BLC ");
+            }
+            if (0 != (b & (1 << 26))) {
+                sb.Append("BRC ");
+            }
+            if (0 != (b & (1 << 31))) {
+                sb.Append("Raw_Data ");
+            }
+            return sb.ToString();
+        }
+
         private const int AUDIO_FORMAT_TYPE_1_UNDEFINED = 0x0000;
         private const int AUDIO_FORMAT_PCM = 1;
         private const int AUDIO_FORMAT_PCM8 = 2;
@@ -768,34 +857,69 @@ namespace WWShowUSBDeviceTree {
         }
 
         private void ReadAudioControlInputTerminal(byte[] buff, int offs) {
-            /*
-            0 UCHAR  bLength;
-            1 UCHAR  bDescriptorType;
-            2 UCHAR  bDescriptorSubtype;
-            3 UCHAR  bTerminalID;
-            4 USHORT wTerminalType;
-            6 UCHAR  bAssocTerminal;
-            7 UCHAR  bNrChannels;
-            8 USHORT wChannelConfig;
-            10 UCHAR  iChannelNames;
-            11 UCHAR  iTerminal;
-            */
-
             int length = buff[offs + 0];
             if (length < 12) {
                 return;
             }
 
-            int terminalID = buff[offs + 3];
-            int terminalType = BitConverter.ToUInt16(buff, offs + 4);
-            string terminalTypeStr = TerminalTypeToStr(terminalType);
-            int ch = buff[offs + 7];
-            int assocT = buff[offs + 6];
+            if (length == 12) {
+                // Audio Class 1
+                /*
+                0 UCHAR  bLength;
+                1 UCHAR  bDescriptorType;
+                2 UCHAR  bDescriptorSubtype;
+                3 UCHAR  bTerminalID;
+                4 USHORT wTerminalType;
+                6 UCHAR  bAssocTerminal;
+                7 UCHAR  bNrChannels;
+                8 USHORT wChannelConfig;
+                10 UCHAR  iChannelNames;
+                11 UCHAR  iTerminal;
+                */
 
-            int wChannelConfig = BitConverter.ToUInt16(buff, offs + 8);
-            string wChannelConfigStr = WChannelConfigToStr(wChannelConfig);
+                int terminalID = buff[offs + 3];
+                int terminalType = BitConverter.ToUInt16(buff, offs + 4);
+                string terminalTypeStr = TerminalTypeToStr(terminalType);
+                int ch = buff[offs + 7];
+                int assocT = buff[offs + 6];
 
-            mSB.AppendFormat("\n          Input Terminal {0} : {1}", terminalID, terminalTypeStr);
+                int wChannelConfig = BitConverter.ToUInt16(buff, offs + 8);
+                string wChannelConfigStr = WChannelConfigToStr(wChannelConfig);
+
+                mSB.AppendFormat("\n          Input Terminal {0} : {1} {2}ch ({3})", terminalID, terminalTypeStr, ch, wChannelConfigStr);
+            } else if (length == 17) {
+                // Audio Class 2
+                /*
+                0 UCHAR bLength
+                1 UCHAR bDescriptorType
+                2 UCHAR bDescriptorSubtype
+                3 UCHAR bTerminalID
+                4 USHORT wTerminalType
+                6 UCHAR bAssocTerminal
+                7 UCHAR bCSourceID
+                8 UCHAR bNrChannels
+                9 UINT bmChannelConfig
+                13 UCHAR iChannelNames
+                14 USHORT bmControls
+                16 UCHAR iTerminal
+                */
+                int terminalID = buff[offs + 3];
+                int terminalType = BitConverter.ToUInt16(buff, offs + 4);
+                string terminalTypeStr = TerminalTypeToStr(terminalType);
+                int ch = buff[offs + 8];
+                uint bmChConf = BitConverter.ToUInt32(buff, offs + 9);
+                string chConfStr = BmChannelConfigToStr(bmChConf);
+                int iChannelNames = buff[offs + 13];
+                int iTerminal = buff[offs + 16];
+                string sChNames = FindString(iChannelNames);
+                string sTerm = FindString(iTerminal);
+
+                mSB.AppendFormat("\n          Input Terminal {0} : {1} {2}ch ({3}) {4} {5}",
+                    terminalID, terminalTypeStr, ch, chConfStr, sChNames, sTerm);
+
+            } else {
+                mSB.AppendFormat("\n          Unknown AudioControl input terminal of size 0x{0:X4}", length);
+            }
         }
 
         private void ReadAudioControlOutputTerminal(byte[] buff, int offs) {
@@ -821,7 +945,7 @@ namespace WWShowUSBDeviceTree {
             int terminalType = BitConverter.ToUInt16(buff, offs + 4);
             string terminalTypeStr = TerminalTypeToStr(terminalType);
 
-            mSB.AppendFormat("\n          Output Terminal {0}, sourceID={1} : {2}",
+            mSB.AppendFormat("\n          Output Terminal {0} : sourceID={1} : {2}",
                 terminalID, sourceID, terminalTypeStr);
         }
 
@@ -848,7 +972,7 @@ namespace WWShowUSBDeviceTree {
                 int formatTag = BitConverter.ToUInt16(buff, offs + 5);
                 string formatStr = WFormatTagToStr(formatTag);
 
-                mSB.AppendFormat("\n          Terminal id {0} is {1}, delay={2}f", terminalLink, formatStr, delay);
+                mSB.AppendFormat("\n          Uses Terminal {0}, {1}, delay={2}f", terminalLink, formatStr, delay);
             } else if (length == 16) {
                 // USB Audio Class 2.0 Table 4.27
                 /*
@@ -872,7 +996,7 @@ namespace WWShowUSBDeviceTree {
                 int iChannelNames = buff[offs + 15];
                 string chStr = FindString(iChannelNames);
 
-                mSB.AppendFormat("\n          Terminal id {0} is {1} ch{2} {3}", terminalLink, nrChannels, formatStr, chStr);
+                mSB.AppendFormat("\n          Uses Terminal {0}, {1}ch{2} {3}", terminalLink, nrChannels, formatStr, chStr);
 
             } else {
                 mSB.AppendFormat("\n          Unknwon Class-specific AS Interface desc! {0:X4}", length);
@@ -910,7 +1034,7 @@ namespace WWShowUSBDeviceTree {
                 int nrChannels = buff[offs + 4];
                 int bitResolution = buff[offs + 6];
                 int samFreqType = buff[offs + 7];
-                mSB.AppendFormat(" {0} ch {1} bit", nrChannels, bitResolution);
+                mSB.AppendFormat(" {0}ch {1} bit", nrChannels, bitResolution);
                 if (1 <= samFreqType) {
                     if (length < samFreqType*3+8) {
                         samFreqType = (length - 8)/ 3;
