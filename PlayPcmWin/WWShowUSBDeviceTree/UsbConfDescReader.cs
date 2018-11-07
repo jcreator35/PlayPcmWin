@@ -12,6 +12,14 @@ namespace WWShowUSBDeviceTree {
         List<WWUsbStringDescCs> mSds;
         UsbDeviceTreeCs.BusSpeed mSpeed;
 
+        enum USBAudioClass {
+            Other,
+            AC1,
+            AC2,
+        };
+
+        USBAudioClass mAudioClass = USBAudioClass.Other;
+
         int interfaceClass = 0;
         int interfaceSubClass = 0;
         int interfaceProtocol = 0;
@@ -162,8 +170,17 @@ namespace WWShowUSBDeviceTree {
         private const int AUDIO_AC_MIXER_UNIT = 0x04;
         private const int AUDIO_AC_SELECTOR_UNIT = 0x05;
         private const int AUDIO_AC_FEATURE_UNIT = 0x06;
+
+        /// <summary>
+        /// This may also be USBAC1 Processing Unit
+        /// </summary>
         private const int AUDIO_AC2_EFFECT_UNIT = 0x07;
+
+        /// <summary>
+        /// This may also be USBAC1 Extension Unit
+        /// </summary>
         private const int AUDIO_AC2_PROCESSING_UNIT = 0x08;
+
         private const int AUDIO_AC2_EXTENSION_UNIT = 0x09;
         private const int AUDIO_AC2_CLOCK_SOURCE = 0x0A;
         private const int AUDIO_AC2_CLOCK_SELECTOR = 0x0B;
@@ -1104,6 +1121,33 @@ namespace WWShowUSBDeviceTree {
                     case AUDIO_AC_FEATURE_UNIT:
                         ReadAudioControlFeatureUnit(buff, offs);
                         break;
+                    case AUDIO_AC2_EFFECT_UNIT:
+                        switch (mAudioClass) {
+                        case USBAudioClass.AC1:
+                            ReadAudioControl1ProcessingUnit(buff, offs);
+                            break;
+                        case USBAudioClass.AC2: 
+                            ReadAudioControl2EffectUnit(buff, offs);
+                            break;
+                        default:
+                            break;
+                        }
+                        break;
+                    case AUDIO_AC2_PROCESSING_UNIT:
+                        switch (mAudioClass) {
+                        case USBAudioClass.AC1:
+                            ReadAudioControl1ExtensionUnit(buff, offs);
+                            break;
+                        case USBAudioClass.AC2:
+                            ReadAudioControl2ProcessingUnit(buff, offs);
+                            break;
+                        default:
+                            break;
+                        }
+                        break;
+                    case AUDIO_AC2_EXTENSION_UNIT:
+                        ReadAudioControl2ExtensionUnit(buff, offs);
+                        break;
                     case AUDIO_AC2_CLOCK_SOURCE:
                         ReadAudioControlClockSource(buff, offs);
                         break;
@@ -1112,6 +1156,9 @@ namespace WWShowUSBDeviceTree {
                         break;
                     case AUDIO_AC2_CLOCK_MULTIPLIER:
                         ReadAudioControlClockMultiplier(buff, offs);
+                        break;
+                    case AUDIO_AC2_SAMPLE_RATE_CONVERTER:
+                        ReadAudioControl2SampleRateConverter(buff, offs);
                         break;
                     default:
                         ReadAudioControlOther(buff, offs);
@@ -1169,6 +1216,7 @@ namespace WWShowUSBDeviceTree {
                 string sCategory = AudioFunctionCategoryToStr(bCategory);
 
                 mSB.AppendFormat("\n          USB Audio Class {0}.{1}, {2}", majorVersion, minorVersion, sCategory);
+                mAudioClass = USBAudioClass.AC2;
             } else if (majorVersion == 1) {
                 /* Audio Class 1 C.3.3.2 Class-specific Interface Descriptor
                 0 UCHAR bLength = 10
@@ -1193,6 +1241,7 @@ namespace WWShowUSBDeviceTree {
                 for (int i = 0; i < bInCollection; ++i) {
                     mSB.AppendFormat("{0} ", buff[offs + 8 + i]);
                 }
+                mAudioClass = USBAudioClass.AC1;
             } else {
                 mSB.AppendFormat("\n          USB Audio Class {0:x4}", bcdADC);
             }
@@ -1339,6 +1388,22 @@ namespace WWShowUSBDeviceTree {
             }
         }
 
+        private void ReadAudioControl2EffectUnit(byte [] buff, int offs) {
+            // USB AC2 Effect Unit size : 16+ch*4
+        }
+
+        private void ReadAudioControl2ProcessingUnit(byte[] buff, int offs) {
+            // USB AC2 Processing Unit size : 17+p+x
+        }
+        private void ReadAudioControl1ProcessingUnit(byte[] buff, int offs) {
+        }
+
+        private void ReadAudioControl1ExtensionUnit(byte[] buff, int offs) {
+        }
+
+        private void ReadAudioControl2ExtensionUnit(byte[] buff, int offs) {
+        }
+
         private void ReadAudioControlClockSource(byte[] buff, int offs) {
             /* USB Audio Class 2 Table 4-6: Clock Source Descriptor
             0 UCHAR bLength = 8
@@ -1436,6 +1501,33 @@ namespace WWShowUSBDeviceTree {
 
             mSB.AppendFormat("\n          Clock Multiplier {0} {1}, InputPin={2}", bClockMultiplierId, sCS, bCSourceId);
             mSB.AppendFormat("\n            {3}", sControls);
+        }
+
+        private void ReadAudioControl2SampleRateConverter(byte[] buff, int offs) {
+            /*USB Audio Class 2 Table 4-14: Sampling Rate Converter Unit Descriptor
+            0 UCHAR bLength =8
+            1 UCHAR bDescriptorType CS_INTERFACE
+            2 UCHAR bDescriptorSubType SAMPLE_RATE_CONVERTER
+            3 UCHAR bUnitID
+            4 UCHAR bSourceID
+            5 UCHAR bClockIn
+            6 UCHAR bClockOut
+            7 UCHAR iString
+            */
+            int length = buff[offs + 0];
+            if (length != 8) {
+                mSB.AppendFormat("\n          Sampling Rate Converter Descriptor of unknown size 0x{0:X4}", length);
+                return;
+            }
+
+            int bId = buff[offs + 3];
+            int bSourceId = buff[offs + 4];
+            int bClockIn = buff[offs + 5];
+            int bClockOut = buff[offs + 6];
+            int iString = buff[offs + 7];
+            string s = FindString(iString);
+            mSB.AppendFormat("\n          Sampling Rate Converter {0} {1}, source={1} clockIn={2} clockOut={3}",
+                bId, s, bSourceId, bClockIn, bClockOut);
         }
 
         private void ReadAudioControlMixerUnit(byte[] buff, int offs) {
@@ -1801,7 +1893,7 @@ namespace WWShowUSBDeviceTree {
                         }
                         for (int i = 0; i < samFreqType; ++i) {
                             uint freq = 0xffffff & BitConverter.ToUInt32(buff, offs + 8 + i * 3);
-                            mSB.AppendFormat(" {0}Hz", freq);
+                            mSB.AppendFormat(" {0}kHz", freq*0.001);
                         }
                     }
                 } else {

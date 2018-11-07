@@ -65,10 +65,10 @@ namespace WWShowUSBDeviceTree.Properties {
         ///FullSpeed interconnect : 1.5MB/s signaling bit rate, Half duplex. Yellow Colored.
         ///HighSpeed interconnect : 60MB/s signaling bit rate, Half duplex. White Colored.
         ///SuperSpeed interconnect : 625MB/s signaling bit rate, Full duplex. Cyan Colored.
-        ///SuperSpeed+ interconnect : 1.25GB/s or 2.5GB/s signaling bit rate, Full duplex. Magenta Colored.
+        ///SuperSpeed+ interconnect : 1.25GB/s or 2.5GB/s(USB3.2 Gen2x2) signaling bit rate, Full duplex. Magenta Colored.
         ///
         ///USB1.x supports LowSpeed and FullSpeed. Yellow Colored.
-        ///USB2.0 supports LowSpeed,  [rest of string was truncated]&quot;;.
+        ///USB2.0 supp [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string DescriptionText {
             get {

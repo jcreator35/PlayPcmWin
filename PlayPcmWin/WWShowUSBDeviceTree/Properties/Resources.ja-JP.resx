@@ -122,12 +122,12 @@
 FullSpeed interconnect : 1.5MB/sのシグナリングビットレート、半二重。黄色表示。
 HighSpeed interconnect : 60MB/sのシグナリングビットレート、半二重。白色表示。
 SuperSpeed interconnect : 625MB/sのシグナリングビットレート、全二重。水色表示。
-SuperSpeed+ interconnect : 1.25GB/s か 2.5GB/sのシグナリングビットレート、全二重。紫色表示。
+SuperSpeed+ interconnect : 1.25GB/s か 2.5GB/s(USB3.2 Gen2x2)のシグナリングビットレート、全二重。紫色表示。
 
 USB1.xはLowSpeedとFullSpeedをサポート。黄色表示。
 USB2.0はLowSpeedとFullSpeedとHighSpeedをサポート。白色表示。
-USB3.0はLowSpeedとFullSpeedとHighSpeedとSuperSpeedをサポート。水色表示。
-USB3.xはLowSpeedとFullSpeedとHighSpeedとSuperSpeedとSuperSpeed+をサポート。紫色表示。
+USB3.0/USB3.1 Gen1/USB3.2 Gen1x1はLowSpeedとFullSpeedとHighSpeedとSuperSpeedをサポート。水色表示。
+USB3.1 Gen2/USB3.2 Gen1x2/USB3.2 Gen2x1/USB3.2 Gen2x2はLowSpeedとFullSpeedとHighSpeedとSuperSpeedとSuperSpeed+をサポート。紫色表示。
 
 UHCI(Universal Host Controller Interface)とOHCI(Open Host Controller Interface)はUSB1.x。
 EHCI(Enhanced Host Controller Interface)はUSB2.0。
