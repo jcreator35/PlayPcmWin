@@ -64,11 +64,11 @@ namespace WWShowUSBDeviceTree {
                 var confReader = new UsbConfDescReader();
                 var confS = confReader.Read(hp);
 
-                s = string.Format("{0}\n{1}\n{2} {3} {4}\n{5}",
+                s = string.Format("{0}\n{1}\n{2} {3}, {4}\n{5}",
                         hp.name, hp.vendor, hp.ConnectorTypeStr(), hp.VersionStr(), hp.SpeedStr(),
                         confS);
             } else {
-                s = string.Format("{0}\n{1}\n{2} {3} {4}",
+                s = string.Format("{0}\n{1}\n{2} {3}, {4}",
                         hp.name, hp.vendor, hp.ConnectorTypeStr(), hp.VersionStr(), hp.SpeedStr());
             }
 

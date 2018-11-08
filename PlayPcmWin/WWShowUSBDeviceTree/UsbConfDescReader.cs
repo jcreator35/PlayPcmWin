@@ -828,6 +828,59 @@ namespace WWShowUSBDeviceTree {
 
         }
 
+        private const int AUDIO_CONTROL2_EFFECT_UNDEFINED = 0;
+        private const int AUDIO_CONTROL2_EFFECT_PEQ = 1;
+        private const int AUDIO_CONTROL2_EFFECT_REVERBERATION = 2;
+        private const int AUDIO_CONTROL2_EFFECT_MOD_DELAY = 3;
+        private const int AUDIO_CONTROL2_EFFECT_DYN_RANGE_COMP = 4;
+
+        private string AudioControl2EffectTypeToStr(int t) {
+            switch (t) {
+            case AUDIO_CONTROL2_EFFECT_UNDEFINED: return "Undefined";
+            case AUDIO_CONTROL2_EFFECT_PEQ: return "ParametricEQ";
+            case AUDIO_CONTROL2_EFFECT_REVERBERATION: return "Reverb";
+            case AUDIO_CONTROL2_EFFECT_MOD_DELAY: return "ModulationDelay";
+            case AUDIO_CONTROL2_EFFECT_DYN_RANGE_COMP: return "DynamicRangeCompressor";
+            default: return string.Format("UnknownEffectType=0x{0:x})", t);
+            }
+        }
+
+        private const int AUDIO_CONTROL2_PROCESSING_UNIT_UNDEFINED = 0;
+        private const int AUDIO_CONTROL2_PROCESSING_UNIT_UP_DOWN_MIX = 1;
+        private const int AUDIO_CONTROL2_PROCESSING_UNIT_DOLBY_PROLOGIC = 2;
+        private const int AUDIO_CONTROL2_PROCESSING_UNIT_STEREO_EXTENDER = 3;
+
+        private string AudioControl2ProcessingUnitTypeToStr(int t) {
+            switch (t) {
+            case AUDIO_CONTROL2_PROCESSING_UNIT_UNDEFINED: return "Undefined";
+            case AUDIO_CONTROL2_PROCESSING_UNIT_UP_DOWN_MIX: return "Up/Down mix";
+            case AUDIO_CONTROL2_PROCESSING_UNIT_DOLBY_PROLOGIC: return "Dolby Prologic";
+            case AUDIO_CONTROL2_PROCESSING_UNIT_STEREO_EXTENDER: return "Stereo Extender";
+            default: return string.Format("UnknownProcessingUnitType=0x{0:x}", t);
+            }
+        }
+
+        private const int AUDIO_CONTROL1_PROCESSING_UNIT_UNDEFINED = 0;
+        private const int AUDIO_CONTROL1_PROCESSING_UNIT_UP_DOWN_MIX = 1;
+        private const int AUDIO_CONTROL1_PROCESSING_UNIT_DOLBY_PROLOGIC = 2;
+        private const int AUDIO_CONTROL1_PROCESSING_UNIT_STEREO_EXTENDER = 3;
+        private const int AUDIO_CONTROL1_PROCESSING_UNIT_REVERB = 4;
+        private const int AUDIO_CONTROL1_PROCESSING_UNIT_CHORUS = 5;
+        private const int AUDIO_CONTROL1_PROCESSING_UNIT_DYN_RANGE_COMP = 6;
+
+        private string AudioControl1ProcessingUnitTypeToStr(int t) {
+            switch (t) {
+            case AUDIO_CONTROL1_PROCESSING_UNIT_UNDEFINED: return "Undefined";
+            case AUDIO_CONTROL1_PROCESSING_UNIT_UP_DOWN_MIX: return "Up/Down mix";
+            case AUDIO_CONTROL1_PROCESSING_UNIT_DOLBY_PROLOGIC: return "Dolby Prologic";
+            case AUDIO_CONTROL1_PROCESSING_UNIT_STEREO_EXTENDER: return "Stereo Extender";
+            case AUDIO_CONTROL1_PROCESSING_UNIT_REVERB: return "Reverb";
+            case AUDIO_CONTROL1_PROCESSING_UNIT_CHORUS: return "Chorus";
+            case AUDIO_CONTROL1_PROCESSING_UNIT_DYN_RANGE_COMP: return "DynamicRangeCompressor";
+            default: return string.Format("UnknownProcessingUnitType=0x{0:x}", t);
+            }
+        }
+
         // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
         public string Read(WWUsbHubPortCs hp) {
@@ -1390,18 +1443,171 @@ namespace WWShowUSBDeviceTree {
 
         private void ReadAudioControl2EffectUnit(byte [] buff, int offs) {
             // USB AC2 Effect Unit size : 16+ch*4
+            /* Table 4-15
+            0 UCHAR bLength
+            1 UCHAR bDescriptorType
+            2 UCHAR bDescriptorSubType
+            3 UCHAR bUnitID
+            4 USHORT wEffectType
+            6 UCHAR bSourceID
+            7 UINT bmaControls0
+            11 UINT bmaControls1
+            15+(ch*4) UCHAR iString
+            */
+            int bLength = buff[offs + 0];
+            if ((bLength & 3) != 0) {
+                mSB.AppendFormat("\n          Unknown AudioControl Effect Unit size 0x{0:X4}", bLength);
+                return;
+            }
+
+            int ch = (bLength - 16)/ 4;
+            int bUnitID = buff[offs + 3];
+            int wEffectType = BitConverter.ToUInt16(buff, offs + 4);
+            string sType = AudioControl2EffectTypeToStr(wEffectType);
+            int bSourceID = buff[offs + 6];
+            int iString = buff[offs + 15 + ch * 4];
+            string s = FindString(iString);
+            mSB.AppendFormat("\n          Effect Unit {0} {1} : {2} sourceId={3}",
+                bUnitID, s, sType, bSourceID);
         }
 
         private void ReadAudioControl2ProcessingUnit(byte[] buff, int offs) {
             // USB AC2 Processing Unit size : 17+p+x
+            // table 4-20
+            int bLength = buff[offs + 0];
+            if (bLength <18) {
+                mSB.AppendFormat("\n          Unknown AudioControl Processing Unit size 0x{0:X4}", bLength);
+                return;
+            }
+
+            int bUnitID = buff[offs + 3];
+            int wType = BitConverter.ToUInt16(buff, offs + 4);
+            string sType = AudioControl2ProcessingUnitTypeToStr(wType);
+            int nInPins = buff[offs + 6];
+            if (bLength < 17 + nInPins) {
+                nInPins = bLength - 17;
+            }
+            List<int> inPins = new List<int>();
+            for (int i=0; i<nInPins; ++i) {
+                inPins.Add(buff[offs + 7 + i]);
+            }
+
+            int outCh = buff[offs + 7 + nInPins];
+            int iString = buff[offs + 13 + nInPins];
+            string s = FindString(iString);
+
+            mSB.AppendFormat("\n          Processing Unit {0} {1} : {2} outCh={3}",
+                bUnitID, s, sType, outCh);
+            for (int i = 0; i < nInPins; ++i) {
+                mSB.AppendFormat("\n            inputPin {0}", inPins[i]);
+            }
         }
+        private void ReadAudioControl2ExtensionUnit(byte[] buff, int offs) {
+            int bLength = buff[offs + 0];
+            if (bLength < 17) {
+                mSB.AppendFormat("\n          Unknown AudioControl Extension Unit size 0x{0:X4}", bLength);
+                return;
+            }
+
+            int bUnitID = buff[offs + 3];
+            int nInPins = buff[offs + 6];
+            if (bLength < nInPins + 16) {
+                mSB.AppendFormat("\n          Unknown AudioControl Extension Unit size bLength={0} nInPins={1}",
+                    bLength, nInPins);
+                return;
+            }
+            List<int> inPins = new List<int>();
+            for (int i = 0; i < nInPins; ++i) {
+                inPins[i] = buff[offs + 7 + i];
+            }
+
+            int outCh = buff[offs + 8 + nInPins];
+            int iString = buff[offs + 15 + nInPins];
+            string s = FindString(iString);
+
+            mSB.AppendFormat("\n          Extension Unit {0} {1} : outCh={2}",
+                bUnitID, s, outCh);
+            for (int i = 0; i < nInPins; ++i) {
+                mSB.AppendFormat("\n            inputPin {0}", inPins[i]);
+            }
+        }
+
         private void ReadAudioControl1ProcessingUnit(byte[] buff, int offs) {
+            // USB Audio Class 1
+            // table 4-8
+            int bLength = buff[offs + 0];
+            if (bLength < 14) {
+                mSB.AppendFormat("\n          Unknown AudioControl1 Processing Unit size 0x{0:X4}", bLength);
+                return;
+            }
+
+            int bUnitID = buff[offs + 3];
+            int wType = BitConverter.ToUInt16(buff, offs + 4);
+            string sType = AudioControl1ProcessingUnitTypeToStr(wType);
+            int nInPins = buff[offs + 6];
+            if (bLength < 13 + nInPins) {
+                mSB.AppendFormat("\n          Unknown AudioControl1 Processing Unit size, bLength={0} nInPins={1}",
+                    bLength, nInPins);
+                return;
+            }
+            List<int> inPins = new List<int>();
+            for (int i = 0; i < nInPins; ++i) {
+                inPins.Add(buff[offs + 7 + i]);
+            }
+
+            int outCh = buff[offs + 7 + nInPins];
+            int bControlSize = buff[offs + 11 + nInPins];
+            if (bLength < 14 + nInPins +bControlSize) {
+                mSB.AppendFormat("\n          Unknown AudioControl1 Processing Unit size, bLength={0} nInPins={1} bControlSize={2}",
+                    bLength, nInPins, bControlSize);
+                return;
+            }
+
+            int iString = buff[offs + 12 + nInPins + bControlSize];
+            string s = FindString(iString);
+
+            mSB.AppendFormat("\n          Processing Unit {0} {1} : {2} outCh={3}",
+                bUnitID, s, sType, outCh);
+            for (int i = 0; i < nInPins; ++i) {
+                mSB.AppendFormat("\n            inputPin {0}", inPins[i]);
+            }
         }
 
         private void ReadAudioControl1ExtensionUnit(byte[] buff, int offs) {
-        }
+            // Table 4-15
+            int bLength = buff[offs + 0];
+            if (bLength < 14) {
+                mSB.AppendFormat("\n          Unknown AudioControl1 Extension Unit size 0x{0:X4}", bLength);
+                return;
+            }
 
-        private void ReadAudioControl2ExtensionUnit(byte[] buff, int offs) {
+            int bUnitID = buff[offs + 3];
+            int nInPins = buff[offs + 6];
+            if (bLength < nInPins + 13) {
+                mSB.AppendFormat("\n          Unknown AudioControl1 Extension Unit size bLength={0}, nInPins={1}",
+                    bLength, nInPins);
+                return;
+            }
+            List<int> inPins = new List<int>();
+            for (int i = 0; i < nInPins; ++i) {
+                inPins[i] = buff[offs + 7 + i];
+            }
+
+            int outCh = buff[offs + 7 + nInPins];
+            int bControlSize = buff[offs + 11 + nInPins];
+            if (bLength != 13+nInPins+bControlSize) {
+                mSB.AppendFormat("\n          Unknown AudioControl1 Extension Unit size bLength={0}, nInPins={1}, bControlSize={2}",
+                    bLength, nInPins, bControlSize);
+                return;
+            }
+            int iString = buff[offs + 12 + nInPins + bControlSize];
+            string s = FindString(iString);
+
+            mSB.AppendFormat("\n          Extension Unit {0} {1} : outCh={2}",
+                bUnitID, s, outCh);
+            for (int i = 0; i < nInPins; ++i) {
+                mSB.AppendFormat("\n            inputPin {0}", inPins[i]);
+            }
         }
 
         private void ReadAudioControlClockSource(byte[] buff, int offs) {
