@@ -2376,7 +2376,7 @@ namespace WWShowUSBDeviceTree {
                         mCurrentIF.upperSamFreq = (int)(0xffffff & BitConverter.ToUInt32(buff, offs + 8 + 1 * 3));
                     } else {
                         for (int i = 0; i < samFreqType; ++i) {
-                            int sf = (int)(0xffffff & BitConverter.ToUInt32(buff, offs + 8 + 0 * 3));
+                            int sf = (int)(0xffffff & BitConverter.ToUInt32(buff, offs + 8 + i * 3));
                             mCurrentIF.samFreqs.Add(sf);
                         }
                     }

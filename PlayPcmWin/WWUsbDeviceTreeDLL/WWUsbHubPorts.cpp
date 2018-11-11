@@ -517,6 +517,8 @@ GetHubPortInf(int level, int parentIdx, HANDLE hHub, int hubIdx, int connIdx, WW
     memset(&ci2, 0, sizeof ci2);
     ci2.ConnectionIndex = connIdx;
     ci2.Length = sizeof ci2;
+    ci2.SupportedUsbProtocols.Usb110 = 1;
+    ci2.SupportedUsbProtocols.Usb200 = 1;
     ci2.SupportedUsbProtocols.Usb300 = 1;
     brv = DeviceIoControl(hHub, IOCTL_USB_GET_NODE_CONNECTION_INFORMATION_EX_V2, &ci2, sizeof ci2, &ci2, sizeof ci2, &bytes, nullptr);
     if (!brv) {

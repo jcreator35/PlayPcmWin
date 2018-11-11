@@ -129,7 +129,7 @@ WWUsbDeviceTreeDLL_GetHubPortInf(int nth, WWUsbHubPortCs &hp_r)
         hp_r.usbVersion = WWUDB_SuperSpeedPlus;
     } else if (hp.ci2.Flags.DeviceIsSuperSpeedCapableOrHigher) {
         hp_r.usbVersion = WWUDB_SuperSpeed;
-    } else if (hp.ci2.SupportedUsbProtocols.Usb200) {
+    } else if (hp.ci2.SupportedUsbProtocols.Usb200 && 0x200 <= hp.cie->DeviceDescriptor.bcdUSB) {
         hp_r.usbVersion = WWUDB_HighSpeed;
     } else {
         hp_r.usbVersion = WWUDB_FullSpeed;
