@@ -8,7 +8,7 @@ using System.Windows.Shapes;
 namespace WWShowUSBDeviceTree {
     public class UsbDevice {
 
-        public const double PADDING_RIGHT = 50;
+        public const double PADDING_RIGHT = 30;
 
         private const double BORDER_THICKNESS = 2;
         private const double PADDING_TEXTBOX = 4;
@@ -95,8 +95,17 @@ namespace WWShowUSBDeviceTree {
             bd.Arrange(new Rect(bd.DesiredSize));
             W = bd.ActualWidth;
             H = bd.ActualHeight;
+            Canvas.SetLeft(bd, X);
+            Canvas.SetTop(bd, Y);
 
             uiElement = bd;
+        }
+
+        public void SpeedUpdated() {
+            // bd色を変更する。
+            borderBrush = SpeedToBrush(usbVersion);
+            var bd = uiElement as Border;
+            bd.BorderBrush = borderBrush;
         }
 
         private void UpdateUIElementWH(double w, double h) {

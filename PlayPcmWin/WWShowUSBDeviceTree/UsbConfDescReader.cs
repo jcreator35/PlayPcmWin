@@ -810,7 +810,7 @@ namespace WWShowUSBDeviceTree {
                 sb.Append(", TrebleControl");
             }
             if ((b & 32) != 0) {
-                sb.Append(", GraphicsEqualizerControl");
+                sb.Append(", GraphicEqualizerControl");
             }
             if ((b & 64) != 0) {
                 sb.Append(", AutoGainControl");
@@ -2118,11 +2118,18 @@ namespace WWShowUSBDeviceTree {
                 mSB.AppendFormat("\n          Feature Unit Descriptor of unknown size 0x{0:X4} bControlSize={1}", length, bControlSize);
                 return;
             }
+
+            uint controlMask = 0x3ff;
+            switch (bControlSize) {
+            case 1: controlMask = 0xff; break;
+            default: controlMask = 0x3ff; break;
+            }
+
             int nCh = (length - 7) / bControlSize - 1;
 
             int bSourceID = buff[offs + 4];
             uint bmMC = BitConverter.ToUInt32(buff, offs + 6);
-            bmMC &= 0x3ff;
+            bmMC &= controlMask;
 
             int iFeature = buff[offs + length - 1];
             string s = FindString(iFeature);
@@ -2140,6 +2147,7 @@ namespace WWShowUSBDeviceTree {
             text += string.Format("\nMaster Ch 0 {0}", AudioControl1FeatureControlsToStr(bmMC));
             for (int i = 0; i < nCh; ++i) {
                 uint bm = BitConverter.ToUInt32(buff, offs + 6 + (i + 1) * bControlSize);
+                bm &= controlMask;
                 text += string.Format("\nCh {0} {1}", i + 1, AudioControl1FeatureControlsToStr(bm));
             }
             var m = new Module(id, text);

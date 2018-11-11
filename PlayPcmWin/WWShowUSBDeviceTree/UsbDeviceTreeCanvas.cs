@@ -9,6 +9,8 @@ using static WWShowUSBDeviceTree.UsbDeviceTreeCs;
 namespace WWShowUSBDeviceTree {
     public class UsbDeviceTreeCanvas {
         private const int ZINDEX_PATH = 0;
+        private const int ZINDEX_USBDEVICE = 1;
+        private const int ZINDEX_HUB = 2;
 
         Canvas mCanvas;
 
@@ -43,9 +45,8 @@ namespace WWShowUSBDeviceTree {
         }
         public void AddNode(WWUsbHubCs hub) {
             var speed = (UsbDeviceTreeCs.BusSpeed)hub.speed;
-            var speedStr = (speed == UsbDeviceTreeCs.BusSpeed.RootHub) ? "Root hub" :
-                string.Format("Max : {0}", UsbDeviceTreeCs.WWUsbDeviceBusSpeedToStr(speed));
-            var s = string.Format("{0} ports\n{1}", hub.numPorts, speedStr);
+            var speedStr = (speed == UsbDeviceTreeCs.BusSpeed.RootHub) ? "\nRoot hub" : "";
+            var s = string.Format("{0} ports{1}", hub.numPorts, speedStr);
             var node = new UsbDevice(UsbDevice.NodeType.Hub, hub.idx, hub.parentIdx, speed, speed, s);
             AddNode(node);
         }
@@ -96,6 +97,18 @@ namespace WWShowUSBDeviceTree {
             mCanvas.Children.Add(node.uiElement);
         }
 
+        private void FixupHubSpeed() {
+            for (int layer=3; layer <mNodeListByLayer.Count; layer += 2) {
+                foreach (var n in mNodeListByLayer[layer]) {
+                    var parent = FindNode(n.parentIdx);
+                    n.speed = parent.speed;
+                    n.usbVersion = parent.speed;
+                    n.SpeedUpdated();
+                    Canvas.SetZIndex(n.uiElement, ZINDEX_HUB);
+                }
+            }
+        }
+
         public void Update() {
             // layerを確定する。
             foreach (var v in mNodeList) {
@@ -112,6 +125,8 @@ namespace WWShowUSBDeviceTree {
             }
 
             ResolveConnections();
+
+            FixupHubSpeed();
 
             ResolvePositions();
 
@@ -229,14 +244,14 @@ namespace WWShowUSBDeviceTree {
                         node.Y = y;
                         Canvas.SetLeft(node.uiElement, x);
                         Canvas.SetTop(node.uiElement, y);
-                        Canvas.SetZIndex(node.uiElement, 2);
+                        Canvas.SetZIndex(node.uiElement, ZINDEX_HUB);
                     } else {
                         node.X = xOffs;
                         node.Y = y;
 
                         Canvas.SetLeft(node.uiElement, xOffs);
                         Canvas.SetTop(node.uiElement, y);
-                        Canvas.SetZIndex(node.uiElement, 1);
+                        Canvas.SetZIndex(node.uiElement, ZINDEX_USBDEVICE);
 
                         // 次(下)のnode位置。
                         y += node.H + spacingY;
