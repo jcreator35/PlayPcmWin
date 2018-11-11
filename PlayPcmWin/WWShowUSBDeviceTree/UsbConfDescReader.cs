@@ -1329,13 +1329,11 @@ namespace WWShowUSBDeviceTree {
             string s = InterfaceClassToStr(intClass, intSubClass, intProto);
 
             mSB.AppendFormat("\n      Interface {0}:{1} {2} {3}", interfaceNr, altSet, s, name);
-            if (mAudioInterfaceNr.Contains(interfaceNr)) {
+            if (mAudioInterfaceNr.Contains(mCurrentIF.ifNr)) {
                 if (mCurrentIF.endpointAddr != 0) {
                     OutputEndpointModule(mCurrentIF);
                 }
                 mCurrentIF.Clear();
-            } else {
-                mSB.AppendFormat("\n      Interface {0}:{1} {2} {3}", interfaceNr, altSet, s, name);
             }
 
             mCurrentIF.ifNr = interfaceNr;
