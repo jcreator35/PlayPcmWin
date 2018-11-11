@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WWShowUSBDeviceTree.Properties;
 using static WWShowUSBDeviceTree.UsbDeviceTreeCs;
 
 namespace WWShowUSBDeviceTree {
@@ -956,9 +957,9 @@ namespace WWShowUSBDeviceTree {
         private string SyncTypeToStr(int t) {
             switch (t) {
             case 0: return "NoSync";
-            case 1: return "Asynchronous";
-            case 2: return "Adaptive";
-            case 3: return "Synchronous";
+            case 1: return Resources.UAAsynchronous;
+            case 2: return Resources.UAAdaptive;
+            case 3: return Resources.UASynchronous;
             default: return "Unknown";
             }
         }
@@ -1045,19 +1046,19 @@ namespace WWShowUSBDeviceTree {
                 sb.Append("Isochronous ");
                 switch (ENDPOINT_TYPE_ISOCHRONOUS_SYNCHRONIZATION_MASK & bmAttributes) {
                 case ENDPOINT_TYPE_ISOCHRONOUS_SYNCHRONIZATION_NO_SYNCHRONIZATION: sb.Append("No sync "); break;
-                case ENDPOINT_TYPE_ISOCHRONOUS_SYNCHRONIZATION_ASYNCHRONOUS: sb.Append("Asynchronous "); break;
-                case ENDPOINT_TYPE_ISOCHRONOUS_SYNCHRONIZATION_ADAPTIVE: sb.Append("Adaptive "); break;
-                case ENDPOINT_TYPE_ISOCHRONOUS_SYNCHRONIZATION_SYNCHRONOUS: sb.Append("Synchronous "); break;
+                case ENDPOINT_TYPE_ISOCHRONOUS_SYNCHRONIZATION_ASYNCHRONOUS: sb.Append(Resources.UAAsynchronous + " "); break;
+                case ENDPOINT_TYPE_ISOCHRONOUS_SYNCHRONIZATION_ADAPTIVE: sb.Append(Resources.UAAdaptive + " "); break;
+                case ENDPOINT_TYPE_ISOCHRONOUS_SYNCHRONIZATION_SYNCHRONOUS: sb.Append(Resources.UASynchronous + " "); break;
                 default: break;
                 }
                 switch (ENDPOINT_TYPE_ISOCHRONOUS_USAGE_MASK & bmAttributes) {
                 case ENDPOINT_TYPE_ISOCHRONOUS_USAGE_DATA_ENDOINT: sb.Append("Data"); break;
-                case ENDPOINT_TYPE_ISOCHRONOUS_USAGE_FEEDBACK_ENDPOINT: sb.Append("Feedback"); break;
+                case ENDPOINT_TYPE_ISOCHRONOUS_USAGE_FEEDBACK_ENDPOINT: sb.Append(Resources.UAFeedback); break;
                 case ENDPOINT_TYPE_ISOCHRONOUS_USAGE_IMPLICIT_FEEDBACK_DATA_ENDPOINT: sb.Append("Implicit Feedback"); break;
                 case ENDPOINT_TYPE_ISOCHRONOUS_USAGE_RESERVED: sb.Append("Reserved"); break;
                 default: break;
                 }
-                sb.AppendFormat(" Interval={0}ms", Math.Pow(2, (0x1f & interval) - 1) * unit);
+                sb.AppendFormat(", Interval={0}ms", Math.Pow(2, (0x1f & interval) - 1) * unit);
                 break;
             case ENDPOINT_TYPE_BULK:
                 sb.Append("Bulk");
@@ -1065,12 +1066,12 @@ namespace WWShowUSBDeviceTree {
             case ENDPOINT_TYPE_INTERRUPT:
                 sb.Append("Interrupt, ");
                 switch (U30_ENDPOINT_TYPE_INTERRUPT_USAGE_MASK & bmAttributes) {
-                case U30_ENDPOINT_TYPE_INTERRUPT_USAGE_PERIODIC: sb.Append("Usage: Periodic"); break;
-                case U30_ENDPOINT_TYPE_INTERRUPT_USAGE_NOTIFICATION: sb.Append("Usage: Notification"); break;
+                case U30_ENDPOINT_TYPE_INTERRUPT_USAGE_PERIODIC: sb.Append("Usage: Periodic,"); break;
+                case U30_ENDPOINT_TYPE_INTERRUPT_USAGE_NOTIFICATION: sb.Append("Usage: Notification,"); break;
                 case U30_ENDPOINT_TYPE_INTERRUPT_USAGE_RESERVED10:
                 case U30_ENDPOINT_TYPE_INTERRUPT_USAGE_RESERVED11:
                 default:
-                    sb.Append("Usage: Reserved"); break;
+                    sb.Append("Usage: Reserved,"); break;
                 }
                 if (mSpeed <= BusSpeed.FullSpeed) {
                     sb.AppendFormat(" Interval={0}ms", interval);
@@ -1261,7 +1262,7 @@ namespace WWShowUSBDeviceTree {
                 ReadAudioCSEndpoint(buff, offs);
                 break;
             default:
-                ReadAudioOther(buff, offs);
+                //ReadAudioOther(buff, offs);
                 break;
             }
         }
@@ -1291,16 +1292,16 @@ namespace WWShowUSBDeviceTree {
             string power = "";
             if (mSpeed <= BusSpeed.FullSpeed) {
                 if (0 != (USB_CONFIG_BUS_POWERED & bmAttributes)) {
-                    power = "Bus powered,";
+                    power = Resources.BusPowered + ",";
                 }
                 if (0 != (USB_CONFIG_SELF_POWERED & bmAttributes)) {
-                    power = "Self powered,";
+                    power = Resources.SelfPowered + ",";
                 }
             } else {
                 if (0 != (USB_CONFIG_SELF_POWERED & bmAttributes)) {
-                    power = "Self powered,";
+                    power = Resources.SelfPowered + ",";
                 } else {
-                    power = "Bus powered,";
+                    power = Resources.BusPowered + ",";
                 }
             }
             if (0 != (USB_CONFIG_REMOTE_WAKEUP & bmAttributes)) {
@@ -1335,15 +1336,16 @@ namespace WWShowUSBDeviceTree {
                     OutputEndpointModule(mCurrentIF);
                 }
                 mCurrentIF.Clear();
-                mCurrentIF.ifNr = interfaceNr;
-                mCurrentIF.altSet = altSet;
-                mCurrentIF.numEP = numEP;
-                mCurrentIF.ifClass = intClass;
-                mCurrentIF.ifSubClass = intSubClass;
-                mCurrentIF.name = name;
             } else {
                 mSB.AppendFormat("\n      Interface {0}:{1} {2} {3}", interfaceNr, altSet, s, name);
             }
+
+            mCurrentIF.ifNr = interfaceNr;
+            mCurrentIF.altSet = altSet;
+            mCurrentIF.numEP = numEP;
+            mCurrentIF.ifClass = intClass;
+            mCurrentIF.ifSubClass = intSubClass;
+            mCurrentIF.name = name;
         }
 
         private void ReadInterfaceAssocDesc(byte [] buff, int offs) {
@@ -1378,8 +1380,8 @@ namespace WWShowUSBDeviceTree {
         private void OutputEndpointModule(InterfaceProperty ip) {
             var sb = new StringBuilder();
 
-            sb.AppendFormat("({1}:{2}:{3}) {0} Endpoint {4}\n{5}",
-                ip.direction == InterfaceProperty.Direction.InputDirection ? "Input" : "Output",
+            sb.AppendFormat("({1}:{2}:{3}) {0} {4}\n{5}",
+                ip.direction == InterfaceProperty.Direction.InputDirection ? Resources.UAInputEndpoint : Resources.UAOutputEndpoint,
                 ip.ifNr, ip.altSet, ip.endpointAddr, ip.name, ip.endpointAttributes);
 
             sb.AppendFormat("\nmaxPacket={1}bytes",
@@ -1387,8 +1389,10 @@ namespace WWShowUSBDeviceTree {
             
             switch (ip.usageType) {
             case ENDPOINT_TYPE_ISOCHRONOUS_USAGE_DATA_ENDOINT:
-                sb.AppendFormat(" {0} {1}ch {2}bit, {3}bit container",
-                    ip.formatStr, ip.nCh, ip.bitResolution, ip.subSlotSize * 8);
+                if (ip.bitResolution != 0) {
+                    sb.AppendFormat(" {0} {1}ch {2}bit, {3}bit container",
+                        ip.formatStr, ip.nCh, ip.bitResolution, ip.subSlotSize * 8);
+                }
 
                 for (int i=0; i<ip.samFreqs.Count; ++i) {
                     sb.AppendFormat(" {0}kHz", ip.samFreqs[i] * 0.001);
@@ -1484,8 +1488,9 @@ namespace WWShowUSBDeviceTree {
                 int bCategory = buff[offs + 5];
                 string sCategory = AudioFunctionCategoryToStr(bCategory);
 
-                mSB.AppendFormat("\n          USB Audio Class {0}.{1}, {2}",
-                    majorVersion, minorVersion, sCategory);
+                mSB.AppendFormat("\n          {3} {0}.{1}, {2}",
+                    majorVersion, minorVersion, sCategory,
+                    Resources.UsbAudioClass);
                 mAudioClass = USBAudioClass.AC2;
             } else if (majorVersion == 1) {
                 // Audio Class 1 C.3.3.2 Class-specific Interface Descriptor
@@ -1495,7 +1500,8 @@ namespace WWShowUSBDeviceTree {
                     bInCollection = length - 8;
                 }
 
-                mSB.AppendFormat("\n          USB Audio Class {0}.{1} ", majorVersion, minorVersion);
+                mSB.AppendFormat("\n          {2} {0}.{1} ",
+                    majorVersion, minorVersion, Resources.UsbAudioClass);
                 if (1 <= bInCollection) {
                     mSB.AppendFormat("Audio Streaming Interface Nr. ");
                 }
@@ -1506,7 +1512,8 @@ namespace WWShowUSBDeviceTree {
                 }
                 mAudioClass = USBAudioClass.AC1;
             } else {
-                mSB.AppendFormat("\n          USB Audio Class {0:x4}", bcdADC);
+                mSB.AppendFormat("\n          {1} 0x{0:x4}", bcdADC,
+                    Resources.UsbAudioClass);
             }
         }
 
@@ -1534,7 +1541,7 @@ namespace WWShowUSBDeviceTree {
                 int iString = buff[offs + 11];
                 s = FindString(iString);
                 if (s.Length == 0 && terminalType == USB_TERMINAL_TYPE_Streaming) {
-                    s = Properties.Resources.StreamForPlayback;
+                    s = Resources.StreamForPlayback;
                 }
 
                 int wChannelConfig = BitConverter.ToUInt16(buff, offs + 8);
@@ -1559,7 +1566,7 @@ namespace WWShowUSBDeviceTree {
                 int iTerminal = buff[offs + 16];
                 s = FindString(iTerminal);
                 if (s.Length == 0 && terminalType == USB_TERMINAL_TYPE_Streaming) {
-                    s = Properties.Resources.StreamForPlayback;
+                    s = Resources.StreamForPlayback;
                 }
 #if false
                 mSB.AppendFormat("\n          Input Terminal {0} {1} : {2}ch ({3}) {4} assocOutTerminal={5} clockSource={6} {7}",
@@ -1570,7 +1577,9 @@ namespace WWShowUSBDeviceTree {
                 return;
             }
 
-            var m = new Module(id, string.Format("({0}) Input Terminal : {1}\n{2} {3}ch {4}", id, terminalTypeStr, s, ch, chConfStr));
+            var m = new Module(id, string.Format("({0}) {5} : {1}\n{2} {3}ch {4}",
+                id, terminalTypeStr, s, ch, chConfStr,
+                Resources.UAInputTerminal));
             m.ConnectToRightItem(assocOutT);
             m.ConnectToTopItem(bCSourceId);
             mModules.Add(m);
@@ -1603,7 +1612,7 @@ namespace WWShowUSBDeviceTree {
                 int iTerminal = buff[offs + 8];
                 s = FindString(iTerminal);
                 if (s.Length == 0 && terminalType == USB_TERMINAL_TYPE_Streaming) {
-                    s = Properties.Resources.StreamForRecording;
+                    s = Resources.StreamForRecording;
                 }
 
 #if false
@@ -1621,7 +1630,7 @@ namespace WWShowUSBDeviceTree {
                 int iTerminal = buff[offs + 11];
                 s = FindString(iTerminal);
                 if (s.Length == 0 && terminalType == USB_TERMINAL_TYPE_Streaming) {
-                    s = Properties.Resources.StreamForRecording;
+                    s = Resources.StreamForRecording;
                 }
 #if false
                 mSB.AppendFormat("\n          Output Terminal {0} : assocOutT={1} Source={2} ClockSource={3} {4} {5}",
@@ -1632,7 +1641,8 @@ namespace WWShowUSBDeviceTree {
                 return;
             }
 
-            string text = string.Format("({0}) Output Terminal : {1}", id, terminalTypeStr);
+            string text = string.Format("({0}) {2} : {1}", id, terminalTypeStr,
+                Resources.UAOutputTerminal);
             if (s.Length != 0) {
                 text += string.Format("\n{0}", s);
             }
@@ -1867,9 +1877,11 @@ namespace WWShowUSBDeviceTree {
             mSB.AppendFormat("\n          Clock Source {0} {1}, assocTerminal={2}:\n            {3} {4}",
                    id, s, assocT, clockTypeStr, clockCntlStr);
 #else
-            var m = new Module(id, string.Format("({0}) Clock Source {1}\n{2}\n{3}",
-                id, s, clockTypeStr, clockCntlStr));
+            var m = new Module(id, string.Format("({0}) {4} {1}\n{2}\n{3}",
+                id, s, clockTypeStr, clockCntlStr,
+                Resources.UAClockSource));
             m.ConnectToLeftItem(assocT);
+            m.moduleType = Module.ModuleType.ClockRelated;
             mModules.Add(m);
 #endif
         }
@@ -1901,11 +1913,13 @@ namespace WWShowUSBDeviceTree {
                 mSB.AppendFormat("\n            InputPin {0} : Clock entity id={1}", i+1, buff[offs+5+i]);
             }
 #else
-            var m = new Module(id, string.Format("({0}) Clock Selector {1}: {2}", id, s, sControls));
+            var m = new Module(id, string.Format("({0}) {3} {1}: {2}", id, s, sControls,
+                Resources.UAClockSelector));
             for (int i = 0; i < nrInPins; ++i) {
                 int pinId = buff[offs + 5 + i];
                 m.ConnectToLeftItem(pinId);
             }
+            m.moduleType = Module.ModuleType.ClockRelated;
             mModules.Add(m);
 #endif
         }

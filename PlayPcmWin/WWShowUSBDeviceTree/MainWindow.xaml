@@ -27,7 +27,7 @@
             <Canvas x:Name="mCanvas" Background="#ff1e1e1e" HorizontalAlignment="Left" VerticalAlignment="Top" >
             </Canvas>
         </ScrollViewer>
-        <TextBox x:Name="mTextBoxDescription" Grid.Row="1" Width="384" Height="384" TextWrapping="Wrap" Text="TextBox" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,50" Background="Black" Foreground="White" BorderThickness="2" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" AcceptsReturn="True" AcceptsTab="True" />
-        <Slider x:Uid="sliderWindowScaling" Margin="0,0,1,1" Name="sliderWindowScaling" VerticalAlignment="Bottom" Maximum="2.0" Minimum="0.8" Value="1" Visibility="Hidden" Grid.Column="1" HorizontalAlignment="Right" Width="52" SmallChange="0.0048828125" LargeChange="0.0625" />
+        <TextBox x:Name="mTextBoxDescription" Grid.Row="1" Width="480" Height="384" TextWrapping="Wrap" Text="TextBox" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,50" Background="Black" Foreground="White" BorderThickness="2" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" AcceptsReturn="True" AcceptsTab="True" />
+        <Slider x:Uid="sliderWindowScaling" Margin="0,0,1,1" Name="sliderWindowScaling" VerticalAlignment="Bottom" Maximum="2.0" Minimum="0.25" Value="1" Visibility="Hidden" Grid.Column="1" HorizontalAlignment="Right" Width="52" SmallChange="0.0048828125" LargeChange="0.0625" />
     </Grid>
 </Window>

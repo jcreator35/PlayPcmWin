@@ -61,18 +61,37 @@ namespace WWShowUSBDeviceTree.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to LowSpeed interconnect : 0.19MB/s signaling bit rate, Half duplex. Yellow Colored.
+        ///   Looks up a localized string similar to Bus Powered.
+        /// </summary>
+        internal static string BusPowered {
+            get {
+                return ResourceManager.GetString("BusPowered", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Host means PC. Device means USB device.
+        ///
+        ///LowSpeed interconnect : 0.19MB/s signaling bit rate, Half duplex. Yellow Colored.
         ///FullSpeed interconnect : 1.5MB/s signaling bit rate, Half duplex. Yellow Colored.
         ///HighSpeed interconnect : 60MB/s signaling bit rate, Half duplex. White Colored.
         ///SuperSpeed interconnect : 625MB/s signaling bit rate, Full duplex. Cyan Colored.
         ///SuperSpeed+ interconnect : 1.25GB/s or 2.5GB/s(USB3.2 Gen2x2) signaling bit rate, Full duplex. Magenta Colored.
         ///
-        ///USB1.x supports LowSpeed and FullSpeed. Yellow Colored.
-        ///USB2.0 supp [rest of string was truncated]&quot;;.
+        ///USB1.x supports LowSpeed  [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string DescriptionText {
             get {
                 return ResourceManager.GetString("DescriptionText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Self Powered.
+        /// </summary>
+        internal static string SelfPowered {
+            get {
+                return ResourceManager.GetString("SelfPowered", resourceCulture);
             }
         }
         
@@ -91,6 +110,105 @@ namespace WWShowUSBDeviceTree.Properties {
         internal static string StreamForRecording {
             get {
                 return ResourceManager.GetString("StreamForRecording", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Adaptive.
+        /// </summary>
+        internal static string UAAdaptive {
+            get {
+                return ResourceManager.GetString("UAAdaptive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Asynchronous.
+        /// </summary>
+        internal static string UAAsynchronous {
+            get {
+                return ResourceManager.GetString("UAAsynchronous", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Clock Selector.
+        /// </summary>
+        internal static string UAClockSelector {
+            get {
+                return ResourceManager.GetString("UAClockSelector", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Clock Source.
+        /// </summary>
+        internal static string UAClockSource {
+            get {
+                return ResourceManager.GetString("UAClockSource", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Feedback.
+        /// </summary>
+        internal static string UAFeedback {
+            get {
+                return ResourceManager.GetString("UAFeedback", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Input (Device→Host) Endpoint.
+        /// </summary>
+        internal static string UAInputEndpoint {
+            get {
+                return ResourceManager.GetString("UAInputEndpoint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Input Terminal.
+        /// </summary>
+        internal static string UAInputTerminal {
+            get {
+                return ResourceManager.GetString("UAInputTerminal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Output (Host→Device) Endpoint.
+        /// </summary>
+        internal static string UAOutputEndpoint {
+            get {
+                return ResourceManager.GetString("UAOutputEndpoint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Output Terminal.
+        /// </summary>
+        internal static string UAOutputTerminal {
+            get {
+                return ResourceManager.GetString("UAOutputTerminal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Synchronous.
+        /// </summary>
+        internal static string UASynchronous {
+            get {
+                return ResourceManager.GetString("UASynchronous", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to USB Audio Class.
+        /// </summary>
+        internal static string UsbAudioClass {
+            get {
+                return ResourceManager.GetString("UsbAudioClass", resourceCulture);
             }
         }
     }

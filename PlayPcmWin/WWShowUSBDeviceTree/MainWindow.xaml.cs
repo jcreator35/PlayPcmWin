@@ -18,12 +18,17 @@ namespace WWShowUSBDeviceTree {
         private bool mInitialized = false;
         private UsbDeviceTreeCs mUDT = new UsbDeviceTreeCs();
         private UsbDeviceTreeCanvas mUSBCanvas;
+        private static string AssemblyVersion {
+            get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); }
+        }
 
         public MainWindow() {
             InitializeComponent();
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
+            Title = "WWShowUsbDeviceTree " + AssemblyVersion;
+
             mUSBCanvas = new UsbDeviceTreeCanvas(mCanvas);
 
             mUDT.Init();

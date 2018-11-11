@@ -117,8 +117,13 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="BusPowered" xml:space="preserve">
+    <value>バスパワー</value>
+  </data>
   <data name="DescriptionText" xml:space="preserve">
-    <value>Low Speed : 0.19MB/sのシグナリングビットレート、半二重。黄色表示。
+    <value>「ホスト」はPC、「デバイス」はUSBデバイスを意味します。
+
+Low Speed : 0.19MB/sのシグナリングビットレート、半二重。黄色表示。
 FullSpeed interconnect : 1.5MB/sのシグナリングビットレート、半二重。黄色表示。
 HighSpeed interconnect : 60MB/sのシグナリングビットレート、半二重。白色表示。
 SuperSpeed interconnect : 625MB/sのシグナリングビットレート、全二重。水色表示。
@@ -134,10 +139,46 @@ EHCI(Enhanced Host Controller Interface)はUSB2.0。
 xHCI(eXtensible Host Controller Interface)はUSB3.0以上。
 </value>
   </data>
+  <data name="SelfPowered" xml:space="preserve">
+    <value>セルフパワー</value>
+  </data>
   <data name="StreamForPlayback" xml:space="preserve">
     <value>再生用ストリーム入力</value>
   </data>
   <data name="StreamForRecording" xml:space="preserve">
     <value>録音用ストリーム出力</value>
+  </data>
+  <data name="UAAdaptive" xml:space="preserve">
+    <value>アダプティブ</value>
+  </data>
+  <data name="UAAsynchronous" xml:space="preserve">
+    <value>非同期</value>
+  </data>
+  <data name="UAClockSelector" xml:space="preserve">
+    <value>クロック源切り替え</value>
+  </data>
+  <data name="UAClockSource" xml:space="preserve">
+    <value>クロック</value>
+  </data>
+  <data name="UAFeedback" xml:space="preserve">
+    <value>フィードバック</value>
+  </data>
+  <data name="UAInputEndpoint" xml:space="preserve">
+    <value>入力(デバイス→ホスト)エンドポイント</value>
+  </data>
+  <data name="UAInputTerminal" xml:space="preserve">
+    <value>入力端子</value>
+  </data>
+  <data name="UAOutputEndpoint" xml:space="preserve">
+    <value>出力(ホスト→デバイス)エンドポイント</value>
+  </data>
+  <data name="UAOutputTerminal" xml:space="preserve">
+    <value>出力端子</value>
+  </data>
+  <data name="UASynchronous" xml:space="preserve">
+    <value>同期</value>
+  </data>
+  <data name="UsbAudioClass" xml:space="preserve">
+    <value>USBオーディオクラス</value>
   </data>
 </root>

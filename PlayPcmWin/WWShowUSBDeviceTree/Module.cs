@@ -15,6 +15,13 @@ namespace WWShowUSBDeviceTree {
         public int altSet;
         public int endpointAddr;
 
+        public enum ModuleType {
+            ClockRelated,
+            Other,
+        }
+
+        public ModuleType moduleType = ModuleType.Other;
+
         public double W { get; private set; }
         public double H { get; private set; }
         public double X { get; set; }

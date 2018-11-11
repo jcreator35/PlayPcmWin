@@ -117,8 +117,13 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="BusPowered" xml:space="preserve">
+    <value>Bus Powered</value>
+  </data>
   <data name="DescriptionText" xml:space="preserve">
-    <value>LowSpeed interconnect : 0.19MB/s signaling bit rate, Half duplex. Yellow Colored.
+    <value>Host means PC. Device means USB device.
+
+LowSpeed interconnect : 0.19MB/s signaling bit rate, Half duplex. Yellow Colored.
 FullSpeed interconnect : 1.5MB/s signaling bit rate, Half duplex. Yellow Colored.
 HighSpeed interconnect : 60MB/s signaling bit rate, Half duplex. White Colored.
 SuperSpeed interconnect : 625MB/s signaling bit rate, Full duplex. Cyan Colored.
@@ -133,10 +138,46 @@ UHCI(Universal Host Controller Interface) and OHCI(Open Host Controller Interfac
 EHCI(Enhanced Host Controller Interface) is USB2.0.
 xHCI(eXtensible Host Controller Interface) is USB3.0 or higher version.</value>
   </data>
+  <data name="SelfPowered" xml:space="preserve">
+    <value>Self Powered</value>
+  </data>
   <data name="StreamForPlayback" xml:space="preserve">
     <value>Stream input for Playback</value>
   </data>
   <data name="StreamForRecording" xml:space="preserve">
     <value>Stream output for Recording</value>
+  </data>
+  <data name="UAAdaptive" xml:space="preserve">
+    <value>Adaptive</value>
+  </data>
+  <data name="UAAsynchronous" xml:space="preserve">
+    <value>Asynchronous</value>
+  </data>
+  <data name="UAClockSelector" xml:space="preserve">
+    <value>Clock Selector</value>
+  </data>
+  <data name="UAClockSource" xml:space="preserve">
+    <value>Clock Source</value>
+  </data>
+  <data name="UAFeedback" xml:space="preserve">
+    <value>Feedback</value>
+  </data>
+  <data name="UAInputEndpoint" xml:space="preserve">
+    <value>Input (Device→Host) Endpoint</value>
+  </data>
+  <data name="UAInputTerminal" xml:space="preserve">
+    <value>Input Terminal</value>
+  </data>
+  <data name="UAOutputEndpoint" xml:space="preserve">
+    <value>Output (Host→Device) Endpoint</value>
+  </data>
+  <data name="UAOutputTerminal" xml:space="preserve">
+    <value>Output Terminal</value>
+  </data>
+  <data name="UASynchronous" xml:space="preserve">
+    <value>Synchronous</value>
+  </data>
+  <data name="UsbAudioClass" xml:space="preserve">
+    <value>USB Audio Class</value>
   </data>
 </root>

@@ -20,7 +20,7 @@ namespace WWShowUSBDeviceTree {
         private const int ZINDEX_PATH = 11;
 
         private double SPACING_X = 100;
-        private double SPACING_Y = 80;
+        private double SPACING_Y = 60;
 
 
         public enum NodeType {
@@ -42,6 +42,7 @@ namespace WWShowUSBDeviceTree {
         public List<Module> mModules = new List<Module>();
         List<List<Module>> mModuleListByLayer = new List<List<Module>>();
         List<Path> mCables = new List<Path>();
+        List<Polygon> mArrows = new List<Polygon>();
 
         public NodeType nodeType;
 
@@ -150,8 +151,8 @@ namespace WWShowUSBDeviceTree {
             double thisW = W;
             double thisH = H;
 
-            double xOffs = SPACING_Y;
-            for (int layer = 0; layer < mModuleListByLayer.Count(); ++layer) {
+            double xOffs = 20; //< 見た目で調整。
+            for (int layer = 0; layer < mModuleListByLayer.Count; ++layer) {
                 var moduleList = mModuleListByLayer[layer];
 
                 double y = H;
@@ -177,7 +178,16 @@ namespace WWShowUSBDeviceTree {
                     }
                 }
 
-                xOffs += maxW + SPACING_X;
+                // モジュールの総数が多いときはxの間隔を広く開ける。
+                int nModules = moduleList.Count;
+                if (layer +1 < mModuleListByLayer.Count) {
+                    int nNext = mModuleListByLayer[layer + 1].Count;
+                    if (nModules < nNext) {
+                        nModules = nNext;
+                    }
+                }
+
+                xOffs += maxW + SPACING_X + 20.0 * nModules;
             }
 
             W = thisW + PADDING_TEXTBOX*2;
@@ -259,6 +269,22 @@ namespace WWShowUSBDeviceTree {
             return p;
         }
 
+        private Polygon CreateFilledTriangle(Point p1, Point p2, Point p3, Brush brush) {
+            var p = new Polygon() {
+                Stroke = brush,
+                Fill = brush,
+                StrokeThickness = 0,
+                HorizontalAlignment = HorizontalAlignment.Left,
+                VerticalAlignment = VerticalAlignment.Top,
+                Points = new PointCollection() { p1, p2, p3 }
+            };
+            Canvas.SetZIndex(p, ZINDEX_PATH);
+            return p;
+        }
+
+        private const double ARROW_LENGTH      = 10;
+        private const double ARROW_WIDTH_HALF  = 5;
+
         /// <summary>
         /// ノード間の線を引きます。
         /// </summary>
@@ -275,10 +301,14 @@ namespace WWShowUSBDeviceTree {
                 for (int i=0; i<m.mRightModules.Count; ++i) {
                     int count = m.mRightModules.Count;
                     var rightM = m.mRightModules[i];
+
                     var brush = new SolidColorBrush(Colors.White);
+                    if (m.moduleType == Module.ModuleType.ClockRelated) {
+                        brush = new SolidColorBrush(Colors.Yellow);
+                    }
 
                     var from = new Point(m.X + m.W, m.Y + m.H/2);
-                    var to = new Point(rightM.X, rightM.Y + rightM.H / 2);
+                    var to = new Point(rightM.X - ARROW_LENGTH, rightM.Y + rightM.H / 2);
 
                     var control1 = new Point((from.X + to.X) / 2, from.Y);
                     var control2 = new Point((from.X + to.X) / 2, to.Y);
@@ -286,12 +316,14 @@ namespace WWShowUSBDeviceTree {
                     var p = CreatePath(from, to, control1, control2, brush);
                     canvas.Children.Add(p);
                     mCables.Add(p);
+
+                    var arrow = CreateFilledTriangle(new Point(to.X+ARROW_LENGTH, to.Y), new Point(to.X, to.Y-ARROW_WIDTH_HALF), new Point(to.X, to.Y + ARROW_WIDTH_HALF), brush);
+                    canvas.Children.Add(arrow);
+                    mArrows.Add(arrow);
                 }
             }
 
-            double Distance(Point a, Point b) {
-                return Math.Sqrt((a.X - b.X) * (a.X - b.X) + (a.Y - b.Y) * (a.Y - b.Y));
-            }
+            
 
             // 上下の線。
             foreach (var m in mModules) {
@@ -302,10 +334,12 @@ namespace WWShowUSBDeviceTree {
                     var brush = new SolidColorBrush(Colors.Yellow);
 
                     var from = new Point(m.X + m.W/2, m.Y + m.H);
-                    var to = new Point(bottomM.X + bottomM.W/2, bottomM.Y);
+                    var to = new Point(bottomM.X + bottomM.W/2, bottomM.Y - ARROW_LENGTH);
 
-                    //double len = Distance(from, to)/2;
                     double len = Math.Abs(from.Y - to.Y)/2;
+                    if (len < SPACING_Y*0.75) {
+                        len = SPACING_Y*0.75;
+                    }
 
                     var control1 = new Point(from.X, from.Y+len);
                     var control2 = new Point(to.X, bottomM.Y-len);
@@ -313,6 +347,10 @@ namespace WWShowUSBDeviceTree {
                     var p = CreatePath(from, to, control1, control2, brush);
                     canvas.Children.Add(p);
                     mCables.Add(p);
+
+                    var arrow = CreateFilledTriangle(new Point(to.X, to.Y+ARROW_LENGTH), new Point(to.X-ARROW_WIDTH_HALF, to.Y), new Point(to.X + ARROW_WIDTH_HALF, to.Y), brush);
+                    canvas.Children.Add(arrow);
+                    mArrows.Add(arrow);
                 }
             }
         }
