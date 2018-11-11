@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{AAD2F595-431F-4B99-826E-46EB8406F13B}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <RootNamespace>WWShowUSBDeviceTree</RootNamespace>
     <AssemblyName>WWShowUSBDeviceTree</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
