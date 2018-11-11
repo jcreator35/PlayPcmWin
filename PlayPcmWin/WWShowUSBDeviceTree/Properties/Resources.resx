@@ -123,16 +123,16 @@
   <data name="DescriptionText" xml:space="preserve">
     <value>Host means PC. Device means USB device.
 
-LowSpeed interconnect : 0.19MB/s signaling bit rate, Half duplex. Yellow Colored.
-FullSpeed interconnect : 1.5MB/s signaling bit rate, Half duplex. Yellow Colored.
-HighSpeed interconnect : 60MB/s signaling bit rate, Half duplex. White Colored.
-SuperSpeed interconnect : 625MB/s signaling bit rate, Full duplex. Cyan Colored.
-SuperSpeed+ interconnect : 1.25GB/s or 2.5GB/s(USB3.2 Gen2x2) signaling bit rate, Full duplex. Magenta Colored.
+LowSpeed : 0.19MB/s signaling bit rate, Half duplex. Yellow Colored Curve.
+FullSpeed : 1.5MB/s signaling bit rate, Half duplex. Yellow Colored Curve.
+HighSpeed : 60MB/s signaling bit rate, Half duplex. White Colored Curve.
+SuperSpeed : 625MB/s signaling bit rate, Full duplex. Cyan Colored Curve.
+SuperSpeed+ : 1.25GB/s or 2.5GB/s(USB3.2 Gen2x2) signaling bit rate, Full duplex. Magenta Colored Curve.
 
-USB1.x supports LowSpeed and FullSpeed. Yellow Colored.
-USB2.0 supports LowSpeed, FullSpeed and HighSpeed. White Colored.
-USB3.0/USB3.1 Gen1/USB3.2  supports LowSpeed, FullSpeed, HighSpeed and SuperSpeed. Cyan Colored.
-USB3.1 Gen2/USB3.2 Gen1x2/USB3.2 Gen2x1/USB3.2 Gen2x2 supports LowSpeed, FullSpeed, HighSpeed, SuperSpeed and SuperSpeed+. Magenta Colored.
+USB1.x supports LowSpeed and FullSpeed. Yellow Colored Border.
+USB2.0 supports LowSpeed, FullSpeed and HighSpeed. White Colored Border.
+USB3.0/USB3.1 Gen1/USB3.2  supports LowSpeed, FullSpeed, HighSpeed and SuperSpeed. Cyan Colored Border.
+USB3.1 Gen2/USB3.2 Gen1x2/USB3.2 Gen2x1/USB3.2 Gen2x2 supports LowSpeed, FullSpeed, HighSpeed, SuperSpeed and SuperSpeed+. Magenta Colored Border.
 
 UHCI(Universal Host Controller Interface) and OHCI(Open Host Controller Interface) is USB1.x.
 EHCI(Enhanced Host Controller Interface) is USB2.0.

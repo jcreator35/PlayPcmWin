@@ -72,13 +72,13 @@ namespace WWShowUSBDeviceTree.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Host means PC. Device means USB device.
         ///
-        ///LowSpeed interconnect : 0.19MB/s signaling bit rate, Half duplex. Yellow Colored.
-        ///FullSpeed interconnect : 1.5MB/s signaling bit rate, Half duplex. Yellow Colored.
-        ///HighSpeed interconnect : 60MB/s signaling bit rate, Half duplex. White Colored.
-        ///SuperSpeed interconnect : 625MB/s signaling bit rate, Full duplex. Cyan Colored.
-        ///SuperSpeed+ interconnect : 1.25GB/s or 2.5GB/s(USB3.2 Gen2x2) signaling bit rate, Full duplex. Magenta Colored.
+        ///LowSpeed : 0.19MB/s signaling bit rate, Half duplex. Yellow Colored Curve.
+        ///FullSpeed : 1.5MB/s signaling bit rate, Half duplex. Yellow Colored Curve.
+        ///HighSpeed : 60MB/s signaling bit rate, Half duplex. White Colored Curve.
+        ///SuperSpeed : 625MB/s signaling bit rate, Full duplex. Cyan Colored Curve.
+        ///SuperSpeed+ : 1.25GB/s or 2.5GB/s(USB3.2 Gen2x2) signaling bit rate, Full duplex. Magenta Colored Curve.
         ///
-        ///USB1.x supports LowSpeed  [rest of string was truncated]&quot;;.
+        ///USB1.x supports LowSpeed and FullSpeed. Yellow Colored Borde [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string DescriptionText {
             get {
