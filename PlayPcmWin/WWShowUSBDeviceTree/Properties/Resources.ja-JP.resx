@@ -139,8 +139,17 @@ EHCI(Enhanced Host Controller Interface)はUSB2.0。
 xHCI(eXtensible Host Controller Interface)はUSB3.0以上。
 </value>
   </data>
+  <data name="Refresh" xml:space="preserve">
+    <value>最新の状態に更新</value>
+  </data>
   <data name="SelfPowered" xml:space="preserve">
     <value>セルフパワー</value>
+  </data>
+  <data name="ShowDesc" xml:space="preserve">
+    <value>説明文表示</value>
+  </data>
+  <data name="ShowDetail" xml:space="preserve">
+    <value>詳細表示</value>
   </data>
   <data name="StreamForPlayback" xml:space="preserve">
     <value>再生用ストリーム入力</value>

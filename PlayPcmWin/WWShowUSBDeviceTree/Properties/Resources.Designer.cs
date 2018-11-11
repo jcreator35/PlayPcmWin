@@ -87,11 +87,38 @@ namespace WWShowUSBDeviceTree.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Refresh.
+        /// </summary>
+        internal static string Refresh {
+            get {
+                return ResourceManager.GetString("Refresh", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Self Powered.
         /// </summary>
         internal static string SelfPowered {
             get {
                 return ResourceManager.GetString("SelfPowered", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Show Description.
+        /// </summary>
+        internal static string ShowDesc {
+            get {
+                return ResourceManager.GetString("ShowDesc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Show Detail.
+        /// </summary>
+        internal static string ShowDetail {
+            get {
+                return ResourceManager.GetString("ShowDetail", resourceCulture);
             }
         }
         

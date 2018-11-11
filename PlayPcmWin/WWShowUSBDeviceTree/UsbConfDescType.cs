@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace WWShowUSBDeviceTree
-{
+﻿namespace WWShowUSBDeviceTree {
     public enum UsbConfDescType {
         Unknown = -1,
         Device = 1,
