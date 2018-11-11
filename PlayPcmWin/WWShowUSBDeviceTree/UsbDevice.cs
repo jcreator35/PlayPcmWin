@@ -6,11 +6,23 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Shapes;
 
 namespace WWShowUSBDeviceTree {
     public class UsbDevice {
 
         public const double PADDING_RIGHT = 50;
+
+        private const double BORDER_THICKNESS = 2;
+        private const double PADDING_TEXTBOX = 4;
+
+        private const int ZINDEX_MODULE = 12;
+        private const int ZINDEX_PATH = 11;
+
+        private double SPACING_X = 100;
+        private double SPACING_Y = 80;
+
+
         public enum NodeType {
             HostController,
             Hub,
@@ -20,13 +32,16 @@ namespace WWShowUSBDeviceTree {
 
         public int idx;
         public int parentIdx;
+        public UsbDevice left;
+        public List<UsbDevice> right = new List<UsbDevice>();
 
         public UsbDeviceTreeCs.BusSpeed speed;
         public UsbDeviceTreeCs.BusSpeed usbVersion;
         public Brush borderBrush;
 
-        public UsbDevice parent;
-        public List<UsbDevice> children = new List<UsbDevice>();
+        public List<Module> mModules = new List<Module>();
+        List<List<Module>> mModuleListByLayer = new List<List<Module>>();
+        List<Path> mCables = new List<Path>();
 
         public NodeType nodeType;
 
@@ -34,19 +49,32 @@ namespace WWShowUSBDeviceTree {
         public string text;
         public UIElement uiElement;
         public double fontSize = 12;
-        public double W { get; private set; }
+        public double W { get; set; }
 
-        public double H { get; private set; }
+        public double H { get; set; }
 
         public double X { get; set; }
         public double Y { get; set; }
 
-        private void CreateUIElem() {
-            // UI elementを作ります
-            FontFamily fontFamily = new FontFamily("Segoe UI");
+        public static Brush SpeedToBrush(UsbDeviceTreeCs.BusSpeed speed) {
+            switch (speed) {
+            case UsbDeviceTreeCs.BusSpeed.HighSpeed:
+                return new SolidColorBrush(Colors.White);
+            case UsbDeviceTreeCs.BusSpeed.SuperSpeed:
+                return new SolidColorBrush(Color.FromRgb(0x40, 0xc0, 0xff));
+            case UsbDeviceTreeCs.BusSpeed.SuperSpeedPlus:
+                return new SolidColorBrush(Color.FromRgb(0xff, 0, 0xff));
+            case UsbDeviceTreeCs.BusSpeed.LowSpeed:
+            case UsbDeviceTreeCs.BusSpeed.FullSpeed:
+                return new SolidColorBrush(Color.FromRgb(0xff, 0xff, 0));
+            default:
+                return new SolidColorBrush(Colors.White);
+            }
+        }
 
+        private void CreateUIElem() {
             var tb = new TextBlock {
-                Padding = new Thickness(4),
+                Padding = new Thickness(PADDING_TEXTBOX),
                 Text = text,
                 FontSize = fontSize,
                 TextWrapping = TextWrapping.Wrap,
@@ -54,7 +82,7 @@ namespace WWShowUSBDeviceTree {
                 Foreground = new SolidColorBrush(Colors.White),
             };
             var bd = new Border() {
-                BorderThickness = new Thickness(2),
+                BorderThickness = new Thickness(BORDER_THICKNESS),
                 BorderBrush = borderBrush,
                 Child = tb,
             };
@@ -73,26 +101,17 @@ namespace WWShowUSBDeviceTree {
             uiElement = bd;
         }
 
-        public static Brush SpeedToBrush(UsbDeviceTreeCs.BusSpeed speed) {
-            switch (speed) {
-            case UsbDeviceTreeCs.BusSpeed.HighSpeed:
-                return new SolidColorBrush(Colors.White);
-            case UsbDeviceTreeCs.BusSpeed.SuperSpeed:
-                return new SolidColorBrush(Color.FromRgb(0x40, 0xc0, 0xff));
-            case UsbDeviceTreeCs.BusSpeed.SuperSpeedPlus:
-                return new SolidColorBrush(Color.FromRgb(0xff, 0, 0xff));
-            case UsbDeviceTreeCs.BusSpeed.LowSpeed:
-            case UsbDeviceTreeCs.BusSpeed.FullSpeed:
-                return new SolidColorBrush(Color.FromRgb(0xff, 0xff, 0));
-            default:
-                return new SolidColorBrush(Colors.White);
-            }
+        private void UpdateUIElementWH(double w, double h) {
+            var bd = (Border)uiElement;
+            var tb = (TextBlock)bd.Child;
+            tb.Width = w - BORDER_THICKNESS*2;
+            tb.Height = h - BORDER_THICKNESS*2;
         }
 
         public UsbDevice(NodeType nodeType, int idx, int parentIdx,
-            UsbDeviceTreeCs.BusSpeed speed,
-            UsbDeviceTreeCs.BusSpeed usbVersion,
-            string text) {
+                UsbDeviceTreeCs.BusSpeed speed,
+                UsbDeviceTreeCs.BusSpeed usbVersion,
+                string text) {
             this.nodeType = nodeType;
             this.idx = idx;
             this.parentIdx = parentIdx;
@@ -102,6 +121,208 @@ namespace WWShowUSBDeviceTree {
             borderBrush = SpeedToBrush(usbVersion);
 
             CreateUIElem();
+        }
+
+        public void Add(Module m) {
+            mModules.Add(m);
+        }
+
+        private Module FindModule(int idx) {
+            if (idx < 0) {
+                return null;
+            }
+            foreach (var m in mModules) {
+                if (m.idx == idx) {
+                    return m;
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// モジュールを並べ、このノードのW Hを確定する。
+        /// </summary>
+        private void ResolveWH() {
+            if (mModules.Count == 0) {
+                return;
+            }
+
+            double thisW = W;
+            double thisH = H;
+
+            double xOffs = SPACING_Y;
+            for (int layer = 0; layer < mModuleListByLayer.Count(); ++layer) {
+                var moduleList = mModuleListByLayer[layer];
+
+                double y = H;
+                double maxW = 0;
+                foreach (var m in moduleList) {
+                    m.X = xOffs;
+                    m.Y = y;
+                    Canvas.SetZIndex(m.uiElement, ZINDEX_MODULE);
+
+                    // 次(下)のnode位置。
+                    y += m.H + SPACING_Y;
+
+                    if (thisW < m.X + m.W) {
+                        thisW = m.X + m.W;
+                    }
+                    if (thisH < m.Y + m.H) {
+                        thisH = m.Y + m.H;
+                    }
+
+                    // 次のlayerの位置計算のための最大幅。
+                    if (maxW < m.W) {
+                        maxW = m.W;
+                    }
+                }
+
+                xOffs += maxW + SPACING_X;
+            }
+
+            W = thisW + PADDING_TEXTBOX*2;
+            H = thisH + PADDING_TEXTBOX*2;
+            UpdateUIElementWH(W, H);
+        }
+
+        public void Resolve() {
+            // m.m*Modulesを更新。
+            foreach (var m in mModules) {
+                m.mLeftModules.Clear();
+                m.mRightModules.Clear();
+                m.mTopModules.Clear();
+                m.mBottomItems.Clear();
+            }
+
+            foreach (var m in mModules) {
+                foreach (int idx in m.mLeftItems) {
+                    m.AddToLeft(FindModule(idx));
+                }
+                foreach (int idx in m.mRightItems) {
+                    m.AddToRight(FindModule(idx));
+                }
+                foreach (int idx in m.mTopItems) {
+                    m.AddToTop(FindModule(idx));
+                }
+                foreach (int idx in m.mBottomItems) {
+                    m.AddToBottom(FindModule(idx));
+                }
+            }
+
+            // モジュールのlayerを確定する。
+            foreach (var m in mModules) {
+                m.ResolveLayer();
+            }
+
+            // 同じlayerのモジュールを集める。
+            mModuleListByLayer.Clear();
+            foreach (var v in mModules) {
+                while (mModuleListByLayer.Count <= v.layer) {
+                    mModuleListByLayer.Add(new List<Module>());
+                }
+                mModuleListByLayer[v.layer].Add(v);
+            }
+
+            ResolveWH();
+        }
+
+        private void ResolveModulePositions() {
+            foreach (var m in mModules) {
+                m.X += X;
+                m.Y += Y;
+                Canvas.SetLeft(m.uiElement, m.X);
+                Canvas.SetTop(m.uiElement, m.Y);
+            }
+        }
+
+        private Path CreatePath(Point from, Point to, Point control1, Point control2, Brush brush) {
+            var p = new Path() {
+                Data = new PathGeometry() {
+                    Figures = new PathFigureCollection()
+                },
+                Stroke = brush,
+                StrokeThickness = 2,
+            };
+            Canvas.SetZIndex(p, ZINDEX_PATH);
+
+            var pfc = (PathFigureCollection)((PathGeometry)p.Data).Figures;
+            PathFigure pf = new PathFigure() {
+                StartPoint = from,
+                Segments = new PathSegmentCollection()
+            };
+            pf.Segments.Add(new BezierSegment() {
+                Point1 = control1,
+                Point2 = control2,
+                Point3 = to,
+            });
+            pfc.Add(pf);
+            return p;
+        }
+
+        /// <summary>
+        /// ノード間の線を引きます。
+        /// </summary>
+        private void ConnectCables(Canvas canvas) {
+            // すでに引かれている線を消す。
+            foreach (var c in mCables) {
+                canvas.Children.Remove(c);
+            }
+            mCables.Clear();
+
+            // 線を引いていきます。
+            // 左右の線。
+            foreach (var m in mModules) {
+                for (int i=0; i<m.mRightModules.Count; ++i) {
+                    int count = m.mRightModules.Count;
+                    var rightM = m.mRightModules[i];
+                    var brush = new SolidColorBrush(Colors.White);
+
+                    var from = new Point(m.X + m.W, m.Y + m.H/2);
+                    var to = new Point(rightM.X, rightM.Y + rightM.H / 2);
+
+                    var control1 = new Point((from.X + to.X) / 2, from.Y);
+                    var control2 = new Point((from.X + to.X) / 2, to.Y);
+
+                    var p = CreatePath(from, to, control1, control2, brush);
+                    canvas.Children.Add(p);
+                    mCables.Add(p);
+                }
+            }
+
+            double Distance(Point a, Point b) {
+                return Math.Sqrt((a.X - b.X) * (a.X - b.X) + (a.Y - b.Y) * (a.Y - b.Y));
+            }
+
+            // 上下の線。
+            foreach (var m in mModules) {
+                for (int i=0; i<m.mBottomModules.Count; ++i) {
+                    int count = m.mBottomModules.Count;
+                    var bottomM = m.mBottomModules[i];
+
+                    var brush = new SolidColorBrush(Colors.Yellow);
+
+                    var from = new Point(m.X + m.W/2, m.Y + m.H);
+                    var to = new Point(bottomM.X + bottomM.W/2, bottomM.Y);
+
+                    //double len = Distance(from, to)/2;
+                    double len = Math.Abs(from.Y - to.Y)/2;
+
+                    var control1 = new Point(from.X, from.Y+len);
+                    var control2 = new Point(to.X, bottomM.Y-len);
+
+                    var p = CreatePath(from, to, control1, control2, brush);
+                    canvas.Children.Add(p);
+                    mCables.Add(p);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 表示場所が確定したら呼ぶ。
+        /// </summary>
+        public void PositionUpdated(Canvas canvas) {
+            ResolveModulePositions();
+            ConnectCables(canvas);
         }
     }
 }

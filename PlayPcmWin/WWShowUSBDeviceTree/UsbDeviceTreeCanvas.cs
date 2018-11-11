@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -11,6 +8,8 @@ using static WWShowUSBDeviceTree.UsbDeviceTreeCs;
 
 namespace WWShowUSBDeviceTree {
     public class UsbDeviceTreeCanvas {
+        private const int ZINDEX_PATH = 0;
+
         Canvas mCanvas;
 
         List<Path> mCables = new List<Path>();
@@ -67,13 +66,25 @@ namespace WWShowUSBDeviceTree {
                 s = string.Format("{0}\n{1}\n{2} {3}, {4}\n{5}",
                         hp.name, hp.vendor, hp.ConnectorTypeStr(), hp.VersionStr(), hp.SpeedStr(),
                         confS);
+
+                var node = new UsbDevice(nodeType, hp.idx, hp.parentIdx, speed, version, s);
+
+                // オーディオのchild nodes。
+                foreach (var m in confReader.mModules) {
+                    node.Add(m);
+                    mCanvas.Children.Add(m.uiElement);
+                }
+                node.Resolve();
+
+                AddNode(node);
+
             } else {
                 s = string.Format("{0}\n{1}\n{2} {3}, {4}",
                         hp.name, hp.vendor, hp.ConnectorTypeStr(), hp.VersionStr(), hp.SpeedStr());
+                var node = new UsbDevice(nodeType, hp.idx, hp.parentIdx, speed, version, s);
+                AddNode(node);
             }
 
-            var node = new UsbDevice(nodeType, hp.idx, hp.parentIdx, speed, version, s);
-            AddNode(node);
         }
 
         public void AddNode(UsbDevice.NodeType nodeType, int idx, int parentIdx,
@@ -103,8 +114,12 @@ namespace WWShowUSBDeviceTree {
             ResolveConnections();
 
             ResolvePositions();
-            
+
             ConnectCables();
+
+            foreach (var v in mNodeList) {
+                v.PositionUpdated(mCanvas);
+            }
         }
 
         /// <summary>
@@ -112,7 +127,7 @@ namespace WWShowUSBDeviceTree {
         /// </summary>
         private void ResolveConnections() {
             foreach (var n in mNodeList) {
-                n.children.Clear();
+                n.right.Clear();
             }
 
             foreach (var n in mNodeList) {
@@ -121,9 +136,33 @@ namespace WWShowUSBDeviceTree {
                 }
 
                 var p = FindNode(n.parentIdx);
-                p.children.Add(n);
-                n.parent = p;
+                p.right.Add(n);
+                n.left = p;
             }
+        }
+
+        private Path CreatePath(Point from, Point to, Point control1, Point control2, Brush brush) {
+            var p = new Path() {
+                Data = new PathGeometry() {
+                    Figures = new PathFigureCollection()
+                },
+                Stroke = brush,
+                StrokeThickness = 2,
+            };
+            Canvas.SetZIndex(p, ZINDEX_PATH);
+
+            var pfc = ((PathGeometry)p.Data).Figures;
+            PathFigure pf = new PathFigure() {
+                StartPoint = from,
+                Segments = new PathSegmentCollection()
+            };
+            pf.Segments.Add(new BezierSegment() {
+                Point1 = control1,
+                Point2 = control2,
+                Point3 = to,
+            });
+            pfc.Add(pf);
+            return p;
         }
 
         /// <summary>
@@ -138,36 +177,22 @@ namespace WWShowUSBDeviceTree {
 
             // 線を引いていきます。
             for (int layer = 2; layer < mNodeListByLayer.Count; layer += 2) {
-                foreach (var node in mNodeListByLayer[layer]) {
+                for (int i=0; i<mNodeListByLayer[layer].Count; ++i) {
+                    int count = mNodeListByLayer[layer].Count;
+                    var node = mNodeListByLayer[layer][i];
+
                     var speed = node.speed;
                     var brush = UsbDevice.SpeedToBrush(speed);
 
-                    var parentN = node.parent;
-                    
-                    var from = new Point(parentN.X + parentN.W, parentN.Y+parentN.H/2);
+                    var parentN = node.left;
+
+                    var from = new Point(parentN.X + parentN.W, parentN.Y + parentN.H / 2);
                     var to = new Point(node.X, node.Y + node.H / 2);
 
                     var control1 = new Point((from.X + to.X) / 2, from.Y);
                     var control2 = new Point((from.X + to.X) / 2, to.Y);
 
-                    var p = new Path() {
-                        Data = new PathGeometry() {
-                            Figures = new PathFigureCollection()
-                        },
-                        Stroke = brush,
-                        StrokeThickness = 2,
-                    };
-                    var pfc = (PathFigureCollection)((PathGeometry)p.Data).Figures;
-                    PathFigure pf = new PathFigure() {
-                        StartPoint = from,
-                        Segments = new PathSegmentCollection()
-                    };
-                    pf.Segments.Add(new BezierSegment() {
-                        Point1 = control1,
-                        Point2 = control2,
-                        Point3 = to,
-                    });
-                    pfc.Add(pf);
+                    var p = CreatePath(from, to, control1, control2, brush);
 
                     mCanvas.Children.Add(p);
                     mCables.Add(p);
@@ -198,8 +223,8 @@ namespace WWShowUSBDeviceTree {
                     if ((layer & 1) == 1) {
 
                         // 補足的なポート詳細情報。親に重ねて表示。
-                        double x = node.parent.X + node.parent.W - UsbDevice.PADDING_RIGHT;
-                        y = node.parent.Y + node.parent.H/2 - node.H/2;
+                        double x = node.left.X + node.left.W - UsbDevice.PADDING_RIGHT;
+                        y = node.left.Y + node.left.H/2 - node.H/2;
                         node.X = x;
                         node.Y = y;
                         Canvas.SetLeft(node.uiElement, x);

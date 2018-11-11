@@ -21,7 +21,7 @@
         <Menu >
             <Button x:Name="mButtonRefresh" Content="_Refresh" Click="mButtonRefresh_Click"/>
             <CheckBox x:Name="mCBShowDesc" Content="_Show Description" IsChecked="True" Checked="mCBShowDesc_Checked" Unchecked="mCBShowDesc_Unchecked" />
-            <CheckBox x:Name="mCBShowDetail" Content="Show _Detail" IsChecked="False" Checked="mCBShowDetail_Checked" Unchecked="mCBShowDetail_Unchecked" />
+            <CheckBox x:Name="mCBShowDetail" Content="Show _Detail" IsChecked="True" Checked="mCBShowDetail_Checked" Unchecked="mCBShowDetail_Unchecked" />
         </Menu>
         <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Visible" Background="#FF1E1E1E">
             <Canvas x:Name="mCanvas" Background="#ff1e1e1e" HorizontalAlignment="Left" VerticalAlignment="Top" >

@@ -12,6 +12,25 @@ namespace WWShowUSBDeviceTree {
         List<WWUsbStringDescCs> mSds;
         UsbDeviceTreeCs.BusSpeed mSpeed;
 
+        List<int> mAudioInterfaceNr = new List<int>();
+        public List<Module> mModules = new List<Module>();
+
+        /// <summary>
+        /// current interface context
+        /// </summary>
+        InterfaceProperty mCurrentIF = new InterfaceProperty();
+
+        List<TerminalProperty> mTerminals = new List<TerminalProperty>();
+
+        TerminalProperty FindTerminal(int id) {
+            foreach (var t in mTerminals) {
+                if (t.id == id) {
+                    return t;
+                }
+            }
+            return null;
+        }
+
         enum USBAudioClass {
             Other,
             AC1,
@@ -19,11 +38,6 @@ namespace WWShowUSBDeviceTree {
         };
 
         USBAudioClass mAudioClass = USBAudioClass.Other;
-
-        int interfaceClass = 0;
-        int interfaceSubClass = 0;
-        int interfaceProtocol = 0;
-
 
         private string FindString(int idx) {
             foreach (var v in mSds) {
@@ -296,6 +310,9 @@ namespace WWShowUSBDeviceTree {
         private const int EMBEDDED_FUNCTION_TERMINAL_TYPE_Drums = 0x716;
         private const int EMBEDDED_FUNCTION_TERMINAL_TYPE_OtherMusicalInstrument = 0x717;
 
+        /// <summary>
+        /// Speaker, Headphones, Microphone, ...
+        /// </summary>
         private string TerminalTypeToStr(int itt) {
             switch (itt) {
             case USB_TERMINAL_TYPE_Undefined: return "Undefined terminal";
@@ -721,34 +738,39 @@ namespace WWShowUSBDeviceTree {
             case AUDIO_CLOCK_SOURCE_PROGRAMMABLE_FREQ: sb.Append("Programmable frequency clock"); break;
             }
 
-            if (0 !=(bmAttributes & 0x4)) {
-                sb.Append(", Sync to SOF");
+            return sb.ToString();
+        }
+        private string AudioClockSourceAttrToClockControlStr(int bmAttributes, int bmControls) {
+            var sb = new StringBuilder();
+
+            if (0 != (bmAttributes & 0x4)) {
+                sb.Append("Sync to SOF, ");
             } else {
-                sb.Append(", Free running");
+                sb.Append("Free running, ");
             }
 
-            switch (bmControls&0x3) {
-            case 0: sb.Append(", Frequency not programmable"); break;
-            case 1: sb.Append(", Frequency host readable"); break;
-            case 3: sb.Append(", Frequency host programmable"); break;
+            switch (bmControls & 0x3) {
+            case 0: sb.Append("Frequency not r/w, "); break;
+            case 1: sb.Append("Frequency readable, "); break;
+            case 3: sb.Append("Frequency writeable, "); break;
             default: break;
             }
-            switch ((bmControls>>2) & 0x3) {
-            case 0: sb.Append(", Clock validity not programmable"); break;
-            case 1: sb.Append(", Clock validity host readable"); break;
-            case 3: sb.Append(", Clock validity host programmable"); break;
+            switch ((bmControls >> 2) & 0x3) {
+            case 0: sb.Append("Clock validity not r/w"); break;
+            case 1: sb.Append("Clock validity readable"); break;
+            case 3: sb.Append("Clock validity writeable"); break;
             default: break;
             }
 
             return sb.ToString();
         }
 
-        private string AudioClockSelectorCotrolsToStr(int bmControls) {
+        private string AudioClockOneCotrolsToStr(int bmControls) {
             var sb = new StringBuilder();
             switch (bmControls & 0x3) {
-            case 0: sb.Append("Not programmable"); break;
+            case 0: sb.Append("Not r/w"); break;
             case 1: sb.Append("Host readable"); break;
-            case 3: sb.Append("Host programmable"); break;
+            case 3: sb.Append("Host writeable"); break;
             default: break;
             }
             return sb.ToString();
@@ -757,21 +779,62 @@ namespace WWShowUSBDeviceTree {
         private string AudioClockMultiplierCotrolsToStr(int bmControls) {
             var sb = new StringBuilder();
             switch (bmControls & 0x3) {
-            case 0: sb.Append("Numerator Not programmable"); break;
+            case 0: sb.Append("Numerator Not r/w"); break;
             case 1: sb.Append("Numerator Host readable"); break;
-            case 3: sb.Append("Numerator Host programmable"); break;
+            case 3: sb.Append("Numerator Host writeable"); break;
             default: break;
             }
             switch ((bmControls>>2) & 0x3) {
-            case 0: sb.Append("Denominator Not programmable"); break;
+            case 0: sb.Append("Denominator Not r/w"); break;
             case 1: sb.Append("Denominator Host readable"); break;
-            case 3: sb.Append("Denominator Host programmable"); break;
+            case 3: sb.Append("Denominator Host writeable"); break;
             default: break;
             }
             return sb.ToString();
         }
 
-        private string AudioControlFeatureControlsToStr(uint b) {
+        private string AudioControl1FeatureControlsToStr(uint b) {
+            var sb = new StringBuilder();
+            if ((b & 1) != 0) {
+                sb.Append(", Mute");
+            }
+            if ((b & 2) != 0) {
+                sb.Append(", VolumeControl");
+            }
+            if ((b & 4) != 0) {
+                sb.Append(", BassControl");
+            }
+            if ((b & 8) != 0) {
+                sb.Append(", MidControl");
+            }
+            if ((b & 16) != 0) {
+                sb.Append(", TrebleControl");
+            }
+            if ((b & 32) != 0) {
+                sb.Append(", GraphicsEqualizerControl");
+            }
+            if ((b & 64) != 0) {
+                sb.Append(", AutoGainControl");
+            }
+            if ((b & 128) != 0) {
+                sb.Append(", DelayControl");
+            }
+            if ((b & 256) != 0) {
+                sb.Append(", BassBoostControl");
+            }
+            if ((b & 512) != 0) {
+                sb.Append(", LoudnessControl");
+            }
+
+            string s = sb.ToString();
+            if (s.Length == 0) {
+                return ", Uncontrollable from host";
+            } else {
+                return s;
+            }
+        }
+
+        private string AudioControl2FeatureControlsToStr(uint b) {
             var sb = new StringBuilder();
             if ((b & 0x3) == 3) {
                 sb.Append(", Mute");
@@ -881,6 +944,147 @@ namespace WWShowUSBDeviceTree {
             }
         }
 
+        private string TransTypeToStr(int t) {
+            switch (t) {
+            case 0: return "Control";
+            case 1: return "Isochronous";
+            case 2: return "Bulk";
+            case 3: return "Interrupt";
+            default: return "Unknown";
+            }
+        }
+        private string SyncTypeToStr(int t) {
+            switch (t) {
+            case 0: return "NoSync";
+            case 1: return "Asynchronous";
+            case 2: return "Adaptive";
+            case 3: return "Synchronous";
+            default: return "Unknown";
+            }
+        }
+
+        private string UsageTypeToStr(int t) {
+            switch (t) {
+            case 0: return "Data";
+            case 2: return "Implicit feedback data";
+            default: return "Unknown";
+            }
+        }
+
+        private string AudioCSEndpointAttrToStr(int attr) {
+            var sb = new StringBuilder();
+            if (0 == (attr & 0x3)) {
+                sb.Append("Control: None");
+            } else {
+                sb.Append("Control:");
+                if (0 != (attr & 1)) {
+                    sb.Append(" SamplingFreq");
+                }
+                if (0 != (attr & 2)) {
+                    sb.Append(" Pitch");
+                }
+            }
+
+            if (0 != (attr & 0x80)) {
+                sb.Append(", MaxPacketsOnly");
+            }
+            return sb.ToString();
+        }
+
+        private string Audio2CSEndpointControlsToStr(int attr, int cntl) {
+            var sb = new StringBuilder();
+            if (0 != (attr & 0x80)) {
+                sb.Append(" MaxPacketsOnly");
+            }
+
+            if (0 == (cntl & 0x3f)) {
+                sb.Append(" Controls: None");
+            } else {
+                sb.Append(" Controls:");
+                if (1 == (cntl & 0x3)) {
+                    sb.Append(" ReadPitch");
+                }
+                if (1 == ((cntl >> 2) & 0x3)) {
+                    sb.Append(" ReadDataOverrun");
+                }
+                if (1 == ((cntl >> 2) & 0x3)) {
+                    sb.Append(" ReadDataUnderrun");
+                }
+                if (3 == (cntl & 0x3)) {
+                    sb.Append(" PitchControl");
+                }
+                if (3 == ((cntl >> 2) & 0x3)) {
+                    sb.Append(" DataOverrunControl");
+                }
+                if (3 == ((cntl >> 2) & 0x3)) {
+                    sb.Append(" DataUnderrunControl");
+                }
+            }
+            return sb.ToString();
+
+        }
+
+        private const int LOCK_DELAY_UNIT_UNDEFINED = 0;
+        private const int LOCK_DELAY_UNIT_Millisec = 1;
+        private const int LOCK_DELAY_UNIT_DecodedPCMsamples = 2;
+
+        private string EndpointAttrToStr(int interval, int bmAttributes) {
+            var sb = new StringBuilder();
+
+            double unit = 0.125;
+            if (mSpeed <= BusSpeed.FullSpeed) {
+                unit = 1;
+            }
+
+            int epType = bmAttributes & ENDPOINT_TYPE_MASK;
+            switch (epType) {
+            case ENDPOINT_TYPE_CONTROL:
+                sb.Append("Control");
+                break;
+            case ENDPOINT_TYPE_ISOCHRONOUS:
+                sb.Append("Isochronous ");
+                switch (ENDPOINT_TYPE_ISOCHRONOUS_SYNCHRONIZATION_MASK & bmAttributes) {
+                case ENDPOINT_TYPE_ISOCHRONOUS_SYNCHRONIZATION_NO_SYNCHRONIZATION: sb.Append("No sync "); break;
+                case ENDPOINT_TYPE_ISOCHRONOUS_SYNCHRONIZATION_ASYNCHRONOUS: sb.Append("Asynchronous "); break;
+                case ENDPOINT_TYPE_ISOCHRONOUS_SYNCHRONIZATION_ADAPTIVE: sb.Append("Adaptive "); break;
+                case ENDPOINT_TYPE_ISOCHRONOUS_SYNCHRONIZATION_SYNCHRONOUS: sb.Append("Synchronous "); break;
+                default: break;
+                }
+                switch (ENDPOINT_TYPE_ISOCHRONOUS_USAGE_MASK & bmAttributes) {
+                case ENDPOINT_TYPE_ISOCHRONOUS_USAGE_DATA_ENDOINT: sb.Append("Data"); break;
+                case ENDPOINT_TYPE_ISOCHRONOUS_USAGE_FEEDBACK_ENDPOINT: sb.Append("Feedback"); break;
+                case ENDPOINT_TYPE_ISOCHRONOUS_USAGE_IMPLICIT_FEEDBACK_DATA_ENDPOINT: sb.Append("Implicit Feedback"); break;
+                case ENDPOINT_TYPE_ISOCHRONOUS_USAGE_RESERVED: sb.Append("Reserved"); break;
+                default: break;
+                }
+                sb.AppendFormat(" Interval={0}ms", Math.Pow(2, (0x1f & interval) - 1) * unit);
+                break;
+            case ENDPOINT_TYPE_BULK:
+                sb.Append("Bulk");
+                break;
+            case ENDPOINT_TYPE_INTERRUPT:
+                sb.Append("Interrupt, ");
+                switch (U30_ENDPOINT_TYPE_INTERRUPT_USAGE_MASK & bmAttributes) {
+                case U30_ENDPOINT_TYPE_INTERRUPT_USAGE_PERIODIC: sb.Append("Usage: Periodic"); break;
+                case U30_ENDPOINT_TYPE_INTERRUPT_USAGE_NOTIFICATION: sb.Append("Usage: Notification"); break;
+                case U30_ENDPOINT_TYPE_INTERRUPT_USAGE_RESERVED10:
+                case U30_ENDPOINT_TYPE_INTERRUPT_USAGE_RESERVED11:
+                default:
+                    sb.Append("Usage: Reserved"); break;
+                }
+                if (mSpeed <= BusSpeed.FullSpeed) {
+                    sb.AppendFormat(" Interval={0}ms", interval);
+                } else {
+                    sb.AppendFormat(" Interval={0}ms", Math.Pow(2, (0x1f & interval) - 1) * unit);
+                }
+                break;
+            default:
+                break;
+            }
+            return sb.ToString();
+        }
+
+
         // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
         public string Read(WWUsbHubPortCs hp) {
@@ -893,9 +1097,13 @@ namespace WWShowUSBDeviceTree {
 
             int offs = 0;
 
-            for (; ; ) {
+            bool done = false;
+
+            while (!done) {
                 if (buff == null || buff.Length - offs < 2) {
-                    return mSB.ToString();
+                    // 終了。
+                    done = true;
+                    continue;
                 }
 
                 var commD = new UsbCommonDescriptor(buff, offs);
@@ -904,10 +1112,8 @@ namespace WWShowUSBDeviceTree {
                     ReadConfDesc(buff, offs);
                     break;
                 case UsbConfDescType.Interface:
+                    // 中でmCurrentIFがセットされる。
                     ReadInterfaceDesc(buff, offs);
-                    interfaceClass = buff[offs + 5];
-                    interfaceSubClass = buff[offs + 6];
-                    interfaceProtocol = buff[offs + 7];
                     break;
                 case UsbConfDescType.Endpoint:
                     ReadEndpointDesc(buff, offs);
@@ -916,9 +1122,9 @@ namespace WWShowUSBDeviceTree {
                     ReadInterfaceAssocDesc(buff, offs);
                     break;
                 default:
-                    switch (interfaceClass) {
+                    switch (mCurrentIF.ifClass) {
                     case DEVICE_CLASS_AUDIO:
-                        ReadAudioDesc(interfaceSubClass, buff, offs);
+                        ReadAudioDesc(mCurrentIF.ifSubClass, buff, offs);
                         break;
                     }
                     break;
@@ -926,226 +1132,15 @@ namespace WWShowUSBDeviceTree {
 
                 offs += commD.bytes;
             }
+
+            // 後始末。
+            if (mCurrentIF.endpointAddr != 0) {
+                OutputEndpointModule(mCurrentIF);
+            }
+            mCurrentIF.Clear();
+
+            return mSB.ToString();
         }
-        private void ReadConfDesc(byte[] buff, int offs) {
-            /*
-            0 UCHAR bLength;
-            1 UCHAR bDescriptorType;
-            2 USHORT wTotalLength;
-            4 UCHAR bNumInterfaces;
-            5 UCHAR bConfigurationValue;
-            6 UCHAR iConfiguration;
-            7 UCHAR bmAttributes;
-            8 UCHAR MaxPower;
-            */
-            int length = buff[offs];
-            if (length < 9) {
-                return;
-            }
-
-            int bConfigurationValue = buff[offs + 5];
-            int iConfiguration = buff[offs + 6];
-            int bmAttributes = buff[offs + 7];
-            int maxPower = buff[offs + 8];
-
-            var s = FindString(iConfiguration);
-
-            // maxPowerAを計算。
-            int maxPowerA;
-            if (BusSpeed.SuperSpeed <= mSpeed) {
-                maxPowerA = maxPower * 8;
-            } else {
-                maxPowerA = maxPower * 2;
-            }
-
-            // バスパワーかどうか。
-            string power = "";
-            if (mSpeed <= BusSpeed.FullSpeed) {
-                if (0 != (USB_CONFIG_BUS_POWERED & bmAttributes)) {
-                    power = "Bus powered,";
-                }
-                if (0 != (USB_CONFIG_SELF_POWERED & bmAttributes)) {
-                    power = "Self powered,";
-                }
-            } else {
-                if (0 != (USB_CONFIG_SELF_POWERED & bmAttributes)) {
-                    power = "Self powered,";
-                } else {
-                    power = "Bus powered,";
-                }
-            }
-            if (0 != (USB_CONFIG_REMOTE_WAKEUP & bmAttributes)) {
-                power += "Remote wakeup,";
-            }
-
-            mSB.AppendFormat("    {0} {1} Max power={2}mA", s, power, maxPowerA);
-        }
-        private void ReadInterfaceDesc(byte[] buff, int offs) {
-            /* USB Device Class Definition for Audio Devices 4.7.1 Standard AC Interface Descriptor
-            0 UCHAR   bLength;
-            1 UCHAR   bDescriptorType;
-            2 UCHAR   bInterfaceNumber;
-            3 UCHAR   bAlternateSetting;
-            4 UCHAR   bNumEndpoints;
-            5 UCHAR   bInterfaceClass;
-            6 UCHAR   bInterfaceSubClass;
-            7 UCHAR   bInterfaceProtocol;
-            8 UCHAR   iInterface;
-            */
-            int length = buff[offs];
-            if (length < 9) {
-                return;
-            }
-
-            int interfaceNr = buff[offs + 2];
-            int altSet = buff[offs + 3];
-            int numEP = buff[offs + 4];
-            int intClass = buff[offs + 5];
-            int intSubClass = buff[offs + 6];
-            int intProto = buff[offs + 7];
-            int iInterface = buff[offs + 8];
-
-            string name = FindString(iInterface);
-            if (0 < name.Length) {
-                name = ": " + name;
-            }
-
-            string sIntClass = InterfaceClassToStr(intClass, intSubClass, intProto);
-
-            mSB.AppendFormat("\n      Interface {0}:{1} {2} {3}", interfaceNr, altSet, sIntClass, name);
-        }
-
-        private void ReadInterfaceAssocDesc(byte [] buff, int offs) {
-            /* USB 2.0 ECN Interface Association Descriptors Table 9-Z
-            0 UCHAR bLength
-            1 UCHAR bDescriptorType 
-            2 UCHAR bFirstInterface 1 
-            3 UCHAR bInterfaceCount 1 
-            4 UCHAR bFunctionClass    USB Audio Class 2.0 Table A-1
-            5 UCHAR bFunctionSubClass USB Audio Class 2.0 Table A-2
-            6 UCHAR bFunctionProtocol USB Audio Class 2.0 Table A-3
-            7 UCHAR iFunction
-            */
-            int length = buff[offs];
-            if (length != 8) {
-                mSB.AppendFormat("\n      Interface Association Descriptor of unknown size 0x{0:X2}", length);
-                return;
-            }
-
-            int bFirstInterface = buff[offs + 2];
-            int bInterfaceCount = buff[offs + 3];
-            int bFunctionClass = buff[offs + 4];
-            int bFunctionSubClass = buff[offs + 5];
-            int bFunctionProtocol = buff[offs + 6];
-            int iFunction = buff[offs + 7];
-            string sFuncClass = AudioFunctionClassToStr(bFunctionClass);
-            string name = FindString(iFunction);
-            mSB.AppendFormat("\n      Interface association, interface #{0} to {1} is {2}, ProtocolVersion={3:X}",
-                bFirstInterface, bFirstInterface+bInterfaceCount-1, sFuncClass, bFunctionProtocol);
-            if (0 < name.Length) {
-                mSB.AppendFormat(" ({0})", name);
-            }
-
-        }
-
-        private void ReadEndpointDesc(byte[] buff, int offs) {
-            /*
-            0 UCHAR   bLength;
-            1 UCHAR   bDescriptorType;
-            2 UCHAR   bEndpointAddress;
-            3 UCHAR   bmAttributes;
-            4 USHORT  wMaxPacketSize;
-            6 UCHAR   bInterval;
-            */
-            int length = buff[offs];
-            if (length < 7) {
-                return;
-            }
-
-
-            int bEpAddr = buff[offs + 2];
-            int bmAttributes = buff[offs + 3];
-            int maxPacket = 0x7ff & BitConverter.ToUInt16(buff, offs + 4);
-            int interval = 0;
-            int syncAddr = -1;
-            if (7 == length) {
-                interval = buff[offs + 6];
-            } else if (9 == length) {
-                // ENDPOINT DESCRIPTOR 2
-                /*
-                0 UCHAR   bLength;
-                1 UCHAR   bDescriptorType;
-                2 UCHAR   bEndpointAddress;
-                3 UCHAR   bmAttributes;
-                4 USHORT  wMaxPacketSize;
-                6 USHORT  wInterval;
-                8 UCHAR   bSyncAddress;
-                */
-                interval = BitConverter.ToUInt16(buff, offs + 6);
-                syncAddr = buff[offs + 8];
-            } else {
-                mSB.AppendFormat("\n        Unknown size of EndpointDesc {0:X4}", length);
-                return;
-            }
-
-            int epAddr = bEpAddr & ENDPOINT_ADDRESS_MASK;
-            bool epIsInput = 0 != (bEpAddr & ENDPOINT_DIRECTION_MASK);
-
-            mSB.AppendFormat("\n        {0} {1}: ", epIsInput ? "Input Endpoint" : "Output Endpoint", epAddr);
-
-            double unit = 0.125;
-            if (mSpeed <= BusSpeed.FullSpeed) {
-                unit = 1;
-            }
-
-            int epType = bmAttributes & ENDPOINT_TYPE_MASK;
-            switch (epType) {
-            case ENDPOINT_TYPE_CONTROL:
-                mSB.Append("Control");
-                break;
-            case ENDPOINT_TYPE_ISOCHRONOUS:
-                mSB.Append("Isochronous ");
-                switch (ENDPOINT_TYPE_ISOCHRONOUS_SYNCHRONIZATION_MASK & bmAttributes) {
-                case ENDPOINT_TYPE_ISOCHRONOUS_SYNCHRONIZATION_NO_SYNCHRONIZATION: mSB.Append("No sync "); break;
-                case ENDPOINT_TYPE_ISOCHRONOUS_SYNCHRONIZATION_ASYNCHRONOUS: mSB.Append("Asynchronous "); break;
-                case ENDPOINT_TYPE_ISOCHRONOUS_SYNCHRONIZATION_ADAPTIVE: mSB.Append("Adaptive "); break;
-                case ENDPOINT_TYPE_ISOCHRONOUS_SYNCHRONIZATION_SYNCHRONOUS: mSB.Append("Synchronous "); break;
-                default: break;
-                }
-                switch (ENDPOINT_TYPE_ISOCHRONOUS_USAGE_MASK & bmAttributes) {
-                case ENDPOINT_TYPE_ISOCHRONOUS_USAGE_DATA_ENDOINT: mSB.Append("Data"); break;
-                case ENDPOINT_TYPE_ISOCHRONOUS_USAGE_FEEDBACK_ENDPOINT: mSB.Append("Feedback"); break;
-                case ENDPOINT_TYPE_ISOCHRONOUS_USAGE_IMPLICIT_FEEDBACK_DATA_ENDPOINT: mSB.Append("Implicit Feedback"); break;
-                case ENDPOINT_TYPE_ISOCHRONOUS_USAGE_RESERVED: mSB.Append("Reserved"); break;
-                default: break;
-                }
-                mSB.AppendFormat(" Interval={0}ms", Math.Pow(2, (0x1f & interval) - 1) * unit);
-                break;
-            case ENDPOINT_TYPE_BULK:
-                mSB.Append("Bulk");
-                break;
-            case ENDPOINT_TYPE_INTERRUPT:
-                mSB.Append("Interrupt, ");
-                switch (U30_ENDPOINT_TYPE_INTERRUPT_USAGE_MASK & bmAttributes) {
-                case U30_ENDPOINT_TYPE_INTERRUPT_USAGE_PERIODIC: mSB.Append("Usage: Periodic"); break;
-                case U30_ENDPOINT_TYPE_INTERRUPT_USAGE_NOTIFICATION: mSB.Append("Usage: Notification"); break;
-                case U30_ENDPOINT_TYPE_INTERRUPT_USAGE_RESERVED10:
-                case U30_ENDPOINT_TYPE_INTERRUPT_USAGE_RESERVED11:
-                default:
-                    mSB.Append("Usage: Reserved"); break;
-                }
-                if (mSpeed <= BusSpeed.FullSpeed) {
-                    mSB.AppendFormat(" Interval={0}ms", interval);
-                } else {
-                    mSB.AppendFormat(" Interval={0}ms", Math.Pow(2, (0x1f & interval) - 1) * unit);
-                }
-                break;
-            default:
-                break;
-            }
-            mSB.AppendFormat(" Max {0} bytes", maxPacket);
-        }
-
         private void ReadAudioDesc(int interfaceSubClass, byte[] buff, int offs) {
             int length = buff[offs + 0];
             int descType = buff[offs + 1];
@@ -1166,20 +1161,47 @@ namespace WWShowUSBDeviceTree {
                         ReadAudioControlOutputTerminal(buff, offs);
                         break;
                     case AUDIO_AC_MIXER_UNIT:
-                        ReadAudioControlMixerUnit(buff, offs);
+                        switch (mAudioClass) {
+                        case USBAudioClass.AC1:
+                            ReadAudioControl1MixerUnit(buff, offs);
+                            break;
+                        case USBAudioClass.AC2:
+                            ReadAudioControl2MixerUnit(buff, offs);
+                            break;
+                        default:
+                            break;
+                        }
                         break;
                     case AUDIO_AC_SELECTOR_UNIT:
-                        ReadAudioControlSelectorUnit(buff, offs);
+                        switch (mAudioClass) {
+                        case USBAudioClass.AC1:
+                            ReadAudioControl1SelectorUnit(buff, offs);
+                            break;
+                        case USBAudioClass.AC2:
+                            ReadAudioControl2SelectorUnit(buff, offs);
+                            break;
+                        default:
+                            break;
+                        }
                         break;
                     case AUDIO_AC_FEATURE_UNIT:
-                        ReadAudioControlFeatureUnit(buff, offs);
+                        switch (mAudioClass) {
+                        case USBAudioClass.AC1:
+                            ReadAudioControl1FeatureUnit(buff, offs);
+                            break;
+                        case USBAudioClass.AC2:
+                            ReadAudioControl2FeatureUnit(buff, offs);
+                            break;
+                        default:
+                            break;
+                        }
                         break;
                     case AUDIO_AC2_EFFECT_UNIT:
                         switch (mAudioClass) {
                         case USBAudioClass.AC1:
                             ReadAudioControl1ProcessingUnit(buff, offs);
                             break;
-                        case USBAudioClass.AC2: 
+                        case USBAudioClass.AC2:
                             ReadAudioControl2EffectUnit(buff, offs);
                             break;
                         default:
@@ -1244,6 +1266,208 @@ namespace WWShowUSBDeviceTree {
             }
         }
 
+        private void ReadConfDesc(byte[] buff, int offs) {
+            int length = buff[offs];
+            if (length < 9) {
+                return;
+            }
+
+            int bConfigurationValue = buff[offs + 5];
+            int iConfiguration = buff[offs + 6];
+            int bmAttributes = buff[offs + 7];
+            int maxPower = buff[offs + 8];
+
+            var s = FindString(iConfiguration);
+
+            // maxPowerAを計算。
+            int maxPowerA;
+            if (BusSpeed.SuperSpeed <= mSpeed) {
+                maxPowerA = maxPower * 8;
+            } else {
+                maxPowerA = maxPower * 2;
+            }
+
+            // バスパワーかどうか。
+            string power = "";
+            if (mSpeed <= BusSpeed.FullSpeed) {
+                if (0 != (USB_CONFIG_BUS_POWERED & bmAttributes)) {
+                    power = "Bus powered,";
+                }
+                if (0 != (USB_CONFIG_SELF_POWERED & bmAttributes)) {
+                    power = "Self powered,";
+                }
+            } else {
+                if (0 != (USB_CONFIG_SELF_POWERED & bmAttributes)) {
+                    power = "Self powered,";
+                } else {
+                    power = "Bus powered,";
+                }
+            }
+            if (0 != (USB_CONFIG_REMOTE_WAKEUP & bmAttributes)) {
+                power += "Remote wakeup,";
+            }
+
+            mSB.AppendFormat("    {0} {1} Max power={2}mA", s, power, maxPowerA);
+        }
+        
+        private void ReadInterfaceDesc(byte[] buff, int offs) {
+            // USB Audio 2.0 4.7.1 Standard AC Interface Descriptor
+            int length = buff[offs];
+            if (length != 9) {
+                return;
+            }
+
+            int interfaceNr = buff[offs + 2];
+            int altSet = buff[offs + 3];
+            int numEP = buff[offs + 4];
+            int intClass = buff[offs + 5];
+            int intSubClass = buff[offs + 6];
+            int intProto = buff[offs + 7];
+            int iInterface = buff[offs + 8];
+
+            string name = FindString(iInterface);
+
+            string s = InterfaceClassToStr(intClass, intSubClass, intProto);
+
+            mSB.AppendFormat("\n      Interface {0}:{1} {2} {3}", interfaceNr, altSet, s, name);
+            if (mAudioInterfaceNr.Contains(interfaceNr)) {
+                if (mCurrentIF.endpointAddr != 0) {
+                    OutputEndpointModule(mCurrentIF);
+                }
+                mCurrentIF.Clear();
+                mCurrentIF.ifNr = interfaceNr;
+                mCurrentIF.altSet = altSet;
+                mCurrentIF.numEP = numEP;
+                mCurrentIF.ifClass = intClass;
+                mCurrentIF.ifSubClass = intSubClass;
+                mCurrentIF.name = name;
+            } else {
+                mSB.AppendFormat("\n      Interface {0}:{1} {2} {3}", interfaceNr, altSet, s, name);
+            }
+        }
+
+        private void ReadInterfaceAssocDesc(byte [] buff, int offs) {
+            // USB 2.0 ECN Interface Association Descriptors Table 9-Z
+            int length = buff[offs];
+            if (length != 8) {
+                mSB.AppendFormat("\n      Interface Association Descriptor of unknown size 0x{0:X2}", length);
+                return;
+            }
+
+            int bFirstInterface = buff[offs + 2];
+            int bInterfaceCount = buff[offs + 3];
+            int bFunctionClass = buff[offs + 4];
+            int bFunctionSubClass = buff[offs + 5];
+            int bFunctionProtocol = buff[offs + 6];
+            int iFunction = buff[offs + 7];
+            string sFuncClass = AudioFunctionClassToStr(bFunctionClass);
+            string name = FindString(iFunction);
+            mSB.AppendFormat("\n      Interface association, interface #{0} to {1} is {2}, AFVersion={3:X}",
+                bFirstInterface, bFirstInterface+bInterfaceCount-1, sFuncClass, bFunctionProtocol);
+
+            for (int i=0; i<bInterfaceCount; ++i) {
+                int nr = bFirstInterface + i;
+                mAudioInterfaceNr.Add(nr);
+            }
+
+            if (0 < name.Length) {
+                mSB.AppendFormat(" ({0})", name);
+            }
+        }
+
+        private void OutputEndpointModule(InterfaceProperty ip) {
+            var sb = new StringBuilder();
+
+            sb.AppendFormat("({1}:{2}:{3}) {0} Endpoint {4}\n{5}",
+                ip.direction == InterfaceProperty.Direction.InputDirection ? "Input" : "Output",
+                ip.ifNr, ip.altSet, ip.endpointAddr, ip.name, ip.endpointAttributes);
+
+            sb.AppendFormat("\nmaxPacket={1}bytes",
+                ip.endpointAttributes, ip.maxPacketBytes);
+            
+            switch (ip.usageType) {
+            case ENDPOINT_TYPE_ISOCHRONOUS_USAGE_DATA_ENDOINT:
+                sb.AppendFormat(" {0} {1}ch {2}bit, {3}bit container",
+                    ip.formatStr, ip.nCh, ip.bitResolution, ip.subSlotSize * 8);
+
+                for (int i=0; i<ip.samFreqs.Count; ++i) {
+                    sb.AppendFormat(" {0}kHz", ip.samFreqs[i] * 0.001);
+                }
+                if (ip.lowerSamFreq != 0) {
+                    sb.AppendFormat(" {0}kHz ～ {1}kHz", ip.lowerSamFreq * 0.001, ip.upperSamFreq * 0.001);
+                }
+                break;
+            default:
+                break;
+            }
+
+            if (ip.lastEndpointModule != null) {
+                var lastEP = ip.lastEndpointModule;
+                if (lastEP.ifNr == ip.ifNr
+                        && lastEP.altSet == ip.altSet
+                        && lastEP.endpointAddr == ip.endpointAddr) {
+                    // 同じエンドポイントのフィードバックパスなので１個にまとめる。
+                    lastEP.UpdateText(lastEP.mText + "\n" + sb.ToString());
+                    return;
+                }
+            }
+
+            var m = new Module(-1, sb.ToString());
+            m.ConnectToRightItem(ip.inTermNr);
+            m.ConnectToLeftItem(ip.outTermNr);
+            m.ifNr = ip.ifNr;
+            m.altSet = ip.altSet;
+            m.endpointAddr = ip.endpointAddr;
+            mModules.Add(m);
+            ip.lastEndpointModule = m;
+        }
+
+        private void ReadEndpointDesc(byte[] buff, int offs) {
+            int length = buff[offs];
+            if (length < 7) {
+                return;
+            }
+
+            int bEpAddr = buff[offs + 2];
+            int bmAttributes = buff[offs + 3];
+            int maxPacket = 0x7ff & BitConverter.ToUInt16(buff, offs + 4);
+            int interval = 0;
+            int syncAddr = -1;
+            if (7 == length) {
+                // USB Audio Class 2 Table 4-25
+                interval = buff[offs + 6];
+            } else if (9 == length) {
+                // USB Audio Class 1 Table 4-20
+                interval = BitConverter.ToUInt16(buff, offs + 6);
+                syncAddr = buff[offs + 8];
+            } else {
+                mSB.AppendFormat("\n        Unknown size of EndpointDesc {0:X4}", length);
+                return;
+            }
+            int epAddr = bEpAddr & ENDPOINT_ADDRESS_MASK;
+            bool epIsInput = 0 != (bEpAddr & ENDPOINT_DIRECTION_MASK);
+            string sAttr = EndpointAttrToStr(interval, bmAttributes);
+            int epType = bmAttributes & ENDPOINT_TYPE_MASK;
+            int syncType = ENDPOINT_TYPE_ISOCHRONOUS_SYNCHRONIZATION_MASK & bmAttributes;
+            int usageType = ENDPOINT_TYPE_ISOCHRONOUS_USAGE_MASK & bmAttributes;
+
+            if (mAudioInterfaceNr.Contains(mCurrentIF.ifNr)) {
+                if (mCurrentIF.endpointAddr != 0) {
+                    OutputEndpointModule(mCurrentIF);
+                }
+                mCurrentIF.direction = epIsInput ? InterfaceProperty.Direction.InputDirection : InterfaceProperty.Direction.OutputDirection;
+                mCurrentIF.endpointAddr = epAddr;
+                mCurrentIF.endpointAttributes = sAttr;
+                mCurrentIF.maxPacketBytes = maxPacket;
+                mCurrentIF.endpointType = epType;
+                mCurrentIF.syncType = syncType;
+                mCurrentIF.usageType = usageType;
+            } else { 
+                mSB.AppendFormat("\n        {0} {1}: {2} Max {3} bytes",
+                    epIsInput ? "Input Endpoint" : "Output Endpoint", epAddr, sAttr, maxPacket);
+            }
+        }
+
         private void ReadAudioControlInterfaceHeaderDesc(byte [] buff, int offs) {
             int length = buff[offs + 0];
             if (length < 9) {
@@ -1256,32 +1480,16 @@ namespace WWShowUSBDeviceTree {
             int minorVersion = (0xf & (bcdADC >> 4)) * 10 + (0xf & (bcdADC >> 0));
 
             if (majorVersion == 2) {
-                /* Audio Class 2 Table 4-5
-                0 UCHAR bLength
-                1 UCHAR bDescriptorType
-                2 UCHAR bDescriptorSubType
-                3 USHORT bcdADC
-                5 UCHAR bCategory
-                6 USHORT wTotalLength
-                8 UCHAR bmControls
-                */
+                // Audio Class 2 Table 4-5
                 int bCategory = buff[offs + 5];
                 string sCategory = AudioFunctionCategoryToStr(bCategory);
 
-                mSB.AppendFormat("\n          USB Audio Class {0}.{1}, {2}", majorVersion, minorVersion, sCategory);
+                mSB.AppendFormat("\n          USB Audio Class {0}.{1}, {2}",
+                    majorVersion, minorVersion, sCategory);
                 mAudioClass = USBAudioClass.AC2;
             } else if (majorVersion == 1) {
-                /* Audio Class 1 C.3.3.2 Class-specific Interface Descriptor
-                0 UCHAR bLength = 10
-                1 UCHAR bDescriptorType = 0x24
-                2 UCHAR bDescriptorSubType = 0x01
-                3 USHORT bcdADC = 0x0100
-                5 USHORT wTotalLength
-                7 UCHAR bInCollection  (2のときbaInterfaceNr2まで)
-                8 baInerfaceNr1 AudioStreaming interface 1 belongs to this AC interface
-                9 baInerfaceNr2 AudioStreaming interface 1 belongs to this AC interface
-                */
-
+                // Audio Class 1 C.3.3.2 Class-specific Interface Descriptor
+                
                 int bInCollection = buff[offs + 7];
                 if (length-8 < bInCollection) {
                     bInCollection = length - 8;
@@ -1289,10 +1497,12 @@ namespace WWShowUSBDeviceTree {
 
                 mSB.AppendFormat("\n          USB Audio Class {0}.{1} ", majorVersion, minorVersion);
                 if (1 <= bInCollection) {
-                    mSB.AppendFormat("Audio Streaming Nr. ");
+                    mSB.AppendFormat("Audio Streaming Interface Nr. ");
                 }
                 for (int i = 0; i < bInCollection; ++i) {
-                    mSB.AppendFormat("{0} ", buff[offs + 8 + i]);
+                    int nr = buff[offs + 8 + i];
+                    mAudioInterfaceNr.Add(nr);
+                    mSB.AppendFormat("{0} ", nr);
                 }
                 mAudioClass = USBAudioClass.AC1;
             } else {
@@ -1306,74 +1516,66 @@ namespace WWShowUSBDeviceTree {
                 return;
             }
 
-            if (length == 12) {
-                // Audio Class 1
-                /*
-                0 UCHAR  bLength;
-                1 UCHAR  bDescriptorType;
-                2 UCHAR  bDescriptorSubtype;
-                3 UCHAR  bTerminalID;
-                4 USHORT wTerminalType;
-                6 UCHAR  bAssocTerminal;
-                7 UCHAR  bNrChannels;
-                8 USHORT wChannelConfig;
-                10 UCHAR  iChannelNames;
-                11 UCHAR  iTerminal;
-                */
+            int id = 0;
+            string terminalTypeStr;
+            int assocOutT = 0;
+            int bCSourceId = 0;
+            int ch = 0;
+            string chConfStr;
+            string s;
 
-                int terminalID = buff[offs + 3];
+            if (length == 12) {
+                // Audio Class 1 Table B-5
+                id = buff[offs + 3];
                 int terminalType = BitConverter.ToUInt16(buff, offs + 4);
-                string terminalTypeStr = TerminalTypeToStr(terminalType);
-                int ch = buff[offs + 7];
-                int assocT = buff[offs + 6];
-                int iTerminal = buff[offs + 11];
-                string sTerm = FindString(iTerminal);
-                if (sTerm.Length == 0 && terminalType == USB_TERMINAL_TYPE_Streaming) {
-                    sTerm = Properties.Resources.StreamForPlayback;
+                terminalTypeStr = TerminalTypeToStr(terminalType);
+                assocOutT = buff[offs + 6];
+                ch = buff[offs + 7];
+                int iString = buff[offs + 11];
+                s = FindString(iString);
+                if (s.Length == 0 && terminalType == USB_TERMINAL_TYPE_Streaming) {
+                    s = Properties.Resources.StreamForPlayback;
                 }
 
                 int wChannelConfig = BitConverter.ToUInt16(buff, offs + 8);
-                string wChannelConfigStr = WChannelConfigToStr(wChannelConfig);
+                chConfStr = WChannelConfigToStr(wChannelConfig);
 
-                mSB.AppendFormat("\n          Input Terminal {0} : {1} {2}ch ({3}) {4}", terminalID, terminalTypeStr, ch, wChannelConfigStr, sTerm);
+#if false
+                mSB.AppendFormat("\n          Input Terminal {0} : {1} {2}ch ({3}) assocOutT={4} {5}",
+                id, terminalTypeStr, ch, chConfStr, assocOutT, s);
+#endif
             } else if (length == 17) {
-                // Audio Class 2
-                /* Table 4-9: Input Terminal Descriptor
-                0 UCHAR bLength
-                1 UCHAR bDescriptorType
-                2 UCHAR bDescriptorSubtype
-                3 UCHAR bTerminalID
-                4 USHORT wTerminalType
-                6 UCHAR bAssocTerminal
-                7 UCHAR bCSourceID
-                8 UCHAR bNrChannels
-                9 UINT bmChannelConfig
-                13 UCHAR iChannelNames
-                14 USHORT bmControls
-                16 UCHAR iTerminal
-                */
-                int terminalID = buff[offs + 3];
+                // Audio Class 2 Table 4-9: Input Terminal Descriptor
+                id = buff[offs + 3];
                 int terminalType = BitConverter.ToUInt16(buff, offs + 4);
-                string terminalTypeStr = TerminalTypeToStr(terminalType);
-                int assocOutTerminal = buff[offs + 6];
-                int bCSourceId = buff[offs + 7];
-                int ch = buff[offs + 8];
+                terminalTypeStr = TerminalTypeToStr(terminalType);
+                assocOutT = buff[offs + 6];
+                bCSourceId = buff[offs + 7];
+                ch = buff[offs + 8];
                 uint bmChConf = BitConverter.ToUInt32(buff, offs + 9);
-                string chConfStr = BmChannelConfigToStr(bmChConf);
+                chConfStr = BmChannelConfigToStr(bmChConf);
                 int iChannelNames = buff[offs + 13];
                 string sChNames = FindString(iChannelNames);
                 int iTerminal = buff[offs + 16];
-                string sTerm = FindString(iTerminal);
-                if (sTerm.Length == 0 && terminalType == USB_TERMINAL_TYPE_Streaming) {
-                    sTerm = Properties.Resources.StreamForPlayback;
+                s = FindString(iTerminal);
+                if (s.Length == 0 && terminalType == USB_TERMINAL_TYPE_Streaming) {
+                    s = Properties.Resources.StreamForPlayback;
                 }
-
+#if false
                 mSB.AppendFormat("\n          Input Terminal {0} {1} : {2}ch ({3}) {4} assocOutTerminal={5} clockSource={6} {7}",
-                    terminalID, terminalTypeStr, ch, chConfStr, sChNames, assocOutTerminal, bCSourceId, sTerm);
-
+                    id, terminalTypeStr, ch, chConfStr, sChNames, assocOutTerminal, bCSourceId, s);
+#endif
             } else {
                 mSB.AppendFormat("\n          Unknown AudioControl input terminal of size 0x{0:X4}", length);
+                return;
             }
+
+            var m = new Module(id, string.Format("({0}) Input Terminal : {1}\n{2} {3}ch {4}", id, terminalTypeStr, s, ch, chConfStr));
+            m.ConnectToRightItem(assocOutT);
+            m.ConnectToTopItem(bCSourceId);
+            mModules.Add(m);
+
+            mTerminals.Add(new TerminalProperty(id, TerminalProperty.TermType.InputTerminal));
         }
 
         private void ReadAudioControlOutputTerminal(byte[] buff, int offs) {
@@ -1383,77 +1585,69 @@ namespace WWShowUSBDeviceTree {
                 return;
             }
 
+            int id = 0;
+            int assocT = 0;
+            /// from input terminal
+            int sourceID = 0;
+            int bCSourceID = 0;
+            string terminalTypeStr;
+            string s;
+
             if (length == 9) {
-                // USB Audio Class 1
-                /*
-                0 UCHAR  bLength;
-                1 UCHAR  bDescriptorType;
-                2 UCHAR  bDescriptorSubtype;
-                3 UCHAR  bTerminalID;
-                4 USHORT wTerminalType;
-                6 UCHAR  bAssocTerminal;
-                7 UCHAR  bSourceID;
-                8 UCHAR  iTerminal;
-                */
-                int terminalID = buff[offs + 3];
-                int assocT = buff[offs + 6];
-                int sourceID = buff[offs + 7];
+                // USB Audio Class 1 B.3.3.4 (Table B-6)
+                id = buff[offs + 3];
+                assocT = buff[offs + 6];
+                sourceID = buff[offs + 7];
                 int terminalType = BitConverter.ToUInt16(buff, offs + 4);
-                string terminalTypeStr = TerminalTypeToStr(terminalType);
+                terminalTypeStr = TerminalTypeToStr(terminalType);
                 int iTerminal = buff[offs + 8];
-                string sTerm = FindString(iTerminal);
-                if (sTerm.Length == 0 && terminalType == USB_TERMINAL_TYPE_Streaming) {
-                    sTerm = Properties.Resources.StreamForRecording;
+                s = FindString(iTerminal);
+                if (s.Length == 0 && terminalType == USB_TERMINAL_TYPE_Streaming) {
+                    s = Properties.Resources.StreamForRecording;
                 }
 
-                mSB.AppendFormat("\n          Output Terminal {0} : ClockSourceID={1}, {2} {3}",
-                    terminalID, sourceID, terminalTypeStr, sTerm);
+#if false
+                mSB.AppendFormat("\n          Output Terminal {0} : ClockSourceID={1}, {2} assocT={3} {4}",
+                    id, sourceID, terminalTypeStr, assocT, s);
+#endif
             } else if (length == 12) {
                 // USB Audio Class 2
-                /*
-                0 UCHAR bLength
-                1 UCHAR bDescriptorType
-                2 UCHAR bDescriptorSubtype
-                3 UCHAR bTerminalID
-                4 USHORT wTerminalType
-                6 UCHAR bAssocTerminal
-                7 UCHAR bSourceID
-                8 UCHAR bCSourceID
-                9 USHORT bmControls
-                11 UCHAR iTerminal
-                */
-                int terminalID = buff[offs + 3];
+                id = buff[offs + 3];
                 int terminalType = BitConverter.ToUInt16(buff, offs + 4);
-                string terminalTypeStr = TerminalTypeToStr(terminalType);
-                int assocT = buff[offs + 6];
-                int sourceID = buff[offs + 7];
-                int bCSourceID = buff[offs + 8];
+                terminalTypeStr = TerminalTypeToStr(terminalType);
+                assocT = buff[offs + 6];
+                sourceID = buff[offs + 7];
+                bCSourceID = buff[offs + 8];
                 int iTerminal = buff[offs + 11];
-                string sTerm = FindString(iTerminal);
-                if (sTerm.Length == 0 && terminalType == USB_TERMINAL_TYPE_Streaming) {
-                    sTerm = Properties.Resources.StreamForRecording;
+                s = FindString(iTerminal);
+                if (s.Length == 0 && terminalType == USB_TERMINAL_TYPE_Streaming) {
+                    s = Properties.Resources.StreamForRecording;
                 }
-
-                mSB.AppendFormat("\n          Output Terminal {0} : assocT={1} Source={2} ClockSource={3} {4} {5}",
-                    terminalID, assocT, sourceID, bCSourceID, terminalTypeStr, sTerm);
+#if false
+                mSB.AppendFormat("\n          Output Terminal {0} : assocOutT={1} Source={2} ClockSource={3} {4} {5}",
+                    id, assocT, sourceID, bCSourceID, terminalTypeStr, s);
+#endif
             } else {
                 mSB.AppendFormat("\n          Output Terminal descriptor of unknown size 0x{0:X4}", length);
+                return;
             }
+
+            string text = string.Format("({0}) Output Terminal : {1}", id, terminalTypeStr);
+            if (s.Length != 0) {
+                text += string.Format("\n{0}", s);
+            }
+            var m = new Module(id, text);
+            m.ConnectToLeftItem(sourceID);
+            m.ConnectToLeftItem(assocT);
+            m.ConnectToTopItem(bCSourceID);
+            mModules.Add(m);
+
+            mTerminals.Add(new TerminalProperty(id, TerminalProperty.TermType.OutputTerminal));
         }
 
         private void ReadAudioControl2EffectUnit(byte [] buff, int offs) {
-            // USB AC2 Effect Unit size : 16+ch*4
-            /* Table 4-15
-            0 UCHAR bLength
-            1 UCHAR bDescriptorType
-            2 UCHAR bDescriptorSubType
-            3 UCHAR bUnitID
-            4 USHORT wEffectType
-            6 UCHAR bSourceID
-            7 UINT bmaControls0
-            11 UINT bmaControls1
-            15+(ch*4) UCHAR iString
-            */
+            // USB AC2 Effect Table 4-15
+            // Unit size : 16+ch*4
             int bLength = buff[offs + 0];
             if ((bLength & 3) != 0) {
                 mSB.AppendFormat("\n          Unknown AudioControl Effect Unit size 0x{0:X4}", bLength);
@@ -1461,87 +1655,31 @@ namespace WWShowUSBDeviceTree {
             }
 
             int ch = (bLength - 16)/ 4;
-            int bUnitID = buff[offs + 3];
+            int id = buff[offs + 3];
             int wEffectType = BitConverter.ToUInt16(buff, offs + 4);
             string sType = AudioControl2EffectTypeToStr(wEffectType);
             int bSourceID = buff[offs + 6];
             int iString = buff[offs + 15 + ch * 4];
             string s = FindString(iString);
+#if false
             mSB.AppendFormat("\n          Effect Unit {0} {1} : {2} sourceId={3}",
-                bUnitID, s, sType, bSourceID);
-        }
-
-        private void ReadAudioControl2ProcessingUnit(byte[] buff, int offs) {
-            // USB AC2 Processing Unit size : 17+p+x
-            // table 4-20
-            int bLength = buff[offs + 0];
-            if (bLength <18) {
-                mSB.AppendFormat("\n          Unknown AudioControl Processing Unit size 0x{0:X4}", bLength);
-                return;
-            }
-
-            int bUnitID = buff[offs + 3];
-            int wType = BitConverter.ToUInt16(buff, offs + 4);
-            string sType = AudioControl2ProcessingUnitTypeToStr(wType);
-            int nInPins = buff[offs + 6];
-            if (bLength < 17 + nInPins) {
-                nInPins = bLength - 17;
-            }
-            List<int> inPins = new List<int>();
-            for (int i=0; i<nInPins; ++i) {
-                inPins.Add(buff[offs + 7 + i]);
-            }
-
-            int outCh = buff[offs + 7 + nInPins];
-            int iString = buff[offs + 13 + nInPins];
-            string s = FindString(iString);
-
-            mSB.AppendFormat("\n          Processing Unit {0} {1} : {2} outCh={3}",
-                bUnitID, s, sType, outCh);
-            for (int i = 0; i < nInPins; ++i) {
-                mSB.AppendFormat("\n            inputPin {0}", inPins[i]);
-            }
-        }
-        private void ReadAudioControl2ExtensionUnit(byte[] buff, int offs) {
-            int bLength = buff[offs + 0];
-            if (bLength < 17) {
-                mSB.AppendFormat("\n          Unknown AudioControl Extension Unit size 0x{0:X4}", bLength);
-                return;
-            }
-
-            int bUnitID = buff[offs + 3];
-            int nInPins = buff[offs + 6];
-            if (bLength < nInPins + 16) {
-                mSB.AppendFormat("\n          Unknown AudioControl Extension Unit size bLength={0} nInPins={1}",
-                    bLength, nInPins);
-                return;
-            }
-            List<int> inPins = new List<int>();
-            for (int i = 0; i < nInPins; ++i) {
-                inPins[i] = buff[offs + 7 + i];
-            }
-
-            int outCh = buff[offs + 8 + nInPins];
-            int iString = buff[offs + 15 + nInPins];
-            string s = FindString(iString);
-
-            mSB.AppendFormat("\n          Extension Unit {0} {1} : outCh={2}",
-                bUnitID, s, outCh);
-            for (int i = 0; i < nInPins; ++i) {
-                mSB.AppendFormat("\n            inputPin {0}", inPins[i]);
-            }
+                id, s, sType, bSourceID);
+#else
+            var m = new Module(id, string.Format("({0}) Effect Unit {1} {2}", id, sType, s));
+            m.ConnectToLeftItem(bSourceID);
+            mModules.Add(m);
+#endif
         }
 
         private void ReadAudioControl1ProcessingUnit(byte[] buff, int offs) {
-            // USB Audio Class 1
-            // table 4-8
+            // USB Audio Class 1 Table 4-8
             int bLength = buff[offs + 0];
             if (bLength < 14) {
                 mSB.AppendFormat("\n          Unknown AudioControl1 Processing Unit size 0x{0:X4}", bLength);
                 return;
             }
 
-            int bUnitID = buff[offs + 3];
+            int id = buff[offs + 3];
             int wType = BitConverter.ToUInt16(buff, offs + 4);
             string sType = AudioControl1ProcessingUnitTypeToStr(wType);
             int nInPins = buff[offs + 6];
@@ -1557,7 +1695,7 @@ namespace WWShowUSBDeviceTree {
 
             int outCh = buff[offs + 7 + nInPins];
             int bControlSize = buff[offs + 11 + nInPins];
-            if (bLength < 14 + nInPins +bControlSize) {
+            if (bLength < 14 + nInPins + bControlSize) {
                 mSB.AppendFormat("\n          Unknown AudioControl1 Processing Unit size, bLength={0} nInPins={1} bControlSize={2}",
                     bLength, nInPins, bControlSize);
                 return;
@@ -1565,23 +1703,71 @@ namespace WWShowUSBDeviceTree {
 
             int iString = buff[offs + 12 + nInPins + bControlSize];
             string s = FindString(iString);
-
+#if false
             mSB.AppendFormat("\n          Processing Unit {0} {1} : {2} outCh={3}",
-                bUnitID, s, sType, outCh);
+                id, s, sType, outCh);
             for (int i = 0; i < nInPins; ++i) {
                 mSB.AppendFormat("\n            inputPin {0}", inPins[i]);
             }
+#else
+            var m = new Module(id, string.Format("({0}) Processing Unit {1}\n{2} {3}ch", id, sType, s, outCh));
+            for (int i = 0; i < nInPins; ++i) {
+                m.ConnectToLeftItem(inPins[i]);
+            }
+            mModules.Add(m);
+#endif
+        }
+
+        private void ReadAudioControl2ProcessingUnit(byte[] buff, int offs) {
+            // USB AC2 Processing Unit size : 17+p+x
+            // table 4-20
+            int bLength = buff[offs + 0];
+            if (bLength <18) {
+                mSB.AppendFormat("\n          Unknown AudioControl Processing Unit size 0x{0:X4}", bLength);
+                return;
+            }
+
+            int id = buff[offs + 3];
+            int wType = BitConverter.ToUInt16(buff, offs + 4);
+            string sType = AudioControl2ProcessingUnitTypeToStr(wType);
+            int nInPins = buff[offs + 6];
+            if (bLength < 17 + nInPins) {
+                nInPins = bLength - 17;
+            }
+            List<int> inPins = new List<int>();
+            for (int i=0; i<nInPins; ++i) {
+                inPins.Add(buff[offs + 7 + i]);
+            }
+
+            int outCh = buff[offs + 7 + nInPins];
+            int iString = buff[offs + 13 + nInPins];
+            string s = FindString(iString);
+
+#if false
+            mSB.AppendFormat("\n          Processing Unit {0} {1} : {2} outCh={3}",
+                id, s, sType, outCh);
+            for (int i = 0; i < nInPins; ++i) {
+                mSB.AppendFormat("\n            inputPin {0}", inPins[i]);
+            }
+#else
+            var m = new Module(id, string.Format("({0}) Processing Unit {1}\n{2} {3}ch", id, sType, s, outCh));
+            for (int i = 0; i < nInPins; ++i) {
+                m.ConnectToLeftItem(inPins[i]);
+            }
+            mModules.Add(m);
+#endif
         }
 
         private void ReadAudioControl1ExtensionUnit(byte[] buff, int offs) {
-            // Table 4-15
+            // USB Audio Class 1 Table 4-15
             int bLength = buff[offs + 0];
             if (bLength < 14) {
                 mSB.AppendFormat("\n          Unknown AudioControl1 Extension Unit size 0x{0:X4}", bLength);
                 return;
             }
 
-            int bUnitID = buff[offs + 3];
+            int id = buff[offs + 3];
+            int wExtensionCode = BitConverter.ToUInt16(buff, offs + 4);
             int nInPins = buff[offs + 6];
             if (bLength < nInPins + 13) {
                 mSB.AppendFormat("\n          Unknown AudioControl1 Extension Unit size bLength={0}, nInPins={1}",
@@ -1595,7 +1781,7 @@ namespace WWShowUSBDeviceTree {
 
             int outCh = buff[offs + 7 + nInPins];
             int bControlSize = buff[offs + 11 + nInPins];
-            if (bLength != 13+nInPins+bControlSize) {
+            if (bLength != 13 + nInPins + bControlSize) {
                 mSB.AppendFormat("\n          Unknown AudioControl1 Extension Unit size bLength={0}, nInPins={1}, bControlSize={2}",
                     bLength, nInPins, bControlSize);
                 return;
@@ -1603,67 +1789,100 @@ namespace WWShowUSBDeviceTree {
             int iString = buff[offs + 12 + nInPins + bControlSize];
             string s = FindString(iString);
 
+#if false
             mSB.AppendFormat("\n          Extension Unit {0} {1} : outCh={2}",
-                bUnitID, s, outCh);
+                id, s, outCh);
             for (int i = 0; i < nInPins; ++i) {
                 mSB.AppendFormat("\n            inputPin {0}", inPins[i]);
             }
+#else
+            var m = new Module(id, string.Format("({0}) Extension Unit {1:x4}\n {2} {3}ch", id, wExtensionCode, s, outCh));
+            for (int i = 0; i < nInPins; ++i) {
+                m.ConnectToLeftItem(inPins[i]);
+            }
+            mModules.Add(m);
+#endif
+        }
+
+        private void ReadAudioControl2ExtensionUnit(byte[] buff, int offs) {
+            // USB Audio Class 2 Table 4-24
+            int bLength = buff[offs + 0];
+            if (bLength < 17) {
+                mSB.AppendFormat("\n          Unknown AudioControl Extension Unit size 0x{0:X4}", bLength);
+                return;
+            }
+
+            int id = buff[offs + 3];
+            int wExtensionCode = BitConverter.ToUInt16(buff, offs + 4);
+            int nInPins = buff[offs + 6];
+            if (bLength < nInPins + 16) {
+                mSB.AppendFormat("\n          Unknown AudioControl Extension Unit size bLength={0} nInPins={1}",
+                    bLength, nInPins);
+                return;
+            }
+            List<int> inPins = new List<int>();
+            for (int i = 0; i < nInPins; ++i) {
+                inPins[i] = buff[offs + 7 + i];
+            }
+
+            int outCh = buff[offs + 8 + nInPins];
+            int iString = buff[offs + 15 + nInPins];
+            string s = FindString(iString);
+
+#if false
+            mSB.AppendFormat("\n          Extension Unit {0} {1} : outCh={2}",
+                id, s, outCh);
+            for (int i = 0; i < nInPins; ++i) {
+                mSB.AppendFormat("\n            inputPin {0}", inPins[i]);
+            }
+#else
+            var m = new Module(id, string.Format("({0}) Extension Unit {1:x4}\n {2} {3}ch", id, wExtensionCode, s, outCh));
+            for (int i = 0; i < nInPins; ++i) {
+                m.ConnectToLeftItem(inPins[i]);
+            }
+            mModules.Add(m);
+#endif
         }
 
         private void ReadAudioControlClockSource(byte[] buff, int offs) {
-            /* USB Audio Class 2 Table 4-6: Clock Source Descriptor
-            0 UCHAR bLength = 8
-            1 UCHAR bDescriptorType = CS_INTERFACE
-            2 UCHAR bDescriptorSubtype = CLOCK_SOURCE
-            3 UCHAR bClockID 
-            4 UCHAR bmAttributes
-            5 UCHAR bmControls 
-            6 UCHAR bAssocTerminal 
-            7 UCHAR iClockSource 
-            */
+            // USB Audio Class 2 Table 4-6: Clock Source Descriptor
             int length = buff[offs + 0];
             if (length != 8) {
                 mSB.AppendFormat("\n          Clock Source Descriptor of unknown size 0x{0:X4}", length);
                 return;
             }
 
-            int bClockID = buff[offs + 3];
+            int id = buff[offs + 3];
+
             int bmAttributes = buff[offs + 4];
             int bmControls = buff[offs + 5];
-            int bAssocTerminal = buff[offs + 6];
-            int iClockSource = buff[offs + 7];
-            string sCS = FindString(iClockSource);
             string clockTypeStr = AudioClockSourceAttrToClockTypeStr(bmAttributes, bmControls);
+            string clockCntlStr = AudioClockSourceAttrToClockControlStr(bmAttributes, bmControls);
 
-            mSB.AppendFormat("\n          Clock Source {0} {1}, assocTerminal={2}:\n            {3}",
-                   bClockID, sCS, bAssocTerminal, clockTypeStr);
+            int assocT = buff[offs + 6];
+            int iClockSource = buff[offs + 7];
+            string s = FindString(iClockSource);
+
+#if false
+            mSB.AppendFormat("\n          Clock Source {0} {1}, assocTerminal={2}:\n            {3} {4}",
+                   id, s, assocT, clockTypeStr, clockCntlStr);
+#else
+            var m = new Module(id, string.Format("({0}) Clock Source {1}\n{2}\n{3}",
+                id, s, clockTypeStr, clockCntlStr));
+            m.ConnectToLeftItem(assocT);
+            mModules.Add(m);
+#endif
         }
 
         private void ReadAudioControlClockSelector(byte[] buff, int offs) {
-            /* USB Audio Class 2  Table 4-7: Clock Selector Descriptor
-            p==1のとき
-            0 UCHAR bLength = 7+p
-            1 UCHAR bDescriptorType CS_INTERFACE
-            2 UCHAR bDescriptorSubType CLOCK_SELECTOR
-            3 UCHAR bClockID
-            4 UCHAR bNrInPins (nr of input pin, p)
-            5 UCHAR baCSourceID1
-            6 UCHAR bmControls
-            7 UCHAR iClockSelector
-
-            p==2のとき
-            5 UCHAR baCSourceID1
-            6 UCHAR baCSourceID2
-            7 UCHAR bmControls
-            8 UCHAR iClockSelector
-            */
+            // USB Audio Class 2  Table 4-7: Clock Selector Descriptor
             int length = buff[offs + 0];
             if (length < 7) {
                 mSB.AppendFormat("\n          Clock Selector Descriptor of unknown size 0x{0:X4}", length);
                 return;
             }
 
-            int bClockSelectorId = buff[offs + 3];
+            int id = buff[offs + 3];
             int nrInPins = buff[offs + 4];
             if (length-7 < nrInPins) {
                 Console.WriteLine("nrInPins invalid {0}, bLength={1}\n", nrInPins, length);
@@ -1671,166 +1890,287 @@ namespace WWShowUSBDeviceTree {
             }
 
             int bmControls = buff[offs + nrInPins + 5];
-            string sControls = AudioClockSelectorCotrolsToStr(bmControls);
+            string sControls = AudioClockOneCotrolsToStr(bmControls);
 
             int iClockSelector = buff[offs + nrInPins + 6];
-            string sCS = FindString(iClockSelector);
-            mSB.AppendFormat(    "\n          Clock Selector {0} {1}, {2}", bClockSelectorId, sCS, sControls);
+            string s = FindString(iClockSelector);
+
+#if false
+            mSB.AppendFormat(    "\n          Clock Selector {0} {1}, {2}", id, s, sControls);
             for (int i=0; i<nrInPins; ++i) {
                 mSB.AppendFormat("\n            InputPin {0} : Clock entity id={1}", i+1, buff[offs+5+i]);
             }
+#else
+            var m = new Module(id, string.Format("({0}) Clock Selector {1}: {2}", id, s, sControls));
+            for (int i = 0; i < nrInPins; ++i) {
+                int pinId = buff[offs + 5 + i];
+                m.ConnectToLeftItem(pinId);
+            }
+            mModules.Add(m);
+#endif
         }
 
         private void ReadAudioControlClockMultiplier(byte[] buff, int offs) {
-            /* USB Audio Class 2 Table 4-8: Clock Multiplier Descriptor
-            0 UCHAR bLength =7
-            1 UCHAR bDescriptorType CS_INTERFACE
-            2 UCHAR bDescriptorSubType CLOCK_MULTIPLIER
-            3 UCHAR bClockMultiplierId
-            4 UCHAR bCSourceId
-            5 UCHAR bmControls
-            6 UCHAR iClockMultiplier
-            */
+            // USB Audio Class 2 Table 4-8
             int length = buff[offs + 0];
             if (length != 7) {
                 mSB.AppendFormat("\n          Clock Multiplier Descriptor of unknown size 0x{0:X4}", length);
                 return;
             }
 
-            int bClockMultiplierId = buff[offs + 3];
+            int id = buff[offs + 3];
             int bCSourceId = buff[offs + 4];
             int bmControls = buff[offs + 5];
             string sControls = AudioClockMultiplierCotrolsToStr(bmControls);
 
             int iClockMultiplier = buff[offs + 6];
-            string sCS = FindString(iClockMultiplier);
+            string s = FindString(iClockMultiplier);
 
-            mSB.AppendFormat("\n          Clock Multiplier {0} {1}, InputPin={2}", bClockMultiplierId, sCS, bCSourceId);
+#if false
+            mSB.AppendFormat("\n          Clock Multiplier {0} {1}, InputPin={2}", id, s, bCSourceId);
             mSB.AppendFormat("\n            {3}", sControls);
+#else
+            var m = new Module(id, string.Format("({0}) Clock Multiplier\n{1} {2}", id, s, sControls));
+            m.ConnectToLeftItem(bCSourceId);
+            mModules.Add(m);
+#endif
         }
 
         private void ReadAudioControl2SampleRateConverter(byte[] buff, int offs) {
-            /*USB Audio Class 2 Table 4-14: Sampling Rate Converter Unit Descriptor
-            0 UCHAR bLength =8
-            1 UCHAR bDescriptorType CS_INTERFACE
-            2 UCHAR bDescriptorSubType SAMPLE_RATE_CONVERTER
-            3 UCHAR bUnitID
-            4 UCHAR bSourceID
-            5 UCHAR bClockIn
-            6 UCHAR bClockOut
-            7 UCHAR iString
-            */
+            // USB Audio Class 2 Table 4-14
             int length = buff[offs + 0];
             if (length != 8) {
                 mSB.AppendFormat("\n          Sampling Rate Converter Descriptor of unknown size 0x{0:X4}", length);
                 return;
             }
 
-            int bId = buff[offs + 3];
+            int id = buff[offs + 3];
             int bSourceId = buff[offs + 4];
             int bClockIn = buff[offs + 5];
             int bClockOut = buff[offs + 6];
             int iString = buff[offs + 7];
             string s = FindString(iString);
-            mSB.AppendFormat("\n          Sampling Rate Converter {0} {1}, source={1} clockIn={2} clockOut={3}",
-                bId, s, bSourceId, bClockIn, bClockOut);
-        }
 
-        private void ReadAudioControlMixerUnit(byte[] buff, int offs) {
-            /*
-            0 UCHAR bLength  13+p+N
-            1 UCHAR bDescriptorType
-            2 UCHAR bDescriptorSubtype
-            3 UCHAR bUnitID
-            4 UCHAR bNrInPins p
-            5 UCHAR baSourceID(1)
-            5+p-1 UCHAR bNrChannels(p)
-            5+p UCHAR bNrChannels
-            6+p UINT bmChannelConfig
-            10+p UCHAR iChannelNames
-            11+p bmMixerControls N
-            11+p+N UCHAR bmControls 
-            12+p+N UCHAR iMixer
-            */
+#if false
+            mSB.AppendFormat("\n          Sampling Rate Converter {0} {1}, source={1} clockIn={2} clockOut={3}",
+                id, s, bSourceId, bClockIn, bClockOut);
+#else
+            var m = new Module(id, string.Format("({0}) Sampling Rate Converter\n{1}", id, s));
+            m.ConnectToTopItem(bClockIn);
+            m.ConnectToTopItem(bClockOut);
+            m.ConnectToLeftItem(bSourceId);
+            mModules.Add(m);
+#endif
+        }
+        private void ReadAudioControl1MixerUnit(byte[] buff, int offs) {
+            // USB Audio Class 1 Table 4-5
             int length = buff[offs + 0];
-            if (length != 15) {
+            if (length < 10) {
                 mSB.AppendFormat("\n          Mixer Unit Descriptor of unknown size 0x{0:X4}", length);
                 return;
             }
 
-            int bUnitID = buff[offs + 3];
+            int id = buff[offs + 3];
             int p = buff[offs + 4];
+            if (length < 10 + p) {
+                mSB.AppendFormat("\n          Mixer Unit Descriptor of unknown size 0x{0:X4} p={1}", length, p);
+                return;
+            }
+            int ch = buff[offs + 5 + p];
+
             int iMixer = buff[offs + length - 1];
-            string sMixer = FindString(iMixer);
-            mSB.AppendFormat("\n          Mixer Unit {0} {1}", bUnitID, sMixer);
+            string s = FindString(iMixer);
+
+#if false
+            mSB.AppendFormat("\n          Mixer Unit {0} {1}", id, s);
+#else
+            var m = new Module(id, string.Format("({0}) Mixer Unit {1}\n{2}ch", id, s, ch));
+            for (int i = 0; i < p; ++i) {
+                int pinId = buff[offs + 5 + i];
+                m.ConnectToLeftItem(pinId);
+            }
+            mModules.Add(m);
+#endif
         }
 
-        private void ReadAudioControlSelectorUnit(byte [] buff, int offs) {
-            /* Table 4-12: Selector Unit Descriptor
-            0 UCHAR bLength
-            1 UCHAR bDescriptorType
-            2 UCHAR bDescriptorSubtype
-            3 UCHAR bUnitID
-            4 UCHAR bNrInPins
-            5 UCHAR baSourceID1
-            5+p bmControls
-            6+p iSelector
-            */
-
+        private void ReadAudioControl2MixerUnit(byte[] buff, int offs) {
+            // USB Audio Class 2 Table 4-11
             int length = buff[offs + 0];
-            if (length <= 7) {
+            if (length < 13) {
+                mSB.AppendFormat("\n          Mixer Unit Descriptor of unknown size 0x{0:X4}", length);
+                return;
+            }
+
+            int id = buff[offs + 3];
+            int p = buff[offs + 4];
+            if (length < 13+p) {
+                mSB.AppendFormat("\n          Mixer Unit Descriptor of unknown size 0x{0:X4} p={1}", length, p);
+                return;
+            }
+            int ch = buff[offs + 5 + p];
+
+            int iMixer = buff[offs + length - 1];
+            string s = FindString(iMixer);
+
+#if false
+            mSB.AppendFormat("\n          Mixer Unit {0} {1}", id, s);
+#else
+            var m = new Module(id, string.Format("({0}) Mixer Unit {1}\n{2}ch", id, s, ch));
+            for (int i=0; i<p;++i) {
+                int pinId = buff[offs + 5 + i];
+                m.ConnectToLeftItem(pinId);
+            }
+            mModules.Add(m);
+#endif
+        }
+        private void ReadAudioControl1SelectorUnit(byte[] buff, int offs) {
+            // USB Audio Class 1 Table 4-6
+            int length = buff[offs + 0];
+            if (length < 6) {
                 mSB.AppendFormat("\n          Selector Unit Descriptor of unknown size 0x{0:X4}", length);
                 return;
             }
 
-            int bUnitId = buff[offs + 3];
+            int id = buff[offs + 3];
             int bNrInPins = buff[offs + 4];
-            if (length -6 < bNrInPins) {
-                Console.WriteLine("Error Selector Unit size bNrInPins={0} bLength={1}", bNrInPins, length);
-                bNrInPins = length - 6;
+            if (length != bNrInPins + 6) {
+                mSB.AppendFormat("\n          Selector Unit Descriptor of unknown size 0x{0:X4}, bNrInPins={1}", length, bNrInPins);
+                return;
             }
 
-            int iSelector = buff[offs + length - 1];
-            string sSelector = FindString(iSelector);
-            mSB.AppendFormat("\n          Selector Unit {0} {1}", bUnitId, sSelector);
+            int iSelector = buff[offs + 5 + bNrInPins];
+            string s = FindString(iSelector);
+
+#if false
+            mSB.AppendFormat("\n          Selector Unit {0} {1}", id, s);
             for (int i = 0; i < bNrInPins; ++i) {
                 mSB.AppendFormat("\n            Input Pin {0}", buff[offs+5+i]);
             }
+#else
+            var m = new Module(id, string.Format("({0}) Selector Unit\n{1}", id, s));
+            for (int i = 0; i < bNrInPins; ++i) {
+                int pinId = buff[offs + 5 + i];
+                m.ConnectToLeftItem(pinId);
+            }
+            mModules.Add(m);
+#endif
         }
 
-        private void ReadAudioControlFeatureUnit(byte[] buff, int offs) {
-            /* Table 4-13: Feature Unit Descriptor
-            0 bLength
-            1 bDescriptorType
-            2 bDescriptorSubType
-            3 bUnitID
-            4 bSourceID unit or terminal
-            5 UINT bmaControls0 master channel
-            9 UINT bmaControlsCh1
-            13 UINT bmaControlsCh2
-            ...
-            5+(ch+1)*4 iFeature
-            */
+        private void ReadAudioControl2SelectorUnit(byte [] buff, int offs) {
+            // USB Audio Class 2 Table 4-12
             int length = buff[offs + 0];
-            if (((length-6) & 0x3) !=0) {
+            if (length < 7) {
+                mSB.AppendFormat("\n          Selector Unit Descriptor of unknown size 0x{0:X4}", length);
+                return;
+            }
+
+            int id = buff[offs + 3];
+            int bNrInPins = buff[offs + 4];
+            if (length != bNrInPins+7) {
+                mSB.AppendFormat("\n          Selector Unit Descriptor of unknown size 0x{0:X4}, bNrInPins={1}", length, bNrInPins);
+                return;
+            }
+
+            int bmControls = buff[offs + 5 + bNrInPins];
+            string sControls = AudioClockOneCotrolsToStr(bmControls);
+
+            int iSelector = buff[offs + 6 + bNrInPins];
+            string s = FindString(iSelector);
+
+#if false
+            mSB.AppendFormat("\n          Selector Unit {0} {1}", id, s);
+            for (int i = 0; i < bNrInPins; ++i) {
+                mSB.AppendFormat("\n            Input Pin {0}", buff[offs+5+i]);
+            }
+#else
+            var m = new Module(id, string.Format("({0}) Selector Unit\n{1} {2}", id, s, sControls));
+            for (int i = 0; i < bNrInPins; ++i) {
+                int pinId = buff[offs + 5 + i];
+                m.ConnectToLeftItem(pinId);
+            }
+            mModules.Add(m);
+#endif
+        }
+        private void ReadAudioControl1FeatureUnit(byte[] buff, int offs) {
+            // USB Audio Class 1 Table 4-7
+            int length = buff[offs + 0];
+            if (length < 10) {
+                mSB.AppendFormat("\n          Feature Unit Descriptor of unknown size 0x{0:X4}", length);
+                return;
+            }
+
+            int id = buff[offs + 3];
+
+            int bControlSize = buff[offs + 5];
+            if (((length - 7) % bControlSize) != 0) {
+                mSB.AppendFormat("\n          Feature Unit Descriptor of unknown size 0x{0:X4} bControlSize={1}", length, bControlSize);
+                return;
+            }
+            int nCh = (length - 7) / bControlSize - 1;
+
+            int bSourceID = buff[offs + 4];
+            uint bmMC = BitConverter.ToUInt32(buff, offs + 6);
+            bmMC &= 0x3ff;
+
+            int iFeature = buff[offs + length - 1];
+            string s = FindString(iFeature);
+
+#if false
+            mSB.AppendFormat("\n          Feature Unit {0} {1}, SourceID={2}", id, s, bSourceID);
+            mSB.AppendFormat("\n            Master channel 0 {0}", AudioControlFeatureControlsToStr(bmMC));
+            for (int i=0; i<nCh; ++i) {
+                uint bm = BitConverter.ToUInt32(buff, offs + 6+(i+1)*bControlSize);
+                bm &= 0x3ff;
+                mSB.AppendFormat("\n            Channel {0} {1}", i+1, AudioControlFeatureControlsToStr(bm));
+            }
+#else
+            string text = string.Format("({0}) Feature Unit {1} {2}ch", id, s, nCh);
+            text += string.Format("\nMaster Ch 0 {0}", AudioControl1FeatureControlsToStr(bmMC));
+            for (int i = 0; i < nCh; ++i) {
+                uint bm = BitConverter.ToUInt32(buff, offs + 6 + (i + 1) * bControlSize);
+                text += string.Format("\nCh {0} {1}", i + 1, AudioControl1FeatureControlsToStr(bm));
+            }
+            var m = new Module(id, text);
+            m.ConnectToLeftItem(bSourceID);
+            mModules.Add(m);
+#endif
+        }
+
+        private void ReadAudioControl2FeatureUnit(byte[] buff, int offs) {
+            // USB Audio Class 2 Table 4-13
+            int length = buff[offs + 0];
+            if (length < 14 || ((length-6) & 0x3) !=0) {
                 mSB.AppendFormat("\n          Feature Unit Descriptor of unknown size 0x{0:X4}", length);
                 return;
             }
 
             int nCh = (length - 6) / 4 - 1;
 
-            int bUnitID = buff[offs + 3];
+            int id = buff[offs + 3];
             int bSourceID = buff[offs + 4];
-            int iFeature = buff[offs + length - 1];
-            string sFeature = FindString(iFeature);
-
-            mSB.AppendFormat("\n          Feature Unit {0} {1}, SourceID={2}", bUnitID, sFeature, bSourceID);
             uint bmMC = BitConverter.ToUInt32(buff, offs + 5);
+            int iFeature = buff[offs + length - 1];
+            string s = FindString(iFeature);
+
+#if false
+            mSB.AppendFormat("\n          Feature Unit {0} {1}, SourceID={2}", id, s, bSourceID);
             mSB.AppendFormat("\n            Master channel 0 {0}", AudioControlFeatureControlsToStr(bmMC));
             for (int i=0; i<nCh; ++i) {
                 uint bm = BitConverter.ToUInt32(buff, offs + 9+i*4);
                 mSB.AppendFormat("\n            Channel {0} {1}", i+1, AudioControlFeatureControlsToStr(bm));
             }
+#else
+
+            string text = string.Format("({0}) Feature Unit {1} {2}ch", id, s, nCh);
+            text += string.Format("\n  Master Ch 0 {0}", AudioControl2FeatureControlsToStr(bmMC));
+            for (int i=0; i<nCh; ++i) {
+                uint bm = BitConverter.ToUInt32(buff, offs + 9 + i * 4);
+                text += string.Format("\n  Ch {0} {1}", i+1, AudioControl2FeatureControlsToStr(bm));
+            }
+            var m = new Module(id, text);
+            m.ConnectToLeftItem(bSourceID);
+            mModules.Add(m);
+#endif
         }
 
         private void ReadAudioControlOther(byte[] buff, int offs) {
@@ -1850,48 +2190,56 @@ namespace WWShowUSBDeviceTree {
             }
 
             if (length == 7) {
-                /* USB Audio Class 1
-                0 UCHAR  bLength;
-                1 UCHAR  bDescriptorType;
-                2 UCHAR  bDescriptorSubtype;
-                3 UCHAR  bTerminalLink;
-                4 UCHAR  bDelay;
-                5 USHORT wFormatTag;
-                */
-
-            int terminalLink = buff[offs + 3];
+                // USB Audio Class 1 Table 4-19
+                int terminalLink = buff[offs + 3];
                 int delay = buff[4];
                 int formatTag = BitConverter.ToUInt16(buff, offs + 5);
                 string formatStr = WFormatTagToStr(formatTag);
 
+#if false
                 mSB.AppendFormat("\n          Uses Terminal {0}, {1}, delay={2}f", terminalLink, formatStr, delay);
+#else
+                mCurrentIF.delayFrames = delay;
+                mCurrentIF.formatStr = formatStr;
+                var tp = FindTerminal(terminalLink);
+                if (tp != null) {
+                    if (tp.type == TerminalProperty.TermType.InputTerminal) {
+                        mCurrentIF.inTermNr = terminalLink;
+                    } else {
+                        mCurrentIF.outTermNr = terminalLink;
+                    }
+                }
+#endif
             } else if (length == 16) {
                 // USB Audio Class 2.0 Table 4-27
-                /*
-                0 UCHAR  bLength;
-                1 UCHAR  bDescriptorType;
-                2 UCHAR  bDescriptorSubtype; AS_GENERAL
-                3 UCHAR  bTerminalLink;
-                4 UCHAR  bmControls;
-                5 UCHAR  bFormatType;
-                6 UINT   bmFormats;
-                10 UCHAR bNrChannels;
-                11 UINT  bmChannelConfig
-                15 UCHAR iChannelNames
-                */
                 int terminalLink = buff[offs + 3];
-                uint bmFormats = BitConverter.ToUInt32(buff, offs + 6);
+                int bmControls = buff[offs + 4];
                 int formatType = buff[offs + 5];
+                uint bmFormats = BitConverter.ToUInt32(buff, offs + 6);
                 string formatStr = BmFormatsToStr(bmFormats, formatType);
                 int nrChannels = buff[offs + 10];
 
                 int iChannelNames = buff[offs + 15];
                 string chStr = FindString(iChannelNames);
 
+#if false
                 mSB.AppendFormat("\n          Uses Terminal {0}, {1}ch{2} {3}", terminalLink, nrChannels, formatStr, chStr);
-
+#else
+                mCurrentIF.delayFrames = 0;
+                mCurrentIF.formatStr = formatStr;
+                mCurrentIF.nCh = nrChannels;
+                mCurrentIF.channelNames = chStr;
+                var tp = FindTerminal(terminalLink);
+                if (tp != null) {
+                    if (tp.type == TerminalProperty.TermType.InputTerminal) {
+                        mCurrentIF.inTermNr = terminalLink;
+                    } else {
+                        mCurrentIF.outTermNr = terminalLink;
+                    }
+                }
+#endif
             } else {
-                mSB.AppendFormat("\n          Unknwon Class-specific AS Interface desc! {0:X4}", length);
+                mSB.AppendFormat("\n          Unknwon Class-specific AS Interface desc {0:X4}", length);
             }
         }
 
@@ -1913,132 +2261,33 @@ namespace WWShowUSBDeviceTree {
             }
         }
 
-        private string TransTypeToStr(int t) {
-            switch (t) {
-            case 0: return "Control";
-            case 1: return "Isochronous";
-            case 2: return "Bulk";
-            case 3: return "Interrupt";
-            default: return "Unknown";
-            }
-        }
-        private string SyncTypeToStr(int t) {
-            switch (t) {
-            case 0: return "NoSync";
-            case 1: return "Asynchronous";
-            case 2: return "Adaptive";
-            case 3: return "Synchronous";
-            default: return "Unknown";
-            }
-        }
-
-        private string UsageTypeToStr(int t) {
-           switch (t) {
-            case 0: return "Data";
-            case 2: return "Implicit feedback data";
-            default: return "Unknown";
-            }
-        }
-
-        private string AudioCSEndpointAttrToStr(int attr) {
-            var sb = new StringBuilder();
-            if (0 == (attr & 0x3)) {
-                sb.Append("Control: None");
-            } else {
-                sb.Append("Control:");
-                if (0 != (attr & 1)) {
-                    sb.Append(" SamplingFreq");
-                }
-                if (0 != (attr & 2)) {
-                    sb.Append(" Pitch");
-                }
-            }
-
-            if (0 != (attr & 0x80)) {
-                sb.Append(", MaxPacketsOnly");
-            }
-            return sb.ToString();
-        }
-
-        private string Audio2CSEndpointControlsToStr(int attr, int cntl) {
-            var sb = new StringBuilder();
-            if (0 != (attr & 0x80)) {
-                sb.Append(" MaxPacketsOnly");
-            }
-
-            if (0 == (cntl & 0x3f)) {
-                sb.Append(" Controls: None");
-            } else {
-                sb.Append(" Controls:");
-                if (1 == (cntl & 0x3)) {
-                    sb.Append(" ReadPitch");
-                }
-                if (1 == ((cntl >> 2) & 0x3)) {
-                    sb.Append(" ReadDataOverrun");
-                }
-                if (1 == ((cntl >> 2) & 0x3)) {
-                    sb.Append(" ReadDataUnderrun");
-                }
-                if (3 == (cntl & 0x3)) {
-                    sb.Append(" PitchControl");
-                }
-                if (3 == ((cntl >>2)&0x3)) {
-                    sb.Append(" DataOverrunControl");
-                }
-                if (3 == ((cntl >> 2) & 0x3)) {
-                    sb.Append(" DataUnderrunControl");
-                }
-            }
-            return sb.ToString();
-
-        }
-
-        private const int LOCK_DELAY_UNIT_UNDEFINED = 0;
-        private const int LOCK_DELAY_UNIT_Millisec = 1;
-        private const int LOCK_DELAY_UNIT_DecodedPCMsamples = 2;
-
-
         private void ReadAudioCSEndpoint(byte[] buff, int offs) {
             int length = buff[offs];
+            string sControls = "";
+            int bLockDelayUnits = 0;
+            int wLockDelay = 0;
+
             if (7 == length) {
-                /* 4.6.1.2 Table 4-21 Class-Specific Audio Stream Isochronous Audio Data Endpoint Descriptor
-                0 UCHAR  bLength = 7
-                1 UCHAR  bDescriptorType; 0x25
-                2 UCHAR  bDescriptorSubtype; = 1 EP_GENERAL
-                3 UCHAR  bmAttributes;
-                4 UCHAR  bLockDelayUnits;
-                5 USHORT wLockDelay;
-                */
+                // USBAC1 4.6.1.2 Table 4-21 Class-Specific Audio Stream Isochronous Audio Data Endpoint Descriptor
                 int bmAttr = buff[offs + 3];
-                int bLockDelayUnits = buff[offs + 4];
-                int wLockDelay = BitConverter.ToUInt16(buff, offs + 5);
-                string sControls = AudioCSEndpointAttrToStr(bmAttr);
-                mSB.AppendFormat("\n          Endpoint {0}", sControls);
-                switch (bLockDelayUnits) {
-                case LOCK_DELAY_UNIT_Millisec: mSB.AppendFormat(" ,LockDelay={0} ms", wLockDelay); break;
-                case LOCK_DELAY_UNIT_DecodedPCMsamples: mSB.AppendFormat(" ,LockDelay={0} samples", wLockDelay);break;
-                case LOCK_DELAY_UNIT_UNDEFINED:
-                default:
-                    break; //< 表示しない。
-                }
+
+                sControls = AudioCSEndpointAttrToStr(bmAttr);
+                bLockDelayUnits = buff[offs + 4];
+                wLockDelay = BitConverter.ToUInt16(buff, offs + 5);
             } else if (8 == length) {
-                /* USBAC2 Table 4-34: Class-Specific AS Isochronous Audio Data Endpoint Descriptor
-                0 bLength = 8
-                1 bDescriptorType = 0x25 ENDPOINT
-                2 bDescSubType = 1 EP_GENERAL
-                3 bmAttr
-                4 bmControls
-                5 bLockDelayUnits
-                6 wLockDelay
-                */
+                // USBAC2 Table 4-34: Class-Specific AS Isochronous Audio Data Endpoint Descriptor
                 int bmAttr = buff[offs + 3];
                 int bmControls = buff[offs + 4];
-                string sControls = Audio2CSEndpointControlsToStr(bmAttr, bmControls);
 
-                int bLockDelayUnits = buff[offs + 5];
-                int wLockDelay = BitConverter.ToUInt16(buff, offs + 6);
+                sControls = Audio2CSEndpointControlsToStr(bmAttr, bmControls);
+                bLockDelayUnits = buff[offs + 5];
+                wLockDelay = BitConverter.ToUInt16(buff, offs + 6);
+
+            } else {
+                mSB.AppendFormat("\n          Unknown Audio Stream Endpoint length={0}", length);
+            }
+#if false
                 mSB.AppendFormat("\n          Endpoint {0}", sControls);
-
                 switch (bLockDelayUnits) {
                 case LOCK_DELAY_UNIT_Millisec: mSB.AppendFormat(" ,LockDelay={0} ms", wLockDelay); break;
                 case LOCK_DELAY_UNIT_DecodedPCMsamples: mSB.AppendFormat(" ,LockDelay={0} samples", wLockDelay); break;
@@ -2046,13 +2295,20 @@ namespace WWShowUSBDeviceTree {
                 default:
                     break; //< 表示しない。
                 }
-            } else {
-                mSB.AppendFormat("\n          Unknown Audio Stream Endpoint length={0}", length);
+#else
+            string text = string.Format("Endpoint {0}", sControls);
+            switch (bLockDelayUnits) {
+            case LOCK_DELAY_UNIT_Millisec: text += string.Format(" ,LockDelay={0} ms", wLockDelay); break;
+            case LOCK_DELAY_UNIT_DecodedPCMsamples: text += string.Format(" ,LockDelay={0} samples", wLockDelay); break;
+            case LOCK_DELAY_UNIT_UNDEFINED:
+            default:
+                break; //< 表示しない。
             }
+            mCurrentIF.endpointStr = text;
+#endif
         }
 
         private void ReadAudioStreamingFormatTypeDesc(byte[] buff, int offs) {
-
             int length = buff[offs];
             if (length < 4) {
                 return;
@@ -2064,34 +2320,23 @@ namespace WWShowUSBDeviceTree {
                     return;
                 }
                 if (length == 6) {
-                    /* USB Audio Class 2 Audio Data Formats Table 2-2: Type I Format Type Descriptor
-                    0 UCHAR  bLength;
-                    1 UCHAR  bDescriptorType;
-                    2 UCHAR  bDescriptorSubtype;
-                    3 UCHAR  bFormatType;
-                    4 UCHAR  bSubSlotSize
-                    5 UCHAR  bBitResolution
-                    */
-            int subSlotSize = buff[offs + 4];
+                    // USB Audio Class 2 Audio Data Formats Table 2-2: Type I Format Type Descriptor
+                    int subSlotSize = buff[offs + 4];
                     int bitResolution = buff[offs + 5];
 
+#if false
                     mSB.AppendFormat(" {0}bit", bitResolution);
+#else
+                    mCurrentIF.subSlotSize = subSlotSize;
+                    mCurrentIF.bitResolution = bitResolution;
+#endif
                 } else if (8 <= length) {
-                    /* USB Audio Class 1 Audio Data Formats Table 2-1: Type I Format Type Descriptor
-                    0 UCHAR  bLength;
-                    1 UCHAR  bDescriptorType;
-                    2 UCHAR  bDescriptorSubtype;
-                    3 UCHAR  bFormatType;
-                    4 UCHAR  bNrChannels
-                    5 UCHAR  bSubframeSize
-                    6 UCHAR  bBitResolution 
-                    7 UCHAR  bSamFreqType
-                    8 U24bit tSamFreq
-                    */
-
+                    // USB Audio Class 1 Audio Data Formats Table 2-1: Type I Format Type Descriptor
                     int nrChannels = buff[offs + 4];
+                    int subFrameSize = buff[offs + 5];
                     int bitResolution = buff[offs + 6];
                     int samFreqType = buff[offs + 7];
+#if false
                     mSB.AppendFormat(" {0}ch {1}bit", nrChannels, bitResolution);
                     if (1 <= samFreqType) {
                         if (length < samFreqType * 3 + 8) {
@@ -2102,8 +2347,23 @@ namespace WWShowUSBDeviceTree {
                             mSB.AppendFormat(" {0}kHz", freq*0.001);
                         }
                     }
+#else
+                    mCurrentIF.nCh = nrChannels;
+                    mCurrentIF.subSlotSize = subFrameSize;
+                    mCurrentIF.bitResolution = bitResolution;
+                    if (samFreqType == 0) {
+                        mCurrentIF.lowerSamFreq = (int)(0xffffff & BitConverter.ToUInt32(buff, offs + 8 + 0 * 3));
+                        mCurrentIF.upperSamFreq = (int)(0xffffff & BitConverter.ToUInt32(buff, offs + 8 + 1 * 3));
+                    } else {
+                        for (int i = 0; i < samFreqType; ++i) {
+                            int sf = (int)(0xffffff & BitConverter.ToUInt32(buff, offs + 8 + 0 * 3));
+                            mCurrentIF.samFreqs.Add(sf);
+                        }
+                    }
+#endif
                 } else {
-                    mSB.AppendFormat(" ??Unknown AS format {0:X4}", length);
+                    mSB.AppendFormat(" Unknown AS format {0:X4}", length);
+                    return;
                 }
             }
             if (formatType == FORMAT_TYPE_2) {

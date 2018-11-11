@@ -57,12 +57,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="InterfaceProperty.cs" />
     <Compile Include="Properties\Resources.ja-JP.Designer.cs">
       <DependentUpon>Resources.ja-JP.resx</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
+    <Compile Include="TerminalProperty.cs" />
     <Compile Include="UsbDevice.cs" />
+    <Compile Include="Module.cs" />
     <Compile Include="UsbDeviceTreeCanvas.cs" />
     <Compile Include="UsbCommonDescriptor.cs" />
     <Compile Include="UsbConfDescReader.cs" />
