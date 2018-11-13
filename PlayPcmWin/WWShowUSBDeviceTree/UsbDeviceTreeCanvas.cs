@@ -64,8 +64,8 @@ namespace WWShowUSBDeviceTree {
                 var confReader = new UsbConfDescReader();
                 var confS = confReader.Read(hp);
 
-                s = string.Format("{0}\n{1}\n{2} {3}, {4}\n{5}",
-                        hp.name, hp.vendor, hp.ConnectorTypeStr(), hp.VersionStr(), hp.SpeedStr(),
+                s = string.Format("{0}\n{1}\n{2}\n{3} {4}, {5}\n{6}",
+                        hp.name, hp.vendor, hp.product, hp.ConnectorTypeStr(), hp.VersionStr(), hp.SpeedStr(),
                         confS);
 
                 var node = new UsbDevice(nodeType, hp.idx, hp.parentIdx, speed, version, s);
@@ -80,8 +80,8 @@ namespace WWShowUSBDeviceTree {
                 AddNode(node);
 
             } else {
-                s = string.Format("{0}\n{1}\n{2} {3}, {4}",
-                        hp.name, hp.vendor, hp.ConnectorTypeStr(), hp.VersionStr(), hp.SpeedStr());
+                s = string.Format("{0}\n{1} {2}\n{3} {4}, {5}",
+                        hp.name, hp.vendor, hp.product, hp.ConnectorTypeStr(), hp.VersionStr(), hp.SpeedStr());
                 var node = new UsbDevice(nodeType, hp.idx, hp.parentIdx, speed, version, s);
                 AddNode(node);
             }

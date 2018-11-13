@@ -38,6 +38,7 @@ extern "C" {
 
         UCHAR *confDesc;
         wchar_t name[WWUSB_STRING_COUNT];
+        wchar_t product[WWUSB_STRING_COUNT];
         wchar_t vendor[WWUSB_STRING_COUNT];
     };
 

@@ -228,15 +228,6 @@ DescriptorTypeToStr(int c)
     }
 }
 
-static const wchar_t *
-FindString(std::vector<WWStringDesc> &sds, int idx) {
-    for (int i = 0; i < sds.size(); ++i) {
-        if (sds[i].descIdx == idx) {
-            return sds[i].s.c_str();
-        }
-    }
-    return L"";
-}
 
 static void
 ProcConfDesc(int level, PUSB_COMMON_DESCRIPTOR commD, std::vector<WWStringDesc> &sds)
@@ -248,7 +239,7 @@ ProcConfDesc(int level, PUSB_COMMON_DESCRIPTOR commD, std::vector<WWStringDesc> 
     PUSB_CONFIGURATION_DESCRIPTOR p = (PUSB_CONFIGURATION_DESCRIPTOR)commD;
     WWPrintIndentSpace(level);
     printf("Configuration #%d %S nInterfaces=%d\n",
-        p->bConfigurationValue, FindString(sds, p->iConfiguration), p->bNumInterfaces);
+        p->bConfigurationValue, WWStringDescFindString(sds, p->iConfiguration), p->bNumInterfaces);
 }
 
 void

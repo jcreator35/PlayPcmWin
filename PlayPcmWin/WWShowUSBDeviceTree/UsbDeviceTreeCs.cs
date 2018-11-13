@@ -83,6 +83,8 @@ namespace WWShowUSBDeviceTree {
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
             public string name;
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+            public string product;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
             public string vendor;
         };
 
@@ -150,6 +152,7 @@ namespace WWShowUSBDeviceTree {
             public int usbVersion; //< WWUsbDeviceBusSpeed
             public int portConnectorType; //< PortConnectorType
             public string name;
+            public string product;
             public string vendor;
             public byte[] confDesc;
             public int numStringDesc;
@@ -165,8 +168,9 @@ namespace WWShowUSBDeviceTree {
                 speed = n.speed;
                 usbVersion = n.usbVersion;
                 portConnectorType = n.portConnectorType;
-                name = n.name;
-                vendor = n.vendor;
+                name = n.name.Trim();
+                product = n.product.Trim();
+                vendor = n.vendor.Trim();
                 confDesc = new byte[n.confDescBytes];
                 Marshal.Copy(n.confDesc, confDesc, 0, n.confDescBytes);
                 numStringDesc = n.numStringDesc;

@@ -64,6 +64,9 @@ struct WWStringDesc {
     std::wstring s;
 };
 
+const wchar_t *
+WWStringDescFindString(std::vector<WWStringDesc> &sds, int idx);
+
 HRESULT
 WWDriverKeyNameToDeviceStrings(std::wstring driverName, WWUsbDeviceStrings &uds_r);
 

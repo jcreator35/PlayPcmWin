@@ -282,3 +282,13 @@ WWUsbIdGenerate(void)
 }
 
 
+const wchar_t *
+WWStringDescFindString(std::vector<WWStringDesc> &sds, int idx)
+{
+    for (int i = 0; i < sds.size(); ++i) {
+        if (sds[i].descIdx == idx) {
+            return sds[i].s.c_str();
+        }
+    }
+    return L"";
+}

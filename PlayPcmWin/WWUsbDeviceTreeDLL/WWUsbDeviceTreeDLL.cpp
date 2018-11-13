@@ -143,8 +143,23 @@ WWUsbDeviceTreeDLL_GetHubPortInf(int nth, WWUsbHubPortCs &hp_r)
     memset(hp_r.name, 0, sizeof hp_r.name);
     wcsncpy_s(hp_r.name, hp.devStr.deviceDesc.c_str(), WWUSB_STRING_COUNT - 1);
 
+    memset(hp_r.product, 0, sizeof hp_r.product);
+    if (hp.cie->DeviceDescriptor.iProduct != 0
+        && WWStringDescFindString(hp.sds, hp.cie->DeviceDescriptor.iProduct)[0] != 0) {
+        const wchar_t *p = WWStringDescFindString(hp.sds, hp.cie->DeviceDescriptor.iProduct);
+        wcsncpy_s(hp_r.product, p, WWUSB_STRING_COUNT - 1);
+    } else {
+        wcsncpy_s(hp_r.product, hp.devStr.deviceDesc.c_str(), WWUSB_STRING_COUNT - 1);
+    }
+
     memset(hp_r.vendor, 0, sizeof hp_r.vendor);
-    wcsncpy_s(hp_r.vendor, WWUsbVendorIdToStr(hp.devDesc.idVendor), WWUSB_STRING_COUNT - 1);
+    if (hp.cie->DeviceDescriptor.iManufacturer != 0
+        && WWStringDescFindString(hp.sds, hp.cie->DeviceDescriptor.iManufacturer)[0] != 0) {
+        const wchar_t *p = WWStringDescFindString(hp.sds, hp.cie->DeviceDescriptor.iManufacturer);
+        wcsncpy_s(hp_r.vendor, p, WWUSB_STRING_COUNT - 1);
+    } else {
+        wcsncpy_s(hp_r.vendor, WWUsbVendorIdToStr(hp.devDesc.idVendor), WWUSB_STRING_COUNT - 1);
+    }
 
     hp_r.confDesc = (UCHAR*)hp.confDesc;
     hp_r.confDescBytes = hp.confDesc->wTotalLength;
