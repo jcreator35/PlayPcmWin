@@ -92,6 +92,11 @@ namespace WWWaveSimulatorCS {
             } while (false);
         }
 
+        public void Term() {
+            mCS.Term();
+            mCS = null;
+        }
+
         public void Reset() {
             mP = new float[mGridCount];
             mV = new float[mGridCount * 2];

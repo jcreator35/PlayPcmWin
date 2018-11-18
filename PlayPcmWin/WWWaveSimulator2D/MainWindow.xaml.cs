@@ -38,7 +38,7 @@ namespace WWWaveSimulator2D {
         private void Window_Loaded(object sender, RoutedEventArgs e) {
             mInitialized = true;
 
-            UpdateSimulator();
+            CreateSimulator();
 
             mDT = new System.Windows.Threading.DispatcherTimer();
             mDT.Tick += new EventHandler(dispatcherTimer_Tick);
@@ -54,7 +54,16 @@ namespace WWWaveSimulator2D {
             sliderStep.Value = 4;
         }
 
-        private void UpdateSimulator() {
+        private void DestroySimulator() {
+            lock (mLock) {
+                if (mSim != null) {
+                    mSim.Term();
+                    mSim = null;
+                }
+            }
+        }
+
+        private void CreateSimulator() {
             mΔx = mC0 * mΔt;
 
             textBlockHalf.Text = string.Format("{0}", mΔx * 512);
@@ -74,6 +83,10 @@ namespace WWWaveSimulator2D {
 
         private void dispatcherTimer_Tick(object sender, EventArgs e) {
             lock (mLock) {
+                if (mSim == null) {
+                    return;
+                }
+
                 if (0 < mSimRepeatCount) {
                     int nStimuli = mSim.Update(mSimRepeatCount);
                     //Console.Write("{0} ", nStimuli);
@@ -212,6 +225,13 @@ namespace WWWaveSimulator2D {
             }
 
             labelStepNum.Content = string.Format("{0}", mSimRepeatCount);
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
+            mDT.Stop();
+            lock(mLock) {
+                DestroySimulator();
+            }
         }
     }
 }
