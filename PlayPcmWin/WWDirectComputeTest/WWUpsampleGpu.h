@@ -6,14 +6,14 @@
 #include <crtdbg.h>
 #include <stdint.h>
 
-/// 1ƒXƒŒƒbƒhƒOƒ‹[ƒv‚ÉŠ‘®‚·‚éƒXƒŒƒbƒh‚Ì”BTGSM‚ð‹¤—L‚·‚éB
-/// 2‚Ìæ”B
-/// ‚±‚Ì”’l‚ð‘‚«Š·‚¦‚½‚çƒVƒF[ƒ_[‚à‘‚«Š·‚¦‚é•K—v‚ ‚èB
+/// 1ã‚¹ãƒ¬ãƒƒãƒ‰ã‚°ãƒ«ãƒ¼ãƒ—ã«æ‰€å±žã™ã‚‹ã‚¹ãƒ¬ãƒƒãƒ‰ã®æ•°ã€‚TGSMã‚’å…±æœ‰ã™ã‚‹ã€‚
+/// 2ã®ä¹—æ•°ã€‚
+/// ã“ã®æ•°å€¤ã‚’æ›¸ãæ›ãˆãŸã‚‰ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ã‚‚æ›¸ãæ›ãˆã‚‹å¿…è¦ã‚ã‚Šã€‚
 #define GROUP_THREAD_COUNT 1024
 
 
 
-/// ƒVƒF[ƒ_[‚É“n‚·’è”B16ƒoƒCƒg‚Ì”{”‚Å‚È‚¢‚Æ‚¢‚¯‚È‚¢‚ç‚µ‚¢B
+/// ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ã«æ¸¡ã™å®šæ•°ã€‚16ãƒã‚¤ãƒˆã®å€æ•°ã§ãªã„ã¨ã„ã‘ãªã„ã‚‰ã—ã„ã€‚
 struct ConstShaderParams {
     unsigned int c_convOffs;
     unsigned int c_dispatchCount;

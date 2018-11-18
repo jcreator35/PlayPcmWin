@@ -34,7 +34,7 @@ TestTexture(void)
     output = new float[dataCount];
     assert(output);
 
-    // HLSL ComputeShader‚ğƒRƒ“ƒpƒCƒ‹B
+    // HLSL ComputeShaderã‚’ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«ã€‚
     const D3D_SHADER_MACRO defines[] = {
         "GROUP_THREAD_COUNT", dataCountStr,
         nullptr, nullptr
@@ -54,7 +54,7 @@ TestTexture(void)
 
     HRG(c.Run(pCS, 1, &pSRVTex1D, 1, &pUAVOutput, nullptr, 0, dataCount, 1, 1));
 
-    // ŒvZŒ‹‰Ê‚ğCPUƒƒ‚ƒŠ[‚É‚Á‚Ä‚­‚éB
+    // è¨ˆç®—çµæœã‚’CPUãƒ¡ãƒ¢ãƒªãƒ¼ã«æŒã£ã¦ãã‚‹ã€‚
     HRG(c.RecvResultToCpuMemory(pUAVOutput, output, dataCount * sizeof(float)));
 
 end:

@@ -20,15 +20,15 @@ enum UAVenum {
     UAV_NUM
 };
 
-// ’è”B16ƒoƒCƒg‚Ì”{”‚ÌƒTƒCƒY‚Ì\‘¢‘ÌB
+// å®šæ•°ã€‚16ãƒã‚¤ãƒˆã®å€æ•°ã®ã‚µã‚¤ã‚ºã®æ§‹é€ ä½“ã€‚
 struct ShaderConstants {
-    // XVˆ—‚ÌŒJ‚è•Ô‚µ‰ñ”B
+    // æ›´æ–°å‡¦ç†ã®ç¹°ã‚Šè¿”ã—å›æ•°ã€‚
     uint32_t cRepeat;
 
-    // ƒpƒ‰ƒ[ƒ^Sc
+    // ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿Sc
     float cSc;
     
-    // ƒpƒ‰ƒ[ƒ^C0
+    // ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿C0
     float cC0;
 
     uint32_t dummy0;
@@ -43,13 +43,13 @@ TestWave1D1(ShaderConstants & shaderConstants, const int dataCount, float *loss,
     ID3D11ComputeShader *pCS  = nullptr;
     WWDirectComputeUser c;
 
-    // Å‘å‚Å‘å‘Ì10i10Œ…B
+    // æœ€å¤§ã§å¤§ä½“10é€²10æ¡ã€‚
     char dataCountStr[16];
     sprintf_s(dataCountStr, "%d", dataCount);
 
     c.Init();
 
-    // HLSL ComputeShader‚ğƒRƒ“ƒpƒCƒ‹B
+    // HLSL ComputeShaderã‚’ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«ã€‚
     const D3D_SHADER_MACRO defines[] = {
         "LENGTH", dataCountStr,
         nullptr, nullptr
@@ -68,7 +68,7 @@ TestWave1D1(ShaderConstants & shaderConstants, const int dataCount, float *loss,
 
     HRG(c.Run(pCS, SRV_NUM, pSRVs, UAV_NUM, pUAVs, &shaderConstants, sizeof(ShaderConstants), dataCount, 1, 1));
 
-    // ŒvZŒ‹‰Ê‚ğCPUƒƒ‚ƒŠ[‚É‚Á‚Ä‚­‚éB
+    // è¨ˆç®—çµæœã‚’CPUãƒ¡ãƒ¢ãƒªãƒ¼ã«æŒã£ã¦ãã‚‹ã€‚
     HRG(c.RecvResultToCpuMemory(pUAVs[0], v, dataCount * sizeof(float)));
     HRG(c.RecvResultToCpuMemory(pUAVs[1], p, dataCount * sizeof(float)));
 
@@ -96,8 +96,8 @@ TestWave1D(void)
 
     ShaderConstants sc = {
         100,    // cRepeat
-        1.0f, // ƒpƒ‰ƒ[ƒ^Sc
-        1.0f, // ƒpƒ‰ƒ[ƒ^C0
+        1.0f, // ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿Sc
+        1.0f, // ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿C0
         0,    // dummy
     };
 

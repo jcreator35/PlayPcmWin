@@ -1,3 +1,5 @@
+// æ—¥æœ¬èªã€‚
+
 #include "Test1.h"
 #include "WWDirectComputeUser.h"
 #include "WWUpsampleGpu.h"
@@ -60,7 +62,7 @@ JitterAddGpu(
     assert(jitterX);
     assert(outF);
 
-    // ƒf[ƒ^€”õ
+    // Æ’f[Æ’^â‚¬â€Ãµ
     const int fromCount = convolutionN + sampleN + convolutionN;
     float *from = new float[fromCount];
     assert(from);
@@ -69,7 +71,7 @@ JitterAddGpu(
         from[i+convolutionN] = sampleData[i];
     }
 
-    // HLSL‚Ì#define‚ğì‚éB
+    // HLSLâ€šÃŒ#defineâ€šÃ°Ã¬â€šÃ©B
     char convStartStr[32];
     char convEndStr[32];
     char convCountStr[32];
@@ -139,11 +141,11 @@ JitterAddGpu(
 
     HRG(pDCU->Init());
 
-    // HLSL ComputeShader‚ğƒRƒ“ƒpƒCƒ‹‚µ‚ÄGPU‚É‘—‚éB
+    // HLSL ComputeShaderâ€šÃ°Æ’RÆ’â€œÆ’pÆ’CÆ’â€¹â€šâ€šÃ„GPUâ€šÃ‰â€˜â€”â€šÃ©B
     HRG(pDCU->CreateComputeShader(L"SincConvolution.hlsl", "CSMain", defines, &pCS));
     assert(pCS);
 
-    // “ü—Íƒf[ƒ^‚ğGPUƒƒ‚ƒŠ[‚É‘—‚é
+    // â€œÃ¼â€”ÃÆ’f[Æ’^â€šÃ°GPUÆ’Æ’â€šÆ’Å [â€šÃ‰â€˜â€”â€šÃ©
     HRG(pDCU->SendReadOnlyDataAndCreateShaderResourceView(
         sizeof(float), fromCount, from, "SampleDataBuffer", &pBuf0Srv));
     assert(pBuf0Srv);
@@ -156,26 +158,26 @@ JitterAddGpu(
         sizeof(float), sampleN, jitterX, "XBuffer", &pBuf2Srv));
     assert(pBuf1Srv);
 
-    // Œ‹‰Êo—Í—Ìˆæ‚ğGPU‚Éì¬B
+    // Å’â€¹â€°ÃŠoâ€”Ãâ€”ÃŒË†Ã¦â€šÃ°GPUâ€šÃ‰Ã¬Â¬B
     HRG(pDCU->CreateBufferAndUnorderedAccessView(
         sizeof(float), sampleN, nullptr, "OutputBuffer", &pBufResultUav));
     assert(pBufResultUav);
 
-    // ’è”’u‚«ê‚ğGPU‚Éì¬B
+    // â€™Ã¨â€â€™uâ€šÃªâ€šÃ°GPUâ€šÃ‰Ã¬Â¬B
     ConstShaderParams shaderParams;
     ZeroMemory(&shaderParams, sizeof shaderParams);
 
-    // GPUã‚ÅComputeShaderÀsB
+    // GPUÃ£â€šÃ…ComputeShaderÅ½Ã€sB
     ID3D11ShaderResourceView* aRViews[] = { pBuf0Srv, pBuf1Srv, pBuf2Srv };
     DWORD t0 = GetTickCount();
 #if 1
-    // ‚·‚±‚µ‚¾‚¯‘¬‚¢B’†‚Åƒ‹[ƒv‚·‚é‚æ‚¤‚É‚µ‚½B
+    // â€šâ€šÂ±â€šâ€šâ€šÂ¯â€˜Â¬â€šÂ¢Bâ€™â€ â€šÃ…Æ’â€¹[Æ’vâ€šâ€šÃ©â€šÃ¦â€šÂ¤â€šÃ‰â€šâ€šB
     shaderParams.c_convOffs = 0;
     shaderParams.c_dispatchCount = convolutionN*2/GROUP_THREAD_COUNT;
     HRGR(pDCU->Run(pCS, sizeof aRViews/sizeof aRViews[0], aRViews, 1, &pBufResultUav,
         &shaderParams, sizeof shaderParams, sampleN, 1, 1));
 #else
-    // ’x‚¢
+    // â€™xâ€šÂ¢
     for (int i=0; i<convolutionN*2/GROUP_THREAD_COUNT; ++i) {
         shaderParams.c_convOffs = i * GROUP_THREAD_COUNT;
         shaderParams.c_dispatchCount = convolutionN*2/GROUP_THREAD_COUNT;
@@ -184,7 +186,7 @@ JitterAddGpu(
     }
 #endif
 
-    // ŒvZŒ‹‰Ê‚ğCPUƒƒ‚ƒŠ[‚É‚Á‚Ä‚­‚éB
+    // Å’vÅ½ZÅ’â€¹â€°ÃŠâ€šÃ°CPUÆ’Æ’â€šÆ’Å [â€šÃ‰Å½â€šÃâ€šÃ„â€šâ€šÃ©B
     HRG(pDCU->RecvResultToCpuMemory(pBufResultUav, outF, sampleN * sizeof(float)));
 end:
 
@@ -232,7 +234,7 @@ end:
 static void
 JitterAddCpuD(int sampleN, int convolutionN, float *sampleData, float *jitterX, float *outF)
 {
-    // ƒTƒ“ƒvƒ‹ƒf[ƒ^‚©‚çA‘OŒã‚ğ0‚Å…‘‚µ‚µ‚½from‚ğì¬B
+    // Æ’TÆ’â€œÆ’vÆ’â€¹Æ’f[Æ’^â€šÂ©â€šÃ§Aâ€˜OÅ’Ã£â€šÃ°0â€šÃ…â€¦â€˜â€šâ€šâ€šfromâ€šÃ°Ã¬Â¬B
     const int fromCount = convolutionN + sampleN + convolutionN;
     float *from = new float[fromCount];
     assert(from);
@@ -267,7 +269,7 @@ Test1(void)
 {
     HRESULT hr = S_OK;
 
-    // ƒf[ƒ^€”õ
+    // Æ’f[Æ’^â‚¬â€Ãµ
     int convolutionN = 65536 * 256;
     int sampleN      = 16384;
 
@@ -289,7 +291,7 @@ Test1(void)
         jitterX[i]    = 0.5f;
     }
 #else
-    // 44100HzƒTƒ“ƒvƒŠƒ“ƒO‚Å1000Hz‚Ìsin
+    // 44100HzÆ’TÆ’â€œÆ’vÆ’Å Æ’â€œÆ’Oâ€šÃ…1000Hzâ€šÃŒsin
     for (int i=0; i<sampleN; ++i) {
         float xS = PI_F * i * 1000 / 44100;
         float xJ = PI_F * i * 4000 / 44100;
@@ -315,11 +317,11 @@ Test1(void)
 
     if (0 < (t1-t0)) {
         /*
-            1 (•b)       x(ƒTƒ“ƒvƒ‹/•b)
-          „Ÿ„Ÿ„Ÿ„Ÿ„Ÿ  „Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ
-           14 (•b)       256(ƒTƒ“ƒvƒ‹)
+            1 (â€¢b)       x(Æ’TÆ’â€œÆ’vÆ’â€¹/â€¢b)
+          â€Å¸â€Å¸â€Å¸â€Å¸â€Å¸  â€Å¸â€Å¸â€Å¸â€Å¸â€Å¸â€Å¸â€Å¸â€Å¸
+           14 (â€¢b)       256(Æ’TÆ’â€œÆ’vÆ’â€¹)
 
-             x = 256 € 14
+             x = 256 â‚¬ 14
          */
 
         printf("GPU=%dms(%fsamples/s) CPU=%dms(%fsamples/s)\n",

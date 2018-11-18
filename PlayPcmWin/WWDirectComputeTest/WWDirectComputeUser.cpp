@@ -1,5 +1,5 @@
-// “ú–{Œê SJIS
-// QlFBasicCompute11.cpp
+// æ—¥æœ¬èª SJIS
+// å‚è€ƒï¼šBasicCompute11.cpp
 
 #include "WWDirectComputeUser.h"
 #include "WWUtil.h"
@@ -77,12 +77,12 @@ CreateDeviceInternal(
     *ppDevice           = nullptr;
     *ppImmediateContext = nullptr;
 
-    // •¡”‰ñƒfƒoƒCƒX‚ğì¬‚µ‚½ê‡‚ÉD3D11‚ª‚ ‚è‚Ü‚¹‚ñ‚Æ‚¢‚¤ƒGƒ‰[‚ğ‚P‰ñ‚¾‚¯o‚·‚æ‚¤‚É‚·‚éƒtƒ‰ƒOB
+    // è¤‡æ•°å›ãƒ‡ãƒã‚¤ã‚¹ã‚’ä½œæˆã—ãŸå ´åˆã«D3D11ãŒã‚ã‚Šã¾ã›ã‚“ã¨ã„ã†ã‚¨ãƒ©ãƒ¼ã‚’ï¼‘å›ã ã‘å‡ºã™ã‚ˆã†ã«ã™ã‚‹ãƒ•ãƒ©ã‚°ã€‚
     static bool bMessageAlreadyShown = false;
 
     HMODULE hModD3D11 = LoadLibrary( L"d3d11.dll" );
     if ( hModD3D11 == nullptr ) {
-        // D3D11‚ª‚È‚¢B
+        // D3D11ãŒãªã„ã€‚
 
         if ( !bMessageAlreadyShown ) {
             OSVERSIONINFOEX osv;
@@ -94,28 +94,28 @@ CreateDeviceInternal(
                 || ( osv.dwMajorVersion == 6 && osv.dwMinorVersion >= 1 ) 
                 || ( osv.dwMajorVersion == 6 && osv.dwMinorVersion == 0 && osv.dwBuildNumber > 6002 ) ) {
                 MessageBox(0,
-                    L"ƒGƒ‰[: Direct3D 11 ƒRƒ“ƒ|[ƒlƒ“ƒg‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ‚Å‚µ‚½B",
+                    L"ã‚¨ãƒ©ãƒ¼: Direct3D 11 ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã§ã—ãŸã€‚",
                     L"Error",
                     MB_ICONEXCLAMATION );
                 // This should not happen, but is here for completeness as the system could be
                 // corrupted or some future OS version could pull D3D11.DLL for some reason
             } else if ( osv.dwMajorVersion == 6 && osv.dwMinorVersion == 0 && osv.dwBuildNumber == 6002 ) {
                 MessageBox(0,
-                    L"ƒGƒ‰[: Direct3D 11 ƒRƒ“ƒ|[ƒlƒ“ƒg‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ‚Å‚µ‚½‚ªA"
-                    L"‚±‚ÌWindows—p‚ÌDirect3D 11 ƒRƒ“ƒ|[ƒlƒ“ƒg‚Í“üè‰Â”\‚Å‚·B\n"
-                    L"ƒ}ƒCƒNƒƒ\ƒtƒgKB #971644‚ğ‚²——‚­‚¾‚³‚¢B\n"
+                    L"ã‚¨ãƒ©ãƒ¼: Direct3D 11 ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã§ã—ãŸãŒã€"
+                    L"ã“ã®Windowsç”¨ã®Direct3D 11 ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã¯å…¥æ‰‹å¯èƒ½ã§ã™ã€‚\n"
+                    L"ãƒã‚¤ã‚¯ãƒ­ã‚½ãƒ•ãƒˆKB #971644ã‚’ã”è¦§ãã ã•ã„ã€‚\n"
                     L" http://support.microsoft.com/default.aspx/kb/971644/",
                     L"Error", MB_ICONEXCLAMATION );
             } else if ( osv.dwMajorVersion == 6 && osv.dwMinorVersion == 0 ) {
                 MessageBox(0,
-                    L"ƒGƒ‰[: Direct3D 11 ƒRƒ“ƒ|[ƒlƒ“ƒg‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ‚Å‚µ‚½B"
-                    L"ÅV‚ÌƒT[ƒrƒXƒpƒbƒN‚ğ“K—p‚µ‚Ä‚­‚¾‚³‚¢B\n"
-                    L"Ú‚µ‚­‚Íƒ}ƒCƒNƒƒ\ƒtƒgKB #935791‚ğ‚²——‚­‚¾‚³‚¢B\n"
+                    L"ã‚¨ãƒ©ãƒ¼: Direct3D 11 ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã§ã—ãŸã€‚"
+                    L"æœ€æ–°ã®ã‚µãƒ¼ãƒ“ã‚¹ãƒ‘ãƒƒã‚¯ã‚’é©ç”¨ã—ã¦ãã ã•ã„ã€‚\n"
+                    L"è©³ã—ãã¯ãƒã‚¤ã‚¯ãƒ­ã‚½ãƒ•ãƒˆKB #935791ã‚’ã”è¦§ãã ã•ã„ã€‚\n"
                     L" http://support.microsoft.com/default.aspx/kb/935791",
                     L"Error", MB_ICONEXCLAMATION );
             } else {
                 MessageBox(0,
-                    L"ƒGƒ‰[: ‚±‚Ìƒo[ƒWƒ‡ƒ“‚ÌWindowsŒü‚¯‚ÌDirect3D 11 ‚Í‚ ‚è‚Ü‚¹‚ñB",
+                    L"ã‚¨ãƒ©ãƒ¼: ã“ã®ãƒãƒ¼ã‚¸ãƒ§ãƒ³ã®Windowså‘ã‘ã®Direct3D 11 ã¯ã‚ã‚Šã¾ã›ã‚“ã€‚",
                     L"Error", MB_ICONEXCLAMATION);
             }
 
@@ -126,7 +126,7 @@ CreateDeviceInternal(
         goto end;
     }
 
-    // D3D11ƒfƒoƒCƒX‚ª‘¶İ‚·‚éê‡B
+    // D3D11ãƒ‡ãƒã‚¤ã‚¹ãŒå­˜åœ¨ã™ã‚‹å ´åˆã€‚
 
     typedef HRESULT (WINAPI * LPD3D11CREATEDEVICE)(
         IDXGIAdapter*, D3D_DRIVER_TYPE, HMODULE, UINT32,
@@ -153,8 +153,8 @@ CreateDeviceInternal(
     if ( !hwopts.DoublePrecisionFloatShaderOps ) {
         if ( !bMessageAlreadyShown ) {
             MessageBox(0,
-                L"ƒGƒ‰[: ‚±‚ÌGPU‚ÍComputeShader5.0‚Ì”{¸“x•‚“®¬”“_”ƒIƒvƒVƒ‡ƒ“"
-                L"(double-precision support)‚ªg—p‚Å‚«‚Ü‚¹‚ñB",
+                L"ã‚¨ãƒ©ãƒ¼: ã“ã®GPUã¯ComputeShader5.0ã®å€ç²¾åº¦æµ®å‹•å°æ•°ç‚¹æ•°ã‚ªãƒ—ã‚·ãƒ§ãƒ³"
+                L"(double-precision support)ãŒä½¿ç”¨ã§ãã¾ã›ã‚“ã€‚",
                 L"Error", MB_ICONEXCLAMATION);
             bMessageAlreadyShown = true;
         }
@@ -214,12 +214,12 @@ WWDirectComputeUser::CreateComputeShader(
 
     DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
 //#if defined( DEBUG ) || defined( _DEBUG )
-    // D3DCOMPILE_DEBUGƒtƒ‰ƒO‚ğw’è‚·‚é‚ÆAƒVƒF[ƒ_[‚ÉƒfƒoƒbƒOî•ñ‚ğ–„‚ß‚Ş‚ª
-    // Å“K‰»‚Í‚³‚ê‚é‚µARELEASE‚Æ“¯“™‚Ì“®ì‚ğ‚µA«”\‚ª—‚¿‚È‚¢c‚ç‚µ‚¢B
+    // D3DCOMPILE_DEBUGãƒ•ãƒ©ã‚°ã‚’æŒ‡å®šã™ã‚‹ã¨ã€ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ã«ãƒ‡ãƒãƒƒã‚°æƒ…å ±ã‚’åŸ‹ã‚è¾¼ã‚€ãŒ
+    // æœ€é©åŒ–ã¯ã•ã‚Œã‚‹ã—ã€RELEASEã¨åŒç­‰ã®å‹•ä½œã‚’ã—ã€æ€§èƒ½ãŒè½ã¡ãªã„â€¦ã‚‰ã—ã„ã€‚
     //dwShaderFlags |= D3DCOMPILE_DEBUG;
 //#endif
 
-    // CSƒVƒF[ƒ_[ƒvƒƒtƒ@ƒCƒ‹5.0‚ğw’èB
+    // CSã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ãƒ—ãƒ­ãƒ•ã‚¡ã‚¤ãƒ«5.0ã‚’æŒ‡å®šã€‚
     LPCSTR pProfile = "cs_5_0";
 
     hr = D3DX11CompileFromFile(path, defines, nullptr, entryPoint, pProfile,
@@ -233,7 +233,7 @@ WWDirectComputeUser::CreateComputeShader(
             MultiByteToWideChar(CP_ACP, 0, s, -1,
                 erStr, sizeof erStr/sizeof erStr[0]-1);
         }
-        MessageBox(0, erStr, L"D3DX11CompileFromFile¸”s", MB_ICONEXCLAMATION);
+        MessageBox(0, erStr, L"D3DX11CompileFromFileå¤±æ•—", MB_ICONEXCLAMATION);
         goto end;
     }
 
@@ -282,8 +282,8 @@ WWDirectComputeUser::CreateStructuredBuffer(
     assert(m_pDevice);
     assert(uElementSize);
     assert(0 < uCount);
-    // name==nullptr‚Å‚à‰ÂB
-    // pInitData==nullptr‚Å‚à‰ÂB
+    // name==nullptrã§ã‚‚å¯ã€‚
+    // pInitData==nullptrã§ã‚‚å¯ã€‚
 
     *ppBufOut = nullptr;
 
@@ -556,7 +556,7 @@ WWDirectComputeUser::RecvResultToCpuMemory(
             ZeroMemory(&mr, sizeof mr);
             HRG(m_pContext->Map(pReturn, 0, D3D11_MAP_READ, 0, &mr));
             assert(mr.pData);
-            // Unmap‚µ‚È‚¢‚Ågoto end‚µ‚Ä‚Í‚¢‚¯‚È‚¢
+            // Unmapã—ãªã„ã§goto endã—ã¦ã¯ã„ã‘ãªã„
 
             memcpy(dest, mr.pData, bytes);
 
@@ -588,7 +588,7 @@ WWDirectComputeUser::RecvResultToCpuMemory(
             ZeroMemory(&mr, sizeof mr);
             HRG(m_pContext->Map(pReturn, 0, D3D11_MAP_READ, 0, &mr));
             assert(mr.pData);
-            // Unmap‚µ‚È‚¢‚Ågoto end‚µ‚Ä‚Í‚¢‚¯‚È‚¢
+            // Unmapã—ãªã„ã§goto endã—ã¦ã¯ã„ã‘ãªã„
 
             memcpy(dest, mr.pData, bytes);
 
@@ -637,7 +637,7 @@ WWDirectComputeUser::SetupDispatch(
         //m_pContext->CSSetConstantBuffers(0, 1, ppCBNULL);
     }
 
-    // ƒVƒF[ƒ_[‚Æƒpƒ‰ƒ[ƒ^‚ğƒZƒbƒg‚·‚éB
+    // ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ã¨ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã‚’ã‚»ãƒƒãƒˆã™ã‚‹ã€‚
 
     m_pContext->CSSetShader(pComputeShader, nullptr, 0);
     if (0 < nNumSRV) {
@@ -720,7 +720,7 @@ WWDirectComputeUser::CreateConstantBuffer(
 {
     HRESULT hr = S_OK;
 
-    // uElementSize‚Í16‚Ì”{”‚Å‚È‚¢‚Æ‚¢‚¯‚È‚¢‚ç‚µ‚¢B
+    // uElementSizeã¯16ã®å€æ•°ã§ãªã„ã¨ã„ã‘ãªã„ã‚‰ã—ã„ã€‚
     assert((uElementSize%16) ==0);
     assert(0<uCount);
     assert(ppBufOut);
@@ -743,7 +743,7 @@ end:
     return hr;
 }
 
-// ¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡
+// â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– â– 
 // Texture1D
 
 HRESULT
@@ -762,7 +762,7 @@ WWDirectComputeUser::CreateTexture1DShaderResourceView(
     *ppSrvOut = nullptr;
 
 /*
-    ‚±‚ê‚Íabort‚·‚éB
+    ã“ã‚Œã¯abortã™ã‚‹ã€‚
     D3D11_TEXTURE1D_DESC descBuf;
     ZeroMemory(&descBuf, sizeof descBuf);
     pTex->GetDesc(&descBuf);
@@ -773,7 +773,7 @@ WWDirectComputeUser::CreateTexture1DShaderResourceView(
     desc.Format = format;
     desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE1D;
     desc.Texture1D.MostDetailedMip = 0;
-    desc.Texture1D.MipLevels = -1; //< ‘S‚Äg—p‚·‚éB
+    desc.Texture1D.MipLevels = -1; //< å…¨ã¦ä½¿ç”¨ã™ã‚‹ã€‚
 
     HRG(m_pDevice->CreateShaderResourceView(pTex, &desc, ppSrvOut));
 
@@ -873,7 +873,7 @@ WWDirectComputeUser::DestroyTexture1D(
     }
 
     pTex->Release();
-    pTex = nullptr; //< ‚ ‚Ü‚èˆÓ–¡‚È‚¢B
+    pTex = nullptr; //< ã‚ã¾ã‚Šæ„å‘³ãªã„ã€‚
     return;
 }
 

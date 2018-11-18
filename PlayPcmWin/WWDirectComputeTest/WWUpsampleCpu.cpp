@@ -32,16 +32,16 @@ WWUpsampleCpu(
     for (int i=0; i<sampleTotalTo; ++i) {
         double resamplePos = (double)i * sampleRateFrom / sampleRateTo;
 #if 1
-        /* -0.5 <= fraction<+0.5‚É‚È‚é‚æ‚¤‚ÉresamplePos‚ð‘I‚ÔB
-         * ÅŒã‚Ì‚Ù‚¤‚Å”ÍˆÍŠO‚ðŽw‚³‚È‚¢‚æ‚¤‚É‚·‚éB
+        /* -0.5 <= fraction<+0.5ã«ãªã‚‹ã‚ˆã†ã«resamplePosã‚’é¸ã¶ã€‚
+         * æœ€å¾Œã®ã»ã†ã§ç¯„å›²å¤–ã‚’æŒ‡ã•ãªã„ã‚ˆã†ã«ã™ã‚‹ã€‚
          */
         int resamplePosI = (int)(resamplePos+0.5);
         if (sampleTotalFrom <= resamplePosI) {
             resamplePosI = sampleTotalFrom -1;
         }
 #else
-        /* 0<=fraction<1‚É‚È‚é‚ÉresamplePosI‚ð‘I‚ÔB
-         * ‚±‚ê‚Í1‚É‹ß‚¢’l‚ª•po‚·‚é‚Ì‚Å‚æ‚­‚È‚¢B
+        /* 0<=fraction<1ã«ãªã‚‹ã«resamplePosIã‚’é¸ã¶ã€‚
+         * ã“ã‚Œã¯1ã«è¿‘ã„å€¤ãŒé »å‡ºã™ã‚‹ã®ã§ã‚ˆããªã„ã€‚
          */
         int resamplePosI = (int)(resamplePos+0.5);
         assert(resamplePosI < sampleTotalFrom);
@@ -79,7 +79,7 @@ WWUpsampleCpu(
                 }
 
 #if 1
-                // ‡‚Á‚Ä‚¢‚½B
+                // åˆã£ã¦ã„ãŸã€‚
                 assert(fabs(sinX - sin(x)) < 0.000001);
 #endif
 

@@ -1,3 +1,6 @@
+// 日本語。
+
+
 #pragma once
 #include <Windows.h>
 

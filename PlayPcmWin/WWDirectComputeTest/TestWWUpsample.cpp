@@ -1,3 +1,4 @@
+// æ—¥æœ¬èªã€‚
 #include "TestWWUpsample.h"
 #include "WWUpsampleGpu.h"
 #include "WWUpsampleCpu.h"
@@ -15,7 +16,7 @@ Test2(void)
 
     us.Init();
 
-    // ƒf[ƒ^€”õ
+    // ãƒ‡ãƒ¼ã‚¿æº–å‚™
     int convolutionN    = 256*256;
     int sampleTotalFrom = 256*256;
     int sampleRateFrom  = 44100;
@@ -33,14 +34,14 @@ Test2(void)
     assert(outputGpu);
 
     /*
-    // ‘S•”1
+    // å…¨éƒ¨1
     for (int i=0; i<sampleTotalFrom; ++i) {
         sampleData[i] = 1.0f;
     }
     */
 
     /*
-    // 44100HzƒTƒ“ƒvƒŠƒ“ƒO‚Å1000Hz‚Ìsin
+    // 44100Hzã‚µãƒ³ãƒ—ãƒªãƒ³ã‚°ã§1000Hzã®sin
     for (int i=0; i<sampleTotalFrom; ++i) {
         float xS = PI_F * i * 1000 / 44100;
         sampleData[i] = sinf(xS);
@@ -48,14 +49,14 @@ Test2(void)
     */
 
     /*
-    // Å‰‚ÌƒTƒ“ƒvƒ‹‚¾‚¯1‚ÅAc‚è‚Í0
+    // æœ€åˆã®ã‚µãƒ³ãƒ—ãƒ«ã ã‘1ã§ã€æ®‹ã‚Šã¯0
     for (int i=0; i<sampleTotalFrom; ++i) {
         sampleData[i] = 0;
     }
     sampleData[0] = 1.0f;
     */
 
-    // ^‚ñ’†‚ ‚½‚è‚ÌƒTƒ“ƒvƒ‹‚¾‚¯1‚ÅAc‚è‚Í0
+    // çœŸã‚“ä¸­ã‚ãŸã‚Šã®ã‚µãƒ³ãƒ—ãƒ«ã ã‘1ã§ã€æ®‹ã‚Šã¯0
     for (int i=0; i<sampleTotalFrom; ++i) {
         sampleData[i] = 0;
     }
@@ -84,11 +85,11 @@ Test2(void)
     */
 
     /*
-        1 (•b)       x(ƒTƒ“ƒvƒ‹/•b)
-        „Ÿ„Ÿ„Ÿ„Ÿ„Ÿ  „Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ
-        14 (•b)       256(ƒTƒ“ƒvƒ‹)
+        1 (ç§’)       x(ã‚µãƒ³ãƒ—ãƒ«/ç§’)
+        â”€â”€â”€â”€â”€ ï¼ â”€â”€â”€â”€â”€â”€â”€â”€
+        14 (ç§’)       256(ã‚µãƒ³ãƒ—ãƒ«)
 
-            x = 256 € 14
+            x = 256 Ã· 14
         */
     float scaleG = WWUpsampleGpu::LimitSampleData(outputGpu, sampleTotalTo);
     float scaleC = WWUpsampleGpu::LimitSampleData(outputCpu, sampleTotalTo);
