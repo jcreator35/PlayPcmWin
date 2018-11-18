@@ -1,3 +1,5 @@
+// æ—¥æœ¬èªžã€‚
+
 #include "WasapiIOIF.h"
 #include "WasapiUser.h"
 #include "WWPlayPcmGroup.h"
@@ -137,7 +139,7 @@ WasapiIO::ResampleIfNeeded(int conversionQuality)
         return hr;
     }
 
-    // DoP‚ÍPCMŒ`Ž®‚É•ÏŠ·‚³‚ê‚½B
+    // DoPã¯PCMå½¢å¼ã«å¤‰æ›ã•ã‚ŒãŸã€‚
     deviceFormat.streamType = WWStreamPcm;
 
     wasapi.UpdatePcmDataFormat(deviceFormat);
@@ -173,7 +175,7 @@ void
 WasapiIO::ScalePcmAmplitude(double scale)
 {
     if (scale == 1.0) {
-        // Œµ–§‚É1.0”{‚Ì‚Æ‚«A‰½‚à•Ï‚í‚ç‚È‚¢‚Ì‚Åˆ—‚ðÈ—ª‚·‚éB
+        // åŽ³å¯†ã«1.0å€ã®ã¨ãã€ä½•ã‚‚å¤‰ã‚ã‚‰ãªã„ã®ã§å‡¦ç†ã‚’çœç•¥ã™ã‚‹ã€‚
         return;
     }
 
@@ -190,7 +192,7 @@ WasapiIO::AddPcmDataEnd(void)
 {
     playPcmGroup.AddPlayPcmDataEnd();
 
-    // ƒŠƒs[ƒg‚È‚µ‚Æ‰¼’è‚µ‚ÄƒŠƒ“ƒNƒŠƒXƒg‚ð‚Â‚È‚°‚Ä‚¨‚­B
+    // ãƒªãƒ”ãƒ¼ãƒˆãªã—ã¨ä»®å®šã—ã¦ãƒªãƒ³ã‚¯ãƒªã‚¹ãƒˆã‚’ã¤ãªã’ã¦ãŠãã€‚
     UpdatePlayRepeat(false);
 }
 
@@ -217,8 +219,8 @@ WasapiIO::StartRecording(void)
 HRESULT
 WasapiIO::OnDeviceStateChanged(LPCWSTR pwstrDeviceId, DWORD dwNewState)
 {
-    // Ä¶’†‚ÅAÄ¶‚µ‚Ä‚¢‚éƒfƒoƒCƒX‚Ìó‘Ô‚ª•Ï‚í‚Á‚½‚Æ‚«‚Í
-    // DeviceStateChanged()‚ÍÄ¶‚ð’âŽ~‚µ‚È‚¯‚ê‚Î‚È‚ç‚È‚¢
+    // å†ç”Ÿä¸­ã§ã€å†ç”Ÿã—ã¦ã„ã‚‹ãƒ‡ãƒã‚¤ã‚¹ã®çŠ¶æ…‹ãŒå¤‰ã‚ã£ãŸã¨ãã¯
+    // DeviceStateChanged()ã¯å†ç”Ÿã‚’åœæ­¢ã—ãªã‘ã‚Œã°ãªã‚‰ãªã„
     if (stateChangedCallback) {
         stateChangedCallback(pwstrDeviceId, dwNewState);
     }
@@ -777,7 +779,7 @@ WasapiIO_GetVolumeParams(int instanceId, WasapiIoVolumeParams &result_return)
     WWVolumeParams params;
     int rv = self->wasapi.GetVolumeParams(&params);
     if (0 <= rv) {
-        // ƒCƒ}ƒCƒ`‚ÈŠ´‚¶‚¾‚ªAƒRƒs[‚·‚éB
+        // ã‚¤ãƒžã‚¤ãƒãªæ„Ÿã˜ã ãŒã€ã‚³ãƒ”ãƒ¼ã™ã‚‹ã€‚
         result_return.levelMinDB = params.levelMinDB;
         result_return.levelMaxDB = params.levelMaxDB;
         result_return.volumeIncrementDB = params.volumeIncrementDB;

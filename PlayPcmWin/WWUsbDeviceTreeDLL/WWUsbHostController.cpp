@@ -1,4 +1,4 @@
-﻿// 日本語。
+// 日本語。
 
 #include "WWUsbHostController.h"
 #include "WWUsbHub.h"

@@ -1,3 +1,5 @@
+// 日本語。
+
 #include "WWUsbVendorIdToStr.h"
 #include "WWUsbVendorIdStr.h"
 

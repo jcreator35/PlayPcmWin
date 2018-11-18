@@ -1,4 +1,4 @@
-﻿// 日本語。
+// 日本語。
 
 #include "WWPrintStructs.h"
 #include "WWUsbCommon.h"

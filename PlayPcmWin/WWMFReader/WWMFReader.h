@@ -1,3 +1,5 @@
+// æ—¥æœ¬èªã€‚
+
 #pragma once
 
 #ifdef WWMFREADER_EXPORTS
@@ -24,7 +26,7 @@ struct WWMFReaderMetadata {
 
     int bitRate;
 
-    /// ‚¨‚¨‚æ‚»‚Ì’l‚ª–ß‚éB
+    /// ãŠãŠã‚ˆãã®å€¤ãŒæˆ»ã‚‹ã€‚
     int64_t numApproxFrames;
     int64_t numExactFrames;
 

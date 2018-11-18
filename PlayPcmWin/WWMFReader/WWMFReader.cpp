@@ -1,4 +1,4 @@
-// “ú–{Œê
+// æ—¥æœ¬èªž
 
 #include "WWMFReader.h"
 #include <SDKDDKVer.h>
@@ -330,7 +330,7 @@ WWMFReaderReadHeader(
     HRG(pMetaProvider->GetMFMetadata(pPD, dwStream, 0, &pMetadata));
     //DisplayAllMetadata(pMetadata);
 
-    // ŽûWB
+    // åŽé›†ã€‚
     meta_return->bitRate = bitrate;
     meta_return->bitsPerSample = pWfex->wBitsPerSample;
     meta_return->numChannels = pWfex->nChannels;

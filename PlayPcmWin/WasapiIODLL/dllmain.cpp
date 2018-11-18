@@ -1,3 +1,5 @@
+﻿// 日本語。
+
 #include <Windows.h>
 
 BOOL APIENTRY

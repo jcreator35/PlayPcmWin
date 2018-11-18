@@ -1,3 +1,5 @@
+// æ—¥æœ¬èªã€‚
+
 #include "stdafx.h"
 #include "WWFlacRW.h"
 #include <Windows.h>
@@ -17,16 +19,16 @@
 # define dprintf(x, ...) printf(x, __VA_ARGS__)
 #endif
 
-/// wchar_t‚Ì•¶š”
+/// wchar_tã®æ–‡å­—æ•°
 #define FLACDECODE_MAX_STRSZ (256)
 
-/// ‰æ‘œƒTƒCƒY§ŒÀ 100MB
+/// ç”»åƒã‚µã‚¤ã‚ºåˆ¶é™ 100MB
 #define FLACDECODE_IMAGE_BYTES_MAX (100 * 1024 * 1024) 
 
-/// Å‘åƒgƒ‰ƒbƒN”
+/// æœ€å¤§ãƒˆãƒ©ãƒƒã‚¯æ•°
 #define FLACDECODE_TRACK_MAX (256)
 
-/// ƒRƒƒ“ƒgŒÂ”§ŒÀ 1024ŒÂ
+/// ã‚³ãƒ¡ãƒ³ãƒˆå€‹æ•°åˆ¶é™ 1024å€‹
 #define FLACDECODE_COMMENT_MAX (1024)
 
 #define FLACENCODE_READFRAMES (4096)
@@ -81,7 +83,7 @@ struct FlacCuesheetTrackInfo {
     /** The track type: 0 for audio, 1 for non-audio. */
     bool isAudio;
 
-    /** ‚Ü‚¶‚©‚æ‚Á‚ÄŠ´‚¶B */
+    /** ã¾ã˜ã‹ã‚ˆã£ã¦æ„Ÿã˜ã€‚ */
     bool preEmphasis;
 
     std::vector<FlacCuesheetIndexInfo> indices;
@@ -113,14 +115,14 @@ struct FlacDecodeInfo {
     int maxFrameSize;
     int maxBlockSize;
 
-    /// 1ŒÂ‚ÌƒuƒƒbƒN‚É‰½ƒTƒ“ƒvƒ‹(frame)ƒf[ƒ^‚ª“ü‚Á‚Ä‚¢‚é‚©B
+    /// 1å€‹ã®ãƒ–ãƒ­ãƒƒã‚¯ã«ä½•ã‚µãƒ³ãƒ—ãƒ«(frame)ãƒ‡ãƒ¼ã‚¿ãŒå…¥ã£ã¦ã„ã‚‹ã‹ã€‚
     int          numFramesPerBlock;
 
-    // DecodeAll‚Åg—pBƒ`ƒƒƒ“ƒlƒ‹‚²‚Æ‚Éƒoƒbƒtƒ@‚ª•ª‚©‚ê‚Ä‚¢‚éB
+    // DecodeAllã§ä½¿ç”¨ã€‚ãƒãƒ£ãƒ³ãƒãƒ«ã”ã¨ã«ãƒãƒƒãƒ•ã‚¡ãŒåˆ†ã‹ã‚Œã¦ã„ã‚‹ã€‚
     uint8_t           **buffPerChannel;
     int               retrievedFrames;
 
-    // DecodeOne‚Åg—pBƒ`ƒƒƒ“ƒlƒ‹ƒCƒ“ƒ^[ƒŠ[ƒu‚³‚ê‚½PCMƒf[ƒ^B
+    // DecodeOneã§ä½¿ç”¨ã€‚ãƒãƒ£ãƒ³ãƒãƒ«ã‚¤ãƒ³ã‚¿ãƒ¼ãƒªãƒ¼ãƒ–ã•ã‚ŒãŸPCMãƒ‡ãƒ¼ã‚¿ã€‚
     uint8_t           *rawPcmData;
     int               rawPcmDataBytes;
 
@@ -235,7 +237,7 @@ struct FlacDecodeInfo {
 
 volatile int FlacDecodeInfo::nextId;
 
-/// •¨’u‚ÌÀ‘ÌBƒOƒ[ƒoƒ‹•Ï”B
+/// ç‰©ç½®ã®å®Ÿä½“ã€‚ã‚°ãƒ­ãƒ¼ãƒãƒ«å¤‰æ•°ã€‚
 static std::map<int, FlacDecodeInfo*> g_flacDecodeInfoMap;
 
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -274,7 +276,7 @@ FlacTInfoDelete(std::map<int, T*> &storage, T *fdi)
 
     storage.erase(fdi->id);
     delete fdi;
-    fdi = nullptr; // ‚ ‚ñ‚Ü‚èˆÓ–¡‚È‚¢‚ªAˆê‰
+    fdi = nullptr; // ã‚ã‚“ã¾ã‚Šæ„å‘³ãªã„ãŒã€ä¸€å¿œ
 
     ReleaseMutex(g_mutex);
 }
@@ -360,11 +362,11 @@ ErrorCallback(const FLAC__StreamDecoder *decoder,
     fdi->errorCode = FlacStreamDecoderErrorStatusToWWError(status);
 
     if (fdi->errorCode != FRT_Success) {
-        /* ƒGƒ‰[‚ª‹N‚«‚½B */
+        /* ã‚¨ãƒ©ãƒ¼ãŒèµ·ããŸã€‚ */
     }
 };
 
-/// ­‚µ‚¸‚Âó‚¯æ‚éDecodeOne—p‚ÌƒR[ƒ‹ƒoƒbƒNB
+/// å°‘ã—ãšã¤å—ã‘å–ã‚‹DecodeOneç”¨ã®ã‚³ãƒ¼ãƒ«ãƒãƒƒã‚¯ã€‚
 FLAC__StreamDecoderWriteStatus
 RecvDecodedDataOneCallback(const FLAC__StreamDecoder *decoder,
         const FLAC__Frame *frame, const FLAC__int32 * const buffer[],
@@ -372,7 +374,7 @@ RecvDecodedDataOneCallback(const FLAC__StreamDecoder *decoder,
 {
     FlacDecodeInfo *fdi = (FlacDecodeInfo*)clientData;
     if (fdi->errorCode != FRT_Success) {
-        // ƒfƒR[ƒhƒGƒ‰[‚ª‹N‚«‚½B
+        // ãƒ‡ã‚³ãƒ¼ãƒ‰ã‚¨ãƒ©ãƒ¼ãŒèµ·ããŸã€‚
         dprintf("%s decode error %d. set commandCompleteEvent\n", __FUNCTION__, fdi->errorCode);
         return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
     }
@@ -382,7 +384,7 @@ RecvDecodedDataOneCallback(const FLAC__StreamDecoder *decoder,
         return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
     }
 
-    // ƒf[ƒ^‚ª—ˆ‚½BƒuƒƒbƒN”‚Í frame->header.blocksize
+    // ãƒ‡ãƒ¼ã‚¿ãŒæ¥ãŸã€‚ãƒ–ãƒ­ãƒƒã‚¯æ•°ã¯ frame->header.blocksize
     if (fdi->numFramesPerBlock != (int)frame->header.blocksize) {
         // dprintf(fdi->logFP, "%s fdi->numFramesPerBlock changed %d to %d\n", __FUNCTION__, fdi->numFramesPerBlock, frame->header.blocksize);
         fdi->numFramesPerBlock = frame->header.blocksize;
@@ -417,7 +419,7 @@ RecvDecodedDataOneCallback(const FLAC__StreamDecoder *decoder,
     return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;
 }
 
-// ‘S•”‚¢‚Á‚Ø‚ñ‚Éó‚¯æ‚éƒR[ƒ‹ƒoƒbƒNB
+// å…¨éƒ¨ã„ã£ãºã‚“ã«å—ã‘å–ã‚‹ã‚³ãƒ¼ãƒ«ãƒãƒƒã‚¯ã€‚
 static FLAC__StreamDecoderWriteStatus
 RecvDecodedDataAllCallback(const FLAC__StreamDecoder *decoder,
         const FLAC__Frame *frame, const FLAC__int32 * const buffer[],
@@ -433,29 +435,29 @@ RecvDecodedDataAllCallback(const FLAC__StreamDecoder *decoder,
     if(frame->header.number.sample_number == 0) {
         fdi->numFramesPerBlock = frame->header.blocksize;
 
-        // Å‰‚Ìƒf[ƒ^‚ª—ˆ‚½B
+        // æœ€åˆã®ãƒ‡ãƒ¼ã‚¿ãŒæ¥ãŸã€‚
         //dprintf("%s fdi->numFramesPerBlock = %d\n", __FUNCTION__, frame->header.blocksize);
     }
 
     if (fdi->errorCode != FRT_Success) {
-        // ƒfƒR[ƒhƒGƒ‰[‚ª‹N‚«‚½B
+        // ãƒ‡ã‚³ãƒ¼ãƒ‰ã‚¨ãƒ©ãƒ¼ãŒèµ·ããŸã€‚
         dprintf("%s decode error %d. set commandCompleteEvent\n", __FUNCTION__, fdi->errorCode);
         return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
     }
 
-    // ƒf[ƒ^‚ª—ˆ‚½BƒuƒƒbƒN“àƒTƒ“ƒvƒ‹”‚Í frame->header.blocksize
+    // ãƒ‡ãƒ¼ã‚¿ãŒæ¥ãŸã€‚ãƒ–ãƒ­ãƒƒã‚¯å†…ã‚µãƒ³ãƒ—ãƒ«æ•°ã¯ frame->header.blocksize
     if (fdi->numFramesPerBlock != (int)frame->header.blocksize) {
-        // ÅŒã‚ÌƒtƒŒ[ƒ€‚ÌƒTƒ“ƒvƒ‹”‚ÍˆÙ‚È‚éB—]‚è‚ª“ü‚Á‚Ä‚¢‚é‚Ì‚ÅB
+        // æœ€å¾Œã®ãƒ•ãƒ¬ãƒ¼ãƒ ã®ã‚µãƒ³ãƒ—ãƒ«æ•°ã¯ç•°ãªã‚‹ã€‚ä½™ã‚ŠãŒå…¥ã£ã¦ã„ã‚‹ã®ã§ã€‚
         //dprintf("%s fdi->numFramesPerBlock changed %d to %d\n", __FUNCTION__, fdi->numFramesPerBlock, frame->header.blocksize);
         fdi->numFramesPerBlock = frame->header.blocksize;
     }
 
     /*
     switch (frame->header.channel_assignment) {
-    case 0: printf("‡C");break;
-    case 1:printf("‡A");break;
-    case 2:printf("‡B");break;
-    case 3:printf("‡@");break;
+    case 0: printf("â‘£");break;
+    case 1:printf("â‘¡");break;
+    case 2:printf("â‘¢");break;
+    case 3:printf("â‘ ");break;
     default:
         break;
     }
@@ -539,7 +541,7 @@ MetadataCallback(const FLAC__StreamDecoder *decoder,
     if (metadata->type == FLAC__METADATA_TYPE_VORBIS_COMMENT) {
         // dprintf("vendorstr=\"%s\" %d num=%u\n\n", (const char *)VC.vendor_string.entry, VC.vendor_string.length, VC.num_comments);
 
-        // ‹Èî•ñ‚Í1024ŒÂ‚à‚È‚¢‚¾‚ë‚¤B–³ŒÀƒ‹[ƒv–h~B
+        // æ›²æƒ…å ±ã¯1024å€‹ã‚‚ãªã„ã ã‚ã†ã€‚ç„¡é™ãƒ«ãƒ¼ãƒ—é˜²æ­¢ã€‚
         int num_comments = (FLACDECODE_COMMENT_MAX < VC.num_comments) ? FLACDECODE_COMMENT_MAX : VC.num_comments;
 
         for (int i=0; i<num_comments; ++i) {
@@ -667,7 +669,7 @@ WWFlacRW_Decode(int frdt, const wchar_t *path)
     FLAC__stream_decoder_set_metadata_respond(fdi->decoder, FLAC__METADATA_TYPE_PICTURE);
     FLAC__stream_decoder_set_metadata_respond(fdi->decoder, FLAC__METADATA_TYPE_CUESHEET);
 
-    // Windows‚Å‚ÍA‚±‚Ì•û–@‚Åƒtƒ@ƒCƒ‹‚ğŠJ‚©‚È‚¯‚ê‚Î‚È‚ç‚ÊB
+    // Windowsã§ã¯ã€ã“ã®æ–¹æ³•ã§ãƒ•ã‚¡ã‚¤ãƒ«ã‚’é–‹ã‹ãªã‘ã‚Œã°ãªã‚‰ã¬ã€‚
     ercd = _wfopen_s(&fdi->fp, fdi->path, L"rb");
     if (ercd != 0 || nullptr == fdi->fp) {
         fdi->errorCode = FRT_FileOpenError;
@@ -708,20 +710,20 @@ WWFlacRW_Decode(int frdt, const wchar_t *path)
     }
 
     if (frdt == FRDT_Header) {
-        // ƒwƒbƒ_[‚Ì‚İƒfƒR[ƒh‚·‚éƒ‚[ƒh‚ÌB
-        // ƒXƒgƒŠ[ƒ€‚ª“ªo‚µ‚³‚ê‚½ó‘Ô‚É‚È‚éB
+        // ãƒ˜ãƒƒãƒ€ãƒ¼ã®ã¿ãƒ‡ã‚³ãƒ¼ãƒ‰ã™ã‚‹ãƒ¢ãƒ¼ãƒ‰ã®æ™‚ã€‚
+        // ã‚¹ãƒˆãƒªãƒ¼ãƒ ãŒé ­å‡ºã—ã•ã‚ŒãŸçŠ¶æ…‹ã«ãªã‚‹ã€‚
         fdi->errorCode = FRT_Success;
         goto end;
     }
 
     if (frdt == FRDT_One) {
-        // ‚±‚ÌŒãWWFlacRW_DecodeStreamOne‚ÅƒXƒgƒŠ[ƒ€‚ğ1ƒtƒŒ[ƒ€‚¸‚Â“Ç‚İo‚·B
+        // ã“ã®å¾ŒWWFlacRW_DecodeStreamOneã§ã‚¹ãƒˆãƒªãƒ¼ãƒ ã‚’1ãƒ•ãƒ¬ãƒ¼ãƒ ãšã¤èª­ã¿å‡ºã™ã€‚
         fdi->errorCode = FRT_Success;
         goto end;
     }
 
-    // FRDT_All‚Ìê‡‚±‚±‚É—ˆ‚éB
-    // ƒXƒgƒŠ[ƒ€‚ğæ‚èo‚·B
+    // FRDT_Allã®å ´åˆã“ã“ã«æ¥ã‚‹ã€‚
+    // ã‚¹ãƒˆãƒªãƒ¼ãƒ ã‚’å–ã‚Šå‡ºã™ã€‚
 
     ok = FLAC__stream_decoder_process_until_end_of_stream(fdi->decoder);
     if (!ok || fdi->errorCode < 0) {
@@ -755,8 +757,8 @@ end:
     return fdi->id;
 }
 
-/// ¬Œ÷‚·‚é‚ÆƒRƒs[‚µ‚½ƒoƒCƒg”‚ğ–ß‚·B
-/// ¸”s‚·‚é‚Æ•‰‚ÌƒGƒ‰[ƒR[ƒh‚ğ–ß‚·B
+/// æˆåŠŸã™ã‚‹ã¨ã‚³ãƒ”ãƒ¼ã—ãŸãƒã‚¤ãƒˆæ•°ã‚’æˆ»ã™ã€‚
+/// å¤±æ•—ã™ã‚‹ã¨è² ã®ã‚¨ãƒ©ãƒ¼ã‚³ãƒ¼ãƒ‰ã‚’æˆ»ã™ã€‚
 extern "C" WWFLACRW_API
 int __stdcall
 WWFlacRW_DecodeStreamOne(int id, uint8_t *pcmReturn, int pcmBytes)
@@ -769,13 +771,13 @@ WWFlacRW_DecodeStreamOne(int id, uint8_t *pcmReturn, int pcmBytes)
     }
 
     if (fdi->totalSamples == fdi->retrievedFrames) {
-        // ƒXƒgƒŠ[ƒ€‚ÌÅŒã‚É’B‚µ‚½B
+        // ã‚¹ãƒˆãƒªãƒ¼ãƒ ã®æœ€å¾Œã«é”ã—ãŸã€‚
         fdi->errorCode = FRT_Completed;
         return 0;
     }
 
     if (fdi->rawPcmData != nullptr) {
-        // WWFlacRW_DecodeStreamSkip‚ğŒÄ‚Ño‚µ‚½Œã‚Ì‚±‚ÌŠÖ”‚ªŒÄ‚Î‚ê‚é‚Æ‚±‚±‚É—ˆ‚éB
+        // WWFlacRW_DecodeStreamSkipã‚’å‘¼ã³å‡ºã—ãŸå¾Œã®ã“ã®é–¢æ•°ãŒå‘¼ã°ã‚Œã‚‹ã¨ã“ã“ã«æ¥ã‚‹ã€‚
 
         ok = 1;
         assert(0 < fdi->rawPcmDataBytes);
@@ -850,8 +852,8 @@ WWFlacRW_DecodeStreamSkip(int id, int64_t skipFrames)
     int ercd = 0;
     FLAC__bool ok = FLAC__stream_decoder_seek_absolute(fdi->decoder, skipFrames);
 
-    // ¬Œ÷‚·‚é‚ÆA0 < fdi->rawPcmDataBytes‚Å fdi->rawPcmData‚ÉPCMƒf[ƒ^‚ª“ü‚é‚±‚Æ‚ª‚ ‚éB
-    // Ÿ‚ÉŒÄ‚Ño‚³‚ê‚éWWFlacRW_DecodeStreamOne‚Å‰ñû‚·‚éB
+    // æˆåŠŸã™ã‚‹ã¨ã€0 < fdi->rawPcmDataBytesã§ fdi->rawPcmDataã«PCMãƒ‡ãƒ¼ã‚¿ãŒå…¥ã‚‹ã“ã¨ãŒã‚ã‚‹ã€‚
+    // æ¬¡ã«å‘¼ã³å‡ºã•ã‚Œã‚‹WWFlacRW_DecodeStreamOneã§å›åã™ã‚‹ã€‚
 
     if (!ok) {
         if (fdi->errorCode == FRT_Success) {
@@ -975,8 +977,8 @@ WWFlacRW_GetDecodedPictureBytes(int id, uint8_t * pictureReturn, int pictureByte
     return pictureBytes;
 }
 
-/// ƒLƒ…[ƒV[ƒg‚Ìƒgƒ‰ƒbƒN”‚ğ–ß‚·B
-/// @return 0ˆÈã: ¬Œ÷B•‰: ƒGƒ‰[BFlacRWResultTypeQÆB
+/// ã‚­ãƒ¥ãƒ¼ã‚·ãƒ¼ãƒˆã®ãƒˆãƒ©ãƒƒã‚¯æ•°ã‚’æˆ»ã™ã€‚
+/// @return 0ä»¥ä¸Š: æˆåŠŸã€‚è² : ã‚¨ãƒ©ãƒ¼ã€‚FlacRWResultTypeå‚ç…§ã€‚
 extern "C" WWFLACRW_API
 int __stdcall
 WWFlacRW_GetDecodedCuesheetNum(int id)
@@ -1154,7 +1156,7 @@ struct FlacEncodeInfo {
 
 volatile int FlacEncodeInfo::nextId = 0x40000000;
 
-/// •¨’u‚ÌÀ‘ÌBƒOƒ[ƒoƒ‹•Ï”B
+/// ç‰©ç½®ã®å®Ÿä½“ã€‚ã‚°ãƒ­ãƒ¼ãƒãƒ«å¤‰æ•°ã€‚
 static std::map<int, FlacEncodeInfo*> g_flacEncodeInfoMap;
 
 
@@ -1329,7 +1331,7 @@ WWFlacRW_EncodeSetPicture(int id, const uint8_t * pictureData, int pictureBytes)
     assert(fei->flacMetaArray[FMT_Picture]);
 
     if (0 < fei->pictureBytes && 0 != fei->pictureMimeTypeStr[0]) {
-        // copy==false‚É‚·‚é‚ÆŠJ•ú‚ÉƒNƒ‰ƒbƒVƒ…‚·‚é
+        // copy==falseã«ã™ã‚‹ã¨é–‹æ”¾æ™‚ã«ã‚¯ãƒ©ãƒƒã‚·ãƒ¥ã™ã‚‹
         if (!FLAC__metadata_object_picture_set_mime_type(fei->flacMetaArray[FMT_Picture], fei->pictureMimeTypeStr, true)) {
             dprintf("FLAC__metadata_object_picture_set_mime_type failed\n");
             fei->errorCode = FRT_OtherError;
@@ -1399,7 +1401,7 @@ WWFlacRW_EncodeSetPcmFragment(int id, int channel, int64_t offs, const uint8_t *
 }
 
 
-/// @return 0ˆÈã: ¬Œ÷B•‰: ƒGƒ‰[BFlacRWResultTypeQÆB
+/// @return 0ä»¥ä¸Š: æˆåŠŸã€‚è² : ã‚¨ãƒ©ãƒ¼ã€‚FlacRWResultTypeå‚ç…§ã€‚
 extern "C" __declspec(dllexport)
 int __stdcall
 WWFlacRW_EncodeRun(int id, const wchar_t *path)
@@ -1452,7 +1454,7 @@ WWFlacRW_EncodeRun(int id, const wchar_t *path)
         return FRT_MemoryExhausted;
     }
 
-    // Windows‚Å‚ÍA‚±‚Ì•û–@‚Åƒtƒ@ƒCƒ‹‚ğŠJ‚©‚È‚¯‚ê‚Î‚È‚ç‚ÊB
+    // Windowsã§ã¯ã€ã“ã®æ–¹æ³•ã§ãƒ•ã‚¡ã‚¤ãƒ«ã‚’é–‹ã‹ãªã‘ã‚Œã°ãªã‚‰ã¬ã€‚
     wcsncpy_s(fei->path, path, (sizeof fei->path)/2-1);
     ercd = _wfopen_s(&fei->fp, fei->path, L"wb");
     if (ercd != 0 || nullptr == fei->fp) {
@@ -1572,7 +1574,7 @@ end:
 }
 
 
-/// @return 0ˆÈã: ¬Œ÷B•‰: ƒGƒ‰[BFlacRWResultTypeQÆB
+/// @return 0ä»¥ä¸Š: æˆåŠŸã€‚è² : ã‚¨ãƒ©ãƒ¼ã€‚FlacRWResultTypeå‚ç…§ã€‚
 extern "C" __declspec(dllexport)
 int __stdcall
 WWFlacRW_EncodeEnd(int id)
@@ -1611,7 +1613,7 @@ VolumeLevelCheck_WriteCallback(const FLAC__StreamDecoder *decoder,
         const FLAC__Frame *frame, const FLAC__int32 * const buffer[],
         void *clientData)
 {
-    // ƒ`ƒƒƒ“ƒlƒ‹0‚ğ’²‚×‚éB
+    // ãƒãƒ£ãƒ³ãƒãƒ«0ã‚’èª¿ã¹ã‚‹ã€‚
     FlacDecodeInfo *fdi = (FlacDecodeInfo*)clientData;
     (void)decoder;
 
@@ -1638,7 +1640,7 @@ VolumeLevelCheck_WriteCallback(const FLAC__StreamDecoder *decoder,
             int64_t sumLevel = 0;
             int ch = 0;
 
-            // 5•bŠÔ‚ÌƒtƒŒ[ƒ€”B
+            // 5ç§’é–“ã®ãƒ•ãƒ¬ãƒ¼ãƒ æ•°ã€‚
             const int relativelyLongSeconds = 5;
             const int relativelyLongPeriod = relativelyLongSeconds * fdi->sampleRate / fdi->numFramesPerBlock;
             const int SILENCE_LEVEL = 1600;
@@ -1652,27 +1654,27 @@ VolumeLevelCheck_WriteCallback(const FLAC__StreamDecoder *decoder,
             switch (fdi->volumeLevelState) {
             case WWVLS_Silent:
                 if (avgLevel < SILENCE_LEVEL) {
-                    // Ã‚©‚Èó‘Ô‚ª‘±‚¢‚Ä‚¢‚éB
+                    // é™ã‹ãªçŠ¶æ…‹ãŒç¶šã„ã¦ã„ã‚‹ã€‚
                     ++fdi->volumeLevelStateCounter;
                 } else {
                     if (relativelyLongPeriod < fdi->volumeLevelStateCounter && 128 < fdi->lastVolumeLevel) {
-                        // Ã‚©‚Èó‘Ô‚ªˆê’èˆÈã‚Ì’·‚³‘±‚¢‚½ŒãA‚ ‚é’ö“x‚¤‚é‚³‚­‚È‚Á‚½B
+                        // é™ã‹ãªçŠ¶æ…‹ãŒä¸€å®šä»¥ä¸Šã®é•·ã•ç¶šã„ãŸå¾Œã€ã‚ã‚‹ç¨‹åº¦ã†ã‚‹ã•ããªã£ãŸã€‚
 
                         float logPrev = std::log10(fdi->lastVolumeLevel);
                         float logCur  = std::log10(avgLevel);
 
                         if (0.5 < logCur - logPrev) {
-                            // ‹}Œƒ‚É‚¤‚é‚³‚­‚È‚Á‚½B
+                            // æ€¥æ¿€ã«ã†ã‚‹ã•ããªã£ãŸã€‚
                             fdi->volumeLevelState = WWVLS_SuddenLoud;
                             fdi->volumeLevelStateCounter = 0;
                             //printf("SuddenLoud %f to %f\n", fdi->lastVolumeLevel, avgLevel);
                         } else {
-                            // ‚ä‚Á‚­‚è‚Æ‚¤‚é‚³‚­‚È‚Á‚½B
+                            // ã‚†ã£ãã‚Šã¨ã†ã‚‹ã•ããªã£ãŸã€‚
                             fdi->volumeLevelStateCounter = 0;
                             fdi->volumeLevelState = WWVLS_Loud;
                         }
                     } else {
-                        // Ã‚©‚ÈŠÔ‚ª’Z‚­A‚·‚®‚É‚¤‚é‚³‚­‚È‚Á‚½B
+                        // é™ã‹ãªæ™‚é–“ãŒçŸ­ãã€ã™ãã«ã†ã‚‹ã•ããªã£ãŸã€‚
                         fdi->volumeLevelStateCounter = 0;
                         fdi->volumeLevelState = WWVLS_Loud;
                     }
@@ -1680,23 +1682,23 @@ VolumeLevelCheck_WriteCallback(const FLAC__StreamDecoder *decoder,
                 break;
             case WWVLS_Loud:
                 if (avgLevel < SILENCE_LEVEL) {
-                    // Ã‚©‚É‚È‚Á‚½B
+                    // é™ã‹ã«ãªã£ãŸã€‚
                     fdi->volumeLevelStateCounter = 0;
                     fdi->volumeLevelState = WWVLS_Silent;
                 } else {
-                    // ‚¤‚é‚³‚¢‚Ü‚Ü‚Å‚ ‚éB
+                    // ã†ã‚‹ã•ã„ã¾ã¾ã§ã‚ã‚‹ã€‚
                 }
                 break;
             case WWVLS_SuddenLoud:
                 if (avgLevel < SILENCE_LEVEL) {
-                    // Ã‚©‚É‚È‚Á‚½B
+                    // é™ã‹ã«ãªã£ãŸã€‚
                     fdi->volumeLevelStateCounter = 0;
                     fdi->volumeLevelState = WWVLS_Silent;
                 } else {
-                    // “Ë‘R‚¤‚é‚³‚­‚È‚èA‚¤‚é‚³‚¢ó‘Ô‚ª‘±‚¢‚Ä‚¢‚éB
+                    // çªç„¶ã†ã‚‹ã•ããªã‚Šã€ã†ã‚‹ã•ã„çŠ¶æ…‹ãŒç¶šã„ã¦ã„ã‚‹ã€‚
                     ++fdi->volumeLevelStateCounter;
                     if (relativelyLongPeriod < fdi->volumeLevelStateCounter) {
-                        // “Ë‘R‚¤‚é‚³‚­‚È‚èA‚¤‚é‚³‚¢ó‘Ô‚ªˆê’èŠÔ‘±‚¢‚½B
+                        // çªç„¶ã†ã‚‹ã•ããªã‚Šã€ã†ã‚‹ã•ã„çŠ¶æ…‹ãŒä¸€å®šæ™‚é–“ç¶šã„ãŸã€‚
                         int seconds = (int)(fdi->retrievedFrames / fdi->sampleRate) - relativelyLongSeconds;
                         int minutes = seconds / 60;
                         seconds -= minutes * 60;
@@ -1741,7 +1743,7 @@ IntegrityCheck_MetadataCallback(const FLAC__StreamDecoder *decoder,
     int *errorCode = (int*)clientData;
 
     if(metadata->type == FLAC__METADATA_TYPE_STREAMINFO) {
-        // ’l‚ª‘S•”0‚È‚ç‚ÎMD5î•ñ‚Í“ü‚Á‚Ä‚¢‚È‚¢‚Æ‚¢‚¤FLAC‚Ìd—lB
+        // å€¤ãŒå…¨éƒ¨0ãªã‚‰ã°MD5æƒ…å ±ã¯å…¥ã£ã¦ã„ãªã„ã¨ã„ã†FLACã®ä»•æ§˜ã€‚
         bool allZero = true;
         for (int i=0; i<16; ++i) {
             if (metadata->data.stream_info.md5sum[i] != 0) {
@@ -1766,7 +1768,7 @@ IntegrityCheck_ErrorCallback(const FLAC__StreamDecoder *decoder,
     dprintf("%s status=%d\n", __FUNCTION__, status);
 
     if (!StatusIsSuccess(*errorCode)) {
-        // ‚·‚Å‚ÉƒGƒ‰[‚ª‹N‚«‚Ä‚¢‚é‚Ì‚Å•Ê‚ÌƒGƒ‰[‚Åã‘‚«‚µ‚È‚¢B
+        // ã™ã§ã«ã‚¨ãƒ©ãƒ¼ãŒèµ·ãã¦ã„ã‚‹ã®ã§åˆ¥ã®ã‚¨ãƒ©ãƒ¼ã§ä¸Šæ›¸ãã—ãªã„ã€‚
         return;
     }
 
@@ -1794,7 +1796,7 @@ WWFlacRW_CheckIntegrity(const wchar_t *path)
     FLAC__stream_decoder_set_md5_checking(decoder, true);
     FLAC__stream_decoder_set_metadata_respond(decoder, FLAC__METADATA_TYPE_STREAMINFO);
 
-    // Windows‚Å‚ÍA‚±‚Ì•û–@‚Åƒtƒ@ƒCƒ‹‚ğŠJ‚©‚È‚¯‚ê‚Î‚È‚ç‚ÊB
+    // Windowsã§ã¯ã€ã“ã®æ–¹æ³•ã§ãƒ•ã‚¡ã‚¤ãƒ«ã‚’é–‹ã‹ãªã‘ã‚Œã°ãªã‚‰ã¬ã€‚
     ercd = _wfopen_s(&fp, path, L"rb");
     if (ercd != 0 || nullptr == fp) {
         result = FRT_FileOpenError;
@@ -1854,7 +1856,7 @@ WWFlacRW_CheckIntegrity(const wchar_t *path)
         goto end;
     }
 
-    // ‘S‚Ä¬Œ÷B
+    // å…¨ã¦æˆåŠŸã€‚
 end:
     if (nullptr != decoder) {
         if (initStatus == FLAC__STREAM_DECODER_INIT_STATUS_OK) {

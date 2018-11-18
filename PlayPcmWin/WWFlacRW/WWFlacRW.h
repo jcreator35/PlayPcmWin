@@ -1,3 +1,5 @@
+// æ—¥æœ¬èªžã€‚
+
 #pragma once
 
 #include <stdint.h>
@@ -9,19 +11,19 @@
 #endif
 
 enum FlacRWDecodeType {
-    FRDT_All,    ///< ƒƒ^ƒf[ƒ^‚Ì’Šo‚ÆPCMƒf[ƒ^‚Ì’Šo‚ðƒuƒƒbƒLƒ“ƒO‚Å‚·‚×‚Äs‚¤ƒ‚[ƒhB
-    FRDT_Header, ///< ƒƒ^ƒf[ƒ^‚Ì’Šo‚¾‚¯‚ðs‚¤B
-    FRDT_One, ///< WWFlacRW_DecodeStreamOne()‚ðŽg—p‚µ‚ÄƒtƒŒ[ƒ€‚ð1ŒÂ‚¸‚ÂŽó‚¯Žæ‚éƒ‚[ƒhB
+    FRDT_All,    ///< ãƒ¡ã‚¿ãƒ‡ãƒ¼ã‚¿ã®æŠ½å‡ºã¨PCMãƒ‡ãƒ¼ã‚¿ã®æŠ½å‡ºã‚’ãƒ–ãƒ­ãƒƒã‚­ãƒ³ã‚°ã§ã™ã¹ã¦è¡Œã†ãƒ¢ãƒ¼ãƒ‰ã€‚
+    FRDT_Header, ///< ãƒ¡ã‚¿ãƒ‡ãƒ¼ã‚¿ã®æŠ½å‡ºã ã‘ã‚’è¡Œã†ã€‚
+    FRDT_One, ///< WWFlacRW_DecodeStreamOne()ã‚’ä½¿ç”¨ã—ã¦ãƒ•ãƒ¬ãƒ¼ãƒ ã‚’1å€‹ãšã¤å—ã‘å–ã‚‹ãƒ¢ãƒ¼ãƒ‰ã€‚
 };
 
 enum FlacRWResultType {
-    /// ƒwƒbƒ_‚ÌŽæ“¾‚âƒf[ƒ^‚ÌŽæ“¾‚É¬Œ÷B
+    /// ãƒ˜ãƒƒãƒ€ã®å–å¾—ã‚„ãƒ‡ãƒ¼ã‚¿ã®å–å¾—ã«æˆåŠŸã€‚
     FRT_Success = 0,
 
-    /// ƒtƒ@ƒCƒ‹‚ÌÅŒã‚Ü‚Ås‚«Acodec‚ðŠ®—¹‚µ‚½B‚à‚¤ƒf[ƒ^‚Í‚È‚¢B
+    /// ãƒ•ã‚¡ã‚¤ãƒ«ã®æœ€å¾Œã¾ã§è¡Œãã€codecã‚’å®Œäº†ã—ãŸã€‚ã‚‚ã†ãƒ‡ãƒ¼ã‚¿ã¯ãªã„ã€‚
     FRT_Completed = 1,
 
-    // ˆÈ‰ºAFLACƒfƒR[ƒhƒGƒ‰[B
+    // ä»¥ä¸‹ã€FLACãƒ‡ã‚³ãƒ¼ãƒ‰ã‚¨ãƒ©ãƒ¼ã€‚
     FRT_DataNotReady               = -2,
     FRT_WriteOpenFailed            = -3,
     FRT_FlacStreamDecoderNewFailed = -4,
@@ -51,15 +53,15 @@ enum FlacRWResultType {
     FRT_OutputFileTooLarge         = -25,
     FRT_MD5SignatureDoesNotMatch   = -26,
 
-    /// CRCˆÙí‚È‚Ç‚Í–³‚­ƒ`ƒFƒbƒN‚Í³íI—¹‚µ‚½‚ªMD5‚Ì’l‚ª“ü‚Á‚Ä‚¨‚ç‚¸Æ‡‚Å‚«‚È‚©‚Á‚½B
-    /// WWFlacRW_CheckIntegrity()‚ª–ß‚·‚±‚Æ‚ª‚ ‚éB
+    /// CRCç•°å¸¸ãªã©ã¯ç„¡ããƒã‚§ãƒƒã‚¯ã¯æ­£å¸¸çµ‚äº†ã—ãŸãŒMD5ã®å€¤ãŒå…¥ã£ã¦ãŠã‚‰ãšç…§åˆã§ããªã‹ã£ãŸã€‚
+    /// WWFlacRW_CheckIntegrity()ãŒæˆ»ã™ã“ã¨ãŒã‚ã‚‹ã€‚
     FRT_SuccessButMd5WasNotCalculated = -27,
 };
 
 #define WWFLAC_TEXT_STRSZ   (256)
 #define WWFLAC_MD5SUM_BYTES (16)
 
-/// Å‘åƒgƒ‰ƒbƒNƒCƒ“ƒfƒbƒNƒX”
+/// æœ€å¤§ãƒˆãƒ©ãƒƒã‚¯ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹æ•°
 #define WWFLAC_TRACK_IDX_NUM (99)
 
 #pragma pack(push, 4)
@@ -91,7 +93,7 @@ struct WWFlacMetadata {
 struct WWFlacCuesheetTrackIdx {
     int64_t offsetSamples;
     int     number;
-    int     pad; // 8ƒoƒCƒgƒAƒ‰ƒCƒ“‚·‚éB
+    int     pad; // 8ãƒã‚¤ãƒˆã‚¢ãƒ©ã‚¤ãƒ³ã™ã‚‹ã€‚
 };
 
 struct WWFlacCuesheetTrack {
@@ -102,7 +104,7 @@ struct WWFlacCuesheetTrack {
     int preEmphasis;
 
     int trackIdxCount;
-    int pad; // 8ƒoƒCƒgƒAƒ‰ƒCƒ“‚·‚éB
+    int pad; // 8ãƒã‚¤ãƒˆã‚¢ãƒ©ã‚¤ãƒ³ã™ã‚‹ã€‚
 
     WWFlacCuesheetTrackIdx trackIdx[WWFLAC_TRACK_IDX_NUM];
 };
@@ -112,43 +114,43 @@ struct WWFlacCuesheetTrack {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // flac decode
 
-/// FLACƒwƒbƒ_[‚ð“Ç‚Ýž‚ñ‚ÅAƒtƒH[ƒ}ƒbƒgî•ñ‚ðŽæ“¾AFRDT_All‚Ìê‡‚³‚ç‚É‚·‚×‚Ä‚ÌƒTƒ“ƒvƒ‹ƒf[ƒ^‚ðŽæ“¾B
-/// ’†‚ÌƒOƒ[ƒoƒ‹•Ï”‚É’™‚ß‚éB
-/// @param frdt FlacFWDecodeType (FRDT_All ‚Ü‚½‚Í FRDT_Header)
-/// @param path ƒpƒX–¼(UTF-16)
-/// @return 0ˆÈã: ƒfƒR[ƒ_[IdB•‰: ƒGƒ‰[BFlacRWResultTypeŽQÆB
+/// FLACãƒ˜ãƒƒãƒ€ãƒ¼ã‚’èª­ã¿è¾¼ã‚“ã§ã€ãƒ•ã‚©ãƒ¼ãƒžãƒƒãƒˆæƒ…å ±ã‚’å–å¾—ã€FRDT_Allã®å ´åˆã•ã‚‰ã«ã™ã¹ã¦ã®ã‚µãƒ³ãƒ—ãƒ«ãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—ã€‚
+/// ä¸­ã®ã‚°ãƒ­ãƒ¼ãƒãƒ«å¤‰æ•°ã«è²¯ã‚ã‚‹ã€‚
+/// @param frdt FlacFWDecodeType (FRDT_All ã¾ãŸã¯ FRDT_Header)
+/// @param path ãƒ‘ã‚¹å(UTF-16)
+/// @return 0ä»¥ä¸Š: ãƒ‡ã‚³ãƒ¼ãƒ€ãƒ¼Idã€‚è² : ã‚¨ãƒ©ãƒ¼ã€‚FlacRWResultTypeå‚ç…§ã€‚
 extern "C" WWFLACRW_API
 int __stdcall
 WWFlacRW_Decode(int frdt, const wchar_t *path);
 
-/// @return 0ˆÈã: ¬Œ÷B•‰: ƒGƒ‰[BFlacRWResultTypeŽQÆB
+/// @return 0ä»¥ä¸Š: æˆåŠŸã€‚è² : ã‚¨ãƒ©ãƒ¼ã€‚FlacRWResultTypeå‚ç…§ã€‚
 extern "C" WWFLACRW_API
 int __stdcall
 WWFlacRW_DecodeStreamOne(int id, uint8_t *pcmReturn, int pcmBytes);
 
-/// @param skipFrames æ“ª‚©‚ç‚ÌƒXƒLƒbƒv‚·‚éƒTƒ“ƒvƒ‹”B
-/// @return 0ˆÈã: ¬Œ÷B•‰: ƒGƒ‰[BFlacRWResultTypeŽQÆB
+/// @param skipFrames å…ˆé ­ã‹ã‚‰ã®ã‚¹ã‚­ãƒƒãƒ—ã™ã‚‹ã‚µãƒ³ãƒ—ãƒ«æ•°ã€‚
+/// @return 0ä»¥ä¸Š: æˆåŠŸã€‚è² : ã‚¨ãƒ©ãƒ¼ã€‚FlacRWResultTypeå‚ç…§ã€‚
 extern "C" WWFLACRW_API
 int __stdcall
 WWFlacRW_DecodeStreamSkip(int id, int64_t skipFrames);
 
-/// @return 0ˆÈã: ¬Œ÷B•‰: ƒGƒ‰[BFlacRWResultTypeŽQÆB
+/// @return 0ä»¥ä¸Š: æˆåŠŸã€‚è² : ã‚¨ãƒ©ãƒ¼ã€‚FlacRWResultTypeå‚ç…§ã€‚
 extern "C" WWFLACRW_API
 int __stdcall
 WWFlacRW_GetDecodedMetadata(int id, WWFlacMetadata &metaReturn);
 
-/// @return 0ˆÈã: ƒRƒs[‚µ‚½ƒoƒCƒg”B•‰: ƒGƒ‰[BFlacRWResultTypeŽQÆB
+/// @return 0ä»¥ä¸Š: ã‚³ãƒ”ãƒ¼ã—ãŸãƒã‚¤ãƒˆæ•°ã€‚è² : ã‚¨ãƒ©ãƒ¼ã€‚FlacRWResultTypeå‚ç…§ã€‚
 extern "C" WWFLACRW_API
 int __stdcall
 WWFlacRW_GetDecodedPicture(int id, uint8_t * pictureReturn, int pictureBytes);
 
-/// @return 0ˆÈã: ƒRƒs[‚µ‚½ƒoƒCƒg”B•‰: ƒGƒ‰[BFlacRWResultTypeŽQÆB
+/// @return 0ä»¥ä¸Š: ã‚³ãƒ”ãƒ¼ã—ãŸãƒã‚¤ãƒˆæ•°ã€‚è² : ã‚¨ãƒ©ãƒ¼ã€‚FlacRWResultTypeå‚ç…§ã€‚
 extern "C" WWFLACRW_API
 int __stdcall
 WWFlacRW_GetDecodedPcmBytes(int id, int channel, int64_t startBytes, uint8_t * pcmReturn, int pcmBytes);
 
-/// ƒLƒ…[ƒV[ƒg‚Ìƒgƒ‰ƒbƒN”‚ð–ß‚·B
-/// @return 0ˆÈã: ¬Œ÷B•‰: ƒGƒ‰[BFlacRWResultTypeŽQÆB
+/// ã‚­ãƒ¥ãƒ¼ã‚·ãƒ¼ãƒˆã®ãƒˆãƒ©ãƒƒã‚¯æ•°ã‚’æˆ»ã™ã€‚
+/// @return 0ä»¥ä¸Š: æˆåŠŸã€‚è² : ã‚¨ãƒ©ãƒ¼ã€‚FlacRWResultTypeå‚ç…§ã€‚
 extern "C" WWFLACRW_API
 int __stdcall
 WWFlacRW_GetDecodedCuesheetNum(int id);
@@ -157,7 +159,7 @@ extern "C" WWFLACRW_API
 int __stdcall
 WWFlacRW_GetDecodedCuesheetByTrackIdx(int id, int trackIdx, WWFlacCuesheetTrack &trackReturn);
 
-/// @return 0ˆÈã: ¬Œ÷B•‰: ƒGƒ‰[BFlacRWResultTypeŽQÆB
+/// @return 0ä»¥ä¸Š: æˆåŠŸã€‚è² : ã‚¨ãƒ©ãƒ¼ã€‚FlacRWResultTypeå‚ç…§ã€‚
 extern "C" WWFLACRW_API
 int __stdcall
 WWFlacRW_DecodeEnd(int id);
@@ -166,27 +168,27 @@ WWFlacRW_DecodeEnd(int id);
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // flac encode
 
-/// @return 0ˆÈã: ƒfƒR[ƒ_[IdB•‰: ƒGƒ‰[BFlacRWResultTypeŽQÆB
+/// @return 0ä»¥ä¸Š: ãƒ‡ã‚³ãƒ¼ãƒ€ãƒ¼Idã€‚è² : ã‚¨ãƒ©ãƒ¼ã€‚FlacRWResultTypeå‚ç…§ã€‚
 extern "C" WWFLACRW_API
 int __stdcall
 WWFlacRW_EncodeInit(const WWFlacMetadata &meta);
 
-/// @return 0ˆÈã: ¬Œ÷B•‰: ƒGƒ‰[BFlacRWResultTypeŽQÆB
+/// @return 0ä»¥ä¸Š: æˆåŠŸã€‚è² : ã‚¨ãƒ©ãƒ¼ã€‚FlacRWResultTypeå‚ç…§ã€‚
 extern "C" WWFLACRW_API
 int __stdcall
 WWFlacRW_EncodeSetPicture(int id, const uint8_t * pictureData, int pictureBytes);
 
-/// @return 0ˆÈã: ¬Œ÷B•‰: ƒGƒ‰[BFlacRWResultTypeŽQÆB
+/// @return 0ä»¥ä¸Š: æˆåŠŸã€‚è² : ã‚¨ãƒ©ãƒ¼ã€‚FlacRWResultTypeå‚ç…§ã€‚
 extern "C" WWFLACRW_API
 int __stdcall
 WWFlacRW_EncodeSetPcmFragment(int id, int channel, int64_t offs, const uint8_t * pcmData, int copyBytes);
 
-/// @return 0ˆÈã: ¬Œ÷B•‰: ƒGƒ‰[BFlacRWResultTypeŽQÆB
+/// @return 0ä»¥ä¸Š: æˆåŠŸã€‚è² : ã‚¨ãƒ©ãƒ¼ã€‚FlacRWResultTypeå‚ç…§ã€‚
 extern "C" WWFLACRW_API
 int __stdcall
 WWFlacRW_EncodeRun(int id, const wchar_t *path);
 
-/// @return 0ˆÈã: ¬Œ÷B•‰: ƒGƒ‰[BFlacRWResultTypeŽQÆB
+/// @return 0ä»¥ä¸Š: æˆåŠŸã€‚è² : ã‚¨ãƒ©ãƒ¼ã€‚FlacRWResultTypeå‚ç…§ã€‚
 extern "C" WWFLACRW_API
 int __stdcall
 WWFlacRW_EncodeEnd(int id);
@@ -194,9 +196,9 @@ WWFlacRW_EncodeEnd(int id);
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // flac check integrity
 
-/// FLACƒtƒ@ƒCƒ‹‚Ìintegrity check‚ðs‚¤B
-/// @param path ƒpƒX–¼(UTF-16)
-/// @return 0ˆÈã: ¬Œ÷B•‰: ƒGƒ‰[BFlacRWResultTypeŽQÆB
+/// FLACãƒ•ã‚¡ã‚¤ãƒ«ã®integrity checkã‚’è¡Œã†ã€‚
+/// @param path ãƒ‘ã‚¹å(UTF-16)
+/// @return 0ä»¥ä¸Š: æˆåŠŸã€‚è² : ã‚¨ãƒ©ãƒ¼ã€‚FlacRWResultTypeå‚ç…§ã€‚
 extern "C" WWFLACRW_API
 int __stdcall
 WWFlacRW_CheckIntegrity(const wchar_t *path);

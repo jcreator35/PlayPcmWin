@@ -1,4 +1,6 @@
-﻿#pragma warning(disable:4127)  // Disable warning C4127: conditional expression is constant
+﻿// 日本語。
+
+#pragma warning(disable:4127)  // Disable warning C4127: conditional expression is constant
 
 #define WINVER _WIN32_WINNT_WIN7
 

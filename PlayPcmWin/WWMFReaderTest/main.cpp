@@ -1,4 +1,6 @@
-// “ú–{Œê
+ï»¿// æ—¥æœ¬èªžã€‚
+
+
 #include <stdio.h>
 #include <string.h>
 #include <crtdbg.h>

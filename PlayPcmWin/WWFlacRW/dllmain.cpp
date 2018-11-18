@@ -1,3 +1,5 @@
+// 日本語。
+
 #include "stdafx.h"
 
 BOOL APIENTRY DllMain( HMODULE hModule,
