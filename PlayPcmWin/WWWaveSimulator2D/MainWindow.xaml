@@ -58,9 +58,11 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="1*" />
                         <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
                     </Grid.RowDefinitions>
                     <RadioButton Content="Pressure" HorizontalAlignment="Left" Margin="6,4,0,4" Name="radioButtonShowPressure" VerticalAlignment="Center" IsChecked="True" Checked="radioButtonShowPressure_Checked" />
                     <RadioButton Content="Loss (static)" Grid.Row="1" HorizontalAlignment="Left" Margin="6,4,0,4" Name="radioButtonShowLoss" VerticalAlignment="Center" Checked="radioButtonShowLoss_Checked" />
+                    <RadioButton Content="Cr (static)" Grid.Row="2" HorizontalAlignment="Left" Margin="6,4,0,4" Name="radioButtonShowCr" VerticalAlignment="Center" Checked="radioButtonShowCr_Checked" />
                 </Grid>
             </GroupBox>
             <GroupBox Header="Statistics" Height="100" Name="groupBoxStatistics" >
@@ -77,6 +79,7 @@
             <Canvas Height="1024" HorizontalAlignment="Left" Name="canvasP" VerticalAlignment="Top" Width="1024" MouseUp="canvasP_MouseUp" Background="White">
                 <Image Width="1024" Height="1024" Name="mImagePressure" />
                 <Image Width="1024" Height="1024" Name="mImageLoss" Visibility="Hidden" />
+                <Image Width="1024" Height="1024" Name="mImageCr" Visibility="Hidden"/>
                 <Line X1="512" X2="512" Y1="0" Y2="6" Stroke="Black" />
                 <TextBlock Canvas.Left="0" Canvas.Top="5" Name="textBlockZero" Text="0"  />
                 <TextBlock Canvas.Left="509" Canvas.Top="5" Name="textBlockHalf" Text="Half"  />

@@ -131,6 +131,17 @@ namespace WWWaveSimulatorCS {
             }
 
 #if true
+            // 全面がCr遅い
+            for (int y = 0; y < mGridH; ++y) {
+                for (int x = 0; x < mGridW; ++x) {
+                    float loss = 0.0f;
+                    SetLoss(x, y, loss);
+                    SetCr(x, y, 0.8f);
+                }
+            }
+#endif
+
+#if false
             // 上下左右端領域は反射率80％の壁になっている。
             float r = 0.8f; // 0.8 == 80%
             float roh2 = -(r + 1) * 1.0f / (r - 1);
@@ -199,6 +210,8 @@ namespace WWWaveSimulatorCS {
 
         public int Update(int nTimes) {
             if (mCS.Available) {
+                // GPU実行。
+
                 UpdateGPU(nTimes);
 
                 // Stimuli更新
@@ -218,6 +231,8 @@ namespace WWWaveSimulatorCS {
 
                 mTimeTick += nTimes;
             } else {
+                // CPU実行。
+
                 for (int i = 0; i < nTimes; ++i) {
                     UpdateCPU1();
                     ++mTimeTick;
@@ -349,14 +364,23 @@ namespace WWWaveSimulatorCS {
             }
 #endif
 
-#if true
+#if false
+            // 2次のABC
+
+#else
             // 1次のABC pp.148
+
+            // 左端(x==0)、右端(x==mGridW-1)
             for (int y = 0; y < mGridH; ++y) {
                 int offs = 0;
 
                 {
                     // 左端 (x==0)
+                    int x = 0;
+                    int pos = x + y*mGridW;
+                    float ScPrime = mSc * mCr[pos];
 
+                    // m:位置、q:時刻
                     //     m q
                     //    p0_0をこれから計算する。
                     float p0_1 = (float)mDelayArray[offs + y * 2 + 0].GetNthDelayedSampleValue(0);
@@ -364,7 +388,7 @@ namespace WWWaveSimulatorCS {
                     float p1_0 = (float)P(1, y);
                     float p1_1 = (float)mDelayArray[offs + y * 2 + 1].GetNthDelayedSampleValue(0);
 
-                    float p0_0 = p1_1 + (mSc - 1) / (mSc + 1) * (p1_0 - p0_1);
+                    float p0_0 = p1_1 + (ScPrime - 1) / (ScPrime + 1) * (p1_0 - p0_1);
                     SetP(0, y, p0_0);
 
                     mDelayArray[offs + y * 2 + 0].Filter(p0_0);
@@ -374,6 +398,10 @@ namespace WWWaveSimulatorCS {
                 offs = mGridH*2;
                 {
                     // 右端 (x==mGridW-1)
+                    int x = mGridW-1;
+                    int pos = x + y * mGridW;
+                    float ScPrime = mSc * mCr[pos];
+
                     //     m q
                     //    p0_0をこれから計算する。
                     float p0_1 = (float)mDelayArray[offs + y * 2 + 0].GetNthDelayedSampleValue(0);
@@ -381,7 +409,7 @@ namespace WWWaveSimulatorCS {
                     float p1_0 = (float)P(mGridW-2, y);
                     float p1_1 = (float)mDelayArray[offs + y * 2 + 1].GetNthDelayedSampleValue(0);
 
-                    float p0_0 = p1_1 + (mSc - 1) / (mSc + 1) * (p1_0 - p0_1);
+                    float p0_0 = p1_1 + (ScPrime - 1) / (ScPrime + 1) * (p1_0 - p0_1);
                     SetP(mGridW-1, y, p0_0);
 
                     mDelayArray[offs + y * 2 + 0].Filter(p0_0);
@@ -394,6 +422,9 @@ namespace WWWaveSimulatorCS {
 
                 {
                     // 上 (y==0)
+                    int y = 0;
+                    int pos = x + y * mGridW;
+                    float ScPrime = mSc * mCr[pos];
 
                     //     m q
                     //    p0_0をこれから計算する。
@@ -402,7 +433,7 @@ namespace WWWaveSimulatorCS {
                     float p1_0 = (float)P(x, 1);
                     float p1_1 = (float)mDelayArray[offs + x * 2 + 1].GetNthDelayedSampleValue(0);
 
-                    float p0_0 = p1_1 + (mSc - 1) / (mSc + 1) * (p1_0 - p0_1);
+                    float p0_0 = p1_1 + (ScPrime - 1) / (ScPrime + 1) * (p1_0 - p0_1);
                     SetP(x, 0, p0_0);
 
                     mDelayArray[offs + x * 2 + 0].Filter(p0_0);
@@ -412,6 +443,10 @@ namespace WWWaveSimulatorCS {
                 offs = mGridH*4 + mGridW * 2;
                 {
                     // 下端 (y==mGridH-1)
+                    int y = mGridH-1;
+                    int pos = x + y * mGridW;
+                    float ScPrime = mSc * mCr[pos];
+
                     //     m q
                     //    p0_0をこれから計算する。
                     float p0_1 = (float)mDelayArray[offs + x * 2 + 0].GetNthDelayedSampleValue(0);
@@ -419,7 +454,7 @@ namespace WWWaveSimulatorCS {
                     float p1_0 = (float)P(x, mGridH - 2);
                     float p1_1 = (float)mDelayArray[offs + x * 2 + 1].GetNthDelayedSampleValue(0);
 
-                    float p0_0 = p1_1 + (mSc - 1) / (mSc + 1) * (p1_0 - p0_1);
+                    float p0_0 = p1_1 + (ScPrime - 1) / (ScPrime + 1) * (p1_0 - p0_1);
                     SetP(x, mGridH - 1, p0_0);
 
                     mDelayArray[offs + x * 2 + 0].Filter(p0_0);
@@ -476,6 +511,10 @@ namespace WWWaveSimulatorCS {
             int pos = x + y * mGridW;
             mRoh[pos] = v;
         }
+        private void SetCr(int x, int y, float v) {
+            int pos = x + y * mGridW;
+            mCr[pos] = v;
+        }
         private void SetLoss(int x, int y, float v) {
             int pos = x + y * mGridW;
             mLoss[pos] = v;
@@ -528,6 +567,42 @@ namespace WWWaveSimulatorCS {
             }
 
             return l;
+        }
+
+        public float[] CrShow() {
+            var v = new float[mGridCount];
+            int pos = 0;
+
+#if true
+            float maxL = 1.0f;
+#else
+            // 最大値を探す。
+            float maxL = 0;
+            for (int y = 0; y < mGridH; ++y) {
+                for (int x = 0; x < mGridW; ++x) {
+                    if (maxL < mLoss[pos]) {
+                        maxL = mLoss[pos];
+                    }
+
+                    ++pos;
+                }
+            }
+            if (maxL < 0.000001f) {
+                maxL = 1.0f;
+            }
+#endif
+
+            pos = 0;
+            for (int y = 0; y < mGridH; ++y) {
+                for (int x = 0; x < mGridW; ++x) {
+                    // 表示用の加工をしてコピーする。
+                    v[pos] = mCr[pos] / maxL;
+
+                    ++pos;
+                }
+            }
+
+            return v;
         }
 
         public float ElapsedTime() {

@@ -64,7 +64,7 @@ WWWave2DGpu::Setup(const WWWave2DParams &p, float *loss, float *roh, float *cr)
     assert(nullptr == mV);
 
     mNumOfPoints = p.fieldW * p.fieldH;
-    mEdgeABCPoints = (p.fieldW + p.fieldH)*2;
+    mEdgeABCPoints = (p.fieldW + p.fieldH)*6;
 
     /* 圧力pはスカラー場。
      * 速度vはベクトル場。

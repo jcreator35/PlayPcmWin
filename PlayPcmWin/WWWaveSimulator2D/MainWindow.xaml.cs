@@ -74,10 +74,14 @@ namespace WWWaveSimulator2D {
             }
 
             {
-                var lossShow = mSim.LossShow();
-                var bitmapLoss = BitmapSource.Create(mW, mH, 96, 96, PixelFormats.Gray32Float, null, lossShow, mW * 4);
-                bitmapLoss.Freeze();
-                mImageLoss.Source = bitmapLoss;
+                var bitmap = BitmapSource.Create(mW, mH, 96, 96, PixelFormats.Gray32Float, null, mSim.LossShow(), mW * 4);
+                bitmap.Freeze();
+                mImageLoss.Source = bitmap;
+            }
+            {
+                var bitmap = BitmapSource.Create(mW, mH, 96, 96, PixelFormats.Gray32Float, null, mSim.CrShow(), mW * 4);
+                bitmap.Freeze();
+                mImageCr.Source = bitmap;
             }
         }
 
@@ -194,24 +198,6 @@ namespace WWWaveSimulator2D {
             mSim.AddStimulus(t, (int)(p.X * canvasToSimX), (int)(p.Y * canvasToSimY), freq, magnitude);
         }
 
-        private void radioButtonShowPressure_Checked(object sender, RoutedEventArgs e) {
-            if (!mInitialized) {
-                return;
-            }
-
-            mImageLoss.Visibility = System.Windows.Visibility.Hidden;
-            mImagePressure.Visibility = System.Windows.Visibility.Visible;
-        }
-
-        private void radioButtonShowLoss_Checked(object sender, RoutedEventArgs e) {
-            if (!mInitialized) {
-                return;
-            }
-
-            mImageLoss.Visibility = System.Windows.Visibility.Visible;
-            mImagePressure.Visibility = System.Windows.Visibility.Hidden;
-        }
-
         private void sliderStep_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) {
             if (!mInitialized) {
                 return;
@@ -232,6 +218,36 @@ namespace WWWaveSimulator2D {
             lock(mLock) {
                 DestroySimulator();
             }
+        }
+
+        private void radioButtonShowPressure_Checked(object sender, RoutedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            }
+
+            mImageCr.Visibility = System.Windows.Visibility.Hidden;
+            mImageLoss.Visibility = System.Windows.Visibility.Hidden;
+            mImagePressure.Visibility = System.Windows.Visibility.Visible;
+        }
+
+        private void radioButtonShowLoss_Checked(object sender, RoutedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            }
+
+            mImageCr.Visibility = System.Windows.Visibility.Hidden;
+            mImageLoss.Visibility = System.Windows.Visibility.Visible;
+            mImagePressure.Visibility = System.Windows.Visibility.Hidden;
+        }
+
+        private void radioButtonShowCr_Checked(object sender, RoutedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            }
+
+            mImageCr.Visibility = System.Windows.Visibility.Visible;
+            mImageLoss.Visibility = System.Windows.Visibility.Hidden;
+            mImagePressure.Visibility = System.Windows.Visibility.Hidden;
         }
     }
 }
