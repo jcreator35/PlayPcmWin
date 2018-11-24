@@ -36,14 +36,10 @@ WWWave1DGpu::Term(void)
 
 // 定数。16バイトの倍数のサイズの構造体。
 struct ShaderConstants {
-    /// 更新処理の繰り返し回数。
-    int cRepeat;
-
-    /// stimの有効要素数。
-    int nStim;
-
-    int cSinePeriod;
+    int nStim;    ///< stimの有効要素数。
     int dummy1;
+    int dummy2;
+    int dummy3;
 
     WWWave1DStim stim[STIM_COUNT];
 };
@@ -181,7 +177,7 @@ WWWave1DGpu::Run(int cRepeat, int stimNum, WWWave1DStim stim[])
 
     for (int i=0; i<cRepeat; ++i) {
         ShaderConstants shaderConstants = {
-            stimNum,
+            stimNum,  //< stim配列の有効要素数。
             0,
             0,
             0,

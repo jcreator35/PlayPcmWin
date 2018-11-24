@@ -49,7 +49,7 @@ namespace WWDirectComputeCS {
         public int Setup(WWWave2DParams p, float[] loss, float[] roh, float[] cr) {
             int hr = WWDCWave2D_Setup(p, loss, roh, cr);
 
-#if true
+#if false
             Available = false;
 #else
             Available = 0 <= hr;

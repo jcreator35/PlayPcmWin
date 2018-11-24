@@ -13,34 +13,90 @@ define
 */
 
 // SRV
-StructuredBuffer<float>          gLoss         : register(t0);
-StructuredBuffer<float>          gRoh          : register(t1);
-StructuredBuffer<float>          gCr           : register(t2);
+StructuredBuffer<float>    gCr             : register(t0);
 
 // UAV
-RWStructuredBuffer<float2> gVin            : register(u0);
-RWStructuredBuffer<float>  gPin            : register(u1);
-RWStructuredBuffer<float>  gPout           : register(u2);
+RWStructuredBuffer<float>  gPin            : register(u0);
+RWStructuredBuffer<float>  gPout           : register(u1);
+RWStructuredBuffer<float>  gPdelayIn       : register(u2);
+RWStructuredBuffer<float>  gPdelayOut      : register(u3);
 
 [numthreads(THREAD_W, THREAD_H, 1)]
-void CSUpdateP(uint3 tid: SV_DispatchThreadID)
+void CSUpdate(uint3 tid: SV_DispatchThreadID)
 {
     int x = tid.x;
     int y = tid.y;
+    int pos = x + y * FIELD_W;
+    float ScPrime = SC * gCr[pos];
 
-    // Update P (Schneider17, pp.325)
-    if (x == 0 || y == 0) {
+    if (x == 0) {
+        // 左端。
+        int delayOffs = 0;
+
+        // m:位置、q:時刻
+        //     m q
+        //    p0_0をこれから計算する。
+        float p0_1 = gPdelayIn[delayOffs + y * 2 + 0];
+        float p1_1 = gPdelayIn[delayOffs + y * 2 + 1];
+
+        float p1_0 = gPin[x + 1 + y * FIELD_W];
+        
+        float p0_0 = p1_1 + (ScPrime - 1) / (ScPrime + 1) * (p1_0 - p0_1);
+        gPout[pos] = p0_0;
+
+        gPdelayOut[delayOffs + y * 2 + 0] = p0_0;
+        gPdelayOut[delayOffs + y * 2 + 1] = p1_0;
+    } else if (x == FIELD_W-1) {
+        // 右端。
+        int delayOffs = FIELD_H * 2;
+
+        // m:位置、q:時刻
+        //     m q
+        //    p0_0をこれから計算する。
+        float p0_1 = gPdelayIn[delayOffs + y * 2 + 0];
+        float p1_1 = gPdelayIn[delayOffs + y * 2 + 1];
+
+        float p1_0 = gPin[x - 1 + y * FIELD_W];
+
+        float p0_0 = p1_1 + (ScPrime - 1) / (ScPrime + 1) * (p1_0 - p0_1);
+        gPout[pos] = p0_0;
+
+        gPdelayOut[delayOffs + y * 2 + 0] = p0_0;
+        gPdelayOut[delayOffs + y * 2 + 1] = p1_0;
+    } else if (y == 0) {
+        // 上端。
+        int delayOffs = FIELD_H * 4;
+
+        //     m q
+        //    p0_0をこれから計算する。
+        float p0_1 = gPdelayIn[delayOffs + x * 2 + 0];
+        float p1_1 = gPdelayIn[delayOffs + x * 2 + 1];
+
+        float p1_0 = gPin[x + 1 * FIELD_W];
+
+        float p0_0 = p1_1 + (ScPrime - 1) / (ScPrime + 1) * (p1_0 - p0_1);
+        gPout[pos] = p0_0;
+        
+        gPdelayOut[delayOffs + x * 2 + 0] = p0_0;
+        gPdelayOut[delayOffs + x * 2 + 1] = p1_0;
+    } else if (y == FIELD_H-1) {
+        // 下端。
+        int delayOffs = FIELD_H * 4 + FIELD_W * 2;
+
+        //     m q
+        //    p0_0をこれから計算する。
+        float p0_1 = gPdelayIn[delayOffs + x * 2 + 0];
+        float p1_1 = gPdelayIn[delayOffs + x * 2 + 1];
+
+        float p1_0 = gPin[x + (FIELD_H - 2) * FIELD_W];
+
+        float p0_0 = p1_1 + (ScPrime - 1) / (ScPrime + 1) * (p1_0 - p0_1);
+        gPout[pos] = p0_0;
+        
+        gPdelayOut[delayOffs + x * 2 + 0] = p0_0;
+        gPdelayOut[delayOffs + x * 2 + 1] = p1_0;
     } else {
-        int pos = x + y * FIELD_W;
-        float loss = gLoss[pos];
-        float2 v = gVin[pos];
-        float2 vL = gVin[pos-1];
-        float2 vU = gVin[x + (y-1) * FIELD_W];
-        float Cp = gRoh[pos] * gCr[pos] * gCr[pos] * C0 * SC;
-
-        gPout[pos] = (1.0f - loss) * rcp(1.0f + loss) * gPin[pos]
-            - (Cp * rcp(1.0f + loss))
-            * (v.x - vL.x + v.y - vU.y);
+        gPout[pos] = gPin[pos];
     }
 }
 

@@ -18,8 +18,8 @@ enum WWWave2DUAVenum {
     WWWave2DUAV_P0,
     WWWave2DUAV_V1,
     WWWave2DUAV_P1,
-    WWWave2DUAV_EdgeABC0,
-    WWWave2DUAV_EdgeABC1,
+    WWWave2DUAV_Edge0,
+    WWWave2DUAV_Edge1,
     WWWave2DUAV_NUM,
 };
 
@@ -28,6 +28,7 @@ enum WWWave2DCSenum {
     WWWave2DCS_UpdateStim,
     WWWave2DCS_UpdateV,
     WWWave2DCS_UpdateP,
+    WWWave2DCS_UpdatePEdgeABC,
     WWWave2DCS_NUM
 };
 

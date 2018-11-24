@@ -41,14 +41,10 @@ WWWave2DGpu::Term(void)
 
 // 定数。16バイトの倍数のサイズの構造体。
 struct ShaderConstants {
-    /// 更新処理の繰り返し回数。
-    int cRepeat;
-
-    /// stimの有効要素数。
-    int nStim;
-
-    int cSinePeriod;
+    int nStim;    ///< stimの有効要素数。
     int dummy1;
+    int dummy2;
+    int dummy3;
 
     WWWave1DStim stim[STIM_COUNT];
 };
@@ -64,7 +60,9 @@ WWWave2DGpu::Setup(const WWWave2DParams &p, float *loss, float *roh, float *cr)
     assert(nullptr == mV);
 
     mNumOfPoints = p.fieldW * p.fieldH;
-    mEdgeABCPoints = (p.fieldW + p.fieldH)*6;
+
+    //各点あたり2個、上端分と下端分で計4倍。
+    mEdgeABCPoints = (p.fieldW + p.fieldH)*4;
 
     /* 圧力pはスカラー場。
      * 速度vはベクトル場。
@@ -130,6 +128,9 @@ WWWave2DGpu::Setup(const WWWave2DParams &p, float *loss, float *roh, float *cr)
     HRG(mCU.CreateComputeShader(L"Wave2DShaderUpdateP.hlsl", "CSUpdateP", defines, &mpCS[WWWave2DCS_UpdateP]));
     assert(mpCS[WWWave2DCS_UpdateP]);
 
+    HRG(mCU.CreateComputeShader(L"Wave2DShaderUpdatePEdgeABC.hlsl", "CSUpdate", defines, &mpCS[WWWave2DCS_UpdatePEdgeABC]));
+    assert(mpCS[WWWave2DCS_UpdatePEdgeABC]);
+
     {
         WWStructuredBufferParams params[WWWave2DSRV_NUM] = {
             {sizeof(float), mNumOfPoints, loss, "loss", &mpSRVs[WWWave2DSRV_LOSS], nullptr},
@@ -149,8 +150,8 @@ WWWave2DGpu::Setup(const WWWave2DParams &p, float *loss, float *roh, float *cr)
             {sizeof(float),           mNumOfPoints, mP, "p0", nullptr, &mpUAVs[WWWave2DUAV_P0]},
             {sizeof(float)*DIMENSION, mNumOfPoints, mV, "v1", nullptr, &mpUAVs[WWWave2DUAV_V1]},
             {sizeof(float),           mNumOfPoints, mP, "p1", nullptr, &mpUAVs[WWWave2DUAV_P1]},
-            {sizeof(float),           mEdgeABCPoints, mEdgeABC, "edgeABC0", nullptr, &mpUAVs[WWWave2DUAV_EdgeABC0]},
-            {sizeof(float),           mEdgeABCPoints, mEdgeABC, "edgeABC1", nullptr, &mpUAVs[WWWave2DUAV_EdgeABC1]},
+            {sizeof(float),           mEdgeABCPoints, mEdgeABC, "edgeABC0", nullptr, &mpUAVs[WWWave2DUAV_Edge0]},
+            {sizeof(float),           mEdgeABCPoints, mEdgeABC, "edgeABC1", nullptr, &mpUAVs[WWWave2DUAV_Edge1]},
         };
         HRG(mCU.CreateSeveralStructuredBuffer(WWWave2DUAV_NUM, params));
         assert(mpUAVs[0]);
@@ -211,13 +212,14 @@ WWWave2DGpu::Run_(int cRepeat, int stimNum, WWWave1DStim stim[])
     const int vBytes = sizeof(float) * mNumOfPoints * DIMENSION;
     ID3D11UnorderedAccessView *pUAVs_V[3];
     ID3D11UnorderedAccessView *pUAVs_P[3];
+    ID3D11UnorderedAccessView *pUAVs_Edge[4];
 
     for (int i=0; i<cRepeat; ++i) {
         ++mTickTotal;
         // 最初の1回目はmTickTotal == 0になる。
 
         ShaderConstants shaderConstants = {
-            stimNum,
+            stimNum, //< stim配列の有効要素数。
             0,
             0,
             0,
@@ -238,23 +240,34 @@ WWWave2DGpu::Run_(int cRepeat, int stimNum, WWWave1DStim stim[])
             pUAVs_P[0] = mpUAVs[WWWave2DUAV_V1]; //< vIn
             pUAVs_P[1] = mpUAVs[WWWave2DUAV_P0]; //< pIn
             pUAVs_P[2] = mpUAVs[WWWave2DUAV_P1]; //< pOut
+
+            pUAVs_Edge[0] = mpUAVs[WWWave2DUAV_P1]; //< pIn
+            pUAVs_Edge[1] = mpUAVs[WWWave2DUAV_P0]; //< pOut
+            pUAVs_Edge[2] = mpUAVs[WWWave2DUAV_Edge0]; //< delayIn
+            pUAVs_Edge[3] = mpUAVs[WWWave2DUAV_Edge1]; //< delayOut
         } else {
             pUAVs_V[0] = mpUAVs[WWWave2DUAV_V1]; //< vIn
-            pUAVs_V[1] = mpUAVs[WWWave2DUAV_P1]; //< pIn
+            pUAVs_V[1] = mpUAVs[WWWave2DUAV_P0]; //< pIn
             pUAVs_V[2] = mpUAVs[WWWave2DUAV_V0]; //< vOut
 
             pUAVs_P[0] = mpUAVs[WWWave2DUAV_V0]; //< vIn
-            pUAVs_P[1] = mpUAVs[WWWave2DUAV_P1]; //< pIn
-            pUAVs_P[2] = mpUAVs[WWWave2DUAV_P0]; //< pOut
+            pUAVs_P[1] = mpUAVs[WWWave2DUAV_P0]; //< pIn
+            pUAVs_P[2] = mpUAVs[WWWave2DUAV_P1]; //< pOut
+
+            pUAVs_Edge[0] = mpUAVs[WWWave2DUAV_P1]; //< pIn
+            pUAVs_Edge[1] = mpUAVs[WWWave2DUAV_P0]; //< pOut
+            pUAVs_Edge[2] = mpUAVs[WWWave2DUAV_Edge1]; //< delayIn
+            pUAVs_Edge[3] = mpUAVs[WWWave2DUAV_Edge0]; //< delayOut
         }
 
         const int dispatchX = mParams.fieldW / THREAD_W;
         const int dispatchY = mParams.fieldH / THREAD_H;
 
         //                                                                    pIn
-        HRG(mCU.Run(mpCS[WWWave2DCS_UpdateStim], 0,               nullptr, 1, &pUAVs_V[1], &shaderConstants, sizeof(ShaderConstants), 1,         1,         1));
-        HRG(mCU.Run(mpCS[WWWave2DCS_UpdateV],    WWWave2DSRV_NUM, mpSRVs,  3, pUAVs_V,     nullptr,          0,                       dispatchX, dispatchY, 1));
-        HRG(mCU.Run(mpCS[WWWave2DCS_UpdateP],    WWWave2DSRV_NUM, mpSRVs,  3, pUAVs_P,     nullptr,          0,                       dispatchX, dispatchY, 1));
+        HRG(mCU.Run(mpCS[WWWave2DCS_UpdateStim], 0,               nullptr, 1, &pUAVs_V[1],      &shaderConstants, sizeof(ShaderConstants), 1,         1,         1));
+        HRG(mCU.Run(mpCS[WWWave2DCS_UpdateV],    WWWave2DSRV_NUM, mpSRVs,  3, pUAVs_V,          nullptr,          0,                       dispatchX, dispatchY, 1));
+        HRG(mCU.Run(mpCS[WWWave2DCS_UpdateP],    WWWave2DSRV_NUM, mpSRVs,  3, pUAVs_P,          nullptr,          0,                       dispatchX, dispatchY, 1));
+        HRG(mCU.Run(mpCS[WWWave2DCS_UpdatePEdgeABC], 1, &mpSRVs[WWWave2DSRV_CR], 4, pUAVs_Edge, nullptr,          0,                       dispatchX, dispatchY, 1));
     }
 
 end:
@@ -276,7 +289,7 @@ WWWave2DGpu::Run(int cRepeat, int stimNum, WWWave1DStim stim[])
     // mTickTotalはRun1()で更新されるので順番に注意。
     if ((mTickTotal&1)==0) {
         pV = mpUAVs[WWWave2DUAV_V1]; //< vOut
-        pP = mpUAVs[WWWave2DUAV_P1]; //< pOut
+        pP = mpUAVs[WWWave2DUAV_P0]; //< pOut
     } else {
         pV = mpUAVs[WWWave2DUAV_V0]; //< vOut
         pP = mpUAVs[WWWave2DUAV_P0]; //< pOut
