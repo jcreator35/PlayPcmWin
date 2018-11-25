@@ -55,6 +55,8 @@ namespace WWWaveSimulatorCS {
         public WaveSim2D(int gridW, int gridH, float c0, float Δt, float Δx) {
             int hr = 0;
 
+            VisualizeMode = VisualizeModeType.VM_Linear;
+
             mGridW = gridW;
             mGridH = gridH;
             mGridCount = mGridW * mGridH;
@@ -520,15 +522,48 @@ namespace WWWaveSimulatorCS {
             mLoss[pos] = v;
         }
 
+        public enum VisualizeModeType {
+            VM_Linear,
+            VM_Log,
+        };
+
+        public VisualizeModeType VisualizeMode { get; set; }
+
         public float[] Pshow() {
             var p = new float[mGridCount];
 
-            Parallel.For(0, mGridH, y => {
-                for (int x = 0; x < mGridW; ++x) {
-                    int pos = x + y * mGridW;
-                    p[pos] = Math.Abs(mP[pos]);
-                }
-            });
+            switch (VisualizeMode) {
+            case VisualizeModeType.VM_Linear:
+                Parallel.For(0, mGridH, y => {
+                    for (int x = 0; x < mGridW; ++x) {
+                        int pos = x + y * mGridW;
+                        p[pos] = Math.Abs(mP[pos]);
+                    }
+                });
+                break;
+            case VisualizeModeType.VM_Log:
+                Parallel.For(0, mGridH, y => {
+                    for (int x = 0; x < mGridW; ++x) {
+                        int pos = x + y * mGridW;
+                        float v = Math.Abs(mP[pos]);
+                        if (v < float.Epsilon) {
+                            v = 0;
+                        } else {
+                            v = (float)Math.Log10(v);
+                            if (v < -3.0f) {
+                                v = 0;
+                            } else {
+                                v = v / 3.0f + 1.0f;
+                            }
+                        }
+                        p[pos] = v;
+                    }
+                });
+                break;
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                break;
+            }
 
             return p;
         }

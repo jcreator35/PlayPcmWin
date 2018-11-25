@@ -225,6 +225,20 @@ namespace WWWaveSimulator2D {
                 return;
             }
 
+            mSim.VisualizeMode = WaveSim2D.VisualizeModeType.VM_Linear;
+
+            mImageCr.Visibility = System.Windows.Visibility.Hidden;
+            mImageLoss.Visibility = System.Windows.Visibility.Hidden;
+            mImagePressure.Visibility = System.Windows.Visibility.Visible;
+        }
+
+        private void radioButtonShowPressureLog_Checked(object sender, RoutedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            }
+
+            mSim.VisualizeMode = WaveSim2D.VisualizeModeType.VM_Log;
+
             mImageCr.Visibility = System.Windows.Visibility.Hidden;
             mImageLoss.Visibility = System.Windows.Visibility.Hidden;
             mImagePressure.Visibility = System.Windows.Visibility.Visible;
@@ -249,5 +263,6 @@ namespace WWWaveSimulator2D {
             mImageLoss.Visibility = System.Windows.Visibility.Hidden;
             mImagePressure.Visibility = System.Windows.Visibility.Hidden;
         }
+
     }
 }

@@ -186,7 +186,6 @@
     <ClInclude Include="targetver.h" />
     <ClInclude Include="WWDirectComputeIOIF.h" />
     <ClInclude Include="WWDirectComputeUser.h" />
-    <ClInclude Include="WWFdtd2d.h" />
     <ClInclude Include="WWUpsampleGpu.h" />
     <ClInclude Include="WWUtil.h" />
     <ClInclude Include="WWWave1DGpu.h" />

@@ -29,9 +29,6 @@
     <ClInclude Include="WWUpsampleGpu.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="WWFdtd2d.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
     <ClInclude Include="WWWave1DGpu.h">
       <Filter>Header files</Filter>
     </ClInclude>

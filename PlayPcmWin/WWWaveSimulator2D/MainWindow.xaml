@@ -55,6 +55,10 @@
             </GroupBox>
             <GroupBox Header="Show" Name="groupBoxShow" >
                 <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="1*" />
+                    </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="1*" />
                         <RowDefinition Height="1*" />
@@ -63,6 +67,7 @@
                     <RadioButton Content="Pressure" HorizontalAlignment="Left" Margin="6,4,0,4" Name="radioButtonShowPressure" VerticalAlignment="Center" IsChecked="True" Checked="radioButtonShowPressure_Checked" />
                     <RadioButton Content="Loss (static)" Grid.Row="1" HorizontalAlignment="Left" Margin="6,4,0,4" Name="radioButtonShowLoss" VerticalAlignment="Center" Checked="radioButtonShowLoss_Checked" />
                     <RadioButton Content="Cr (static)" Grid.Row="2" HorizontalAlignment="Left" Margin="6,4,0,4" Name="radioButtonShowCr" VerticalAlignment="Center" Checked="radioButtonShowCr_Checked" />
+                    <RadioButton Content="Pressure (Log)" Grid.Column="1" HorizontalAlignment="Left" Margin="6,4,0,4" Name="radioButtonShowPressureLog" VerticalAlignment="Center" Checked="radioButtonShowPressureLog_Checked" />
                 </Grid>
             </GroupBox>
             <GroupBox Header="Statistics" Height="100" Name="groupBoxStatistics" >
