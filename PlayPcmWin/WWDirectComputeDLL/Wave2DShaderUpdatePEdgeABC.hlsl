@@ -1,4 +1,9 @@
 /* 日本語UTF-8
+
+2次元 1次 Absorbing Boundary Condition
+
+gPDelayIn/Out = (p.fieldW + p.fieldH)*4; //< 各点あたり2個、上端分と下端分で計4倍(1次ABC)
+
 define
 "FIELD_W" = "1024" (一例)
 "FIELD_H" = "1024" (一例)

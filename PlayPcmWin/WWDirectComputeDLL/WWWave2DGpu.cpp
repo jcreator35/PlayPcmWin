@@ -61,8 +61,9 @@ WWWave2DGpu::Setup(const WWWave2DParams &p, float *loss, float *roh, float *cr)
 
     mNumOfPoints = p.fieldW * p.fieldH;
 
-    //各点あたり2個、上端分と下端分で計4倍。
-    mEdgeABCPoints = (p.fieldW + p.fieldH)*4;
+    //各点あたり2個、上端分と下端分で計4倍(1次ABC)
+    //各点あたり6個、上端分と下端分で計12倍(2次ABC)
+    mEdgeABCPoints = (p.fieldW + p.fieldH)*12;
 
     /* 圧力pはスカラー場。
      * 速度vはベクトル場。
@@ -128,7 +129,7 @@ WWWave2DGpu::Setup(const WWWave2DParams &p, float *loss, float *roh, float *cr)
     HRG(mCU.CreateComputeShader(L"Wave2DShaderUpdateP.hlsl", "CSUpdateP", defines, &mpCS[WWWave2DCS_UpdateP]));
     assert(mpCS[WWWave2DCS_UpdateP]);
 
-    HRG(mCU.CreateComputeShader(L"Wave2DShaderUpdatePEdgeABC.hlsl", "CSUpdate", defines, &mpCS[WWWave2DCS_UpdatePEdgeABC]));
+    HRG(mCU.CreateComputeShader(L"Wave2DShaderUpdatePEdgeABC2.hlsl", "CSUpdate", defines, &mpCS[WWWave2DCS_UpdatePEdgeABC]));
     assert(mpCS[WWWave2DCS_UpdatePEdgeABC]);
 
     {
