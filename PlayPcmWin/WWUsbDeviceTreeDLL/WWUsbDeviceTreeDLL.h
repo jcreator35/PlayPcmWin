@@ -1,5 +1,7 @@
 // 日本語。
 
+#include <stdint.h>
+
 #pragma once
 
 
@@ -10,9 +12,26 @@ extern "C" {
 #pragma pack(push, 4)
     struct WWUsbHostControllerCs {
         int idx;
+        int numberOfRootPorts;
+        uint32_t deviceCount;
+        uint32_t currentUsbFrame;
+
+        uint32_t bulkBytes;
+        uint32_t isoBytes;
+        uint32_t interruptBytes;
+        uint32_t controlDataBytes;
+
+        uint32_t pciInterruptCount;
+        uint32_t hardResetCount;
+
+        uint64_t totalBusBandwidth;     //< bits/sec
+        uint64_t total32secBandwidth;   //< bits/32sec
+        uint64_t allocedBulkAndControl; //< bits/32sec
+        uint64_t allocedIso;            //< bits/32sec
         wchar_t name[WWUSB_STRING_COUNT];
         wchar_t desc[WWUSB_STRING_COUNT];
         wchar_t vendor[WWUSB_STRING_COUNT];
+
     };
 
     struct WWUsbHubCs {

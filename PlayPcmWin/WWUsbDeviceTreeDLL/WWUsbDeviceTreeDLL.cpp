@@ -78,6 +78,22 @@ WWUsbDeviceTreeDLL_GetHostControllerInf(int nth, WWUsbHostControllerCs &hc_r)
 
     auto &hc = mHCs[nth];
     hc_r.idx = hc.idx;
+
+    hc_r.numberOfRootPorts = hc.ci0.NumberOfRootPorts;
+    hc_r.deviceCount = hc.bs0.DeviceCount;
+    hc_r.currentUsbFrame = hc.bs0.CurrentUsbFrame;
+    hc_r.bulkBytes = hc.bs0.BulkBytes;
+    hc_r.isoBytes = hc.bs0.IsoBytes;
+    hc_r.interruptBytes = hc.bs0.InterruptBytes;
+    hc_r.controlDataBytes = hc.bs0.ControlDataBytes;
+    hc_r.pciInterruptCount = hc.bs0.PciInterruptCount;
+    hc_r.hardResetCount = hc.bs0.HardResetCount;
+
+    hc_r.totalBusBandwidth = hc.bir.TotalBusBandwidth;
+    hc_r.total32secBandwidth = hc.bir.Total32secBandwidth;
+    hc_r.allocedBulkAndControl = hc.bir.AllocedBulkAndControl;
+    hc_r.allocedIso = hc.bir.AllocedIso;
+
     memset(hc_r.name, 0, sizeof hc_r.name);
     wcsncpy_s(hc_r.name, hc.devStr.friendlyName.c_str(), WWUSB_STRING_COUNT - 1);
 

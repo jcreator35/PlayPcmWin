@@ -37,8 +37,8 @@ namespace WWShowUSBDeviceTree {
         }
 
         public void AddNode(WWUsbHostControllerCs hc) {
-            string s = string.Format("{0}\n{1}\n{2}",
-                    hc.name, hc.vendor, hc.desc);
+            string s = string.Format("{0}\n{1}\n{2}\nNumOfRootPorts={3}, DeviceCount={4}, HardResetCount={5}",
+                    hc.name, hc.vendor, hc.desc, hc.numberOfRootPorts, hc.deviceCount, hc.hardResetCount);
             var node = new UsbDevice(UsbDevice.NodeType.HostController,
                 hc.idx, -1, BusSpeed.RootHub, BusSpeed.RootHub, s);
             AddNode(node);

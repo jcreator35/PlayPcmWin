@@ -45,6 +45,23 @@ namespace WWShowUSBDeviceTree {
         [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Unicode)]
         public struct WWUsbHostControllerCs {
             public int idx;
+            public int numberOfRootPorts;
+
+            public uint deviceCount;
+            public uint currentUsbFrame;
+
+            public uint bulkBytes;
+            public uint isoBytes;
+            public uint interruptBytes;
+            public uint controlDataBytes;
+
+            public uint pciInterruptCount;
+            public uint hardResetCount;
+
+            public ulong totalBusBandwidth;     //< bits/sec
+            public ulong total32secBandwidth;   //< bits/32sec
+            public ulong allocedBulkAndControl; //< bits/32sec
+            public ulong allocedIso;            //< bits/32sec
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
             public string name;
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
