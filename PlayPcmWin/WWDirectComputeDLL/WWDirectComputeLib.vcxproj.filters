@@ -58,5 +58,8 @@
     <CustomBuild Include="Wave1DShaderUpdateStim.hlsl">
       <Filter>Shaders</Filter>
     </CustomBuild>
+    <CustomBuild Include="Wave2DShaderUpdatePEdgeABC2.hlsl">
+      <Filter>Shaders</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>
