@@ -165,7 +165,7 @@ namespace WWAnalogFilterDesign {
         /// </summary>
         private double InverseLaplaceTransformValue(List<FirstOrderComplexRationalPolynomial> Hf,
                 List<FirstOrderComplexRationalPolynomial> Hi, double t) {
-            if (t <= 0) {
+            if (t < 0) {
                 return 0;
             }
 

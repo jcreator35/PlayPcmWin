@@ -195,7 +195,7 @@ namespace WWOfflineResampler {
                 // 設計されたフィルターを表示する。
                 mTimeDomainPlot.ImpulseResponseFunction = mMain.Afd().ImpulseResponseFunction;
                 mTimeDomainPlot.StepResponseFunction = mMain.Afd().UnitStepResponseFunction;
-                mTimeDomainPlot.TimeScale = mMain.Afd().TimeDomainFunctionTimeScale;
+                mTimeDomainPlot.CutoffFreq = mMain.IIRFilterDesign().CutoffFreq;
                 mTimeDomainPlot.Update();
 
                 mPoleZeroPlotZ.ClearPoleZero();

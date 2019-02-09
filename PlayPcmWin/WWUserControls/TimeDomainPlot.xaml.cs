@@ -16,6 +16,9 @@ namespace WWUserControls {
 
             TimeRange = 20.0;
             TimeScale = 0.01;
+            CutoffFreq = 1.0;
+            SampleRate = 44100;
+
             mInitialized = true;
         }
 
@@ -27,6 +30,8 @@ namespace WWUserControls {
 
         private double[] mTimeScaleImpulseResponseFunction = {
             0.1,
+            0.2,
+            0.5,
             1.0,
             2.0,
             5.0};
@@ -68,7 +73,9 @@ namespace WWUserControls {
         /// PCMデータ。DiscreteTimeSequenceモードで使用。
         /// </summary>
         private double[] mTimeDomainSequence = new double[1];
-        private int mSampleRate = 44100;
+
+        public long SampleRate {get;set;}
+        public double CutoffFreq { get; set; }
 
         public enum FunctionType {
             ImpulseResponse,
@@ -106,7 +113,7 @@ namespace WWUserControls {
 
         public void SetDiscreteTimeSequence(double[] seq, int sampleRate) {
             mTimeDomainSequence = seq;
-            mSampleRate = sampleRate;
+            SampleRate = sampleRate;
 
             // サンプリング周波数(Hz) と表示サンプル数FR_LINE_WIDTHから表示時間範囲TimeRangeを計算。
             TimeRange = (double)FR_LINE_WIDTH / sampleRate * TimeScale;
@@ -207,7 +214,7 @@ namespace WWUserControls {
         private void UpdateDiscreteTimeSequence() {
             double scale = mTimeScaleDiscrete[comboBoxTimeScale.SelectedIndex];
             TimeScale = scale;
-            TimeRange = (double)FR_LINE_WIDTH / mSampleRate * TimeScale;
+            TimeRange = (double)FR_LINE_WIDTH / SampleRate * TimeScale;
 
             int upsampleFactor = (int)(1.0 / TimeScale);
 
@@ -301,7 +308,7 @@ namespace WWUserControls {
                 {
                     // 時間数値表示。
                     var label = new Label();
-                    label.Content = Common.UnitNumberString(t * TimeScale);
+                    label.Content = Common.UnitNumberString(t / CutoffFreq);
                     canvasTD.Children.Add(label);
                     Canvas.SetLeft(label, FR_LINE_LEFT + idx - 10);
                     Canvas.SetTop(label, FR_LINE_BOTTOM);

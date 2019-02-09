@@ -34,7 +34,7 @@ namespace WWOfflineResampler {
         private double StopbandRippleDb() {
             switch (mMethod) {
             case Method.ImpulseInvarianceMinimumPhase:
-                return -50;
+                return -50; 
             case Method.ImpulseInvarianceMixedPhase:
                 return -110;
             case Method.Bilinear:
@@ -125,7 +125,13 @@ namespace WWOfflineResampler {
             return r;
         }
 
+        public double CutoffFreq { get; set; }
+        public double StopbandEdgeFreq { get; set; }
+
         public bool Design(double fc, double fs, long samplingFreq, Method method) {
+            CutoffFreq = fc;
+            StopbandEdgeFreq = fs;
+
             mMethod = method;
             SamplingFrequency = samplingFreq;
 
