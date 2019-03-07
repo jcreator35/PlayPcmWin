@@ -16,6 +16,7 @@ Run(void)
         printf("%d: %S\n", i, s);
 
         sa.PrintDeviceProperties(i);
+        sa.PrintDeviceTopo(i);
     }
 
     sa.Term();

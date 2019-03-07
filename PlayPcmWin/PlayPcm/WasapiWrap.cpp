@@ -128,7 +128,7 @@ WasapiWrap::Term(void)
 
 static HRESULT
 DeviceNameGet(
-IMMDeviceCollection *dc, UINT id, wchar_t *name, size_t nameBytes)
+        IMMDeviceCollection *dc, UINT id, wchar_t *name, size_t nameBytes)
 {
     HRESULT hr = 0;
 
