@@ -3,5 +3,5 @@
 #include <guiddef.h>
 #include <string>
 
-const std::string
+const std::wstring
 WWGuidToStr(GUID &guid);

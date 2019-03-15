@@ -1,0 +1,39 @@
+﻿<Window x:Class="WWShowAudioStatus.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WWShowAudioStatus"
+        mc:Ignorable="d"
+        Title="WWShowAudioStatus" Height="600" Width="800">
+    <Grid Margin="6,0,6,0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="120"/>
+            <RowDefinition Height="150"/>
+            <RowDefinition Height="300*"/>
+        </Grid.RowDefinitions>
+        <GroupBox Header="Choose Audio Device" >
+            <ListBox Name="mListBoxAudioDevices" SelectionChanged="MListBoxAudioDevices_SelectionChanged" />
+        </GroupBox>
+        <GroupBox Header="AudioEngine status" Grid.Row="1" >
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*"/>
+                </Grid.RowDefinitions>
+                <GroupBox Header="IAudioClient data" Margin="6,0,0,0" >
+                    <TextBox Name="mTextBoxAudioClient"/>
+                </GroupBox>
+                <GroupBox Header="Spatial Audio" Grid.Column="1" Margin="6,0,6,0" >
+                    <TextBox Name="mTextBoxSpatialAudio" />
+                </GroupBox>
+            </Grid>
+        </GroupBox>
+        <GroupBox Header="Audio Device Topology" Grid.Row="2" >
+            <WindowsFormsHost Name="mWFHost" Background="White" />
+        </GroupBox>
+    </Grid>
+</Window>

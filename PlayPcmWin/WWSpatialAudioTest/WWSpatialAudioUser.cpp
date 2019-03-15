@@ -600,7 +600,7 @@ WWSpatialAudioUser::PrintPart(int layer, IPart *part)
 
     HRG(part->GetSubType(&subType));
     PrintLayerIndent(layer);
-    printf("IPart[%p]::GetSubType()=%s\n", part, WWGuidToStr(subType));
+    printf("IPart[%p]::GetSubType()=%s\n", part, WWGuidToStr(subType).c_str());
 
     HRG(part->GetName(&name));
     PrintLayerIndent(layer);
@@ -703,7 +703,7 @@ WWSpatialAudioUser::PrintAudioMute(int layer, IAudioMute *am)
     HRG(am->GetMute(&mute));
 
     PrintLayerIndent(layer);
-    printf("IAudioMute[%p]::GetMute()=%d ##################\n", am, mute);
+    printf("IAudioMute[%p]::GetMute()=%d\n", am, mute);
 
 end:
     return hr;
@@ -720,7 +720,7 @@ WWSpatialAudioUser::PrintAudioVolumeLevel(int layer, IAudioVolumeLevel *avl)
 
     HRG(avl->GetChannelCount(&nCh));
     PrintLayerIndent(layer);
-    printf("IAudioVolumeLevel[%p]::GetChannelCount()=%u ##################\n", avl, nCh);
+    printf("IAudioVolumeLevel[%p]::GetChannelCount()=%u\n", avl, nCh);
 
     for (UINT ch = 0; ch < nCh; ++ch) {
         HRG(avl->GetLevelRange(ch, &minL, &maxL, &stepL));
@@ -747,7 +747,7 @@ WWSpatialAudioUser::PrintAudioPeakMeter(int layer, IAudioPeakMeter *apm)
 
     HRG(apm->GetChannelCount(&nCh));
     PrintLayerIndent(layer);
-    printf("IAudioPeakMeter[%p]::GetChannelCount()=%u ##################\n", apm, nCh);
+    printf("IAudioPeakMeter[%p]::GetChannelCount()=%u\n", apm, nCh);
 
     for (UINT ch = 0; ch < nCh; ++ch) {
         HRG(apm->GetLevel(ch, &curL));
@@ -770,7 +770,7 @@ WWSpatialAudioUser::PrintAudioAutoGainControl(int layer, IAudioAutoGainControl *
 
     HRG(agc->GetEnabled(&bEnabled));
     PrintLayerIndent(layer);
-    printf("IAudioAutoGainControl[%p]::GetEnabled()=%d ##################\n", agc, bEnabled);
+    printf("IAudioAutoGainControl[%p]::GetEnabled()=%d\n", agc, bEnabled);
 
 end:
     return hr;
@@ -787,7 +787,7 @@ WWSpatialAudioUser::PrintAudioBass(int layer, IAudioBass *ab)
 
     HRG(ab->GetChannelCount(&nCh));
     PrintLayerIndent(layer);
-    printf("IAudioBass[%p]::GetChannelCount()=%u ##################\n", ab, nCh);
+    printf("IAudioBass[%p]::GetChannelCount()=%u\n", ab, nCh);
 
     for (UINT ch = 0; ch < nCh; ++ch) {
         HRG(ab->GetLevelRange(ch, &minL, &maxL, &stepL));
@@ -814,7 +814,7 @@ WWSpatialAudioUser::PrintAudioChannelConfig(int layer, IAudioChannelConfig *acc)
 
     HRG(acc->GetChannelConfig(&cc));
     PrintLayerIndent(layer);
-    printf("IAudioChannelConfig[%p]::GetChannelConfig()=0x%x ##################\n", acc, cc);
+    printf("IAudioChannelConfig[%p]::GetChannelConfig()=0x%x\n", acc, cc);
 
 end:
     return hr;
@@ -830,7 +830,7 @@ WWSpatialAudioUser::PrintAudioInputSelector(int layer, IAudioInputSelector *ais)
 
     HRG(ais->GetSelection(&id));
     PrintLayerIndent(layer);
-    printf("IAudioInputSelector[%p]::GetSelection()=%u ##################\n", ais, id);
+    printf("IAudioInputSelector[%p]::GetSelection()=%u\n", ais, id);
 
 end:
     return hr;
@@ -846,7 +846,7 @@ HRESULT WWSpatialAudioUser::PrintAudioLoudness(int layer, IAudioLoudness *al)
 
     HRG(al->GetEnabled(&bEnabled));
     PrintLayerIndent(layer);
-    printf("IAudioLoudness[%p]::GetEnabled()=%d ##################\n", al, bEnabled);
+    printf("IAudioLoudness[%p]::GetEnabled()=%d\n", al, bEnabled);
 
 end:
     return hr;
@@ -862,7 +862,7 @@ HRESULT WWSpatialAudioUser::PrintAudioMidrange(int layer, IAudioMidrange *p)
 
     HRG(p->GetChannelCount(&nCh));
     PrintLayerIndent(layer);
-    printf("IAudioMidrange[%p]::GetChannelCount()=%u ##################\n", p, nCh);
+    printf("IAudioMidrange[%p]::GetChannelCount()=%u\n", p, nCh);
 
     for (UINT ch = 0; ch < nCh; ++ch) {
         HRG(p->GetLevelRange(ch, &minL, &maxL, &stepL));
@@ -887,7 +887,7 @@ HRESULT WWSpatialAudioUser::PrintAudioOutputSelector(int layer, IAudioOutputSele
 
     HRG(aos->GetSelection(&id));
     PrintLayerIndent(layer);
-    printf("IAudioOutputSelector[%p]::GetSelection()=%u ##################\n", aos, id);
+    printf("IAudioOutputSelector[%p]::GetSelection()=%u\n", aos, id);
 
 end:
     return hr;
@@ -903,7 +903,7 @@ HRESULT WWSpatialAudioUser::PrintAudioTreble(int layer, IAudioTreble *p)
 
     HRG(p->GetChannelCount(&nCh));
     PrintLayerIndent(layer);
-    printf("IAudioTreble[%p]::GetChannelCount()=%u ##################\n", p, nCh);
+    printf("IAudioTreble[%p]::GetChannelCount()=%u\n", p, nCh);
 
     for (UINT ch = 0; ch < nCh; ++ch) {
         HRG(p->GetLevelRange(ch, &minL, &maxL, &stepL));
@@ -929,7 +929,7 @@ HRESULT WWSpatialAudioUser::PrintKsJackDesc(int layer, IKsJackDescription *jd)
 
     HRG(jd->GetJackCount(&n));
     PrintLayerIndent(layer);
-    printf("IKsJackDescription[%p]::GetJackCount()=%u ##################\n", jd, n);
+    printf("IKsJackDescription[%p]::GetJackCount()=%u\n", jd, n);
     for (UINT i = 0; i < n; ++i) {
         HRG(jd->GetJackDescription(i, &desc));
 
@@ -960,7 +960,9 @@ HRESULT WWSpatialAudioUser::PrintControlInterface(int layer, int id, IControlInt
     printf("id=%d IControlInterface[%p]::GetName()=%S\n", id, ci, name);
 
     PrintLayerIndent(layer);
-    printf("id=%d IControlInterface[%p]::GetIID()=%s\n", id, ci, WWGuidToStr(guid));
+    printf("id=%d IControlInterface[%p]::GetIID()=%s\n", id, ci, WWGuidToStr(guid).c_str());
+
+    
 
 end:
     return hr;
@@ -978,11 +980,11 @@ HRESULT WWSpatialAudioUser::PrintKsFormatSupport(int layer, IKsFormatSupport *fs
     PrintLayerIndent(layer);
     printf("IKsFormatSupport[%p]::GetDevicePreferredFormat() FormatSize=%u Flags=%u SampleSize=%u\n", fs, kdf->FormatSize, kdf->Flags, kdf->SampleSize);
     PrintLayerIndent(layer);
-    printf("    MajorFormat=%s\n", WWGuidToStr(kdf->MajorFormat));
+    printf("    MajorFormat=%s\n", WWGuidToStr(kdf->MajorFormat).c_str());
     PrintLayerIndent(layer);
-    printf("    SubFormat=%s\n", WWGuidToStr(kdf->SubFormat));
+    printf("    SubFormat=%s\n", WWGuidToStr(kdf->SubFormat).c_str());
     PrintLayerIndent(layer);
-    printf("    Specifier=%s\n", WWGuidToStr(kdf->Specifier));
+    printf("    Specifier=%s\n", WWGuidToStr(kdf->Specifier).c_str());
 
     if (KSDATAFORMAT_TYPE_AUDIO == kdf->MajorFormat
             && KSDATAFORMAT_SUBTYPE_PCM == kdf->SubFormat

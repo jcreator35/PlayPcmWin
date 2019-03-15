@@ -1,5 +1,7 @@
 // 日本語
 
+#define WWMFREADER_EXPORTS
+
 #include "WWMFReader.h"
 #include <SDKDDKVer.h>
 #define WIN32_LEAN_AND_MEAN
@@ -320,15 +322,22 @@ WWMFReaderReadHeader(
 
     HRG(GetDuration(pReader, &hnsDuration));
 
-    // Get IMFMetadataProvider
-    HRG(pReader->GetServiceForStream(MF_SOURCE_READER_MEDIASOURCE,
-            MF_METADATA_PROVIDER_SERVICE,
-            IID_IMFMetadataProvider,
-            (LPVOID*)&pMetaProvider));
     HRG(CreateMediaSource(wszSourceFile, &pMediaSource));
     HRG(pMediaSource->CreatePresentationDescriptor(&pPD));
-    HRG(pMetaProvider->GetMFMetadata(pPD, dwStream, 0, &pMetadata));
-    //DisplayAllMetadata(pMetadata);
+
+    // Get IMFMetadataProvider
+    hr = pReader->GetServiceForStream(MF_SOURCE_READER_MEDIASOURCE,
+        MF_METADATA_PROVIDER_SERVICE,
+        IID_IMFMetadataProvider,
+        (LPVOID*)&pMetaProvider);
+    if (FAILED(hr)) {
+        // メタデータ取得は失敗することがある。
+        // 処理を続行する。
+        hr = S_OK;
+    } else {
+        //DisplayAllMetadata(pMetadata);
+        HRG(pMetaProvider->GetMFMetadata(pPD, dwStream, 0, &pMetadata));
+    }
 
     // 収集。
     meta_return->bitRate = bitrate;
@@ -337,7 +346,9 @@ WWMFReaderReadHeader(
     meta_return->sampleRate = pWfex->nSamplesPerSec;
     meta_return->numApproxFrames =
             (int64_t)((double)hnsDuration * meta_return->sampleRate / (1000 * 1000 * 10));
-    CollectMetadata(pMetadata, *meta_return);
+    if (pMetadata) {
+        CollectMetadata(pMetadata, *meta_return);
+    }
 
 end:
     CoTaskMemFree(pWfex);
@@ -395,7 +406,7 @@ WWMFReaderGetCoverart(
     hr = pMetadata->GetProperty(L"WM/Picture", &var);
     if (SUCCEEDED(hr)) {
         int copyBytes = (int)maxDataBytes;
-        if (var.blob.cbSize < copyBytes) {
+        if ((int)var.blob.cbSize < copyBytes) {
             copyBytes = (int)var.blob.cbSize;
         }
         memcpy(data_return, var.blob.pBlobData, copyBytes);
