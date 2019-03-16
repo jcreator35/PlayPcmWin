@@ -518,7 +518,6 @@ WWShowAudioStatus::CreateDeviceNodeList(int id)
     IMMDevice *device = nullptr;
 
     assert(mDeviceNodes.size() == 0);
-
     assert(mDeviceCollection);
 
     HRG(mDeviceCollection->Item(id, &device));
@@ -532,6 +531,7 @@ WWShowAudioStatus::CreateDeviceNodeList(int id)
     HRG(CollectDeviceTopo1(nullptr, devTopo));
 
 end:
+    // devTopoはmDeviceNodesに入っている：ClearDeviceNodeList()で開放される。
     SafeRelease(&device);
     return hr;
 }
@@ -661,6 +661,8 @@ WWShowAudioStatus::CollectPart(IUnknown *parent, IPart *self)
 {
     HRESULT hr = S_OK;
     LPWSTR name = nullptr;
+    LPWSTR gid = nullptr;
+    UINT ciCount = 0;
     IDeviceTopology *partTopo = nullptr;
     IAudioMute *am = nullptr;
     IAudioVolumeLevel *avl = nullptr;
@@ -676,8 +678,6 @@ WWShowAudioStatus::CollectPart(IUnknown *parent, IPart *self)
     IKsJackDescription *jd = nullptr;
     IControlInterface *ci = nullptr;
     IKsFormatSupport *fs = nullptr;
-    LPWSTR gid = nullptr;
-    UINT ciCount = 0;
 
     ADD_DEVICENODE(WWDeviceNode::T_IPart);
 
@@ -1026,9 +1026,9 @@ HRESULT WWShowAudioStatus::CollectKsFormatSupport(IUnknown *parent, IKsFormatSup
 
     ADD_DEVICENODE(WWDeviceNode::T_IKsFormatSupport);
 
+    // Preferred Format取得。
     HRG(self->GetDevicePreferredFormat(&kdf));
     pDN->fs.df = *kdf;
-
     if (KSDATAFORMAT_TYPE_AUDIO == kdf->MajorFormat
             && KSDATAFORMAT_SUBTYPE_PCM == kdf->SubFormat
             && KSDATAFORMAT_SPECIFIER_WAVEFORMATEX == kdf->Specifier) {
@@ -1052,6 +1052,7 @@ HRESULT WWShowAudioStatus::CollectKsFormatSupport(IUnknown *parent, IKsFormatSup
         pDN->fs.preferredFmt.sampleRate = wfext->Format.nSamplesPerSec;
     }
 
+    // サポートフォーマット一覧取得。
     testDF = (PKSDATAFORMAT)buff;
     testDF->MajorFormat = KSDATAFORMAT_TYPE_AUDIO;
     testDF->SubFormat = KSDATAFORMAT_SUBTYPE_PCM;
@@ -1064,7 +1065,6 @@ HRESULT WWShowAudioStatus::CollectKsFormatSupport(IUnknown *parent, IKsFormatSup
     wfext = (WAVEFORMATEXTENSIBLE*)&buff[sizeof(KSDATAFORMAT)];
     wfext->Format.wFormatTag = 65534;
     wfext->Format.cbSize = 22;
-
     for (int srIdx = 0; srIdx < sizeof gSampleRateList / sizeof gSampleRateList[0]; ++srIdx) {
         int sr = gSampleRateList[srIdx];
         wfext->Format.nSamplesPerSec = sr;

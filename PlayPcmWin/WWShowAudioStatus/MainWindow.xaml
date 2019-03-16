@@ -27,7 +27,7 @@
                 <GroupBox Header="IAudioClient data" Margin="6,0,0,0" >
                     <TextBox Name="mTextBoxAudioClient"/>
                 </GroupBox>
-                <GroupBox Header="Spatial Audio" Grid.Column="1" Margin="6,0,6,0" >
+                <GroupBox Header="Spatial Sound" Grid.Column="1" Margin="6,0,6,0" >
                     <TextBox Name="mTextBoxSpatialAudio" />
                 </GroupBox>
             </Grid>

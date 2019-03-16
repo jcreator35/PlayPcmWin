@@ -14,7 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace WWShowAudioStatus {
-    public partial class MainWindow : Window {
+    public partial class MainWindow : Window, IDisposable {
         private WWShowAudioStatusCs mSAS;
         private int mDefaultIdx;
         private WWShowAudioStatusCs.StateChangedCallback mStateChangedCb;
@@ -514,10 +514,32 @@ namespace WWShowAudioStatus {
         }
 
         private void Window_Closed(object sender, EventArgs e) {
-            if (mSAS != null) {
-                mSAS.Dispose();
-                mSAS = null;
+            Dispose();
+        }
+
+        #region IDisposable Support
+        private bool disposedValue = false;
+
+        protected virtual void Dispose(bool disposing) {
+            if (!disposedValue) {
+                if (disposing) {
+                    if (mSAS != null) {
+                        mSAS.Dispose();
+                        mSAS = null;
+                    }
+                    if (mWFHost != null) {
+                        mWFHost.Dispose();
+                        mWFHost = null;
+                    }
+                }
+
+                disposedValue = true;
             }
         }
+
+        public void Dispose() {
+            Dispose(true);
+        }
+        #endregion
     }
 }
