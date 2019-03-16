@@ -187,7 +187,10 @@ struct WWDeviceNode {
 
 class WWShowAudioStatus : public IWWDeviceStateCallback {
 public:
-    WWShowAudioStatus(void) : stateChangedCallback(nullptr) , mComInit(false), mDeviceCollection(nullptr) { }
+    WWShowAudioStatus(void)
+        : stateChangedCallback(nullptr) , mComInit(false),
+        mDeviceEnumerator(nullptr),
+        mDeviceCollection(nullptr) { }
 
     HRESULT Init(void);
     void Term(void);

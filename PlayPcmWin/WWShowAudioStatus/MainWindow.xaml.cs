@@ -266,7 +266,7 @@ namespace WWShowAudioStatus {
                 sb.Append(string.Format("Default data interval = {0:0.0}ms, Min data interval = {1:0.0}ms\n",
                     mfmt.hnsDevicePeriod * 0.0001, mfmt.hnsMinDevicePeriod * 0.0001));
             }
-            sb.Append(string.Format("IsOffloadCapable={0}\n", mfmt.offloadCapable));
+            //sb.Append(string.Format("IsOffloadCapable={0}\n", mfmt.offloadCapable));
 
             mTextBoxAudioClient.Text = sb.ToString();
         }
@@ -513,5 +513,11 @@ namespace WWShowAudioStatus {
             mSAS.ClearDeviceNodeList();
         }
 
+        private void Window_Closed(object sender, EventArgs e) {
+            if (mSAS != null) {
+                mSAS.Dispose();
+                mSAS = null;
+            }
+        }
     }
 }

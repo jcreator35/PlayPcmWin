@@ -2031,11 +2031,13 @@ namespace PlayPcmWin
 
                 double progressPercentage = loadCompletedPercent * (rpi.trackCount + (double)rpi.readFrames / rpi.WantFramesTotal) / rpi.trackNum;
                 m_readFileWorker.ReportProgress((int)progressPercentage, string.Empty);
+                /* 頻繁に(1Hz以上の頻度で)Log文字列を更新すると描画が止まることがあるので止めた。
                 if (bpsConvArgs != null && bpsConvArgs.noiseShapingOrDitherPerformed) {
                     m_readFileWorker.ReportProgress((int)progressPercentage, string.Format(CultureInfo.InvariantCulture,
                             "{0} {1}/{2} frames done{3}",
                             bpsConvArgs.noiseShaping, rpi.readFrames, rpi.WantFramesTotal, Environment.NewLine));
                 }
+                */
             }
         }
 

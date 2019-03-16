@@ -66,7 +66,6 @@ WWSASDestroyDeviceList(int instanceId)
     FIND_P;
 
     p->DestroyDeviceList();
-end:
     return S_OK;
 }
 

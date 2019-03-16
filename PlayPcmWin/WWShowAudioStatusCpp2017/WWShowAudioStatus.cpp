@@ -250,12 +250,11 @@ WWShowAudioStatus::Init(void)
     return S_OK;
 }
 
-
-
 void
 WWShowAudioStatus::Term(void)
 {
     mNotificationClient.SetCallback(nullptr);
+    stateChangedCallback = nullptr;
     if (mDeviceEnumerator != nullptr) {
         mDeviceEnumerator->UnregisterEndpointNotificationCallback(&mNotificationClient);
         SafeRelease(&mDeviceEnumerator);
@@ -381,11 +380,11 @@ WWShowAudioStatus::GetMixFormat(int id, WWMixFormat &saf_return)
     IAudioClient2 *ac2 = nullptr;
     REFERENCE_TIME hnsDevicePeriod = 0;
     REFERENCE_TIME hnsMinDevicePeriod = 0;
-    REFERENCE_TIME hnsEventMinBufferDuration = 0;
-    REFERENCE_TIME hnsEventMaxBufferDuration = 0;
-    REFERENCE_TIME hnsTimerMinBufferDuration = 0;
-    REFERENCE_TIME hnsTimerMaxBufferDuration = 0;
     BOOL offloadCapable = FALSE;
+    //REFERENCE_TIME hnsEventMinBufferDuration = 0;
+    //REFERENCE_TIME hnsEventMaxBufferDuration = 0;
+    //REFERENCE_TIME hnsTimerMinBufferDuration = 0;
+    //REFERENCE_TIME hnsTimerMaxBufferDuration = 0;
 
     HRG(mDeviceCollection->Item(id, &device));
 

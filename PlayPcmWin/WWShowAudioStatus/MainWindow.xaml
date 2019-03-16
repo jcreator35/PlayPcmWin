@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WWShowAudioStatus"
         mc:Ignorable="d"
-        Title="WWShowAudioStatus" Height="600" Width="800" Loaded="Window_Loaded">
+        Title="WWShowAudioStatus" Height="600" Width="800" Loaded="Window_Loaded" Closed="Window_Closed" >
     <Grid Margin="6,0,6,0">
         <Grid.RowDefinitions>
             <RowDefinition Height="200"/>
