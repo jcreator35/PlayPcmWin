@@ -6,10 +6,12 @@
 #include "WWUtil.h"
 #include <map>
 #include <assert.h>
+#include "WWMMNotificationClient.h"
 
 static int gNextInstanceId = 100;
 
 std::map<int, WWShowAudioStatus*> gInstanceMap;
+
 
 WWSHOWAUDIOSTATUS_API int __stdcall
 WWSASInit(void)
@@ -19,8 +21,6 @@ WWSASInit(void)
 
     auto *p = new WWShowAudioStatus();
     HRG(p->Init());
-
-    HRG(p->DoDeviceEnumeration());
 
     gInstanceMap[instanceId] = p;
     hr = instanceId;
@@ -49,7 +49,29 @@ WWSASTerm(int instanceId)
 }
 
 WWSHOWAUDIOSTATUS_API int __stdcall
-WWSASGetAudioRenderDeviceCount(int instanceId)
+WWSASCreateDeviceList(int instanceId, int dataFlow)
+{
+    HRESULT hr = S_OK;
+    FIND_P;
+
+    HRG(p->CreateDeviceList((EDataFlow)dataFlow));
+end:
+    return S_OK;
+}
+
+WWSHOWAUDIOSTATUS_API int __stdcall
+WWSASDestroyDeviceList(int instanceId)
+{
+    HRESULT hr = S_OK;
+    FIND_P;
+
+    p->DestroyDeviceList();
+end:
+    return S_OK;
+}
+
+WWSHOWAUDIOSTATUS_API int __stdcall
+WWSASGetDeviceCount(int instanceId)
 {
     FIND_P;
 
@@ -58,7 +80,7 @@ WWSASGetAudioRenderDeviceCount(int instanceId)
 
 
 WWSHOWAUDIOSTATUS_API int __stdcall
-WWSASGetAudioRenderDeviceParams(
+WWSASGetDeviceParams(
     int instanceId,
     int idx,
     WWSASAudioDeviceParams * params_return)
@@ -279,14 +301,14 @@ WWSASGetControlInterfaceParams(
 
 
 WWSHOWAUDIOSTATUS_API int __stdcall
-WWSASGetKsFormatPrefferedFmt(
+WWSASGetKsFormatpreferredFmt(
     int instanceId,
     int idx,
     WWKsFormat *param_return)
 {
     PROLOGUE_PARAMS(WWDeviceNode::T_IKsFormatSupport);
 
-    *param_return = dn.fs.prefferedFmt;
+    *param_return = dn.fs.preferredFmt;
 
     return S_OK;
 }
@@ -330,3 +352,12 @@ WWSASGetKsFormatSupportedFmtNth(
     return S_OK;
 }
 
+
+WWSHOWAUDIOSTATUS_API int __stdcall
+WWSASRegisterStateChangedCallback(int instanceId, WWStateChanged callback)
+{
+    FIND_P;
+
+    p->stateChangedCallback = callback;
+    return S_OK;
+}

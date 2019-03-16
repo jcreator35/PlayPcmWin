@@ -16,6 +16,7 @@
 
 #define WW_NUM_CHANNELS (64)
 
+
 struct WWSASAudioDeviceParams {
     int id;
     int isDefaultDevice;
@@ -31,7 +32,6 @@ struct WWSASPcmFormat {
     int validBitsPerSample; ///< PCMの量子化ビット数。
 };
 
-
 /// インスタンスの番号が戻る。
 WWSHOWAUDIOSTATUS_API int __stdcall
 WWSASInit(void);
@@ -40,16 +40,26 @@ WWSASInit(void);
 WWSHOWAUDIOSTATUS_API int __stdcall
 WWSASTerm(int instanceId);
 
-/// AudioRenderデバイスの数を数える。
 WWSHOWAUDIOSTATUS_API int __stdcall
-WWSASGetAudioRenderDeviceCount(int instanceId);
+WWSASRegisterStateChangedCallback(int instanceId, WWStateChanged callback);
+
+// デバイスリスト。■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
 WWSHOWAUDIOSTATUS_API int __stdcall
-WWSASGetAudioRenderDeviceParams(
+WWSASCreateDeviceList(int instanceId, int dataFlow);
+
+WWSHOWAUDIOSTATUS_API int __stdcall
+WWSASDestroyDeviceList(int instanceId);
+
+/// AudioRenderデバイスの数を戻す。
+WWSHOWAUDIOSTATUS_API int __stdcall
+WWSASGetDeviceCount(int instanceId);
+
+WWSHOWAUDIOSTATUS_API int __stdcall
+WWSASGetDeviceParams(
     int instanceId,
     int idx,
     WWSASAudioDeviceParams * params_return);
-
 
 WWSHOWAUDIOSTATUS_API int __stdcall
 WWSASGetMixFormat(
@@ -62,6 +72,8 @@ WWSASGetSpatialAudioParams(
     int instanceId,
     int idx,
     WWSpatialAudioParams * sap_return);
+
+// デバイスノード。■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
 struct WWDeviceNodeIF {
     uint64_t self;
@@ -166,7 +178,7 @@ WWSASGetControlInterfaceParams(
     WWControlInterfaceIF *param_return);
 
 WWSHOWAUDIOSTATUS_API int __stdcall
-WWSASGetKsFormatPrefferedFmt(
+WWSASGetKsFormatpreferredFmt(
     int instanceId,
     int idx,
     WWKsFormat *param_return);

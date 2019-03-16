@@ -17,6 +17,7 @@ namespace WWShowAudioStatus {
     public partial class MainWindow : Window {
         private WWShowAudioStatusCs mSAS;
         private int mDefaultIdx;
+        private WWShowAudioStatusCs.StateChangedCallback mStateChangedCb;
 
         public MainWindow() {
             InitializeComponent();
@@ -24,10 +25,29 @@ namespace WWShowAudioStatus {
             mSAS = new WWShowAudioStatusCs();
             mDefaultIdx = -1;
 
+            AudioDeviceListStart();
             UpdateAudioDeviceList();
             UpdateAudioClientData();
             UpdateSpatialAudioData();
             UpdateDeviceNodeGraph();
+        }
+
+        private void StatusChanged(StringBuilder idStr, int dwNewState) {
+            Dispatcher.BeginInvoke(new Action(delegate () {
+                // 描画スレッドで実行。
+                AudioDeviceListEnd();
+
+                AudioDeviceListStart();
+                UpdateAudioDeviceList();
+                UpdateAudioClientData();
+                UpdateSpatialAudioData();
+                UpdateDeviceNodeGraph();
+            }));
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e) {
+            mStateChangedCb = new WWShowAudioStatusCs.StateChangedCallback(StatusChanged);
+            mSAS.RegisterStateChangedCallback(mStateChangedCb);
         }
 
         private int AudioObjectTypeToSpeakerCount(int mask) {
@@ -275,13 +295,21 @@ namespace WWShowAudioStatus {
             mTextBoxSpatialAudio.Text = sb.ToString();
         }
 
+        private void AudioDeviceListStart() {
+            mSAS.CreateDeviceList(WWShowAudioStatusCs.WWDataFlow.Render);
+        }
+
+        private void AudioDeviceListEnd() {
+            mSAS.DestroyDeviceList();
+        }
+
         private void UpdateAudioDeviceList() {
             mListBoxAudioDevices.Items.Clear();
 
-            int nDevices = mSAS.GetAudioRenderDeviceCount();
+            int nDevices = mSAS.GetDeviceCount();
             mDefaultIdx = -1;
             for (int i=0; i<nDevices;++i) {
-                var item = mSAS.GetAudioDeviceParams(i);
+                var item = mSAS.GetDeviceParams(i);
                 mListBoxAudioDevices.Items.Add(string.Format("{0} : {1} {2}", i, item.name,
                     item.defaultDevice ? "■■ Default Device ■■" : ""));
 
@@ -316,15 +344,21 @@ namespace WWShowAudioStatus {
             //viewer.ForeColor = System.Drawing.Color.Gray;
             var graph = new Microsoft.Msagl.Drawing.Graph("DeviceNodeGraph");
 
+
             // DeviceNodeのリストを作る。
             var dnList = new List<WWShowAudioStatusCs.DeviceNode>();
 
             mSAS.CreateDeviceNodeList(mListBoxAudioDevices.SelectedIndex);
+
             for (int i = 0; i < mSAS.GetDeviceNodeNum(); ++i) {
                 var dn = mSAS.GetDeviceNodeNth(i);
                 dnList.Add(dn);
                 string name = string.Format("{0:x}", dn.self);
                 string parentName = string.Format("{0:x}", dn.parent);
+
+                if (dn.parent != 0) {
+                    graph.AddEdge(parentName, name);
+                }
 
                 Microsoft.Msagl.Drawing.Node n = null;
                 if (dn.type != WWShowAudioStatusCs.DeviceNodeType.T_Pointer) {
@@ -333,10 +367,23 @@ namespace WWShowAudioStatus {
                 } else {
                     n = graph.FindNode(name);
                 }
+                n.Attr.LabelMargin = 10;
 
                 if (i == 0) {
                     n.Attr.LineWidth = 3;
                     n.Attr.Color = new Microsoft.Msagl.Drawing.Color(0, 0, 255);
+                    //n.Attr.Shape = Microsoft.Msagl.Drawing.Shape.Ellipse;
+                    {
+                        // 説明文追加。
+                        string desc = "description";
+                        graph.AddNode(desc);
+                        var nC = graph.FindNode(desc);
+                        nC.Attr.Shape = Microsoft.Msagl.Drawing.Shape.Ellipse;
+                        nC.LabelText =
+                            "24_24bit : 24bit data in 24bit-size container\n"
+                            + "24_32bit : 24bit data in 32bit-size container\n";
+                        graph.AddEdge(name, desc).IsVisible = false ;
+                    }
                 }
 
                 switch (dn.type) {
@@ -347,6 +394,7 @@ namespace WWShowAudioStatus {
                         n.LabelText = string.Format("{0}\n{1}\nLocalId={2}",
                             dn.type, p.name, p.localId);
                         n.Attr.LineWidth = 3;
+                        //n.Attr.Shape = Microsoft.Msagl.Drawing.Shape.Ellipse;
                     }
                     break;
                 case WWShowAudioStatusCs.DeviceNodeType.IAudioMute: { 
@@ -354,6 +402,7 @@ namespace WWShowAudioStatus {
                         n.LabelText = string.Format("{0}\n  {1}",
                             dn.type, p.bEnabled ? "Muted" : "Not Muted");
                         n.Attr.LineWidth = 3;
+                        //n.Attr.Shape = Microsoft.Msagl.Drawing.Shape.Ellipse;
                     }
                     break;
                 case WWShowAudioStatusCs.DeviceNodeType.IAudioInputSelector: {
@@ -361,6 +410,7 @@ namespace WWShowAudioStatus {
                         n.LabelText = string.Format("{0}\n  InputNr={1}",
                             dn.type, p.id);
                         n.Attr.LineWidth = 3;
+                        //n.Attr.Shape = Microsoft.Msagl.Drawing.Shape.Ellipse;
                     }
                     break;
                 case WWShowAudioStatusCs.DeviceNodeType.IAudioChannelConfig: {
@@ -368,6 +418,7 @@ namespace WWShowAudioStatus {
                         n.LabelText = string.Format("{0}\n{1}",
                             dn.type, DwChannelMaskToLongStr(mask));
                         n.Attr.LineWidth = 3;
+                        //n.Attr.Shape = Microsoft.Msagl.Drawing.Shape.Ellipse;
                     }
                     break;
                 case WWShowAudioStatusCs.DeviceNodeType.IAudioVolumeLevel: {
@@ -380,6 +431,7 @@ namespace WWShowAudioStatus {
                         }
                         n.LabelText = sb.ToString();
                         n.Attr.LineWidth = 3;
+                        //n.Attr.Shape = Microsoft.Msagl.Drawing.Shape.Ellipse;
                     }
                     break;
                     /*
@@ -396,6 +448,7 @@ namespace WWShowAudioStatus {
                         sb.AppendFormat("{0}\n  {1} items", dn.type, p.descs.Length);
                         n.LabelText = sb.ToString();
                         n.Attr.LineWidth = 3;
+                        //n.Attr.Shape = Microsoft.Msagl.Drawing.Shape.Ellipse;
 
                         for (int j = 0; j < p.descs.Length; ++j) {
                             var d = p.descs[j];
@@ -412,20 +465,23 @@ namespace WWShowAudioStatus {
                             jn.Attr.Color = new Microsoft.Msagl.Drawing.Color(
                                 (byte)((d.Color >> 16)&0xff), (byte)((d.Color >> 8)&0xff), (byte)((d.Color >> 0)&0xff));
                             jn.Attr.LineWidth = 3;
+                            jn.Attr.LabelMargin = 10;
+                            //jn.Attr.Shape = Microsoft.Msagl.Drawing.Shape.Ellipse;
 
                             graph.AddEdge(name, jackName);
                         }
                     }
                     break;
                 case WWShowAudioStatusCs.DeviceNodeType.IKsFormatSupport: {
-                        var p = mSAS.GetKsFormatPrefferedFmt(i);
-                        n.LabelText = string.Format("{0}\n Preffered format = {1}kHz {2}_{3}bit {4}\n{5}",
+                        var p = mSAS.GetKsFormatpreferredFmt(i);
+                        n.LabelText = string.Format("{0}\n preferred format = {1}kHz {2}_{3}bit {4}\n{5}",
                             dn.type,
                             p.sampleRate * 0.001,
                             p.validBitsPerSample, p.containerBitsPerSample,
                             p.bFloat ? "float" : "",
                             NumChannelsListToStr(p.numChannels));
                         n.Attr.LineWidth = 3;
+                        //n.Attr.Shape = Microsoft.Msagl.Drawing.Shape.Ellipse;
 
                         int nFmt = mSAS.GetKsFormatSupportedFmtNum(i);
                         for (int j=0; j<nFmt;++j) {
@@ -439,6 +495,7 @@ namespace WWShowAudioStatus {
                                 sfmt.validBitsPerSample, sfmt.containerBitsPerSample,
                                 sfmt.bFloat ? "float" : "",
                                 NumChannelsListToStr(sfmt.numChannels));
+                            sn.Attr.LabelMargin = 10;
                             graph.AddEdge(name, sfmtName);
                         }
                     }
@@ -448,10 +505,6 @@ namespace WWShowAudioStatus {
                     break;
                 }
 
-                if (dn.parent != 0) {
-                    graph.AddEdge(parentName, name);
-                }
-
             }
 
             viewer.Graph = graph;
@@ -459,5 +512,6 @@ namespace WWShowAudioStatus {
 
             mSAS.ClearDeviceNodeList();
         }
+
     }
 }

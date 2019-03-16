@@ -1,3 +1,5 @@
+﻿// 日本語。
+
 #pragma once
 #include <Windows.h>
 #include <MMDeviceAPI.h>
@@ -10,8 +12,11 @@
 #include <devicetopology.h>
 #include <set>
 #include <string>
+#include "WWMMNotificationClient.h"
 
 #define WW_DEVICE_NAME_COUNT (256)
+
+typedef void(__stdcall WWStateChanged)(LPCWSTR deviceIdStr, int dwNewState);
 
 struct WWDeviceInf {
     int id;
@@ -128,7 +133,7 @@ struct WWKsFormat {
 
 struct WWKsFormatSupport {
     KSDATAFORMAT df;
-    WWKsFormat prefferedFmt;
+    WWKsFormat preferredFmt;
     std::vector<WWKsFormat> supportFmts;
 };
 
@@ -180,34 +185,42 @@ struct WWDeviceNode {
     WWKsFormatSupport fs;
 };
 
-class WWShowAudioStatus {
+class WWShowAudioStatus : public IWWDeviceStateCallback {
 public:
-    WWShowAudioStatus(void) : mComInit(false), mDeviceCollection(nullptr) { }
+    WWShowAudioStatus(void) : stateChangedCallback(nullptr) , mComInit(false), mDeviceCollection(nullptr) { }
+
     HRESULT Init(void);
     void Term(void);
 
-    HRESULT DoDeviceEnumeration(void);
+    HRESULT CreateDeviceList(EDataFlow dataFlow);
     int GetDeviceCount(void);
     bool GetDeviceName(int id, LPWSTR name, size_t nameBytes);
     bool IsDefaultDevice(int id);
-
     HRESULT GetMixFormat(int id, WWMixFormat &saf_return);
-
     HRESULT GetSpatialAudioParams(int id, WWSpatialAudioParams &sap_return);
+    void DestroyDeviceList(void);
 
     HRESULT CreateDeviceNodeList(int id);
-
     int NumOfDeviceNodes(void) const { return (int)mDeviceNodes.size(); }
-
     HRESULT GetDeviceNodeNth(int nth, WWDeviceNode &dn_return);
-
     void ClearDeviceNodeList(void);
 
+    WWStateChanged * stateChangedCallback;
+
+    // implements IWWDeviceStateCallback
+    virtual HRESULT OnDeviceStateChanged(LPCWSTR pwstrDeviceId, DWORD dwNewState) override {
+        if (stateChangedCallback) {
+            stateChangedCallback(pwstrDeviceId, dwNewState);
+        }
+        return S_OK;
+    }
 
 private:
     bool mComInit;
     std::vector<WWDeviceInf> mDeviceInf;
+    IMMDeviceEnumerator *mDeviceEnumerator;
     IMMDeviceCollection *mDeviceCollection;
+    WWMMNotificationClient mNotificationClient;
 
     std::vector<WWDeviceNode> mDeviceNodes;
 

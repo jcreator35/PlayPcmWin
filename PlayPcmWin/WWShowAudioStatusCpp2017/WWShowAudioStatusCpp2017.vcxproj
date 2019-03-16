@@ -153,6 +153,7 @@
   <ItemGroup>
     <ClInclude Include="targetver.h" />
     <ClInclude Include="WWGuidToStr.h" />
+    <ClInclude Include="WWMMNotificationClient.h" />
     <ClInclude Include="WWShowAudioStatusCppIF.h" />
     <ClInclude Include="WWShowAudioStatus.h" />
     <ClInclude Include="WWUtil.h" />
@@ -160,6 +161,7 @@
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="WWGuidToStr.cpp" />
+    <ClCompile Include="WWMMNotificationClient.cpp" />
     <ClCompile Include="WWShowAudioStatusCppIF.cpp" />
     <ClCompile Include="WWShowAudioStatus.cpp" />
     <ClCompile Include="WWUtil.cpp" />

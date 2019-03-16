@@ -5,10 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WWShowAudioStatus"
         mc:Ignorable="d"
-        Title="WWShowAudioStatus" Height="600" Width="800">
+        Title="WWShowAudioStatus" Height="600" Width="800" Loaded="Window_Loaded">
     <Grid Margin="6,0,6,0">
         <Grid.RowDefinitions>
-            <RowDefinition Height="120"/>
+            <RowDefinition Height="200"/>
             <RowDefinition Height="150"/>
             <RowDefinition Height="300*"/>
         </Grid.RowDefinitions>

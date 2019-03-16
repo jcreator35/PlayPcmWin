@@ -17,24 +17,38 @@ namespace WWShowAudioStatus
             }
         }
 
-        public int GetAudioRenderDeviceCount() {
-            return NativeMethods.WWSASGetAudioRenderDeviceCount(mInstanceId);
+        public enum WWDataFlow {
+            Render,
+            Capture,
+            All,
+        };
+
+        public int CreateDeviceList(WWDataFlow df) {
+            return NativeMethods.WWSASCreateDeviceList(mInstanceId, (int)df);
         }
 
-        public class AudioDeviceParams {
+        public int DestroyDeviceList() {
+            return NativeMethods.WWSASDestroyDeviceList(mInstanceId);
+        }
+
+        public int GetDeviceCount() {
+            return NativeMethods.WWSASGetDeviceCount(mInstanceId);
+        }
+
+        public class DeviceParams {
             public int id;
             public bool defaultDevice;
             public string name;
         }
 
-        public AudioDeviceParams GetAudioDeviceParams(int idx) {
+        public DeviceParams GetDeviceParams(int idx) {
             var nadp = new NativeMethods.NativeAudioDeviceParams();
-            int hr = NativeMethods.WWSASGetAudioRenderDeviceParams(mInstanceId, idx, ref nadp);
+            int hr = NativeMethods.WWSASGetDeviceParams(mInstanceId, idx, ref nadp);
             if (hr < 0) {
                 throw new IndexOutOfRangeException();
             }
 
-            var adp = new AudioDeviceParams();
+            var adp = new DeviceParams();
             adp.id = nadp.id;
             adp.defaultDevice = nadp.isDefaultDevice != 0;
             adp.name = nadp.name;
@@ -92,6 +106,15 @@ namespace WWShowAudioStatus
             return r;
         }
 
+        /// <summary>
+        /// デバイスが消えたとかのイベント。
+        /// </summary>
+        /// <param name="idStr">デバイスのID。</param>
+        /// <param name="dwNewState">WasapiDeviceState型の値のOR</param>
+        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode)]
+        public delegate void StateChangedCallback(StringBuilder idStr, int dwNewState);
+
+
         internal static class NativeMethods {
             public const int TEXT_STRSZ = 256;
 
@@ -146,11 +169,20 @@ namespace WWShowAudioStatus
                 int instanceId);
 
             [DllImport("WWShowAudioStatusCpp.dll", CharSet = CharSet.Unicode)]
-            internal extern static int WWSASGetAudioRenderDeviceCount(
+            internal extern static int WWSASRegisterStateChangedCallback(int instanceId, StateChangedCallback callback);
+
+            [DllImport("WWShowAudioStatusCpp.dll", CharSet = CharSet.Unicode)]
+            internal extern static int WWSASCreateDeviceList(int instanceId, int dataFlow);
+
+            [DllImport("WWShowAudioStatusCpp.dll", CharSet = CharSet.Unicode)]
+            internal extern static int WWSASDestroyDeviceList(int instanceId);
+
+            [DllImport("WWShowAudioStatusCpp.dll", CharSet = CharSet.Unicode)]
+            internal extern static int WWSASGetDeviceCount(
                 int instanceId);
 
             [DllImport("WWShowAudioStatusCpp.dll", CharSet = CharSet.Unicode)]
-            internal extern static int WWSASGetAudioRenderDeviceParams(
+            internal extern static int WWSASGetDeviceParams(
                 int instanceId,
                 int idx,
                 ref NativeAudioDeviceParams adp);
@@ -300,7 +332,7 @@ namespace WWShowAudioStatus
                 int idx);
 
             [DllImport("WWShowAudioStatusCpp.dll", CharSet = CharSet.Unicode)]
-            internal extern static int WWSASGetKsFormatPrefferedFmt(
+            internal extern static int WWSASGetKsFormatpreferredFmt(
                 int instanceId,
                 int idx,
                 ref NativeKsFormat param_return);
@@ -547,9 +579,9 @@ namespace WWShowAudioStatus
             1, 2, 4, 6, 8,
         };
 
-        public WWKsFormat GetKsFormatPrefferedFmt(int idx) {
+        public WWKsFormat GetKsFormatpreferredFmt(int idx) {
             var np = new NativeMethods.NativeKsFormat();
-            int hr = NativeMethods.WWSASGetKsFormatPrefferedFmt(mInstanceId, idx, ref np);
+            int hr = NativeMethods.WWSASGetKsFormatpreferredFmt(mInstanceId, idx, ref np);
             var p = new WWKsFormat();
             p.bFloat = np.bFloat != 0;
             p.containerBitsPerSample = np.containerBitsPerSample;
@@ -588,6 +620,10 @@ namespace WWShowAudioStatus
 
         public int GetAudioChannelConfig(int idx) {
             return NativeMethods.WWSASGetAudioChannelConfig(mInstanceId, idx);
+        }
+
+        public void RegisterStateChangedCallback(StateChangedCallback callback) {
+            NativeMethods. WWSASRegisterStateChangedCallback(mInstanceId, callback);
         }
 
         #region IDisposable Support

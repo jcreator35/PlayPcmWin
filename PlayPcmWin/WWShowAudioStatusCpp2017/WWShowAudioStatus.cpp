@@ -244,6 +244,9 @@ WWShowAudioStatus::Init(void)
         mComInit = false;
     }
 
+    stateChangedCallback = nullptr;
+    mNotificationClient.SetCallback(this);
+
     return S_OK;
 }
 
@@ -252,38 +255,59 @@ WWShowAudioStatus::Init(void)
 void
 WWShowAudioStatus::Term(void)
 {
+    mNotificationClient.SetCallback(nullptr);
+    if (mDeviceEnumerator != nullptr) {
+        mDeviceEnumerator->UnregisterEndpointNotificationCallback(&mNotificationClient);
+        SafeRelease(&mDeviceEnumerator);
+    }
+
+    SafeRelease(&mDeviceCollection);
 
     if (mComInit) {
         CoUninitialize();
         mComInit = false;
     }
+}
 
+void
+WWShowAudioStatus::DestroyDeviceList(void)
+{
+    SafeRelease(&mDeviceCollection);
+
+    if (mDeviceEnumerator != nullptr) {
+        mDeviceEnumerator->UnregisterEndpointNotificationCallback(&mNotificationClient);
+    }
+    SafeRelease(&mDeviceEnumerator);
+
+    mDeviceInf.clear();
 }
 
 HRESULT
-WWShowAudioStatus::DoDeviceEnumeration(void)
+WWShowAudioStatus::CreateDeviceList(EDataFlow dataFlow)
 {
     HRESULT hr = 0;
-    IMMDeviceEnumerator *devEnum = nullptr;
-
     IMMDevice *defaultDevice = nullptr;
     LPWSTR pDefaultId = nullptr;
-
     IMMDevice *device = nullptr;
     LPWSTR pId = nullptr;
+    UINT nDevices = 0;
 
+    // create deviceEnumerator
+    assert(mDeviceEnumerator == nullptr);
     HRR(CoCreateInstance(__uuidof(MMDeviceEnumerator),
-        nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&devEnum)));
+        nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&mDeviceEnumerator)));
+    mDeviceEnumerator->RegisterEndpointNotificationCallback(&mNotificationClient);
 
-    HRR(devEnum->EnumAudioEndpoints(
-        eRender, DEVICE_STATE_ACTIVE, &mDeviceCollection));
-
-    devEnum->GetDefaultAudioEndpoint(eRender, eMultimedia, &defaultDevice);
+    mDeviceEnumerator->GetDefaultAudioEndpoint(dataFlow, eMultimedia, &defaultDevice);
     if (nullptr != defaultDevice) {
         defaultDevice->GetId(&pDefaultId);
     }
 
-    UINT nDevices = 0;
+    // create deviceCollection
+    assert(mDeviceCollection == nullptr);
+    HRR(mDeviceEnumerator->EnumAudioEndpoints(
+        dataFlow, DEVICE_STATE_ACTIVE, &mDeviceCollection));
+
     HRG(mDeviceCollection->GetCount(&nDevices));
 
     for (UINT i = 0; i < nDevices; ++i) {
@@ -312,7 +336,6 @@ end:
     CoTaskMemFree(pDefaultId);
     SafeRelease(&device);
     SafeRelease(&defaultDevice);
-    SafeRelease(&devEnum);
     return hr;
 }
 
@@ -1015,19 +1038,19 @@ HRESULT WWShowAudioStatus::CollectKsFormatSupport(IUnknown *parent, IKsFormatSup
         int valid = wfext->Format.wBitsPerSample;
         int container = wfext->Format.wBitsPerSample;
 
-        pDN->fs.prefferedFmt.containerBitsPerSample = wfext->Format.wBitsPerSample;
+        pDN->fs.preferredFmt.containerBitsPerSample = wfext->Format.wBitsPerSample;
         if (22 <= wfext->Format.cbSize) {
-            pDN->fs.prefferedFmt.validBitsPerSample = wfext->Samples.wValidBitsPerSample;
-            pDN->fs.prefferedFmt.bFloat = (wfext->SubFormat == KSDATAFORMAT_SUBTYPE_IEEE_FLOAT);
+            pDN->fs.preferredFmt.validBitsPerSample = wfext->Samples.wValidBitsPerSample;
+            pDN->fs.preferredFmt.bFloat = (wfext->SubFormat == KSDATAFORMAT_SUBTYPE_IEEE_FLOAT);
         } else {
-            pDN->fs.prefferedFmt.validBitsPerSample = wfext->Format.wBitsPerSample;
-            pDN->fs.prefferedFmt.bFloat = 0;
+            pDN->fs.preferredFmt.validBitsPerSample = wfext->Format.wBitsPerSample;
+            pDN->fs.preferredFmt.bFloat = 0;
         }
         for (int i = 0; i < sizeof gChannelParams / sizeof gChannelParams[0]; ++i) {
-            pDN->fs.prefferedFmt.ch[i] = 0;
+            pDN->fs.preferredFmt.ch[i] = 0;
         }
-        pDN->fs.prefferedFmt.ch[NumChannelsToChIdx(wfext->Format.nChannels)] = 1;
-        pDN->fs.prefferedFmt.sampleRate = wfext->Format.nSamplesPerSec;
+        pDN->fs.preferredFmt.ch[NumChannelsToChIdx(wfext->Format.nChannels)] = 1;
+        pDN->fs.preferredFmt.sampleRate = wfext->Format.nSamplesPerSec;
     }
 
     testDF = (PKSDATAFORMAT)buff;
