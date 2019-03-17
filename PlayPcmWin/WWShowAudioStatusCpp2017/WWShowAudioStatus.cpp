@@ -218,7 +218,7 @@ static const char *
 EPxcPortConnectionToStr(EPxcPortConnection t)
 {
     switch (t) {
-    case     ePortConnJack: return "Jack";
+    case ePortConnJack: return "Jack";
     case ePortConnIntegratedDevice: return "IntegratedDevice";
     case ePortConnBothIntegratedAndJack: return "BothIntegratedAndJack";
     case ePortConnUnknown: return "Unknown";
@@ -417,7 +417,8 @@ WWShowAudioStatus::GetMixFormat(int id, WWMixFormat &saf_return)
 
     HRG(ac2->IsOffloadCapable(AudioCategory_Media, &offloadCapable));
     saf_return.offloadCapable = offloadCapable;
-    /*
+
+    /* 失敗する。
     HRG(ac2->GetBufferSizeLimits(wfex, TRUE, &hnsEventMinBufferDuration, &hnsEventMaxBufferDuration));
     HRG(ac2->GetBufferSizeLimits(wfex, FALSE, &hnsTimerMinBufferDuration, &hnsTimerMaxBufferDuration));
 
