@@ -1020,9 +1020,10 @@ HRESULT WWShowAudioStatus::CollectKsFormatSupport(IUnknown *parent, IKsFormatSup
     PKSDATAFORMAT testDF = nullptr;
     WAVEFORMATEXTENSIBLE *wfext;
 
-    int szKDF = sizeof(KSDATAFORMAT);
-    int szWFEX = sizeof(WAVEFORMATEX);
-    int szWFEXT = sizeof(WAVEFORMATEXTENSIBLE);
+    //int szKDF = sizeof(KSDATAFORMAT);
+    //int szWFEX = sizeof(WAVEFORMATEX);
+    //int szWFEXT = sizeof(WAVEFORMATEXTENSIBLE);
+    // szKDF + szWFEXT == 104
 
     ADD_DEVICENODE(WWDeviceNode::T_IKsFormatSupport);
 
