@@ -291,6 +291,8 @@ WWShowAudioStatus::CreateDeviceList(EDataFlow dataFlow)
     LPWSTR pId = nullptr;
     UINT nDevices = 0;
 
+    mDataFlow = dataFlow;
+
     // create deviceEnumerator
     assert(mDeviceEnumerator == nullptr);
     HRR(CoCreateInstance(__uuidof(MMDeviceEnumerator),
@@ -323,7 +325,7 @@ WWShowAudioStatus::CreateDeviceList(EDataFlow dataFlow)
             bDefault = true;
         }
 
-        mDeviceInf.push_back(WWDeviceInf(i, bDefault, name));
+        mDeviceInf.push_back(WWDeviceInf(i, bDefault, dataFlow, name));
 
         CoTaskMemFree(pId);
         pId = nullptr;
@@ -597,6 +599,7 @@ WWShowAudioStatus::CollectDeviceTopo1(IUnknown *parent, IDeviceTopology *self)
     //printf("IDeviceTopology::GetDeviceId=%S\n", devIdStr);
 
     HRG(self->GetSubunitCount(&nSubunit));
+
     for (UINT i = 0; i < nSubunit; ++i) {
         HRG(self->GetSubunit(i, &subUnit));
         HRG(CollectSubunit(self, subUnit));

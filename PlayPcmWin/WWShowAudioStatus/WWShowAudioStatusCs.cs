@@ -60,10 +60,6 @@ namespace WWShowAudioStatus {
             public bool offloadCapable;
             public long hnsDevicePeriod;
             public long hnsMinDevicePeriod;
-            public long hnsEventMin;
-            public long hnsEventMax;
-            public long hnsTimerMin;
-            public long hnsTimerMax;
         }
 
         public MixFormat GetMixFormat(int idx) {
@@ -77,10 +73,6 @@ namespace WWShowAudioStatus {
             r.offloadCapable = nmf.offloadCapable !=0;
             r.hnsDevicePeriod = nmf.hnsDevicePeriod;
             r.hnsMinDevicePeriod = nmf.hnsMinDevicePeriod;
-            r.hnsEventMin = nmf.hnsEventMin;
-            r.hnsEventMax = nmf.hnsEventMax;
-            r.hnsTimerMin = nmf.hnsTimerMin;
-            r.hnsTimerMax = nmf.hnsTimerMax;
             return r;
         }
 

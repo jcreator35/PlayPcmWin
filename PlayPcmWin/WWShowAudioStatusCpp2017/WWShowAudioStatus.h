@@ -21,6 +21,7 @@ typedef void(__stdcall WWStateChanged)(LPCWSTR deviceIdStr, int dwNewState);
 struct WWDeviceInf {
     int id;
     bool isDefaultDevice;
+    EDataFlow dataFlow;
     wchar_t name[WW_DEVICE_NAME_COUNT];
 
     WWDeviceInf(void) {
@@ -29,9 +30,10 @@ struct WWDeviceInf {
         name[0] = 0;
     }
 
-    WWDeviceInf(int id, bool isDefaultDevice, const wchar_t * name) {
+    WWDeviceInf(int id, bool isDefaultDevice, EDataFlow df, const wchar_t * name) {
         this->id = id;
         this->isDefaultDevice = isDefaultDevice;
+        dataFlow = df;
         wcsncpy_s(this->name, _countof(this->name), name, _TRUNCATE);
     }
 };
@@ -43,10 +45,6 @@ struct WWMixFormat {
     int offloadCapable;
     int64_t hnsDevicePeriod;
     int64_t hnsMinDevicePeriod;
-    int64_t hnsEventMinBufferDuration;
-    int64_t hnsEventMaxBufferDuration;
-    int64_t hnsTimerMinBufferDuration;
-    int64_t hnsTimerMaxBufferDuration;
 };
 
 
@@ -226,6 +224,7 @@ private:
     WWMMNotificationClient mNotificationClient;
 
     std::vector<WWDeviceNode> mDeviceNodes;
+    EDataFlow mDataFlow;
 
     bool AlreadyHave(IUnknown *p);
 

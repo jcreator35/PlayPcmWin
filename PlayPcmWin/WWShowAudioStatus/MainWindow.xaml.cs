@@ -343,12 +343,19 @@ namespace WWShowAudioStatus {
 
             for (int i = 0; i < mSAS.GetDeviceNodeNum(); ++i) {
                 var dn = mSAS.GetDeviceNodeNth(i);
+
+                if (dn.type == WWShowAudioStatusCs.DeviceNodeType.IControlInterface
+                    || dn.type  == WWShowAudioStatusCs.DeviceNodeType.T_Pointer) {
+                    // 表示しない。
+                    continue;
+                }
+
                 dnList.Add(dn);
                 string name = string.Format("{0:x}", dn.self);
                 string parentName = string.Format("{0:x}", dn.parent);
 
                 if (dn.parent != 0) {
-                    graph.AddEdge(parentName, name);
+                    graph.AddEdge(parentName, name); //.LabelText = string.Format("{0}",i);
                 }
 
                 Microsoft.Msagl.Drawing.Node n = null;
