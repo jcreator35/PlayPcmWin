@@ -304,7 +304,6 @@ namespace WWShowAudioStatus {
                 int idx,
                 ref NativeControlInterfaceIF param_return);
 
-
             [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Unicode)]
             public struct NativeKsFormat {
                 public int sampleRate;
@@ -337,6 +336,43 @@ namespace WWShowAudioStatus {
             internal extern static int WWSASGetAudioChannelConfig(
                 int instanceId,
                 int idx);
+
+            [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Unicode)]
+            public struct NativeAudioSessionIF {
+                public int nth;
+                public int state; // AudioSessionState
+                public uint pid;
+                [MarshalAs(UnmanagedType.ByValTStr, SizeConst = TEXT_STRSZ)]
+                public string displayName;
+                [MarshalAs(UnmanagedType.ByValTStr, SizeConst = TEXT_STRSZ)]
+                public string iconPath;
+                [MarshalAs(UnmanagedType.ByValTStr, SizeConst = TEXT_STRSZ)]
+                public string sessionId;
+                [MarshalAs(UnmanagedType.ByValTStr, SizeConst = TEXT_STRSZ)]
+                public string sessionInstanceId;
+                //GUID groupingParam;
+                public byte isSystemSoundsSession;
+            };
+
+            [DllImport("WWShowAudioStatusCpp.dll", CharSet = CharSet.Unicode)]
+            internal extern static int WWSASCreateAudioSessionList(
+                int instanceId,
+                int idx);
+
+            [DllImport("WWShowAudioStatusCpp.dll", CharSet = CharSet.Unicode)]
+            internal extern static int WWSASGetAudioSessionNum(
+                int instanceId);
+
+            [DllImport("WWShowAudioStatusCpp.dll", CharSet = CharSet.Unicode)]
+            internal extern static int WWSASGetAudioSessionNth(
+                int instanceId,
+                int idx,
+                ref NativeAudioSessionIF dn_return);
+
+
+            [DllImport("WWShowAudioStatusCpp.dll", CharSet = CharSet.Unicode)]
+            internal extern static int WWSASClearAudioSessionList(
+                int instanceId);
 
         }
 
@@ -614,6 +650,55 @@ namespace WWShowAudioStatus {
         public void RegisterStateChangedCallback(StateChangedCallback callback) {
             NativeMethods. WWSASRegisterStateChangedCallback(mInstanceId, callback);
         }
+
+        public enum WWAudioSessionState {
+            Inactive,
+            Active,
+            Expired,
+        };
+
+        public class WWAudioSession {
+            public int nth;
+            public WWAudioSessionState state;
+            public uint pid;
+            public string displayName;
+            public string iconPath;
+            public string sessionId;
+            public string sessionInstanceId;
+            public bool isSystemSoundsSession;
+        };
+        
+        public int CreateAudioSessionList(int idx) {
+            return NativeMethods.WWSASCreateAudioSessionList(mInstanceId, idx);
+        }
+
+        public int GetAudioSessionsNum() {
+            return NativeMethods.WWSASGetAudioSessionNum(mInstanceId);
+        }
+
+        public WWAudioSession GetAudioSessionNth(int nth) {
+            NativeMethods.NativeAudioSessionIF asi = new NativeMethods.NativeAudioSessionIF();
+            int hr = NativeMethods.WWSASGetAudioSessionNth(mInstanceId, nth, ref asi);
+            if (hr < 0) {
+                return null;
+            }
+
+            var asr = new WWAudioSession();
+            asr.displayName = asi.displayName;
+            asr.iconPath = asi.iconPath;
+            asr.isSystemSoundsSession = asi.isSystemSoundsSession != 0;
+            asr.nth = asi.nth;
+            asr.pid = asi.pid;
+            asr.sessionId = asi.sessionId;
+            asr.sessionInstanceId = asi.sessionInstanceId;
+            asr.state = (WWAudioSessionState)asi.state;
+            return asr;
+        }
+
+        public void ClearAudioSessions() {
+            NativeMethods.WWSASClearAudioSessionList(mInstanceId);
+        }
+
 
         #region IDisposable Support
         private bool disposedValue = false;

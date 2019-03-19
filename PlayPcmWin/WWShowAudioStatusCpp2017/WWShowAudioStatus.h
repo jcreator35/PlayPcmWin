@@ -14,7 +14,7 @@
 #include <string>
 #include "WWMMNotificationClient.h"
 
-#define WW_DEVICE_NAME_COUNT (256)
+#define WW_SAS_STRING_COUNT (256)
 
 typedef void(__stdcall WWStateChanged)(LPCWSTR deviceIdStr, int dwNewState);
 
@@ -22,7 +22,7 @@ struct WWDeviceInf {
     int id;
     bool isDefaultDevice;
     EDataFlow dataFlow;
-    wchar_t name[WW_DEVICE_NAME_COUNT];
+    wchar_t name[WW_SAS_STRING_COUNT];
 
     WWDeviceInf(void) {
         id = -1;
@@ -183,6 +183,20 @@ struct WWDeviceNode {
     WWKsFormatSupport fs;
 };
 
+struct WWAudioSession {
+    int nth;
+    std::wstring displayName;
+    std::wstring iconPath;
+    GUID groupingParam;
+    AudioSessionState state;
+    DWORD pid;
+
+    std::wstring sessionId;
+    std::wstring sessionInstanceId;
+    BOOL isSystemSoundsSession;
+
+};
+
 class WWShowAudioStatus : public IWWDeviceStateCallback {
 public:
     WWShowAudioStatus(void)
@@ -206,6 +220,11 @@ public:
     HRESULT GetDeviceNodeNth(int nth, WWDeviceNode &dn_return);
     void ClearDeviceNodeList(void);
 
+    HRESULT CreateAudioSessionList(int id);
+    int NumOfAudioSessions(void) const { return (int)mAudioSessions.size(); }
+    HRESULT GetAudioSessionNth(int nth, WWAudioSession &as_return);
+    void ClearAudioSessionList(void);
+
     WWStateChanged * stateChangedCallback;
 
     // implements IWWDeviceStateCallback
@@ -225,6 +244,8 @@ private:
 
     std::vector<WWDeviceNode> mDeviceNodes;
     EDataFlow mDataFlow;
+
+    std::vector<WWAudioSession> mAudioSessions;
 
     bool AlreadyHave(IUnknown *p);
 
@@ -247,4 +268,6 @@ private:
     HRESULT CollectKsJackDesc(IUnknown *parent, IKsJackDescription *jd);
     HRESULT CollectKsFormatSupport(IUnknown *parent, IKsFormatSupport *fs);
     HRESULT CollectControlInterface(IUnknown *parent, int id, IControlInterface *ci);
+
+    HRESULT CollectAudioSession(IAudioSessionEnumerator *ae, int nth);
 };

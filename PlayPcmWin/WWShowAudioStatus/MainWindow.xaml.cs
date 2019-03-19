@@ -21,6 +21,7 @@ namespace WWShowAudioStatus {
             UpdateAudioClientData();
             UpdateSpatialAudioData();
             UpdateDeviceNodeGraph();
+            UpdateAudioSessions();
         }
 
         private void StatusChanged(StringBuilder idStr, int dwNewState) {
@@ -33,6 +34,7 @@ namespace WWShowAudioStatus {
                 UpdateAudioClientData();
                 UpdateSpatialAudioData();
                 UpdateDeviceNodeGraph();
+                UpdateAudioSessions();
             }));
         }
 
@@ -510,6 +512,37 @@ namespace WWShowAudioStatus {
 
             mSAS.ClearDeviceNodeList();
         }
+
+        private void UpdateAudioSessions() {
+            int hr = 0;
+            if (mListBoxAudioDevices.SelectedIndex < 0) {
+                return;
+            }
+
+            mTextBoxAudioSessions.Clear();
+
+            hr = mSAS.CreateAudioSessionList(mListBoxAudioDevices.SelectedIndex);
+            if (hr < 0) {
+                return;
+            }
+
+            var sb = new StringBuilder();
+
+            for (int i=0; i<mSAS.GetAudioSessionsNum(); ++i) {
+                var asr = mSAS.GetAudioSessionNth(i);
+                if (asr.state == WWShowAudioStatusCs.WWAudioSessionState.Active) { 
+                    sb.AppendFormat("{0} : {1}, pid={2}, {3}, {4}\n", asr.nth,
+                        asr.isSystemSoundsSession ? "SystemSession" : "NonSystemSession",
+                        asr.pid, asr.state, asr.displayName);
+                }
+            }
+
+            mSAS.ClearAudioSessions();
+
+            mTextBoxAudioSessions.Text = sb.ToString();
+
+        }
+
 
         private void Window_Closed(object sender, EventArgs e) {
             Dispose();

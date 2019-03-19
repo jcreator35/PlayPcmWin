@@ -8,7 +8,8 @@
         Title="WWShowAudioStatus" Height="600" Width="800" Loaded="Window_Loaded" Closed="Window_Closed" >
     <Grid Margin="6,0,6,0">
         <Grid.RowDefinitions>
-            <RowDefinition Height="200"/>
+            <RowDefinition Height="150"/>
+            <RowDefinition Height="150"/>
             <RowDefinition Height="150"/>
             <RowDefinition Height="300*"/>
         </Grid.RowDefinitions>
@@ -32,7 +33,10 @@
                 </GroupBox>
             </Grid>
         </GroupBox>
-        <GroupBox Header="Audio Device Topology" Grid.Row="2" >
+        <GroupBox Header="Audio Sessions" Grid.Row="2" >
+            <TextBox Name="mTextBoxAudioSessions" />
+        </GroupBox>
+        <GroupBox Header="Audio Device Topology" Grid.Row="3" >
             <WindowsFormsHost Name="mWFHost" Background="White" />
         </GroupBox>
     </Grid>

@@ -312,7 +312,7 @@ WWShowAudioStatus::CreateDeviceList(EDataFlow dataFlow)
     HRG(mDeviceCollection->GetCount(&nDevices));
 
     for (UINT i = 0; i < nDevices; ++i) {
-        wchar_t name[WW_DEVICE_NAME_COUNT];
+        wchar_t name[WW_SAS_STRING_COUNT];
         bool bDefault = false;
 
         HRG(DeviceNameGet(mDeviceCollection, i, name, sizeof name));
@@ -1136,3 +1136,104 @@ HRESULT WWShowAudioStatus::GetDeviceNodeNth(int nth, WWDeviceNode &dn_return)
 
     return S_OK;
 }
+
+// オーディオセッション。■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+HRESULT
+WWShowAudioStatus::CreateAudioSessionList(int id)
+{
+    HRESULT hr = S_OK;
+    IAudioSessionManager2 *am2 = nullptr;
+    IAudioSessionEnumerator *ae = nullptr;
+    IMMDevice *device = nullptr;
+    int count = 0;
+
+    assert(mAudioSessions.size() == 0);
+    assert(mDeviceCollection);
+
+    HRG(mDeviceCollection->Item(id, &device));
+
+    assert(device);
+
+    HRG(device->Activate(
+        __uuidof(IAudioSessionManager2), CLSCTX_INPROC_SERVER, nullptr, (void**)&am2));
+    assert(am2);
+
+    HRG(am2->GetSessionEnumerator(&ae));
+    assert(ae);
+
+    HRG(ae->GetCount(&count));
+    for (int i = 0; i < count; ++i) {
+        HRG(CollectAudioSession(ae, i));
+    }
+
+end:
+    SafeRelease(&ae);
+    SafeRelease(&am2);
+    SafeRelease(&device);
+    return hr;
+}
+
+HRESULT
+WWShowAudioStatus::CollectAudioSession(IAudioSessionEnumerator *ae, int nth)
+{
+    HRESULT hr = S_OK;
+    WWAudioSession as;
+    IAudioSessionControl *asc = nullptr;
+    IAudioSessionControl2 *asc2 = nullptr;
+    LPWSTR dn = nullptr;
+    LPWSTR ip = nullptr;
+    LPWSTR sid = nullptr;
+    LPWSTR siid = nullptr;
+
+    HRG(ae->GetSession(nth, &asc));
+    assert(asc);
+
+    HRG(asc->QueryInterface<IAudioSessionControl2>(&asc2));
+    assert(asc2);
+
+    HRG(asc->GetDisplayName(&dn));
+    HRG(asc->GetIconPath(&ip));
+    HRG(asc->GetGroupingParam(&as.groupingParam));
+    HRG(asc->GetState(&as.state));
+    HRG(asc2->GetProcessId(&as.pid));
+    HRG(asc2->GetSessionIdentifier(&sid));
+    HRG(asc2->GetSessionInstanceIdentifier(&siid));
+    if (asc2->IsSystemSoundsSession() == S_OK) {
+        as.isSystemSoundsSession = TRUE;
+    } else {
+        as.isSystemSoundsSession = FALSE;
+    }
+
+    as.nth = nth;
+    as.displayName = std::wstring(dn);
+    as.iconPath = std::wstring(ip);
+    as.sessionId = std::wstring(sid);
+    as.sessionInstanceId = std::wstring(siid);
+    mAudioSessions.push_back(as);
+
+end:
+    CoTaskMemFree(siid);
+    CoTaskMemFree(sid);
+    CoTaskMemFree(ip);
+    CoTaskMemFree(dn);
+    SafeRelease(&asc);
+    return hr;
+}
+
+HRESULT
+WWShowAudioStatus::GetAudioSessionNth(int nth, WWAudioSession &as_return)
+{
+    if (nth < 0 || mAudioSessions.size() <= nth) {
+        return E_INVALIDARG;
+    }
+
+    as_return = mAudioSessions[nth];
+    return S_OK;
+}
+void
+WWShowAudioStatus::ClearAudioSessionList(void)
+{
+    mAudioSessions.clear();
+}
+

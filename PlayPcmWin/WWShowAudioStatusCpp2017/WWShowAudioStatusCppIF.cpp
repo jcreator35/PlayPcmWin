@@ -126,6 +126,8 @@ WWSASGetSpatialAudioParams(
     return p->GetSpatialAudioParams(idx, *sap_return);
 }
 
+// デバイスノード。■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
 WWSHOWAUDIOSTATUS_API int __stdcall
 WWSASCreateDeviceNodeList(
     int instanceId,
@@ -360,3 +362,68 @@ WWSASRegisterStateChangedCallback(int instanceId, WWStateChanged callback)
     p->stateChangedCallback = callback;
     return S_OK;
 }
+
+// オーディオセッション。■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+WWSHOWAUDIOSTATUS_API int __stdcall
+WWSASCreateAudioSessionList(
+    int instanceId,
+    int idx)
+{
+    FIND_P;
+
+    if (idx < 0 || p->GetDeviceCount() <= idx) {
+        return E_INVALIDARG;
+    }
+
+    return p->CreateAudioSessionList(idx);
+}
+
+WWSHOWAUDIOSTATUS_API int __stdcall
+WWSASGetAudioSessionNum(
+    int instanceId)
+{
+    FIND_P;
+
+    return p->NumOfAudioSessions();
+}
+
+WWSHOWAUDIOSTATUS_API int __stdcall
+WWSASGetAudioSessionNth(
+    int instanceId,
+    int idx,
+    WWAudioSessionIF *asi_return)
+{
+    HRESULT hr = S_OK;
+    WWAudioSession as;
+    FIND_P;
+
+    hr = p->GetAudioSessionNth(idx, as);
+    if (FAILED(hr)) {
+        return hr;
+    }
+
+    wcscpy_s(asi_return->displayName, as.displayName.c_str());
+    wcscpy_s(asi_return->iconPath, as.iconPath.c_str());
+    wcscpy_s(asi_return->sessionId, as.sessionId.c_str());
+    wcscpy_s(asi_return->sessionInstanceId, as.sessionInstanceId.c_str());
+    asi_return->nth = idx;
+    
+    //asi_return->groupingParam = as.groupingParam;
+    asi_return->isSystemSoundsSession = as.isSystemSoundsSession;
+    asi_return->pid = as.pid;
+    asi_return->state = as.state;
+    return S_OK;
+}
+
+
+WWSHOWAUDIOSTATUS_API int __stdcall
+WWSASClearAudioSessionList(
+    int instanceId)
+{
+    FIND_P;
+
+    p->ClearAudioSessionList();
+    return S_OK;
+}
+

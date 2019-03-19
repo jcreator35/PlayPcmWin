@@ -20,7 +20,7 @@
 struct WWSASAudioDeviceParams {
     int id;
     int isDefaultDevice;
-    wchar_t name[256];
+    wchar_t name[WW_SAS_STRING_COUNT];
 };
 
 struct WWSASPcmFormat {
@@ -156,8 +156,8 @@ WWSASGetAudioInputSelectorParams(
 struct WWPartIF {
     int partType;
     int localId;
-    wchar_t name[256];
-    wchar_t gid[256];
+    wchar_t name[WW_SAS_STRING_COUNT];
+    wchar_t gid[WW_SAS_STRING_COUNT];
 };
 
 WWSHOWAUDIOSTATUS_API int __stdcall
@@ -167,8 +167,8 @@ WWSASGetPartParams(
     WWPartIF *param_return);
 
 struct WWControlInterfaceIF {
-    wchar_t name[256];
-    wchar_t iid[256];
+    wchar_t name[WW_SAS_STRING_COUNT];
+    wchar_t iid[WW_SAS_STRING_COUNT];
 };
 
 WWSHOWAUDIOSTATUS_API int __stdcall
@@ -199,4 +199,38 @@ WWSHOWAUDIOSTATUS_API int __stdcall
 WWSASGetAudioChannelConfig(
     int instanceId,
     int idx);
+
+// オーディオセッション。■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+struct WWAudioSessionIF {
+    int nth;
+    int state; // AudioSessionState
+    uint32_t pid;
+    wchar_t displayName[WW_SAS_STRING_COUNT];
+    wchar_t iconPath[WW_SAS_STRING_COUNT];
+    wchar_t sessionId[WW_SAS_STRING_COUNT];
+    wchar_t sessionInstanceId[WW_SAS_STRING_COUNT];
+    //GUID groupingParam;
+    BOOL isSystemSoundsSession;
+};
+
+WWSHOWAUDIOSTATUS_API int __stdcall
+WWSASCreateAudioSessionList(
+    int instanceId,
+    int idx);
+
+WWSHOWAUDIOSTATUS_API int __stdcall
+WWSASGetAudioSessionNum(
+    int instanceId);
+
+WWSHOWAUDIOSTATUS_API int __stdcall
+WWSASGetAudioSessionNth(
+    int instanceId,
+    int idx,
+    WWAudioSessionIF *dn_return);
+
+
+WWSHOWAUDIOSTATUS_API int __stdcall
+WWSASClearAudioSessionList(
+    int instanceId);
 
