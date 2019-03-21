@@ -587,8 +587,16 @@ namespace WWShowAudioStatus {
 
             foreach (var item in summary) {
                 var asr = item.Value;
+                string sessionName = asr.displayName;
+                if (sessionName.Length == 0 && asr.iconPath.Length != 0) {
+                    sessionName = System.IO.Path.GetFileNameWithoutExtension(asr.iconPath);
+                }
+                if (sessionName.Length == 0) {
+                    sessionName = "NoNameSession";
+                }
+
                 sb.AppendFormat("{0}, Pid={1}, {2}, {3}, {4}, Volume={5:0.0} dB, Peak={6:0.0} dBFS\n",
-                    asr.displayName, asr.pid, asr.state,
+                    sessionName, asr.pid, asr.state,
                     asr.isSystemSoundsSession ? "SystemSession" : "NotSystemSession",
                     asr.mute ? "Muted" : "NotMuted",
                     FieldQuantityToDecibel(asr.masterVolume),
