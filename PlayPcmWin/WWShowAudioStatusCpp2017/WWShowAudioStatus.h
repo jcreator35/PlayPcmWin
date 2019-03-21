@@ -13,29 +13,21 @@
 #include <set>
 #include <string>
 #include "WWMMNotificationClient.h"
+#include <endpointvolume.h>
 
 #define WW_SAS_STRING_COUNT (256)
 
 typedef void(__stdcall WWStateChanged)(LPCWSTR deviceIdStr, int dwNewState);
 
-struct WWDeviceInf {
+struct WWDeviceParams {
     int id;
     bool isDefaultDevice;
+    BOOL mute;
     EDataFlow dataFlow;
+    float masterVolumeLevelDecibel;
+    float peak;
+    wchar_t idStr[WW_SAS_STRING_COUNT];
     wchar_t name[WW_SAS_STRING_COUNT];
-
-    WWDeviceInf(void) {
-        id = -1;
-        isDefaultDevice = false;
-        name[0] = 0;
-    }
-
-    WWDeviceInf(int id, bool isDefaultDevice, EDataFlow df, const wchar_t * name) {
-        this->id = id;
-        this->isDefaultDevice = isDefaultDevice;
-        dataFlow = df;
-        wcsncpy_s(this->name, _countof(this->name), name, _TRUNCATE);
-    }
 };
 
 struct WWMixFormat {
@@ -194,7 +186,10 @@ struct WWAudioSession {
     std::wstring sessionId;
     std::wstring sessionInstanceId;
     BOOL isSystemSoundsSession;
-
+    std::vector<float> channelPeaks;
+    float peak;
+    float masterVolume;
+    BOOL mute;
 };
 
 class WWShowAudioStatus : public IWWDeviceStateCallback {
@@ -209,8 +204,7 @@ public:
 
     HRESULT CreateDeviceList(EDataFlow dataFlow);
     int GetDeviceCount(void);
-    bool GetDeviceName(int id, LPWSTR name, size_t nameBytes);
-    bool IsDefaultDevice(int id);
+    WWDeviceParams *GetDeviceParams(int id);
     HRESULT GetMixFormat(int id, WWMixFormat &saf_return);
     HRESULT GetSpatialAudioParams(int id, WWSpatialAudioParams &sap_return);
     void DestroyDeviceList(void);
@@ -237,7 +231,7 @@ public:
 
 private:
     bool mComInit;
-    std::vector<WWDeviceInf> mDeviceInf;
+    std::vector<WWDeviceParams> mDeviceInf;
     IMMDeviceEnumerator *mDeviceEnumerator;
     IMMDeviceCollection *mDeviceCollection;
     WWMMNotificationClient mNotificationClient;
@@ -246,6 +240,9 @@ private:
     EDataFlow mDataFlow;
 
     std::vector<WWAudioSession> mAudioSessions;
+
+    HRESULT DeviceGetParams(IMMDeviceCollection *dc, UINT id, WWDeviceParams *dInf);
+
 
     bool AlreadyHave(IUnknown *p);
 

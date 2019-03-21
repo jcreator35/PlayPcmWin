@@ -20,6 +20,9 @@
 struct WWSASAudioDeviceParams {
     int id;
     int isDefaultDevice;
+    int mute;
+    float masterVolumeLevelDecibel;
+    float peak;
     wchar_t name[WW_SAS_STRING_COUNT];
 };
 
@@ -206,12 +209,15 @@ struct WWAudioSessionIF {
     int nth;
     int state; // AudioSessionState
     uint32_t pid;
+    float masterVolume;
+    float peak;
     wchar_t displayName[WW_SAS_STRING_COUNT];
     wchar_t iconPath[WW_SAS_STRING_COUNT];
     wchar_t sessionId[WW_SAS_STRING_COUNT];
     wchar_t sessionInstanceId[WW_SAS_STRING_COUNT];
     //GUID groupingParam;
     BOOL isSystemSoundsSession;
+    BOOL mute;
 };
 
 WWSHOWAUDIOSTATUS_API int __stdcall

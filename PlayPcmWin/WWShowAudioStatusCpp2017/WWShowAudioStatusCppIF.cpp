@@ -84,15 +84,24 @@ WWSASGetDeviceParams(
     int idx,
     WWSASAudioDeviceParams * params_return)
 {
+    WWDeviceParams *dp = nullptr;
     FIND_P;
 
     if (idx < 0 || p->GetDeviceCount() <= idx) {
         return E_INVALIDARG;
     }
 
+    dp = p->GetDeviceParams(idx);
+    assert(dp);
+
     params_return->id = idx;
-    params_return->isDefaultDevice = p->IsDefaultDevice(idx);
-    p->GetDeviceName(idx, params_return->name, sizeof params_return->name);
+    params_return->isDefaultDevice = dp->isDefaultDevice;
+    wcscpy_s(params_return->name, dp->name);
+    
+    params_return->mute = dp->mute;
+    params_return->peak = dp->peak;
+    params_return->masterVolumeLevelDecibel = dp->masterVolumeLevelDecibel;
+
     return S_OK;
 }
 
@@ -413,6 +422,9 @@ WWSASGetAudioSessionNth(
     asi_return->isSystemSoundsSession = as.isSystemSoundsSession;
     asi_return->pid = as.pid;
     asi_return->state = as.state;
+    asi_return->masterVolume = as.masterVolume;
+    asi_return->mute = as.mute;
+    asi_return->peak = as.peak;
     return S_OK;
 }
 

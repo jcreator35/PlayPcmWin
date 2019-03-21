@@ -16,18 +16,15 @@ namespace WWShowAudioStatus {
             mSAS = new WWShowAudioStatusCs();
             mDefaultIdx = -1;
 
-            AudioDeviceListStart();
-            UpdateAudioDeviceList();
-            UpdateAudioClientData();
-            UpdateSpatialAudioData();
-            UpdateDeviceNodeGraph();
-            UpdateAudioSessions();
+            Refresh(false);
         }
+        object mLock = new object();
 
-        private void StatusChanged(StringBuilder idStr, int dwNewState) {
-            Dispatcher.BeginInvoke(new Action(delegate () {
-                // 描画スレッドで実行。
-                AudioDeviceListEnd();
+        private void Refresh(bool bClear) {
+            lock (mLock) { 
+                if (bClear) {
+                    AudioDeviceListEnd();
+                }
 
                 AudioDeviceListStart();
                 UpdateAudioDeviceList();
@@ -35,6 +32,13 @@ namespace WWShowAudioStatus {
                 UpdateSpatialAudioData();
                 UpdateDeviceNodeGraph();
                 UpdateAudioSessions();
+            }
+        }
+
+        private void StatusChanged(StringBuilder idStr, int dwNewState) {
+            Dispatcher.BeginInvoke(new Action(delegate () {
+                // 描画スレッドで実行。
+                Refresh(true);
             }));
         }
 
@@ -296,6 +300,10 @@ namespace WWShowAudioStatus {
             mSAS.DestroyDeviceList();
         }
 
+        private float FieldQuantityToDecibel(float v) {
+            return (float)(20.0 * Math.Log10(v));
+        }
+
         private void UpdateAudioDeviceList() {
             mListBoxAudioDevices.Items.Clear();
 
@@ -303,7 +311,12 @@ namespace WWShowAudioStatus {
             mDefaultIdx = -1;
             for (int i=0; i<nDevices;++i) {
                 var item = mSAS.GetDeviceParams(i);
-                mListBoxAudioDevices.Items.Add(string.Format("{0} : {1} {2}", i, item.name,
+                mListBoxAudioDevices.Items.Add(string.Format("{0} : {1}, {2}, MasterVolume={3:0.0} dB, Peak={4:0.0} dBFS {5}",
+                    i,
+                    item.name,
+                    item.mute ? "Muted" : "NotMuted",
+                    item.masterVolumeLevelDecibel,
+                    FieldQuantityToDecibel(item.peak),
                     item.defaultDevice ? "■■ Default Device ■■" : ""));
 
                 if (item.defaultDevice) {
@@ -513,6 +526,31 @@ namespace WWShowAudioStatus {
             mSAS.ClearDeviceNodeList();
         }
 
+
+        private void UpdateValue(WWShowAudioStatusCs.WWAudioSession to, WWShowAudioStatusCs.WWAudioSession newV) {
+            if (to.state == WWShowAudioStatusCs.WWAudioSessionState.Inactive &&
+                newV.state == WWShowAudioStatusCs.WWAudioSessionState.Active) {
+                to.masterVolume = newV.masterVolume;
+                to.mute = newV.mute;
+                to.nth = newV.nth;
+                to.peak = newV.peak;
+                to.state = newV.state;
+                to.pid = newV.pid;
+            }
+            if (to.state == WWShowAudioStatusCs.WWAudioSessionState.Active &&
+                newV.state == WWShowAudioStatusCs.WWAudioSessionState.Active) {
+                // 大きい方を採用。
+                if (to.masterVolume < newV.masterVolume) {
+                    to.masterVolume = newV.masterVolume;
+                    to.pid = newV.pid;
+                }
+                if (to.peak < newV.peak) {
+                    to.peak = newV.peak;
+                    to.pid = newV.pid;
+                }
+            }
+        }
+
         private void UpdateAudioSessions() {
             int hr = 0;
             if (mListBoxAudioDevices.SelectedIndex < 0) {
@@ -523,24 +561,38 @@ namespace WWShowAudioStatus {
 
             hr = mSAS.CreateAudioSessionList(mListBoxAudioDevices.SelectedIndex);
             if (hr < 0) {
+                mSAS.ClearAudioSessions();
                 return;
             }
 
             var sb = new StringBuilder();
 
-            for (int i=0; i<mSAS.GetAudioSessionsNum(); ++i) {
+            // 集計する。
+            // sessionIdが同じものをまとめる。
+            var summary = new Dictionary<string, WWShowAudioStatusCs.WWAudioSession>();
+            for (int i = 0; i < mSAS.GetAudioSessionsNum(); ++i) {
                 var asr = mSAS.GetAudioSessionNth(i);
-                if (asr.state == WWShowAudioStatusCs.WWAudioSessionState.Active) { 
-                    sb.AppendFormat("{0} : {1}, pid={2}, {3}, {4}\n", asr.nth,
-                        asr.isSystemSoundsSession ? "SystemSession" : "NonSystemSession",
-                        asr.pid, asr.state, asr.displayName);
+                if (summary.ContainsKey(asr.sessionId)) {
+                    var stored = summary[asr.sessionId];
+                    UpdateValue(stored, asr);
+                } else {
+                    summary.Add(asr.sessionId, asr);
                 }
+            }
+
+            foreach (var item in summary) {
+                var asr = item.Value;
+                sb.AppendFormat("{0}, Pid={1}, {2}, {3}, {4}, Volume={5:0.0} dB, Peak={6:0.0} dBFS\n",
+                    asr.displayName, asr.pid, asr.state,
+                    asr.isSystemSoundsSession ? "SystemSession" : "NotSystemSession",
+                    asr.mute ? "Muted" : "NotMuted",
+                    FieldQuantityToDecibel(asr.masterVolume),
+                    FieldQuantityToDecibel(asr.peak));
             }
 
             mSAS.ClearAudioSessions();
 
             mTextBoxAudioSessions.Text = sb.ToString();
-
         }
 
 
@@ -572,5 +624,9 @@ namespace WWShowAudioStatus {
             Dispose(true);
         }
         #endregion
+
+        private void Button_Click(object sender, RoutedEventArgs e) {
+            Refresh(true);
+        }
     }
 }

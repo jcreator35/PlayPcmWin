@@ -6,17 +6,20 @@
         xmlns:local="clr-namespace:WWShowAudioStatus"
         mc:Ignorable="d"
         Title="WWShowAudioStatus" Height="600" Width="800" Loaded="Window_Loaded" Closed="Window_Closed" >
+    <ScrollViewer>
     <Grid Margin="6,0,6,0">
         <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="100"/>
             <RowDefinition Height="150"/>
-            <RowDefinition Height="150"/>
-            <RowDefinition Height="150"/>
-            <RowDefinition Height="300*"/>
+            <RowDefinition Height="100"/>
+            <RowDefinition Height="800"/>
         </Grid.RowDefinitions>
-        <GroupBox Header="Choose Audio Device" >
+        <Button Content="_Refresh" Width="120" HorizontalAlignment="Left" Margin="4" Click="Button_Click"/>
+        <GroupBox Header="Choose Audio Device" Grid.Row="1">
             <ListBox Name="mListBoxAudioDevices" SelectionChanged="MListBoxAudioDevices_SelectionChanged" />
         </GroupBox>
-        <GroupBox Header="AudioEngine status" Grid.Row="1" >
+        <GroupBox Header="AudioEngine status" Grid.Row="2" >
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*"/>
@@ -33,11 +36,12 @@
                 </GroupBox>
             </Grid>
         </GroupBox>
-        <GroupBox Header="Audio Sessions" Grid.Row="2" >
+        <GroupBox Header="Audio Sessions" Grid.Row="3" >
             <TextBox Name="mTextBoxAudioSessions" />
         </GroupBox>
-        <GroupBox Header="Audio Device Topology" Grid.Row="3" >
+        <GroupBox Header="Audio Device Topology" Grid.Row="4" >
             <WindowsFormsHost Name="mWFHost" Background="White" />
         </GroupBox>
     </Grid>
+    </ScrollViewer>
 </Window>

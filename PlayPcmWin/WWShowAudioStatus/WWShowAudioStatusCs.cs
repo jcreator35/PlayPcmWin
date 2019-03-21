@@ -14,87 +14,6 @@ namespace WWShowAudioStatus {
             }
         }
 
-        public enum WWDataFlow {
-            Render,
-            Capture,
-            All,
-        };
-
-        public int CreateDeviceList(WWDataFlow df) {
-            return NativeMethods.WWSASCreateDeviceList(mInstanceId, (int)df);
-        }
-
-        public int DestroyDeviceList() {
-            return NativeMethods.WWSASDestroyDeviceList(mInstanceId);
-        }
-
-        public int GetDeviceCount() {
-            return NativeMethods.WWSASGetDeviceCount(mInstanceId);
-        }
-
-        public class DeviceParams {
-            public int id;
-            public bool defaultDevice;
-            public string name;
-        }
-
-        public DeviceParams GetDeviceParams(int idx) {
-            var nadp = new NativeMethods.NativeAudioDeviceParams();
-            int hr = NativeMethods.WWSASGetDeviceParams(mInstanceId, idx, ref nadp);
-            if (hr < 0) {
-                throw new IndexOutOfRangeException();
-            }
-
-            var adp = new DeviceParams();
-            adp.id = nadp.id;
-            adp.defaultDevice = nadp.isDefaultDevice != 0;
-            adp.name = nadp.name;
-
-            return adp;
-        }
-
-        public class MixFormat {
-            public int samplerate;
-            public int numChannels;
-            public int dwChannelMask;
-            public bool offloadCapable;
-            public long hnsDevicePeriod;
-            public long hnsMinDevicePeriod;
-        }
-
-        public MixFormat GetMixFormat(int idx) {
-            var nmf = new NativeMethods.NativeMixFormat();
-            NativeMethods.WWSASGetMixFormat(mInstanceId, idx, ref nmf);
-
-            var r = new MixFormat();
-            r.samplerate = nmf.sampleRate;
-            r.numChannels = nmf.numChannels;
-            r.dwChannelMask = nmf.dwChannelMask;
-            r.offloadCapable = nmf.offloadCapable !=0;
-            r.hnsDevicePeriod = nmf.hnsDevicePeriod;
-            r.hnsMinDevicePeriod = nmf.hnsMinDevicePeriod;
-            return r;
-        }
-
-        public class SpatialAudioParams {
-            public int maxDynamicObjectCount;
-            public int virtualSpeakerMask;
-            public int sampleRate;
-            public int maxFrameCount;
-        }
-
-        public SpatialAudioParams GetSpatialAudioParams(int idx) {
-            var n = new NativeMethods.NativeSpatialAudioParams();
-            NativeMethods.WWSASGetSpatialAudioParams(mInstanceId, idx, ref n);
-
-            var r = new SpatialAudioParams();
-            r.maxDynamicObjectCount = n.maxDynamicObjectCount;
-            r.virtualSpeakerMask = n.virtualSpeakerMask;
-            r.sampleRate = n.sampleRate;
-            r.maxFrameCount = n.maxFrameCount;
-            return r;
-        }
-
         /// <summary>
         /// デバイスが消えたとかのイベント。
         /// </summary>
@@ -112,6 +31,9 @@ namespace WWShowAudioStatus {
                 public int id;
 
                 public int isDefaultDevice;
+                public int mute;
+                public float masterVolumeLevel;
+                public float peak;
 
                 [MarshalAs(UnmanagedType.ByValTStr, SizeConst = TEXT_STRSZ)]
                 public string name;
@@ -342,6 +264,8 @@ namespace WWShowAudioStatus {
                 public int nth;
                 public int state; // AudioSessionState
                 public uint pid;
+                public float masterVolume;
+                public float peak;
                 [MarshalAs(UnmanagedType.ByValTStr, SizeConst = TEXT_STRSZ)]
                 public string displayName;
                 [MarshalAs(UnmanagedType.ByValTStr, SizeConst = TEXT_STRSZ)]
@@ -352,6 +276,7 @@ namespace WWShowAudioStatus {
                 public string sessionInstanceId;
                 //GUID groupingParam;
                 public byte isSystemSoundsSession;
+                public byte mute;
             };
 
             [DllImport("WWShowAudioStatusCpp.dll", CharSet = CharSet.Unicode)]
@@ -374,6 +299,93 @@ namespace WWShowAudioStatus {
             internal extern static int WWSASClearAudioSessionList(
                 int instanceId);
 
+        }
+
+        public enum WWDataFlow {
+            Render,
+            Capture,
+            All,
+        };
+
+        public int CreateDeviceList(WWDataFlow df) {
+            return NativeMethods.WWSASCreateDeviceList(mInstanceId, (int)df);
+        }
+
+        public int DestroyDeviceList() {
+            return NativeMethods.WWSASDestroyDeviceList(mInstanceId);
+        }
+
+        public int GetDeviceCount() {
+            return NativeMethods.WWSASGetDeviceCount(mInstanceId);
+        }
+
+        public class DeviceParams {
+            public int id;
+            public bool defaultDevice;
+            public bool mute;
+            public float masterVolumeLevelDecibel;
+            public float peak;
+            public string name;
+        }
+
+        public DeviceParams GetDeviceParams(int idx) {
+            var nadp = new NativeMethods.NativeAudioDeviceParams();
+            int hr = NativeMethods.WWSASGetDeviceParams(mInstanceId, idx, ref nadp);
+            if (hr < 0) {
+                throw new IndexOutOfRangeException();
+            }
+
+            var adp = new DeviceParams();
+            adp.id = nadp.id;
+            adp.defaultDevice = nadp.isDefaultDevice != 0;
+            adp.name = nadp.name;
+            adp.mute = nadp.mute != 0;
+            adp.peak = nadp.peak;
+            adp.masterVolumeLevelDecibel = nadp.masterVolumeLevel;
+
+            return adp;
+        }
+
+        public class MixFormat {
+            public int samplerate;
+            public int numChannels;
+            public int dwChannelMask;
+            public bool offloadCapable;
+            public long hnsDevicePeriod;
+            public long hnsMinDevicePeriod;
+        }
+
+        public MixFormat GetMixFormat(int idx) {
+            var nmf = new NativeMethods.NativeMixFormat();
+            NativeMethods.WWSASGetMixFormat(mInstanceId, idx, ref nmf);
+
+            var r = new MixFormat();
+            r.samplerate = nmf.sampleRate;
+            r.numChannels = nmf.numChannels;
+            r.dwChannelMask = nmf.dwChannelMask;
+            r.offloadCapable = nmf.offloadCapable != 0;
+            r.hnsDevicePeriod = nmf.hnsDevicePeriod;
+            r.hnsMinDevicePeriod = nmf.hnsMinDevicePeriod;
+            return r;
+        }
+
+        public class SpatialAudioParams {
+            public int maxDynamicObjectCount;
+            public int virtualSpeakerMask;
+            public int sampleRate;
+            public int maxFrameCount;
+        }
+
+        public SpatialAudioParams GetSpatialAudioParams(int idx) {
+            var n = new NativeMethods.NativeSpatialAudioParams();
+            NativeMethods.WWSASGetSpatialAudioParams(mInstanceId, idx, ref n);
+
+            var r = new SpatialAudioParams();
+            r.maxDynamicObjectCount = n.maxDynamicObjectCount;
+            r.virtualSpeakerMask = n.virtualSpeakerMask;
+            r.sampleRate = n.sampleRate;
+            r.maxFrameCount = n.maxFrameCount;
+            return r;
         }
 
         public int CreateDeviceNodeList(int deviceId) {
@@ -666,6 +678,9 @@ namespace WWShowAudioStatus {
             public string sessionId;
             public string sessionInstanceId;
             public bool isSystemSoundsSession;
+            public bool mute;
+            public float masterVolume;
+            public float peak;
         };
         
         public int CreateAudioSessionList(int idx) {
@@ -692,6 +707,9 @@ namespace WWShowAudioStatus {
             asr.sessionId = asi.sessionId;
             asr.sessionInstanceId = asi.sessionInstanceId;
             asr.state = (WWAudioSessionState)asi.state;
+            asr.mute = asi.mute != 0;
+            asr.masterVolume = asi.masterVolume;
+            asr.peak = asi.peak;
             return asr;
         }
 

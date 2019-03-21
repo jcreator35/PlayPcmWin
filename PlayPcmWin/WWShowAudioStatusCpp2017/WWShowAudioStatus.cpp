@@ -8,43 +8,6 @@
 #include "WWGuidToStr.h"
 
 static HRESULT
-DeviceNameGet(
-    IMMDeviceCollection *dc, UINT id, wchar_t *name, size_t nameBytes)
-{
-    HRESULT hr = 0;
-
-    IMMDevice *device = nullptr;
-    LPWSTR deviceId = nullptr;
-    IPropertyStore *ps = nullptr;
-    PROPVARIANT pv;
-
-    assert(dc);
-    assert(name);
-
-    name[0] = 0;
-
-    assert(0 < nameBytes);
-
-    PropVariantInit(&pv);
-
-    HRR(dc->Item(id, &device));
-    HRR(device->GetId(&deviceId));
-    HRR(device->OpenPropertyStore(STGM_READ, &ps));
-
-    HRG(ps->GetValue(PKEY_Device_FriendlyName, &pv));
-    SafeRelease(&ps);
-
-    wcsncpy_s(name, nameBytes / sizeof name[0], pv.pwszVal, _TRUNCATE);
-
-end:
-    SafeRelease(&device);
-    PropVariantClear(&pv);
-    CoTaskMemFree(deviceId);
-    SafeRelease(&ps);
-    return hr;
-}
-
-static HRESULT
 PrintAudioObjectPosition(ISpatialAudioClient *saClient, const char *name, AudioObjectType aot)
 {
     HRESULT hr = S_OK;
@@ -282,6 +245,58 @@ WWShowAudioStatus::DestroyDeviceList(void)
 }
 
 HRESULT
+WWShowAudioStatus::DeviceGetParams(
+    IMMDeviceCollection *dc, UINT id, WWDeviceParams *dInf)
+{
+    HRESULT hr = 0;
+
+    IMMDevice *device = nullptr;
+    LPWSTR deviceId = nullptr;
+    IPropertyStore *ps = nullptr;
+    PROPVARIANT pv;
+    IAudioEndpointVolume *aev = nullptr;
+    IAudioMeterInformation *ami = nullptr;
+
+    assert(dc);
+    assert(dInf);
+
+    const int nameBytes = sizeof dInf->name;
+
+    dInf->id = id;
+    dInf->name[0] = 0;
+
+    PropVariantInit(&pv);
+
+    HRR(dc->Item(id, &device));
+    HRR(device->GetId(&deviceId));
+    HRR(device->OpenPropertyStore(STGM_READ, &ps));
+
+    HRG(ps->GetValue(PKEY_Device_FriendlyName, &pv));
+    SafeRelease(&ps);
+
+    wcscpy_s(dInf->name, pv.pwszVal);
+    wcscpy_s(dInf->idStr, deviceId);
+
+    HRG(device->Activate(__uuidof(IAudioEndpointVolume), CLSCTX_INPROC_SERVER, nullptr, (void**)&aev));
+    assert(aev);
+    HRG(aev->GetMasterVolumeLevel(&dInf->masterVolumeLevelDecibel));
+    HRG(aev->GetMute(&dInf->mute));
+
+    HRG(device->Activate(__uuidof(IAudioMeterInformation), CLSCTX_INPROC_SERVER, nullptr, (void**)&ami));
+    assert(ami);
+    HRG(ami->GetPeakValue(&dInf->peak));
+
+end:
+    SafeRelease(&ami);
+    SafeRelease(&aev);
+    SafeRelease(&device);
+    PropVariantClear(&pv);
+    CoTaskMemFree(deviceId);
+    SafeRelease(&ps);
+    return hr;
+}
+
+HRESULT
 WWShowAudioStatus::CreateDeviceList(EDataFlow dataFlow)
 {
     HRESULT hr = 0;
@@ -312,20 +327,21 @@ WWShowAudioStatus::CreateDeviceList(EDataFlow dataFlow)
     HRG(mDeviceCollection->GetCount(&nDevices));
 
     for (UINT i = 0; i < nDevices; ++i) {
-        wchar_t name[WW_SAS_STRING_COUNT];
-        bool bDefault = false;
+        WWDeviceParams dInf;
 
-        HRG(DeviceNameGet(mDeviceCollection, i, name, sizeof name));
+        HRG(DeviceGetParams(mDeviceCollection, i, &dInf));
+
+        dInf.dataFlow = dataFlow;
 
         // default deviceかどうか調べる。
-        HRG(mDeviceCollection->Item(i, &device));
-        HRG(device->GetId(&pId));
         assert(pDefaultId);
-        if (0 == wcsncmp(pDefaultId, pId, 256)) {
-            bDefault = true;
+        if (0 == wcsncmp(pDefaultId, dInf.idStr, 256)) {
+            dInf.isDefaultDevice = true;
+        } else {
+            dInf.isDefaultDevice = false;
         }
 
-        mDeviceInf.push_back(WWDeviceInf(i, bDefault, dataFlow, name));
+        mDeviceInf.push_back(dInf);
 
         CoTaskMemFree(pId);
         pId = nullptr;
@@ -347,28 +363,14 @@ WWShowAudioStatus::GetDeviceCount(void)
     return (int)mDeviceInf.size();
 }
 
-bool
-WWShowAudioStatus::GetDeviceName(int id, LPWSTR name, size_t nameBytes)
-{
-    assert(name);
-    memset(name, 0, nameBytes);
-    if (id < 0 || mDeviceInf.size() <= (unsigned int)id) {
-        assert(0);
-        return false;
-    }
-    wcsncpy_s(name, nameBytes / sizeof name[0], mDeviceInf[id].name, _TRUNCATE);
-    return true;
-}
-
-bool
-WWShowAudioStatus::IsDefaultDevice(int id)
+WWDeviceParams *
+WWShowAudioStatus::GetDeviceParams(int id)
 {
     if (id < 0 || mDeviceInf.size() <= (unsigned int)id) {
-        assert(0);
-        return false;
+        return nullptr;
     }
 
-    return mDeviceInf[id].isDefaultDevice;
+    return &mDeviceInf[id];
 }
 
 HRESULT
@@ -628,7 +630,7 @@ WWShowAudioStatus::CollectConnector(IUnknown *parent, IConnector *self)
     HRG(self->IsConnected(&pDN->conn.bConnected));
     HRG(self->GetType(&pDN->conn.ct));
 
-    self->QueryInterface(__uuidof(IPart), (void**)&part);
+    self->QueryInterface<IPart>(&part);
     if (part) {
         HRG(CollectPart(self, part));
     }
@@ -652,7 +654,7 @@ WWShowAudioStatus::CollectSubunit(IUnknown *parent, ISubunit *self)
 
     ADD_DEVICENODE(WWDeviceNode::T_ISubunit);
 
-    HRG(self->QueryInterface(__uuidof(IPart), (void**)&part));
+    HRG(self->QueryInterface<IPart>(&part));
 
     HRG(CollectPart(self, part));
 
@@ -1181,6 +1183,8 @@ WWShowAudioStatus::CollectAudioSession(IAudioSessionEnumerator *ae, int nth)
     WWAudioSession as;
     IAudioSessionControl *asc = nullptr;
     IAudioSessionControl2 *asc2 = nullptr;
+    IAudioMeterInformation *ami = nullptr;
+    ISimpleAudioVolume *sav = nullptr;
     LPWSTR dn = nullptr;
     LPWSTR ip = nullptr;
     LPWSTR sid = nullptr;
@@ -1191,6 +1195,12 @@ WWShowAudioStatus::CollectAudioSession(IAudioSessionEnumerator *ae, int nth)
 
     HRG(asc->QueryInterface<IAudioSessionControl2>(&asc2));
     assert(asc2);
+
+    HRG(asc->QueryInterface<IAudioMeterInformation>(&ami));
+    assert(ami);
+
+    HRG(asc->QueryInterface<ISimpleAudioVolume>(&sav));
+    assert(sav);
 
     HRG(asc->GetDisplayName(&dn));
     HRG(asc->GetIconPath(&ip));
@@ -1203,6 +1213,15 @@ WWShowAudioStatus::CollectAudioSession(IAudioSessionEnumerator *ae, int nth)
         as.isSystemSoundsSession = TRUE;
     } else {
         as.isSystemSoundsSession = FALSE;
+    }
+    if (as.state == AudioSessionStateActive) {
+        HRG(ami->GetPeakValue(&as.peak));
+        HRG(sav->GetMasterVolume(&as.masterVolume));
+        HRG(sav->GetMute(&as.mute));
+    } else {
+        as.peak = 0;
+        as.masterVolume = 0;
+        as.mute = FALSE;
     }
 
     as.nth = nth;
@@ -1217,6 +1236,9 @@ end:
     CoTaskMemFree(sid);
     CoTaskMemFree(ip);
     CoTaskMemFree(dn);
+    SafeRelease(&sav);
+    SafeRelease(&ami);
+    SafeRelease(&asc2);
     SafeRelease(&asc);
     return hr;
 }
