@@ -9,6 +9,8 @@ namespace WWShowAudioStatus {
         private WWShowAudioStatusCs mSAS;
         private int mDefaultIdx;
         private WWShowAudioStatusCs.StateChangedCallback mStateChangedCb;
+        private bool mInitialized = false;
+
         private static string AssemblyVersion {
             get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); }
         }
@@ -21,11 +23,12 @@ namespace WWShowAudioStatus {
             mSAS = new WWShowAudioStatusCs();
             mDefaultIdx = -1;
 
-            Refresh(false);
+            RefreshAll(false);
+            mInitialized = true;
         }
         object mLock = new object();
 
-        private void Refresh(bool bClear) {
+        private void RefreshAll(bool bClear) {
             lock (mLock) { 
                 if (bClear) {
                     AudioDeviceListEnd();
@@ -33,17 +36,21 @@ namespace WWShowAudioStatus {
 
                 AudioDeviceListStart();
                 UpdateAudioDeviceList();
-                UpdateAudioClientData();
-                UpdateSpatialAudioData();
-                UpdateDeviceNodeGraph();
-                UpdateAudioSessions();
+                RefreshParams();
             }
+        }
+
+        private void RefreshParams() {
+            UpdateAudioClientData();
+            UpdateSpatialAudioData();
+            UpdateDeviceNodeGraph();
+            UpdateAudioSessions();
         }
 
         private void StatusChanged(StringBuilder idStr, int dwNewState) {
             Dispatcher.BeginInvoke(new Action(delegate () {
                 // 描画スレッドで実行。
-                Refresh(true);
+                RefreshAll(true);
             }));
         }
 
@@ -310,6 +317,8 @@ namespace WWShowAudioStatus {
         }
 
         private void UpdateAudioDeviceList() {
+            mListBoxAudioDevices.SelectionChanged -= MListBoxAudioDevices_SelectionChanged; 
+
             mListBoxAudioDevices.Items.Clear();
 
             int nDevices = mSAS.GetDeviceCount();
@@ -333,12 +342,15 @@ namespace WWShowAudioStatus {
                 mListBoxAudioDevices.SelectedIndex = mDefaultIdx;
                 mListBoxAudioDevices.ScrollIntoView(mDefaultIdx);
             }
+            mListBoxAudioDevices.SelectionChanged += MListBoxAudioDevices_SelectionChanged;
         }
 
         private void MListBoxAudioDevices_SelectionChanged(object sender, SelectionChangedEventArgs e) {
-            UpdateAudioClientData();
-            UpdateSpatialAudioData();
-            UpdateDeviceNodeGraph();
+            if (!mInitialized) {
+                return;
+            }
+
+            RefreshParams();
         }
 
         private void UpdateDeviceNodeGraph() {
@@ -639,7 +651,7 @@ namespace WWShowAudioStatus {
         #endregion
 
         private void Button_Click(object sender, RoutedEventArgs e) {
-            Refresh(true);
+            RefreshAll(true);
         }
     }
 }
