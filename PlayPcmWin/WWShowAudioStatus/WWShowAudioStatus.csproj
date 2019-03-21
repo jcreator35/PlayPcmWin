@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{CA0C8371-8FB9-445C-9ECA-A0B157395870}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <RootNamespace>WWShowAudioStatus</RootNamespace>
     <AssemblyName>WWShowAudioStatus</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>

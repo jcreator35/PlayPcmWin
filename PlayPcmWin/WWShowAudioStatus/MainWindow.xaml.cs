@@ -9,9 +9,14 @@ namespace WWShowAudioStatus {
         private WWShowAudioStatusCs mSAS;
         private int mDefaultIdx;
         private WWShowAudioStatusCs.StateChangedCallback mStateChangedCb;
+        private static string AssemblyVersion {
+            get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); }
+        }
 
         public MainWindow() {
             InitializeComponent();
+
+            Title = string.Format("WWShowAudioStatus {0}", AssemblyVersion);
 
             mSAS = new WWShowAudioStatusCs();
             mDefaultIdx = -1;
