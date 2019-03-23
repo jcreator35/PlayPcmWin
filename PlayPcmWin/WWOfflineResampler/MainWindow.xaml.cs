@@ -54,7 +54,11 @@ namespace WWOfflineResampler {
 
             new TargetSampleRateProperty( 384000, true ),
             new TargetSampleRateProperty( 2822400, false ),
-            new TargetSampleRateProperty( 5644800, false )
+            new TargetSampleRateProperty( 5644800, false ),
+            new TargetSampleRateProperty( 11289600, false ),
+            new TargetSampleRateProperty( 22579200, false ),
+            new TargetSampleRateProperty( 45158400, false ),
+            new TargetSampleRateProperty( 90316800, false ),
         };
         
         Main mMain = new Main();
