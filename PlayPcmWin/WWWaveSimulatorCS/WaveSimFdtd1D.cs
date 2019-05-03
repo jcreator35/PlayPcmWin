@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using WWDirectComputeCS;
 
 namespace WWWaveSimulatorCS {
-    public class WaveSim1D {
+    public class WaveSimFdtd1D {
         WWWave1DGpu mCS;
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace WWWaveSimulatorCS {
 
         private List<WaveEvent> mWaveEventList = new List<WaveEvent>();
 
-        public WaveSim1D(int gridW, float c0, float Δt, float Δx, float wallReflectivity) {
+        public WaveSimFdtd1D(int gridW, float c0, float Δt, float Δx, float wallReflectivity) {
             int hr = 0;
 
             mGridW = gridW;

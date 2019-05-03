@@ -8,7 +8,7 @@ using WWDirectComputeCS;
 using WWMath;
 
 namespace WWWaveSimulatorCS {
-    public class WaveSim2D {
+    public class WaveSimFdtd2D {
         WWWave2DGpu mCS;
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace WWWaveSimulatorCS {
 
         private List<WaveEvent> mWaveEventList = new List<WaveEvent>();
 
-        public WaveSim2D(int gridW, int gridH, float c0, float Δt, float Δx) {
+        public WaveSimFdtd2D(int gridW, int gridH, float c0, float Δt, float Δx) {
             int hr = 0;
 
             VisualizeMode = VisualizeModeType.VM_Linear;

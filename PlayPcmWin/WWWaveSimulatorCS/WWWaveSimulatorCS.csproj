@@ -88,8 +88,8 @@
     <Compile Include="Params.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WaveEvent.cs" />
-    <Compile Include="WaveSim1D.cs" />
-    <Compile Include="WaveSim2D.cs" />
+    <Compile Include="WaveSimFdtd1D.cs" />
+    <Compile Include="WaveSimFdtd2D.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WWDirectComputeCS\WWDirectComputeCS.csproj">

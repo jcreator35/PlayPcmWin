@@ -10,7 +10,7 @@ namespace WWWaveSimulator1D {
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window {
-        private WaveSim1D mSim;
+        private WaveSimFdtd1D mSim;
 
         private int mW = 1024;
         private int mVisualizeStep = 4;
@@ -96,7 +96,7 @@ namespace WWWaveSimulator1D {
                     mSim = null;
                 }
 
-                mSim = new WaveSim1D(mW, mC0, mΔt, mΔx, mWallReflectivity);
+                mSim = new WaveSimFdtd1D(mW, mC0, mΔt, mΔx, mWallReflectivity);
             }
 
             if (null != mDT) {
