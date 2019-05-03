@@ -30,7 +30,7 @@ namespace WWWaveSimulatorCS {
 
         /// <summary>
         /// その場所の相対音速cr
-        /// (最大音速をc0とすると、その場所の音速ca = cr *c0、0&lt;cR&le;1)
+        /// (最大音速をc0とすると、その場所の音速ca = cr *c0、0 &lt; cR &le; 1)
         /// </summary>
         float[] mCr;
 
@@ -41,24 +41,27 @@ namespace WWWaveSimulatorCS {
         /// </summary>
         int mTimeTick;
 
-        private float mC0 = 334.0f;             // 334 (m/s)
-        private float mΔt = 1.0e-5f;            // 1x10^-5 (s)
-        private float mΔx = 334.0f * 1.0e-5f;   // 334 * 10^-5 (m)
-        private float mSc = 0; // c0 * Δt / Δx;
+        private float mC0 = 334.0f;  // 334 (m/s) 最も速い場所の音速。(cr==1の場所)。 ca=cr * c0
+        private float mΔt = 1.0e-5f; // 1x10^-5 (s)
+        private float mΔx = 0;       // 334 * 10^-5 (m)
+        private float mSc = 0;       // c0 * Δt / Δx;
+        private float mWallReflectivity;
 
         private List<WaveEvent> mWaveEventList = new List<WaveEvent>();
 
-        public WaveSim1D(int gridW, float c0, float Δt, float Δx) {
+        public WaveSim1D(int gridW, float c0, float Δt, float Δx, float wallReflectivity) {
             int hr = 0;
 
             mGridW = gridW;
             mC0 = c0;
             mΔt = Δt;
             mΔx = Δx;
+            mWallReflectivity = wallReflectivity;
 
             mSc = mC0 * mΔt / mΔx;
 
             Reset();
+
             mCS = new WWWave1DGpu();
 
             do {
@@ -92,7 +95,15 @@ namespace WWWaveSimulatorCS {
             mCr = new float[mGridW];
             mLoss = new float[mGridW];
 
+            // 相対音速。0 < Cr <= 1
+            for (int i = 0; i < mGridW; ++i) {
+                mCr[i] = 1; // 1.0f;
+            }
+
             /*
+             * Ca == Cr * C0
+             * Sc = C0Δt/Δx (1Dのときは1以下、2Dのときは0.7以下)
+             * 
              * 音響インピーダンスη=ρ*Ca (Schneider17, pp.63, pp.325)
              * η1から前進しη2の界面に達した波が界面で反射するとき
              *
@@ -100,7 +111,7 @@ namespace WWWaveSimulatorCS {
              * 反射率 r = ────────
              *             η2+η1
              * 
-             * 媒質1のインピーダンスη1と反射率→媒質2のインピーダンスη2を得る式:
+             * 媒質1のインピーダンスη1と反射率 → 媒質2のインピーダンスη2 を得る式:
              *
              *       -(r+1)η1
              * η2 = ─────────
@@ -111,8 +122,8 @@ namespace WWWaveSimulatorCS {
                 mRoh[i] = 1.0f;
             }
 
-            // 左右端領域は反射率90％の壁になっている。
-            float r = 0.8f; // 0.9 == 90%
+            // 左右端領域は反射率rの壁になっている。
+            float r = mWallReflectivity; // 0.9 == 90%
             float roh2 = -(r + 1) * 1.0f / (r - 1);
             for (int i = 0; i < mGridW * 1 / 20; ++i) {
                 mRoh[i] = roh2;
@@ -121,11 +132,6 @@ namespace WWWaveSimulatorCS {
             for (int i = mGridW *19/20; i < mGridW; ++i) {
                 mRoh[i] = roh2;
                 mLoss[i] = 0.1f;
-            }
-
-            // 相対音速。0 < Cr < 1
-            for (int i = 0; i < mGridW; ++i) {
-                mCr[i] = 1.0f;
             }
 
             mWaveEventList.Clear();

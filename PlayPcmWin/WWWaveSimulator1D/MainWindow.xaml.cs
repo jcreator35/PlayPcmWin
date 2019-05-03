@@ -29,6 +29,8 @@ namespace WWWaveSimulator1D {
         private float mC0 = 334.0f;             // 334 (m/s)
         private float mΔt = 1.0e-5f;            // 1x10^-5 (s)
         private float mΔx = 334.0f * 1.0e-5f;   // 334 * 10^-5 (m)  (mC0 * mΔtにするとSc=1になる)
+        private float mWallReflectivity = 0.9f; // 0.9 == 90%
+        private float mSc = 1.0f; // Courant Number
 
         public MainWindow() {
             InitializeComponent();
@@ -61,12 +63,28 @@ namespace WWWaveSimulator1D {
                 MessageBox.Show("E: parsing Time step failed");
                 return;
             }
+            if (!float.TryParse(textBoxWallReflectivity.Text, out mWallReflectivity) || mWallReflectivity < 0.0f || 1.0f <= mWallReflectivity) {
+                MessageBox.Show("E: wall reflectivity should be number between 0.0 and 1.0");
+                return;
+            }
+            if (!float.TryParse(textBoxSc.Text, out mSc) || mSc < 0.0f || 1.0f < mSc) {
+                MessageBox.Show("E: Courant Number of 1-dimension FDTD should be number between 0.0 and 1.0");
+                return;
+            }
+
+            /*
+             * Sc = C0Δt/Δx
+             * Δx = C0Δt/Sc
+             
+             */
+
+
             mΔt = Δt_ms * 0.001f;
 
-            mΔx = mC0 * mΔt;
+            mΔx = mC0 * mΔt / mSc;
 
-            textBlockHalf.Text = string.Format("{0}", mΔx * 512);
-            textBlockFull.Text = string.Format("{0}", mΔx * 1024);
+            textBlockHalf.Text = string.Format("{0:0.00}", mΔx * 512);
+            textBlockFull.Text = string.Format("{0:0.00}", mΔx * 1024);
 
             if (null != mDT) {
                 mDT.Stop();
@@ -78,7 +96,7 @@ namespace WWWaveSimulator1D {
                     mSim = null;
                 }
 
-                mSim = new WaveSim1D(mW, mC0, mΔt, mΔx);
+                mSim = new WaveSim1D(mW, mC0, mΔt, mΔx, mWallReflectivity);
             }
 
             if (null != mDT) {

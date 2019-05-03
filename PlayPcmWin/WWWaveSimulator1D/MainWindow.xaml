@@ -8,7 +8,7 @@
             <ColumnDefinition Width="1*" />
         </Grid.ColumnDefinitions>
         <StackPanel Name="stackPanel1">
-            <GroupBox Header="Settings" Height="100" Name="groupBox1" >
+            <GroupBox Header="Settings" Height="160" Name="groupBox1" >
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2*" />
@@ -18,12 +18,18 @@
                         <RowDefinition Height="1*" />
                         <RowDefinition Height="1*" />
                         <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
                     </Grid.RowDefinitions>
                     <Label Content="Sound speed (m/s)" HorizontalAlignment="Right" Name="labelSoundSpeed" VerticalAlignment="Center" />
                     <TextBox Grid.Column="1" HorizontalAlignment="Left" Name="textBoxSoundSpeed" VerticalAlignment="Center" Width="60" Text="334" HorizontalContentAlignment="Right"  />
                     <Label Content="Time step Δt (ms)" Grid.Row="1" HorizontalAlignment="Right" Name="labelTimeStep" VerticalAlignment="Center" />
                     <TextBox Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" Name="textBoxTimeStep" VerticalAlignment="Center" Width="60" Text="0.01" HorizontalContentAlignment="Right" />
-                    <Button Content="Reset Simulator" Grid.Row="2" HorizontalAlignment="Center" Grid.ColumnSpan="2" Name="buttonUpdateSimulator" VerticalAlignment="Center" Click="buttonUpdateSimulator_Click" />
+                    <Label Content="Wall reflectivity " Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                    <TextBox Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" Name="textBoxWallReflectivity" VerticalAlignment="Center" Width="60" Text="0.9" HorizontalContentAlignment="Right" />
+                    <Label Content="Courant Nr. Optimal = 1" Grid.Row="3" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                    <TextBox Grid.Column="1" Grid.Row="3" HorizontalAlignment="Left" Name="textBoxSc" VerticalAlignment="Center" Width="60" Text="1" HorizontalContentAlignment="Right" />
+                    <Button Content="Reset Simulator" Grid.Row="4" HorizontalAlignment="Center" Grid.ColumnSpan="2" Name="buttonUpdateSimulator" VerticalAlignment="Center" Click="buttonUpdateSimulator_Click" />
                 </Grid>
             </GroupBox>
             <GroupBox Header="Control" Height="146" Name="groupBox2" >
@@ -44,13 +50,13 @@
                     <Button Content="⏸" HorizontalAlignment="Center" Grid.Column="1" Name="buttonPause" VerticalAlignment="Center" Width="50" Height="40" FontSize="20" Click="buttonPause_Click" IsEnabled="True" />
                     <Button Content="⏩" HorizontalAlignment="Center" Grid.Column="2" Name="buttonFastForward10" VerticalAlignment="Center" Width="50" Height="40" FontSize="20" Click="buttonFastForward10_Click" IsEnabled="True" />
                     <Label Content="Time Step:" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left" VerticalAlignment="Center" />
-                    <Slider Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Center" Margin="7,0,0,0" Name="sliderTimeStep" VerticalAlignment="Top" Width="50" ValueChanged="sliderTimeStep_ValueChanged" Minimum="1" SmallChange="0.1" Maximum="16" TickPlacement="BottomRight" Value="5" LargeChange="1" />
+                    <Slider Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Center" Margin="7,0,0,0" Name="sliderTimeStep" VerticalAlignment="Top" Width="50" ValueChanged="sliderTimeStep_ValueChanged" Minimum="0" SmallChange="0.1" Maximum="16" TickPlacement="BottomRight" Value="5" LargeChange="1" />
                     <Label Content="32" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Right" Name="labelTimeStepNumber" VerticalAlignment="Center" />
                     <Label Content="Time:" Grid.Row="2" HorizontalAlignment="Right" Name="labelTime" VerticalAlignment="Center" />
                     <Label Content="0.0" Grid.Row="2" Grid.Column="2" HorizontalAlignment="Right" Name="labelSec" VerticalAlignment="Center" />
                     <Label Content="ms" Grid.Row="2" Grid.Column="3" HorizontalAlignment="Left" Name="labelSecUnit" VerticalAlignment="Center" />
                     <Label Content="Iteration count:" Grid.Row="3" Grid.ColumnSpan="2" HorizontalAlignment="Right" VerticalAlignment="Center" />
-                    <Label Content="0" Grid.Row="3" Grid.Column="2" HorizontalAlignment="Center" Name="labelIterationCount" VerticalAlignment="Center" />
+                    <Label Content="0" Grid.Row="3" Grid.Column="2" HorizontalAlignment="Right" Name="labelIterationCount" VerticalAlignment="Center" />
                 </Grid>
             </GroupBox>
             <GroupBox Header="Stimulus" Height="100" Name="groupBoxSourceControl" >
