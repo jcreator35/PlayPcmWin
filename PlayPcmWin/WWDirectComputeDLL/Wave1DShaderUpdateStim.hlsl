@@ -19,6 +19,7 @@ struct Stim {
     int counter;
     int pos;
     float magnitude;
+
     float halfPeriod;
     float width;
     float omega;

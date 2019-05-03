@@ -314,5 +314,9 @@ namespace WWWaveSimulatorCS {
         public float ElapsedTime() {
             return mTimeTick * mΔt;
         }
+
+        public int ElapsedCount() {
+            return mTimeTick;
+        }
     }
 }

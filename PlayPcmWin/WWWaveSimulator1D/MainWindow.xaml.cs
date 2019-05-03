@@ -120,6 +120,8 @@ namespace WWWaveSimulator1D {
             labelSec.Content = string.Format("{0:F4}", mSim.ElapsedTime());
             labelMagnitude.Content = string.Format("Magnitude: {0:F4}", mSim.Magnitude());
 
+            labelIterationCount.Content = string.Format("{0}", mSim.ElapsedCount());
+
             // update Peak Magnitude
             if (mPeakMagnitude < mSim.Magnitude()) {
                 mPeakMagnitude = mSim.Magnitude();

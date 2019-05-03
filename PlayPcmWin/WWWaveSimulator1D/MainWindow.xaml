@@ -26,10 +26,11 @@
                     <Button Content="Reset Simulator" Grid.Row="2" HorizontalAlignment="Center" Grid.ColumnSpan="2" Name="buttonUpdateSimulator" VerticalAlignment="Center" Click="buttonUpdateSimulator_Click" />
                 </Grid>
             </GroupBox>
-            <GroupBox Header="Control" Height="116" Name="groupBox2" >
+            <GroupBox Header="Control" Height="146" Name="groupBox2" >
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="46*" />
+                        <RowDefinition Height="24" />
                         <RowDefinition Height="24" />
                         <RowDefinition Height="24" />
                     </Grid.RowDefinitions>
@@ -48,6 +49,8 @@
                     <Label Content="Time:" Grid.Row="2" HorizontalAlignment="Right" Name="labelTime" VerticalAlignment="Center" />
                     <Label Content="0.0" Grid.Row="2" Grid.Column="2" HorizontalAlignment="Right" Name="labelSec" VerticalAlignment="Center" />
                     <Label Content="ms" Grid.Row="2" Grid.Column="3" HorizontalAlignment="Left" Name="labelSecUnit" VerticalAlignment="Center" />
+                    <Label Content="Iteration count:" Grid.Row="3" Grid.ColumnSpan="2" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                    <Label Content="0" Grid.Row="3" Grid.Column="2" HorizontalAlignment="Center" Name="labelIterationCount" VerticalAlignment="Center" />
                 </Grid>
             </GroupBox>
             <GroupBox Header="Stimulus" Height="100" Name="groupBoxSourceControl" >
