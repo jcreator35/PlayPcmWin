@@ -8,10 +8,11 @@
             <ColumnDefinition Width="1*" />
         </Grid.ColumnDefinitions>
         <StackPanel Name="stackPanel1">
-            <GroupBox Header="Control" Height="130" Name="groupBox2" >
+            <GroupBox Header="Control" Height="160" Name="groupBox2" >
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="2*" />
+                        <RowDefinition Height="1*" />
                         <RowDefinition Height="1*" />
                         <RowDefinition Height="1*" />
                     </Grid.RowDefinitions>
@@ -29,6 +30,8 @@
                     <Label Content="0.0" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Right" Name="labelSec" VerticalAlignment="Center" />
                     <Label Content="ms" Grid.Row="2" Grid.Column="3" HorizontalAlignment="Left" Name="labelSecUnit" VerticalAlignment="Center" />
                     <Slider Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" Height="23" Name="sliderStep" VerticalAlignment="Center" Margin="0,0" Minimum="0" SmallChange="1" TickFrequency="1" TickPlacement="BottomRight" ValueChanged="sliderStep_ValueChanged" Value="0" />
+                    <Label Content="Iteration:" Grid.Row="3" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                    <Label Content="0.0" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Right" Name="labelIteration" VerticalAlignment="Center" />
                 </Grid>
             </GroupBox>
             <GroupBox Header="Stimulus" Height="100" Name="groupBoxSourceControl" >
@@ -50,7 +53,7 @@
                     <Label Content="Frequency (Hz)" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Right" Name="labelFreq" VerticalAlignment="Center" />
                     <TextBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Name="textBoxFreq" VerticalAlignment="Center" Width="60" Text="271.25" HorizontalContentAlignment="Right" />
                     <Label Content="Magnitude" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Right" Name="labelStimulationMagnitude" VerticalAlignment="Center" />
-                    <TextBox Grid.Row="2" Grid.Column="1" HorizontalAlignment="Left" Name="textBoxStimulationMagnitude" VerticalAlignment="Center" Width="60" Text="0.2" HorizontalContentAlignment="Right" />
+                    <TextBox Grid.Row="2" Grid.Column="1" HorizontalAlignment="Left" Name="textBoxStimulationMagnitude" VerticalAlignment="Center" Width="60" Text="1.0" HorizontalContentAlignment="Right" />
                 </Grid>
             </GroupBox>
             <GroupBox Header="Show" Name="groupBoxShow" >
@@ -85,10 +88,10 @@
                 <Image Width="1024" Height="1024" Name="mImagePressure" />
                 <Image Width="1024" Height="1024" Name="mImageLoss" Visibility="Hidden" />
                 <Image Width="1024" Height="1024" Name="mImageCr" Visibility="Hidden"/>
-                <Line X1="512" X2="512" Y1="0" Y2="6" Stroke="Black" />
-                <TextBlock Canvas.Left="0" Canvas.Top="5" Name="textBlockZero" Text="0"  />
-                <TextBlock Canvas.Left="509" Canvas.Top="5" Name="textBlockHalf" Text="Half"  />
-                <TextBlock Canvas.Left="1015" Canvas.Top="5" Name="textBlockFull" Text="Full"  />
+                <Line X1="512" X2="512" Y1="0" Y2="6" Stroke="#FF64FF00" />
+                <TextBlock Canvas.Left="0" Canvas.Top="5" Name="textBlockZero" Text="0" Background="White" OpacityMask="{x:Null}" />
+                <TextBlock Canvas.Left="509" Canvas.Top="5" Name="textBlockHalf" Text="Half" OpacityMask="{x:Null}" Background="White" />
+                <TextBlock Canvas.Left="1015" Canvas.Top="5" Name="textBlockFull" Text="Full" OpacityMask="{x:Null}" Background="White" />
             </Canvas>
         </ScrollViewer>
     </Grid>

@@ -21,7 +21,7 @@ namespace WWWaveSimulator2D {
     public partial class MainWindow : Window {
         private bool mInitialized;
         private DispatcherTimer mDT;
-        private WaveSim2D mSim;
+        private WaveSimFdtd2D mSim;
         private object mLock = new object();
         private int mW = 512;
         private int mH = 512;
@@ -70,7 +70,7 @@ namespace WWWaveSimulator2D {
             textBlockFull.Text = string.Format("{0}", mΔx * 1024);
 
             lock (mLock) {
-                mSim = new WaveSim2D(mW, mH, mC0, mΔt, mΔx);
+                mSim = new WaveSimFdtd2D(mW, mH, mC0, mΔt, mΔx);
             }
 
             {
@@ -109,6 +109,7 @@ namespace WWWaveSimulator2D {
 
             labelSec.Content = string.Format("{0:F4}", mSim.ElapsedTime());
             labelMagnitude.Content = string.Format("Magnitude: {0:F4}", mSim.Magnitude());
+            labelIteration.Content = string.Format("{0}", mSim.TimeTick());
         }
 
         private void buttonRewind_Click(object sender, RoutedEventArgs e) {
@@ -225,7 +226,7 @@ namespace WWWaveSimulator2D {
                 return;
             }
 
-            mSim.VisualizeMode = WaveSim2D.VisualizeModeType.VM_Linear;
+            mSim.VisualizeMode = WaveSimFdtd2D.VisualizeModeType.VM_Linear;
 
             mImageCr.Visibility = System.Windows.Visibility.Hidden;
             mImageLoss.Visibility = System.Windows.Visibility.Hidden;
@@ -237,7 +238,7 @@ namespace WWWaveSimulator2D {
                 return;
             }
 
-            mSim.VisualizeMode = WaveSim2D.VisualizeModeType.VM_Log;
+            mSim.VisualizeMode = WaveSimFdtd2D.VisualizeModeType.VM_Log;
 
             mImageCr.Visibility = System.Windows.Visibility.Hidden;
             mImageLoss.Visibility = System.Windows.Visibility.Hidden;
