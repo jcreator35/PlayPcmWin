@@ -64,14 +64,25 @@ namespace WWWaveSimulator2D {
         }
 
         private void CreateSimulator() {
-            mΔx = mC0 * mΔt;
-
-            textBlockHalf.Text = string.Format("{0}", mΔx * 512);
-            textBlockFull.Text = string.Format("{0}", mΔx * 1024);
+            if (!float.TryParse(mTextBoxC0.Text, out mC0) || mC0 <= 0) {
+                MessageBox.Show("C0 should be number larger than 0");
+                return;
+            }
+            if (!float.TryParse(mTextBoxΔt.Text, out mΔt) || mΔt <= 0) {
+                MessageBox.Show("Δt should be number larger than 0");
+                return;
+            }
+            mΔt = mΔt * 0.001f; //< msで入力、秒に変換。
 
             lock (mLock) {
-                mSim = new WaveSimFdtd2D(mW, mH, mC0, mΔt, mΔx);
+                mSim = new WaveSimFdtd2D(mW, mH, mC0, mΔt);
             }
+
+            mΔx = mSim.GetΔx();
+            Console.WriteLine("C0={0} Δt={1} Δx={2}", mC0, mΔt, mΔx);
+
+            textBlockHalf.Text = string.Format("{0:0.00} m", mΔx * 512);
+            textBlockFull.Text = string.Format("{0:0.00} m", mΔx * 1024);
 
             {
                 var bitmap = BitmapSource.Create(mW, mH, 96, 96, PixelFormats.Gray32Float, null, mSim.LossShow(), mW * 4);
@@ -263,6 +274,17 @@ namespace WWWaveSimulator2D {
             mImageCr.Visibility = System.Windows.Visibility.Visible;
             mImageLoss.Visibility = System.Windows.Visibility.Hidden;
             mImagePressure.Visibility = System.Windows.Visibility.Hidden;
+        }
+
+        private void ButtonReset_Click(object sender, RoutedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            }
+
+            mDT.Stop();
+            DestroySimulator();
+            CreateSimulator();
+            mDT.Start();
         }
 
     }
