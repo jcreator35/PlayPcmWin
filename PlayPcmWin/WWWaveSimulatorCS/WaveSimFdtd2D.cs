@@ -46,21 +46,21 @@ namespace WWWaveSimulatorCS {
         int mTimeTick;
 
         private float mC0 = 1.0f; // 334.0f;             // 334 (m/s)
-        private float mΔt = 1.0f; // 1.0e-5f;            // 1x10^-5 (s)
-        //private float mΔx = 1.0f; // 334.0f * 1.0e-5f;   // 334 * 10^-5 (m)  Δx = c0 * Δt / Sc
+        private float mΔt = 1.0f; // 1.0e-5f;            // 1x10^-5 (s)               Δt = Δx * Sc / c0
+        //private float mΔx = 1.0f; // 334.0f * 1.0e-5f;   // 334 * 10^-5 (m)         Δx = c0 * Δt / Sc
         private float mSc = 1.0f / (float)Math.Sqrt(2.0); // クーラン数は1.0/sqrt(2)   Sc = c0 * Δt / Δx;
 
         private List<WaveEvent> mWaveEventList = new List<WaveEvent>();
 
-        public float GetΔx() {
-            return mC0 * mΔt / mSc;
+        public float GetΔt() {
+            return mΔt;
         }
 
-        public WaveSimFdtd2D(int gridW, int gridH, float c0, float Δt) {
+        public WaveSimFdtd2D(int gridW, int gridH, float c0, float Δx) {
             int hr = 0;
 
             mC0 = c0;
-            mΔt = Δt;
+            mΔt = Δx * mSc / mC0;
 
             VisualizeMode = VisualizeModeType.VM_Linear;
 

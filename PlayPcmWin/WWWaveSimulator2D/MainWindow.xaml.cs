@@ -68,17 +68,17 @@ namespace WWWaveSimulator2D {
                 MessageBox.Show("C0 should be number larger than 0");
                 return;
             }
-            if (!float.TryParse(mTextBoxΔt.Text, out mΔt) || mΔt <= 0) {
-                MessageBox.Show("Δt should be number larger than 0");
+            if (!float.TryParse(mTextBoxΔx.Text, out mΔx) || mΔx <= 0) {
+                MessageBox.Show("Δx should be number larger than 0");
                 return;
             }
-            mΔt = mΔt * 0.001f; //< msで入力、秒に変換。
+            mΔx = mΔx * 0.01f; //< cmで入力、mに変換。
 
             lock (mLock) {
-                mSim = new WaveSimFdtd2D(mW, mH, mC0, mΔt);
+                mSim = new WaveSimFdtd2D(mW, mH, mC0, mΔx);
             }
 
-            mΔx = mSim.GetΔx();
+            mΔt = mSim.GetΔt();
             Console.WriteLine("C0={0} Δt={1} Δx={2}", mC0, mΔt, mΔx);
 
             textBlockHalf.Text = string.Format("{0:0.00} m", mΔx * 512);
@@ -119,7 +119,7 @@ namespace WWWaveSimulator2D {
             mImagePressure.Source = bitmap;
 
             labelSec.Content = string.Format("{0:F4}", mSim.ElapsedTime());
-            labelMagnitude.Content = string.Format("Magnitude: {0:F4}", mSim.Magnitude());
+            labelMagnitude.Content = string.Format("Magnitude: {0:r}", mSim.Magnitude());
             labelIteration.Content = string.Format("{0}", mSim.TimeTick());
         }
 

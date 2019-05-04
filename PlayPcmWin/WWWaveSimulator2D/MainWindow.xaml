@@ -38,9 +38,9 @@
                     <Label Content="C0:" Grid.Row="4" HorizontalAlignment="Right" VerticalAlignment="Center" />
                     <TextBox Text="334.0" Grid.Row="4" Grid.Column="2" VerticalAlignment="Center" HorizontalContentAlignment="Right" Name="mTextBoxC0" />
                     <Label Content="m/s" Grid.Row="4" Grid.Column="3" Grid.ColumnSpan="2" HorizontalAlignment="Left" VerticalAlignment="Center" />
-                    <Label Content="Δt:" Grid.Row="5" HorizontalAlignment="Right" VerticalAlignment="Center" />
-                    <TextBox Text="1.0" Grid.Row="5" Grid.Column="2" VerticalAlignment="Center" HorizontalContentAlignment="Right" Name="mTextBoxΔt" />
-                    <Label Content="ms" Grid.Row="5" Grid.Column="3" Grid.ColumnSpan="2" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                    <Label Content="Δx:" Grid.Row="5" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                    <TextBox Text="1.0" Grid.Row="5" Grid.Column="2" VerticalAlignment="Center" HorizontalContentAlignment="Right" Name="mTextBoxΔx" />
+                    <Label Content="cm" Grid.Row="5" Grid.Column="3" Grid.ColumnSpan="2" HorizontalAlignment="Left" VerticalAlignment="Center" />
                     <Button Content="Reset Simulation" Grid.Row="6" Grid.ColumnSpan="4" HorizontalAlignment="Center" VerticalAlignment="Center" Click="ButtonReset_Click" />
                 </Grid>
             </GroupBox>
