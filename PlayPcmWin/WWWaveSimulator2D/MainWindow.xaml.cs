@@ -80,6 +80,7 @@ namespace WWWaveSimulator2D {
 
             mΔt = mSim.GetΔt();
             Console.WriteLine("C0={0} Δt={1} Δx={2}", mC0, mΔt, mΔx);
+            mLabelΔt.Content = string.Format("{0:0.00}μs", mΔt * 1000 * 1000);
 
             textBlockHalf.Text = string.Format("{0:0.00} m", mΔx * 512);
             textBlockFull.Text = string.Format("{0:0.00} m", mΔx * 1024);

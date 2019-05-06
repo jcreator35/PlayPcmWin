@@ -18,6 +18,7 @@
                         <RowDefinition Height="1*" />
                         <RowDefinition Height="1*" />
                         <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1*" />
@@ -41,10 +42,31 @@
                     <Label Content="Δx:" Grid.Row="5" HorizontalAlignment="Right" VerticalAlignment="Center" />
                     <TextBox Text="1.0" Grid.Row="5" Grid.Column="2" VerticalAlignment="Center" HorizontalContentAlignment="Right" Name="mTextBoxΔx" />
                     <Label Content="cm" Grid.Row="5" Grid.Column="3" Grid.ColumnSpan="2" HorizontalAlignment="Left" VerticalAlignment="Center" />
-                    <Button Content="Reset Simulation" Grid.Row="6" Grid.ColumnSpan="4" HorizontalAlignment="Center" VerticalAlignment="Center" Click="ButtonReset_Click" />
+                    <Label Content="Δt:" Grid.Row="6" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                    <Label Content="ms" Grid.Row="6" Grid.Column="2" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Name="mLabelΔt" />
+                    <Button Content="Reset Simulation" Grid.Row="7" Grid.ColumnSpan="4" HorizontalAlignment="Center" VerticalAlignment="Center" Click="ButtonReset_Click" />
                 </Grid>
             </GroupBox>
-            <GroupBox Header="Stimulus" Height="100" Name="groupBoxSourceControl" >
+            <GroupBox Header="Room Dimension" Name="groupBoxRoomDimension" >
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="1*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                    </Grid.RowDefinitions>
+                    <Label Content="Width:" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                    <TextBox Text="2.7" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" HorizontalContentAlignment="Right" Name="mTextBoxWidth" />
+                    <Label Content="m (&lt;10m)" Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                    <Label Content="Height:" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                    <TextBox Text="4.5" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" HorizontalContentAlignment="Right" Name="mTextBoxHeight" />
+                    <Label Content="m (&lt;10m)" Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                </Grid>
+            </GroupBox>
+            <GroupBox Header="Stimulus Settings" Grid.Row="2" Height="100" Name="groupBoxSourceControl" >
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2*" />
