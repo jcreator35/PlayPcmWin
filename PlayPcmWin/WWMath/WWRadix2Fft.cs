@@ -166,7 +166,7 @@ namespace WWMath {
                 }
 
                 if (allZero) {
-                    for (int j=0; j < nSubRepeat / 2; ++j) {
+                    for (int j=0; j < nSubRepeat; ++j) {
                         y[j + offsBase] = WWComplex.Zero();
                     }
                 } else {

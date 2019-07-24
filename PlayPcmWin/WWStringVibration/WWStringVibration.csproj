@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{2B70EDA4-2C68-4625-8F85-1878CCF293FA}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <RootNamespace>WWStringVibration</RootNamespace>
     <AssemblyName>WWStringVibration</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
@@ -34,6 +34,9 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -91,6 +94,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WWMath\WWMathVS2017.csproj">
+      <Project>{4045d422-0d92-4b97-8765-3f3cd90b61fe}</Project>
+      <Name>WWMathVS2017</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WWUtil\WWUtilVS2017.csproj">
+      <Project>{f3dccd96-a62c-4a5b-a925-a7fd74fabb3d}</Project>
+      <Name>WWUtilVS2017</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

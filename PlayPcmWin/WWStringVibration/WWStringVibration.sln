@@ -5,16 +5,40 @@ VisualStudioVersion = 15.0.28307.645
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WWStringVibration", "WWStringVibration.csproj", "{2B70EDA4-2C68-4625-8F85-1878CCF293FA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WWUtilVS2017", "..\WWUtil\WWUtilVS2017.csproj", "{F3DCCD96-A62C-4A5B-A925-A7FD74FABB3D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WWMathVS2017", "..\WWMath\WWMathVS2017.csproj", "{4045D422-0D92-4B97-8765-3F3CD90B61FE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
 		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2B70EDA4-2C68-4625-8F85-1878CCF293FA}.Debug|Any CPU.ActiveCfg = Debug|x64
 		{2B70EDA4-2C68-4625-8F85-1878CCF293FA}.Debug|x64.ActiveCfg = Debug|x64
 		{2B70EDA4-2C68-4625-8F85-1878CCF293FA}.Debug|x64.Build.0 = Debug|x64
+		{2B70EDA4-2C68-4625-8F85-1878CCF293FA}.Release|Any CPU.ActiveCfg = Release|x64
 		{2B70EDA4-2C68-4625-8F85-1878CCF293FA}.Release|x64.ActiveCfg = Release|x64
 		{2B70EDA4-2C68-4625-8F85-1878CCF293FA}.Release|x64.Build.0 = Release|x64
+		{F3DCCD96-A62C-4A5B-A925-A7FD74FABB3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3DCCD96-A62C-4A5B-A925-A7FD74FABB3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3DCCD96-A62C-4A5B-A925-A7FD74FABB3D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F3DCCD96-A62C-4A5B-A925-A7FD74FABB3D}.Debug|x64.Build.0 = Debug|Any CPU
+		{F3DCCD96-A62C-4A5B-A925-A7FD74FABB3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3DCCD96-A62C-4A5B-A925-A7FD74FABB3D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F3DCCD96-A62C-4A5B-A925-A7FD74FABB3D}.Release|x64.ActiveCfg = Release|Any CPU
+		{F3DCCD96-A62C-4A5B-A925-A7FD74FABB3D}.Release|x64.Build.0 = Release|Any CPU
+		{4045D422-0D92-4B97-8765-3F3CD90B61FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4045D422-0D92-4B97-8765-3F3CD90B61FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4045D422-0D92-4B97-8765-3F3CD90B61FE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4045D422-0D92-4B97-8765-3F3CD90B61FE}.Debug|x64.Build.0 = Debug|Any CPU
+		{4045D422-0D92-4B97-8765-3F3CD90B61FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4045D422-0D92-4B97-8765-3F3CD90B61FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4045D422-0D92-4B97-8765-3F3CD90B61FE}.Release|x64.ActiveCfg = Release|Any CPU
+		{4045D422-0D92-4B97-8765-3F3CD90B61FE}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

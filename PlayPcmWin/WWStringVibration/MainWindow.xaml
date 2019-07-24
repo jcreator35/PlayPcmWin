@@ -29,6 +29,8 @@
                 <StackPanel Grid.Row="1" Orientation="Horizontal">
                     <Button x:Name="mButtonReset" Content="_Reset" Margin="6,6,0,6" Click="MButtonReset_Click" />
                     <Button x:Name="mButtonPreset1" Content="_Preset1" Margin="6,6,0,6" Click="MButtonPreset1_Click" />
+                    <Button x:Name="mButtonPreset2" Content="_Preset2" Margin="6,6,0,6" Click="MButtonPreset2_Click" />
+                    <Button x:Name="mButtonPreset3" Content="_Preset3" Margin="6,6,0,6" Click="MButtonPreset3_Click" />
                 </StackPanel>
                 <GroupBox Grid.Row="2" Header="Control points" >
                     <ScrollViewer HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Auto" >

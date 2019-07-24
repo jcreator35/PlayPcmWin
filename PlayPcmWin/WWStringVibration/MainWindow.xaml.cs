@@ -12,7 +12,7 @@ namespace WWStringVibration {
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window {
-        private int mNumPoints = 32;
+        private int mNumPoints = 33;
         private bool mInitialized = false;
         private List<double> mPointHeights = new List<double>();
 
@@ -21,22 +21,32 @@ namespace WWStringVibration {
         }
 
         private void CalcWave() {
-            /*
-            var p = new WWMath.WWComplex[mNumPoints];
-            for (int i=0; i<mNumPoints; ++i) {
+            int n = mNumPoints - 1;
+            var p = new WWMath.WWComplex[n];
+            for (int i=0; i< n; ++i) {
                 p[i] = new WWMath.WWComplex(mPointHeights[i],0);
             }
-            var fft = new WWMath.WWRadix2Fft(mNumPoints);
+            var fft = new WWMath.WWRadix2Fft(n);
             var f = fft.ForwardFft(p);
-            {
-                int i = 0;
-                foreach (var item in f) {
-                    if (item != null) { 
-                        Console.WriteLine("{0} {1} {2} {3}", i++, item.real, item.imaginary, item.Magnitude());
-                    }
-                }
+
+            for (int i=0; i<f.Length; ++i) {
+                f[i] = f[i].Scale(1.0 / (n / 2));
             }
-            */
+
+            {
+                Console.WriteLine("id height");
+                int i = 0;
+                foreach (var item in p) {
+                    Console.WriteLine("{0} {1}", i++, item.real);
+                }
+
+                Console.WriteLine("\nid real imag magnitude");
+                i = 0;
+                foreach (var item in f) {
+                    Console.WriteLine("{0} {1:0.####} {2:0.####} {3:0.####}", i++, item.real, item.imaginary, item.Magnitude());
+                }
+                Console.WriteLine("");
+            }
         }
 
         private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) {
@@ -63,7 +73,7 @@ namespace WWStringVibration {
         }
 
         private void UpdateNumControlPoints() {
-            mNumPoints = (int)Math.Pow(2, (int)mSliderNumControlPoints.Value);
+            mNumPoints = 1 + (int)Math.Pow(2, (int)mSliderNumControlPoints.Value);
             mLabelNumOfControlPoints.Content = string.Format("Num Of Points ={0}", mNumPoints);
 
             // control pointの数を調整。
@@ -165,8 +175,36 @@ namespace WWStringVibration {
         private void MButtonPreset1_Click(object sender, RoutedEventArgs e) {
             double h = mCanvas.ActualHeight;
             double h2 = h / 3;
+            h2 = 1.0;
+
             for (int i = 0; i < mNumPoints; ++i) {
-                mPointHeights[i] = h2 * Math.Sin(2.0 * Math.PI * i / mNumPoints);
+                mPointHeights[i] = h2 * Math.Sin(Math.PI * i / (mNumPoints-1));
+            }
+            mPointHeights[0] = 0;
+            mPointHeights[mNumPoints - 1] = 0;
+            PointUpdated();
+            UpdateCanvas();
+        }
+        private void MButtonPreset2_Click(object sender, RoutedEventArgs e) {
+            double h = mCanvas.ActualHeight;
+            double h2 = h / 3;
+            h2 = 1.0;
+
+            for (int i = 0; i < mNumPoints; ++i) {
+                mPointHeights[i] = h2 * Math.Sin(2.0 * Math.PI * i / (mNumPoints - 1));
+            }
+            mPointHeights[0] = 0;
+            mPointHeights[mNumPoints - 1] = 0;
+            PointUpdated();
+            UpdateCanvas();
+        }
+        private void MButtonPreset3_Click(object sender, RoutedEventArgs e) {
+            double h = mCanvas.ActualHeight;
+            double h2 = h / 3;
+            h2 = 1.0;
+
+            for (int i = 0; i < mNumPoints; ++i) {
+                mPointHeights[i] = h2 * Math.Sin(4.0 * Math.PI * i / (mNumPoints - 1));
             }
             mPointHeights[0] = 0;
             mPointHeights[mNumPoints - 1] = 0;
