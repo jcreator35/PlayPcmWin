@@ -24,7 +24,8 @@ namespace WWStringVibration {
             int n = mNumPoints - 1;
             var p = new WWMath.WWComplex[n];
             for (int i=0; i< n; ++i) {
-                p[i] = new WWMath.WWComplex(mPointHeights[i],0);
+                double x = mPointHeights[i];
+                p[i] = new WWMath.WWComplex(x,0);
             }
             var fft = new WWMath.WWRadix2Fft(n);
             var f = fft.ForwardFft(p);

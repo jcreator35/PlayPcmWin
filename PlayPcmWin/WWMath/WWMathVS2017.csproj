@@ -44,7 +44,6 @@
     <Compile Include="FirstOrderComplexRationalPolynomial.cs" />
     <Compile Include="Functions.cs" />
     <Compile Include="GF2.cs" />
-    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="HighOrderComplexRationalPolynomial.cs" />
     <Compile Include="JenkinsTraubRpoly.cs" />
     <Compile Include="Matrix.cs" />
