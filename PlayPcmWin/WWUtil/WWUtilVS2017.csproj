@@ -7,7 +7,7 @@
     <ProjectGuid>{F3DCCD96-A62C-4A5B-A925-A7FD74FABB3D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>WWUtilVS2017</RootNamespace>
+    <RootNamespace>WWUtil</RootNamespace>
     <AssemblyName>WWUtilVS2017</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

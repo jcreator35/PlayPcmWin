@@ -7,7 +7,7 @@
     <ProjectGuid>{4045D422-0D92-4B97-8765-3F3CD90B61FE}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>WWMathVS2017</RootNamespace>
+    <RootNamespace>WWMath</RootNamespace>
     <AssemblyName>WWMathVS2017</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -40,6 +40,7 @@
     <Compile Include="ComplexPolynomial.cs" />
     <Compile Include="ComplexRationalPolynomial.cs" />
     <Compile Include="CrossCorrelation.cs" />
+    <Compile Include="DiscreteSineTransform.cs" />
     <Compile Include="FastWalshHadamardTransform.cs" />
     <Compile Include="FirstOrderComplexRationalPolynomial.cs" />
     <Compile Include="Functions.cs" />

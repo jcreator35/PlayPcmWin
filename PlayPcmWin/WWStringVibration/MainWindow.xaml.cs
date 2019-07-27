@@ -20,20 +20,55 @@ namespace WWStringVibration {
             InitializeComponent();
         }
 
-        private void CalcWave() {
-            int n = mNumPoints - 1;
-            var p = new WWMath.WWComplex[n];
-            for (int i=0; i< n; ++i) {
-                double x = mPointHeights[i];
-                p[i] = new WWMath.WWComplex(x,0);
+        private void RedrawWave() {
+            double w = mCanvas.ActualWidth;
+            double h = mCanvas.ActualHeight;
+            double spacing = w / (mNumPoints + 1);
+            int N = mNumPoints - 2;
+
+            var p = new double[N];
+            for (int i=0; i<N; ++i) {
+                double x = mPointHeights[i+1];
+                p[i] = x;
             }
-            var fft = new WWMath.WWRadix2Fft(n);
-            var f = fft.ForwardFft(p);
+            var dst = new WWMath.DiscreteSineTransform();
+            var f = dst.ForwardDST1(p);
 
             for (int i=0; i<f.Length; ++i) {
-                f[i] = f[i].Scale(1.0 / (n / 2));
+                f[i] /= (N+1)/2;
             }
 
+            int count = (int)((w - spacing * 2) / 3);
+            for (int i=0; i<count; ++i) {
+                double x1 = spacing + i*3;
+                double x2 = spacing + (i+1) * 3;
+
+                double x1M = (double)i / count;
+                double x2M = (double)(i+1) / count;
+
+                double y1M = 0;
+                double y2M = 0;
+                for (int j = 0; j < N; ++j) {
+                    y1M += Math.Sin(Math.PI * (j+1) * i / count)       * f[j];
+                    y2M += Math.Sin(Math.PI * (j + 1) * (i+1) / count) * f[j];
+                }
+
+                double y1 = h / 2 - y1M * (h / 3);
+                double y2 = h / 2 - y2M * (h / 3);
+
+                var l = new Line();
+                l.X1 = x1;
+                l.X2 = x2;
+                l.Y1 = y1;
+                l.Y2 = y2;
+                l.Stroke = new SolidColorBrush(Colors.Red);
+                l.StrokeThickness = 1;
+                Canvas.SetLeft(l,0);
+                Canvas.SetTop(l,0);
+                mCanvas.Children.Add(l);
+            }
+
+#if false
             {
                 Console.WriteLine("id height");
                 int i = 0;
@@ -48,6 +83,7 @@ namespace WWStringVibration {
                 }
                 Console.WriteLine("");
             }
+#endif
         }
 
         private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) {
@@ -74,46 +110,56 @@ namespace WWStringVibration {
         }
 
         private void UpdateNumControlPoints() {
-            mNumPoints = 1 + (int)Math.Pow(2, (int)mSliderNumControlPoints.Value);
+            mNumPoints = 1+ (int)Math.Pow(2, (int)mSliderNumControlPoints.Value);
             mLabelNumOfControlPoints.Content = string.Format("Num Of Points ={0}", mNumPoints);
 
             // control pointの数を調整。
+            mPointHeights.Clear();
             while (mPointHeights.Count < mNumPoints) {
                 mPointHeights.Add(0.0);
-            }
-            while (mNumPoints < mPointHeights.Count) {
-                mPointHeights.RemoveAt(mPointHeights.Count - 1);
             }
 
             PointUpdated();
 
             // シミュレーション用の点列更新。
-            UpdateCanvas();
+            RedrawCanvas();
         }
 
-        private void UpdatePointPrint() {
+        /// <summary>
+        /// 数式の文字表現を表示。
+        /// </summary>
+        private void DisplayPointDesc() {
             mStackPanel.Children.Clear();
+#if false
             for (int i = 0; i < mNumPoints; ++i) {
                 Label l = new Label();
                 l.Content = string.Format("Point{0} height={1:g4}",
                     i + 1, mPointHeights[i]);
                 mStackPanel.Children.Add(l);
             }
+#endif
         }
 
         private void PointUpdated() {
-            UpdatePointPrint();
-            CalcWave();
+            DisplayPointDesc();
         }
 
-        private void UpdateCanvas() {
+        private void RedrawCanvas() {
+            mCanvas.Children.Clear();
+            RedrawWave();
+            RedrawPoints();
+        }
+
+        /// <summary>
+        /// 画面に点を表示。
+        /// </summary>
+        private void RedrawPoints() {
             double w = mCanvas.ActualWidth;
             double h = mCanvas.ActualHeight;
             int n = mPointHeights.Count;
             double spacing = w / (n + 1);
             //Console.WriteLine("w={0} h={1}", w, h);
 
-            mCanvas.Children.Clear();
             for (int i = 0; i < n; ++i) {
                 var e = new Ellipse();
 
@@ -121,15 +167,18 @@ namespace WWStringVibration {
                 if (i == 0 || i == n - 1) {
                     color = new SolidColorBrush(Colors.Red);
                 }
+
+                double halfSize = 2.5;
+
                 e.Stroke = color;
                 e.Fill = color;
-                e.Width = 5;
-                e.Height = 5;
+                e.Width = halfSize * 2;
+                e.Height = halfSize * 2;
 
-                double pointHeight = h / 2 - mPointHeights[i];
+                double pointHeight = h / 2 - (h / 3) * mPointHeights[i];
                 //Console.WriteLine("{0} {1}", i, pointHeight);
-                Canvas.SetLeft(e, spacing * (i + 1));
-                Canvas.SetTop(e, pointHeight);
+                Canvas.SetLeft(e, -halfSize + spacing * (i + 1));
+                Canvas.SetTop(e, -halfSize + pointHeight);
                 mCanvas.Children.Add(e);
             }
         }
@@ -160,9 +209,9 @@ namespace WWStringVibration {
                 idx = n - 2;
             }
 
-            mPointHeights[idx] = h / 2 - y;
+            mPointHeights[idx] = (h / 2 - y) / (h/3);
             PointUpdated();
-            UpdateCanvas();
+            RedrawCanvas();
         }
 
         private void MButtonReset_Click(object sender, RoutedEventArgs e) {
@@ -170,47 +219,49 @@ namespace WWStringVibration {
                 mPointHeights[i] = 0;
             }
             PointUpdated();
-            UpdateCanvas();
+            RedrawCanvas();
         }
 
         private void MButtonPreset1_Click(object sender, RoutedEventArgs e) {
-            double h = mCanvas.ActualHeight;
-            double h2 = h / 3;
-            h2 = 1.0;
-
             for (int i = 0; i < mNumPoints; ++i) {
-                mPointHeights[i] = h2 * Math.Sin(Math.PI * i / (mNumPoints-1));
+                mPointHeights[i] = Math.Sin(Math.PI * i / (mNumPoints-1));
             }
             mPointHeights[0] = 0;
             mPointHeights[mNumPoints - 1] = 0;
             PointUpdated();
-            UpdateCanvas();
+            RedrawCanvas();
         }
         private void MButtonPreset2_Click(object sender, RoutedEventArgs e) {
-            double h = mCanvas.ActualHeight;
-            double h2 = h / 3;
-            h2 = 1.0;
-
             for (int i = 0; i < mNumPoints; ++i) {
-                mPointHeights[i] = h2 * Math.Sin(2.0 * Math.PI * i / (mNumPoints - 1));
+                mPointHeights[i] = Math.Sin(2.0 * Math.PI * i / (mNumPoints - 1));
             }
             mPointHeights[0] = 0;
             mPointHeights[mNumPoints - 1] = 0;
             PointUpdated();
-            UpdateCanvas();
+            RedrawCanvas();
         }
         private void MButtonPreset3_Click(object sender, RoutedEventArgs e) {
-            double h = mCanvas.ActualHeight;
-            double h2 = h / 3;
-            h2 = 1.0;
-
             for (int i = 0; i < mNumPoints; ++i) {
-                mPointHeights[i] = h2 * Math.Sin(4.0 * Math.PI * i / (mNumPoints - 1));
+                mPointHeights[i] = Math.Sin(4.0 * Math.PI * i / (mNumPoints - 1));
             }
             mPointHeights[0] = 0;
             mPointHeights[mNumPoints - 1] = 0;
             PointUpdated();
-            UpdateCanvas();
+            RedrawCanvas();
+        }
+
+        private void MButtonTriangle1_Click(object sender, RoutedEventArgs e) {
+
+            for (int i = 0; i < mNumPoints/2; ++i) {
+                mPointHeights[i]              = (double)i / (mNumPoints / 2);
+                mPointHeights[mNumPoints-i-1] = (double)i / (mNumPoints / 2);
+            }
+            mPointHeights[mNumPoints / 2] = 1;
+
+            mPointHeights[0] = 0;
+            mPointHeights[mNumPoints - 1] = 0;
+            PointUpdated();
+            RedrawCanvas();
         }
     }
 }
