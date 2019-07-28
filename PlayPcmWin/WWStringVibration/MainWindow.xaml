@@ -5,10 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WWStringVibration"
         mc:Ignorable="d"
-        Title="MainWindow" Height="600" Width="1024" Loaded="Window_Loaded">
+        Title="WWStringVibration Version 1.0" Height="600" Width="1024" Loaded="Window_Loaded" Closing="Window_Closing">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="1*"/>
+            <RowDefinition Height="180"/>
+            <RowDefinition Height="120"/>
             <RowDefinition Height="256"/>
         </Grid.RowDefinitions>
         <GroupBox Header="Settings" >
@@ -16,7 +17,9 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="32"/>
                     <RowDefinition Height="32"/>
-                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="32"/>
+                    <RowDefinition Height="32"/>
+                    <RowDefinition Height="32"/>
                 </Grid.RowDefinitions>
                 <Grid Grid.Row="0">
                     <Grid.ColumnDefinitions>
@@ -24,25 +27,41 @@
                         <ColumnDefinition Width="1*" />
                     </Grid.ColumnDefinitions>
                     <Label x:Name="mLabelNumOfControlPoints" Content="Num of Control points" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                    <Slider x:Name="mSliderNumControlPoints" Margin="25,0,0,0" Grid.Column="1" Width="120" VerticalAlignment="Center" SmallChange="1" ValueChanged="Slider_ValueChanged" IsMoveToPointEnabled="True" IsSnapToTickEnabled="True" Maximum="7" Value="5" Minimum="2" TickPlacement="Both" HorizontalAlignment="Left"/>
+                    <Slider x:Name="mSliderNumControlPoints" Margin="0,0,0,0" Grid.Column="1" Width="120" VerticalAlignment="Center" SmallChange="1" ValueChanged="Slider_ValueChanged" IsMoveToPointEnabled="True" IsSnapToTickEnabled="True" Maximum="7" Value="5" Minimum="2" TickPlacement="Both" HorizontalAlignment="Left"/>
                 </Grid>
-                <StackPanel Grid.Row="1" Orientation="Horizontal">
-                    <Button x:Name="mButtonReset" Content="_Reset" Margin="6,6,0,6" Click="MButtonReset_Click" />
-                    <Button x:Name="mButtonPreset1" Content="Sine1" Margin="6,6,0,6" Click="MButtonPreset1_Click" />
-                    <Button x:Name="mButtonPreset2" Content="Sine2" Margin="6,6,0,6" Click="MButtonPreset2_Click" />
-                    <Button x:Name="mButtonPreset3" Content="Sine3" Margin="6,6,0,6" Click="MButtonPreset3_Click" />
-                    <Button x:Name="mButtonTriangle" Content="Triangle1" Margin="6,6,0,6" Click="MButtonTriangle1_Click" />
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="200" />
+                        <ColumnDefinition Width="1*" />
+                    </Grid.ColumnDefinitions>
+                    <Label VerticalAlignment="Center" HorizontalAlignment="Right" Content="Simulation time step (sec)" />
+                    <TextBox x:Name="mTextBoxTimeStep" Grid.Column="1" Width="75" VerticalAlignment="Center" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Text="0.05" />
+                </Grid>
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="200" />
+                        <ColumnDefinition Width="1*" />
+                    </Grid.ColumnDefinitions>
+                    <Label VerticalAlignment="Center" HorizontalAlignment="Right" Content="constant" />
+                    <TextBox x:Name="mTextBoxConstant" Grid.Column="1" Width="75" VerticalAlignment="Center" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Text="1.0" />
+                </Grid>
+                <StackPanel Grid.Row="3" Orientation="Horizontal">
+                    <Button x:Name="mButtonReset" Content="_Reset" Margin="4" Click="MButtonReset_Click" />
+                    <Button x:Name="mButtonPreset1" Content="Sine1" Margin="4" Click="MButtonPreset1_Click" />
+                    <Button x:Name="mButtonPreset2" Content="Sine2" Margin="4" Click="MButtonPreset2_Click" />
+                    <Button x:Name="mButtonPreset3" Content="Sine3" Margin="4" Click="MButtonPreset3_Click" />
+                    <Button x:Name="mButtonTriangle" Content="Triangle1" Margin="4" Click="MButtonTriangle1_Click" />
                 </StackPanel>
-                <GroupBox Grid.Row="2" Header="Control points" >
-                    <ScrollViewer HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Auto" >
-                        <StackPanel x:Name="mStackPanel" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Visible" >
-
-                        </StackPanel>
-                    </ScrollViewer>
-                </GroupBox>
+                <StackPanel Grid.Row="4" Orientation="Horizontal">
+                    <Button x:Name="mButtonStart" Content="_Start" Width="75" Margin="4" Click="MButtonStart_Click" />
+                    <Button x:Name="mButtonStop" Content="S_top" Width="75" Margin="4" Click="MButtonStop_Click" />
+                </StackPanel>
             </Grid>
         </GroupBox>
-        <Canvas x:Name="mCanvas" Grid.Row="1" MouseMove="MCanvas_MouseMove" Background="#FFA6A6A6" >
+        <GroupBox Grid.Row="1" Header="Status" >
+            <TextBox x:Name="mTextBoxStatus" IsReadOnlyCaretVisible="True" AcceptsTab="True" AcceptsReturn="True" IsReadOnly="True" />
+        </GroupBox>
+        <Canvas x:Name="mCanvas" Grid.Row="2" MouseMove="MCanvas_MouseMove" Background="#FFA6A6A6" >
             <Line  
     X1="50" Y1="50"  
     X2="200" Y2="200"  

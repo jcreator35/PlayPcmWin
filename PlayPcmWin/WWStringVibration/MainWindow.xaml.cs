@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace WWStringVibration {
     /// <summary>
@@ -16,8 +17,47 @@ namespace WWStringVibration {
         private bool mInitialized = false;
         private List<double> mPointHeights = new List<double>();
 
+        private double[] mFreqComponent = null;
+        private double mTimeNow = 0;
+        private double mTimeTick = 0;
+        private double mC = 0;
+        DispatcherTimer mDispatcherTimer = new DispatcherTimer();
+
         public MainWindow() {
             InitializeComponent();
+            mDispatcherTimer.Tick += DispatcherTimer_Tick;
+        }
+        private void Window_Loaded(object sender, RoutedEventArgs e) {
+            mInitialized = true;
+
+            UpdateNumControlPoints();
+
+            for (int i=0; i<mNumPoints/2; ++i) {
+                mPointHeights[i] = Math.Sin(2.0 * Math.PI * i / mNumPoints);
+            }
+
+            PointUpdated();
+            RedrawCanvas();
+        }
+
+
+        private void UpdateFreqComponent() {
+            double w = mCanvas.ActualWidth;
+            double h = mCanvas.ActualHeight;
+            double spacing = w / (mNumPoints + 1);
+            int N = mNumPoints - 2;
+
+            var p = new double[N];
+            for (int i = 0; i < N; ++i) {
+                double x = mPointHeights[i + 1];
+                p[i] = x;
+            }
+            var dst = new WWMath.DiscreteSineTransform();
+            mFreqComponent = dst.ForwardDST1(p);
+
+            for (int i = 0; i < mFreqComponent.Length; ++i) {
+                mFreqComponent[i] /= (N + 1) / 2;
+            }
         }
 
         private void RedrawWave() {
@@ -25,18 +65,6 @@ namespace WWStringVibration {
             double h = mCanvas.ActualHeight;
             double spacing = w / (mNumPoints + 1);
             int N = mNumPoints - 2;
-
-            var p = new double[N];
-            for (int i=0; i<N; ++i) {
-                double x = mPointHeights[i+1];
-                p[i] = x;
-            }
-            var dst = new WWMath.DiscreteSineTransform();
-            var f = dst.ForwardDST1(p);
-
-            for (int i=0; i<f.Length; ++i) {
-                f[i] /= (N+1)/2;
-            }
 
             int count = (int)((w - spacing * 2) / 3);
             for (int i=0; i<count; ++i) {
@@ -49,20 +77,23 @@ namespace WWStringVibration {
                 double y1M = 0;
                 double y2M = 0;
                 for (int j = 0; j < N; ++j) {
-                    y1M += Math.Sin(Math.PI * (j+1) * i / count)       * f[j];
-                    y2M += Math.Sin(Math.PI * (j + 1) * (i+1) / count) * f[j];
+                    y1M += Math.Sin(Math.PI * (j + 1) * i / count) * mFreqComponent[j]
+                        * Math.Cos(Math.PI * (j+1) * mC * mTimeNow);
+                    y2M += Math.Sin(Math.PI * (j + 1) * (i+1) / count) * mFreqComponent[j]
+                        *Math.Cos(Math.PI * (j + 1) * mC * mTimeNow);
                 }
 
                 double y1 = h / 2 - y1M * (h / 3);
                 double y2 = h / 2 - y2M * (h / 3);
 
-                var l = new Line();
-                l.X1 = x1;
-                l.X2 = x2;
-                l.Y1 = y1;
-                l.Y2 = y2;
-                l.Stroke = new SolidColorBrush(Colors.Red);
-                l.StrokeThickness = 1;
+                var l = new Line {
+                    X1 = x1,
+                    X2 = x2,
+                    Y1 = y1,
+                    Y2 = y2,
+                    Stroke = new SolidColorBrush(Colors.Red),
+                    StrokeThickness = 1
+                };
                 Canvas.SetLeft(l,0);
                 Canvas.SetTop(l,0);
                 mCanvas.Children.Add(l);
@@ -90,12 +121,6 @@ namespace WWStringVibration {
             if (!mInitialized) {
                 return;
             }
-
-            UpdateNumControlPoints();
-        }
-
-        private void Window_Loaded(object sender, RoutedEventArgs e) {
-            mInitialized = true;
 
             UpdateNumControlPoints();
         }
@@ -129,8 +154,8 @@ namespace WWStringVibration {
         /// 数式の文字表現を表示。
         /// </summary>
         private void DisplayPointDesc() {
-            mStackPanel.Children.Clear();
 #if false
+            mStackPanel.Children.Clear();
             for (int i = 0; i < mNumPoints; ++i) {
                 Label l = new Label();
                 l.Content = string.Format("Point{0} height={1:g4}",
@@ -142,6 +167,7 @@ namespace WWStringVibration {
 
         private void PointUpdated() {
             DisplayPointDesc();
+            UpdateFreqComponent();
         }
 
         private void RedrawCanvas() {
@@ -261,6 +287,39 @@ namespace WWStringVibration {
             mPointHeights[0] = 0;
             mPointHeights[mNumPoints - 1] = 0;
             PointUpdated();
+            RedrawCanvas();
+        }
+
+        private void MButtonStart_Click(object sender, RoutedEventArgs e) {
+            if (!double.TryParse(mTextBoxTimeStep.Text, out mTimeTick)) {
+                mTextBoxTimeStep.Text = "0.1";
+                mTimeTick = 0.1;
+            }
+
+            if (!double.TryParse(mTextBoxConstant.Text, out mC)) {
+                mTextBoxConstant.Text = "1.0";
+                mC = 1.0;
+            }
+
+            mTimeNow = 0;
+
+            mDispatcherTimer.Interval = new TimeSpan((long)(mTimeTick * 1000 * 1000 * 10));
+            mDispatcherTimer.Start();
+        }
+
+        private void MButtonStop_Click(object sender, RoutedEventArgs e) {
+            mDispatcherTimer.Stop();
+            mTimeNow = 0;
+            RedrawCanvas();
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
+            mDispatcherTimer.Stop();
+            mDispatcherTimer = null;
+        }
+        private void DispatcherTimer_Tick(object sender, EventArgs e) {
+            mTimeNow += mTimeTick;
+            mTextBoxStatus.Text = string.Format("Time={0:0.####}", mTimeNow);
             RedrawCanvas();
         }
     }
