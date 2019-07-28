@@ -70,6 +70,7 @@
   <ItemGroup>
     <Compile Include="ComplexPolynomial.cs" />
     <Compile Include="CrossCorrelation.cs" />
+    <Compile Include="DiscreteSineTransform.cs" />
     <Compile Include="Functions.cs" />
     <Compile Include="HighOrderComplexRationalPolynomial.cs" />
     <Compile Include="JenkinsTraubRpoly.cs" />

@@ -31,6 +31,7 @@ Open Visual Studio x64 Win64 command prompt and enter following commands to crea
  sn -k WWSNR\WWSNR.snk
  sn -k WWShowUSBDeviceTree\WWShowUSBDeviceTree.snk
  sn -k WWShowAudioStatus\WWShowAudioStatus.snk
+ sn -k WWStringVibration\WWStringVibration.snk
 
 Open PlayPcmWin\PlayPcmWin.sln to build/run PlayPcmWin (choose Release x64 build target)
 
