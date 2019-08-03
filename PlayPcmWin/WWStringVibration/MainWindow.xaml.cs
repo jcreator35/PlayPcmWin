@@ -7,6 +7,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using System.Text;
 
 namespace WWStringVibration {
     /// <summary>
@@ -37,9 +38,7 @@ namespace WWStringVibration {
             }
 
             PointUpdated();
-            RedrawCanvas();
         }
-
 
         private void UpdateFreqComponent() {
             double w = mCanvas.ActualWidth;
@@ -58,6 +57,29 @@ namespace WWStringVibration {
             for (int i = 0; i < mFreqComponent.Length; ++i) {
                 mFreqComponent[i] /= (N + 1) / 2;
             }
+        }
+
+        /// <summary>
+        /// 数式の文字表現を表示。
+        /// </summary>
+        private void DisplayPointDesc() {
+            var sb = new StringBuilder();
+
+            sb.Append("y = ");
+
+            int N = mNumPoints - 2;
+            for (int i = 0; i < N; ++i) {
+                if (0.0001 < Math.Abs(mFreqComponent[i])) {
+                    sb.Append(mFreqComponent[i].ToString("+0.0000;- 0.0000;0"));
+                    sb.AppendFormat(" sin({0}πx) cos({1}πt) ", i+1, i+1);
+                }
+            }
+
+            if (sb.Length == 4) {
+                sb.Append("0");
+            }
+
+            mTextBoxStatus.Text = sb.ToString();
         }
 
         private void RedrawWave() {
@@ -99,23 +121,6 @@ namespace WWStringVibration {
                 Canvas.SetTop(l,0);
                 mCanvas.Children.Add(l);
             }
-
-#if false
-            {
-                Console.WriteLine("id height");
-                int i = 0;
-                foreach (var item in p) {
-                    Console.WriteLine("{0} {1}", i++, item.real);
-                }
-
-                Console.WriteLine("\nid real imag magnitude");
-                i = 0;
-                foreach (var item in f) {
-                    Console.WriteLine("{0} {1:0.####} {2:0.####} {3:0.####}", i++, item.real, item.imaginary, item.Magnitude());
-                }
-                Console.WriteLine("");
-            }
-#endif
         }
 
         private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) {
@@ -145,30 +150,17 @@ namespace WWStringVibration {
                 mPointHeights.Add(0.0);
             }
 
-            PointUpdated();
-
             // シミュレーション用の点列更新。
-            RedrawCanvas();
-        }
-
-        /// <summary>
-        /// 数式の文字表現を表示。
-        /// </summary>
-        private void DisplayPointDesc() {
-#if false
-            mStackPanel.Children.Clear();
-            for (int i = 0; i < mNumPoints; ++i) {
-                Label l = new Label();
-                l.Content = string.Format("Point{0} height={1:g4}",
-                    i + 1, mPointHeights[i]);
-                mStackPanel.Children.Add(l);
-            }
-#endif
+            PointUpdated();
         }
 
         private void PointUpdated() {
-            DisplayPointDesc();
+            mPointHeights[0] = 0;
+            mPointHeights[mNumPoints - 1] = 0;
+
             UpdateFreqComponent();
+            DisplayPointDesc();
+            RedrawCanvas();
         }
 
         private void RedrawCanvas() {
@@ -238,7 +230,6 @@ namespace WWStringVibration {
 
             mPointHeights[idx] = (h / 2 - y) / (h/3);
             PointUpdated();
-            RedrawCanvas();
         }
 
         private void MButtonReset_Click(object sender, RoutedEventArgs e) {
@@ -246,49 +237,55 @@ namespace WWStringVibration {
                 mPointHeights[i] = 0;
             }
             PointUpdated();
-            RedrawCanvas();
         }
 
         private void MButtonPreset1_Click(object sender, RoutedEventArgs e) {
             for (int i = 0; i < mNumPoints; ++i) {
                 mPointHeights[i] = Math.Sin(Math.PI * i / (mNumPoints-1));
             }
-            mPointHeights[0] = 0;
-            mPointHeights[mNumPoints - 1] = 0;
             PointUpdated();
-            RedrawCanvas();
         }
         private void MButtonPreset2_Click(object sender, RoutedEventArgs e) {
             for (int i = 0; i < mNumPoints; ++i) {
                 mPointHeights[i] = Math.Sin(2.0 * Math.PI * i / (mNumPoints - 1));
             }
-            mPointHeights[0] = 0;
-            mPointHeights[mNumPoints - 1] = 0;
             PointUpdated();
-            RedrawCanvas();
         }
         private void MButtonPreset3_Click(object sender, RoutedEventArgs e) {
             for (int i = 0; i < mNumPoints; ++i) {
                 mPointHeights[i] = Math.Sin(4.0 * Math.PI * i / (mNumPoints - 1));
             }
-            mPointHeights[0] = 0;
-            mPointHeights[mNumPoints - 1] = 0;
             PointUpdated();
-            RedrawCanvas();
         }
 
         private void MButtonTriangle1_Click(object sender, RoutedEventArgs e) {
-
             for (int i = 0; i < mNumPoints/2; ++i) {
                 mPointHeights[i]              = (double)i / (mNumPoints / 2);
                 mPointHeights[mNumPoints-i-1] = (double)i / (mNumPoints / 2);
             }
             mPointHeights[mNumPoints / 2] = 1;
 
-            mPointHeights[0] = 0;
-            mPointHeights[mNumPoints - 1] = 0;
             PointUpdated();
-            RedrawCanvas();
+        }
+
+        private void MButtonSquare2_Click(object sender, RoutedEventArgs e) {
+            for (int i = 0; i < mNumPoints; ++i) {
+                mPointHeights[i] = (i/((mNumPoints+3)/4) & 1) == 0 ? 1 : -1;
+            }
+
+            PointUpdated();
+        }
+
+        private void MButtonHump_Click(object sender, RoutedEventArgs e) {
+            for (int i = 0; i < mNumPoints; ++i) {
+                mPointHeights[i] = 0;
+            }
+
+            for (int i = 0; i < mNumPoints/4; ++i) {
+                mPointHeights[i+mNumPoints/4] = Math.Sin(Math.PI * i / (mNumPoints/4));
+            }
+
+            PointUpdated();
         }
 
         private void MButtonStart_Click(object sender, RoutedEventArgs e) {
@@ -311,6 +308,7 @@ namespace WWStringVibration {
         private void MButtonStop_Click(object sender, RoutedEventArgs e) {
             mDispatcherTimer.Stop();
             mTimeNow = 0;
+            mLabelTime.Content = "t = 0";
             RedrawCanvas();
         }
 
@@ -321,8 +319,9 @@ namespace WWStringVibration {
 
         private void DispatcherTimer_Tick(object sender, EventArgs e) {
             mTimeNow += mTimeTick;
-            mTextBoxStatus.Text = string.Format("Time={0:0.####}", mTimeNow);
+            mLabelTime.Content = string.Format("t = {0:0.00}", mTimeNow);
             RedrawCanvas();
         }
+
     }
 }
