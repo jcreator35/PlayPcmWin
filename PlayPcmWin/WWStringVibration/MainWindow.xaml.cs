@@ -78,11 +78,12 @@ namespace WWStringVibration {
                 double y2M = 0;
                 for (int j = 0; j < N; ++j) {
                     y1M += Math.Sin(Math.PI * (j + 1) * i / count) * mFreqComponent[j]
-                        * Math.Cos(Math.PI * (j+1) * mC * mTimeNow);
-                    y2M += Math.Sin(Math.PI * (j + 1) * (i+1) / count) * mFreqComponent[j]
-                        *Math.Cos(Math.PI * (j + 1) * mC * mTimeNow);
+                        *  Math.Cos(Math.PI * (j + 1) * mC * mTimeNow);
+                    y2M += Math.Sin(Math.PI * (j + 1) * (i + 1) / count) * mFreqComponent[j]
+                        *  Math.Cos(Math.PI * (j + 1) * mC * mTimeNow);
                 }
 
+                // 画面サイズに合わせてスケールする。
                 double y1 = h / 2 - y1M * (h / 3);
                 double y2 = h / 2 - y2M * (h / 3);
 
@@ -317,6 +318,7 @@ namespace WWStringVibration {
             mDispatcherTimer.Stop();
             mDispatcherTimer = null;
         }
+
         private void DispatcherTimer_Tick(object sender, EventArgs e) {
             mTimeNow += mTimeTick;
             mTextBoxStatus.Text = string.Format("Time={0:0.####}", mTimeNow);
