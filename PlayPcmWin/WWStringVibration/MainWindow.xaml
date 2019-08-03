@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="WWStringVibration Version 1.0.1" Height="600" Width="1024" Loaded="Window_Loaded" Closing="Window_Closing">
+        Title="WWStringVibration" Height="600" Width="1024" Loaded="Window_Loaded" Closing="Window_Closing">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="180"/>

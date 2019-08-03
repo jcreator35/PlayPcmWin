@@ -8,12 +8,17 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using System.Text;
+using System.Globalization;
 
 namespace WWStringVibration {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window {
+        private static string AssemblyVersion {
+            get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); }
+        }
+
         private int mNumPoints = 33;
         private bool mInitialized = false;
         private List<double> mPointHeights = new List<double>();
@@ -30,6 +35,8 @@ namespace WWStringVibration {
         }
         private void Window_Loaded(object sender, RoutedEventArgs e) {
             mInitialized = true;
+            
+            Title = string.Format(CultureInfo.CurrentCulture, "WWStringVibration version {0}", AssemblyVersion);
 
             UpdateNumControlPoints();
 
