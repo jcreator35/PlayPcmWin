@@ -69,7 +69,7 @@
                 <TextBox x:Name="mTextBoxStatus" IsReadOnlyCaretVisible="True" AcceptsTab="True" AcceptsReturn="True" IsReadOnly="True" Grid.Row="1" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" />
             </Grid>
         </GroupBox>
-        <Canvas x:Name="mCanvas" Grid.Row="2" MouseMove="MCanvas_MouseMove" Background="#FFCDCDCD" >
+        <Canvas x:Name="mCanvas" Grid.Row="2" MouseMove="MCanvas_MouseMove" Background="#FFCDCDCD" MouseDown="mCanvas_MouseDown">
             <Line  
     X1="50" Y1="50"  
     X2="200" Y2="200"  

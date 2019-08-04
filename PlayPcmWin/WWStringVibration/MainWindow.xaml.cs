@@ -95,50 +95,50 @@ namespace WWStringVibration {
         private void RedrawPoints() {
             double w = mCanvas.ActualWidth;
             double h = mCanvas.ActualHeight;
-            int n = mPointHeights.Count;
-            double spacing = w / (n + 1);
-            //Console.WriteLine("w={0} h={1}", w, h);
+            double spacing = w / (mNumPoints + 1);
 
-            for (int i = 0; i < n; ++i) {
-                var e = new Ellipse();
-
+            for (int i = 0; i < mNumPoints; ++i) {
                 var color = new SolidColorBrush(Colors.Black);
-                if (i == 0 || i == n - 1) {
+                if (i == 0 || i == mNumPoints - 1) {
                     color = new SolidColorBrush(Colors.Black);
                 }
 
                 double halfSize = 3;
 
-                e.Stroke = color;
-                e.Fill = color;
-                e.Width = halfSize * 2;
-                e.Height = halfSize * 2;
+                var e = new Ellipse {
+                    Stroke = color,
+                    Fill = color,
+                    Width = halfSize * 2,
+                    Height = halfSize * 2,
+                };
 
+                double x = -halfSize + spacing * (i + 1);
                 double pointHeight = h / 2 - (h / 3) * mPointHeights[i];
-                //Console.WriteLine("{0} {1}", i, pointHeight);
-                Canvas.SetLeft(e, -halfSize + spacing * (i + 1));
-                Canvas.SetTop(e, -halfSize + pointHeight);
+                double y = -halfSize + pointHeight;
+
+                Canvas.SetLeft(e, x);
+                Canvas.SetTop(e, y);
                 mCanvas.Children.Add(e);
             }
         }
 
         private void RedrawWave() {
+            int interval = 2;
             double w = mCanvas.ActualWidth;
             double h = mCanvas.ActualHeight;
             double spacing = w / (mNumPoints + 1);
-            int N = mNumPoints - 2;
+            double count = (w - spacing * 2.0) / interval;
 
-            int count = (int)((w - spacing * 2) / 3);
-            for (int i=0; i<count; ++i) {
-                double x1 = spacing + i*3;
-                double x2 = spacing + (i+1) * 3;
+            for (int i = 0; i < count; ++i) {
+                double x1 = spacing + i * interval;
+                double x2 = spacing + (i + 1) * interval;
 
-                double x1M = (double)i / count;
-                double x2M = (double)(i+1) / count;
+                //double x1M = (double)i / count;
+                //double x2M = (double)(i+1) / count;
 
                 double y1M = 0;
                 double y2M = 0;
-                for (int j = 0; j < N; ++j) {
+                for (int j = 0; j < mFreqComponent.Length; ++j) {
                     y1M += Math.Sin(Math.PI * (j + 1) * i / count) * mFreqComponent[j]
                         *  Math.Cos(Math.PI * (j + 1) * mC * mTimeNow);
                     y2M += Math.Sin(Math.PI * (j + 1) * (i + 1) / count) * mFreqComponent[j]
@@ -209,17 +209,10 @@ namespace WWStringVibration {
             RedrawPoints();
         }
 
-        private void MCanvas_MouseMove(object sender, MouseEventArgs e) {
-            if (e.LeftButton == MouseButtonState.Released) {
-                return;
-            }
-
+        private void CanvasPointed(double x, double y) {
             double w = mCanvas.ActualWidth;
             double h = mCanvas.ActualHeight;
             int n = mPointHeights.Count;
-            double x = e.GetPosition(mCanvas).X;
-            double y = e.GetPosition(mCanvas).Y;
-
             double spacing = (w / (n + 1));
 
             // 最も近い点の番号
@@ -237,6 +230,26 @@ namespace WWStringVibration {
 
             mPointHeights[idx] = (h / 2 - y) / (h/3);
             PointUpdated();
+        }
+
+        private void mCanvas_MouseDown(object sender, MouseButtonEventArgs e) {
+            if (e.LeftButton == MouseButtonState.Released) {
+                return;
+            }
+
+            double x = e.GetPosition(mCanvas).X;
+            double y = e.GetPosition(mCanvas).Y;
+            CanvasPointed(x,y);
+        }
+
+        private void MCanvas_MouseMove(object sender, MouseEventArgs e) {
+            if (e.LeftButton == MouseButtonState.Released) {
+                return;
+            }
+
+            double x = e.GetPosition(mCanvas).X;
+            double y = e.GetPosition(mCanvas).Y;
+            CanvasPointed(x,y);
         }
 
         private void MButtonReset_Click(object sender, RoutedEventArgs e) {
