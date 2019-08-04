@@ -78,7 +78,7 @@ namespace WWStringVibration {
             for (int i = 0; i < N; ++i) {
                 if (0.0001 < Math.Abs(mFreqComponent[i])) {
                     sb.Append(mFreqComponent[i].ToString("+0.0000;- 0.0000;0"));
-                    sb.AppendFormat(" sin({0}πx) cos({1}πt) ", i+1, i+1);
+                    sb.AppendFormat(" sin({0}πx) cos({1}πct) ", i+1, i+1);
                 }
             }
 
@@ -87,6 +87,39 @@ namespace WWStringVibration {
             }
 
             mTextBoxStatus.Text = sb.ToString();
+        }
+
+        /// <summary>
+        /// 画面に点を表示。
+        /// </summary>
+        private void RedrawPoints() {
+            double w = mCanvas.ActualWidth;
+            double h = mCanvas.ActualHeight;
+            int n = mPointHeights.Count;
+            double spacing = w / (n + 1);
+            //Console.WriteLine("w={0} h={1}", w, h);
+
+            for (int i = 0; i < n; ++i) {
+                var e = new Ellipse();
+
+                var color = new SolidColorBrush(Colors.Black);
+                if (i == 0 || i == n - 1) {
+                    color = new SolidColorBrush(Colors.Black);
+                }
+
+                double halfSize = 3;
+
+                e.Stroke = color;
+                e.Fill = color;
+                e.Width = halfSize * 2;
+                e.Height = halfSize * 2;
+
+                double pointHeight = h / 2 - (h / 3) * mPointHeights[i];
+                //Console.WriteLine("{0} {1}", i, pointHeight);
+                Canvas.SetLeft(e, -halfSize + spacing * (i + 1));
+                Canvas.SetTop(e, -halfSize + pointHeight);
+                mCanvas.Children.Add(e);
+            }
         }
 
         private void RedrawWave() {
@@ -121,8 +154,8 @@ namespace WWStringVibration {
                     X2 = x2,
                     Y1 = y1,
                     Y2 = y2,
-                    Stroke = new SolidColorBrush(Colors.Red),
-                    StrokeThickness = 1
+                    Stroke = new SolidColorBrush(Colors.Black),
+                    StrokeThickness = 2
                 };
                 Canvas.SetLeft(l,0);
                 Canvas.SetTop(l,0);
@@ -174,39 +207,6 @@ namespace WWStringVibration {
             mCanvas.Children.Clear();
             RedrawWave();
             RedrawPoints();
-        }
-
-        /// <summary>
-        /// 画面に点を表示。
-        /// </summary>
-        private void RedrawPoints() {
-            double w = mCanvas.ActualWidth;
-            double h = mCanvas.ActualHeight;
-            int n = mPointHeights.Count;
-            double spacing = w / (n + 1);
-            //Console.WriteLine("w={0} h={1}", w, h);
-
-            for (int i = 0; i < n; ++i) {
-                var e = new Ellipse();
-
-                var color = new SolidColorBrush(Colors.Black);
-                if (i == 0 || i == n - 1) {
-                    color = new SolidColorBrush(Colors.Red);
-                }
-
-                double halfSize = 2.5;
-
-                e.Stroke = color;
-                e.Fill = color;
-                e.Width = halfSize * 2;
-                e.Height = halfSize * 2;
-
-                double pointHeight = h / 2 - (h / 3) * mPointHeights[i];
-                //Console.WriteLine("{0} {1}", i, pointHeight);
-                Canvas.SetLeft(e, -halfSize + spacing * (i + 1));
-                Canvas.SetTop(e, -halfSize + pointHeight);
-                mCanvas.Children.Add(e);
-            }
         }
 
         private void MCanvas_MouseMove(object sender, MouseEventArgs e) {
@@ -327,6 +327,14 @@ namespace WWStringVibration {
         private void DispatcherTimer_Tick(object sender, EventArgs e) {
             mTimeNow += mTimeTick;
             mLabelTime.Content = string.Format("t = {0:0.00}", mTimeNow);
+            RedrawCanvas();
+        }
+
+        private void Window_SizeChanged(object sender, SizeChangedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            }
+
             RedrawCanvas();
         }
 
