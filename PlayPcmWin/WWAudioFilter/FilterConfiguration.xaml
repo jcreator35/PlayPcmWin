@@ -500,6 +500,12 @@
                         </Grid>
                     </GroupBox>
 
+                    <GroupBox Header="Convert to 1bit" Height="100" HorizontalAlignment="Left" Name="groupBox1bitFilter" VerticalAlignment="Top" Width="380">
+                        <Grid>
+                            <Button Content="Use this filter" Margin="6,0" Name="buttonUse1bitFilter" VerticalAlignment="Center" Click="buttonUse1bitFilter_Click" />
+                        </Grid>
+                    </GroupBox>
+
                 </WrapPanel>
             </Grid>
         </ScrollViewer>

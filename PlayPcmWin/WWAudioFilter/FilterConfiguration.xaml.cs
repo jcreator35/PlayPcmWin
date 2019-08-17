@@ -1022,5 +1022,13 @@ namespace WWAudioFilter {
 
             textBoxTimingErrorFile.Text = dlg.FileName;
         }
+
+        private void buttonUse1bitFilter_Click(object sender, RoutedEventArgs e) {
+            mFilter = new ZohNosdacCompensationFilter(ZohNosdacComboBoxIndexToTaps(comboBoxNosdacCompensationTaps.SelectedIndex));
+
+            DialogResult = true;
+            Close();
+        }
+
     }
 }

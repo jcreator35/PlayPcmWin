@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using WWMath;
 
 namespace WWAudioFilterCore {
     public class FftUpsampler : FilterBase {
@@ -178,8 +179,8 @@ namespace WWAudioFilterCore {
                 // Kaiser窓(α==9)をかける
                 var w = WWWindowFunc.KaiserWindow(HalfOverlapLength * 2, 9.0);
                 for (int i = 0; i < HalfOverlapLength; ++i) {
-                    inPcmT[i].Mul(w[i]);
-                    inPcmT[FftLength - i - 1].Mul(w[i]);
+                    inPcmT[i] = WWComplex.Mul(inPcmT[i], w[i]);
+                    inPcmT[FftLength - i - 1] = WWComplex.Mul(inPcmT[FftLength - i - 1], w[i]);
                 }
             }
 
@@ -196,14 +197,14 @@ namespace WWAudioFilterCore {
             var outPcmF = new WWComplex[UpsampleFftLength];
             for (int i=0; i < outPcmF.Length; ++i) {
                 if (i <= FftLength / 2) {
-                    outPcmF[i].CopyFrom(inPcmF[i]);
+                    outPcmF[i] = inPcmF[i];
                 } else if (UpsampleFftLength - FftLength / 2 <= i) {
                     int pos = i + FftLength - UpsampleFftLength;
-                    outPcmF[i].CopyFrom(inPcmF[pos]);
+                    outPcmF[i] = inPcmF[pos];
                 } else {
                     // do nothing
                 }
-                outPcmF[i].Mul(mFreqFilter[i]);
+                outPcmF[i] = WWComplex.Mul(outPcmF[i], mFreqFilter[i]);
             }
             inPcmF = null;
 

@@ -78,15 +78,15 @@ namespace WWAudioFilterCore {
                 // 正の周波数
                 {
                     var v = pcmF[i + idx40Hz];
-                    v.Mul(Gain);
-                    pcmF[i + idx20Hz].Add(v);
+                    v = WWComplex.Mul(v, Gain);
+                    pcmF[i + idx20Hz] = WWComplex.Add(pcmF[i+idx20Hz], v);
                 }
 
                 // 負の周波数
                 {
                     var v = pcmF[mFftLength - (i + idx40Hz)];
-                    v.Mul(Gain);
-                    pcmF[mFftLength - (i + idx20Hz)].Add(v);
+                    v = WWComplex.Mul(v, Gain);
+                    pcmF[mFftLength - (i + idx20Hz)] = WWComplex.Add(pcmF[mFftLength - (i + idx20Hz)], v);
                 }
             }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using WWMath;
 
 namespace WWAudioFilterCore {
     public class ButterworthFilter {
@@ -10,25 +11,24 @@ namespace WWAudioFilterCore {
         public static WWComplex[] Design(int sampleRate, double cutoffFrequency, int fftLength, int filterSlopeDbOct) {
             int filterLenP1 = fftLength / 4;
             int filterLength = filterLenP1 - 1;
-            
-            var fromF = new WWComplex[filterLenP1];
 
             double orderX2 = 2.0 * (filterSlopeDbOct / 6.0);
 
             double cutoffRatio = cutoffFrequency / (sampleRate / 2);
 
             // フィルタのF特
-            fromF[0].real = 1.0f;
+            var fromF = new WWComplex[filterLenP1];
+            fromF[0] = WWComplex.Unity();
             for (int i = 1; i <= filterLenP1 / 2; ++i) {
                 double omegaRatio = i * (1.0 / (filterLenP1 / 2));
                 double v = Math.Sqrt(1.0 / (1.0 + Math.Pow(omegaRatio / cutoffRatio, orderX2)));
                 if (Math.Abs(v) < Math.Pow(0.5, 24)) {
                     v = 0.0;
                 }
-                fromF[i].real = v;
+                fromF[i] = new WWComplex(v, 0);
             }
             for (int i = 1; i < filterLenP1 / 2; ++i) {
-                fromF[filterLenP1 - i].real = fromF[i].real;
+                fromF[filterLenP1 - i] = fromF[i];
             }
 
             // IFFTでfromFをfromTに変換
@@ -39,7 +39,7 @@ namespace WWAudioFilterCore {
 
                 double compensation = 1.0 / (filterLenP1 * cutoffRatio);
                 for (int i = 0; i < filterLenP1; ++i) {
-                    fromT[i].Set(
+                    fromT[i] = new WWComplex(
                             fromT[i].real * compensation,
                             fromT[i].imaginary * compensation);
                 }
@@ -62,7 +62,7 @@ namespace WWAudioFilterCore {
             // Kaiser窓をかける
             var w = WWWindowFunc.KaiserWindow(filterLenP1 + 1, 9.0);
             for (int i = 0; i < filterLenP1; ++i) {
-                delayT[i].Mul(w[i]);
+                delayT[i] = WWComplex.Mul(delayT[i], w[i]);
             }
 
             var delayTL = new WWComplex[fftLength];
@@ -78,7 +78,7 @@ namespace WWAudioFilterCore {
                 delayF = fft.ForwardFft(delayTL);
 
                 for (int i = 0; i < fftLength; ++i) {
-                    delayF[i].Mul(cutoffRatio);
+                    delayF[i] = WWComplex.Mul(delayF[i], cutoffRatio);
                 }
             }
             delayTL = null;

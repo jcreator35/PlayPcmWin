@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using WWMath;
 
 namespace WWAudioFilterCore {
     public class LowpassFilter : FilterBase {
@@ -114,7 +115,7 @@ namespace WWAudioFilterCore {
 
             var inTime = new WWComplex[FFT_LEN];
             for (int i = 0; i < inPcm.Length; ++i) {
-                inTime[i].real = inPcm[i];
+                inTime[i] = new WWComplex(inPcm[i], 0);
             }
 
             // FFTでinTimeをinFreqに変換

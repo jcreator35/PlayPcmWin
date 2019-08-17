@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using WWMath;
 
 namespace WWAudioFilterCore {
     public class DynamicRangeCompressionFilter : FilterBase {
@@ -93,7 +94,7 @@ namespace WWAudioFilterCore {
                     scale = 1.0 + db * (scaleLsb - 1) / LSB_DECIBEL;
                 }
 
-                pcmF[i].Mul(scale);
+                pcmF[i] = WWComplex.Mul(pcmF[i], scale);
             }
 
             return new WWUtil.LargeArray<double>(mOverlappedFft.InverseFft(pcmF));

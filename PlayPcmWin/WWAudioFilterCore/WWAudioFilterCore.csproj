@@ -123,7 +123,6 @@
     <Compile Include="WindowedSincDownsampler.cs" />
     <Compile Include="WindowedSincUpsampler.cs" />
     <Compile Include="WWAudioFilterCore.cs" />
-    <Compile Include="WWComplex.cs" />
     <Compile Include="WWConvolution.cs" />
     <Compile Include="WWRadix2Fft.cs" />
     <Compile Include="WWRadix2FftLargeArray.cs" />

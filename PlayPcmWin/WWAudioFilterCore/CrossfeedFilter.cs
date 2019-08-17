@@ -95,8 +95,7 @@ namespace WWAudioFilterCore {
 
             var result = new WWUtil.LargeArray<WWComplex>(a.LongLength);
             for (long i = 0; i < a.LongLength; ++i) {
-                var t = new WWComplex(a.At(i));
-                result.Set(i, t.Mul(b.At(i)));
+                result.Set(i, WWComplex.Mul(a.At(i), b.At(i)));
             }
 
             return result;

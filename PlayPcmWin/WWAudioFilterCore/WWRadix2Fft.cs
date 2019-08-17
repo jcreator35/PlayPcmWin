@@ -63,11 +63,11 @@ namespace WWAudioFilterCore {
 
             var aTmp0 = new WWComplex[mNumPoints];
             for (int i=0; i < aTmp0.Length; ++i) {
-                aTmp0[i] = new WWComplex(aFrom[mBitReversalTable[i]]);
+                aTmp0[i] = aFrom[mBitReversalTable[i]];
             }
             var aTmp1 = new WWComplex[mNumPoints];
             for (int i=0; i < aTmp1.Length; ++i) {
-                aTmp1[i] = new WWComplex();
+                aTmp1[i] = WWComplex.Zero();
             }
 
             var aTmps = new WWComplex[2][];
@@ -84,7 +84,7 @@ namespace WWAudioFilterCore {
 
         public WWComplex[] InverseFft(WWComplex[] aFrom, double? compensation = null) {
             for (int i=0; i < aFrom.LongLength; ++i) {
-                aFrom[i].imaginary *= -1.0;
+                aFrom[i] = new WWComplex(aFrom[i].real, aFrom[i].imaginary * -1.0);
             }
 
             var aTo = ForwardFft(aFrom);
@@ -95,8 +95,7 @@ namespace WWAudioFilterCore {
             }
 
             for (int i=0; i < aTo.LongLength; ++i) {
-                aTo[i].real      *= c;
-                aTo[i].imaginary *= -1.0 * c;
+                aTo[i] = new WWComplex(aTo[i].real * c, aTo[i].imaginary * (-1.0 * c));
             }
 
             return aTo;
@@ -149,7 +148,7 @@ namespace WWAudioFilterCore {
 
             int nRepeat    = Pow2(mNumStage - stageNr - 1);
             int nSubRepeat = mNumPoints / nRepeat;
-            var t = new WWComplex();
+            var t = WWComplex.Zero();
 
             for (int i=0; i<nRepeat; ++i) {
                 int offsBase = i * nSubRepeat;
@@ -169,17 +168,17 @@ namespace WWAudioFilterCore {
 
                 if (allZero) {
                     for (int j=0; j < nSubRepeat / 2; ++j) {
-                        y[j + offsBase].Set(0, 0);
+                        y[j + offsBase] = WWComplex.Zero();
                     }
                 } else {
                     for (int j=0; j < nSubRepeat; ++j) {
                         int offs = offsBase + (j % (nSubRepeat / 2));
-                        y[j + offsBase].CopyFrom(x[offs]);
+                        y[j + offsBase] = x[offs];
 
-                        t.CopyFrom(mWn[j * nRepeat]);
-                        t.Mul(x[offs + nSubRepeat / 2]);
+                        t = mWn[j * nRepeat];
+                        t = WWComplex.Mul(t, x[offs + nSubRepeat / 2]);
 
-                        y[j + offsBase].Add(t);
+                        y[j + offsBase] = WWComplex.Add(y[j + offsBase], t);
                     }
                 }
             }
