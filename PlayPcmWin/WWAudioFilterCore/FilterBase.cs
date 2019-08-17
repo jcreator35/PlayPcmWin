@@ -43,6 +43,7 @@ namespace WWAudioFilterCore {
         WindowedSincDownsampler,
         AWeighting,
         ITUR4684Weighting,
+        OnebitConversion,
     }
 
     public struct TagData {

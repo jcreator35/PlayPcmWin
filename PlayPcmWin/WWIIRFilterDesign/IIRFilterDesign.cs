@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using WWIIRFilterDesign;
 using WWMath;
-using WWFilterCppCs;
 
-namespace WWOfflineResampler {
+namespace WWIIRFilterDesign {
     public class IIRFilterDesign {
         public enum Method {
             ImpulseInvarianceMinimumPhase,
@@ -98,31 +96,6 @@ namespace WWOfflineResampler {
                 break;
             }
             return iirFilter;
-        }
-
-        public WWFilterCpp CreateIIRFilterCpp(int osr, int decimation) {
-            var fg = CreateIIRFilterGraph();
-
-            var fgSerial = fg as IIRFilterSerial;
-            var fgParallel = fg as IIRFilterParallel;
-
-            var r = new WWFilterCpp();
-            if (fgSerial != null) {
-                r.BuildIIRSerial(fg.BlockCount());
-            } else {
-                r.BuildIIRParallel(fg.BlockCount());
-            }
-
-            for (int i = 0; i < fg.BlockCount(); ++i) {
-                var block = fg.GetNthBlock(i);
-                var a = block.A();
-                var b = block.B();
-                r.AddIIRBlock(a.Length, a, b.Length, b);
-            }
-
-            r.SetParam(osr,decimation);
-
-            return r;
         }
 
         public double CutoffFreq { get; set; }

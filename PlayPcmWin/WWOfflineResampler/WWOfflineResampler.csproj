@@ -101,7 +101,6 @@
     </ApplicationDefinition>
     <Compile Include="DsfWrite.cs" />
     <Compile Include="FlacWrite.cs" />
-    <Compile Include="IIRFilterDesign.cs" />
     <Compile Include="LoopFilterCRFB.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="NTFHzcoeffs.cs" />

@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Text;
 using System.Windows;
 using WWMath;
+using WWIIRFilterDesign;
 using System.Collections.Generic;
 
 namespace WWOfflineResampler {

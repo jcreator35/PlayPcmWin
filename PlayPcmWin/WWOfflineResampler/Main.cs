@@ -167,6 +167,31 @@ namespace WWOfflineResampler {
         private FlacWrite mFlacWrite;
         private DsfWrite mDsfWrite;
 
+        private WWFilterCpp CreateIIRFilterCpp(int osr, int decimation) {
+            var fg = mIIRFilterDesign.CreateIIRFilterGraph();
+
+            var fgSerial = fg as IIRFilterSerial;
+            var fgParallel = fg as IIRFilterParallel;
+
+            var r = new WWFilterCpp();
+            if (fgSerial != null) {
+                r.BuildIIRSerial(fg.BlockCount());
+            } else {
+                r.BuildIIRParallel(fg.BlockCount());
+            }
+
+            for (int i = 0; i < fg.BlockCount(); ++i) {
+                var block = fg.GetNthBlock(i);
+                var a = block.A();
+                var b = block.B();
+                r.AddIIRBlock(a.Length, a, b.Length, b);
+            }
+
+            r.SetParam(osr, decimation);
+
+            return r;
+        }
+
         public BWCompletedParam DoWork(BWStartParams param, ProgressReportDelegate ReportProgress) {
             int rv = 0;
 
@@ -256,7 +281,7 @@ namespace WWOfflineResampler {
 #endif
 
 #if USE_CPP
-                    var iirFilterCpp = mIIRFilterDesign.CreateIIRFilterCpp(upsampleScale, downsampleScale);
+                    var iirFilterCpp = CreateIIRFilterCpp(upsampleScale, downsampleScale);
 #else
                     var iirFilter = mIIRFilterDesign.CreateIIRFilterGraph();
 #endif
@@ -425,7 +450,7 @@ namespace WWOfflineResampler {
                 isPcm = false;
             }
 
-            var param = new BWStartParams(inputFile, targetSR, isPcm, outputFile, WWOfflineResampler.IIRFilterDesign.Method.Bilinear);
+            var param = new BWStartParams(inputFile, targetSR, isPcm, outputFile, WWIIRFilterDesign.IIRFilterDesign.Method.Bilinear);
             var result = DoWork(param, (int percent, BWProgressParam p) => {
                 Trace.WriteLine(string.Format("{0}% {1}", percent, p.message)); });
 

@@ -76,6 +76,7 @@
     <Compile Include="DelayReal.cs" />
     <Compile Include="IIRFilterBlockComplex.cs" />
     <Compile Include="DelayComplex.cs" />
+    <Compile Include="IIRFilterDesign.cs" />
     <Compile Include="IIRFilterGraph.cs" />
     <Compile Include="IIRFilterParallel.cs" />
     <Compile Include="IIRFilterBlockReal.cs" />
@@ -87,6 +88,10 @@
     <Compile Include="ZohNosdacCompensation.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\WWAnalogFilterDesign\WWAnalogFilterDesign.csproj">
+      <Project>{1E839CF4-3899-48BE-A4B2-047CA45BFBC2}</Project>
+      <Name>WWAnalogFilterDesign</Name>
+    </ProjectReference>
     <ProjectReference Include="..\WWMath\WWMath.csproj">
       <Project>{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}</Project>
       <Name>WWMath</Name>
