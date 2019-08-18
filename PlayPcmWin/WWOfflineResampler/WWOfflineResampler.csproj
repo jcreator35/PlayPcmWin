@@ -102,7 +102,6 @@
     <Compile Include="DsfWrite.cs" />
     <Compile Include="FlacWrite.cs" />
     <Compile Include="Main.cs" />
-    <Compile Include="NTFHzcoeffs.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
