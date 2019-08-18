@@ -4,6 +4,6 @@
     <StartArguments>C:\audio\test.dsf C:\audio\output.wav</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <StartArguments>C:\audio\test.dsf C:\audio\output.wav</StartArguments>
+    <StartArguments>-oneBitWav C:/audio/output001.dsf c:/audio/output001.wav</StartArguments>
   </PropertyGroup>
 </Project>

@@ -70,11 +70,20 @@ namespace PlayPcmWin {
         private ulong mMetadataOffset;
 
         /// <summary>
-        /// サンプル数＝データサイズ ÷ チャンネル数
+        /// サンプル数＝データサイズ(bit) ÷ チャンネル数
         /// </summary>
         private long mSampleCount;
+
+        /// <summary>
+        /// サンプル数＝データサイズ(bit) ÷ チャンネル数
+        /// </summary>
+        public long SampleCount { get { return mSampleCount; } }
+        
         private int  mBlockSizePerChannel;
 
+        /// <summary>
+        /// DSF DATAチャンクのバイト数。
+        /// </summary>
         private long mDataBytes;
 
         private PcmDataLib.ID3Reader mId3Reader = new PcmDataLib.ID3Reader();

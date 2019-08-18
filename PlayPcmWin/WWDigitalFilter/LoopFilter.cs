@@ -1,4 +1,4 @@
-﻿#define USE_CPP
+﻿//#define USE_CPP
 
 using System;
 using WWFilterCppCs;
