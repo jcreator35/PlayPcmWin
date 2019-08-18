@@ -1,7 +1,7 @@
 ﻿using System;
 using WWMath;
 
-namespace WWOfflineResampler {
+namespace WWDigitalFilter {
     /// <summary>
     /// poles and zeros of H = synthesizeNTF(osr==64,opt==1)
     /// R.Schreier and G.Temes, Understanding Delta-Sigma Data Converters, §8

@@ -32,6 +32,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WWIIRFilterDesign", "..\WWI
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WWAnalogFilterDesign", "..\WWAnalogFilterDesign\WWAnalogFilterDesign.csproj", "{1E839CF4-3899-48BE-A4B2-047CA45BFBC2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WWDigitalFilter", "..\WWDigitalFilter\WWDigitalFilter.csproj", "{AA920458-2ED6-464C-A282-9A2F1DF6D09B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -127,6 +129,14 @@ Global
 		{1E839CF4-3899-48BE-A4B2-047CA45BFBC2}.Release|x64.Build.0 = Release|x64
 		{1E839CF4-3899-48BE-A4B2-047CA45BFBC2}.Release|x86.ActiveCfg = Release|x86
 		{1E839CF4-3899-48BE-A4B2-047CA45BFBC2}.Release|x86.Build.0 = Release|x86
+		{AA920458-2ED6-464C-A282-9A2F1DF6D09B}.Debug|x64.ActiveCfg = Debug|x64
+		{AA920458-2ED6-464C-A282-9A2F1DF6D09B}.Debug|x64.Build.0 = Debug|x64
+		{AA920458-2ED6-464C-A282-9A2F1DF6D09B}.Debug|x86.ActiveCfg = Debug|x86
+		{AA920458-2ED6-464C-A282-9A2F1DF6D09B}.Debug|x86.Build.0 = Debug|x86
+		{AA920458-2ED6-464C-A282-9A2F1DF6D09B}.Release|x64.ActiveCfg = Release|x64
+		{AA920458-2ED6-464C-A282-9A2F1DF6D09B}.Release|x64.Build.0 = Release|x64
+		{AA920458-2ED6-464C-A282-9A2F1DF6D09B}.Release|x86.ActiveCfg = Release|x86
+		{AA920458-2ED6-464C-A282-9A2F1DF6D09B}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

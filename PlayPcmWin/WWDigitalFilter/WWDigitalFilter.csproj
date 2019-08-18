@@ -63,11 +63,27 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LoopFilter.cs" />
     <Compile Include="LoopFilterCRFB.cs" />
+    <Compile Include="NTFHzcoeffs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="WWDigitalFilter.snk" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WWFilterCppCs\WWFilterCppCs.csproj">
+      <Project>{1D2FED4A-D40F-4A8F-A963-4C733B8EDD04}</Project>
+      <Name>WWFilterCppCs</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WWMath\WWMath.csproj">
+      <Project>{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}</Project>
+      <Name>WWMath</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WWUtil\WWUtil.csproj">
+      <Project>{FC57308E-CF56-4B3E-B920-4093660D0A4A}</Project>
+      <Name>WWUtil</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

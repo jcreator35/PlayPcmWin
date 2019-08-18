@@ -1025,7 +1025,7 @@ namespace WWAudioFilter {
             textBoxTimingErrorFile.Text = dlg.FileName;
         }
 
-        private void buttonUse1bitFilter_Click(object sender, RoutedEventArgs e) {
+        private void buttonUseOnebitConversionFilter_Click(object sender, RoutedEventArgs e) {
             mFilter = new OnebitConversionFilter();
 
             DialogResult = true;

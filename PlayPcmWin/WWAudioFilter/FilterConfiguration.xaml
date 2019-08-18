@@ -499,6 +499,11 @@
                             <Button Grid.Row="1" Grid.ColumnSpan="2" Content="Use this filter" Margin="6,0" Name="buttonUseNosdacCompensationFilter" VerticalAlignment="Center" Click="buttonUseNosdacCompensationFilter_Click" />
                         </Grid>
                     </GroupBox>
+                    <GroupBox Header="Onebit Conversion (WIP)" Height="100" HorizontalAlignment="Left" Name="groupBoxOnebitConversion" VerticalAlignment="Top" Width="380">
+                        <Grid>
+                            <Button Content="Use this filter" Margin="6,0" Name="buttonUseOnebitConversionFilter" VerticalAlignment="Center" Click="buttonUseOnebitConversionFilter_Click" />
+                        </Grid>
+                    </GroupBox>
 
                 </WrapPanel>
             </Grid>
