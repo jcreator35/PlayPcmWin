@@ -260,7 +260,7 @@
     <value>Windowed Sincアップサンプル: {0}倍, ウィンドウの長さ={1}</value>
   </data>
   <data name="FilterWriteAudioFiles" xml:space="preserve">
-    <value>FLACファイル|*.flac|DSFファイル|*.dsf|WAVファイル|*.wav</value>
+    <value>音声ファイル(*.wav,*.flac,*.dsf)|*.wav;*.flac;*.dsf|FLACファイル|*.flac|DSFファイル|*.dsf|WAVファイル|*.wav</value>
   </data>
   <data name="FilterWWAFilterFiles" xml:space="preserve">
     <value>WWAudioFilterファイル|*.wwaf</value>

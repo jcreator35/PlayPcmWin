@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 
 namespace WWMath {
-    public class WWUtil {
+    public class WWMathUtil {
         /// <summary>
         /// 1乗以上の項の係数項の表示。
         /// </summary>

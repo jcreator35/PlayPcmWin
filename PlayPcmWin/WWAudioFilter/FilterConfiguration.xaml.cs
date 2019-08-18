@@ -304,6 +304,8 @@ namespace WWAudioFilter {
                     comboBoxDownsampleLen.SelectedIndex = (int)ResampleLenToUpsampleLenType(f.WindowLength + 1);
                 }
                 break;
+            case FilterType.OnebitConversion:
+                break;
             }
         }
 
@@ -1024,7 +1026,7 @@ namespace WWAudioFilter {
         }
 
         private void buttonUse1bitFilter_Click(object sender, RoutedEventArgs e) {
-            mFilter = new ZohNosdacCompensationFilter(ZohNosdacComboBoxIndexToTaps(comboBoxNosdacCompensationTaps.SelectedIndex));
+            mFilter = new OnebitConversionFilter();
 
             DialogResult = true;
             Close();

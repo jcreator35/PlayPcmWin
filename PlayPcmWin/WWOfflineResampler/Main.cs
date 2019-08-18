@@ -49,7 +49,7 @@ namespace WWOfflineResampler {
         }
         */
 
-        public IIRFilterDesign IIRFilterDesign() {
+        public IIRFilterDesign GetIIRFilterDesign() {
             return mIIRFilterDesign;
         }
 
@@ -164,10 +164,7 @@ namespace WWOfflineResampler {
             return 20.0 * Math.Log10(v);
         }
 
-        private FlacWrite mFlacWrite;
-        private DsfWrite mDsfWrite;
-
-        private WWFilterCpp CreateIIRFilterCpp(int osr, int decimation) {
+        public WWFilterCpp CreateIIRFilterCpp(int osr, int decimation) {
             var fg = mIIRFilterDesign.CreateIIRFilterGraph();
 
             var fgSerial = fg as IIRFilterSerial;
@@ -191,6 +188,9 @@ namespace WWOfflineResampler {
 
             return r;
         }
+
+        private FlacWrite mFlacWrite;
+        private DsfWrite mDsfWrite;
 
         public BWCompletedParam DoWork(BWStartParams param, ProgressReportDelegate ReportProgress) {
             int rv = 0;
@@ -351,6 +351,10 @@ namespace WWOfflineResampler {
                         }
 #endif
 
+                        for (int i = 0; i < 16; ++i) {
+                            Console.WriteLine("{0} {1} {2}", posX + i, x[i], y[i]);
+                        }
+
                         if (param.isTargetPcm) {
                             // yを24bit PCMに変換する。
                             posY = FlacWriteConvertTo24bitPcm(y, metaW, pcmW, posY);
@@ -450,7 +454,7 @@ namespace WWOfflineResampler {
                 isPcm = false;
             }
 
-            var param = new BWStartParams(inputFile, targetSR, isPcm, outputFile, WWIIRFilterDesign.IIRFilterDesign.Method.Bilinear);
+            var param = new BWStartParams(inputFile, targetSR, isPcm, outputFile, IIRFilterDesign.Method.Bilinear);
             var result = DoWork(param, (int percent, BWProgressParam p) => {
                 Trace.WriteLine(string.Format("{0}% {1}", percent, p.message)); });
 

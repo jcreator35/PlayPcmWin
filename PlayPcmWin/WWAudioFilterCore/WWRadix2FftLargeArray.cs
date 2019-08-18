@@ -98,10 +98,7 @@ namespace WWAudioFilterCore {
 
             for (int i=0; i < aTo.LongLength; ++i) {
                 var t = aTo.At(i);
-
-                t = new WWComplex(t.real * c, t.imaginary * (-1.0 * c));
-
-                aTo.Set(i, t);
+                aTo.Set(i, new WWComplex(t.real * c, t.imaginary * (-1*c)));
             }
 
             return aTo;
@@ -173,19 +170,14 @@ namespace WWAudioFilterCore {
 
                 if (allZero) {
                     for (long j=0; j < nSubRepeat / 2; ++j) {
-                        y.Set(j + offsBase, WWComplex.Zero());
+                        y.Set(j + offsBase, new WWComplex(0, 0));
                     }
                 } else {
                     for (long j=0; j < nSubRepeat; ++j) {
                         long offs = offsBase + (j % (nSubRepeat / 2));
                         var t = x.At(offs);
-
-                        var t2 = mWn.At(j * nRepeat);
-                        t2 = WWComplex.Mul(t2, x.At(offs + nSubRepeat / 2));
-
-                        t = WWComplex.Add(t, t2);
-
-                        y.Set(j + offsBase, t);
+                        var t2 = WWComplex.Mul(mWn.At(j * nRepeat), x.At(offs + nSubRepeat / 2));
+                        y.Set(j + offsBase, WWComplex.Add(t, t2));
                     }
                 }
             }

@@ -355,8 +355,8 @@ namespace WWAudioFilterCore {
                 audioDataTo.picture = tagData.Picture;
             }
 
-            //for (int ch=0; ch<audioDataFrom.meta.channels; ++ch) {
-            Parallel.For(0, audioDataFrom.meta.channels, ch => {
+            for (int ch=0; ch<audioDataFrom.meta.channels; ++ch) {
+            //Parallel.For(0, audioDataFrom.meta.channels, ch => {
                 var filters = new List<FilterBase>();
                 foreach (var f in aFilters) {
                     filters.Add(f.CreateCopy());
@@ -365,16 +365,16 @@ namespace WWAudioFilterCore {
                 var pRv = FilterSetup(audioDataFrom, ch, filters);
                 if (null == pRv) {
                     rv = -1;
-                    // break;
-                    return;
+                    break;
+                    //return;
                 }
 
                 var from = audioDataFrom.pcm[ch];
                 var to = audioDataTo.pcm[ch];
                 rv = ProcessAudioFile(filters, audioDataFrom.meta.channels, ch, ref from, ref to, Callback);
                 if (rv < 0) {
-                    //break;
-                    return;
+                    break;
+                    //return;
                 }
                 audioDataTo.pcm[ch] = to;
 
@@ -385,7 +385,7 @@ namespace WWAudioFilterCore {
                 }
 
                 filters = null;
-            } );
+            }// );
 
             if (rv < 0) {
                 return rv;

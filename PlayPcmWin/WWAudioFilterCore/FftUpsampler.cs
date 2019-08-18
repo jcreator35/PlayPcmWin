@@ -179,7 +179,7 @@ namespace WWAudioFilterCore {
                 // Kaiser窓(α==9)をかける
                 var w = WWWindowFunc.KaiserWindow(HalfOverlapLength * 2, 9.0);
                 for (int i = 0; i < HalfOverlapLength; ++i) {
-                    inPcmT[i] = WWComplex.Mul(inPcmT[i], w[i]);
+                    inPcmT[i]                 = WWComplex.Mul(inPcmT[i],                 w[i]);
                     inPcmT[FftLength - i - 1] = WWComplex.Mul(inPcmT[FftLength - i - 1], w[i]);
                 }
             }

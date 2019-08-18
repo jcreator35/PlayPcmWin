@@ -96,14 +96,14 @@ namespace WWMath {
         }
 
         public override string ToString(string variableSymbol) {
-            string n = WWUtil.PolynomialToString(numer, variableSymbol, WWUtil.SymbolOrder.NonInverted);
-            string d = WWUtil.PolynomialToString(denom, variableSymbol, WWUtil.SymbolOrder.NonInverted);
+            string n = WWMathUtil.PolynomialToString(numer, variableSymbol, WWMathUtil.SymbolOrder.NonInverted);
+            string d = WWMathUtil.PolynomialToString(denom, variableSymbol, WWMathUtil.SymbolOrder.NonInverted);
             return string.Format("{{ {0} }} / {{ {1} }}", n, d);
         }
 
-        public string ToString(string variableSymbol, WWUtil.SymbolOrder so) {
-            string n = WWUtil.PolynomialToString(numer, variableSymbol, so);
-            string d = WWUtil.PolynomialToString(denom, variableSymbol, so);
+        public string ToString(string variableSymbol, WWMathUtil.SymbolOrder so) {
+            string n = WWMathUtil.PolynomialToString(numer, variableSymbol, so);
+            string d = WWMathUtil.PolynomialToString(denom, variableSymbol, so);
             return string.Format("{{ {0} }} / {{ {1} }}", n, d);
         }
 

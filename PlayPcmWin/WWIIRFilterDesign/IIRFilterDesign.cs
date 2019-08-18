@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using WWMath;
+using WWAnalogFilterDesign;
 
 namespace WWIIRFilterDesign {
     public class IIRFilterDesign {
@@ -42,15 +43,15 @@ namespace WWIIRFilterDesign {
             }
         }
 
-        private WWAnalogFilterDesign.AnalogFilterDesign mAfd;
-        private WWIIRFilterDesign.ImpulseInvarianceMethod mIIRiim;
-        private WWIIRFilterDesign.BilinearDesign mIIRBilinear;
+        private AnalogFilterDesign mAfd;
+        private ImpulseInvarianceMethod mIIRiim;
+        private BilinearDesign mIIRBilinear;
 
-        public WWAnalogFilterDesign.AnalogFilterDesign Afd() {
+        public AnalogFilterDesign Afd() {
             return mAfd;
         }
 
-        public WWIIRFilterDesign.ImpulseInvarianceMethod IIRiim() {
+        public ImpulseInvarianceMethod IIRiim() {
             return mIIRiim;
         }
 
@@ -101,7 +102,8 @@ namespace WWIIRFilterDesign {
         public double CutoffFreq { get; set; }
         public double StopbandEdgeFreq { get; set; }
 
-        public bool Design(double fc, double fs, long samplingFreq, Method method) {
+        public bool Design(double fc, double fs, long samplingFreq, Method method,
+            AnalogFilterDesign.FilterType filterType = AnalogFilterDesign.FilterType.Cauer) {
             CutoffFreq = fc;
             StopbandEdgeFreq = fs;
 
@@ -110,20 +112,20 @@ namespace WWIIRFilterDesign {
 
             switch (method) {
             case Method.Bilinear:
-                return DesignBilinear(fc, fs, samplingFreq);
+                return DesignBilinear(fc, fs, samplingFreq, filterType);
             default:
-                return DesignImpulseInvariance(fc, fs, samplingFreq);
+                return DesignImpulseInvariance(fc, fs, samplingFreq, filterType);
             }
         }
 
-        private bool DesignImpulseInvariance(double fc, double fs, long samplingFreq) {
+        private bool DesignImpulseInvariance(double fc, double fs, long samplingFreq, AnalogFilterDesign.FilterType filterType) {
 
-            mAfd = new WWAnalogFilterDesign.AnalogFilterDesign();
+            mAfd = new AnalogFilterDesign();
             mAfd.DesignLowpass(0, CUTOFF_GAIN_DB, StopbandRippleDb(),
                 fc,
                 fs,
-                WWAnalogFilterDesign.AnalogFilterDesign.FilterType.Cauer,
-                WWAnalogFilterDesign.ApproximationBase.BetaType.BetaMax);
+                filterType,
+                ApproximationBase.BetaType.BetaMax);
 
             var H_s = new List<FirstOrderComplexRationalPolynomial>();
             for (int i = 0; i < mAfd.HPfdCount(); ++i) {
@@ -135,7 +137,7 @@ namespace WWIIRFilterDesign {
             return true;
         }
 
-        private bool DesignBilinear(double fc, double fs, long sampleFreq) {
+        private bool DesignBilinear(double fc, double fs, long sampleFreq, AnalogFilterDesign.FilterType filterType) {
             double twoπ = 2.0 * Math.PI;
 
             mIIRBilinear = new BilinearDesign(fc, sampleFreq);
@@ -143,11 +145,11 @@ namespace WWIIRFilterDesign {
             double fc_pw = mIIRBilinear.PrewarpωtoΩ(twoπ * fc) / twoπ;
             double fs_pw = mIIRBilinear.PrewarpωtoΩ(twoπ * fs) / twoπ;
 
-            mAfd = new WWAnalogFilterDesign.AnalogFilterDesign();
+            mAfd = new AnalogFilterDesign();
             mAfd.DesignLowpass(0,  CUTOFF_GAIN_DB, StopbandRippleDb(),
                 fc_pw, fs_pw,
-                WWAnalogFilterDesign.AnalogFilterDesign.FilterType.Cauer,
-                WWAnalogFilterDesign.ApproximationBase.BetaType.BetaMax);
+                filterType,
+                ApproximationBase.BetaType.BetaMax);
 
             // 連続時間伝達関数を離散時間伝達関数に変換。
             for (int i = 0; i < mAfd.HPfdCount(); ++i) {

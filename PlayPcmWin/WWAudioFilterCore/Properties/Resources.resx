@@ -305,7 +305,7 @@
     <value>Windowed Sinc upsample: {0}x, window length={1}</value>
   </data>
   <data name="FilterWriteAudioFiles" xml:space="preserve">
-    <value>FLAC files|*.flac|DSF files|*.dsf|WAV files|*.wav</value>
+    <value>Audio files(*.wav,*.flac,*.dsf)|*.wav;*.flac;*.dsf|FLAC files|*.flac|DSF files|*.dsf|WAV files|*.wav</value>
   </data>
   <data name="FilterWWAFilterFiles" xml:space="preserve">
     <value>WWAudioFilter files|*.wwaf</value>
@@ -347,8 +347,5 @@ Processing...
   </data>
   <data name="FilterITUR4684WeightingDesc" xml:space="preserve">
     <value>ITU-R 468-4 Weighting fs={0}Hz</value>
-  </data>
-  <data name="FilterOnebitConversionDesc" xml:space="preserve">
-    <value>One bit conversion filter</value>
   </data>
 </root>

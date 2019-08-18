@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WWOfflineResampler {
+namespace WWDigitalFilter {
     public class LoopFilterCRFB {
         private readonly double[] mA;
         private readonly double[] mB;

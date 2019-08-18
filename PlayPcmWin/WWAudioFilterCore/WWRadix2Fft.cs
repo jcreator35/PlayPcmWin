@@ -84,7 +84,7 @@ namespace WWAudioFilterCore {
 
         public WWComplex[] InverseFft(WWComplex[] aFrom, double? compensation = null) {
             for (int i=0; i < aFrom.LongLength; ++i) {
-                aFrom[i] = new WWComplex(aFrom[i].real, aFrom[i].imaginary * -1.0);
+                aFrom[i] = new WWComplex(aFrom[i].real, aFrom[i].imaginary * -1);
             }
 
             var aTo = ForwardFft(aFrom);
@@ -95,7 +95,7 @@ namespace WWAudioFilterCore {
             }
 
             for (int i=0; i < aTo.LongLength; ++i) {
-                aTo[i] = new WWComplex(aTo[i].real * c, aTo[i].imaginary * (-1.0 * c));
+                aTo[i] = new WWComplex(aTo[i].real * c, aTo[i].imaginary * (-1 * c));
             }
 
             return aTo;
@@ -148,7 +148,6 @@ namespace WWAudioFilterCore {
 
             int nRepeat    = Pow2(mNumStage - stageNr - 1);
             int nSubRepeat = mNumPoints / nRepeat;
-            var t = WWComplex.Zero();
 
             for (int i=0; i<nRepeat; ++i) {
                 int offsBase = i * nSubRepeat;
@@ -174,10 +173,7 @@ namespace WWAudioFilterCore {
                     for (int j=0; j < nSubRepeat; ++j) {
                         int offs = offsBase + (j % (nSubRepeat / 2));
                         y[j + offsBase] = x[offs];
-
-                        t = mWn[j * nRepeat];
-                        t = WWComplex.Mul(t, x[offs + nSubRepeat / 2]);
-
+                        var t = WWComplex.Mul(mWn[j * nRepeat], x[offs + nSubRepeat / 2]);
                         y[j + offsBase] = WWComplex.Add(y[j + offsBase], t);
                     }
                 }

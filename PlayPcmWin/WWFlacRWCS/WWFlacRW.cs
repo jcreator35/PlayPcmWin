@@ -202,7 +202,7 @@ namespace WWFlacRWCS {
             nMeta.pictureMimeTypeStr = meta.pictureMimeTypeStr;
             nMeta.pictureDescriptionStr = meta.pictureDescriptionStr;
             nMeta.md5sum = meta.md5sum;
-            mId = NativeMethods.WWFlacRW_EncodeInit(nMeta);
+            mId = NativeMethods.WWFlacRW_EncodeInit(ref nMeta);
             return mId;
         }
 
@@ -349,7 +349,7 @@ namespace WWFlacRWCS {
 
         [DllImport("WWFlacRW.dll", CharSet = CharSet.Unicode)]
         internal extern static
-        int WWFlacRW_EncodeInit(Metadata meta);
+        int WWFlacRW_EncodeInit(ref Metadata meta);
 
         [DllImport("WWFlacRW.dll", CharSet = CharSet.Unicode)]
         internal extern static

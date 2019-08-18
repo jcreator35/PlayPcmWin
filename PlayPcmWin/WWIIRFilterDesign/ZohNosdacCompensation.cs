@@ -76,7 +76,7 @@ namespace WWIIRFilterDesign {
 #endif
 
         private double[] mCoeffs;
-        private DelayReal mDelay;
+        private WWUtil.Delay mDelay;
 
         public ZohNosdacCompensation(int length) {
             Taps = length;
@@ -103,7 +103,7 @@ namespace WWIIRFilterDesign {
                 throw new System.ArgumentException("length");
             }
 
-            mDelay = new DelayReal(length);
+            mDelay = new WWUtil.Delay(length);
             mDelay.FillZeroes();
         }
 
@@ -113,10 +113,10 @@ namespace WWIIRFilterDesign {
             int center = mCoeffs.Length / 2;
             for (int i = 0; i < center; ++i) {
                 v += mCoeffs[i] * (
-                    mDelay.GetNth(i) +
-                    mDelay.GetNth(mCoeffs.Length - i - 1));
+                    mDelay.GetNthDelayedSampleValue(i) +
+                    mDelay.GetNthDelayedSampleValue(mCoeffs.Length - i - 1));
             }
-            v += mCoeffs[center] * mDelay.GetNth(center);
+            v += mCoeffs[center] * mDelay.GetNthDelayedSampleValue(center);
             return v;
         }
 

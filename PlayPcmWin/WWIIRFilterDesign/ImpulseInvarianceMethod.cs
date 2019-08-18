@@ -233,7 +233,7 @@ namespace WWIIRFilterDesign {
                 mH_z = new HighOrderComplexRationalPolynomial(newNumerCoeffs, poleCoeffs);
                 var gain3 = mH_z.Evaluate(WWComplex.Unity());
 
-                Console.WriteLine(mH_z.ToString("z", WWUtil.SymbolOrder.Inverted));
+                Console.WriteLine(mH_z.ToString("z", WWMathUtil.SymbolOrder.Inverted));
             } else {
                 // mixed-phase
 

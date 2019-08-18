@@ -4,9 +4,10 @@
 
 WWIIRFilterGraph::WWIIRFilterGraph(int nBlocks)
 {
-    mFilterBlockArray = new WWIIRFilterBlock[nBlocks];
-    mCount = 0;
+    assert(nBlocks <= WW_IIR_FILTER_BLOCK_NUM);
+
     mCapacity = nBlocks;
+    mCount = 0;
     mOsr = 1;
     mDecimation = 1;
 }
@@ -16,9 +17,6 @@ WWIIRFilterGraph::~WWIIRFilterGraph(void)
     for (int i=mCount-1; 0<=i; --i) {
         mFilterBlockArray[i].Finalize();
     }
-
-    delete [] mFilterBlockArray;
-    mFilterBlockArray = nullptr;
 }
 
 /// <summary>

@@ -5,8 +5,8 @@ using System.Globalization;
 using System.Text;
 using System.Windows;
 using WWMath;
-using WWIIRFilterDesign;
 using System.Collections.Generic;
+using WWIIRFilterDesign;
 
 namespace WWOfflineResampler {
     /// <summary>
@@ -200,27 +200,27 @@ namespace WWOfflineResampler {
                 // 設計されたフィルターを表示する。
                 mTimeDomainPlot.ImpulseResponseFunction = mMain.Afd().ImpulseResponseFunction;
                 mTimeDomainPlot.StepResponseFunction = mMain.Afd().UnitStepResponseFunction;
-                mTimeDomainPlot.CutoffFreq = mMain.IIRFilterDesign().CutoffFreq;
+                mTimeDomainPlot.CutoffFreq = mMain.GetIIRFilterDesign().CutoffFreq;
                 mTimeDomainPlot.Update();
 
                 mPoleZeroPlotZ.ClearPoleZero();
                 mPoleZeroPlotZ.Mode = WWUserControls.PoleZeroPlot.ModeType.ZPlane;
-                mPoleZeroPlotZ.TransferFunction = mMain.IIRFilterDesign().TransferFunction();
+                mPoleZeroPlotZ.TransferFunction = mMain.GetIIRFilterDesign().TransferFunction();
 
-                for (int i = 0; i < mMain.IIRFilterDesign().NumOfPoles(); ++i) {
-                    var p = mMain.IIRFilterDesign().PoleNth(i);
+                for (int i = 0; i < mMain.GetIIRFilterDesign().NumOfPoles(); ++i) {
+                    var p = mMain.GetIIRFilterDesign().PoleNth(i);
                     mPoleZeroPlotZ.AddPole(p.Reciplocal());
                 }
-                for (int i=0; i<mMain.IIRFilterDesign().NumOfZeroes(); ++i) {
-                    var p = mMain.IIRFilterDesign().ZeroNth(i);
+                for (int i=0; i<mMain.GetIIRFilterDesign().NumOfZeroes(); ++i) {
+                    var p = mMain.GetIIRFilterDesign().ZeroNth(i);
                     mPoleZeroPlotZ.AddZero(p.Reciplocal());
                 }
 
                 mPoleZeroPlotZ.Update();
 
                 mFrequencyResponseZ.Mode = WWUserControls.FrequencyResponse.ModeType.ZPlane;
-                mFrequencyResponseZ.SamplingFrequency = mMain.IIRFilterDesign().SamplingFrequency;
-                mFrequencyResponseZ.TransferFunction = mMain.IIRFilterDesign().TransferFunction();
+                mFrequencyResponseZ.SamplingFrequency = mMain.GetIIRFilterDesign().SamplingFrequency;
+                mFrequencyResponseZ.TransferFunction = mMain.GetIIRFilterDesign().TransferFunction();
                 mFrequencyResponseZ.Update();
             }
 

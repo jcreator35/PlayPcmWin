@@ -5,10 +5,12 @@
 #include "WWIIRFilterBlock.h"
 #include <assert.h>
 
+#define WW_IIR_FILTER_BLOCK_NUM (8)
+
 class WWIIRFilterGraph
 {
 protected:
-    WWIIRFilterBlock *mFilterBlockArray;
+    WWIIRFilterBlock mFilterBlockArray[WW_IIR_FILTER_BLOCK_NUM];
     int mCount;
     int mCapacity;
     int mOsr;

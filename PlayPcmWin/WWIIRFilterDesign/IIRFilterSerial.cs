@@ -35,5 +35,19 @@ namespace WWIIRFilterDesign {
         public IIRFilterBlockReal GetNthBlock(int nth) {
             return mFilterBlockList[nth];
         }
+
+        /// <summary>
+        /// 同じフィルター特性で、ディレイの状態も同じだが、ディレイの実体が異なるインスタンスを作る。
+        /// </summary>
+        public IIRFilterGraph CreateCopy() {
+            var r = new IIRFilterSerial();
+
+            for (int i = 0; i < mFilterBlockList.Count; ++i) {
+                var fb = mFilterBlockList[i];
+                r.mFilterBlockList.Add(fb.CreateCopy());
+            }
+
+            return r;
+        }
     }
 }

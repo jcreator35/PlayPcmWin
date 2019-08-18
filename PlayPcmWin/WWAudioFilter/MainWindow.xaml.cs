@@ -35,6 +35,14 @@ namespace WWAudioFilter {
 
         private List<FilterBase> mFilters = new List<FilterBase>();
 
+        private void ProcessCommandline() {
+            var commandLine = new WWAudioFilterCommandLine();
+            if (commandLine.ParseCommandLine()) {
+                Application.Current.Shutdown();
+                return;
+            }
+        }
+
         public MainWindow() {
             InitializeComponent();
 
@@ -47,11 +55,9 @@ namespace WWAudioFilter {
             mBackgroundWorker.ProgressChanged += new ProgressChangedEventHandler(Background_ProgressChanged);
             mBackgroundWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(Background_RunWorkerCompleted);
 
-            var commandLine = new WWAudioFilterCommandLine();
-            if (commandLine.ParseCommandLine()) {
-                Application.Current.Shutdown();
-                return;
-            }
+#if false
+            ProcessCommandline();
+#endif
         }
 
         public void Dispose() {
@@ -67,6 +73,9 @@ namespace WWAudioFilter {
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
+#if true
+            ProcessCommandline();
+#endif
             mInitialized = true;
             Update();
         }

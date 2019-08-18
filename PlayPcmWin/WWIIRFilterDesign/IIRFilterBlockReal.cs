@@ -7,6 +7,9 @@ namespace WWIIRFilterDesign {
     /// </summary>
     public class IIRFilterBlockReal {
         private RealRationalPolynomial mH;
+
+        private int mMaxOrder;
+
         /// <summary>
         /// フィードバックの係数
         /// </summary>
@@ -22,11 +25,28 @@ namespace WWIIRFilterDesign {
         /// </summary>
         private double[] mV;
 
+        private IIRFilterBlockReal() { }
+
+        /// <summary>
+        /// 同じフィルター特性、ディレイの状態も同じだが、別実体のディレイを持つインスタンスを作る。
+        /// </summary>
+        /// <returns></returns>
+        public IIRFilterBlockReal CreateCopy() {
+            var r = new IIRFilterBlockReal();
+            r.mH = mH;
+            r.mMaxOrder = mMaxOrder;
+            r.mA = mA;
+            r.mB = mB;
+
+            r.mV = new double[mMaxOrder + 1];
+            Array.Copy(mV, r.mV, mV.Length);
+
+            return r;
+        }
+
         public double[] A() { return mA; }
         public double[] B() { return mB; }
 
-        private int mMaxOrder;
-        
         public override string ToString() {
             return mH.ToString();
         }
@@ -40,13 +60,12 @@ namespace WWIIRFilterDesign {
             p = p.ScaleAllCoeffs(1.0f / p.D(0));
 
             mH = p;
+
             mMaxOrder = p.NumerDegree();
             if (mMaxOrder < p.DenomDegree()) {
                 mMaxOrder = p.DenomDegree();
             }
             
-            mV = new double[mMaxOrder + 1];
-
             mB = new double[mMaxOrder + 1];
             for (int i = 0; i <= p.NumerDegree(); ++i) {
                 mB[i] = p.N(i);
@@ -57,6 +76,8 @@ namespace WWIIRFilterDesign {
             for (int i = 1; i < mA.Length; ++i) {
                 mA[i] = -p.D(i);
             }
+
+            mV = new double[mMaxOrder + 1];
         }
 
         public double Filter(double x) {

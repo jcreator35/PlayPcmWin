@@ -2,14 +2,6 @@
 
 #include "WWIIRFilterBlock.h"
 
-WWIIRFilterBlock::WWIIRFilterBlock(void)
-{
-}
-
-WWIIRFilterBlock::~WWIIRFilterBlock(void)
-{
-}
-
 void
 WWIIRFilterBlock::Initialize(int aCount, const double *a, int bCount, const double *b)
 {
@@ -20,16 +12,17 @@ WWIIRFilterBlock::Initialize(int aCount, const double *a, int bCount, const doub
         throw new std::invalid_argument("bCount");
     }
 
-    memset(mA, 0, sizeof mA);
-    memset(mB, 0, sizeof mB);
-    memset(mV, 0, sizeof mV);
-
-    for (int i = 0; i <= bCount; ++i) {
-        mB[i] = b[i];
-    }
+    // この処理は必要。aCount,bCountの数に関わらずmA,mBは全て使用されるので。
+    memset(mA,0,sizeof mA);
+    memset(mB,0,sizeof mB);
+    memset(mV,0,sizeof mV);
 
     for (int i = 0; i < aCount; ++i) {
         mA[i] = a[i];
+    }
+
+    for (int i = 0; i < bCount; ++i) {
+        mB[i] = b[i];
     }
 }
 

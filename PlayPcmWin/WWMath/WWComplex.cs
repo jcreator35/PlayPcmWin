@@ -241,14 +241,6 @@ namespace WWMath {
             return d;
         }
 
-        public static double[] ExtractRealPart(WWComplex[] from) {
-            var to = new double[from.Length];
-            for (int i = 0; i < from.Length; ++i) {
-                to[i] = from[i].real;
-            }
-            return to;
-        }
-
         static WWComplex mUnity = new WWComplex(1, 0);
         static WWComplex mZero = new WWComplex(0, 0);
         public static WWComplex Unity() {

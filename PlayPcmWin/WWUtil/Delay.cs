@@ -8,6 +8,15 @@ namespace WWUtil {
         private int mPos;
         private double[] mDelay;
 
+        public Delay CreateCopy() {
+            var r = new Delay(mDelay.Length);
+            
+            r.mPos = mPos;
+            Array.Copy(mDelay, r.mDelay, mDelay.Length);
+
+            return r;
+        }
+
         /// <summary>
         /// n samples delay
         /// </summary>
@@ -21,6 +30,8 @@ namespace WWUtil {
         }
 
         public double Filter(double x) {
+            System.Diagnostics.Debug.Assert(0 <= mPos && mPos < mDelay.Length);
+
             // 元々mDelay[mPos]に入っていた値をyに複製してからxで上書きする。
             // この2行は順番が重要だ
             double y = mDelay[mPos];

@@ -21,23 +21,29 @@ namespace WWAudioFilter {
                 return false;
             }
 
-            string filterFile = args[2];
-            string inputFile = args[3];
-            string outputFile = args[4];
+            //try {
+                string filterFile = args[2];
+                string inputFile = args[3];
+                string outputFile = args[4];
 
-            var filters = WWAudioFilterCore.WWAudioFilterCore.LoadFiltersFromFile(filterFile);
-            if (filters == null) {
-                Console.WriteLine("E: failed to load filter file: {0}", filterFile);
-                PrintUsage(args[0]);
-                return false;
+                var filters = WWAudioFilterCore.WWAudioFilterCore.LoadFiltersFromFile(filterFile);
+                if (filters == null) {
+                    Console.WriteLine("E: failed to load filter file: {0}", filterFile);
+                    PrintUsage(args[0]);
+                    return false;
+                }
+
+                var af = new WWAudioFilterCore.WWAudioFilterCore();
+
+                int rv = af.Run(inputFile, filters, outputFile, (int percentage, WWAudioFilterCore.WWAudioFilterCore.ProgressArgs args2) => { });
+                if (rv < 0) {
+                    Console.WriteLine("E: failed to process. {0}", WWFlacRWCS.FlacRW.ErrorCodeToStr(rv));
+                }
+            /*
+            } catch (Exception ex) {
+                Console.WriteLine(ex);
             }
-
-            var af = new WWAudioFilterCore.WWAudioFilterCore();
-
-            int rv = af.Run(inputFile, filters, outputFile, (int percentage, WWAudioFilterCore.WWAudioFilterCore.ProgressArgs args2) => { });
-            if (rv < 0) {
-                Console.WriteLine("E: failed to process. {0}", WWFlacRWCS.FlacRW.ErrorCodeToStr(rv));
-            }
+            */
 
             return true;
         }

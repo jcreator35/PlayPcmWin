@@ -124,8 +124,8 @@ namespace WWMath {
         }
 
         public override string ToString(string variableSymbol) {
-            string n = WWUtil.PolynomialToString(numer[1], numer[0], variableSymbol);
-            string d = WWUtil.PolynomialToString(denom[1], denom[0], variableSymbol);
+            string n = WWMathUtil.PolynomialToString(numer[1], numer[0], variableSymbol);
+            string d = WWMathUtil.PolynomialToString(denom[1], denom[0], variableSymbol);
             return string.Format("{{ {0} }} / {{ {1} }}", n, d);
         }
 

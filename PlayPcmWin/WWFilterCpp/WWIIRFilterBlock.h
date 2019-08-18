@@ -23,12 +23,12 @@ private:
     /// <summary>
     /// ディレイ
     /// </summary>
-    double mV[3];
+    double mV[2];
 
 public:
-    WWIIRFilterBlock(void);
+    WWIIRFilterBlock(void) { }
     
-    ~WWIIRFilterBlock(void);
+    ~WWIIRFilterBlock(void) { }
 
     void Initialize(int aCount, const double *a, int bCount, const double *b);
 
@@ -41,11 +41,11 @@ public:
         // Discrete-time signal processing 3rd edition pp.427 figure 6.26 and equation 6.44a-d
 
         // equation 6.44a and 6.44b
-        y = mB[0] * x + mV[1];
+        y = mB[0] * x + mV[0];
 
         // equation 6.44c
-        mV[1] = mA[1] * y + mB[1] * x + mV[2];
-        mV[2] = mA[2] * y + mB[2] * x;
+        mV[0] = mA[1] * y + mB[1] * x + mV[1];
+        mV[1] = mA[2] * y + mB[2] * x;
 
         return y;
     }

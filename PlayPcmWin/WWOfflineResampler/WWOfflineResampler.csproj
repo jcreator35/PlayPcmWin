@@ -6,7 +6,7 @@
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{9223886E-B845-420C-AF5A-E7B6BA6A1619}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>WWOfflineResampler</RootNamespace>
     <AssemblyName>WWOfflineResampler</AssemblyName>
@@ -101,7 +101,6 @@
     </ApplicationDefinition>
     <Compile Include="DsfWrite.cs" />
     <Compile Include="FlacWrite.cs" />
-    <Compile Include="LoopFilterCRFB.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="NTFHzcoeffs.cs" />
     <Page Include="MainWindow.xaml">
@@ -154,6 +153,10 @@
     <ProjectReference Include="..\WWAnalogFilterDesign\WWAnalogFilterDesign.csproj">
       <Project>{1E839CF4-3899-48BE-A4B2-047CA45BFBC2}</Project>
       <Name>WWAnalogFilterDesign</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WWDigitalFilter\WWDigitalFilter.csproj">
+      <Project>{AA920458-2ED6-464C-A282-9A2F1DF6D09B}</Project>
+      <Name>WWDigitalFilter</Name>
     </ProjectReference>
     <ProjectReference Include="..\WWDsfRW\WWDsfRW.csproj">
       <Project>{385ADACB-85D6-430A-9691-3A75C639C2AA}</Project>

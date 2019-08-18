@@ -5,14 +5,20 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{5A41EECC-9BB3-478E-B2A5-715CF1C61E8A}</ProjectGuid>
+    <ProjectGuid>{AA920458-2ED6-464C-A282-9A2F1DF6D09B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>WWIIRFilterDesign</RootNamespace>
-    <AssemblyName>WWIIRFilterDesign</AssemblyName>
+    <RootNamespace>WWDigitalFilter</RootNamespace>
+    <AssemblyName>WWDigitalFilter</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>WWDigitalFilter.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -21,7 +27,6 @@
     <DebugType>full</DebugType>
     <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
     <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
@@ -31,9 +36,6 @@
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
-    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
-    <CodeAnalysisFailOnMissingRules>true</CodeAnalysisFailOnMissingRules>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -42,7 +44,7 @@
     <DebugType>full</DebugType>
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
     <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
@@ -53,55 +55,19 @@
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
-    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
-    <CodeAnalysisFailOnMissingRules>true</CodeAnalysisFailOnMissingRules>
-  </PropertyGroup>
-  <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyOriginatorKeyFile>WWIIRFilterDesign.snk</AssemblyOriginatorKeyFile>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BilinearDesign.cs" />
-    <Compile Include="IIRFilterBlockReal128.cs" />
-    <Compile Include="IIRFilterComplex.cs" />
-    <Compile Include="IIRFilterBlockComplex.cs" />
-    <Compile Include="DelayComplex.cs" />
-    <Compile Include="IIRFilterDesign.cs" />
-    <Compile Include="IIRFilterGraph.cs" />
-    <Compile Include="IIRFilterParallel.cs" />
-    <Compile Include="IIRFilterBlockReal.cs" />
-    <Compile Include="IIRFilterSerial.cs" />
-    <Compile Include="ImpulseInvarianceMethod.cs" />
+    <Compile Include="LoopFilterCRFB.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SampleValueStatistics.cs" />
-    <Compile Include="Transformations.cs" />
-    <Compile Include="ZohNosdacCompensation.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\WWAnalogFilterDesign\WWAnalogFilterDesign.csproj">
-      <Project>{1E839CF4-3899-48BE-A4B2-047CA45BFBC2}</Project>
-      <Name>WWAnalogFilterDesign</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\WWMath\WWMath.csproj">
-      <Project>{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}</Project>
-      <Name>WWMath</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\WWUtil\WWUtil.csproj">
-      <Project>{FC57308E-CF56-4B3E-B920-4093660D0A4A}</Project>
-      <Name>WWUtil</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="WWIIRFilterDesign.snk" />
+    <None Include="WWDigitalFilter.snk" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

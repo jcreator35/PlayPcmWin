@@ -11,13 +11,14 @@ namespace WWAudioFilterCore {
         public static WWComplex[] Design(int sampleRate, double cutoffFrequency, int fftLength, int filterSlopeDbOct) {
             int filterLenP1 = fftLength / 4;
             int filterLength = filterLenP1 - 1;
+            
+            var fromF = new WWComplex[filterLenP1];
 
             double orderX2 = 2.0 * (filterSlopeDbOct / 6.0);
 
             double cutoffRatio = cutoffFrequency / (sampleRate / 2);
 
             // フィルタのF特
-            var fromF = new WWComplex[filterLenP1];
             fromF[0] = WWComplex.Unity();
             for (int i = 1; i <= filterLenP1 / 2; ++i) {
                 double omegaRatio = i * (1.0 / (filterLenP1 / 2));

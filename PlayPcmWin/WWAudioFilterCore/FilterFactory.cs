@@ -166,6 +166,8 @@ namespace WWAudioFilterCore {
                 return AWeightingFilter.Restore(tokens);
             case "ITUR4684Weighting":
                 return ITUR4684WeightingFilter.Restore(tokens);
+            case "OnebitConversion":
+                return OnebitConversionFilter.Restore(tokens);
             default:
                 return null;
             }
