@@ -1,4 +1,4 @@
-﻿//#define USE_CPP
+﻿#define USE_CPP
 
 using System;
 using WWFilterCppCs;
@@ -11,7 +11,9 @@ namespace WWDigitalFilter {
 #else
         private LoopFilterCRFB[] mLoopFilters;
 #endif
-        
+
+        private int mCh;
+
         protected virtual void Dispose(bool disposing) {
             if (disposing) {
 #if USE_CPP
@@ -34,6 +36,7 @@ namespace WWDigitalFilter {
         /// <param name="order">フィルターの次数(3,5,7)。</param>
         /// <param name="numChannels">音声のチャンネル数。</param>
         public void Design(int order, int numChannels) {
+            mCh = numChannels;
             var ntfHz = new NTFHzcoeffs(order);
 
             // フィードバック係数g。Hzの分子の零(単位円上)のz=1からの角度 ω → g = 2 - 2cos(ω)
@@ -172,6 +175,28 @@ namespace WWDigitalFilter {
             }
 #endif
             return buffOut;
+        }
+
+        public void PrintDelayValues() {
+            for (int ch = 0; ch < mCh; ++ch) {
+                Console.WriteLine("Channel {0}", ch);
+#if USE_CPP
+                mLoopFiltersCpp[ch].PrintDelayValues();
+#else
+                mLoopFilters[ch].PrintDelayValues();
+#endif
+            }
+        }
+
+        public void SetDelayValues(double[] v) {
+            for (int ch = 0; ch < mCh; ++ch) {
+#if USE_CPP
+                mLoopFiltersCpp[ch].SetDelayValues(v);
+#else
+                mLoopFilters[ch].SetDelayValues(v);
+#endif
+            }
+
         }
     }
 }

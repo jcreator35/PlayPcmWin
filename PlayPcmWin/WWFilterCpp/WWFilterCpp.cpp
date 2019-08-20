@@ -60,6 +60,29 @@ WWFilterCpp_Crfb_Filter(int idx, int n, const double *buffIn, unsigned char *buf
     return n;
 }
 
+extern "C" WWFILTERCPP_API
+int __stdcall
+WWFilterCpp_Crfb_PrintDelayValues(int idx)
+{
+    FIND(idx, gIdxFilterMap);
+
+    p->PrintDelayValues();
+
+    return 0;
+}
+
+extern "C" WWFILTERCPP_API
+int __stdcall
+WWFilterCpp_Crfb_SetDelayValues(int idx, const double *buff, int count)
+{
+    FIND(idx, gIdxFilterMap);
+
+    p->SetDelayValues(buff, count);
+
+    return 0;
+}
+
+
 // Zoh Compensation ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
 static std::map<int, WWZohCompensation* > gIdxZohCompensationMap;

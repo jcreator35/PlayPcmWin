@@ -63,6 +63,17 @@ public:
         memset(mZ, 0, mOrder*sizeof(T));
     }
 
+    void PrintDelayValues(void) {
+        for (int i=0; i<mOrder; ++i) {
+            printf("%d %f\n", i, mZ[i]);
+        }
+    }
+
+    void SetDelayValues(const double *buff, int count) {
+        assert(count == mOrder);
+        memcpy(mZ, buff, mOrder*sizeof(T));
+    }
+
     /// ストリーム buffInを入力し、フィルター処理、量子化して1bitのbuffOutを出力する。
     /// 1ビットデータのバイト内の並び順はリトルエンディアンビットオーダー。
     /// @param n buffInの要素数(出力ビット数。buffOutのバイト数はn/8になる)。

@@ -135,6 +135,25 @@ namespace WWFilterCppCs {
             }
         }
 
+        public void PrintDelayValues() {
+            switch (mFilterType) {
+            case FilterType.Crfb:
+                WWFilterCpp_Crfb_PrintDelayValues(mIdx);
+                break;
+            default:
+                throw new InvalidOperationException();
+            }
+        }
+
+        public void SetDelayValues(double [] buff) {
+            switch (mFilterType) {
+            case FilterType.Crfb:
+                WWFilterCpp_Crfb_SetDelayValues(mIdx, buff, buff.Length);
+                break;
+            default:
+            throw new InvalidOperationException();
+            }
+        }
 
         public void Dispose() {
             if (mIdx <= 0) {
@@ -174,6 +193,14 @@ namespace WWFilterCppCs {
         [DllImport("WWFilterCpp.dll", CharSet = CharSet.Unicode)]
         internal extern static
         int WWFilterCpp_Crfb_Filter(int idx, int n, double []buffIn, byte []buffOut);
+
+        [DllImport("WWFilterCpp.dll", CharSet = CharSet.Unicode)]
+        internal extern static
+        int WWFilterCpp_Crfb_PrintDelayValues(int idx);
+
+        [DllImport("WWFilterCpp.dll", CharSet = CharSet.Unicode)]
+        internal extern static
+        int WWFilterCpp_Crfb_SetDelayValues(int idx, double []buff, int count);
 
 
         [DllImport("WWFilterCpp.dll", CharSet = CharSet.Unicode)]

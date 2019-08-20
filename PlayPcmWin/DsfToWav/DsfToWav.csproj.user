@@ -4,6 +4,13 @@
     <StartArguments>C:\audio\test.dsf C:\audio\output.wav</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <StartArguments>-oneBitWav C:/audio/output001.dsf c:/audio/output001.wav</StartArguments>
+    <StartArguments>-oneBitWav C:/audio/1kHzSine_30min.dsf c:/audio/1kHzSine_30min.wav</StartArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <StartArguments>
+    </StartArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <StartArguments>-oneBitWav C:/audio/output.dsf c:/audio/output.wav</StartArguments>
   </PropertyGroup>
 </Project>

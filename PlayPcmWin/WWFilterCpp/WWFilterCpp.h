@@ -24,6 +24,10 @@ extern "C" WWFILTERCPP_API
 int __stdcall
 WWFilterCpp_Crfb_Filter(int idx, int n, const double *buffIn, unsigned char *buffOut);
 
+extern "C" WWFILTERCPP_API
+int __stdcall
+WWFilterCpp_Crfb_PrintDelayValues(int idx);
+
 // zoh nosdac compensation ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
 extern "C" WWFILTERCPP_API

@@ -25,6 +25,10 @@ namespace WWOfflineResampler {
 
         private SampleData1ch[] mSampleData;
 
+        public long NextWritePos(int ch) {
+            return mSampleData[ch].pos;
+        }
+
         public void Setup(WWFlacRWCS.Metadata metaW, byte[] picture) {
             mDsfW = new WWDsfRW.WWDsfWriter();
             mDsfW.EncodeInit(metaW);
@@ -40,6 +44,17 @@ namespace WWOfflineResampler {
 
             // ノイズシェイピングフィルターmLoopFiltersを作る。
             mLoopFilter.Design(FILTER_ORDER, metaW.channels);
+
+            if (FILTER_ORDER == 5) {
+                mLoopFilter.SetDelayValues(
+                    new double[]{
+                    1.43681852625616E-06,
+                    -9.4526383335642E-05,
+                    -0.00124416475447812,
+                    -0.00212062453327017,
+                    0.0391562027012161,}
+                    );
+            }
         }
 
         public int AddSampleArray(int ch, double [] sampleArray) {
@@ -64,9 +79,11 @@ namespace WWOfflineResampler {
 
             rv = mDsfW.EncodeRun(path);
 
-            // 修了処理。
-
             mDsfW.EncodeEnd();
+
+#if true
+            mLoopFilter.PrintDelayValues();
+#endif
 
             mLoopFilter.Dispose();
 

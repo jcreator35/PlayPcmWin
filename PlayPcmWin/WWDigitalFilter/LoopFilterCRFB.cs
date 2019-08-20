@@ -33,6 +33,17 @@ namespace WWDigitalFilter {
             }
         }
 
+        public void PrintDelayValues() {
+            for (int i = 0; i < mZ.Length; ++i) {
+                Console.WriteLine("    {0}, {1}", i, mZ[i]);
+            }
+        }
+
+        public void SetDelayValues(double[] v) {
+            System.Diagnostics.Debug.Assert(v.Length == mZ.Length);
+            Array.Copy(v, mZ, mZ.Length);
+        }
+
         /// <summary>
         /// ループフィルターに1個データを入力し、1個データを出力する。
         /// </summary>

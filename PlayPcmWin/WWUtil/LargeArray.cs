@@ -184,9 +184,15 @@ namespace WWUtil {
             if (fromPos < 0 || from.Length < fromPos + count) {
                 throw new ArgumentOutOfRangeException("fromPos");
             }
-            if (toPos < 0 || mCount < toPos + count) {
+            if (mCount < toPos + count) {
+                Console.WriteLine("D: LargeArray.CopyFrom copyCount trimmed");
+                count = (int)(mCount - toPos);
+            }
+
+            if (toPos < 0) {
                 throw new ArgumentOutOfRangeException("toPos");
             }
+
             if (count < 0) {
                 throw new ArgumentOutOfRangeException("count");
             }

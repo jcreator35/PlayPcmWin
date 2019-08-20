@@ -25,6 +25,8 @@ namespace WWOfflineResampler {
         public const double STOPBAND_FREQ_RATIO = 22000.0 / 22050.0;
         public const double CUTOFF_STOPBAND_RATIO = 20000.0 / 22000.0;
 
+        private const double DSF_FILTER_DELAY = 19.5;
+
         private Stopwatch mSw = new Stopwatch();
 
         public enum State {
@@ -241,6 +243,8 @@ namespace WWOfflineResampler {
                         metaR.sampleRate / 1000.0, param.targetSampleRate / 1000.0,
                         lcm / metaR.sampleRate, lcm / param.targetSampleRate)));
 
+                double RESAMPLE_RATIO = param.targetSampleRate / metaR.sampleRate;
+
                 mSw.Restart();
 
                 // 書き込み準備。
@@ -300,6 +304,20 @@ namespace WWOfflineResampler {
 
                         // 入力サンプル列x
                         var x = InputSamples(flacR, metaR, ch, posX, sizeFrom);
+
+#if false
+                        if (!param.isTargetPcm) {
+                            // DSF
+                            if (metaR.totalSamples <= posX + metaR.sampleRate) {
+                                // 最後の入力データを読んだ。
+                                // 入力データの最後を0で水増しする。
+                                var buffTmp = new double[x.Length + (int)DSF_FILTER_DELAY];
+                                Array.Copy(x, buffTmp, x.Length);
+                                x = buffTmp;
+                            }
+                        }
+#endif
+
 #if false               // DCゲインのテスト。
                         x = new double[sizeFrom];
                         for (int i = 0; i < sizeFrom; ++i) {
@@ -351,14 +369,24 @@ namespace WWOfflineResampler {
                         }
 #endif
 
+                        /*
                         for (int i = 0; i < 16; ++i) {
                             Console.WriteLine("{0} {1} {2}", posX + i, x[i], y[i]);
                         }
+                        */
 
                         if (param.isTargetPcm) {
                             // yを24bit PCMに変換する。
                             posY = FlacWriteConvertTo24bitPcm(y, metaW, pcmW, posY);
                         } else {
+#if false
+                            if (mDsfWrite.NextWritePos(ch) == 0) {
+                                // 19.5サンプルディレイするので先頭をカット。
+                                var buffTmp = new double[sizeTo - (int)(DSF_FILTER_DELAY * RESAMPLE_RATIO)];
+                                Array.Copy(y, (int)(DSF_FILTER_DELAY * RESAMPLE_RATIO), buffTmp, 0, buffTmp.Length);
+                                y = buffTmp;
+                            }
+#endif
                             rv = mDsfWrite.AddSampleArray(ch, y);
                         }
 
@@ -396,6 +424,7 @@ namespace WWOfflineResampler {
                 ReportProgress(WRITE_START_PERCENT, new BWProgressParam(State.WriteFile,
                     string.Format("Maximum magnitude={0:G3}dBFS. {1}\nNow writing file {2}...\n",
                     maxMagnitudeDb, clippedMsg, param.outputFile)));
+
 
                 if (param.isTargetPcm) {
                     rv = mFlacWrite.OutputFile(param.outputFile);
