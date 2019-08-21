@@ -6,6 +6,7 @@ namespace WWDigitalFilter {
         private readonly double[] mB;
         private readonly double[] mG;
         private double[] mZ;
+        Random mRand = new Random();
 
         private readonly int mOrder;
 
@@ -57,7 +58,14 @@ namespace WWDigitalFilter {
 
             // 最終出力vを計算する。
             double y = mZ[mOrder-1] + mB[mB.Length - 1] * u;
+
+#if true
             int v = (0 <= y) ? 1 : -1; //< 1ビット量子化処理。
+#else
+            // TPDF dither, ±1/8
+            y += (mRand.NextDouble() - mRand.NextDouble()) / 8;
+            int v = (0 <= y) ? 1 : -1; //< 1ビット量子化処理。
+#endif
 
             if (odd == 1) {
                 // 奇数次のCRFB。
