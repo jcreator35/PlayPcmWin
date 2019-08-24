@@ -348,4 +348,10 @@ Processing...
   <data name="FilterITUR4684WeightingDesc" xml:space="preserve">
     <value>ITU-R 468-4 Weighting fs={0}Hz</value>
   </data>
+  <data name="FilterOnebitConversionDesc" xml:space="preserve">
+    <value>One-bit conversion (Work in progress)</value>
+  </data>
+  <data name="RandomNoiseDesc" xml:space="preserve">
+    <value>Add Random noise: {0} {1} dB</value>
+  </data>
 </root>

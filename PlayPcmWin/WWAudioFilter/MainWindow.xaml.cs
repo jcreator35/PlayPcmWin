@@ -451,5 +451,13 @@ namespace WWAudioFilter {
             textBoxOutputFile.Text = paths[0];
             FilenameTextBoxUpdated();
         }
+
+        private void textBoxOutputFile_TextChanged(object sender, TextChangedEventArgs e) {
+            FilenameTextBoxUpdated();
+        }
+
+        private void textBoxInputFile_TextChanged(object sender, TextChangedEventArgs e) {
+            FilenameTextBoxUpdated();
+        }
     }
 }

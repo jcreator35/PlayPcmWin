@@ -273,6 +273,12 @@ namespace WWAudioFilter {
                 var gnf = filter as GaussianNoiseFilter;
                 textBoxGaussianNoiseDb.Text = string.Format(CultureInfo.CurrentCulture, "{0}", gnf.NoiseLevelDb);
                 break;
+            case FilterType.RandomNoise: {
+                    var rf = filter as RandomNoiseFilter;
+                    comboBoxRandomNoiseType.SelectedIndex = (int)rf.NoiseType;
+                    textBoxRandomNoiseDb.Text = string.Format(CultureInfo.CurrentCulture, "{0}", rf.NoiseLevelDb);
+                    break;
+                }
             case FilterType.DynamicRangeCompression:
                 var drc = filter as DynamicRangeCompressionFilter;
                 textBoxDynamicRangeCompressionLsbScaling.Text = string.Format(CultureInfo.CurrentCulture, "{0}", drc.LsbScalingDb);
@@ -845,6 +851,20 @@ namespace WWAudioFilter {
             }
 
             mFilter = new GaussianNoiseFilter(noiseLevelDb);
+            DialogResult = true;
+            Close();
+        }
+
+        private void buttonUseRandomNoise_Click(object sender, RoutedEventArgs e) {
+            double noiseLevelDb = 0;
+            if (!Double.TryParse(textBoxRandomNoiseDb.Text, out noiseLevelDb)) {
+                MessageBox.Show(Properties.Resources.ErrorRandomNoiseLevel);
+                return;
+            }
+
+            RandomNoiseFilter.NoiseTypeEnum nt = (RandomNoiseFilter.NoiseTypeEnum)(comboBoxRandomNoiseType.SelectedIndex);
+
+            mFilter = new RandomNoiseFilter(nt, noiseLevelDb);
             DialogResult = true;
             Close();
         }

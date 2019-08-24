@@ -44,6 +44,7 @@ namespace WWAudioFilterCore {
         AWeighting,
         ITUR4684Weighting,
         OnebitConversion,
+        RandomNoise,
     }
 
     public struct TagData {

@@ -146,6 +146,8 @@ namespace WWAudioFilterCore {
                 return JitterAddFilter.Restore(tokens);
             case "GaussianNoise":
                 return GaussianNoiseFilter.Restore(tokens);
+            case "RandomNoise":
+                return RandomNoiseFilter.Restore(tokens);
             case "DynamicRangeCompression":
                 return DynamicRangeCompressionFilter.Restore(tokens);
             case "UnevenBitDac":

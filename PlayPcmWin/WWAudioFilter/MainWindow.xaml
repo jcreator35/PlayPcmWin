@@ -16,7 +16,7 @@
                     <ColumnDefinition Width="1*" />
                     <ColumnDefinition Width="100" />
                 </Grid.ColumnDefinitions>
-                <TextBox Margin="6,0,6,0" Name="textBoxInputFile" VerticalAlignment="Center" Grid.Column="1" Text="" PreviewDragOver="textBoxFile_PreviewDragOver" Drop="textBoxInputFile_Drop" DragEnter="textBoxFile_DragEnter" />
+                <TextBox Margin="6,0,6,0" Name="textBoxInputFile" VerticalAlignment="Center" Grid.Column="1" Text="" PreviewDragOver="textBoxFile_PreviewDragOver" Drop="textBoxInputFile_Drop" DragEnter="textBoxFile_DragEnter" TextChanged="textBoxInputFile_TextChanged" />
                 <Button Content="_Browse..." Margin="0,0,6,0" Name="buttonBrowseInputFile" VerticalAlignment="Center" Grid.Column="2" Click="buttonBrowseInputFile_Click" />
                 <Label Content="Input file:" HorizontalAlignment="Right" Margin="0,0,0,0" Name="labelInputFile" VerticalAlignment="Center" />
             </Grid>
@@ -46,7 +46,7 @@
                     <ColumnDefinition Width="1*" />
                     <ColumnDefinition Width="100" />
                 </Grid.ColumnDefinitions>
-                <TextBox Margin="6,0,6,0" Name="textBoxOutputFile" VerticalAlignment="Center" Grid.Column="1" Text="" Drop="textBoxOutputFile_Drop" DragEnter="textBoxFile_DragEnter" PreviewDragOver="textBoxFile_PreviewDragOver" />
+                <TextBox Margin="6,0,6,0" Name="textBoxOutputFile" VerticalAlignment="Center" Grid.Column="1" Text="" Drop="textBoxOutputFile_Drop" DragEnter="textBoxFile_DragEnter" PreviewDragOver="textBoxFile_PreviewDragOver" TextChanged="textBoxOutputFile_TextChanged" />
                 <Button Content="B_rowse..." Margin="0,0,6,0" Name="buttonBrowseOutputFile" VerticalAlignment="Center" Grid.Column="2" Click="buttonBrowseOutputFile_Click" />
                 <Label Content="Output file:" HorizontalAlignment="Right" Margin="0,0,0,0" Name="labelOutputFile" VerticalAlignment="Center" />
             </Grid>

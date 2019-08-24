@@ -486,4 +486,7 @@ Processing...
     <value>Process completed. Writing to {0} ...
 </value>
   </data>
+  <data name="ErrorRandomNoiseLevel" xml:space="preserve">
+    <value>Random noise level parse error.</value>
+  </data>
 </root>

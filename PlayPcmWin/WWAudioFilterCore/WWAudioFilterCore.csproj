@@ -115,6 +115,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="RandomNoiseFilter.cs" />
     <Compile Include="ReduceBitDepth.cs" />
     <Compile Include="SecondOrderAllPassIIRFilter.cs" />
     <Compile Include="SubsonicFilter.cs" />

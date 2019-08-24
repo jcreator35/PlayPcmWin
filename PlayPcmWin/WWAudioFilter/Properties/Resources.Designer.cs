@@ -493,6 +493,15 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Random noise level parse error..
+        /// </summary>
+        internal static string ErrorRandomNoiseLevel {
+            get {
+                return ResourceManager.GetString("ErrorRandomNoiseLevel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to RPDF Jitter Amount must be 0 or larger value.
         /// </summary>
         internal static string ErrorRpdfJitterAmount {

@@ -447,4 +447,7 @@
   <data name="SubsonicFilterDesc" xml:space="preserve">
     <value>サブソニックフィルター: カットオフ周波数={0}Hz</value>
   </data>
+  <data name="RandomNoiseDesc" xml:space="preserve">
+    <value>ランダムノイズ加算: {0} {1} dB</value>
+  </data>
 </root>

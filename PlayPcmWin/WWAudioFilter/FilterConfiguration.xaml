@@ -341,6 +341,28 @@
 
                         </Grid>
                     </GroupBox>
+                    <GroupBox Header="Add Random noise" Height="100" HorizontalAlignment="Left" Name="groupBoxAddRandomNoise" VerticalAlignment="Top" Width="380">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                            </Grid.ColumnDefinitions>
+                            <Label Grid.Column="0" Grid.Row="0" Content="Noise Type:"  Name="labelRandomNoiseType" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                            <ComboBox Grid.Column="1" Grid.Row="0" Name="comboBoxRandomNoiseType" VerticalAlignment="Center" HorizontalContentAlignment="Center">
+                                <ComboBoxItem Content="TPDF: Probability Density Function of Triangular Distribution" IsSelected="True" />
+                                <ComboBoxItem Content="RPDF: Probability Density Function of Rectangular Distribution"  />
+                            </ComboBox>
+                            <Label Grid.Column="0" Grid.Row="1" Content="Noise level (dB):"  Name="labelRandomNoiseDb" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                            <TextBox Grid.Column="1" Grid.Row="1" Margin="3" Text="-36" Name="textBoxRandomNoiseDb" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                            <Button Content="Use this filter" Grid.Row="2" Margin="6,0" Name="buttonUseRandomNoise" VerticalAlignment="Center" Grid.ColumnSpan="2" Click="buttonUseRandomNoise_Click" />
+
+                        </Grid>
+                    </GroupBox>
                     <GroupBox Header="Uneven bit weighting DAC simulation" Height="100" HorizontalAlignment="Left" Name="groupBoxUnevenBitDac" VerticalAlignment="Top" Width="380" Visibility="Collapsed">
                         <Grid>
                             <Grid.RowDefinitions>
