@@ -205,7 +205,7 @@
     <value>Audio files(*.wav, *.flac, *.dsf)|*.wav;*.flac;*.dsf</value>
   </data>
   <data name="FilterWriteAudioFiles" xml:space="preserve">
-    <value>FLAC files (24bit PCM)|*.flac|DSF files (1bit SDM)|*.dsf|WAV files (32bit PCM)|*.wav</value>
+    <value>FLAC files (24bit PCM)|*.flac|DSF files (1bit SDM)|*.dsf|WAVE files (32bit PCM)|*.wav</value>
   </data>
   <data name="FilterWWAFilterFiles" xml:space="preserve">
     <value>WWAudioFilter files|*.wwaf</value>
@@ -430,7 +430,7 @@
     <value>RPDF Jitter Amount must be 0 or larger value</value>
   </data>
   <data name="ErrorSampleRateTooHigh" xml:space="preserve">
-    <value>Error: sample rate is too high({0}Hz). FLAC supports up to 655,350Hz sample rate. WAV supports up to 2,147,483,647Hz</value>
+    <value>Error: sample rate is too high({0}Hz). FLAC supports up to 655,350Hz sample rate. WAVE supports up to 2,147,483,647Hz</value>
   </data>
   <data name="ErrorSampleValueClipped" xml:space="preserve">
     <value>Too large magnitude sample detected! channel={0}, magnitude={1:0.000}

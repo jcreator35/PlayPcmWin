@@ -283,7 +283,7 @@
     <value>2次MASHノイズシェイピング: 出力量子化ビット数={0}</value>
   </data>
   <data name="FilterWriteAudioFiles" xml:space="preserve">
-    <value>FLACファイル (24bit PCM)|*.flac|DSFファイル (1bit SDM)|*.dsf|WAVファイル (32bit PCM)|*.wav</value>
+    <value>FLACファイル (24bit PCM)|*.flac|DSFファイル (1bit SDM)|*.dsf|WAVEファイル (32bit PCM)|*.wav</value>
   </data>
   <data name="ErrorNoiseShapingBitIsNan" xml:space="preserve">
     <value>出力量子化ビット数の欄に数字を入れて下さい</value>
@@ -511,7 +511,7 @@
     <value>エラー: 以下の種類のアップサンプラーは2の乗数ではない倍数のアップサンプル対応が未実装です: FFT. 以下の種類のアップサンプラーを使用して下さい: CubicHermiteSpline, LineDraw, InsertZeroes, WindowedSinc or ZOH. </value>
   </data>
   <data name="ErrorSampleRateTooHigh" xml:space="preserve">
-    <value>エラー: サンプルレートが高すぎます({0}Hz)。FLACの上限は655,350HzでWAVの上限は2,147,483,647Hzです。</value>
+    <value>エラー: サンプルレートが高すぎます({0}Hz)。FLACの上限は655,350HzでWAVEの上限は2,147,483,647Hzです。</value>
   </data>
   <data name="FilterWindowedSincDownsampleDesc" xml:space="preserve">
     <value>Windowed Sinc ダウンサンプラー: {0}倍, 窓の長さ={1}</value>
