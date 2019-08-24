@@ -178,10 +178,10 @@ namespace PcmDataLib {
                             + ((uint)data.At(i * 2 + 1) << 8));
                         int v32 = v16;
                         v32 *= 65536;
-                        data32.Set(i * 3 + 0, 0);
-                        data32.Set(i * 3 + 1, 0);
-                        data32.Set(i * 3 + 2, (byte)((v32 & 0x00ff0000) >> 16));
-                        data32.Set(i * 3 + 3, (byte)((v32 & 0xff000000) >> 24));
+                        data32.Set(i * 4 + 0, 0);
+                        data32.Set(i * 4 + 1, 0);
+                        data32.Set(i * 4 + 2, (byte)((v32 & 0x00ff0000) >> 16));
+                        data32.Set(i * 4 + 3, (byte)((v32 & 0xff000000) >> 24));
                     }
                     return data32;
                 case 24:
@@ -190,10 +190,10 @@ namespace PcmDataLib {
                               ((uint)data.At(i * 3 + 0) << 8)
                             + ((uint)data.At(i * 3 + 1) << 16)
                             + ((uint)data.At(i * 3 + 2) << 24));
-                        data32.Set(i * 3 + 0, 0);
-                        data32.Set(i * 3 + 1, (byte)((v32 & 0x0000ff00) >> 8));
-                        data32.Set(i * 3 + 2, (byte)((v32 & 0x00ff0000) >> 16));
-                        data32.Set(i * 3 + 3, (byte)((v32 & 0xff000000) >> 24));
+                        data32.Set(i * 4 + 0, 0);
+                        data32.Set(i * 4 + 1, (byte)((v32 & 0x0000ff00) >> 8));
+                        data32.Set(i * 4 + 2, (byte)((v32 & 0x00ff0000) >> 16));
+                        data32.Set(i * 4 + 3, (byte)((v32 & 0xff000000) >> 24));
                     }
                     return data32;
                 case 32:
@@ -240,10 +240,10 @@ namespace PcmDataLib {
                         v32 = (int)v64;
                     }
 
-                    data32.Set(i * 3 + 0, (byte)((v32 & 0x000000ff) >> 0));
-                    data32.Set(i * 3 + 1, (byte)((v32 & 0x0000ff00) >> 8));
-                    data32.Set(i * 3 + 2, (byte)((v32 & 0x00ff0000) >> 16));
-                    data32.Set(i * 3 + 3, (byte)((v32 & 0xff000000) >> 24));
+                    data32.Set(i * 4 + 0, (byte)((v32 & 0x000000ff) >> 0));
+                    data32.Set(i * 4 + 1, (byte)((v32 & 0x0000ff00) >> 8));
+                    data32.Set(i * 4 + 2, (byte)((v32 & 0x00ff0000) >> 16));
+                    data32.Set(i * 4 + 3, (byte)((v32 & 0xff000000) >> 24));
                 }
                 return data32;
             default:
