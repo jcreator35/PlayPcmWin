@@ -1,4 +1,6 @@
-﻿using System;
+﻿// 日本語。
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -60,6 +62,10 @@ namespace WWAudioFilterCore {
                     } else if (s[i] == '\"') {
                         if (0 < sb.Length) {
                             result.Add(sb.ToString());
+                            sb.Clear();
+                        } else {
+                            // "" の場合、ここに来る。
+                            result.Add("");
                             sb.Clear();
                         }
                         state = State.SkipWhiteSpace;
