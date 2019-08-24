@@ -123,7 +123,7 @@ namespace PcmDataLib {
                 return;
             } else {
                 // unsynchroしない
-                PcmDataLib.Util.BinaryReaderSkip(br, bytes);
+                PcmDataLib.PcmDataUtil.BinaryReaderSkip(br, bytes);
                 m_bytesRemain -= bytes;
                 m_readBytes   += bytes;
             }

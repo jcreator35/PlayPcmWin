@@ -67,13 +67,14 @@ namespace WWAudioFilterCore {
                         }
                     }
 
-                    var pcm24 = PcmDataLib.Util.ConvertTo24bit(reader.BitsPerSample, reader.NumFrames,
+                    var pcm32 = PcmDataLib.PcmDataUtil.ConvertTo32bitInt(reader.BitsPerSample, reader.NumFrames,
                             reader.SampleValueRepresentationType, pcmOneChannel);
 
                     var adp = new AudioDataPerChannel();
-                    adp.mData = pcm24;
+                    adp.mData = pcm32;
                     adp.mOffsBytes = 0;
-                    adp.mBitsPerSample = 24;
+                    adp.mBitsPerSample = 32;
+                    adp.mValueRepresentationType = PcmDataLib.PcmData.ValueRepresentationType.SInt;
                     adp.mTotalSamples = ad.meta.totalSamples;
                     ad.pcm.Add(adp);
                 }
@@ -162,6 +163,7 @@ namespace WWAudioFilterCore {
                     adp.mData = sampleData[ch];
                     adp.mOffsBytes = 0;
                     adp.mBitsPerSample = 1;
+                    adp.mValueRepresentationType = PcmDataLib.PcmData.ValueRepresentationType.SInt;
                     adp.mTotalSamples = ad.meta.totalSamples;
                     adp.mDataFormat = AudioDataPerChannel.DataFormat.Sdm1bit;
                     ad.pcm.Add(adp);
@@ -218,7 +220,7 @@ namespace WWAudioFilterCore {
                     pos += copyBytes;
                 }
 
-                var pcm24 = PcmDataLib.Util.ConvertTo24bit(ad.meta.bitsPerSample,
+                var pcm24 = PcmDataLib.PcmDataUtil.ConvertTo24bit(ad.meta.bitsPerSample,
                     ad.meta.totalSamples, PcmDataLib.PcmData.ValueRepresentationType.SInt, pcm);
 
                 var adp = new AudioDataPerChannel();
@@ -226,6 +228,7 @@ namespace WWAudioFilterCore {
                 adp.mData = pcm24;
                 adp.mOffsBytes = 0;
                 adp.mBitsPerSample = 24;
+                adp.mValueRepresentationType = PcmDataLib.PcmData.ValueRepresentationType.SInt;
                 adp.mTotalSamples = ad.meta.totalSamples;
                 ad.pcm.Add(adp);
             }

@@ -106,8 +106,10 @@ namespace WWAudioFilterCore {
 
             switch (toFileFormat) {
             case FileFormatType.FLAC:
-            case FileFormatType.WAVE:
                 to.meta.bitsPerSample = 24;
+                break;
+            case FileFormatType.WAVE:
+                to.meta.bitsPerSample = 32;
                 break;
             case FileFormatType.DSF:
                 to.meta.bitsPerSample = 1;

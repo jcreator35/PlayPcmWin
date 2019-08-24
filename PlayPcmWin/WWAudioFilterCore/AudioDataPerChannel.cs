@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using PcmDataLib;
 
 namespace WWAudioFilterCore {
     public struct AudioDataPerChannel {
@@ -12,7 +13,14 @@ namespace WWAudioFilterCore {
         /// これは、サンプル数。1bitデータのとき、mData.LongLength / 8 = mTotalSamples
         /// </summary>
         public long mTotalSamples;
+
+        /// <summary>
+        /// 量子化ビット数。1, 16,24,32 (signed int or float)
+        /// </summary>
         public int mBitsPerSample;
+
+        public PcmData.ValueRepresentationType mValueRepresentationType;
+
         public bool mOverflow;
         public double mMaxMagnitude;
 
@@ -168,6 +176,34 @@ namespace WWAudioFilterCore {
                     mOffsBytes += 3;
                 }
                 break;
+            case 32:
+                switch (mValueRepresentationType) {
+                case PcmData.ValueRepresentationType.SInt:
+                    for (int i = 0; i < copyCount; ++i) {
+                        int v = (int)(
+                              (mData.At(mOffsBytes + 0) << 0)
+                            + (mData.At(mOffsBytes + 1) << 8)
+                            + (mData.At(mOffsBytes + 2) << 16)
+                            + (mData.At(mOffsBytes + 3) << 24));
+                        result[i] = v * (1.0 / 2147483648.0);
+                        mOffsBytes += 4;
+                    }
+                    break;
+                case PcmData.ValueRepresentationType.SFloat:
+                    break;
+                    for (int i = 0; i < copyCount; ++i) {
+                        byte [] buff = new byte[4];
+                        buff[0] = mData.At(mOffsBytes + 0);
+                        buff[1] = mData.At(mOffsBytes + 1);
+                        buff[2] = mData.At(mOffsBytes + 2);
+                        buff[3] = mData.At(mOffsBytes + 3);
+                        float v = BitConverter.ToSingle(buff, 0);
+                        result[i] = v;
+                        mOffsBytes += 4;
+                    }
+                    break;
+                }
+                break;
             default:
                 System.Diagnostics.Debug.Assert(false);
                 break;
@@ -299,6 +335,43 @@ namespace WWAudioFilterCore {
                     mData.Set(writePosBytes + 2, (byte)((vI >> 24) & 0xff));
 
                     writePosBytes += 3;
+                }
+                break;
+            case 32:
+                switch (mValueRepresentationType) {
+                case PcmData.ValueRepresentationType.SInt:
+                    writePosBytes = writePos * 4;
+                    for (long i = 0; i < copyCount; ++i) {
+                        int vI = 0;
+                        double vD = pcm[i];
+                        if (vD < -1.0f) {
+                            vI = Int32.MinValue;
+
+                            mOverflow = true;
+                            if (mMaxMagnitude < Math.Abs(vD)) {
+                                mMaxMagnitude = Math.Abs(vD);
+                            }
+                        } else if (1.0f <= vD) {
+                            vI = 0x7fffffff;
+
+                            mOverflow = true;
+                            if (mMaxMagnitude < Math.Abs(vD)) {
+                                mMaxMagnitude = Math.Abs(vD);
+                            }
+                        } else {
+                            vI = (int)(2147483648.0 * vD);
+                        }
+
+                        mData.Set(writePosBytes + 0, (byte)((vI >> 0) & 0xff));
+                        mData.Set(writePosBytes + 1, (byte)((vI >> 8) & 0xff));
+                        mData.Set(writePosBytes + 2, (byte)((vI >> 16) & 0xff));
+                        mData.Set(writePosBytes + 3, (byte)((vI >> 24) & 0xff));
+
+                        writePosBytes += 4;
+                    }
+                    break;
+                case PcmData.ValueRepresentationType.SFloat:
+                    break;
                 }
                 break;
             default:

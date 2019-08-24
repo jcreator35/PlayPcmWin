@@ -81,7 +81,7 @@ namespace WWDsfRW {
 
         private ResultType ReadDsfChunk(BinaryReader br) {
             byte[] ckID = br.ReadBytes(4);
-            if (!PcmDataLib.Util.FourCCHeaderIs(ckID, 0, "DSD ")) {
+            if (!PcmDataLib.PcmDataUtil.FourCCHeaderIs(ckID, 0, "DSD ")) {
                 return ResultType.NotDsf;
             }
 
@@ -99,7 +99,7 @@ namespace WWDsfRW {
 
         private ResultType ReadFmtChunk(BinaryReader br) {
             byte[] ckID = br.ReadBytes(4);
-            if (!PcmDataLib.Util.FourCCHeaderIs(ckID, 0, "fmt ")) {
+            if (!PcmDataLib.PcmDataUtil.FourCCHeaderIs(ckID, 0, "fmt ")) {
                 return ResultType.NotFoundFmtHeader;
             }
 
@@ -159,7 +159,7 @@ namespace WWDsfRW {
 
         private ResultType ReadDataChunkHeader(BinaryReader br) {
             byte[] ckID = br.ReadBytes(4);
-            if (!PcmDataLib.Util.FourCCHeaderIs(ckID, 0, "data")) {
+            if (!PcmDataLib.PcmDataUtil.FourCCHeaderIs(ckID, 0, "data")) {
                 return ResultType.NotDsf;
             }
 
@@ -237,7 +237,7 @@ namespace WWDsfRW {
 
             if (mode == ReadHeaderMode.AllHeadersWithID3 &&
                 mMetadataOffset != 0) {
-                PcmDataLib.Util.BinaryReaderSkip(br, (long)mMetadataOffset - STREAM_DATA_OFFSET);
+                PcmDataLib.PcmDataUtil.BinaryReaderSkip(br, (long)mMetadataOffset - STREAM_DATA_OFFSET);
 
                 result = ReadID3Chunk(br);
                 if (ResultType.Success == result) {
@@ -294,7 +294,7 @@ namespace WWDsfRW {
             }
 
             // DSFの1フレーム=16ビット(2バイト) x チャンネル数
-            PcmDataLib.Util.BinaryReaderSkip(br, skipFrames * 2 * NumChannels);
+            PcmDataLib.PcmDataUtil.BinaryReaderSkip(br, skipFrames * 2 * NumChannels);
             mPosFrame += skipFrames;
             return skipFrames;
         }

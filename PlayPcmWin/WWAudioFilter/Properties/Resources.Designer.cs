@@ -629,7 +629,7 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to FLAC files|*.flac|DSF files|*.dsf|WAV files|*.wav.
+        ///   Looks up a localized string similar to FLAC files (24bit PCM)|*.flac|DSF files (1bit SDM)|*.dsf|WAV files (32bit PCM)|*.wav.
         /// </summary>
         internal static string FilterWriteAudioFiles {
             get {

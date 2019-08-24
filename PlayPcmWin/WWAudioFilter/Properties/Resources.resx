@@ -205,7 +205,7 @@
     <value>Audio files(*.wav, *.flac, *.dsf)|*.wav;*.flac;*.dsf</value>
   </data>
   <data name="FilterWriteAudioFiles" xml:space="preserve">
-    <value>FLAC files|*.flac|DSF files|*.dsf|WAV files|*.wav</value>
+    <value>FLAC files (24bit PCM)|*.flac|DSF files (1bit SDM)|*.dsf|WAV files (32bit PCM)|*.wav</value>
   </data>
   <data name="FilterWWAFilterFiles" xml:space="preserve">
     <value>WWAudioFilter files|*.wwaf</value>

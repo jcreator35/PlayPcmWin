@@ -77,7 +77,7 @@ namespace PlayPcmWin {
             }
 
             byte[] formType = br.ReadBytes(4);
-            if (!PcmDataLib.Util.FourCCHeaderIs(formType, 0, "DSD ")) {
+            if (!PcmDataLib.PcmDataUtil.FourCCHeaderIs(formType, 0, "DSD ")) {
                 return ResultType.NotSupportFormatType;
             }
 
@@ -105,7 +105,7 @@ namespace PlayPcmWin {
             }
 
             byte[] propType = br.ReadBytes(4);
-            if (!PcmDataLib.Util.FourCCHeaderIs(propType, 0, "SND ")) {
+            if (!PcmDataLib.PcmDataUtil.FourCCHeaderIs(propType, 0, "SND ")) {
                 return ResultType.NotSupportPropertyType;
             }
 
@@ -137,7 +137,7 @@ namespace PlayPcmWin {
             NumChannels = (int)Util.ReadBigU16(br);
 
             // skip channel ID's
-            PcmDataLib.Util.BinaryReaderSkip(br, (long)(chunkBytes - 2));
+            PcmDataLib.PcmDataUtil.BinaryReaderSkip(br, (long)(chunkBytes - 2));
 
             return ResultType.Success;
         }
@@ -149,12 +149,12 @@ namespace PlayPcmWin {
             }
 
             byte[] propType = br.ReadBytes(4);
-            if (!PcmDataLib.Util.FourCCHeaderIs(propType, 0, "DSD ")) {
+            if (!PcmDataLib.PcmDataUtil.FourCCHeaderIs(propType, 0, "DSD ")) {
                 return ResultType.NotSupportCompressionType;
             }
 
             // skip compression name
-            PcmDataLib.Util.BinaryReaderSkip(br, (int)(chunkBytes - 4+1) & (~1));
+            PcmDataLib.PcmDataUtil.BinaryReaderSkip(br, (int)(chunkBytes - 4+1) & (~1));
 
             return ResultType.Success;
         }
@@ -170,7 +170,7 @@ namespace PlayPcmWin {
             switch (mode) {
             case ReadHeaderMode.AllHeadersWithID3:
                 // skip dsd data
-                PcmDataLib.Util.BinaryReaderSkip(br, (long)chunkBytes);
+                PcmDataLib.PcmDataUtil.BinaryReaderSkip(br, (long)chunkBytes);
                 break;
             case ReadHeaderMode.ReadStopBeforeSoundData:
                 break;
@@ -195,11 +195,11 @@ namespace PlayPcmWin {
             case PcmDataLib.ID3Reader.ID3Result.NotSupportedID3version:
                 // ID3が読めなくても再生はできるようにする。
                 result = ResultType.Success;
-                PcmDataLib.Util.BinaryReaderSkip(br, (long)chunkBytes - mId3Reader.ReadBytes);
+                PcmDataLib.PcmDataUtil.BinaryReaderSkip(br, (long)chunkBytes - mId3Reader.ReadBytes);
                 break;
             case PcmDataLib.ID3Reader.ID3Result.Success:
                 result = ResultType.Success;
-                PcmDataLib.Util.BinaryReaderSkip(br, (long)chunkBytes - mId3Reader.ReadBytes);
+                PcmDataLib.PcmDataUtil.BinaryReaderSkip(br, (long)chunkBytes - mId3Reader.ReadBytes);
                 break;
             default:
                 // 追加忘れ
@@ -217,7 +217,7 @@ namespace PlayPcmWin {
             }
 
             // skip
-            PcmDataLib.Util.BinaryReaderSkip(br, (int)(chunkBytes+1) & (~1));
+            PcmDataLib.PcmDataUtil.BinaryReaderSkip(br, (int)(chunkBytes+1) & (~1));
 
             return ResultType.Success;
         }
@@ -368,7 +368,7 @@ namespace PlayPcmWin {
             }
 
             // DSDIFFの1フレーム=16ビット(2バイト) x チャンネル数
-            PcmDataLib.Util.BinaryReaderSkip(br, skipFrames * 2 * NumChannels);
+            PcmDataLib.PcmDataUtil.BinaryReaderSkip(br, skipFrames * 2 * NumChannels);
             mPosFrame += skipFrames;
             return skipFrames;
         }

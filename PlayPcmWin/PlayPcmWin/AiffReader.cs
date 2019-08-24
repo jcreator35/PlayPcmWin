@@ -60,7 +60,7 @@ namespace PlayPcmWin {
 
         private ResultType ReadFormChunkHeader(BinaryReader br) {
             byte[] ckID = br.ReadBytes(4);
-            if (!PcmDataLib.Util.FourCCHeaderIs(ckID, 0, "FORM")) {
+            if (!PcmDataLib.PcmDataUtil.FourCCHeaderIs(ckID, 0, "FORM")) {
                 return ResultType.NotAiff;
             }
 
@@ -70,8 +70,8 @@ namespace PlayPcmWin {
             }
 
             byte[] formType = br.ReadBytes(4);
-            if (!PcmDataLib.Util.FourCCHeaderIs(formType, 0, "AIFF")) {
-                if (PcmDataLib.Util.FourCCHeaderIs(formType, 0, "AIFC")) {
+            if (!PcmDataLib.PcmDataUtil.FourCCHeaderIs(formType, 0, "AIFF")) {
+                if (PcmDataLib.PcmDataUtil.FourCCHeaderIs(formType, 0, "AIFC")) {
                     mIsAIFC = true;
                 } else {
                     return ResultType.NotAiff;
@@ -91,17 +91,17 @@ namespace PlayPcmWin {
             try {
                 while (true) {
                     byte[] ckID = br.ReadBytes(4);
-                    if (PcmDataLib.Util.FourCCHeaderIs(ckID, 0, findCkId)) {
+                    if (PcmDataLib.PcmDataUtil.FourCCHeaderIs(ckID, 0, findCkId)) {
                         return true;
                     }
 
                     long ckSize = Util.ReadBigU32(br);
-                    long skipBytes = PcmDataLib.Util.ChunkSizeWithPad(ckSize);
+                    long skipBytes = PcmDataLib.PcmDataUtil.ChunkSizeWithPad(ckSize);
                     if (skipBytes < 0) {
                         Console.WriteLine("E: SkipToChunk skipBytes < 0 {0}", skipBytes);
                         return false;
                     }
-                    PcmDataLib.Util.BinaryReaderSkip(br, skipBytes);
+                    PcmDataLib.PcmDataUtil.BinaryReaderSkip(br, skipBytes);
                 }
             } catch (System.IO.EndOfStreamException ex) {
                 Console.WriteLine(ex);
@@ -160,7 +160,7 @@ namespace PlayPcmWin {
                 Console.WriteLine("E: ReadCommonChunk ckSize - readSize = {0}", ckSize - readSize);
                 return ResultType.HeaderError;
             }
-            PcmDataLib.Util.BinaryReaderSkip(br, ckSize - readSize);
+            PcmDataLib.PcmDataUtil.BinaryReaderSkip(br, ckSize - readSize);
             
             SampleRate = (int)IEEE754ExtendedDoubleBigEndianToDouble(sampleRate80);
             
@@ -197,12 +197,12 @@ namespace PlayPcmWin {
                 // SoundDataチャンクの最後まで移動。
                 // sizeof offset + blockSize == 8
 
-                long skipBytes = PcmDataLib.Util.ChunkSizeWithPad(ckSize) - 8;
+                long skipBytes = PcmDataLib.PcmDataUtil.ChunkSizeWithPad(ckSize) - 8;
                 if (skipBytes < 0) {
                     Console.WriteLine("E: ReadSoundDataChunk skipBytes < 0 {0}", skipBytes);
                     return ResultType.HeaderError;
                 }
-                PcmDataLib.Util.BinaryReaderSkip(br, skipBytes);
+                PcmDataLib.PcmDataUtil.BinaryReaderSkip(br, skipBytes);
             }
 
             return ResultType.Success;
@@ -418,7 +418,7 @@ namespace PlayPcmWin {
                 return 0;
             }
 
-            PcmDataLib.Util.BinaryReaderSkip(br, skipFrames * BytesPerFrame / 8);
+            PcmDataLib.PcmDataUtil.BinaryReaderSkip(br, skipFrames * BytesPerFrame / 8);
             m_posFrame += skipFrames;
             return skipFrames;
         }

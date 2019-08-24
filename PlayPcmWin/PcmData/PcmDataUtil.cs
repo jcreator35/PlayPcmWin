@@ -10,7 +10,7 @@ namespace PcmDataLib {
     /// <summary>
     /// ユーティリティー関数置き場。
     /// </summary>
-    public class Util {
+    public class PcmDataUtil {
         /// <summary>
         /// readerのデータをcountバイトだけスキップする。
         /// ファイルの終わりを超えたときEndOfStreamExceptionを出す
@@ -152,6 +152,100 @@ namespace PcmDataLib {
                     data24.Set(i * 3 + 2, (byte)((v32 & 0xff000000) >> 24));
                 }
                 return data24;
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                return null;
+            }
+        }
+
+        public static LargeArray<byte> ConvertTo32bitInt(
+                int bitsPerSample, long numSamples,
+                PcmData.ValueRepresentationType valueType, LargeArray<byte> data) {
+            if (bitsPerSample == 32 && valueType == PcmData.ValueRepresentationType.SInt) {
+                // すでに所望の形式。
+                return data;
+            }
+
+            var data32 = new LargeArray<byte>(numSamples * 4);
+
+            switch (valueType) {
+            case PcmData.ValueRepresentationType.SInt:
+                switch (bitsPerSample) {
+                case 16:
+                    for (long i = 0; i < numSamples; ++i) {
+                        short v16 = (short)(
+                               (uint)data.At(i * 2)
+                            + ((uint)data.At(i * 2 + 1) << 8));
+                        int v32 = v16;
+                        v32 *= 65536;
+                        data32.Set(i * 3 + 0, 0);
+                        data32.Set(i * 3 + 1, 0);
+                        data32.Set(i * 3 + 2, (byte)((v32 & 0x00ff0000) >> 16));
+                        data32.Set(i * 3 + 3, (byte)((v32 & 0xff000000) >> 24));
+                    }
+                    return data32;
+                case 24:
+                    for (long i = 0; i < numSamples; ++i) {
+                        int v32 = (int)(
+                              ((uint)data.At(i * 3 + 0) << 8)
+                            + ((uint)data.At(i * 3 + 1) << 16)
+                            + ((uint)data.At(i * 3 + 2) << 24));
+                        data32.Set(i * 3 + 0, 0);
+                        data32.Set(i * 3 + 1, (byte)((v32 & 0x0000ff00) >> 8));
+                        data32.Set(i * 3 + 2, (byte)((v32 & 0x00ff0000) >> 16));
+                        data32.Set(i * 3 + 3, (byte)((v32 & 0xff000000) >> 24));
+                    }
+                    return data32;
+                case 32:
+                    // 所望の形式。
+                    System.Diagnostics.Debug.Assert(false);
+                    return null;
+                default:
+                    System.Diagnostics.Debug.Assert(false);
+                    return null;
+                }
+            case PcmData.ValueRepresentationType.SFloat:
+                for (long i = 0; i < numSamples; ++i) {
+                    double v;
+                    switch (bitsPerSample) {
+                    case 32: {
+                            var b4 = new byte[4];
+                            data.CopyTo(i * 4, ref b4, 0, 4);
+                            v = BitConverter.ToSingle(b4, 0);
+                        }
+                        break;
+                    case 64: {
+                            var b8 = new byte[8];
+                            data.CopyTo(i * 8, ref b8, 0, 8);
+                            v = BitConverter.ToDouble(b8, 0);
+                        }
+                        break;
+                    default:
+                        System.Diagnostics.Debug.Assert(false);
+                        return null;
+                    }
+
+                    int v32 = 0;
+                    if (1.0f <= v) {
+                        v32 = Int32.MaxValue;
+                    } else if (v < -1.0f) {
+                        v32 = Int32.MinValue;
+                    } else {
+                        long vMax = -((long)Int32.MinValue);
+
+                        long v64 = (long)(v * vMax);
+                        if (Int32.MaxValue < v64) {
+                            v64 = Int32.MaxValue;
+                        }
+                        v32 = (int)v64;
+                    }
+
+                    data32.Set(i * 3 + 0, (byte)((v32 & 0x000000ff) >> 0));
+                    data32.Set(i * 3 + 1, (byte)((v32 & 0x0000ff00) >> 8));
+                    data32.Set(i * 3 + 2, (byte)((v32 & 0x00ff0000) >> 16));
+                    data32.Set(i * 3 + 3, (byte)((v32 & 0xff000000) >> 24));
+                }
+                return data32;
             default:
                 System.Diagnostics.Debug.Assert(false);
                 return null;

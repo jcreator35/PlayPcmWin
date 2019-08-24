@@ -71,8 +71,8 @@
     <Compile Include="ID3Reader.cs" />
     <Compile Include="ID3Writer.cs" />
     <Compile Include="PcmData.cs" />
+    <Compile Include="PcmDataUtil.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Util.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="PcmDataLib.snk" />
