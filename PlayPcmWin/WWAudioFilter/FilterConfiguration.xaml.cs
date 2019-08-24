@@ -1,4 +1,6 @@
-﻿using System;
+﻿// 日本語。
+
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Globalization;
@@ -18,7 +20,23 @@ namespace WWAudioFilter {
 
         private bool mInitialized = false;
 
+        // フィルターの長さ。
         private readonly int[] mConvolutionLengthArray = { 1024, 4096, 16384, 65536 };
+        private int FilterLengthToComboboxSelectedIndex(int filterLength) {
+            switch (filterLength) {
+            case 1024:
+                return 0;
+            case 4096:
+                return 1;
+            case 16384:
+                return 2;
+            case 65536:
+                return 3;
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                return 4096;
+            }
+        }
 
         public FilterConfiguration(FilterBase filter) {
             InitializeComponent();
@@ -267,7 +285,24 @@ namespace WWAudioFilter {
                 textBoxCrossfeedCoefficientFile.Text = cf.FilterFilePath;
                 break;
             case FilterType.JitterAdd:
-                var jaf = filter as JitterAddFilter;
+                {
+                    var jaf = filter as JitterAddFilter;
+                    comboBoxFilterLength.SelectedIndex =
+                        FilterLengthToComboboxSelectedIndex(
+                            jaf.ConvolutionLengthMinus1);
+                    textBoxSinusoidalJitterFreq.Text =
+                        string.Format(CultureInfo.CurrentCulture, "{0}", jaf.SineJitterFreq);
+                    textBoxSinusoidalJitterNanoSeconds.Text =
+                        string.Format(CultureInfo.CurrentCulture, "{0}", jaf.SineJitterNanosec);
+                    textBoxTpdfJitterNanoSeconds.Text =
+                        string.Format(CultureInfo.CurrentCulture, "{0}", jaf.TpdfJitterNanosec);
+                    textBoxRpdfJitterNanoSeconds.Text =
+                        string.Format(CultureInfo.CurrentCulture, "{0}", jaf.RpdfJitterNanosec);
+                    textBoxTimingErrorFile.Text =
+                        jaf.TimingErrorFile;
+                    textBoxTimingErrorNanosec.Text =
+                        string.Format(CultureInfo.CurrentCulture, "{0}", jaf.TimingErrorFileNanosec);
+                }
                 break;
             case FilterType.GaussianNoise:
                 var gnf = filter as GaussianNoiseFilter;

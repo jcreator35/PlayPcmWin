@@ -10,13 +10,47 @@ namespace WWAudioFilterCore {
     public class JitterAddFilter : FilterBase {
         private RNGCryptoServiceProvider mRand = new RNGCryptoServiceProvider();
 
-        // 入力パラメーター
+        // 入力パラメーター。
+
+        /// <summary>
+        /// 正弦波の時間ゆらぎ周波数(Hz)。
+        /// たとえばリニア電源回路で60Hzを全波整流して平滑化するとDC電源電圧には120Hzの倍数の雑音が乗る。
+        /// </summary>
         public double SineJitterFreq { get; set; }
+
+        /// <summary>
+        /// 時間ゆらぎの時間方向の振幅。ナノ秒。
+        /// RMSで与える。最大幅はこの値の√2倍。
+        /// </summary>
         public double SineJitterNanosec { get; set; }
+
+        /// <summary>
+        /// ランダムな雑音の量。Probability Density Function of Triangular Distribution。
+        /// RMS
+        /// </summary>
         public double TpdfJitterNanosec { get; set; }
+        /// <summary>
+        /// ランダムな雑音の量。Probability Density Function of Rectangular Distribution。
+        /// RMS
+        /// </summary>
         public double RpdfJitterNanosec { get; set; }
+
+        /// <summary>
+        /// 任意の時刻の波高値をSinc関数でリコンストラクションするとき、コンボリューションする幅。
+        /// </summary>
         public int ConvolutionLengthMinus1 { get; set; }
+
+        /// <summary>
+        /// タイミングエラーのパターンを音声ファイルで与える。
+        /// サンプル値が＋のとき、再サンプル時刻が未来の方向にずれる。
+        /// サンプル値が－のとき、再サンプル時刻が過去の方向にずれる。
+        /// 例えばピンクノイズのファイルを入力してピンクノイズのジッターを作ることができる。
+        /// </summary>
         public string TimingErrorFile { get; set; }
+
+        /// <summary>
+        /// タイミングエラーファイルが最大振幅のとき、TimingErrorFileNanosec ナノ秒再サンプル時刻をずらす。
+        /// </summary>
         public double TimingErrorFileNanosec { get; set; }
 
         // Setup()で計算する
