@@ -190,7 +190,6 @@ namespace WWAudioFilterCore {
                     }
                     break;
                 case PcmData.ValueRepresentationType.SFloat:
-                    break;
                     for (int i = 0; i < copyCount; ++i) {
                         byte [] buff = new byte[4];
                         buff[0] = mData.At(mOffsBytes + 0);
