@@ -1,7 +1,27 @@
-﻿using System.Text;
+﻿// 日本語。
+using System.Text;
+using System.IO;
 
 namespace WWAudioFilterCore {
     public class WWAFUtil {
+        /// <summary>
+        /// 保存ファイルフォーマットの種類。
+        /// </summary>
+        public enum FileFormatType {
+            Unknown = -1,
+            FLAC,
+            WAVE,
+            DSF,
+        }
+
+        public enum AFSampleFormat {
+            Auto,
+            PcmInt16,
+            PcmInt24,
+            PcmInt32,
+            PcmFloat32,
+        };
+
         public static string EscapeString(string s) {
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < s.Length; ++i) {
@@ -42,6 +62,18 @@ namespace WWAudioFilterCore {
             }
 
             return result;
+        }
+
+        public static FileFormatType FileNameToFileFormatType(string fileName) {
+            var fileFormat = FileFormatType.Unknown;
+            if (0 == string.CompareOrdinal(Path.GetExtension(fileName).ToUpperInvariant(), ".FLAC")) {
+                fileFormat = FileFormatType.FLAC;
+            } else if (0 == string.CompareOrdinal(Path.GetExtension(fileName).ToUpperInvariant(), ".DSF")) {
+                fileFormat = FileFormatType.DSF;
+            } else if (0 == string.CompareOrdinal(Path.GetExtension(fileName).ToUpperInvariant(), ".WAV")) {
+                fileFormat = FileFormatType.WAVE;
+            }
+            return fileFormat;
         }
     }
 }

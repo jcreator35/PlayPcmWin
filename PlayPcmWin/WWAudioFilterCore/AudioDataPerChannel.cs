@@ -371,6 +371,20 @@ namespace WWAudioFilterCore {
                     }
                     break;
                 case PcmData.ValueRepresentationType.SFloat:
+                    writePosBytes = writePos * 4;
+                    for (long i = 0; i < copyCount; ++i) {
+                        double vD = pcm[i];
+                        float vF = (float)vD;
+
+                        var b4 = BitConverter.GetBytes(vF);
+
+                        mData.Set(writePosBytes + 0, b4[0]);
+                        mData.Set(writePosBytes + 1, b4[1]);
+                        mData.Set(writePosBytes + 2, b4[2]);
+                        mData.Set(writePosBytes + 3, b4[3]);
+
+                        writePosBytes += 4;
+                    }
                     break;
                 }
                 break;

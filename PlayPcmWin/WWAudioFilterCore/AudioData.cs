@@ -3,20 +3,14 @@ using System.IO;
 using System.Windows;
 
 namespace WWAudioFilterCore {
-    /// <summary>
-    /// 保存ファイルフォーマットの種類。
-    /// </summary>
-    public enum FileFormatType {
-        FLAC,
-        WAVE,
-        DSF,
-    }
+
 
     public struct AudioData {
         public WWFlacRWCS.Metadata meta;
+        public PcmDataLib.PcmData.ValueRepresentationType writeValueRepresentation;
         public List<AudioDataPerChannel> pcm;
         public byte[] picture;
-        public FileFormatType preferredSaveFormat;
+        public WWAFUtil.FileFormatType preferredSaveFormat;
     };
 
     public class AudioDataIO {
@@ -81,7 +75,7 @@ namespace WWAudioFilterCore {
 
                 // converted to 24bit
                 ad.meta.bitsPerSample = 24;
-                ad.preferredSaveFormat = FileFormatType.FLAC;
+                ad.preferredSaveFormat = WWAFUtil.FileFormatType.FLAC;
                 return 0;
             }
         }
@@ -154,7 +148,7 @@ namespace WWAudioFilterCore {
                 // DSDデータとして書き込む。
                 ad.meta.totalSamples *= 16;
                 ad.meta.bitsPerSample = 1;
-                ad.preferredSaveFormat = FileFormatType.DSF;
+                ad.preferredSaveFormat = WWAFUtil.FileFormatType.DSF;
                 ad.pcm = new List<AudioDataPerChannel>();
 
                 // AudioDataPerChannelには本当のサンプル数、量子化ビット数をセットする。
@@ -235,7 +229,7 @@ namespace WWAudioFilterCore {
 
             // converted to 24bit
             ad.meta.bitsPerSample = 24;
-            ad.preferredSaveFormat = FileFormatType.FLAC;
+            ad.preferredSaveFormat = WWAFUtil.FileFormatType.FLAC;
 
             flac.DecodeEnd();
 
@@ -274,14 +268,29 @@ namespace WWAudioFilterCore {
             return 0;
         }
 
+        private static int ValueRepresentationToAudioFormat(PcmDataLib.PcmData.ValueRepresentationType vr) {
+            switch (vr) {
+            case PcmDataLib.PcmData.ValueRepresentationType.SInt:
+                return WavRWLib2.WavWriterLowLevel.WAVE_FORMAT_PCM;
+            case PcmDataLib.PcmData.ValueRepresentationType.SFloat:
+                return WavRWLib2.WavWriterLowLevel.WAVE_FORMAT_IEEE_FLOAT;
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                return WavRWLib2.WavWriterLowLevel.WAVE_FORMAT_PCM;
+            }
+        }
+
+
         public static int WriteWavFile(ref AudioData ad, string path) {
             int rv = 0;
+
+            int audioFormat = ValueRepresentationToAudioFormat(ad.writeValueRepresentation);
 
             using (var bw = new BinaryWriter(File.Open(path, FileMode.Create, FileAccess.Write, FileShare.Write))) {
                 bool bRf64 = (2000 * 1000 * 1000 < ad.meta.PcmBytes);
                 if (bRf64) {
                     // RF64形式で保存する。
-                    WavRWLib2.WavWriter.WriteRF64Header(bw, ad.meta.channels, ad.meta.bitsPerSample, ad.meta.sampleRate, ad.meta.totalSamples);
+                    WavRWLib2.WavWriter.WriteRF64Header(bw, ad.meta.channels, ad.meta.bitsPerSample, audioFormat, ad.meta.sampleRate, ad.meta.totalSamples);
                     int padBytes = ((ad.meta.PcmBytes & 1) == 1) ? 1 : 0;
 
                     int bytesPerSample = ad.meta.bitsPerSample / 8;
@@ -316,7 +325,7 @@ namespace WWAudioFilterCore {
                         }
                     }
 
-                    WavRWLib2.WavWriter.Write(bw, ad.meta.channels, ad.meta.bitsPerSample,
+                    WavRWLib2.WavWriter.Write(bw, ad.meta.channels, ad.meta.bitsPerSample, audioFormat,
                         ad.meta.sampleRate, ad.meta.totalSamples, sampleArray);
                 }
             }

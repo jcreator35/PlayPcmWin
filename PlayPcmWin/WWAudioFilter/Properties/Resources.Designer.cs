@@ -620,6 +620,15 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Error: Write File type and sample format mismatched!.
+        /// </summary>
+        internal static string ErrorWriteFormatMismatch {
+            get {
+                return ResourceManager.GetString("ErrorWriteFormatMismatch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Please specify different file to write. WWAudioFilter cannot write to input file..
         /// </summary>
         internal static string ErrorWriteToReadFile {
@@ -638,7 +647,7 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to FLAC files (24bit PCM)|*.flac|DSF files (1bit SDM)|*.dsf|WAVE files (32bit PCM)|*.wav.
+        ///   Looks up a localized string similar to FLAC files (PCM)|*.flac|DSF files (1bit SDM)|*.dsf|WAVE files (PCM)|*.wav.
         /// </summary>
         internal static string FilterWriteAudioFiles {
             get {

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Windows;
 
 namespace WWAudioFilterCore {
-    public class WWAudioFilterCore {
+    public class AudioFilterCore {
         private const int FILE_READ_COMPLETE_PERCENTAGE = 5;
         private const int FILE_PROCESS_COMPLETE_PERCENTAGE = 95;
 
@@ -90,7 +90,8 @@ namespace WWAudioFilterCore {
             return false;
         }
 
-        private int SetupResultPcm(AudioData from, List<FilterBase> filters, out AudioData to, FileFormatType toFileFormat) {
+        private int SetupResultPcm(AudioData from, List<FilterBase> filters, out AudioData to,
+                WWAFUtil.FileFormatType toFileFormat, WWAFUtil.AFSampleFormat toSampleFormat) {
             to = new AudioData();
             to.preferredSaveFormat = toFileFormat;
 
@@ -103,16 +104,35 @@ namespace WWAudioFilterCore {
             to.meta.sampleRate = fmt.SampleRate;
             to.meta.totalSamples = fmt.NumSamples;
             to.meta.channels = fmt.NumChannels;
+            to.writeValueRepresentation = PcmDataLib.PcmData.ValueRepresentationType.SInt;
 
-            switch (toFileFormat) {
-            case FileFormatType.FLAC:
+            switch (toSampleFormat) {
+            case WWAFUtil.AFSampleFormat.Auto:
+                // auto selection.
+                switch (toFileFormat) {
+                case WWAFUtil.FileFormatType.FLAC:
+                    to.meta.bitsPerSample = 24;
+                    break;
+                case WWAFUtil.FileFormatType.WAVE:
+                    to.meta.bitsPerSample = 32;
+                    break;
+                case WWAFUtil.FileFormatType.DSF:
+                    to.meta.bitsPerSample = 1;
+                    break;
+                }
+                break;
+            case WWAFUtil.AFSampleFormat.PcmInt16:
+                to.meta.bitsPerSample = 16;
+                break;
+            case WWAFUtil.AFSampleFormat.PcmInt24:
                 to.meta.bitsPerSample = 24;
                 break;
-            case FileFormatType.WAVE:
+            case WWAFUtil.AFSampleFormat.PcmInt32:
                 to.meta.bitsPerSample = 32;
                 break;
-            case FileFormatType.DSF:
-                to.meta.bitsPerSample = 1;
+            case WWAFUtil.AFSampleFormat.PcmFloat32:
+                to.meta.bitsPerSample = 32;
+                to.writeValueRepresentation = PcmDataLib.PcmData.ValueRepresentationType.SFloat;
                 break;
             }
 
@@ -128,19 +148,19 @@ namespace WWAudioFilterCore {
 
                 // set silent sample values to output buffer
                 switch (toFileFormat) {
-                case FileFormatType.DSF:
+                case WWAFUtil.FileFormatType.DSF:
                     data = new WWUtil.LargeArray<byte>((to.meta.totalSamples + 7) / 8);
                     for (long i = 0; i < data.LongLength; ++i) {
                         data.Set(i, 0x69);
                     }
                     break;
-                case FileFormatType.FLAC:
+                case WWAFUtil.FileFormatType.FLAC:
                     if (655350 < to.meta.sampleRate) {
                         return (int)WWFlacRWCS.FlacErrorCode.InvalidSampleRate;
                     }
                     data = new WWUtil.LargeArray<byte>(to.meta.totalSamples * (to.meta.bitsPerSample / 8));
                     break;
-                case FileFormatType.WAVE:
+                case WWAFUtil.FileFormatType.WAVE:
                     data = new WWUtil.LargeArray<byte>(to.meta.totalSamples * (to.meta.bitsPerSample / 8));
                     break;
                 default:
@@ -153,6 +173,7 @@ namespace WWAudioFilterCore {
                 adp.mDataFormat = AudioDataPerChannel.DataFormat.Pcm;
                 adp.mData = data;
                 adp.mBitsPerSample = to.meta.bitsPerSample;
+                adp.mValueRepresentationType = to.writeValueRepresentation;
                 adp.mTotalSamples = to.meta.totalSamples;
                 to.pcm.Add(adp);
             }
@@ -315,8 +336,10 @@ namespace WWAudioFilterCore {
             return 0;
         }
 
+
+
         public int Run(string fromPath, List<FilterBase> aFilters,
-                string toPath, ProgressReportCallback Callback) {
+                string toPath, WWAFUtil.AFSampleFormat sampleFormat, ProgressReportCallback Callback) {
             AudioData audioDataFrom;
             AudioData audioDataTo;
             int rv = AudioDataIO.Read(fromPath, out audioDataFrom);
@@ -331,14 +354,9 @@ namespace WWAudioFilterCore {
 
             Callback(FILE_READ_COMPLETE_PERCENTAGE, new ProgressArgs(Properties.Resources.LogFileReadCompleted, 0));
 
-            var fileFormat = FileFormatType.FLAC;
-            if (0 == string.CompareOrdinal(Path.GetExtension(toPath).ToUpperInvariant(), ".DSF")) {
-                fileFormat = FileFormatType.DSF;
-            } else if (0 == string.CompareOrdinal(Path.GetExtension(toPath).ToUpperInvariant(), ".WAV")) {
-                fileFormat = FileFormatType.WAVE;
-            }
+            var fileFormat = WWAFUtil.FileNameToFileFormatType(toPath);
 
-            rv = SetupResultPcm(audioDataFrom, aFilters, out audioDataTo, fileFormat);
+            rv = SetupResultPcm(audioDataFrom, aFilters, out audioDataTo, fileFormat, sampleFormat);
             if (rv < 0) {
                 return rv;
             }
@@ -396,13 +414,13 @@ namespace WWAudioFilterCore {
             Callback(FILE_PROCESS_COMPLETE_PERCENTAGE, new ProgressArgs(string.Format(CultureInfo.CurrentCulture, Properties.Resources.LogfileWriteStarted, toPath), 0));
 
             switch (audioDataTo.preferredSaveFormat) {
-            case FileFormatType.FLAC:
+            case WWAFUtil.FileFormatType.FLAC:
                 rv = AudioDataIO.WriteFlacFile(ref audioDataTo, toPath);
                 break;
-            case FileFormatType.WAVE:
+            case WWAFUtil.FileFormatType.WAVE:
                 rv = AudioDataIO.WriteWavFile(ref audioDataTo, toPath);
                 break;
-            case FileFormatType.DSF:
+            case WWAFUtil.FileFormatType.DSF:
                 try {
                     rv = AudioDataIO.WriteDsfFile(ref audioDataTo, toPath);
                 } catch (Exception ex) {

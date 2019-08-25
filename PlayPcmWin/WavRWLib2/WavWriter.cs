@@ -7,16 +7,18 @@ namespace WavRWLib2
         /// <summary>
         /// writes PCM data onto WAV file
         /// </summary>
+        /// <param name="audioFormat">WavWriterLowLevel.WAVE_FORMAT_PCM or WavWriterLowLevel.WAVE_FORMAT_IEEE_FLOAT</param>
         public static bool Write(BinaryWriter bw,
                 int numChannels,
                 int bitsPerSample,
+                int audioFormat,
                 int sampleRate,
                 long numFrames,
                 byte[] sampleArray) {
             if (IsRf64Size(sampleArray.Length)) {
-                WriteRF64Header(bw, numChannels, bitsPerSample, sampleRate, numFrames);
+                WriteRF64Header(bw, numChannels, bitsPerSample, audioFormat, sampleRate, numFrames);
             } else {
-                WriteRiffHeader(bw, numChannels, bitsPerSample, sampleRate, sampleArray.Length);
+                WriteRiffHeader(bw, numChannels, bitsPerSample, audioFormat, sampleRate, sampleArray.Length);
             }
 
             bw.Write(sampleArray);
@@ -28,16 +30,18 @@ namespace WavRWLib2
             return true;
         }
 
+        /// <param name="audioFormat">WavWriterLowLevel.WAVE_FORMAT_PCM or WavWriterLowLevel.WAVE_FORMAT_IEEE_FLOAT</param>
         public static bool Write(BinaryWriter bw,
                 int numChannels,
                 int bitsPerSample,
+                int audioFormat,
                 int sampleRate,
                 long numFrames,
                 WWUtil.LargeArray<byte> sampleArray) {
             if (IsRf64Size(sampleArray.LongLength)) {
-                WriteRF64Header(bw, numChannels, bitsPerSample, sampleRate, numFrames);
+                WriteRF64Header(bw, numChannels, bitsPerSample, audioFormat, sampleRate, numFrames);
             } else {
-                WriteRiffHeader(bw, numChannels, bitsPerSample, sampleRate, sampleArray.LongLength);
+                WriteRiffHeader(bw, numChannels, bitsPerSample, audioFormat, sampleRate, sampleArray.LongLength);
             }
 
             for (int i = 0; i < sampleArray.ArrayNum(); ++i) {
@@ -62,9 +66,11 @@ namespace WavRWLib2
             return 0xffffffffL < fileBytes;
         }
 
+        /// <param name="audioFormat">WavWriterLowLevel.WAVE_FORMAT_PCM or WavWriterLowLevel.WAVE_FORMAT_IEEE_FLOAT</param>
         public static bool WriteRiffHeader(BinaryWriter bw,
                 int numChannels,
                 int bitsPerSample,
+                int audioFormat,
                 int sampleRate,
                 long sampleBytes) {
             int riffChunkBytes = 12;
@@ -80,7 +86,7 @@ namespace WavRWLib2
 
             var wav = new WavWriterLowLevel();
             wav.RiffChunkWrite(bw, (int)(fileBytes - 8));
-            wav.FmtChunkWrite(bw, (short)numChannels, sampleRate, (short)bitsPerSample);
+            wav.FmtChunkWriteEx(bw, (short)numChannels, sampleRate, (short)bitsPerSample, (short)audioFormat, 0);
             wav.DataChunkHeaderWrite(bw, (int)sampleBytes);
             return true;
         }
@@ -88,10 +94,14 @@ namespace WavRWLib2
         /// <summary>
         /// RF64形式のヘッダを書き込む。DATAチャンクヘッダまで書き込む。
         /// この後PCMデータを書き込み、PCMサイズが奇数バイトだったら1バイトのパッドを書き込んでファイルを閉じるとRF64 WAVファイルができる。
+        /// 
+        /// audioFormat WavWriterLowLevel.WAVE_FORMAT_PCM or WavWriterLowLevel.WAVE_FORMAT_IEEE_FLOAT
         /// </summary>
+        /// <param name="audioFormat">WavWriterLowLevel.WAVE_FORMAT_PCM or WavWriterLowLevel.WAVE_FORMAT_IEEE_FLOAT</param>
         public static bool WriteRF64Header(BinaryWriter bw,
                 int numChannels,
                 int bitsPerSample,
+                int audioFormat,
                 int sampleRate,
                 long numFrames) {
             long pcmBytes = numFrames * numChannels * bitsPerSample / 8;
@@ -107,7 +117,7 @@ namespace WavRWLib2
             var wav = new WavRWLib2.WavWriterLowLevel();
             wav.Rf64ChunkWrite(bw);
             wav.Ds64ChunkWrite(bw, fileBytes - 8, pcmBytes, numFrames);
-            wav.FmtChunkWrite(bw, (short)numChannels, sampleRate, (short)bitsPerSample);
+            wav.FmtChunkWriteEx(bw, (short)numChannels, sampleRate, (short)bitsPerSample, (short)audioFormat, 0);
             wav.DataChunkHeaderWrite(bw, -1);
 
             int bytesPerSample = (bitsPerSample+7) / 8;

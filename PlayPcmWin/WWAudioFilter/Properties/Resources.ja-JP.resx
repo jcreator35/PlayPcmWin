@@ -283,7 +283,7 @@
     <value>2次MASHノイズシェイピング: 出力量子化ビット数={0}</value>
   </data>
   <data name="FilterWriteAudioFiles" xml:space="preserve">
-    <value>FLACファイル (24bit PCM)|*.flac|DSFファイル (1bit SDM)|*.dsf|WAVEファイル (32bit PCM)|*.wav</value>
+    <value>FLACファイル (PCM)|*.flac|DSFファイル (1bit SDM)|*.dsf|WAVEファイル (PCM)|*.wav</value>
   </data>
   <data name="ErrorNoiseShapingBitIsNan" xml:space="preserve">
     <value>出力量子化ビット数の欄に数字を入れて下さい</value>

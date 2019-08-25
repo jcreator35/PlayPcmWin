@@ -205,7 +205,7 @@
     <value>Audio files(*.wav, *.flac, *.dsf)|*.wav;*.flac;*.dsf</value>
   </data>
   <data name="FilterWriteAudioFiles" xml:space="preserve">
-    <value>FLAC files (24bit PCM)|*.flac|DSF files (1bit SDM)|*.dsf|WAVE files (32bit PCM)|*.wav</value>
+    <value>FLAC files (PCM)|*.flac|DSF files (1bit SDM)|*.dsf|WAVE files (PCM)|*.wav</value>
   </data>
   <data name="FilterWWAFilterFiles" xml:space="preserve">
     <value>WWAudioFilter files|*.wwaf</value>
@@ -488,5 +488,8 @@ Processing...
   </data>
   <data name="ErrorRandomNoiseLevel" xml:space="preserve">
     <value>Random noise level parse error.</value>
+  </data>
+  <data name="ErrorWriteFormatMismatch" xml:space="preserve">
+    <value>Error: Write File type and sample format mismatched!</value>
   </data>
 </root>

@@ -26,16 +26,16 @@ namespace WWAudioFilter {
                 string inputFile = args[3];
                 string outputFile = args[4];
 
-                var filters = WWAudioFilterCore.WWAudioFilterCore.LoadFiltersFromFile(filterFile);
+                var filters = WWAudioFilterCore.AudioFilterCore.LoadFiltersFromFile(filterFile);
                 if (filters == null) {
                     Console.WriteLine("E: failed to load filter file: {0}", filterFile);
                     PrintUsage(args[0]);
                     return false;
                 }
 
-                var af = new WWAudioFilterCore.WWAudioFilterCore();
+                var af = new WWAudioFilterCore.AudioFilterCore();
 
-                int rv = af.Run(inputFile, filters, outputFile, (int percentage, WWAudioFilterCore.WWAudioFilterCore.ProgressArgs args2) => { });
+                int rv = af.Run(inputFile, filters, outputFile, WWAFUtil.AFSampleFormat.Auto, (int percentage, WWAudioFilterCore.AudioFilterCore.ProgressArgs args2) => { });
                 if (rv < 0) {
                     Console.WriteLine("E: failed to process. {0}", WWFlacRWCS.FlacRW.ErrorCodeToStr(rv));
                 }
