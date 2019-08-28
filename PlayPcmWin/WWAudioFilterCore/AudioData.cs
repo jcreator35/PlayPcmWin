@@ -61,6 +61,13 @@ namespace WWAudioFilterCore {
                         }
                     }
 
+#if true
+                    var adp = new AudioDataPerChannel();
+                    adp.mData = pcmOneChannel;
+                    adp.mOffsBytes = 0;
+                    adp.mBitsPerSample = reader.BitsPerSample;
+                    adp.mValueRepresentationType = reader.SampleValueRepresentationType;
+#else
                     var pcm32 = PcmDataLib.PcmDataUtil.ConvertTo32bitInt(reader.BitsPerSample, reader.NumFrames,
                             reader.SampleValueRepresentationType, pcmOneChannel);
 
@@ -69,13 +76,16 @@ namespace WWAudioFilterCore {
                     adp.mOffsBytes = 0;
                     adp.mBitsPerSample = 32;
                     adp.mValueRepresentationType = PcmDataLib.PcmData.ValueRepresentationType.SInt;
+#endif
                     adp.mTotalSamples = ad.meta.totalSamples;
                     ad.pcm.Add(adp);
                 }
 
-                // converted to 24bit
-                ad.meta.bitsPerSample = 24;
+                ad.meta.bitsPerSample = reader.BitsPerSample;
                 ad.preferredSaveFormat = WWAFUtil.FileFormatType.FLAC;
+                if (24 < ad.meta.bitsPerSample) {
+                    ad.preferredSaveFormat = WWAFUtil.FileFormatType.WAVE;
+                }
                 return 0;
             }
         }
