@@ -20,6 +20,7 @@ namespace WWAudioFilterCore {
             PcmInt24,
             PcmInt32,
             PcmFloat32,
+            PcmFloat64,
         };
 
         public static string EscapeString(string s) {

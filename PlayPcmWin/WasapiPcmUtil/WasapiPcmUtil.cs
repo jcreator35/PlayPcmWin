@@ -208,8 +208,8 @@ namespace WasapiPcmUtil {
         /// </summary>
         /// <param name="pd">入力PcmData</param>
         /// <returns>変更後PcmData</returns>
-        public PcmData BitsPerSampleConvAsNeeded(PcmData pd, WasapiCS.SampleFormatType fmt, WasapiPcmUtil.PcmFormatConverter.BitsPerSampleConvArgs args) {
-            switch (fmt) {
+        public PcmData BitsPerSampleConvAsNeeded(PcmData pd, WasapiCS.SampleFormatType targetFmt, WasapiPcmUtil.PcmFormatConverter.BitsPerSampleConvArgs args) {
+            switch (targetFmt) {
             case WasapiCS.SampleFormatType.Sfloat:
                 // System.Console.WriteLine("Converting to Sfloat32bit...");
                 pd = mConv.Convert(pd, WasapiCS.SampleFormatType.Sfloat, args);

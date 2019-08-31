@@ -148,7 +148,7 @@
     <value>未対応ファイル形式</value>
   </data>
   <data name="NotSupportedQuantizationBitRate" xml:space="preserve">
-    <value>量子化ビット数が16でも24でも32でもないPCMファイルの再生には対応していません</value>
+    <value>量子化ビット数が16でも24でも32でも64でもないPCMファイルの再生には対応していません</value>
   </data>
   <data name="MainStatusPaused" xml:space="preserve">
     <value>再生一時停止中。</value>

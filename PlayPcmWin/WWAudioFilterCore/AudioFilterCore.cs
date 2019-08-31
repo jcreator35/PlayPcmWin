@@ -134,6 +134,10 @@ namespace WWAudioFilterCore {
                 to.meta.bitsPerSample = 32;
                 to.writeValueRepresentation = PcmDataLib.PcmData.ValueRepresentationType.SFloat;
                 break;
+            case WWAFUtil.AFSampleFormat.PcmFloat64:
+                to.meta.bitsPerSample = 64;
+                to.writeValueRepresentation = PcmDataLib.PcmData.ValueRepresentationType.SFloat;
+                break;
             }
 
             if (from.picture != null) {

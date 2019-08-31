@@ -1,4 +1,5 @@
-﻿using System;
+﻿// 日本語。
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -192,13 +193,42 @@ namespace WWAudioFilterCore {
                 case PcmData.ValueRepresentationType.SFloat:
                     for (int i = 0; i < copyCount; ++i) {
                         byte [] buff = new byte[4];
-                        buff[0] = mData.At(mOffsBytes + 0);
-                        buff[1] = mData.At(mOffsBytes + 1);
-                        buff[2] = mData.At(mOffsBytes + 2);
-                        buff[3] = mData.At(mOffsBytes + 3);
+                        for (int j = 0; j < 8; ++j) {
+                            buff[j] = mData.At(mOffsBytes + j);
+                        }
                         float v = BitConverter.ToSingle(buff, 0);
                         result[i] = v;
                         mOffsBytes += 4;
+                    }
+                    break;
+                }
+                break;
+            case 64:
+                switch (mValueRepresentationType) {
+                case PcmData.ValueRepresentationType.SInt:
+                    for (int i = 0; i < copyCount; ++i) {
+                        long v = (long)(
+                              ((ulong)mData.At(mOffsBytes + 0) << 0)
+                            + ((ulong)mData.At(mOffsBytes + 1) << 8)
+                            + ((ulong)mData.At(mOffsBytes + 2) << 16)
+                            + ((ulong)mData.At(mOffsBytes + 3) << 24)
+                            + ((ulong)mData.At(mOffsBytes + 4) << 32)
+                            + ((ulong)mData.At(mOffsBytes + 5) << 40)
+                            + ((ulong)mData.At(mOffsBytes + 6) << 48)
+                            + ((ulong)mData.At(mOffsBytes + 7) << 56));
+                        result[i] = v * (1.0 / 9223372036854775808.0);
+                        mOffsBytes += 8;
+                    }
+                    break;
+                case PcmData.ValueRepresentationType.SFloat:
+                    for (int i = 0; i < copyCount; ++i) {
+                        byte[] buff = new byte[8];
+                        for (int j = 0; j < 8; ++j) {
+                            buff[j] = mData.At(mOffsBytes + j);
+                        }
+                        double v = BitConverter.ToDouble(buff, 0);
+                        result[i] = v;
+                        mOffsBytes += 8;
                     }
                     break;
                 }
@@ -377,12 +407,58 @@ namespace WWAudioFilterCore {
 
                         var b4 = BitConverter.GetBytes(vF);
 
-                        mData.Set(writePosBytes + 0, b4[0]);
-                        mData.Set(writePosBytes + 1, b4[1]);
-                        mData.Set(writePosBytes + 2, b4[2]);
-                        mData.Set(writePosBytes + 3, b4[3]);
+                        for (int j = 0; j < 8; ++j) {
+                            mData.Set(writePosBytes + j, b4[j]);
+                        }
 
                         writePosBytes += 4;
+                    }
+                    break;
+                }
+                break;
+            case 64:
+                switch (mValueRepresentationType) {
+                case PcmData.ValueRepresentationType.SInt:
+                    writePosBytes = writePos * 8;
+                    for (long i = 0; i < copyCount; ++i) {
+                        long vI = 0;
+                        double vD = pcm[i];
+                        if (vD < -1.0) {
+                            vI = Int32.MinValue;
+
+                            mOverflow = true;
+                            if (mMaxMagnitude < Math.Abs(vD)) {
+                                mMaxMagnitude = Math.Abs(vD);
+                            }
+                        } else if (1.0 <= vD) {
+                            vI = long.MaxValue;
+
+                            mOverflow = true;
+                            if (mMaxMagnitude < Math.Abs(vD)) {
+                                mMaxMagnitude = Math.Abs(vD);
+                            }
+                        } else {
+                            vI = (long)(9223372036854775808.0 * vD);
+                        }
+
+                        for (int j = 0; j < 8; ++j) {
+                            mData.Set(writePosBytes + j, (byte)((vI >> (j * 8)) & 0xff));
+                        }
+
+                        writePosBytes += 8;
+                    }
+                    break;
+                case PcmData.ValueRepresentationType.SFloat:
+                    writePosBytes = writePos * 8;
+                    for (long i = 0; i < copyCount; ++i) {
+                        double vD = pcm[i];
+
+                        var b8 = BitConverter.GetBytes(vD);
+                        for (int j = 0; j < 8; ++j) {
+                            mData.Set(writePosBytes + j, b8[j]);
+                        }
+
+                        writePosBytes += 8;
                     }
                     break;
                 }

@@ -119,7 +119,8 @@ namespace PlayPcmWin {
 
             if (pcmData.BitsPerSample != 16
                     && pcmData.BitsPerSample != 24
-                    && pcmData.BitsPerSample != 32) {
+                    && pcmData.BitsPerSample != 32
+                    && pcmData.BitsPerSample != 64) {
                 LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, "{0}: {1} {2}bit{3}",
                         Properties.Resources.NotSupportedQuantizationBitRate, path, pcmData.BitsPerSample, Environment.NewLine));
                 return false;

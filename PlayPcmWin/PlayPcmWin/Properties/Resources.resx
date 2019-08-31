@@ -148,7 +148,7 @@
     <value>Not supported file format</value>
   </data>
   <data name="NotSupportedQuantizationBitRate" xml:space="preserve">
-    <value>Not supported quantization bit rate. supported formats are 16, 24 and 32</value>
+    <value>Not supported quantization bit rate. supported formats are 16, 24 32 and 64</value>
   </data>
   <data name="MainStatusPaused" xml:space="preserve">
     <value>Paused.</value>

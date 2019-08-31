@@ -100,8 +100,21 @@ namespace PcmDataLib {
                     return data24;
                 case 32:
                     for (long i = 0; i < numSamples; ++i) {
-                        int v32 = (int)(/* data[i * 4] + */ ((uint)data.At(i * 4 + 1) << 8)
-                            + ((uint)data.At(i * 4 + 2) << 16) + ((uint)data.At(i * 4 + 3) << 24));
+                        int v32 = (int)(
+                              ((uint)data.At(i * 4 + 1) << 8)
+                            + ((uint)data.At(i * 4 + 2) << 16)
+                            + ((uint)data.At(i * 4 + 3) << 24));
+                        data24.Set(i * 3 + 0, (byte)((v32 & 0x0000ff00) >> 8));
+                        data24.Set(i * 3 + 1, (byte)((v32 & 0x00ff0000) >> 16));
+                        data24.Set(i * 3 + 2, (byte)((v32 & 0xff000000) >> 24));
+                    }
+                    return data24;
+                case 64:
+                    for (long i = 0; i < numSamples; ++i) {
+                        int v32 = (int)(
+                              ((uint)data.At(i * 8 + 5) << 8)
+                            + ((uint)data.At(i * 8 + 6) << 16)
+                            + ((uint)data.At(i * 8 + 7) << 24));
                         data24.Set(i * 3 + 0, (byte)((v32 & 0x0000ff00) >> 8));
                         data24.Set(i * 3 + 1, (byte)((v32 & 0x00ff0000) >> 16));
                         data24.Set(i * 3 + 2, (byte)((v32 & 0xff000000) >> 24));
@@ -200,6 +213,19 @@ namespace PcmDataLib {
                     // 所望の形式。
                     System.Diagnostics.Debug.Assert(false);
                     return null;
+                case 64:
+                    for (long i = 0; i < numSamples; ++i) {
+                        int v32 = (int)(
+                              ((uint)data.At(i * 8 + 4) << 0)
+                            + ((uint)data.At(i * 8 + 5) << 8)
+                            + ((uint)data.At(i * 8 + 6) << 16)
+                            + ((uint)data.At(i * 8 + 7) << 24));
+                        data32.Set(i * 4 + 0, (byte)((v32 & 0x000000ff) >> 0));
+                        data32.Set(i * 4 + 1, (byte)((v32 & 0x0000ff00) >> 8));
+                        data32.Set(i * 4 + 2, (byte)((v32 & 0x00ff0000) >> 16));
+                        data32.Set(i * 4 + 3, (byte)((v32 & 0xff000000) >> 24));
+                    }
+                    return data32;
                 default:
                     System.Diagnostics.Debug.Assert(false);
                     return null;

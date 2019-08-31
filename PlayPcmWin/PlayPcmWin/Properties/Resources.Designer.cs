@@ -1038,7 +1038,7 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Not supported quantization bit rate. supported formats are 16, 24 and 32.
+        ///   Looks up a localized string similar to Not supported quantization bit rate. supported formats are 16, 24 32 and 64.
         /// </summary>
         internal static string NotSupportedQuantizationBitRate {
             get {

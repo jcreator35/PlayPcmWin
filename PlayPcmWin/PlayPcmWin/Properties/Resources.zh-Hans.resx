@@ -355,7 +355,7 @@
     <value>不支持的文件格式。</value>
   </data>
   <data name="NotSupportedQuantizationBitRate" xml:space="preserve">
-    <value>不支持的位深，只支持位深为16bit，24bit和32bit的音频文件。</value>
+    <value>不支持的位深，只支持位深为16bit，24bit，32bit和64bit的音频文件。</value>
   </data>
   <data name="PlayStartFailed" xml:space="preserve">
     <value>开始播放失败。</value>
