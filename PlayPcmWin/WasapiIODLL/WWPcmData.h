@@ -18,14 +18,18 @@ enum WWPcmDataContentType {
 const char *
 WWPcmDataContentTypeToStr(WWPcmDataContentType w);
 
-/// サンプルフォーマット。
+/// サンプルフォーマット。WasapiCS.SampleFormatTypeと一致させる。
+/// すぐ下の関数群もしっかり作って下さい。
 enum WWPcmDataSampleFormatType {
     WWPcmDataSampleFormatUnknown = -1,
+
     WWPcmDataSampleFormatSint16,
     WWPcmDataSampleFormatSint24,
     WWPcmDataSampleFormatSint32V24,
     WWPcmDataSampleFormatSint32,
     WWPcmDataSampleFormatSfloat,
+
+    WWPcmDataSampleFormatSdouble,
 
     WWPcmDataSampleFormatNUM
 };

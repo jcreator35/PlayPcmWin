@@ -30,12 +30,15 @@ WWPcmDataContentTypeToStr(WWPcmDataContentType w)
 const char *
 WWPcmDataSampleFormatTypeToStr(WWPcmDataSampleFormatType w)
 {
+    //assert(0 <= (int)w && (int)w < WWPcmDataSampleFormatNUM);
+
     switch (w) {
     case WWPcmDataSampleFormatSint16: return "Sint16";
     case WWPcmDataSampleFormatSint24: return "Sint24";
     case WWPcmDataSampleFormatSint32V24: return "Sint32V24";
     case WWPcmDataSampleFormatSint32: return "Sint32";
     case WWPcmDataSampleFormatSfloat: return "Sfloat";
+    case WWPcmDataSampleFormatSdouble: return "Sdouble";
     default: return "unknown";
     }
 }
@@ -47,6 +50,10 @@ WWPcmDataSampleFormatTypeGenerate(int bitsPerSample, int validBitsPerSample, GUI
         if (bitsPerSample == 32 &&
             validBitsPerSample == 32) {
             return WWPcmDataSampleFormatSfloat;
+        }
+        if (bitsPerSample == 64 &&
+            validBitsPerSample == 64) {
+            return WWPcmDataSampleFormatSdouble;
         }
         return WWPcmDataSampleFormatUnknown;
     }
@@ -84,7 +91,7 @@ int
 WWPcmDataSampleFormatTypeToBitsPerSample(WWPcmDataSampleFormatType t)
 {
     static const int result[WWPcmDataSampleFormatNUM]
-        = { 16, 24, 32, 32, 32 };
+        = { 16, 24, 32, 32, 32, 64 };
 
     if (t < 0 || WWPcmDataSampleFormatNUM <= t) {
         assert(0);
@@ -97,7 +104,7 @@ int
 WWPcmDataSampleFormatTypeToBytesPerSample(WWPcmDataSampleFormatType t)
 {
     static const int result[WWPcmDataSampleFormatNUM]
-        = { 2, 3, 4, 4, 4 };
+        = { 2, 3, 4, 4, 4, 8 };
 
     if (t < 0 || WWPcmDataSampleFormatNUM <= t) {
         assert(0);
@@ -110,7 +117,7 @@ int
 WWPcmDataSampleFormatTypeToValidBitsPerSample(WWPcmDataSampleFormatType t)
 {
     static const int result[WWPcmDataSampleFormatNUM]
-        = { 16, 24, 24, 32, 32 };
+        = { 16, 24, 24, 32, 32, 64 };
 
     if (t < 0 || WWPcmDataSampleFormatNUM <= t) {
         assert(0);
@@ -123,7 +130,7 @@ bool
 WWPcmDataSampleFormatTypeIsFloat(WWPcmDataSampleFormatType t)
 {
     static const bool result[WWPcmDataSampleFormatNUM]
-        = { false, false, false, false, true };
+        = { false, false, false, false, true, true };
 
     if (t < 0 || WWPcmDataSampleFormatNUM <= t) {
         assert(0);
@@ -136,80 +143,13 @@ bool
 WWPcmDataSampleFormatTypeIsInt(WWPcmDataSampleFormatType t)
 {
     static const bool result[WWPcmDataSampleFormatNUM]
-        = { true, true, true, true, false };
+        = { true, true, true, true, false, false };
 
     if (t < 0 || WWPcmDataSampleFormatNUM <= t) {
         assert(0);
         return false;
     }
     return result[t];
-}
-
-void
-WWPcmData::Term(void)
-{
-    dprintf("D: %s() mStream=%p\n", __FUNCTION__, mStream);
-
-    free(mStream);
-    mStream = nullptr;
-}
-
-void
-WWPcmData::CopyFrom(WWPcmData *rhs)
-{
-    *this = *rhs;
-
-    mNext = nullptr;
-
-    int64_t bytes = mFrames * mBytesPerFrame;
-    assert(0 < bytes);
-
-    mStream = (BYTE*)malloc(bytes);
-    CopyMemory(mStream, rhs->mStream, bytes);
-}
-
-bool
-WWPcmData::Init(
-        int aId, WWPcmDataSampleFormatType asampleFormat, int anChannels,
-        int64_t anFrames, int aframeBytes,
-        WWPcmDataContentType acontentType, WWStreamType aStreamType)
-{
-    assert(mStream == nullptr);
-
-    mId           = aId;
-    mSampleFormat = asampleFormat;
-    mContentType  = acontentType;
-    mNext         = nullptr;
-    mPosFrame     = 0;
-    mChannels    = anChannels;
-    // メモリ確保に成功してからフレーム数をセットする。
-    mFrames       = 0;
-    mBytesPerFrame = aframeBytes;
-    mStream        = nullptr;
-    mStreamType    = aStreamType;
-
-    int64_t bytes = anFrames * aframeBytes;
-    if (bytes < 0) {
-        return false;
-    }
-#ifdef _X86_
-    if (0x7fffffffL < bytes) {
-        // cannot alloc 2GB buffer on 32bit build
-        return false;
-    }
-#endif
-
-    BYTE *p = (BYTE *)malloc(bytes);
-    if (nullptr == p) {
-        // 失敗…
-        return false;
-    }
-
-    ZeroMemory(p, bytes);
-    mFrames = anFrames;
-    mStream = p;
-
-    return true;
 }
 
 int
@@ -330,6 +270,13 @@ WWPcmData::GetSampleValueAsInt24(int ch, int64_t posFrame) const
             result = (int)(8388608.0f * v);
         }
         break;
+    case WWPcmDataSampleFormatSdouble:
+        {
+            double *p = (double*)(&mStream[8 * (mChannels * posFrame + ch)]);
+            float v = SaturateForInt24(*p);
+            result = (int)(8388608.0f * v);
+        }
+        break;
     default:
         assert(0);
         break;
@@ -341,7 +288,8 @@ WWPcmData::GetSampleValueAsInt24(int ch, int64_t posFrame) const
 float
 WWPcmData::GetSampleValueFloat(int ch, int64_t posFrame) const
 {
-    assert(mSampleFormat == WWPcmDataSampleFormatSfloat);
+    assert(mSampleFormat == WWPcmDataSampleFormatSfloat
+        || mSampleFormat == WWPcmDataSampleFormatSdouble);
     assert(0 <= ch && ch < mChannels);
 
     if (posFrame < 0 ||
@@ -349,8 +297,21 @@ WWPcmData::GetSampleValueFloat(int ch, int64_t posFrame) const
         return 0;
     }
 
-    float *p = (float *)(&mStream[4 * (mChannels * posFrame + ch)]);
-    return *p;
+    switch (mSampleFormat) {
+    case WWPcmDataSampleFormatSfloat:
+        {
+            float *p = (float *)(&mStream[4 * (mChannels * posFrame + ch)]);
+            return *p;
+        }
+    case WWPcmDataSampleFormatSdouble:
+        {
+            double *p = (double *)(&mStream[8 * (mChannels * posFrame + ch)]);
+            return *p;
+        }
+    default:
+        assert(0);
+        return 0;
+    }
 }
 
 float
@@ -370,6 +331,7 @@ WWPcmData::GetSampleValueAsFloat(int ch, int64_t posFrame) const
         result = GetSampleValueInt(ch, posFrame) * (1.0f / 2147483648.0f);
         break;
     case WWPcmDataSampleFormatSfloat:
+    case WWPcmDataSampleFormatSdouble:
         result = GetSampleValueFloat(ch, posFrame);
         break;
     default:
@@ -483,7 +445,8 @@ WWPcmData::SetSampleValueAsInt24(int ch, int64_t posFrame, int v)
 bool
 WWPcmData::SetSampleValueFloat(int ch, int64_t posFrame, float v)
 {
-    assert(mSampleFormat == WWPcmDataSampleFormatSfloat);
+    assert(mSampleFormat == WWPcmDataSampleFormatSfloat
+        || mSampleFormat == WWPcmDataSampleFormatSdouble);
     assert(0 <= ch && ch < mChannels);
 
     if (posFrame < 0 ||
@@ -491,9 +454,23 @@ WWPcmData::SetSampleValueFloat(int ch, int64_t posFrame, float v)
         return false;
     }
 
-    float *p = (float *)(&mStream[4 * (mChannels * posFrame + ch)]);
-    *p = v;
-    return true;
+    switch (mSampleFormat) {
+    case WWPcmDataSampleFormatSfloat:
+        {
+            float *p = (float *)(&mStream[4 * (mChannels * posFrame + ch)]);
+            *p = v;
+        }
+        return true;
+    case WWPcmDataSampleFormatSdouble:
+        {
+            double *p = (double *)(&mStream[8 * (mChannels * posFrame + ch)]);
+            *p = v;
+        }
+        return true;
+    default:
+        assert(0);
+        return false;
+    }
 }
 
 bool
@@ -513,6 +490,7 @@ WWPcmData::SetSampleValueAsFloat(int ch, int64_t posFrame, float v)
         result = SetSampleValueInt(ch, posFrame, (int)(v * 2147483648.0f));
         break;
     case WWPcmDataSampleFormatSfloat:
+    case WWPcmDataSampleFormatSdouble:
         result = SetSampleValueFloat(ch, posFrame, v);
         break;
     default:
@@ -520,6 +498,112 @@ WWPcmData::SetSampleValueAsFloat(int ch, int64_t posFrame, float v)
         break;
     }
     return result;
+}
+
+bool
+WWPcmData::ScaleSampleValue(float scale)
+{
+    if (mStreamType == WWStreamDop) {
+        // 未対応: DoPの音量をこのアルゴリズムで変えたら再生が出来なくなる。
+        return false;
+    }
+
+    if (mSampleFormat == WWPcmDataSampleFormatSfloat) {
+        // float
+
+        float *p = (float *)mStream;
+        for (int64_t i=0; i<mFrames * mChannels; ++i) {
+            p[i] = p[i] * scale;
+        }
+        return true;
+    }
+    if (mSampleFormat == WWPcmDataSampleFormatSdouble) {
+        // double
+
+        double *p = (double *)mStream;
+        for (int64_t i=0; i<mFrames * mChannels; ++i) {
+            p[i] = p[i] * scale;
+        }
+        return true;
+    }
+
+    // 整数の場合。
+    for (int64_t pos=0; pos<mFrames; ++pos) {
+        for (int ch=0; ch<mChannels; ++ch) {
+            double v = GetSampleValueInt(ch,pos);
+            SetSampleValueInt(ch, pos, (int)(v*scale));
+        }
+    }
+    return true;
+}
+
+// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+void
+WWPcmData::Term(void)
+{
+    dprintf("D: %s() mStream=%p\n", __FUNCTION__, mStream);
+
+    free(mStream);
+    mStream = nullptr;
+}
+
+void
+WWPcmData::CopyFrom(WWPcmData *rhs)
+{
+    *this = *rhs;
+
+    mNext = nullptr;
+
+    int64_t bytes = mFrames * mBytesPerFrame;
+    assert(0 < bytes);
+
+    mStream = (BYTE*)malloc(bytes);
+    CopyMemory(mStream, rhs->mStream, bytes);
+}
+
+bool
+WWPcmData::Init(
+        int aId, WWPcmDataSampleFormatType asampleFormat, int anChannels,
+        int64_t anFrames, int aframeBytes,
+        WWPcmDataContentType acontentType, WWStreamType aStreamType)
+{
+    assert(mStream == nullptr);
+
+    mId           = aId;
+    mSampleFormat = asampleFormat;
+    mContentType  = acontentType;
+    mNext         = nullptr;
+    mPosFrame     = 0;
+    mChannels    = anChannels;
+    // メモリ確保に成功してからフレーム数をセットする。
+    mFrames       = 0;
+    mBytesPerFrame = aframeBytes;
+    mStream        = nullptr;
+    mStreamType    = aStreamType;
+
+    int64_t bytes = anFrames * aframeBytes;
+    if (bytes < 0) {
+        return false;
+    }
+#ifdef _X86_
+    if (0x7fffffffL < bytes) {
+        // cannot alloc 2GB buffer on 32bit build
+        return false;
+    }
+#endif
+
+    BYTE *p = (BYTE *)malloc(bytes);
+    if (nullptr == p) {
+        // 失敗…
+        return false;
+    }
+
+    ZeroMemory(p, bytes);
+    mFrames = anFrames;
+    mStream = p;
+
+    return true;
 }
 
 struct PcmSpliceInfoFloat {
@@ -545,6 +629,7 @@ WWPcmData::UpdateSpliceDataWithStraightLinePcm(
 
     switch (fromPcm.mSampleFormat) {
     case WWPcmDataSampleFormatSfloat:
+    case WWPcmDataSampleFormatSdouble:
         {
             // floatは、簡単。
             PcmSpliceInfoFloat *p =
@@ -865,34 +950,6 @@ WWPcmData::FindSampleValueMinMax(float *minValue_return, float *maxValue_return)
 
     *minValue_return = minValue;
     *maxValue_return = maxValue;
-}
-
-bool
-WWPcmData::ScaleSampleValue(float scale)
-{
-    if (mStreamType == WWStreamDop) {
-        // 未対応: DoPの音量をこのアルゴリズムで変えたら再生が出来なくなる。
-        return false;
-    }
-
-    if (mSampleFormat == WWPcmDataSampleFormatSfloat) {
-        // floatの場合。
-
-        float *p = (float *)mStream;
-        for (int64_t i=0; i<mFrames * mChannels; ++i) {
-            p[i] = p[i] * scale;
-        }
-        return true;
-    }
-
-    // 整数の場合。
-    for (int64_t pos=0; pos<mFrames; ++pos) {
-        for (int ch=0; ch<mChannels; ++ch) {
-            double v = GetSampleValueInt(ch,pos);
-            SetSampleValueInt(ch, pos, (int)(v*scale));
-        }
-    }
-    return true;
 }
 
 void

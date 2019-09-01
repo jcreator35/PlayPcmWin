@@ -327,13 +327,27 @@ namespace Wasapi {
             SFloat
         };
 
+        /// <summary>
+        /// 注: 項目を追加したら以下のEnumも追加。
+        /// WWPcmDataSampleFormatType
+        /// 以下の関数に追加する。
+        /// WWPcmDataSampleFormatTypeToStr
+        /// WWPcmDataSampleFormatTypeToBitsPerSample
+        /// WWPcmDataSampleFormatTypeToBytesPerSample
+        /// WWPcmDataSampleFormatTypeToValidBitsPerSample
+        /// WWPcmDataSampleFormatTypeIsFloat
+        /// WWPcmDataSampleFormatTypeIsInt
+        /// WWPcmDataSampleFormatTypeGenerate
+        /// </summary>
         public enum SampleFormatType {
             Unknown = -1,
+            
             Sint16,
             Sint24,
             Sint32V24,
             Sint32,
             Sfloat,
+
             Sdouble, //< WASAPIはサポートしないが便宜上用意する
         };
 
