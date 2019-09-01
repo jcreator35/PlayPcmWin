@@ -8,6 +8,8 @@ namespace WWAudioFilterCore {
         public int Delay { get; set; }
 
         private const int BATCH_PROCESS_SAMPLES = 4096;
+        private Queue<long>[] mCombQueue;
+        private long[] mIntegratorZ;
 
         public CicFilter(int order, int delay)
                 : base(FilterType.CicFilter) {
@@ -44,9 +46,6 @@ namespace WWAudioFilterCore {
 
             return new CicFilter(order, delay);
         }
-
-        private Queue<long> [] mCombQueue;
-        private long [] mIntegratorZ;
 
         public override long NumOfSamplesNeeded() {
             return BATCH_PROCESS_SAMPLES;
