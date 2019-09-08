@@ -1,11 +1,11 @@
-﻿using System;
+﻿// 日本語。
+
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace WWAudioFilterCore {
@@ -133,6 +133,9 @@ namespace WWAudioFilterCore {
             case WWAFUtil.AFSampleFormat.PcmFloat32:
                 to.meta.bitsPerSample = 32;
                 to.writeValueRepresentation = PcmDataLib.PcmData.ValueRepresentationType.SFloat;
+                break;
+            case WWAFUtil.AFSampleFormat.PcmInt64:
+                to.meta.bitsPerSample = 64;
                 break;
             case WWAFUtil.AFSampleFormat.PcmFloat64:
                 to.meta.bitsPerSample = 64;
@@ -339,8 +342,6 @@ namespace WWAudioFilterCore {
             }
             return 0;
         }
-
-
 
         public int Run(string fromPath, List<FilterBase> aFilters,
                 string toPath, WWAFUtil.AFSampleFormat sampleFormat, ProgressReportCallback Callback) {

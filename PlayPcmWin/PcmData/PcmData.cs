@@ -1,4 +1,6 @@
-﻿using System;
+﻿// 日本語。
+
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
@@ -483,6 +485,18 @@ namespace PcmDataLib {
                 }
                 break;
             case 64:
+                switch (SampleValueRepresentationType) {
+                case ValueRepresentationType.SInt:
+                    data = ConvI64toF64(data);
+                    break;
+                case ValueRepresentationType.SFloat:
+                    data = ConvF64toF64(data);
+                    break;
+                default:
+                    System.Diagnostics.Debug.Assert(false);
+                    break;
+                }
+                break;
                 break;
             default:
                 System.Diagnostics.Debug.Assert(false);
@@ -551,7 +565,9 @@ namespace PcmDataLib {
             int fromPos = 0;
             int toPos = 0;
             for (int i = 0; i < nSample; ++i) {
-                int iv = ((int)from[fromPos + 1] << 8)
+                int iv =
+                    ((int)from[fromPos + 0] << 0)
+                    + ((int)from[fromPos + 1] << 8)
                     + ((int)from[fromPos + 2] << 16)
                     + ((int)from[fromPos + 3] << 24);
                 double dv = ((double)iv) * (1.0 / 2147483648.0);
@@ -584,6 +600,60 @@ namespace PcmDataLib {
                     to[toPos++] = b[j];
                 }
                 fromPos += 4;
+            }
+            return to;
+        }
+
+        /// <summary>
+        /// Int64の値が1個入っているbyte[]からサンプル値を取り出してdouble型に変換し
+        /// double型の入っているbyte[]を戻す。
+        /// </summary>
+        private byte[] ConvI64toF64(byte[] from) {
+            int nSample = from.Length / 4;
+            byte[] to = new byte[nSample * 8];
+            int fromPos = 0;
+            int toPos = 0;
+            for (int i = 0; i < nSample; ++i) {
+                // 16.48 fixed point numberを想定。
+                long iv =
+                      ((long)from[fromPos + 0] << 0)
+                    + ((long)from[fromPos + 1] << 8)
+                    + ((long)from[fromPos + 2] << 16)
+                    + ((long)from[fromPos + 3] << 24)
+
+                    + ((long)from[fromPos + 4] << 32)
+                    + ((long)from[fromPos + 5] << 40)
+                    + ((long)from[fromPos + 6] << 48)
+                    + ((long)from[fromPos + 7] << 56);
+                double dv = ((double)iv) * (1.0 / 32768.0);
+
+                byte[] b = System.BitConverter.GetBytes(dv);
+
+                for (int j = 0; j < 8; ++j) {
+                    to[toPos++] = b[j];
+                }
+                fromPos += 8;
+            }
+            return to;
+        }
+
+        /// <summary>
+        /// doubleの値が1個入っているbyte[]からサンプル値を取り出してdouble型に変換し
+        /// double型の入っているbyte[]を戻す。
+        /// </summary>
+        private byte[] ConvF64toF64(byte[] from) {
+            int nSample = from.Length / 4;
+            byte[] to = new byte[nSample * 8];
+            int fromPos = 0;
+            int toPos = 0;
+            for (int i = 0; i < nSample; ++i) {
+                double dv = System.BitConverter.ToDouble(from, fromPos);
+
+                byte[] b = System.BitConverter.GetBytes(dv);
+                for (int j = 0; j < 8; ++j) {
+                    to[toPos++] = b[j];
+                }
+                fromPos += 8;
             }
             return to;
         }
@@ -986,6 +1056,9 @@ namespace PcmDataLib {
                         r.Set(i, v);
                     }
                     break;
+                default:
+                    System.Diagnostics.Debug.Assert(false);
+                    break;
                 }
             } else {
                 var f = GetSampleLargeArray();
@@ -1008,7 +1081,9 @@ namespace PcmDataLib {
                     for (int i = 0; i < NumFrames; ++i) {
                         for (int c = 0; c < NumChannels; ++c) {
                             if (c == ch) {
-                                int v = (int)((f.At(readPos) << 8) + (f.At(readPos + 1) << 16) + (f.At(readPos + 2) << 24));
+                                int v = (int)((f.At(readPos) << 8)
+                                    + (f.At(readPos + 1) << 16)
+                                    + (f.At(readPos + 2) << 24));
                                 r.Set(writePos++, v / 2147483648.0);
                             }
                             readPos += 3;
@@ -1019,12 +1094,39 @@ namespace PcmDataLib {
                     for (int i = 0; i < NumFrames; ++i) {
                         for (int c = 0; c < NumChannels; ++c) {
                             if (c == ch) {
-                                int v = (int)((f.At(readPos) << 0) + (f.At(readPos + 1) << 8) + (f.At(readPos + 2) << 16) + (f.At(readPos + 3) << 24));
+                                int v = (int)((f.At(readPos) << 0)
+                                    + (f.At(readPos + 1) << 8)
+                                    + (f.At(readPos + 2) << 16)
+                                    + (f.At(readPos + 3) << 24));
                                 r.Set(writePos++, v / 2147483648.0);
                             }
                             readPos += 4;
                         }
                     }
+                    break;
+                case 64:
+                    // 16.48 fixed point numberを想定。
+                    for (int i = 0; i < NumFrames; ++i) {
+                        for (int c = 0; c < NumChannels; ++c) {
+                            if (c == ch) {
+                                int v = (int)(
+                                    (f.At(readPos) << 0)
+                                    + (f.At(readPos + 1) << 8)
+                                    + (f.At(readPos + 2) << 16)
+                                    + (f.At(readPos + 3) << 24)
+                                    + (f.At(readPos + 4) << 32)
+                                    + (f.At(readPos + 5) << 40)
+                                    + (f.At(readPos + 6) << 48)
+                                    + (f.At(readPos + 7) << 56)
+                                    );
+                                r.Set(writePos++, v / 32768.0);
+                            }
+                            readPos += 8;
+                        }
+                    }
+                    break;
+                default:
+                    System.Diagnostics.Debug.Assert(false);
                     break;
                 }
             }
@@ -1080,6 +1182,18 @@ namespace PcmDataLib {
                 default:
                     System.Diagnostics.Debug.Assert(false);
                     return 0;
+                }
+            case 64:
+                if (SampleValueRepresentationType == PcmDataLib.PcmData.ValueRepresentationType.SFloat) {
+                    double f = BitConverter.ToDouble(buff, offset);
+                    int v = (int)(f * 0x80000000L);
+                    return v;
+                } else {
+                    // 16.48 fixed point number.
+                    return (buff[offset + 2])
+                        + (buff[offset + 3] << 8)
+                        + (buff[offset + 4] << 16)
+                        + (buff[offset + 5] << 24);
                 }
             default:
                 System.Diagnostics.Debug.Assert(false);

@@ -1,4 +1,6 @@
-﻿using System;
+﻿// 日本語。
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -176,9 +178,7 @@ namespace WWAudioFilter {
             UpdateFilterButtons();
         }
 
-        ////////////////////////////////////////////////////////////////////////////////////////
-
-
+        // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
         class RunWorkerArgs {
             public string FromPath { get; set; }
@@ -250,7 +250,7 @@ namespace WWAudioFilter {
             }
         }
 
-        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
         private void buttonFilterAdd_Click(object sender, RoutedEventArgs e) {
             var w = new FilterConfiguration(null);
@@ -374,12 +374,34 @@ namespace WWAudioFilter {
             FilenameTextBoxUpdated();
         }
 
-        
+        private enum FilterWriteAudioFilesType {
+            FLAC = 1, //< FilterIndex is 1-based!! see document.
+            DSF,
+            WAV,
+        };
 
         private void buttonBrowseOutputFile_Click(object sender, RoutedEventArgs e) {
             var dlg = new Microsoft.Win32.SaveFileDialog();
             dlg.Filter = Properties.Resources.FilterWriteAudioFiles;
             dlg.ValidateNames = true;
+
+            var outputSampleFormat = (WWAFUtil.AFSampleFormat)comboBoxOutputPcmFormat.SelectedIndex;
+            switch (outputSampleFormat) {
+            case WWAFUtil.AFSampleFormat.Auto:
+            case WWAFUtil.AFSampleFormat.PcmInt16:
+            case WWAFUtil.AFSampleFormat.PcmInt24:
+                dlg.FilterIndex = (int)FilterWriteAudioFilesType.FLAC;
+                break;
+            case WWAFUtil.AFSampleFormat.PcmInt32:
+            case WWAFUtil.AFSampleFormat.PcmFloat32:
+            case WWAFUtil.AFSampleFormat.PcmInt64:
+            case WWAFUtil.AFSampleFormat.PcmFloat64:
+                dlg.FilterIndex = (int)FilterWriteAudioFilesType.WAV;
+                break;
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                break;
+            }
 
             var result = dlg.ShowDialog();
             if (result != true) {

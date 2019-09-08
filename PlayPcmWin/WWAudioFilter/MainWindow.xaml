@@ -6,7 +6,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="70" />
             <RowDefinition Height="2*" />
-            <RowDefinition Height="84" />
+            <RowDefinition Height="114" />
             <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
         <GroupBox Header="Input file" Name="groupBoxInputFile" Margin="6,0,6,0">
@@ -39,29 +39,33 @@
                 <ListBox Name="listBoxFilters" SelectionChanged="listBoxFilters_SelectionChanged" />
             </Grid>
         </GroupBox>
-        <GroupBox Grid.Row="2" Header="Output file" Name="groupBoxOutputFile" Margin="6,0,6,0">
+        <GroupBox Grid.Row="2" Header="Output file settings" Name="groupBoxOutputFile" Margin="6,0,6,0">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="120" />
+                    <ColumnDefinition Width="150" />
                     <ColumnDefinition Width="1*" />
                     <ColumnDefinition Width="100" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="1*" />
                     <RowDefinition Height="1*" />
+                    <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
-                <Label Content="Sample Format:" HorizontalAlignment="Right" Name="labelOutputPcmFormat" VerticalAlignment="Center" />
-                <ComboBox Grid.Column="1" Margin="6,0,0,0" Name="comboBoxOutputPcmFormat" VerticalAlignment="Center" HorizontalAlignment="Left" Width="350" >
+                <Label Content="Output file bit-depth:" HorizontalAlignment="Right" Name="labelOutputPcmFormat" VerticalAlignment="Center" />
+                <ComboBox Grid.Column="1" Margin="6,0" Name="comboBoxOutputPcmFormat" VerticalAlignment="Center">
                     <ComboBoxItem x:Name="cbItemCicType5Stage" Content="24bit for FLAC, 32bit (int) for WAVE, 1bit for DSF" IsSelected="True" />
                     <ComboBoxItem x:Name="cbItemOutputPcm16bit" Content="16bit PCM (FLAC or WAVE)" />
                     <ComboBoxItem x:Name="cbItemOutputPcm24bit" Content="24bit PCM (FLAC or WAVE)" />
                     <ComboBoxItem x:Name="cbItemOutputPcm32bitInt" Content="32bit Integer PCM (WAVE only)" />
                     <ComboBoxItem x:Name="cbItemOutputPcm32bitFloat" Content="32bit Float PCM (WAVE only)" />
+                    <ComboBoxItem x:Name="cbItemOutputPcm64bitInt" Content="64bit Integer (&lt;16,48&gt; fixed point number) PCM (WAVE only)" />
                     <ComboBoxItem x:Name="cbItemOutputPcm64bitFloat" Content="64bit Float PCM (WAVE only)" />
                 </ComboBox>
-                <TextBox Grid.Row="1" Margin="6,0,6,0" Name="textBoxOutputFile" VerticalAlignment="Center" Grid.Column="1" Text="" Drop="textBoxOutputFile_Drop" DragEnter="textBoxFile_DragEnter" PreviewDragOver="textBoxFile_PreviewDragOver" TextChanged="textBoxOutputFile_TextChanged" />
-                <Button Grid.Row="1"  Content="B_rowse..." Margin="0,0,6,0" Name="buttonBrowseOutputFile" VerticalAlignment="Center" Grid.Column="2" Click="buttonBrowseOutputFile_Click" />
-                <Label Grid.Row="1"   Content="Output file:" HorizontalAlignment="Right" Margin="0,0,0,0" Name="labelOutputFile" VerticalAlignment="Center" />
+                <Label Grid.Row="1"   Content="Dither:" HorizontalAlignment="Right" Margin="0,0,0,0" Name="labelDither" VerticalAlignment="Center" />
+                <CheckBox Grid.Row="1" Grid.Column="1"  Margin="6,0,6,0" HorizontalAlignment="Left" VerticalAlignment="Center" Content="Enable _dither before converting to output bit-depth" IsChecked="True" Name="cbEnableDither" />
+                <Label Grid.Row="2"   Content="Output file:" HorizontalAlignment="Right" Margin="0,0,0,0" Name="labelOutputFile" VerticalAlignment="Center" />
+                <Button Grid.Row="2"  Content="B_rowse..." Margin="0,0,6,0" Name="buttonBrowseOutputFile" VerticalAlignment="Center" Grid.Column="2" Click="buttonBrowseOutputFile_Click" />
+                <TextBox Grid.Row="2" Margin="6,0,6,0" Name="textBoxOutputFile" VerticalAlignment="Center" Grid.Column="1" Text="" Drop="textBoxOutputFile_Drop" DragEnter="textBoxFile_DragEnter" PreviewDragOver="textBoxFile_PreviewDragOver" TextChanged="textBoxOutputFile_TextChanged" />
             </Grid>
         </GroupBox>
         <Button Content="_Start conversion" Grid.Row="3" Margin="6,6,0,0" Name="buttonStartConversion" VerticalAlignment="Top" Click="buttonStartConversion_Click" HorizontalAlignment="Left" Width="102" IsDefault="True" />

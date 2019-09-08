@@ -1,7 +1,7 @@
-﻿using System;
+﻿// 日本語。
+
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using WWAudioFilterCore;
 
 namespace WWAudioFilter {
@@ -21,7 +21,7 @@ namespace WWAudioFilter {
                 return false;
             }
 
-            //try {
+            try {
                 string filterFile = args[2];
                 string inputFile = args[3];
                 string outputFile = args[4];
@@ -39,12 +39,10 @@ namespace WWAudioFilter {
                 if (rv < 0) {
                     Console.WriteLine("E: failed to process. {0}", WWFlacRWCS.FlacRW.ErrorCodeToStr(rv));
                 }
-            /*
             } catch (Exception ex) {
                 Console.WriteLine(ex);
             }
-            */
-
+            
             return true;
         }
     }

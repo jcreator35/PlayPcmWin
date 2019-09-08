@@ -21,7 +21,7 @@ namespace WWAudioFilter {
         private bool mInitialized = false;
 
         // フィルターの長さ。
-        private readonly int[] mConvolutionLengthArray = { 1024, 4096, 16384, 65536 };
+        private readonly int[] mConvolutionLengthArray = { 1024, 4096, 16384, 65536, 262144, 1048576 };
         private int FilterLengthToComboboxSelectedIndex(int filterLength) {
             switch (filterLength) {
             case 1024:
@@ -32,6 +32,10 @@ namespace WWAudioFilter {
                 return 2;
             case 65536:
                 return 3;
+            case 262144:
+                return 4;
+            case 1048576:
+                return 5;
             default:
                 System.Diagnostics.Debug.Assert(false);
                 return 4096;

@@ -303,6 +303,8 @@
                                 <ComboBoxItem Content="4097"  IsSelected="True" />
                                 <ComboBoxItem Content="16385" />
                                 <ComboBoxItem Content="65537" />
+                                <ComboBoxItem Content="262145" />
+                                <ComboBoxItem Content="1048577" />
                             </ComboBox>
                             <Label   Grid.Column="0" Grid.Row="1" Content="Sinusoidal Jitter Frequency:" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
                             <TextBox Grid.Column="1" Grid.Row="1" Margin="6,3,6,3" Name="textBoxSinusoidalJitterFreq" Text="120" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />

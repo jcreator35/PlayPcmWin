@@ -20,6 +20,7 @@ namespace WWAudioFilterCore {
             PcmInt24,
             PcmInt32,
             PcmFloat32,
+            PcmInt64,
             PcmFloat64,
         };
 

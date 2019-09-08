@@ -1,4 +1,6 @@
-﻿using System;
+﻿// 日本語。
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -91,11 +93,9 @@ namespace PcmDataLib {
                 case 16:
                     for (long i = 0; i < numSamples; ++i) {
                         short v16 = (short)((uint)data.At(i * 2) + ((uint)data.At(i * 2 + 1) << 8));
-                        int v32 = v16;
-                        v32 *= 65536;
-                        data24.Set(i * 3 + 0, (byte)((v32 & 0x0000ff00) >> 8));
-                        data24.Set(i * 3 + 1, (byte)((v32 & 0x00ff0000) >> 16));
-                        data24.Set(i * 3 + 2, (byte)((v32 & 0xff000000) >> 24));
+                        data24.Set(i * 3 + 0, 0);
+                        data24.Set(i * 3 + 1, (byte)(0xff & (v16 >> 0)));
+                        data24.Set(i * 3 + 2, (byte)(0xff & (v16 >> 8)));
                     }
                     return data24;
                 case 32:
@@ -111,10 +111,11 @@ namespace PcmDataLib {
                     return data24;
                 case 64:
                     for (long i = 0; i < numSamples; ++i) {
+                        // 16.48 fixed point を想定している。
                         int v32 = (int)(
-                              ((uint)data.At(i * 8 + 5) << 8)
-                            + ((uint)data.At(i * 8 + 6) << 16)
-                            + ((uint)data.At(i * 8 + 7) << 24));
+                              ((uint)data.At(i * 8 + 3) << 8)
+                            + ((uint)data.At(i * 8 + 4) << 16)
+                            + ((uint)data.At(i * 8 + 5) << 24));
                         data24.Set(i * 3 + 0, (byte)((v32 & 0x0000ff00) >> 8));
                         data24.Set(i * 3 + 1, (byte)((v32 & 0x00ff0000) >> 16));
                         data24.Set(i * 3 + 2, (byte)((v32 & 0xff000000) >> 24));
@@ -215,11 +216,12 @@ namespace PcmDataLib {
                     return null;
                 case 64:
                     for (long i = 0; i < numSamples; ++i) {
+                        // 16.48 fixed point
                         int v32 = (int)(
-                              ((uint)data.At(i * 8 + 4) << 0)
-                            + ((uint)data.At(i * 8 + 5) << 8)
-                            + ((uint)data.At(i * 8 + 6) << 16)
-                            + ((uint)data.At(i * 8 + 7) << 24));
+                              ((uint)data.At(i * 8 + 2) << 0)
+                            + ((uint)data.At(i * 8 + 3) << 8)
+                            + ((uint)data.At(i * 8 + 4) << 16)
+                            + ((uint)data.At(i * 8 + 5) << 24));
                         data32.Set(i * 4 + 0, (byte)((v32 & 0x000000ff) >> 0));
                         data32.Set(i * 4 + 1, (byte)((v32 & 0x0000ff00) >> 8));
                         data32.Set(i * 4 + 2, (byte)((v32 & 0x00ff0000) >> 16));
