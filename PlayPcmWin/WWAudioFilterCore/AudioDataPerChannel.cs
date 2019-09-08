@@ -16,7 +16,7 @@ namespace WWAudioFilterCore {
         public long mTotalSamples;
 
         /// <summary>
-        /// 量子化ビット数。1, 16,24,32 (signed int or float)
+        /// 量子化ビット数。1,16,24,32,64
         /// </summary>
         public int mBitsPerSample;
 
@@ -207,6 +207,7 @@ namespace WWAudioFilterCore {
                 switch (mValueRepresentationType) {
                 case PcmData.ValueRepresentationType.SInt:
                     for (int i = 0; i < copyCount; ++i) {
+                        // 16:48 fixed point number
                         long v = (long)(
                               ((ulong)mData.At(mOffsBytes + 0) << 0)
                             + ((ulong)mData.At(mOffsBytes + 1) << 8)
@@ -216,7 +217,7 @@ namespace WWAudioFilterCore {
                             + ((ulong)mData.At(mOffsBytes + 5) << 40)
                             + ((ulong)mData.At(mOffsBytes + 6) << 48)
                             + ((ulong)mData.At(mOffsBytes + 7) << 56));
-                        result[i] = v * (1.0 / 9223372036854775808.0);
+                        result[i] = v * (1.0 / 32768.0);
                         mOffsBytes += 8;
                     }
                     break;
@@ -423,14 +424,15 @@ namespace WWAudioFilterCore {
                     for (long i = 0; i < copyCount; ++i) {
                         long vI = 0;
                         double vD = pcm[i];
-                        if (vD < -1.0) {
+                        // 16:48 fixed point number
+                        if (vD < -32768.0) {
                             vI = Int32.MinValue;
 
                             mOverflow = true;
                             if (mMaxMagnitude < Math.Abs(vD)) {
                                 mMaxMagnitude = Math.Abs(vD);
                             }
-                        } else if (1.0 <= vD) {
+                        } else if (32767.0 <= vD) {
                             vI = long.MaxValue;
 
                             mOverflow = true;
@@ -438,7 +440,7 @@ namespace WWAudioFilterCore {
                                 mMaxMagnitude = Math.Abs(vD);
                             }
                         } else {
-                            vI = (long)(9223372036854775808.0 * vD);
+                            vI = (long)(32768.0*65536.0*65536.0 * vD);
                         }
 
                         for (int j = 0; j < 8; ++j) {
