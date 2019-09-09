@@ -343,8 +343,28 @@ namespace WWAudioFilterCore {
             return 0;
         }
 
+        private FilterBase FinalDither(WWAFUtil.AFSampleFormat outputSampleFormat) {
+            switch (outputSampleFormat) {
+            case WWAFUtil.AFSampleFormat.Auto:
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                return null;
+            case WWAFUtil.AFSampleFormat.PcmInt16:
+                return new RandomNoiseFilter(RandomNoiseFilter.NoiseTypeEnum.TPDF, -20.0 * Math.Log10(2) * 14);
+            case WWAFUtil.AFSampleFormat.PcmInt24:
+                return new RandomNoiseFilter(RandomNoiseFilter.NoiseTypeEnum.TPDF, -20.0 * Math.Log10(2) * 22);
+            case WWAFUtil.AFSampleFormat.PcmInt32:
+                return new RandomNoiseFilter(RandomNoiseFilter.NoiseTypeEnum.TPDF, -20.0 * Math.Log10(2) * 30);
+            case WWAFUtil.AFSampleFormat.PcmInt64:
+            case WWAFUtil.AFSampleFormat.PcmFloat32:
+            case WWAFUtil.AFSampleFormat.PcmFloat64:
+                return null;
+            }
+        }
+
         public int Run(string fromPath, List<FilterBase> aFilters,
-                string toPath, WWAFUtil.AFSampleFormat sampleFormat, ProgressReportCallback Callback) {
+                string toPath, WWAFUtil.AFSampleFormat outputSampleFormat,
+                bool dither, ProgressReportCallback Callback) {
             AudioData audioDataFrom;
             AudioData audioDataTo;
             int rv = AudioDataIO.Read(fromPath, out audioDataFrom);
@@ -361,7 +381,7 @@ namespace WWAudioFilterCore {
 
             var fileFormat = WWAFUtil.FileNameToFileFormatType(toPath);
 
-            rv = SetupResultPcm(audioDataFrom, aFilters, out audioDataTo, fileFormat, sampleFormat);
+            rv = SetupResultPcm(audioDataFrom, aFilters, out audioDataTo, fileFormat, outputSampleFormat);
             if (rv < 0) {
                 return rv;
             }
@@ -385,6 +405,14 @@ namespace WWAudioFilterCore {
                 var filters = new List<FilterBase>();
                 foreach (var f in aFilters) {
                     filters.Add(f.CreateCopy());
+                }
+
+                if (dither) {
+                    // 最後にディザを加算。
+                    FilterBase fb = FinalDither(outputSampleFormat);
+                    if (fb != null) {
+                        filters.Add(fb);
+                    }
                 }
 
                 var pRv = FilterSetup(audioDataFrom, ch, filters);

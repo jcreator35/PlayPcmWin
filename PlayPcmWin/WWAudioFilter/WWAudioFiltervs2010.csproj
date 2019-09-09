@@ -6,7 +6,7 @@
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{03E90420-3E92-4F6D-82FC-1FCB242CF6E4}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>WWAudioFilter</RootNamespace>
     <AssemblyName>WWAudioFilter</AssemblyName>

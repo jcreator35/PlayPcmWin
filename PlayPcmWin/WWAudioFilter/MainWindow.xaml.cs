@@ -186,10 +186,13 @@ namespace WWAudioFilter {
 
             public WWAFUtil.AFSampleFormat SampleFormat { get; set; }
 
-            public RunWorkerArgs(string fromPath, string toPath, WWAFUtil.AFSampleFormat sf) {
+            public bool Dither { get; set; }
+
+            public RunWorkerArgs(string fromPath, string toPath, WWAFUtil.AFSampleFormat sf, bool bDither) {
                 FromPath = fromPath;
                 ToPath = toPath;
                 SampleFormat = sf;
+                Dither = bDither;
             }
         };
 
@@ -203,13 +206,16 @@ namespace WWAudioFilter {
 
             var af = new WWAudioFilterCore.AudioFilterCore();
             try {
-                rv = af.Run(args.FromPath, mFilters, args.ToPath, args.SampleFormat, ProgressReportCallback);
+                rv = af.Run(args.FromPath, mFilters, args.ToPath, args.SampleFormat, args.Dither, ProgressReportCallback);
                 if (rv < 0) {
                     e.Result = rv;
                     return;
                 }
             } catch (Exception ex) {
                 Console.WriteLine(ex);
+                mBackgroundWorker.ReportProgress(100, new WWAudioFilterCore.AudioFilterCore.ProgressArgs(ex.ToString(), rv));
+                e.Result = -1;
+                return;
             }
 
             mBackgroundWorker.ReportProgress(100, new WWAudioFilterCore.AudioFilterCore.ProgressArgs("", rv));
@@ -427,10 +433,11 @@ namespace WWAudioFilter {
                 return;
             }
 
+            bool bDither = cbEnableDither.IsChecked == true;
+
             var outputFileFormat = WWAFUtil.FileNameToFileFormatType(textBoxOutputFile.Text);
 
             var outputSampleFormat = (WWAFUtil.AFSampleFormat)comboBoxOutputPcmFormat.SelectedIndex;
-
             if (outputSampleFormat != WWAFUtil.AFSampleFormat.Auto) {
                 bool formatMatched = true;
                 switch (outputFileFormat) {
@@ -473,7 +480,7 @@ namespace WWAudioFilter {
 
             mStopwatch.Reset();
             mStopwatch.Start();
-            mBackgroundWorker.RunWorkerAsync(new RunWorkerArgs(textBoxInputFile.Text, textBoxOutputFile.Text, outputSampleFormat));
+            mBackgroundWorker.RunWorkerAsync(new RunWorkerArgs(textBoxInputFile.Text, textBoxOutputFile.Text, outputSampleFormat, bDither));
         }
 
         private void textBoxFile_PreviewDragOver(object sender, DragEventArgs e) {
