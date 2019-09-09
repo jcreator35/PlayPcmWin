@@ -625,7 +625,7 @@ namespace PcmDataLib {
                     + ((long)from[fromPos + 5] << 40)
                     + ((long)from[fromPos + 6] << 48)
                     + ((long)from[fromPos + 7] << 56);
-                double dv = ((double)iv) * (1.0 / 32768.0);
+                double dv = ((double)iv) * (1.0 / 65536.0 / 65536.0 / 65536.0);
 
                 byte[] b = System.BitConverter.GetBytes(dv);
 
@@ -1109,17 +1109,17 @@ namespace PcmDataLib {
                     for (int i = 0; i < NumFrames; ++i) {
                         for (int c = 0; c < NumChannels; ++c) {
                             if (c == ch) {
-                                int v = (int)(
-                                    (f.At(readPos) << 0)
-                                    + (f.At(readPos + 1) << 8)
-                                    + (f.At(readPos + 2) << 16)
-                                    + (f.At(readPos + 3) << 24)
-                                    + (f.At(readPos + 4) << 32)
-                                    + (f.At(readPos + 5) << 40)
-                                    + (f.At(readPos + 6) << 48)
-                                    + (f.At(readPos + 7) << 56)
+                                long v = (long)(
+                                    (((long)f.At(readPos)) << 0)
+                                    + ((long)(f.At(readPos + 1)) << 8)
+                                    + ((long)(f.At(readPos + 2)) << 16)
+                                    + ((long)(f.At(readPos + 3)) << 24)
+                                    + ((long)(f.At(readPos + 4)) << 32)
+                                    + ((long)(f.At(readPos + 5)) << 40)
+                                    + ((long)(f.At(readPos + 6)) << 48)
+                                    + ((long)(f.At(readPos + 7)) << 56)
                                     );
-                                r.Set(writePos++, v / 32768.0);
+                                r.Set(writePos++, v / 65536.0 / 65536.0 / 65536.0);
                             }
                             readPos += 8;
                         }
@@ -1189,11 +1189,23 @@ namespace PcmDataLib {
                     int v = (int)(f * 0x80000000L);
                     return v;
                 } else {
-                    // 16.48 fixed point number.
-                    return (buff[offset + 2])
-                        + (buff[offset + 3] << 8)
-                        + (buff[offset + 4] << 16)
-                        + (buff[offset + 5] << 24);
+                    // 16.48 fixed point number => int32.
+                    long v = ((long)buff[offset + 0] << 0)
+                        + ((long)buff[offset + 1] << 8)
+                        + ((long)buff[offset + 2] << 16)
+                        + ((long)buff[offset + 3] << 24)
+                        + ((long)buff[offset + 4] << 32)
+                        + ((long)buff[offset + 5] << 40)
+                        + ((long)buff[offset + 6] << 48)
+                        + ((long)buff[offset + 7] << 56);
+                    double d = ((double)v) / 65536.0 / 65536.0 / 65536.0;
+                    if (1.0 <= d) {
+                        return int.MaxValue;
+                    } else if (d < -1.0) {
+                        return int.MinValue;
+                    } else {
+                        return (int)(d * 0x80000000L);
+                    }
                 }
             default:
                 System.Diagnostics.Debug.Assert(false);

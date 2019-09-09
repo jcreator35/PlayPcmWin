@@ -199,13 +199,17 @@ namespace WWAudioFilter {
 
         void Background_DoWork(object sender, DoWorkEventArgs e) {
             var args = e.Argument as RunWorkerArgs;
+            int rv = 0;
 
             var af = new WWAudioFilterCore.AudioFilterCore();
-
-            int rv = af.Run(args.FromPath, mFilters, args.ToPath, args.SampleFormat, ProgressReportCallback);
-            if (rv < 0) {
-                e.Result = rv;
-                return;
+            try {
+                rv = af.Run(args.FromPath, mFilters, args.ToPath, args.SampleFormat, ProgressReportCallback);
+                if (rv < 0) {
+                    e.Result = rv;
+                    return;
+                }
+            } catch (Exception ex) {
+                Console.WriteLine(ex);
             }
 
             mBackgroundWorker.ReportProgress(100, new WWAudioFilterCore.AudioFilterCore.ProgressArgs("", rv));
