@@ -350,11 +350,11 @@ namespace WWAudioFilterCore {
                 System.Diagnostics.Debug.Assert(false);
                 return null;
             case WWAFUtil.AFSampleFormat.PcmInt16:
-                return new RandomNoiseFilter(RandomNoiseFilter.NoiseTypeEnum.TPDF, -20.0 * Math.Log10(2) * 14);
+                return new RandomNoiseFilter(RandomNoiseFilter.NoiseTypeEnum.TPDF, -20.0 * Math.Log10(2) * 13);
             case WWAFUtil.AFSampleFormat.PcmInt24:
-                return new RandomNoiseFilter(RandomNoiseFilter.NoiseTypeEnum.TPDF, -20.0 * Math.Log10(2) * 22);
+                return new RandomNoiseFilter(RandomNoiseFilter.NoiseTypeEnum.TPDF, -20.0 * Math.Log10(2) * 21);
             case WWAFUtil.AFSampleFormat.PcmInt32:
-                return new RandomNoiseFilter(RandomNoiseFilter.NoiseTypeEnum.TPDF, -20.0 * Math.Log10(2) * 30);
+                return new RandomNoiseFilter(RandomNoiseFilter.NoiseTypeEnum.TPDF, -20.0 * Math.Log10(2) * 29);
             case WWAFUtil.AFSampleFormat.PcmInt64:
             case WWAFUtil.AFSampleFormat.PcmFloat32:
             case WWAFUtil.AFSampleFormat.PcmFloat64:
