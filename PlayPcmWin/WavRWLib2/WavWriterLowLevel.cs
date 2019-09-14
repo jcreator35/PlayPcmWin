@@ -76,27 +76,34 @@ namespace WavRWLib2 {
             subChunk1Id[1] = (byte)'m';
             subChunk1Id[2] = (byte)'t';
             subChunk1Id[3] = (byte)' ';
-            bw.Write(subChunk1Id);
+            bw.Write(subChunk1Id);     // 4
 
-            bw.Write(subChunk1Size);
-            bw.Write(audioFormat);
-            bw.Write(numChannels);
-            bw.Write(sampleRate);
+            bw.Write(subChunk1Size);   // 4
+            bw.Write(audioFormat);     // 2
+            bw.Write(numChannels);     // 2
+            bw.Write(sampleRate);      // 4
 
             uint byteRate = (uint)(sampleRate * numChannels * bitsPerSample / 8);
-            bw.Write(byteRate);
+            bw.Write(byteRate);        // 4
 
             ushort blockAlign = (ushort)(numChannels * bitsPerSample / 8);
-            bw.Write(blockAlign);
-            bw.Write(bitsPerSample);
+            bw.Write(blockAlign);      // 2
+            bw.Write(bitsPerSample);   // 2
         }
 
+        /// <summary>
+        /// fmt chunk : total 24 bytes
+        /// </summary>
         public void FmtChunkWrite(BinaryWriter bw,
                 short numChannels, int sampleRate, short bitsPerSample)
         {
-            FmtChunkWriteInternal(bw, numChannels, sampleRate, bitsPerSample, 16, 1);
+            FmtChunkWriteInternal(bw, numChannels, sampleRate, bitsPerSample, 16, WAVE_FORMAT_PCM);
         }
 
+
+        /// <summary>
+        /// fmt chunk Ex : total 26 bytes
+        /// </summary>
         /// <param name="audioFormat">WAVE_FORMAT_PCM or WAVE_FORMAT_IEEE_FLOAT</param>
         /// <param name="cbSize">0</param>
         public void FmtChunkWriteEx(BinaryWriter bw,
@@ -106,6 +113,9 @@ namespace WavRWLib2 {
             bw.Write(cbSize);
         }
 
+        /// <summary>
+        /// fmt chunk extensible : total 48 bytes
+        /// </summary>
         public void FmtChunkWriteExtensible(BinaryWriter bw,
                short numChannels, int sampleRate, short bitsPerSample, short validBitsPerSample,
                PcmDataLib.PcmData.ValueRepresentationType sampleValueRepresentation, int dwChannelMask)
@@ -151,6 +161,9 @@ namespace WavRWLib2 {
             AddPadIfNecessary(bw, rawData.Length);
         }
 
+        /// <summary>
+        /// data chunk : total size 8 bytes + payload size
+        /// </summary>
         public void DataChunkWrite(BinaryWriter bw, bool isDs64, WWUtil.LargeArray<byte> rawData) {
             var chunkId = new byte[4];
             chunkId[0] = (byte)'d';
@@ -188,6 +201,9 @@ namespace WavRWLib2 {
             AddPadIfNecessary(bw, rawData.LongLength);
         }
 
+        /// <summary>
+        /// data chunk header : header size 8 bytes
+        /// </summary>
         public void DataChunkHeaderWrite(BinaryWriter bw, int chunkSize) {
             var chunkId = new byte[4];
             chunkId[0] = (byte)'d';
