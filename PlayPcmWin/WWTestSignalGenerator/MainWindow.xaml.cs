@@ -63,6 +63,8 @@ namespace WWTestSignalGenerator {
                 return;
             }
 
+            LogMsg("Started.");
+
             buttonCreate.IsEnabled = false;
             groupBoxSettings.IsEnabled = false;
             var args = new BackgroundWorkerArgs(path, magnitude, durationSec);

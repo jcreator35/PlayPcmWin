@@ -5,7 +5,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="190" />
-            <RowDefinition Height="30" />
+            <RowDefinition Height="28" />
             <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
         <GroupBox Header="Settings" Name="groupBoxSettings" Margin="4">
@@ -38,7 +38,7 @@
             </Grid>
         </GroupBox>
         <Button Content="_Create" Grid.Row="1" HorizontalAlignment="Center" Margin="0,0,0,0" Name="buttonCreate" VerticalAlignment="Center" Width="140" Click="buttonCreate_Click" />
-        <GroupBox Header="Log" Grid.Row="2" Margin="4">
+        <GroupBox Header="Log" Grid.Row="2" Margin="4,0,4,4">
             <TextBox Name="textBoxLog" IsReadOnly="True" AcceptsReturn="True" AcceptsTab="True" Text="textBoxLog" VerticalScrollBarVisibility="Visible" />
         </GroupBox>
     </Grid>
