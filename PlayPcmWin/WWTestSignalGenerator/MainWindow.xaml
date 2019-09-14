@@ -8,7 +8,7 @@
             <RowDefinition Height="30" />
             <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
-        <GroupBox Header="Settings" Name="groupBoxSettings">
+        <GroupBox Header="Settings" Name="groupBoxSettings" Margin="4">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*" />
@@ -37,7 +37,9 @@
                 <TextBox Grid.Column="1" Grid.Row="4" Margin="6,6" Name="textBoxOutputFilename" VerticalAlignment="Center" Text="C:/audio/output.wav" HorizontalContentAlignment="Left" Grid.ColumnSpan="2" />
             </Grid>
         </GroupBox>
-        <TextBox Grid.Row="2" Name="textBoxLog" IsReadOnly="True" AcceptsReturn="True" AcceptsTab="True" Text="textBoxLog" VerticalScrollBarVisibility="Visible" />
         <Button Content="_Create" Grid.Row="1" HorizontalAlignment="Center" Margin="0,0,0,0" Name="buttonCreate" VerticalAlignment="Center" Width="140" Click="buttonCreate_Click" />
+        <GroupBox Header="Log" Grid.Row="2" Margin="4">
+            <TextBox Name="textBoxLog" IsReadOnly="True" AcceptsReturn="True" AcceptsTab="True" Text="textBoxLog" VerticalScrollBarVisibility="Visible" />
+        </GroupBox>
     </Grid>
 </Window>
