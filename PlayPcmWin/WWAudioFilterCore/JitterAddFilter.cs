@@ -297,11 +297,13 @@ namespace WWAudioFilterCore {
             mOffs = 0;
             for (int i = 0; i < sampleTotal; ++i) {
                 double jitterVal = GenerateJitter2();
-                double resamplePos = (double)i + jitterVal;
 
-                // -0.5 <= fraction < +0.5になるようにresamplePosを選ぶ。
+                // -0.5 <= jitterValF < +0.5になるようにjitterValFを選ぶ。
+                int jitterValI = (int)(jitterVal + 0.5);
+                double jitterValF = jitterVal - jitterValI;
+
                 // 最後のほうで範囲外を指さないようにする。
-                int resamplePosI = (int)(resamplePos + 0.5);
+                int resamplePosI = i + jitterValI;
 
                 if (resamplePosI < 0) {
                     mResamplePosArray[i] = 0;
@@ -311,7 +313,7 @@ namespace WWAudioFilterCore {
                     mFractionArray[i] = 0;
                 } else {
                     mResamplePosArray[i] = resamplePosI;
-                    mFractionArray[i] = resamplePos - resamplePosI;
+                    mFractionArray[i] = jitterValF;
                 }
             }
 #else
