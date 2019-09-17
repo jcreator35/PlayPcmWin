@@ -205,6 +205,50 @@ namespace WWAudioFilterCore {
             return true;
         }
 
+#if true
+        private double mSineArg;
+        private int    mOffs;
+        private double mSineJitterThetaCoefficient;
+
+        /// <summary>
+        /// Returns jitter added resample position
+        /// retval unit is sample, difference from the ideal resample position of no jitter
+        /// </summary>
+        private double GenerateJitter2() {
+            // 以下のsineJitterの計算、offsを掛けるのではなくて、前回の計算結果にcoeffを足してから
+            // -π ≦ mSineArg < +π にする。
+
+            double sineJitter = mSineJitterAmp * Math.Sin(mSineArg);
+            double tpdfJitter = 0.0;
+            double rpdfJitter = 0.0;
+            double timingErrFromFile = 0.0;
+
+            if (0.0 < mTpdfJitterAmp) {
+                double r = GenRandom0to1(mRand) + GenRandom0to1(mRand) - 1.0;
+                tpdfJitter = mTpdfJitterAmp * r;
+            }
+            if (0.0 < mRpdfJitterAmp) {
+                rpdfJitter = mRpdfJitterAmp * (GenRandom0to1(mRand) * 2.0 - 1.0);
+            }
+
+            if (mTimingErrorFromAudioFile != null) {
+                timingErrFromFile = 1.0e-9 * TimingErrorFileNanosec * mSampleRate * mTimingErrorFromAudioFile.At(mOffs);
+            }
+
+            double jitter = sineJitter + tpdfJitter + rpdfJitter + timingErrFromFile;
+
+            mSineArg += mSineJitterThetaCoefficient;
+            while (Math.PI < mSineArg) {
+                mSineArg -= 2.0 * Math.PI;
+            }
+
+            ++mOffs;
+
+            return jitter;
+        }
+#endif
+
+#if true
         /// <summary>
         /// Returns jitter added resample position
         /// retval unit is sample, difference from the ideal resample position of no jitter
@@ -237,6 +281,7 @@ namespace WWAudioFilterCore {
 
             return jitter;
         }
+#endif
 
         /// <summary>
         /// Setup mResamplePosArray and mFractionArray
@@ -246,6 +291,31 @@ namespace WWAudioFilterCore {
                 int sampleTotal) {
             mResamplePosArray = new int[sampleTotal];
             mFractionArray    = new double[sampleTotal];
+#if true
+            mSineJitterThetaCoefficient = 2 * Math.PI * SineJitterFreq / mSampleRate;
+            mSineArg = 0;
+            mOffs = 0;
+            for (int i = 0; i < sampleTotal; ++i) {
+                double jitterVal = GenerateJitter2();
+                double resamplePos = (double)i + jitterVal;
+
+                // -0.5 <= fraction < +0.5になるようにresamplePosを選ぶ。
+                // 最後のほうで範囲外を指さないようにする。
+                int resamplePosI = (int)(resamplePos + 0.5);
+
+                if (resamplePosI < 0) {
+                    mResamplePosArray[i] = 0;
+                    mFractionArray[i] = 0;
+                } else if (sampleTotal <= resamplePosI) {
+                    mResamplePosArray[i] = sampleTotal - 1;
+                    mFractionArray[i] = 0;
+                } else {
+                    mResamplePosArray[i] = resamplePosI;
+                    mFractionArray[i] = resamplePos - resamplePosI;
+                }
+            }
+#else
+            // original algorithm
             for (int i = 0; i < sampleTotal; ++i) {
                 // FIXME: ここでiが大きいときに値の精度がいくらか低下する!
                 // resamplePosを経由せずに整数部と小数部を算出するように変えたら良い。
@@ -266,6 +336,7 @@ namespace WWAudioFilterCore {
                     mFractionArray[i]    = resamplePos - resamplePosI;
                 }
             }
+#endif
         }
 
         public override PcmFormat Setup(PcmFormat inputFormat) {
