@@ -10,7 +10,7 @@ using System.Windows;
 [assembly: AssemblyTitle("WWTestSignalGenerator")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("yamamoto2002")]
 [assembly: AssemblyProduct("WWTestSignalGenerator")]
 [assembly: AssemblyCopyright("Copyright ©  2019")]
 [assembly: AssemblyTrademark("")]

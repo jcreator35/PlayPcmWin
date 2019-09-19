@@ -1,8 +1,8 @@
-﻿using System.Windows;
-using WavRWLib2;
-using System.IO;
-using System;
+﻿using System;
 using System.ComponentModel;
+using System.IO;
+using System.Windows;
+using WavRWLib2;
 
 namespace WWTestSignalGenerator {
     /// <summary>
@@ -18,6 +18,10 @@ namespace WWTestSignalGenerator {
 
             mBW.DoWork += new DoWorkEventHandler(BwDoWork);
             mBW.RunWorkerCompleted += new RunWorkerCompletedEventHandler(BwRunWorkerCompleted);
+
+            textBoxMagnitude.Text  = string.Format("{0}", Properties.Settings.Default.SineMagnitudeDB);
+            textBoxDuration.Text   = string.Format("{0}", Properties.Settings.Default.SignalDuration);
+            textBoxOutputPath.Text = string.Format("{0}", Properties.Settings.Default.OutputPath);
         }
 
         private void LogMsg(string s) {
@@ -45,7 +49,7 @@ namespace WWTestSignalGenerator {
 
 
         private void buttonCreate_Click(object sender, RoutedEventArgs e) {
-            string path = textBoxOutputFilename.Text;
+            string path = textBoxOutputPath.Text;
 
             double magnitude = -0.1;
             if (!double.TryParse(textBoxMagnitude.Text, out magnitude)){
@@ -58,7 +62,7 @@ namespace WWTestSignalGenerator {
             }
 
             double durationSec = 1;
-            if (!double.TryParse(textBoxSoundDuration.Text, out durationSec)){
+            if (!double.TryParse(textBoxDuration.Text, out durationSec)){
                 ErrMsg("Error: Sound Duration is not number");
                 return;
             }
@@ -127,6 +131,23 @@ namespace WWTestSignalGenerator {
             } else {
                 LogMsg(string.Format("Success: \"{0}\" {1} dBFS peak, {2} sec", r.path, r.magnitude, r.durationSec));
             }
+        }
+
+        private void Window_Closing(object sender, CancelEventArgs e) {
+            double signalMagnitudeDB = -3.0102999566398;
+            double signalDuration    = 1800;
+
+            if (double.TryParse(textBoxMagnitude.Text, out signalMagnitudeDB)) {
+                Properties.Settings.Default.SineMagnitudeDB = signalMagnitudeDB;
+            }
+
+            if (double.TryParse(textBoxDuration.Text, out signalDuration)) {
+                Properties.Settings.Default.SignalDuration = signalDuration;
+            }
+
+            Properties.Settings.Default.OutputPath = textBoxOutputPath.Text;
+
+            Properties.Settings.Default.Save();
         }
     }
 }

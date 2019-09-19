@@ -1,7 +1,15 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="uri:settings" CurrentProfile="(Default)">
-  <Profiles>
-    <Profile Name="(Default)" />
-  </Profiles>
-  <Settings />
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="WWTestSignalGenerator.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="SineMagnitudeDB" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">-3.0102999566398</Value>
+    </Setting>
+    <Setting Name="SignalDuration" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">1800</Value>
+    </Setting>
+    <Setting Name="OutputPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:/audio/output.wav</Value>
+    </Setting>
+  </Settings>
 </SettingsFile>

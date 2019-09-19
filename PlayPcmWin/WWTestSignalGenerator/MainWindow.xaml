@@ -1,7 +1,7 @@
 ﻿<Window x:Class="WWTestSignalGenerator.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="WWTestSignalGenerator" Height="350" Width="525">
+        Title="WWTestSignalGenerator" Height="350" Width="525" Closing="Window_Closing">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="190" />
@@ -28,13 +28,13 @@
                 <Label Content="11025" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right" Name="labelFreqDummy" />
                 <Label Content="Hz" Grid.Row="1" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Left" Name="labelFreqUnit"  />
                 <Label Content="Sine Magnitude:" Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Right" Name="labelMagnitude" />
-                <TextBox Text="-3.0102999566398" Grid.Row="2" Grid.Column="1" Width="120" VerticalAlignment="Center" HorizontalAlignment="Right" Name="textBoxMagnitude" HorizontalContentAlignment="Right" />
+                <TextBox Grid.Row="2" Grid.Column="1" Width="120" VerticalAlignment="Center" HorizontalAlignment="Right" Name="textBoxMagnitude" HorizontalContentAlignment="Right" />
                 <Label Content="dBFS peak" Grid.Row="2" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Left" Name="labelMagnitudeUnit"  />
                 <Label Content="Sound Duration:" Grid.Row="3" VerticalAlignment="Center" HorizontalAlignment="Right" Name="labelSoundDuration" />
-                <TextBox Grid.Column="1" Grid.Row="3" Margin="0,0,0,0" Name="textBoxSoundDuration" VerticalAlignment="Center" HorizontalAlignment="Right" Width="120" Text="1800" HorizontalContentAlignment="Right" />
+                <TextBox Grid.Column="1" Grid.Row="3" Margin="0,0,0,0" Name="textBoxDuration" VerticalAlignment="Center" HorizontalAlignment="Right" Width="120" HorizontalContentAlignment="Right" />
                 <Label Content="sec" Grid.Row="3" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Left" Name="labelDurationUnit"  />
                 <Label Content="Output File name:" Grid.Row="4" VerticalAlignment="Center" HorizontalAlignment="Right" Name="labelOutputFilename" />
-                <TextBox Grid.Column="1" Grid.Row="4" Margin="6,6" Name="textBoxOutputFilename" VerticalAlignment="Center" Text="C:/audio/output.wav" HorizontalContentAlignment="Left" Grid.ColumnSpan="2" />
+                <TextBox Grid.Column="1" Grid.Row="4" Margin="6,6" Name="textBoxOutputPath" VerticalAlignment="Center" HorizontalContentAlignment="Left" Grid.ColumnSpan="2" />
             </Grid>
         </GroupBox>
         <Button Content="_Create" Grid.Row="1" HorizontalAlignment="Center" Margin="0,0,0,0" Name="buttonCreate" VerticalAlignment="Center" Width="140" Click="buttonCreate_Click" />

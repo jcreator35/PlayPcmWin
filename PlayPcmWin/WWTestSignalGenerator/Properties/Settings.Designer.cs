@@ -9,17 +9,53 @@
 //------------------------------------------------------------------------------
 
 namespace WWTestSignalGenerator.Properties {
-
-
+    
+    
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "10.0.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
-
+        
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
-
+        
         public static Settings Default {
             get {
                 return defaultInstance;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-3.0102999566398")]
+        public double SineMagnitudeDB {
+            get {
+                return ((double)(this["SineMagnitudeDB"]));
+            }
+            set {
+                this["SineMagnitudeDB"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1800")]
+        public double SignalDuration {
+            get {
+                return ((double)(this["SignalDuration"]));
+            }
+            set {
+                this["SignalDuration"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:/audio/output.wav")]
+        public string OutputPath {
+            get {
+                return ((string)(this["OutputPath"]));
+            }
+            set {
+                this["OutputPath"] = value;
             }
         }
     }
