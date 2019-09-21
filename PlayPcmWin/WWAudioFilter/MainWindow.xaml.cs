@@ -79,8 +79,82 @@ namespace WWAudioFilter {
 #if true
             ProcessCommandline();
 #endif
+
             mInitialized = true;
+
+            LoadSettings();
+
             Update();
+        }
+
+        private void LoadSettings() {
+            cbEnableDither.IsChecked = Properties.Settings.Default.Dither;
+            switch (Properties.Settings.Default.OutputBitDepth) {
+            case 0:
+                comboBoxOutputPcmFormat.SelectedIndex = (int)WWAFUtil.AFSampleFormat.Auto;
+                break;
+            case 16:
+                comboBoxOutputPcmFormat.SelectedIndex = (int)WWAFUtil.AFSampleFormat.PcmInt16;
+                break;
+            case 24:
+                comboBoxOutputPcmFormat.SelectedIndex = (int)WWAFUtil.AFSampleFormat.PcmInt24;
+                break;
+            case 32:
+                if (Properties.Settings.Default.OutputFloat) {
+                    comboBoxOutputPcmFormat.SelectedIndex = (int)WWAFUtil.AFSampleFormat.PcmFloat32;
+                } else {
+                    comboBoxOutputPcmFormat.SelectedIndex = (int)WWAFUtil.AFSampleFormat.PcmInt32;
+                }
+                break;
+            case 64:
+                if (Properties.Settings.Default.OutputFloat) {
+                    comboBoxOutputPcmFormat.SelectedIndex = (int)WWAFUtil.AFSampleFormat.PcmFloat64;
+                } else {
+                    comboBoxOutputPcmFormat.SelectedIndex = (int)WWAFUtil.AFSampleFormat.PcmInt64;
+                }
+                break;
+            default:
+                Console.WriteLine("E: unknown bitdepth");
+                comboBoxOutputPcmFormat.SelectedIndex = (int)WWAFUtil.AFSampleFormat.Auto;
+                break;
+            }
+        }
+
+        private void SaveSettings() {
+            Properties.Settings.Default.Dither = cbEnableDither.IsChecked == true;
+            var sf = (WWAFUtil.AFSampleFormat)comboBoxOutputPcmFormat.SelectedIndex;
+
+            Properties.Settings.Default.OutputFloat = false;
+            switch (sf) {
+            case WWAFUtil.AFSampleFormat.Auto:
+                Properties.Settings.Default.OutputBitDepth = 0;
+                break;
+            case WWAFUtil.AFSampleFormat.PcmInt16:
+                Properties.Settings.Default.OutputBitDepth = 16;
+                break;
+            case WWAFUtil.AFSampleFormat.PcmInt24:
+                Properties.Settings.Default.OutputBitDepth = 24;
+                break;
+            case WWAFUtil.AFSampleFormat.PcmInt32:
+                Properties.Settings.Default.OutputBitDepth = 32;
+                break;
+            case WWAFUtil.AFSampleFormat.PcmFloat32:
+                Properties.Settings.Default.OutputBitDepth = 32;
+                Properties.Settings.Default.OutputFloat = true;
+                break;
+            case WWAFUtil.AFSampleFormat.PcmInt64:
+                Properties.Settings.Default.OutputBitDepth = 64;
+                break;
+            case WWAFUtil.AFSampleFormat.PcmFloat64:
+                Properties.Settings.Default.OutputBitDepth = 64;
+                Properties.Settings.Default.OutputFloat = true;
+                break;
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                break;
+            }
+
+            Properties.Settings.Default.Save();
         }
 
         private void SetLocalizedTextToUI() {
@@ -533,6 +607,10 @@ namespace WWAudioFilter {
 
         private void textBoxInputFile_TextChanged(object sender, TextChangedEventArgs e) {
             FilenameTextBoxUpdated();
+        }
+
+        private void Window_Closing(object sender, CancelEventArgs e) {
+            SaveSettings();
         }
     }
 }

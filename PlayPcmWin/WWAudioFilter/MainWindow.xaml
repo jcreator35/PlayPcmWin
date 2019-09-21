@@ -1,7 +1,7 @@
 ﻿<Window x:Class="WWAudioFilter.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="WWAudioFilter" Height="600" Width="800" Loaded="Window_Loaded" Icon="/WWAudioFilter;component/ppwlogo.ico" AllowDrop="True">
+        Title="WWAudioFilter" Height="600" Width="800" Loaded="Window_Loaded" Icon="/WWAudioFilter;component/ppwlogo.ico" AllowDrop="True" Closing="Window_Closing">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="70" />
