@@ -246,9 +246,7 @@ namespace WWAudioFilterCore {
 
             return jitter;
         }
-#endif
-
-#if true
+#else
         /// <summary>
         /// Returns jitter added resample position
         /// retval unit is sample, difference from the ideal resample position of no jitter
