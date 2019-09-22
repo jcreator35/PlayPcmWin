@@ -17,9 +17,9 @@ namespace WWAudioFilterCore {
         public static int Read(string path, out AudioData ad) {
             int rv;
 
-            if (0 == Path.GetExtension(path).CompareTo(".wav")) {
+            if (0 == Path.GetExtension(path).ToUpper().CompareTo(".WAV")) {
                 rv = AudioDataIO.ReadWavFile(path, out ad);
-            } else if (0 == Path.GetExtension(path).CompareTo(".flac")) {
+            } else if (0 == Path.GetExtension(path).ToUpper().CompareTo(".FLAC")) {
                 rv = AudioDataIO.ReadFlacFile(path, out ad);
             } else {
                 rv = AudioDataIO.ReadDsfFile(path, out ad);
