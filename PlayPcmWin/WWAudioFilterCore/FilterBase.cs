@@ -55,12 +55,24 @@ namespace WWAudioFilterCore {
         public byte [] Picture { get;set; }
     };
 
+    /// <summary>
+    /// 処理の進捗度。
+    /// </summary>
+    /// <param name="progressRatio">処理の進捗度。0(開始) ～ 1(完了)</param>
+    public delegate void FilterBaseProgressReportCallback(double progressRatio); 
+
     public class FilterBase {
         public FilterType FilterType { get; set; }
 
         private static int msFilterId = 0;
 
         public int FilterId { get; set; }
+
+        /// <summary>
+        /// 処理の進捗度。FilterDo()の中から呼び出す。
+        /// </summary>
+        /// <param name="progressRatio">処理の進捗度。0(開始) ～ 1(完了)</param>
+        public FilterBaseProgressReportCallback ProgressReport;
 
         /// <summary>
         /// 必要に応じて派生クラスでoverrideする。

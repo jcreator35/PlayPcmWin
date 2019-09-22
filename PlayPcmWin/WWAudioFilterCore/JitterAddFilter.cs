@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Threading;
 
 namespace WWAudioFilterCore {
     public class JitterAddFilter : FilterBase {
@@ -401,6 +402,8 @@ namespace WWAudioFilterCore {
 
             double [] outPcm = new double[inPcm.Length];
 
+            long processed = 0;
+
             Parallel.For(0, inPcm.Length, toPos => {
                 int fromPos = mResamplePosArray[toPos];
                 double fraction = mFractionArray[toPos];
@@ -423,6 +426,12 @@ namespace WWAudioFilterCore {
                     }
                 }
                 outPcm[toPos] = v;
+
+                // report progress.
+                Interlocked.Increment(ref processed);
+                if (0xffff == (processed & 0xffff)) {
+                    ProgressReport((double)processed / inPcm.Length);
+                }
             });
 
             return new WWUtil.LargeArray<double>(outPcm);

@@ -88,6 +88,9 @@ namespace WWAudioFilter {
         }
 
         private void LoadSettings() {
+            textBoxInputFile.Text = Properties.Settings.Default.InputPath;
+            textBoxOutputFile.Text = Properties.Settings.Default.OutputPath;
+
             cbEnableDither.IsChecked = Properties.Settings.Default.Dither;
             switch (Properties.Settings.Default.OutputBitDepth) {
             case 0:
@@ -121,6 +124,9 @@ namespace WWAudioFilter {
         }
 
         private void SaveSettings() {
+            Properties.Settings.Default.InputPath = textBoxInputFile.Text;
+            Properties.Settings.Default.OutputPath = textBoxOutputFile.Text;
+
             Properties.Settings.Default.Dither = cbEnableDither.IsChecked == true;
             var sf = (WWAFUtil.AFSampleFormat)comboBoxOutputPcmFormat.SelectedIndex;
 
@@ -270,13 +276,25 @@ namespace WWAudioFilter {
             }
         };
 
+        long mLastReportedTick = 0;
         void ProgressReportCallback(int percentage, WWAudioFilterCore.AudioFilterCore.ProgressArgs args) {
+            //Console.WriteLine("ProgressReport {0}", percentage);
+
+            long now = DateTime.Now.Ticks;
+            if (args.Message.Length == 0 && (now - mLastReportedTick) < 10000 * 1000) {
+                // suppress too frequent report to prevent UI freeze.
+                return;
+            }
+
+            mLastReportedTick = now;
             mBackgroundWorker.ReportProgress(percentage, args);
         }
 
         void Background_DoWork(object sender, DoWorkEventArgs e) {
             var args = e.Argument as RunWorkerArgs;
             int rv = 0;
+
+            mLastReportedTick = 0;
 
             var af = new WWAudioFilterCore.AudioFilterCore();
             try {
