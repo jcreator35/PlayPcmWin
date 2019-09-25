@@ -118,7 +118,7 @@ namespace WWAudioFilterCore {
 
         private WWUtil.LargeArray<double> FFTFir(WWUtil.LargeArray<double> inPcm,
                 double[] coef, long fftLength) {
-            var fft = new WWRadix2FftLargeArray(fftLength);
+            var fft = new WWMath.WWRadix2FftLargeArray(fftLength);
             var inTime = new WWUtil.LargeArray<WWComplex>(fftLength);
 
             for (long i = 0; i < mNumSamples; ++i) {

@@ -450,7 +450,7 @@ namespace WWMath {
                 // 引き算によって一挙に2以上次数が減った場合coeffListに0を足す。
                 int actualOrder = rv.numerCoeffList.Length - 1;
                 for (int i=0; i < expectedOrder - actualOrder; ++i) {
-                    quotient.Insert(0, new WWComplex(0, 0));
+                    quotient.Insert(0, WWComplex.Zero());
                 }
             }
 
@@ -577,7 +577,7 @@ namespace WWMath {
 
                 var dRoots = new WWComplex [] {
                     new WWComplex(-1, 0),
-                    new WWComplex(0, 0),
+                    WWComplex.Zero(),
                     new WWComplex(2, 0)};
 
                 var p = WWPolynomial.PartialFractionDecomposition(numerCoeffs, dRoots);

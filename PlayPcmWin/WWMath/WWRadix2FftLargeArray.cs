@@ -2,7 +2,7 @@
 using WWUtil;
 
 namespace WWMath {
-    class WWRadix2FftLargeArray {
+    public class WWRadix2FftLargeArray {
         private long mNumPoints;
         private int mNumStage;
         private LargeArray<WWComplex> mWn;
@@ -67,7 +67,7 @@ namespace WWMath {
             }
             var aTmp1 = new LargeArray<WWComplex>(mNumPoints);
             for (int i=0; i < aTmp1.LongLength; ++i) {
-                aTmp1.Set(i, new WWComplex(0,0));
+                aTmp1.Set(i, WWComplex.Zero());
             }
 
             var aTmps = new LargeArray<WWComplex>[2];
@@ -169,8 +169,8 @@ namespace WWMath {
                 }
 
                 if (allZero) {
-                    for (long j=0; j < nSubRepeat / 2; ++j) {
-                        y.Set(j + offsBase, new WWComplex(0, 0));
+                    for (long j=0; j < nSubRepeat; ++j) {
+                        y.Set(j + offsBase, WWComplex.Zero());
                     }
                 } else {
                     for (long j=0; j < nSubRepeat; ++j) {
