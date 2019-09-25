@@ -91,7 +91,7 @@ namespace WWAudioFilterCore {
         }
 
         private void SetupCoeffs() {
-            var window = WWWindowFunc.BlackmanWindow(WindowLength);
+            var window = WWMath.WWWindowFunc.BlackmanWindow(WindowLength);
 
             // ループ処理を簡単にするため最初と最後に0を置く。
             mCoeffs = new double[1 + WindowLength+1];

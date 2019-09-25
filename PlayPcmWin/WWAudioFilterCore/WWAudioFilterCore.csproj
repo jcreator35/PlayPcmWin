@@ -130,7 +130,6 @@
     <Compile Include="WWRadix2Fft.cs" />
     <Compile Include="WWRadix2FftLargeArray.cs" />
     <Compile Include="WWAFUtil.cs" />
-    <Compile Include="WWWindowFunc.cs" />
     <Compile Include="ZeroOrderHoldUpsampler.cs" />
     <Compile Include="ZohNosdacCompensationFilter.cs" />
   </ItemGroup>

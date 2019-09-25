@@ -90,7 +90,7 @@ namespace WWAudioFilterCore {
             }
 
             // Kaiser窓(α==9)をかける
-            var w = WWWindowFunc.KaiserWindow(FilterLength, 9.0);
+            var w = WWMath.WWWindowFunc.KaiserWindow(FilterLength, 9.0);
             for (int i = 0; i < FilterLength; ++i) {
                 mFilterCoeffs[i] *= w[i];
             }

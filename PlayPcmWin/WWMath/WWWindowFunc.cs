@@ -53,8 +53,6 @@ namespace WWMath {
         /// <summary>
         /// 0以上の整数値vの階乗
         /// </summary>
-        /// <param name="length"></param>
-        /// <returns></returns>
         private static long Factorial(int v) {
             System.Diagnostics.Debug.Assert(0 <= v);
 
