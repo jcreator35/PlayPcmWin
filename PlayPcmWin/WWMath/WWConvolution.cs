@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 
 namespace WWMath {
-    class WWConvolution {
+    public class WWConvolution {
         static WWComplex Get(WWComplex[] v, int pos) {
             if (pos < 0 || v.Length <= pos) {
                 return WWComplex.Zero();
@@ -30,10 +30,18 @@ namespace WWMath {
         public WWComplex[] ConvolutionFft(WWComplex[] h, WWComplex[] x) {
             var r = new WWComplex[h.Length + x.Length - 1];
             int fftSize = Functions.NextPowerOf2(r.Length);
+            
             var h2 = new WWComplex[fftSize];
             Array.Copy(h, 0, h2, 0, h.Length);
+            for (int i = h.Length; i < h2.Length; ++i) {
+                h2[i] = WWComplex.Zero();
+            }
+
             var x2 = new WWComplex[fftSize];
             Array.Copy(x, 0, x2, 0, x.Length);
+            for (int i = x.Length; i < x2.Length; ++i) {
+                x2[i] = WWComplex.Zero();
+            }
 
             var fft = new WWRadix2Fft(fftSize);
             var H = fft.ForwardFft(h2);

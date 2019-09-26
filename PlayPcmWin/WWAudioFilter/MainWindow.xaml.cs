@@ -11,6 +11,7 @@ using System.Windows;
 using System.Windows.Controls;
 using WWAudioFilterCore;
 using System.IO;
+using WWMath;
 
 namespace WWAudioFilter {
     /// <summary>
@@ -59,6 +60,7 @@ namespace WWAudioFilter {
             mBackgroundWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(Background_RunWorkerCompleted);
 
 #if false
+            // Window_Loadedに移動。
             ProcessCommandline();
 #endif
         }
