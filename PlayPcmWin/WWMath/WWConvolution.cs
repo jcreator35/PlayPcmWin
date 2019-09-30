@@ -84,24 +84,42 @@ namespace WWMath {
 
             // h.Len <= x.Len
 
-            var r = new WWComplex[x.Length + h.Length - 1];
+            int fullConvLen = h.Length + x.Length - 1;
+
+            var r = new WWComplex[fullConvLen];
             for (int i = 0; i < r.Length; ++i) {
                 r[i] = WWComplex.Zero();
             }
 
+            // hをFFTしてHを得る。
+            int fragConvLen = h.Length + fragmentSz - 1;
+            int fftSize = Functions.NextPowerOf2(fragConvLen);
+            var h2 = new WWComplex[fftSize];
+            Array.Copy(h, 0, h2, 0, h.Length);
+            for (int i = h.Length; i < h2.Length; ++i) {
+                h2[i] = WWComplex.Zero();
+            }
+            var fft = new WWRadix2Fft(fftSize);
+            var H = fft.ForwardFft(h2);
+
             for (int offs = 0; offs < x.Length; offs += fragmentSz) {
-                var xF = new WWComplex[fragmentSz];
+                // xFをFFTしてXを得る。
+                var xF = WWComplex.ZeroArray(fftSize);
                 for (int i=0; i<fragmentSz; ++i) {
-                    if (i+offs < x.Length) {
-                        xF[i] = x[offs+i];
+                    if (i + offs < x.Length) {
+                        xF[i] = x[offs + i];
                     } else {
-                    xF[i] = WWComplex.Zero();
+                        break;
                     }
                 }
+                var X = fft.ForwardFft(xF);
 
-                var t = ConvolutionFft(h, xF);
-                for (int i = 0; i < t.Length; ++i) {
-                    r[offs + i] = WWComplex.Add(r[offs + i], t[i]);
+                var Y = WWComplex.Mul(H, X);
+                var y = fft.InverseFft(Y);
+
+                // オーバーラップアド法。FFT結果を足し合わせる。
+                for (int i = 0; i <fragConvLen; ++i) {
+                    r[offs + i] = WWComplex.Add(r[offs + i], y[i]);
                 }
             }
 

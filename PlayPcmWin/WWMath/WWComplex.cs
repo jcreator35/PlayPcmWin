@@ -250,5 +250,17 @@ namespace WWMath {
         public static WWComplex Zero() {
             return mZero;
         }
+
+        /// <summary>
+        /// すべての要素値が0の複素数配列をnewして戻す。
+        /// </summary>
+        /// <param name="count">配列の要素数。</param>
+        public static WWComplex[] ZeroArray(int count) {
+            var r = new WWComplex[count];
+            for (int i = 0; i < r.Length; ++i) {
+                r[i] = Zero();
+            }
+            return r;
+        }
     }
 }
