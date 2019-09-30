@@ -1,4 +1,5 @@
-﻿using System;
+﻿// 日本語。
+using System;
 using System.Threading.Tasks;
 
 namespace WWMath {
@@ -9,17 +10,22 @@ namespace WWMath {
             }
             return v[pos];
         }
-
-        public WWComplex[] ConvolutionBruteForce(WWComplex[] f, WWComplex[] g) {
-            var r = new WWComplex[f.Length + g.Length - 1];
+        
+        /// <summary>
+        /// Linear Convolution x ** h を計算。
+        /// </summary>
+        /// <param name="h">コンボリューションカーネル。左右反転される。</param>
+        /// <param name="x">入力数列。</param>
+        public WWComplex[] ConvolutionBruteForce(WWComplex[] h, WWComplex[] x) {
+            var r = new WWComplex[h.Length + x.Length - 1];
 
             Parallel.For(0, r.Length, i => {
                 WWComplex v = WWComplex.Zero();
 
-                for (int j = 0; j < f.Length; ++j) {
-                    int fpos = f.Length - j - 1;
-                    int gpos = i + j - (f.Length - 1);
-                    v = WWComplex.Add(v, WWComplex.Mul(Get(f, fpos), Get(g, gpos)));
+                for (int j = 0; j < h.Length; ++j) {
+                    int hPos = h.Length - j - 1;
+                    int xPos = i + j - (h.Length - 1);
+                    v = WWComplex.Add(v, WWComplex.Mul(Get(h, hPos), Get(x, xPos)));
                 }
                 r[i] = v;
             });
@@ -27,6 +33,11 @@ namespace WWMath {
             return r;
         }
 
+        /// <summary>
+        /// Linear Convolution x ** h を計算。
+        /// </summary>
+        /// <param name="h">コンボリューションカーネル。左右反転される。</param>
+        /// <param name="x">入力数列。</param>
         public WWComplex[] ConvolutionFft(WWComplex[] h, WWComplex[] x) {
             var r = new WWComplex[h.Length + x.Length - 1];
             int fftSize = Functions.NextPowerOf2(r.Length);
@@ -55,44 +66,44 @@ namespace WWMath {
             return r;
         }
 
-        public WWComplex[] ConvolutionContinuousFft(WWComplex[] h, WWComplex[] x) {
-            int fftSize = Functions.NextPowerOf2(h.Length * 4);
-            int fragmentSize = fftSize - h.Length+1;
+        /// <summary>
+        /// 連続FFT オーバーラップアド法でLinear convolution x ** hする。
+        /// </summary>
+        /// <param name="h">コンボリューションカーネル。左右反転される。</param>
+        /// <param name="x">入力数列。</param>
+        /// <param name="fragmentSz">個々のFFTに入力するxの断片サイズ。</param>
+        public WWComplex[] ConvolutionContinuousFft(WWComplex[] h, WWComplex[] x, int fragmentSz) {
+            System.Diagnostics.Debug.Assert(2 <= fragmentSz);
 
-            if (x.Length <= fragmentSize) {
-                // 1回のFFTで計算する。
-                return ConvolutionFft(h, x);
+            if (x.Length < h.Length) {
+                // swap x and h
+                var tmp = h;
+                h = x;
+                x = tmp;
             }
 
-            var fft = new WWRadix2Fft(fftSize);
+            // h.Len <= x.Len
 
-            var r = new WWComplex[h.Length + x.Length - 1];
+            var r = new WWComplex[x.Length + h.Length - 1];
+            for (int i = 0; i < r.Length; ++i) {
+                r[i] = WWComplex.Zero();
+            }
 
-            var h2 = new WWComplex[fftSize];
-            Array.Copy(h, 0, h2, 0, h.Length);
-            var Hf = fft.ForwardFft(h2);
-
-            // x(n)をfragmentSize要素ごとのデータ列に分解し、
-            // それぞれ長さfftSizeになるように末尾に0を追加してx0(n)、x1(n)を得る。
-            //Parallel.For(0, x.Length / fragmentSize, i => {
-            for (int i=0; i<(x.Length+fragmentSize-1) / fragmentSize; ++i) {
-                var xf = new WWComplex[fftSize];
-                int count = fragmentSize;
-                if (x.Length < (i+1)*fragmentSize) {
-                    count = x.Length - i*fragmentSize;
-                }
-                Array.Copy(x, i * fragmentSize, xf, 0, count);
-                var Xf = fft.ForwardFft(xf);
-                var Yf = WWComplex.Mul(Hf, Xf);
-                var yf = fft.InverseFft(Yf);
-
-                for (int j = 0; j < fftSize; ++j) {
-                    if (r.Length <= i * fragmentSize + j) {
-                        break;
+            for (int offs = 0; offs < x.Length; offs += fragmentSz) {
+                var xF = new WWComplex[fragmentSz];
+                for (int i=0; i<fragmentSz; ++i) {
+                    if (i+offs < x.Length) {
+                        xF[i] = x[offs+i];
+                    } else {
+                    xF[i] = WWComplex.Zero();
                     }
-                    r[i * fragmentSize + j] = WWComplex.Add(r[i*fragmentSize+j], yf[j]);
                 }
-            };
+
+                var t = ConvolutionFft(h, xF);
+                for (int i = 0; i < t.Length; ++i) {
+                    r[offs + i] = WWComplex.Add(r[offs + i], t[i]);
+                }
+            }
 
             return r;
         }
