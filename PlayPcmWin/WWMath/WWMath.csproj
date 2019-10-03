@@ -92,6 +92,7 @@
     <Compile Include="WWDftCpu.cs" />
     <Compile Include="Matrix.cs" />
     <Compile Include="WWPolynomial.cs" />
+    <Compile Include="WWQuadratureOscillator.cs" />
     <Compile Include="WWRadix2Fft.cs" />
     <Compile Include="WWRadix2FftLargeArray.cs" />
     <Compile Include="WWUtil.cs" />
