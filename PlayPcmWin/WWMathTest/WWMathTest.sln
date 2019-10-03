@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WWMathTest", "WWMathTest.csproj", "{928A2B8D-C0E4-4AE0-ADAD-34561D4CBE8C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B5F010F7-D22C-451F-89FC-24D52F917673}"
+	ProjectSection(SolutionItems) = preProject
+		Local.testsettings = Local.testsettings
+		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
+		WWMathTest.vsmdi = WWMathTest.vsmdi
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WWUtil", "..\WWUtil\WWUtil.csproj", "{FC57308E-CF56-4B3E-B920-4093660D0A4A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WWMath", "..\WWMath\WWMath.csproj", "{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}"
+EndProject
+Global
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = WWMathTest.vsmdi
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{928A2B8D-C0E4-4AE0-ADAD-34561D4CBE8C}.Debug|x64.ActiveCfg = Debug|x64
+		{928A2B8D-C0E4-4AE0-ADAD-34561D4CBE8C}.Debug|x64.Build.0 = Debug|x64
+		{928A2B8D-C0E4-4AE0-ADAD-34561D4CBE8C}.Debug|x86.ActiveCfg = Debug|x86
+		{928A2B8D-C0E4-4AE0-ADAD-34561D4CBE8C}.Debug|x86.Build.0 = Debug|x86
+		{928A2B8D-C0E4-4AE0-ADAD-34561D4CBE8C}.Release|x64.ActiveCfg = Release|x64
+		{928A2B8D-C0E4-4AE0-ADAD-34561D4CBE8C}.Release|x64.Build.0 = Release|x64
+		{928A2B8D-C0E4-4AE0-ADAD-34561D4CBE8C}.Release|x86.ActiveCfg = Release|x64
+		{FC57308E-CF56-4B3E-B920-4093660D0A4A}.Debug|x64.ActiveCfg = Debug|x64
+		{FC57308E-CF56-4B3E-B920-4093660D0A4A}.Debug|x64.Build.0 = Debug|x64
+		{FC57308E-CF56-4B3E-B920-4093660D0A4A}.Debug|x86.ActiveCfg = Debug|x86
+		{FC57308E-CF56-4B3E-B920-4093660D0A4A}.Debug|x86.Build.0 = Debug|x86
+		{FC57308E-CF56-4B3E-B920-4093660D0A4A}.Release|x64.ActiveCfg = Release|x64
+		{FC57308E-CF56-4B3E-B920-4093660D0A4A}.Release|x64.Build.0 = Release|x64
+		{FC57308E-CF56-4B3E-B920-4093660D0A4A}.Release|x86.ActiveCfg = Release|x86
+		{FC57308E-CF56-4B3E-B920-4093660D0A4A}.Release|x86.Build.0 = Release|x86
+		{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}.Debug|x64.ActiveCfg = Debug|x64
+		{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}.Debug|x64.Build.0 = Debug|x64
+		{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}.Debug|x86.ActiveCfg = Debug|x86
+		{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}.Debug|x86.Build.0 = Debug|x86
+		{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}.Release|x64.ActiveCfg = Release|x64
+		{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}.Release|x64.Build.0 = Release|x64
+		{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}.Release|x86.ActiveCfg = Release|x86
+		{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

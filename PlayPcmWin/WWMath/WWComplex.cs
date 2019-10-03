@@ -262,5 +262,14 @@ namespace WWMath {
             }
             return r;
         }
+
+        public static WWComplex[] FromRealArray(double[] r) {
+            var c = new WWComplex[r.Length];
+            for (int i = 0; i < c.Length; ++i) {
+                c[i] = new WWComplex(r[i], 0);
+            }
+
+            return c;
+        }
     }
 }
