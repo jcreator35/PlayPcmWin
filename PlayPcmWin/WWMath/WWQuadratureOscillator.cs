@@ -16,6 +16,8 @@ namespace WWMath {
         double mCosθ;
         double mSinθ;
 
+        bool mFirst;
+
         /// <summary>
         /// Quadrature Oscillator
         /// </summary>
@@ -35,18 +37,23 @@ namespace WWMath {
         public void Reset() {
             mYi = 1.0;
             mYq = 0.0;
+            mFirst = true;
         }
 
         public WWComplex Next() {
-            double gn = 3.0 / 2.0 - ((mYi * mYi) + (mYq * mYq));
+            if (mFirst) {
+                mFirst = false;
+                return WWComplex.Unity();
+            }
+
+            double gn = 3.0 / 2.0 - 0.5 * ((mYi * mYi) + (mYq * mYq));
             double yi = gn * (mYi * mCosθ - mYq * mSinθ);
-            double yq = gn * (mYq * mCosθ - mYi * mSinθ);
+            double yq = gn * (mYq * mCosθ + mYi * mSinθ);
 
             mYi = yi;
             mYq = yq;
 
             return new WWComplex(yi, yq);
         }
-
     }
 }

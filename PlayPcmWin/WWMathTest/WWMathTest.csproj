@@ -76,6 +76,7 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WWConvolutionTest.cs" />
+    <Compile Include="WWQuadratureOscillatorTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WWMath\WWMath.csproj">

@@ -233,12 +233,16 @@ namespace WWMath {
 
             double d = 0.0;
             for (int i = 0; i < a.Length; ++i) {
-                var s = WWComplex.Sub(a[i], b[i]);
-                d += s.Magnitude();
+                d += Distance(a[i], b[i]);
             }
 
             d /= a.Length;
             return d;
+        }
+
+        public static double Distance(WWComplex a, WWComplex b) {
+            var s = WWComplex.Sub(a, b);
+            return s.Magnitude();
         }
 
         static WWComplex mUnity = new WWComplex(1, 0);
