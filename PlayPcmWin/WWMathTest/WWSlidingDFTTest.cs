@@ -74,6 +74,25 @@ namespace WWMathTest
             return WWComplex.AverageDistance(Xexpected, Xactual) < 1e-8;
         }
 
+        public bool TestSDFT_LastN(double[] x, int N) {
+            System.Diagnostics.Debug.Assert(N <= x.Length);
+
+            var xLastN = new double[N];
+            Array.Copy(x, x.Length - N, xLastN, 0, N);
+
+            WWComplex[] Xexpected = null;
+            WWDftCpu.Dft1d(WWComplex.FromRealArray(xLastN), out Xexpected);
+
+            var sdft = new WWSlidingDFT(N);
+
+            WWComplex[] Xactual = null;
+            for (int i = 0; i < x.Length; ++i) {
+                Xactual = sdft.Filter(x[i]);
+            }
+
+            return WWComplex.AverageDistance(Xexpected, Xactual) < 1e-8;
+        }
+
         [TestMethod()]
         public void WWSlidingDFTFilterTest1() {
             var x = new double[] { 1, 0, 0, 0 };
@@ -91,6 +110,17 @@ namespace WWMathTest
             var x = new double[] { 0, 1, 0, -1 };
             Assert.IsTrue(TestSDFT(x));
         }
-    
+
+        [TestMethod()]
+        public void WWSlidingDFTFilterTest4() {
+            var x = new double[] { 0, 1, 0, -1, 0, 0, 0, 0 };
+            Assert.IsTrue(TestSDFT_LastN(x,4));
+        }
+
+        [TestMethod()]
+        public void WWSlidingDFTFilterTest5() {
+            var x = new double[] { 0, 1, 0, -1, 1, 0, 0, 0 };
+            Assert.IsTrue(TestSDFT_LastN(x, 4));
+        }
     }
 }
