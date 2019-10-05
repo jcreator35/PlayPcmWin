@@ -17,6 +17,9 @@ namespace WWMath {
         };
 
         public static double[] FreqDomainWindowCoeffs(WindowType wt) {
+            // Richard G. Lyons, Understanding Digital Signal Processing, 3 rd Ed., Pearson, 2011, pp. 686
+
+
             switch (wt) {
             case WindowType.Hamming:
                 return new double[] { 0.54, 0.46 };

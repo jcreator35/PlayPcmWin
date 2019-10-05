@@ -112,8 +112,7 @@ namespace WWMath {
             int mM; //< bin number m 0≦m＜N
             WWComplex mE;
 
-            Delay mDelay1i;
-            Delay mDelay1q;
+            DelayT<WWComplex> mDelay;
 
             public SlidingDFTbin(int m, int N) {
                 if (N <= 0) {
@@ -131,8 +130,8 @@ namespace WWMath {
 
                 mE = new WWComplex(Math.Cos(θ), Math.Sin(θ));
 
-                mDelay1i = new Delay(1);
-                mDelay1q = new Delay(1);
+                mDelay = new DelayT<WWComplex>(1);
+                mDelay.Fill(WWComplex.Zero());
             }
 
             /// <summary>
@@ -144,13 +143,12 @@ namespace WWMath {
             public WWComplex Filter(double x) {
 
                 // Complex resonator
-                WWComplex delay2 = new WWComplex(mDelay1i.GetNthDelayedSampleValue(0), mDelay1q.GetNthDelayedSampleValue(0));
-                WWComplex acc = WWComplex.Add(new WWComplex(x, 0), delay2);
+                var delay = mDelay.GetNthDelayedSampleValue(0);
+                WWComplex acc = WWComplex.Add(new WWComplex(x, 0), delay);
 
                 WWComplex m = WWComplex.Mul(acc, mE);
 
-                mDelay1i.Filter(m.real);
-                mDelay1q.Filter(m.imaginary);
+                mDelay.Filter(m);
 
                 return WWComplex.Mul(m, mNinv);
             }
