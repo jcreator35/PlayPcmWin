@@ -14,10 +14,10 @@ namespace WWMath {
         WWQuadratureOscillatorInt mOsc;
 
         /// <summary>
-        /// NサンプルDFTのm番目の周波数binの値を戻す。
+        /// 時間ドメイン値xを入力すると、N点DFTの周波数ドメイン値Xのm番目の周波数binの値を戻す。
         /// </summary>
-        /// <param name="m">周波数binの番号。</param>
-        /// <param name="N">DFTサイズ。</param>
+        /// <param name="m">周波数binの番号。0≦m＜N</param>
+        /// <param name="N">DFTサイズN。</param>
         public WWGoertzel(int m, int N) {
             if (N <= 0) {
                 throw new ArgumentOutOfRangeException("N");
