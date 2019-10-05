@@ -78,6 +78,7 @@
     <Compile Include="WWConvolutionTest.cs" />
     <Compile Include="WWQuadratureOscillatorIntTest.cs" />
     <Compile Include="WWQuadratureOscillatorTest.cs" />
+    <Compile Include="WWSlidingDFTTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WWMath\WWMath.csproj">

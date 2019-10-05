@@ -96,6 +96,7 @@
     <Compile Include="WWQuadratureOscillatorInt.cs" />
     <Compile Include="WWRadix2Fft.cs" />
     <Compile Include="WWRadix2FftLargeArray.cs" />
+    <Compile Include="WWSlidingDFT.cs" />
     <Compile Include="WWUtil.cs" />
     <Compile Include="WWVectorD2.cs" />
     <Compile Include="WWVectorF2.cs" />
