@@ -48,6 +48,62 @@ namespace WWMath {
             return r;
         }
 
+        /// <summary>
+        /// 窓関数をかけた周波数ドメイン値X^m(q)を戻す。
+        /// </summary>
+        public WWComplex[] FilterWithWindow(double x, WWWindowFunc.WindowType wt) {
+            var r = Filter(x);
+            var rW = new WWComplex[r.Length];
+
+            var w = WWWindowFunc.FreqDomainWindowCoeffs(wt);
+
+            switch (w.Length) {
+            case 2:
+                for (int i = 0; i < mN; ++i) {
+                    int il = i - 1;
+                    if (il < 0) {
+                        il = mN - 1;
+                    }
+                    int ir = i + 1;
+                    if (mN <= ir) {
+                        ir = 0;
+                    }
+
+                    rW[i] = WWComplex.Add(
+                        WWComplex.Mul(r[il], w[1] * 0.5),
+                        WWComplex.Mul(r[i],  w[0]),
+                        WWComplex.Mul(r[ir], w[1] * 0.5));
+                }
+                return rW;
+            case 3:
+                for (int i = 0; i < mN; ++i) {
+                    var pos = new int[5];
+                    for (int offs = -2; offs <= 2; ++offs) {
+                        int p = i + offs;
+                        if (p < 0) {
+                            p += mN;
+                        }
+                        if (mN <= p) {
+                            p -= mN;
+                        }
+
+                        pos[offs + 2] = p;
+                    }
+
+                    rW[i] = WWComplex.Add(
+                        WWComplex.Mul(r[pos[0]], w[2] * 0.5),
+                        WWComplex.Mul(r[pos[1]], w[1] * 0.5),
+                        WWComplex.Mul(r[pos[2]], w[0]),
+                        WWComplex.Mul(r[pos[3]], w[1] * 0.5),
+                        WWComplex.Mul(r[pos[4]], w[2] * 0.5));
+                }
+                return rW;
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                return null;
+            }
+        }
+
         class SlidingDFTbin {
             int mN; //< DFT size N
             double mNinv;

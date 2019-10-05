@@ -51,6 +51,22 @@ namespace WWMath {
             return new WWComplex(lhs.real+rhs.real, lhs.imaginary+rhs.imaginary);
         }
 
+        public static WWComplex Add(WWComplex a, WWComplex b, WWComplex c) {
+            return new WWComplex(a.real + b.real + c.real, a.imaginary + b.imaginary + c.imaginary);
+        }
+
+        public static WWComplex Add(WWComplex a, WWComplex b, WWComplex c, WWComplex d) {
+            return new WWComplex(
+                a.real + b.real + c.real + d.real,
+                a.imaginary + b.imaginary + c.imaginary + d.imaginary);
+        }
+
+        public static WWComplex Add(WWComplex a, WWComplex b, WWComplex c, WWComplex d, WWComplex e) {
+            return new WWComplex(
+                a.real + b.real + c.real + d.real + e.real,
+                a.imaginary + b.imaginary + c.imaginary + d.imaginary + e.imaginary);
+        }
+
         /// <summary>
         /// create copy and copy := L - R, returns copy.
         /// </summary>

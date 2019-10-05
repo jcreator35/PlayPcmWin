@@ -9,6 +9,32 @@ namespace WWMath {
         private WWWindowFunc() {
         }
 
+        public enum WindowType {
+            Hamming,
+            Hanning,
+            Blackman,
+            BH3,
+        };
+
+        public static double[] FreqDomainWindowCoeffs(WindowType wt) {
+            switch (wt) {
+            case WindowType.Hamming:
+                return new double[] { 0.54, 0.46 };
+            case WindowType.Hanning:
+                return new double[] { 0.5, 0.5 };
+            case WindowType.Blackman:
+                return new double[] { 7938.0 / 18608, 9240.0 / 18608, 1430.0 / 18608 };
+            case WindowType.BH3:
+                return new double[] { 0.42323, 0.49755, 0.07922 };
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                return null;
+            }
+        }
+
+
+
+
         /// <summary>
         /// ブラックマン窓
         /// </summary>
