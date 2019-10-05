@@ -54,7 +54,13 @@ namespace WWMath {
             return r;
         }
 
-        public WWComplex[] ForwardFft(WWComplex[] aFrom) {
+        /// <summary>
+        /// 注：compensationが指定しないとき、結果をNで割りません。
+        /// </summary>
+        /// <param name="aFrom">時間ドメイン値x[n] 0≦n＜N</param>
+        /// <param name="compensation">倍率。指定しないとき1.0倍となる。</param>
+        /// <returns>周波数ドメイン値X^m(q)</returns>
+        public WWComplex[] ForwardFft(WWComplex[] aFrom, double? compensation = null) {
             if (aFrom == null || aFrom.Length != mNumPoints) {
                 throw new ArgumentOutOfRangeException("aFrom");
             }
@@ -78,11 +84,29 @@ namespace WWMath {
             }
             FftStageN(mNumStage - 1, aTmps[(((mNumStage - 1) & 1) == 1) ? 1 : 0], aTo);
 
+            double c = 1.0;
+            if (compensation != null) {
+                c = (double)compensation;
+            }
+
+            if (c != 1.0) {
+                var aToC = new WWComplex[aTo.Length];
+                for (int i = 0; i < aTo.Length; ++i) {
+                    aToC[i] = new WWComplex(aTo[i].real * c, aTo[i].imaginary * c);
+                }
+                return aToC;
+            }
             return aTo;
         }
 
+        /// <summary>
+        /// 逆FFTします。結果をcompensation倍します(compensationを指定しないとき1.0/N倍)
+        /// </summary>
+        /// <param name="aFrom">周波数ドメイン値X^m(q) 0≦m≦N</param>
+        /// <param name="compensation">倍率。指定しないとき1.0/Nとなる。</param>
+        /// <returns></returns>
         public WWComplex[] InverseFft(WWComplex[] aFrom, double? compensation = null) {
-            for (int i=0; i < aFrom.LongLength; ++i) {
+            for (int i=0; i < aFrom.Length; ++i) {
                 aFrom[i] = new WWComplex(aFrom[i].real, -aFrom[i].imaginary);
             }
 
@@ -93,7 +117,7 @@ namespace WWMath {
                 c = (double)compensation;
             }
 
-            for (int i=0; i < aTo.LongLength; ++i) {
+            for (int i=0; i < aTo.Length; ++i) {
                 aTo[i] = new WWComplex(aTo[i].real * c, -aTo[i].imaginary * c);
             }
 

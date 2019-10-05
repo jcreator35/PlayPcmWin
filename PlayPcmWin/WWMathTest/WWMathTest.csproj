@@ -78,6 +78,7 @@
     <Compile Include="WWConvolutionTest.cs" />
     <Compile Include="WWQuadratureOscillatorIntTest.cs" />
     <Compile Include="WWQuadratureOscillatorTest.cs" />
+    <Compile Include="WWRadix2FftTest.cs" />
     <Compile Include="WWSlidingDFTTest.cs" />
   </ItemGroup>
   <ItemGroup>

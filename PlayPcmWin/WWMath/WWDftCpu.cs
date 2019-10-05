@@ -1,9 +1,11 @@
-﻿using System;
+﻿// 日本語。
+
+using System;
 
 namespace WWMath {
     public class WWDftCpu {
         /// <summary>
-        /// 1次元DFT。要素数Nとして、N分の1した結果を戻す。
+        /// 1次元DFT。要素数Nとして、N分の1した結果を戻す。Idft1dとペアで使用すると値が元に戻る。
         /// </summary>
         /// <param name="from">入力。</param>
         /// <param name="to">出力DFT結果</param>
@@ -50,6 +52,17 @@ namespace WWMath {
         }
 
         /// <summary>
+        /// 1次元DFT。要素数Nとして、N分の1した結果を戻す。Idft1dとペアで使用すると値が元に戻る。
+        /// </summary>
+        /// <param name="from">入力。</param>
+        /// <returns>出力DFT結果</returns>
+        public static WWComplex[] Dft1d(WWComplex[] from) {
+            WWComplex[] r = null;
+            Dft1d(from, out r);
+            return r;
+        }
+
+        /// <summary>
         /// 1次元IDFT。要素数で割ったりはしない。Dft1dとペアで使用すると値が元に戻る。
         /// </summary>
         /// <param name="from">入力</param>
@@ -92,6 +105,17 @@ namespace WWMath {
                 }
                 to[k] = new WWComplex(sr, si);
             }
+        }
+
+        /// <summary>
+        /// 1次元IDFT。要素数で割ったりはしない。Dft1dとペアで使用すると値が元に戻る。
+        /// </summary>
+        /// <param name="from"></param>
+        /// <returns></returns>
+        public static WWComplex[] Idft1d(WWComplex[] from) {
+            WWComplex[] r = null;
+            Idft1d(from, out r);
+            return r;
         }
     }
 }

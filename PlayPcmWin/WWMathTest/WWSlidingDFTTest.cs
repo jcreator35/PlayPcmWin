@@ -1,4 +1,6 @@
-﻿using WWMath;
+﻿// 日本語。
+
+using WWMath;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
