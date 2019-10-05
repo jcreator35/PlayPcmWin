@@ -95,8 +95,9 @@ namespace WWMath {
                     aToC[i] = new WWComplex(aTo[i].real * c, aTo[i].imaginary * c);
                 }
                 return aToC;
+            } else {
+                return aTo;
             }
-            return aTo;
         }
 
         /// <summary>

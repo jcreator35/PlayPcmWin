@@ -62,9 +62,6 @@ namespace WWMathTest
         #endregion
 
 
-        /// <summary>
-        ///A test for Next
-        ///</summary>
         [TestMethod()]
         public void QOscIntNextTest() {
             int ft = 11025;
@@ -80,7 +77,6 @@ namespace WWMathTest
             int differentCount = 0;
             for (int i = 0; i < 10000; ++i) {
                 var actual = target.Next();
-                Console.WriteLine("{0} {1}", i, actual);
                 if (1e-8 < WWComplex.Distance(expected[i % 4], actual)) {
                     ++differentCount;
                 }
@@ -88,5 +84,46 @@ namespace WWMathTest
 
             Assert.AreEqual(0, differentCount);
         }
+
+        [TestMethod()]
+        public void QOscIntNextTestDC() {
+            int ft = 0;
+            int fs = 44100;
+            var target = new WWQuadratureOscillatorInt(ft, fs);
+
+            int differentCount = 0;
+            for (int i = 0; i < 10000; ++i) {
+                var actual = target.Next();
+                Console.WriteLine("{0} {1}", i, actual);
+                if (1e-8 < WWComplex.Distance(WWComplex.Unity(), actual)) {
+                    ++differentCount;
+                }
+            }
+            Assert.AreEqual(0, differentCount);
+        }
+
+        [TestMethod()]
+        public void QOscIntNextTestReverse() {
+            int ft = -11025;
+            int fs = 44100;
+            var target = new WWQuadratureOscillatorInt(ft, fs);
+            WWComplex[] expected = new WWComplex[] {
+                new WWComplex(1, 0),
+                new WWComplex(0, -1),
+                new WWComplex(-1, 0),
+                new WWComplex(0, 1),
+            };
+
+            int differentCount = 0;
+            for (int i = 0; i < 10000; ++i) {
+                var actual = target.Next();
+                if (1e-8 < WWComplex.Distance(expected[i % 4], actual)) {
+                    ++differentCount;
+                }
+            }
+
+            Assert.AreEqual(0, differentCount);
+        }
+
     }
 }

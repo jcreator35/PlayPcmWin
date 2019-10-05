@@ -24,18 +24,31 @@ namespace WWMath {
         /// <param name="ft">Oscillator turning freq</param>
         /// <param name="fs">Sample freq</param>
         public WWQuadratureOscillatorInt(int ft, int fs) {
-            if (ft <= 0) {
-                throw new ArgumentOutOfRangeException("ft");
-            }
+            // fsは正の値。
             if (fs <= 0) {
                 throw new ArgumentOutOfRangeException("fs");
+            }
+
+            // -fs < ft < fs
+            if (fs <= ft) {
+                throw new ArgumentOutOfRangeException("ft");
+            }
+            if (ft <= -fs) {
+                throw new ArgumentOutOfRangeException("ft");
             }
 
             mFt = ft;
             mFs = fs;
 
-            // 定期的に位相をリセットします。
-            mLcm = Functions.LCM(ft, fs);
+            if (mFt == 0) {
+                mLcm = 1;
+            } else if (mFt < 0) {
+                // 定期的に位相をリセットします。
+                mLcm = Functions.LCM(-ft, fs);
+            } else {
+                // 定期的に位相をリセットします。
+                mLcm = Functions.LCM(ft, fs);
+            }
 
             mθ = 2.0 * Math.PI * mFt / mFs;
             mCosθ = Math.Cos(mθ);
@@ -51,6 +64,12 @@ namespace WWMath {
         }
 
         public WWComplex Next() {
+            if (mFt == 0) {
+                return WWComplex.Unity();
+            }
+
+            // mFt != 0の場合。
+
             ++mCounter;
             if (mCounter == mLcm) {
                 mLcm = 0;
