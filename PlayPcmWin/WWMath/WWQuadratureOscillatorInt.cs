@@ -21,8 +21,8 @@ namespace WWMath {
         /// <summary>
         /// Quadrature Oscillator, int frequency version
         /// </summary>
-        /// <param name="ft">Oscillator turning freq</param>
-        /// <param name="fs">Sample freq</param>
+        /// <param name="ft">Oscillator turning freq。-fs ＜ ft ＜ fs</param>
+        /// <param name="fs">Sample freq。0より大きい値</param>
         public WWQuadratureOscillatorInt(int ft, int fs) {
             // fsは正の値。
             if (fs <= 0) {

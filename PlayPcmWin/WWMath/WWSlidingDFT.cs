@@ -1,9 +1,6 @@
 ﻿// 日本語。
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using WWUtil;
 
 namespace WWMath {
@@ -14,6 +11,7 @@ namespace WWMath {
         Delay mDelayN;
 
         /// <summary>
+        /// Sliding DFT
         /// 注：この関数は、結果をN分の1します。WWDftCpu.Idft1dやWWRadix2Fft.InverseFft(compensation無し)と組み合わせると時間ドメイン値が戻ります。
         /// </summary>
         /// <param name="N">DFTサイズ。</param>
