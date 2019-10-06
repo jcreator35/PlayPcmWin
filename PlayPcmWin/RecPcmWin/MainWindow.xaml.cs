@@ -545,6 +545,7 @@ namespace RecPcmWin {
                 using (BinaryWriter bw = new BinaryWriter(File.Open(dlg.FileName, FileMode.Create, FileAccess.Write, FileShare.Write))) {
                     WavRWLib2.WavWriter.Write(bw, mPref.NumOfChannels,
                             WasapiCS.SampleFormatTypeToUseBitsPerSample(mPref.SampleFormat),
+                            WavRWLib2.WavWriterLowLevel.WAVE_FORMAT_PCM,
                             mPref.SampleRate, nFrames, pcm);
                     textBoxLog.Text += string.Format("{0} : {1}\r\n", Properties.Resources.SaveFileSucceeded, dlg.FileName);
                 }

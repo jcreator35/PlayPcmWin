@@ -273,7 +273,8 @@ WWPcmData::GetSampleValueAsInt24(int ch, int64_t posFrame) const
     case WWPcmDataSampleFormatSdouble:
         {
             double *p = (double*)(&mStream[8 * (mChannels * posFrame + ch)]);
-            float v = SaturateForInt24(*p);
+            float v = (float)*p;
+            v = SaturateForInt24(v);
             result = (int)(8388608.0f * v);
         }
         break;
@@ -306,7 +307,7 @@ WWPcmData::GetSampleValueFloat(int ch, int64_t posFrame) const
     case WWPcmDataSampleFormatSdouble:
         {
             double *p = (double *)(&mStream[8 * (mChannels * posFrame + ch)]);
-            return *p;
+            return (float)(*p);
         }
     default:
         assert(0);
