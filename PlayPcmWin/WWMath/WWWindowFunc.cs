@@ -9,6 +9,10 @@ namespace WWMath {
         private WWWindowFunc() {
         }
 
+        // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+        // 周波数ドメインの窓関数。
+        // 使用例はWWSlidingDFT.FilterWithWindow()。
+
         public enum WindowType {
             Hamming,
             Hanning,
@@ -16,9 +20,13 @@ namespace WWMath {
             BH3,
         };
 
+        /// <summary>
+        /// 時間ドメインで乗算する代わりに、
+        /// 周波数ドメインでコンボリューションするときに使う窓関数の係数。
+        /// 使用例はWWSlidingDFT.FilterWithWindow()。
+        /// </summary>
         public static double[] FreqDomainWindowCoeffs(WindowType wt) {
             // Richard G. Lyons, Understanding Digital Signal Processing, 3 rd Ed., Pearson, 2011, pp. 686
-
 
             switch (wt) {
             case WindowType.Hamming:
@@ -35,8 +43,8 @@ namespace WWMath {
             }
         }
 
-
-
+        // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+        // 時間ドメインの窓関数。
 
         /// <summary>
         /// ブラックマン窓

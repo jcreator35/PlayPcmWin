@@ -133,11 +133,20 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Invert polarity.
+        ///   Looks up a localized string similar to Invert Polarity.
         /// </summary>
         internal static string AudioFilterPolarityInvert {
             get {
                 return ResourceManager.GetString("AudioFilterPolarityInvert", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invert Polarity : Channel {0}.
+        /// </summary>
+        internal static string AudioFilterPolarityInvertDesc {
+            get {
+                return ResourceManager.GetString("AudioFilterPolarityInvertDesc", resourceCulture);
             }
         }
         

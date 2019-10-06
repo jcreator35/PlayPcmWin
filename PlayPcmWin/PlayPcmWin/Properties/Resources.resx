@@ -614,7 +614,7 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
     <value>Monaural mix (forPCM)</value>
   </data>
   <data name="AudioFilterPolarityInvert" xml:space="preserve">
-    <value>Invert polarity</value>
+    <value>Invert Polarity</value>
   </data>
   <data name="AudioFilterActivated" xml:space="preserve">
     <value>Activated Sound Effects</value>
@@ -723,5 +723,8 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   </data>
   <data name="SomeFilesAreDisappeared" xml:space="preserve">
     <value>Some files are disappeared. Playlist updated.</value>
+  </data>
+  <data name="AudioFilterPolarityInvertDesc" xml:space="preserve">
+    <value>Invert Polarity : Channel {0}</value>
   </data>
 </root>

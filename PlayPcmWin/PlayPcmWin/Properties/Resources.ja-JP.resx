@@ -721,4 +721,7 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
   <data name="SomeFilesAreDisappeared" xml:space="preserve">
     <value>幾つかのファイルがどこかに行きました。再生リストを更新。</value>
   </data>
+  <data name="AudioFilterPolarityInvertDesc" xml:space="preserve">
+    <value>極性反転 チャンネル {0}</value>
+  </data>
 </root>

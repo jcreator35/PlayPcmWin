@@ -12,18 +12,24 @@ namespace WWMath {
 
         /// <summary>
         /// Sliding DFT
-        /// 注：この関数は、結果をN分の1します。WWDftCpu.Idft1dやWWRadix2Fft.InverseFft(compensation無し)と組み合わせると時間ドメイン値が戻ります。
+        /// 注：この関数は、compensation引数を省略して呼ぶと結果をN分の1します。WWDftCpu.Idft1dやWWRadix2Fft.InverseFft(compensation引数省略)と組み合わせると時間ドメイン値が戻ります。
         /// </summary>
         /// <param name="N">DFTサイズ。</param>
-        public WWSlidingDFT(int N) {
+        /// <param name="compensation">出力値を乗算する係数。省略時は1/Nになる。</param>
+        public WWSlidingDFT(int N, double? compensation = null) {
             if (N <= 0) {
                 throw new ArgumentOutOfRangeException("N");
+            }
+
+            double c = 1.0 / N;
+            if (compensation != null) {
+                c = (double)compensation;
             }
 
             mN = N;
             mBins = new SlidingDFTbin[N];
             for (int i = 0; i < mBins.Length; ++i) {
-                mBins[i] = new SlidingDFTbin(i, N);
+                mBins[i] = new SlidingDFTbin(i, N, c);
             }
 
             mDelayN = new Delay(N);
@@ -50,6 +56,7 @@ namespace WWMath {
 
         /// <summary>
         /// 窓関数をかけた周波数ドメイン値X^m(q)を戻す。
+        /// 同様の処理をWWGoertzel (Stable Goertzel algorithm)で行うこともできるだろう。
         /// </summary>
         public WWComplex[] FilterWithWindow(double x, WWWindowFunc.WindowType wt) {
             var r = Filter(x);
@@ -106,13 +113,13 @@ namespace WWMath {
 
         class SlidingDFTbin {
             int mN; //< DFT size N
-            double mNinv;
+            double mCompensation;
             int mM; //< bin number m 0≦m＜N
             WWComplex mE;
 
             DelayT<WWComplex> mDelay;
 
-            public SlidingDFTbin(int m, int N) {
+            public SlidingDFTbin(int m, int N, double compensation) {
                 if (N <= 0) {
                     throw new ArgumentOutOfRangeException("N");
                 }
@@ -121,7 +128,7 @@ namespace WWMath {
                 }
 
                 mN = N;
-                mNinv = 1.0 / N;
+                mCompensation = compensation;
                 mM = m;
 
                 double θ = 2.0 * Math.PI * m / N;
@@ -148,7 +155,7 @@ namespace WWMath {
 
                 mDelay.Filter(m);
 
-                return WWComplex.Mul(m, mNinv);
+                return WWComplex.Mul(m, mCompensation);
             }
         };
     }

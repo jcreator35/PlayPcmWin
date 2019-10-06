@@ -687,7 +687,7 @@ WasapiIO_AppendAudioFilter(int instanceId, int audioFilterType, PCWSTR args)
     {
         switch (audioFilterType) {
         case WWAF_PolarityInvert:
-            self->wasapi.AudioFilterSequencer().Append(new WWAudioFilterPolarityInvert());
+            self->wasapi.AudioFilterSequencer().Append(new WWAudioFilterPolarityInvert(args));
             break;
         case WWAF_Monaural:
             self->wasapi.AudioFilterSequencer().Append(new WWAudioFilterMonauralMix());

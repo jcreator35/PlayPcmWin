@@ -49,10 +49,10 @@ namespace PlayPcmWin {
                     return sb.ToString().TrimEnd();
                 }
             case PreferenceAudioFilterType.MonauralMix:
-            case PreferenceAudioFilterType.PolarityInvert:
             case PreferenceAudioFilterType.ZohNosdacCompensation:
                 return "";
-            case PreferenceAudioFilterType.MuteChannel:
+            case PreferenceAudioFilterType.PolarityInvert: // mArgArray[0]に全てのパラメータが入っている。
+            case PreferenceAudioFilterType.MuteChannel: // mArgArray[0]に全てのパラメータが入っている。
             case PreferenceAudioFilterType.SoloChannel:
             case PreferenceAudioFilterType.Delay:
                 return string.Format("{0}", mArgArray[0]);
@@ -232,6 +232,7 @@ namespace PlayPcmWin {
                 var paf = (PreferenceAudioFilterType)i;
                 if (0 == paf.ToString().CompareTo(tokens[0])) {
                     t = paf;
+                    break;
                 }
             }
             if (t == PreferenceAudioFilterType.NUM) {
@@ -244,6 +245,18 @@ namespace PlayPcmWin {
                 for (int i=0; i < tokens.Length - 1; ++i) {
                     argArray[i] = tokens[i + 1];
                 }
+            }
+
+            // 過去バージョンPPWのファイルとの後方互換性の処理。
+            switch (t) {
+            case PreferenceAudioFilterType.PolarityInvert:
+                if (argArray.Length == 0) {
+                    // 昔は全チャンネルの極性反転だった。
+                    argArray = new string[] { "-1" };
+                }
+                break;
+            default:
+                break;
             }
 
             return new PreferenceAudioFilter(t, argArray);
@@ -308,15 +321,27 @@ namespace PlayPcmWin {
             return new Tuple<int, int>(from, to);
         }
 
+        /// <summary>
+        /// 表示用のチャンネル番号表示。
+        /// </summary>
         private static string ChannelListToDisplayString(string channelList) {
             var sb = new StringBuilder();
             var s = channelList.Split(new char[]{','});
             foreach (var ch in s) {
                 int v = Int32.Parse(ch);
-                if (sb.Length == 0) {
-                    sb.AppendFormat("{0}", v + 1);
+                if (0 < sb.Length) {
+                    // 2番目以降に現れた数字。カンマで続ける。
+                    sb.Append(",");
+                }
+
+                if (v == -1) {
+                    sb.Append("ALL");
+                } else if (v == 0) {
+                    sb.Append("1(Left)");
+                } else if (v == 1) {
+                    sb.Append("2(Right)");
                 } else {
-                    sb.AppendFormat(",{0}", v + 1);
+                    sb.AppendFormat("{0}", v + 1);
                 }
             }
             return sb.ToString();
@@ -325,8 +350,6 @@ namespace PlayPcmWin {
         public string DescriptionText {
             get {
                 switch (FilterType) {
-                case PreferenceAudioFilterType.PolarityInvert:
-                    return Properties.Resources.AudioFilterPolarityInvert;
                 case PreferenceAudioFilterType.MonauralMix:
                     return Properties.Resources.AudioFilterMonauralMix;
                 case PreferenceAudioFilterType.ChannelRouting: {
@@ -339,6 +362,8 @@ namespace PlayPcmWin {
                         }
                         return sb.ToString();
                     }
+                case PreferenceAudioFilterType.PolarityInvert:
+                    return string.Format(Properties.Resources.AudioFilterPolarityInvertDesc, ChannelListToDisplayString(mArgArray[0]));
                 case PreferenceAudioFilterType.MuteChannel:
                     return string.Format(Properties.Resources.AudioFilterMuteChannelDesc, ChannelListToDisplayString(mArgArray[0]));
                 case PreferenceAudioFilterType.SoloChannel:

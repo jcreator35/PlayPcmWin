@@ -2,88 +2,12 @@
 
 #include "WWAudioFilterChannelMapping.h"
 #include "WWTypes.h"
+#include "WWUtil.h"
 #include <assert.h>
 #include <vector>
 #include <string>
 #include <string.h>
 #include <stdint.h>
-
-enum State {
-    SStart,
-    SInToken,
-    SInEscapedToken,
-    SSkipWhiteSpace,
-};
-
-static void
-Split(std::wstring s, std::vector<std::wstring> & result)
-{
-    result.clear();
-
-    if (s[0] == 0) {
-        return;
-    }
-
-    std::wstring sb;
-    State state = SStart;
-
-    for (uint32_t i=0; i<s.length(); ++i) {
-        switch (state) {
-        case SStart:
-            if (s[i] == L'\"') {
-                state = SInEscapedToken;
-            } else {
-                state = SInToken;
-                sb += s[i];
-            }
-            break;
-        case SInToken:
-            if (s[i] == L' ') {
-                if (0 < sb.length()) {
-                    result.push_back(sb);
-                    sb = L"";
-                }
-                state = SSkipWhiteSpace;
-            } else {
-                sb += s[i];
-            }
-            break;
-        case SInEscapedToken:
-            if (s[i] == L'\\') {
-                ++i;
-                if (i < s.length()) {
-                    sb += s[i];
-                }
-            } else if (s[i] == L'\"') {
-                if (0 < sb.length()) {
-                    result.push_back(sb);
-                    sb = L"";
-                }
-                state = SSkipWhiteSpace;
-            } else {
-                sb += s[i];
-            }
-            break;
-        case SSkipWhiteSpace:
-            if (s[i] == L'\"') {
-                state = SInEscapedToken;
-            } else if (s[i] != L' ') {
-                state = SInToken;
-                sb.push_back(s[i]);
-            } else {
-                // do nothing
-            }
-            break;
-        }
-    }
-
-    if (state == SInToken) {
-        if (0 < sb.length()) {
-            result.push_back(sb);
-            sb = L"";
-        }
-    }
-}
 
 struct ChannelMappingItem {
     uint32_t fromCh;
@@ -113,10 +37,11 @@ WWAudioFilterChannelMapping::WWAudioFilterChannelMapping(PCWSTR args)
     mNumOfChannels = 0;
 
     std::vector<std::wstring> argVector;
-    Split(args, argVector);
+    WWSplit(args, argVector);
 
     if (WW_CHANNEL_NUM < argVector.size()) {
         // 失敗。
+        assert(0);
         return;
     }
     

@@ -112,9 +112,6 @@ namespace PlayPcmWin {
             PreferenceAudioFilter filter = null;
             var filterType = (PreferenceAudioFilterType)listBoxAvailableEffects.SelectedIndex;
             switch (filterType) {
-            case PreferenceAudioFilterType.PolarityInvert:
-                filter = new PreferenceAudioFilter(PreferenceAudioFilterType.PolarityInvert, null);
-                break;
             case PreferenceAudioFilterType.MonauralMix:
                 filter = new PreferenceAudioFilter(PreferenceAudioFilterType.MonauralMix, null);
                 break;
@@ -129,6 +126,7 @@ namespace PlayPcmWin {
                     filter = new PreferenceAudioFilter(PreferenceAudioFilterType.ChannelRouting, BuildChannelMappingArgArray(dlg.ChannelMapping));
                 }
                 break;
+            case PreferenceAudioFilterType.PolarityInvert:
             case PreferenceAudioFilterType.MuteChannel:
             case PreferenceAudioFilterType.SoloChannel: {
                     var dlg = new ChannelSelect();
