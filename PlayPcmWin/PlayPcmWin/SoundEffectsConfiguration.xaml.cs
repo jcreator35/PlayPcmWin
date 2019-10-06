@@ -130,11 +130,25 @@ namespace PlayPcmWin {
             case PreferenceAudioFilterType.MuteChannel:
             case PreferenceAudioFilterType.SoloChannel: {
                     var dlg = new ChannelSelect();
+
+                    if (filterType == PreferenceAudioFilterType.PolarityInvert) {
+                        // デフォルトで両チャンネル極性反転。
+                        dlg.SetChannel(0, true);
+                        dlg.SetChannel(1, true);
+                    }
+
                     var dlgResult = dlg.ShowDialog();
                     if (dlgResult != true) {
                         return;
                     }
-                    filter = new PreferenceAudioFilter(filterType, new string[1] { SelectedChannelFlagsToString(dlg.SelectedChannels) });
+
+                    var selectedChannelsStr = SelectedChannelFlagsToString(dlg.SelectedChannels);
+                    if (selectedChannelsStr.Length == 0) {
+                        MessageBox.Show("Please select one or more channels.");
+                        return;
+                    } else {
+                        filter = new PreferenceAudioFilter(filterType, new string[1] { selectedChannelsStr });
+                    }
                 }
                 break;
             case PreferenceAudioFilterType.ZohNosdacCompensation:

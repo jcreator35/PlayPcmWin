@@ -16,119 +16,71 @@ namespace PlayPcmWin {
     /// Interaction logic for ChannelSelect.xaml
     /// </summary>
     public partial class ChannelSelect : Window {
-        private bool[] mChannelSelectFlags = new bool[32];
+        private const int NUM_CHANNELS = 32;
+        private bool[] mChannelSelectFlags = new bool[NUM_CHANNELS];
+        private CheckBox[] mCheckboxList = new CheckBox[NUM_CHANNELS];
 
         public bool[] SelectedChannels { get { return mChannelSelectFlags; } }
 
         public ChannelSelect() {
             InitializeComponent();
+
+            #region boring part
+            mCheckboxList[0] = checkBox1;
+            mCheckboxList[1] = checkBox2;
+            mCheckboxList[2] = checkBox3;
+            mCheckboxList[3] = checkBox4;
+            mCheckboxList[4] = checkBox5;
+
+            mCheckboxList[5] = checkBox6;
+            mCheckboxList[6] = checkBox7;
+            mCheckboxList[7] = checkBox8;
+            mCheckboxList[8] = checkBox9;
+            mCheckboxList[9] = checkBox10;
+
+            mCheckboxList[10] = checkBox11;
+            mCheckboxList[11] = checkBox12;
+            mCheckboxList[12] = checkBox13;
+            mCheckboxList[13] = checkBox14;
+            mCheckboxList[14] = checkBox15;
+
+            mCheckboxList[15] = checkBox16;
+            mCheckboxList[16] = checkBox17;
+            mCheckboxList[17] = checkBox18;
+            mCheckboxList[18] = checkBox19;
+            mCheckboxList[19] = checkBox20;
+
+            mCheckboxList[20] = checkBox21;
+            mCheckboxList[21] = checkBox22;
+            mCheckboxList[22] = checkBox23;
+            mCheckboxList[23] = checkBox24;
+            mCheckboxList[24] = checkBox25;
+
+            mCheckboxList[25] = checkBox26;
+            mCheckboxList[26] = checkBox27;
+            mCheckboxList[27] = checkBox28;
+            mCheckboxList[28] = checkBox29;
+            mCheckboxList[29] = checkBox30;
+
+            mCheckboxList[30] = checkBox31;
+            mCheckboxList[31] = checkBox32;
+            #endregion
         }
+
+        /// <param name="ch">zero based channel idx</param>
+        public void SetChannel(int ch, bool b) {
+            System.Diagnostics.Debug.Assert(0 <= ch && ch < NUM_CHANNELS);
+            mCheckboxList[ch].IsChecked = b;
+        }
+
         private void buttonOK_Click(object sender, RoutedEventArgs e) {
-            if (checkBox1.IsChecked == true) {
-                mChannelSelectFlags[0] = true;
-            }
-            if (checkBox2.IsChecked == true) {
-                mChannelSelectFlags[1] = true;
-            }
-            if (checkBox3.IsChecked == true) {
-                mChannelSelectFlags[2] = true;
-            }
-            if (checkBox4.IsChecked == true) {
-                mChannelSelectFlags[3] = true;
-            }
-            if (checkBox5.IsChecked == true) {
-                mChannelSelectFlags[4] = true;
-            }
-
-            if (checkBox6.IsChecked == true) {
-                mChannelSelectFlags[5] = true;
-            }
-            if (checkBox7.IsChecked == true) {
-                mChannelSelectFlags[6] = true;
-            }
-            if (checkBox8.IsChecked == true) {
-                mChannelSelectFlags[7] = true;
-            }
-            if (checkBox9.IsChecked == true) {
-                mChannelSelectFlags[8] = true;
-            }
-            if (checkBox10.IsChecked == true) {
-                mChannelSelectFlags[9] = true;
-            }
-
-            if (checkBox11.IsChecked == true) {
-                mChannelSelectFlags[10] = true;
-            }
-            if (checkBox12.IsChecked == true) {
-                mChannelSelectFlags[11] = true;
-            }
-            if (checkBox13.IsChecked == true) {
-                mChannelSelectFlags[12] = true;
-            }
-            if (checkBox14.IsChecked == true) {
-                mChannelSelectFlags[13] = true;
-            }
-            if (checkBox15.IsChecked == true) {
-                mChannelSelectFlags[14] = true;
-            }
-            
-            if (checkBox16.IsChecked == true) {
-                mChannelSelectFlags[15] = true;
-            }
-            if (checkBox17.IsChecked == true) {
-                mChannelSelectFlags[16] = true;
-            }
-            if (checkBox18.IsChecked == true) {
-                mChannelSelectFlags[17] = true;
-            }
-            if (checkBox19.IsChecked == true) {
-                mChannelSelectFlags[18] = true;
-            }
-            if (checkBox20.IsChecked == true) {
-                mChannelSelectFlags[19] = true;
-            }
-            
-            if (checkBox21.IsChecked == true) {
-                mChannelSelectFlags[20] = true;
-            }
-            if (checkBox22.IsChecked == true) {
-                mChannelSelectFlags[21] = true;
-            }
-            if (checkBox23.IsChecked == true) {
-                mChannelSelectFlags[22] = true;
-            }
-            if (checkBox24.IsChecked == true) {
-                mChannelSelectFlags[23] = true;
-            }
-            if (checkBox25.IsChecked == true) {
-                mChannelSelectFlags[24] = true;
-            }
-            
-            if (checkBox26.IsChecked == true) {
-                mChannelSelectFlags[25] = true;
-            }
-            if (checkBox27.IsChecked == true) {
-                mChannelSelectFlags[26] = true;
-            }
-            if (checkBox28.IsChecked == true) {
-                mChannelSelectFlags[27] = true;
-            }
-            if (checkBox29.IsChecked == true) {
-                mChannelSelectFlags[28] = true;
-            }
-            if (checkBox30.IsChecked == true) {
-                mChannelSelectFlags[29] = true;
-            }
-            
-            if (checkBox31.IsChecked == true) {
-                mChannelSelectFlags[30] = true;
-            }
-            if (checkBox32.IsChecked == true) {
-                mChannelSelectFlags[31] = true;
+            for (int i = 0; i < NUM_CHANNELS; ++i) {
+                mChannelSelectFlags[i] = mCheckboxList[i].IsChecked == true;
             }
 
             DialogResult = true;
             Close();
         }
+
     }
 }
