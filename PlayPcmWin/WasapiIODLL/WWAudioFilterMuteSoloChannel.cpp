@@ -5,21 +5,26 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
+#include "WWUtil.h"
 
 WWAudioFilterMuteSoloChannel::WWAudioFilterMuteSoloChannel(WWAFMSModeType mode, PCWSTR args)
 {
     mMode = mode;
-    swscanf_s(args, L"%u", &mMuteChannel);
+
+    // mEnableFlagsをargsから作る。
+    WWCommaSeparatedIdxToFlagArray(args, mEnableFlags, sizeof mEnableFlags);
 }
 
 bool
 WWAudioFilterMuteSoloChannel::IsMuteChannel(int ch) const
 {
+    assert(0 <= ch && ch < WW_CHANNEL_NUM);
+
     switch (mMode) {
     case WWAFMSMode_Mute:
-        return mMuteChannel == ch;
+        return mEnableFlags[ch] == true;
     case WWAFMSMode_Solo:
-        return mMuteChannel != ch;
+        return mEnableFlags[ch] != true;
     default:
         assert(0);
         return false;
@@ -34,6 +39,8 @@ WWAudioFilterMuteSoloChannel::UpdateSampleFormat(
 {
     (void)sampleRate;
     mManip.UpdateFormat(format, streamType, numChannels);
+
+    assert(mManip.NumChannels() <= WW_CHANNEL_NUM);
 }
 
 void

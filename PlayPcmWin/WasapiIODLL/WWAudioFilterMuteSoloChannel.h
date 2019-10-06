@@ -4,6 +4,7 @@
 
 #include "WWAudioFilter.h"
 #include "WWPcmSampleManipulator.h"
+#include "WWTypes.h"
 
 enum WWAFMSModeType {
     WWAFMSMode_Mute,
@@ -21,7 +22,7 @@ public:
 private:
     WWAFMSModeType mMode;
     WWPcmSampleManipulator mManip;
-    int mMuteChannel;
+    bool mEnableFlags[WW_CHANNEL_NUM]; ///< 要素番号が有効・無効チャンネル番号。
 
     bool IsMuteChannel(int ch) const;
     void FilterDoP(unsigned char *buff, int bytes);
