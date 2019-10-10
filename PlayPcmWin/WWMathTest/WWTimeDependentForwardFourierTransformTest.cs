@@ -60,46 +60,81 @@ namespace WWMathTest
         //
         #endregion
 
-        [TestMethod()]
-        public void TimeDependentFourierTransformTestDC() {
-            var t = new WWTimeDependentForwardFourierTransform(4, WWTimeDependentForwardFourierTransform.WindowType.Bartlett);
-            var f = new WWTimeDependentInverseFourierTransform(4);
+        private void Test(WWTimeDependentForwardFourierTransform t, WWTimeDependentInverseFourierTransform f, double [] x, int fragmentSize) {
+            int iPos = 0;
+            int oPos = 0;
 
-            for (int i = 0; i < 20; ++i) {
-                var x = new double[1];
-                x[0] = 1;
+            // Processのテスト。
+            while (iPos < x.Length) {
+                int size = fragmentSize;
+                if (x.Length - iPos < size) {
+                    size = x.Length - iPos;
+                }
 
-                var X = t.Process(x);
+                var xF = new double[size];
+                Array.Copy(x, iPos, xF, 0, size);
+                iPos += size;
+
+                var X = t.Process(xF);
                 if (0 < X.Length) {
                     var xR = f.Process(X);
                     if (0 <= xR.Length) {
                         for (int j = 0; j < xR.Length; ++j) {
-                            Assert.IsTrue(Math.Abs(xR[j] - 1) < 1e-8);
+                            Assert.IsTrue(Math.Abs(xR[j] - x[oPos]) < 1e-8);
+                            ++oPos;
                         }
                     }
                 }
             }
+
+            {
+                // Drainのテスト。
+                var X = t.Drain();
+                var xR = f.Process(X);
+                for (int j = 0; j < xR.Length; ++j) {
+                    if (x.Length <= oPos) {
+                        break;
+                    }
+                    Assert.IsTrue(Math.Abs(xR[j] - x[oPos]) < 1e-8);
+                    ++oPos;
+                }
+            }
+        }
+
+        [TestMethod()]
+        public void TimeDependentFourierTransformTestDC() {
+            var t = new WWTimeDependentForwardFourierTransform(4, WWTimeDependentForwardFourierTransform.WindowType.Bartlett);
+            var f = new WWTimeDependentInverseFourierTransform(4);
+            var x = new double[20];
+            for (int i = 0; i < x.Length; ++i) {
+                x[i] = 1;
+            }
+
+            Test(t, f, x, 1);
+        }
+
+        [TestMethod()]
+        public void TimeDependentFourierTransformTestDClong() {
+            var t = new WWTimeDependentForwardFourierTransform(4, WWTimeDependentForwardFourierTransform.WindowType.Bartlett);
+            var f = new WWTimeDependentInverseFourierTransform(4);
+            var x = new double[20];
+            for (int i = 0; i < x.Length; ++i) {
+                x[i] = 1;
+            }
+
+            Test(t, f, x, x.Length);
         }
 
         [TestMethod()]
         public void TimeDependentFourierTransformTestHannDC() {
             var t = new WWTimeDependentForwardFourierTransform(8, WWTimeDependentForwardFourierTransform.WindowType.Hann);
             var f = new WWTimeDependentInverseFourierTransform(8);
-
-            for (int i = 0; i < 20; ++i) {
-                var x = new double[1];
-                x[0] = 1;
-
-                var X = t.Process(x);
-                if (0 < X.Length) {
-                    var xR = f.Process(X);
-                    if (0 <= xR.Length) {
-                        for (int j = 0; j < xR.Length; ++j) {
-                            Assert.IsTrue(Math.Abs(xR[j] - 1) < 1e-8);
-                        }
-                    }
-                }
+            var x = new double[20];
+            for (int i = 0; i < x.Length; ++i) {
+                x[i] = 1;
             }
+
+            Test(t, f, x, 1);
         }
 
         [TestMethod()]
@@ -110,20 +145,7 @@ namespace WWMathTest
             var x = new double[20];
             x[0] = 1;
 
-            int outIdx = 0;
-
-            for (int i = 0; i < x.Length; ++i) {
-                var X = t.Process(new double[1]{x[i]});
-                if (0 < X.Length) {
-                    var xR = f.Process(X);
-                    if (0 <= xR.Length) {
-                        for (int j = 0; j < xR.Length; ++j) {
-                            Assert.IsTrue(Math.Abs(xR[j] - x[outIdx]) < 1e-8);
-                            ++outIdx;
-                        }
-                    }
-                }
-            }
+            Test(t, f, x, 1);
         }
 
         [TestMethod()]
@@ -137,21 +159,8 @@ namespace WWMathTest
                 x[0] = Math.Sin(i * 2.0 * Math.PI / x.Length);
             }
 
-            int outIdx = 0;
-
-            for (int i = 0; i < x.Length; ++i) {
-                var X = t.Process(new double[1] { x[i] });
-                if (0 < X.Length) {
-                    var xR = f.Process(X);
-                    if (0 <= xR.Length) {
-                        for (int j = 0; j < xR.Length; ++j) {
-                            Assert.IsTrue(Math.Abs(xR[j] - x[outIdx]) < 1e-8);
-                            ++outIdx;
-                        }
-                    }
-                }
-            }
-
+            Test(t, f, x, 1);
         }
+
     }
 }
