@@ -11,6 +11,7 @@ namespace WWMath {
     public class WWTimeDependentForwardFourierTransform {
         public enum WindowType {
             Bartlett,
+            Hann,
         };
 
         private int        mProcessBlockSize;
@@ -35,7 +36,18 @@ namespace WWMath {
 
         private void PrepareWindow(int windowSize, WindowType windowType) {
             mWindowType = windowType;
-            mWindow = WWWindowFunc.BartlettWindow(mProcessBlockSize + 1);
+
+            switch (windowType) {
+            case WindowType.Bartlett:
+                mWindow = WWWindowFunc.BartlettWindow(mProcessBlockSize + 1);
+                break;
+            case WindowType.Hann:
+                mWindow = WWWindowFunc.HannWindow(mProcessBlockSize + 1);
+                break;
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                break;
+            }
         }
 
         public int WantSamples {

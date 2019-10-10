@@ -62,8 +62,7 @@ namespace WWMathTest
 
         [TestMethod()]
         public void TimeDependentFourierTransformTestDC() {
-            var t = new WWTimeDependentForwardFourierTransform(
-                    4, WWTimeDependentForwardFourierTransform.WindowType.Bartlett);
+            var t = new WWTimeDependentForwardFourierTransform(4, WWTimeDependentForwardFourierTransform.WindowType.Bartlett);
             var f = new WWTimeDependentInverseFourierTransform(4);
 
             for (int i = 0; i < 20; ++i) {
@@ -83,9 +82,29 @@ namespace WWMathTest
         }
 
         [TestMethod()]
+        public void TimeDependentFourierTransformTestHannDC() {
+            var t = new WWTimeDependentForwardFourierTransform(8, WWTimeDependentForwardFourierTransform.WindowType.Hann);
+            var f = new WWTimeDependentInverseFourierTransform(8);
+
+            for (int i = 0; i < 20; ++i) {
+                var x = new double[1];
+                x[0] = 1;
+
+                var X = t.Process(x);
+                if (0 < X.Length) {
+                    var xR = f.Process(X);
+                    if (0 <= xR.Length) {
+                        for (int j = 0; j < xR.Length; ++j) {
+                            Assert.IsTrue(Math.Abs(xR[j] - 1) < 1e-8);
+                        }
+                    }
+                }
+            }
+        }
+
+        [TestMethod()]
         public void TimeDependentFourierTransformTestImpulse() {
-            var t = new WWTimeDependentForwardFourierTransform(
-                    4, WWTimeDependentForwardFourierTransform.WindowType.Bartlett);
+            var t = new WWTimeDependentForwardFourierTransform(4, WWTimeDependentForwardFourierTransform.WindowType.Bartlett);
             var f = new WWTimeDependentInverseFourierTransform(4);
 
             var x = new double[20];
@@ -109,8 +128,7 @@ namespace WWMathTest
 
         [TestMethod()]
         public void TimeDependentFourierTransformTestSine() {
-            var t = new WWTimeDependentForwardFourierTransform(
-                    4, WWTimeDependentForwardFourierTransform.WindowType.Bartlett);
+            var t = new WWTimeDependentForwardFourierTransform(4, WWTimeDependentForwardFourierTransform.WindowType.Bartlett);
             var f = new WWTimeDependentInverseFourierTransform(4);
 
             var x = new double[20];
