@@ -193,8 +193,6 @@ namespace WWMath {
         /// <summary>
         /// 複素数の配列をWWComplexComparerでソートする。
         /// </summary>
-        /// <param name="inp"></param>
-        /// <returns></returns>
         public static WWComplex[] SortArray(WWComplex[] inp) {
             var outp = new WWComplex[inp.Length];
             Array.Copy(inp, outp, inp.Length);
@@ -290,6 +288,15 @@ namespace WWMath {
             }
 
             return c;
+        }
+
+        public static double[] ToRealArray(WWComplex[] c) {
+            var r = new double[c.Length];
+            for (int i = 0; i < r.Length; ++i) {
+                r[i] = c[i].real;
+            }
+
+            return r;
         }
     }
 }

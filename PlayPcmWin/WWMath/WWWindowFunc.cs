@@ -47,11 +47,32 @@ namespace WWMath {
         // 時間ドメインの窓関数。
 
         /// <summary>
+        /// Bartlett窓(三角形)
+        /// Time dependent Fourier transformに使用すると入力値が完全に復元できるという特徴あり。
+        /// </summary>
+        /// <returns>窓の長さn(nは奇数) 要素番号(length-1)/2が山のピーク。両端の値は0(教科書通り)。</returns>
+        /// <returns>Bartlett窓 最大値1</returns>
+        public static double[] BartlettWindow(int length) {
+            // nは奇数
+            System.Diagnostics.Debug.Assert((length & 1) == 1);
+
+            int t = length / 2;
+
+            var w = new double[length];
+            for (int i = 0; i < length / 2+1; ++i) {
+                w[i] = (double)i / t;
+                w[w.Length - 1 - i] = (double)i / t;
+            }
+
+            return w;
+        }
+
+        /// <summary>
         /// ブラックマン窓
         /// </summary>
-        /// <param name="window">[out]窓Wk 左右対称の形状が出てくる。奇数である必要あり。</param>
-        /// <returns>窓の長さn(nは奇数) 要素番号(length-1)/2が山のピーク</returns>
-        public static double [] BlackmanWindow(int length) {
+        /// <param name="length">窓の長さn(nは奇数) 要素番号(length-1)/2が山のピーク。両端の値は0でないので注意。</param>
+        /// <returns>[out]窓Wk 左右対称の形状が出てくる。奇数である必要あり。</returns>
+        public static double[] BlackmanWindow(int length) {
             // nは奇数
             System.Diagnostics.Debug.Assert((length & 1) == 1);
 
@@ -108,7 +129,7 @@ namespace WWMath {
         }
 
         /// <summary>
-        /// 0次の第1種変形ベッセル関数I0(alpha)
+        /// 0次の第1種変形ベッセル関数I_0(alpha)
         /// </summary>
         /// <param name="alpha">引数</param>
         /// <returns>I0(alpha)</returns>
@@ -126,7 +147,7 @@ namespace WWMath {
         /// <summary>
         /// カイザー窓
         /// </summary>
-        /// <param name="length">窓の長さn(nは奇数) 要素番号(length-1)/2が山のピーク</param>
+        /// <param name="length">窓の長さn(nは奇数) 要素番号(length-1)/2が山のピーク。両端の値は0でない。</param>
         /// <param name="alpha">Kaiser窓のパラメータα</param>
         /// <returns>窓Wk 左右対称の形状が出てくる。</returns>
         public static double [] KaiserWindow(int length, double alpha) {

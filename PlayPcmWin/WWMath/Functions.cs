@@ -31,7 +31,46 @@ namespace WWMath {
             }
             return result;
         }
-        
+
+        public static double AverageDistance(double[] x, double[] y) {
+            if (x.Length != y.Length) {
+                throw new ArgumentException("x.Length and y.Length mismatch");
+            }
+
+            double d = 0;
+            for (int i = 0; i < x.Length; ++i) {
+                double diff = x[i] - y[i];
+
+                d += diff * diff;
+            }
+
+            return Math.Sqrt(d) / x.Length;
+        }
+
+        /// <summary>
+        /// r[0] = x[xFrom+0] * y[yFrom+0]
+        /// r[1] = x[xFrom+1] * y[yFrom+1]
+        /// ...
+        /// </summary>
+        public static double[] Mul(double[] x, int xFrom, double[] y, int yFrom, int count) {
+            var r = new double[count];
+            for (int i = 0; i < count; ++i) {
+                double xV = 0;
+                if (0 <= xFrom + i && xFrom + i < x.Length) {
+                    xV = x[xFrom + i];
+                }
+
+                double yV = 0;
+                if (0 <= yFrom + i && yFrom + i < y.Length) {
+                    yV = y[yFrom + i];
+                }
+
+                r[i] = xV * yV;
+            }
+
+            return r;
+        }
+
         /// <summary>
         /// area cos hyp, Inverse hyperbolic cosine
         /// 双曲線関数coshの逆関数 y=arcosh(p)の正の解。x1つに対してyが正負計2つ対応するがそのうち正のyの値を戻す。

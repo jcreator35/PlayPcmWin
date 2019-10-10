@@ -81,6 +81,8 @@
     <Compile Include="WWQuadratureOscillatorTest.cs" />
     <Compile Include="WWRadix2FftTest.cs" />
     <Compile Include="WWSlidingDFTTest.cs" />
+    <Compile Include="WWTimeDependentForwardFourierTransformTest.cs" />
+    <Compile Include="WWWindowFuncTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WWMath\WWMath.csproj">

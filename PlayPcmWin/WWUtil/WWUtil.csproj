@@ -69,6 +69,7 @@
     <Compile Include="Delay.cs" />
     <Compile Include="DelayT.cs" />
     <Compile Include="LargeArray.cs" />
+    <Compile Include="ListUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
