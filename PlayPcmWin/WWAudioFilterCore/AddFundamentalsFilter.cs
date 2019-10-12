@@ -9,6 +9,8 @@ namespace WWAudioFilterCore {
         private PcmFormat mPcmFormat;
         private WWTimeDependentForwardFourierTransform mFFTfwd;
         private WWTimeDependentInverseFourierTransform mFFTinv;
+        private long mTotalSamples;
+        private long mProcessedSamples;
 
         public AddFundamentalsFilter(double gain)
             : base(FilterType.AddFundamentals) {
@@ -61,6 +63,9 @@ namespace WWAudioFilterCore {
                 WWTimeDependentForwardFourierTransform.WindowType.Hann);
             mFFTinv = new WWTimeDependentInverseFourierTransform(mFftLength);
 
+            mTotalSamples = inputFormat.NumSamples;
+            mProcessedSamples = 0;
+
             return inputFormat;
         }
 
@@ -99,7 +104,13 @@ namespace WWAudioFilterCore {
                 }
             }
 
-            return new WWUtil.LargeArray<double>(mFFTinv.Process(pcmF));
+            var r = new WWUtil.LargeArray<double>(mFFTinv.Process(pcmF));
+
+            // 進捗表示。
+            mProcessedSamples += inPcm.Length;
+            ProgressReport((double)mProcessedSamples / mTotalSamples);
+
+            return r;
         }
     }
 }
