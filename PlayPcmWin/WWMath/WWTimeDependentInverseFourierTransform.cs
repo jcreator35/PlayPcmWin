@@ -11,11 +11,14 @@ namespace WWMath {
     public class WWTimeDependentInverseFourierTransform {
         private int        mProcessBlockSize;
         private int mProcessCounter;
+        private long mProcessedSamples;
         private WWRadix2Fft mFFT;
 
         private List<WWComplex[]> mInputList = new List<WWComplex[]>();
 
         private double[] mOverlapBuff;
+
+        private long mNumSamples = -1;
 
         public WWTimeDependentInverseFourierTransform(int processBlockSize) {
             if (!Functions.IsPowerOfTwo(processBlockSize) || processBlockSize < 4) {
@@ -24,10 +27,15 @@ namespace WWMath {
 
             mProcessBlockSize = processBlockSize;
             mProcessCounter = 0;
+            mProcessedSamples = 0;
 
             mFFT = new WWRadix2Fft(processBlockSize);
 
             mOverlapBuff = new double[WantSamples];
+        }
+
+        public void SetNumSamples(long numSamples) {
+            mNumSamples = numSamples;
         }
 
         public int WantSamples {
@@ -138,7 +146,15 @@ namespace WWMath {
                     mOverlapBuff[i] = x[ProcessSize/2 + i];
                 }
 
+                if (0 <= mNumSamples && mNumSamples < mProcessedSamples + r.Length) {
+                    // 必要サンプル数を超えて出力する必要はない。
+                    var tmp = new double[mNumSamples - mProcessedSamples];
+                    Array.Copy(r, 0, tmp, 0, tmp.Length);
+                    r = tmp;
+                }
+
                 ++mProcessCounter;
+                mProcessedSamples += r.Length;
                 return r;
             }
         }

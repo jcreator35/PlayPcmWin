@@ -196,7 +196,7 @@ namespace WWMath {
             double lastSample = lastSequence[lastSequence.Length - 1];
 
             // 不足するサンプル数
-            int remain = ProcessSize - count;
+            int remain = ProcessSize + ProcessSize/2 - count;
 
             var fillData = new double[remain];
             for (int i = 0; i < remain; ++i) {
@@ -205,12 +205,20 @@ namespace WWMath {
 
             mInputList.Add(fillData);
 
-            var X = Process2(WWUtil.ListUtils<double>.ArrayListToArray(mInputList));
-            return X;
+            var outBuff = new List<WWComplex[]>();
+            while (ProcessSize <= InputSampleCount()) {
+                var X = ProcessNotFirst();
+                if (X.Length == 0) {
+                    break;
+                }
+                outBuff.Add(X);
+            }
+
+            return WWUtil.ListUtils<WWComplex>.ArrayListToArray(outBuff);
         }
 
         private WWComplex[] ProcessNotFirst() {
-            // 全入力サンプルを、入力サンプル置き場から取り出す。
+            // 入力サンプル置き場から取り出す。
             var x = GetInputSamples(ProcessSize);
             var lastHalf = new double[ProcessSize / 2];
             Array.Copy(x, ProcessSize / 2, lastHalf, 0, lastHalf.Length);
@@ -226,6 +234,8 @@ namespace WWMath {
         }
 
         private WWComplex[] Process2(double[] x) {
+            System.Diagnostics.Debug.Assert(x.Length == ProcessSize);
+
             // 入力x に窓関数wを掛ける → xw。
             var xw = Functions.Mul(x, 0, mWindow, 0, ProcessSize);
 

@@ -52,6 +52,7 @@ namespace WWAudioFilterCore {
             // このフィルタの遅延はFILTER_LENGTH/2サンプルある
 
             var delayT = new WWComplex[filterLenP1];
+            delayT[0] = WWComplex.Zero();
             for (int i = 1; i < filterLenP1 / 2; ++i) {
                 delayT[i] = fromT[i + filterLenP1 / 2];
             }
@@ -69,6 +70,9 @@ namespace WWAudioFilterCore {
             var delayTL = new WWComplex[fftLength];
             for (int i = 0; i < delayT.Length; ++i) {
                 delayTL[i] = delayT[i];
+            }
+            for (int i = delayT.Length; i < delayTL.Length; ++i) {
+                delayTL[i] = WWComplex.Zero();
             }
             delayT = null;
 

@@ -129,10 +129,12 @@ namespace WWMathTest
         public void TimeDependentFourierTransformTestHannDC() {
             var t = new WWTimeDependentForwardFourierTransform(8, WWTimeDependentForwardFourierTransform.WindowType.Hann);
             var f = new WWTimeDependentInverseFourierTransform(8);
-            var x = new double[20];
+            var x = new double[19];
             for (int i = 0; i < x.Length; ++i) {
                 x[i] = 1;
             }
+
+            f.SetNumSamples(x.Length);
 
             Test(t, f, x, 1);
         }

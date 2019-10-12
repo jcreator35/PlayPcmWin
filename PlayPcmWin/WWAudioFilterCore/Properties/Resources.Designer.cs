@@ -440,7 +440,7 @@ namespace WWAudioFilterCore.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to FFT upsample: {0}x, FFT length={1}, Overlap={2}.
+        ///   Looks up a localized string similar to FFT upsample: {0}x, FFT length={1}.
         /// </summary>
         public static string FilterFftUpsampleDesc {
             get {

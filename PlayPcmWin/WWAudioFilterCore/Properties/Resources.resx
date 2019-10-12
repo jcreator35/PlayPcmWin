@@ -242,7 +242,7 @@
     <value>Dynamic range compression: 24bit LSB gain= {0} dB</value>
   </data>
   <data name="FilterFftUpsampleDesc" xml:space="preserve">
-    <value>FFT upsample: {0}x, FFT length={1}, Overlap={2}</value>
+    <value>FFT upsample: {0}x, FFT length={1}</value>
   </data>
   <data name="FilterFirstOrderAllPassIIRDesc" xml:space="preserve">
     <value>First Order All-pass IIR Filter: a={0}</value>

@@ -206,7 +206,6 @@ namespace WWAudioFilter {
                 comboBoxUpsamplingFactor.SelectedIndex = (int)ResamplingFactorToResamplingFactorType(fftu.Factor);
                 comboBoxUpsamplerType.SelectedIndex = (int)UpsamplerType.FFT;
                 comboBoxUpsampleLen.SelectedIndex = (int)ResampleLenToUpsampleLenType(fftu.FftLength);
-                comboBoxFftOverlap.SelectedIndex = (int)fftu.Overlap;
                 break;
             case FilterType.WindowedSincUpsampler:
                 var wsu = filter as WindowedSincUpsampler;
@@ -570,8 +569,6 @@ namespace WWAudioFilter {
             int len = ResampleLenTypeToLpfLen((ResampleLenType)comboBoxUpsampleLen.SelectedIndex);
             var factorType = (UpsamplerType)comboBoxUpsamplerType.SelectedIndex;
 
-            var overlap = (FftUpsampler.OverlapType)comboBoxFftOverlap.SelectedIndex;
-
             if (!Functions.IsPowerOfTwo(factor)) {
                 switch (factorType) {
                 case UpsamplerType.FFT:
@@ -602,7 +599,7 @@ namespace WWAudioFilter {
                 mFilter = new CubicHermiteSplineUpsampler(factor);
                 break;
             case (int)UpsamplerType.FFT:
-                mFilter = new FftUpsampler(factor, len, overlap);
+                mFilter = new FftUpsampler(factor, len);
                 break;
             case (int)UpsamplerType.WindowedSinc:
                 mFilter = new WindowedSincUpsampler(factor, len - 1);
@@ -688,15 +685,12 @@ namespace WWAudioFilter {
             switch (comboBoxUpsamplerType.SelectedIndex) {
             case (int)UpsamplerType.FFT:
                 comboBoxUpsampleLen.IsEnabled = true;
-                comboBoxFftOverlap.IsEnabled = true;
                 break;
             case (int)UpsamplerType.WindowedSinc:
                 comboBoxUpsampleLen.IsEnabled = true;
-                comboBoxFftOverlap.IsEnabled = false;
                 break;
             default:
                 comboBoxUpsampleLen.IsEnabled = false;
-                comboBoxFftOverlap.IsEnabled = false;
                 break;
             }
         }

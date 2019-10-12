@@ -203,7 +203,7 @@
     <value>ダウンサンプル: {0}倍, {1}番目のサンプルを取り出す</value>
   </data>
   <data name="FilterFftUpsampleDesc" xml:space="preserve">
-    <value>FFTアップサンプル: {0}倍, FFT長={1}, オーバーラップ={2}</value>
+    <value>FFTアップサンプル: {0}倍, FFT長={1}</value>
   </data>
   <data name="FilterFirstOrderAllPassIIRDesc" xml:space="preserve">
     <value>1次のオールパスIIRフィルター: a={0}</value>
