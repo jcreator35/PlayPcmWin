@@ -9,6 +9,9 @@ namespace WWMath {
     /// Short-time Fourier Transform
     /// </summary>
     public class WWTimeDependentForwardFourierTransform {
+        /// <summary>
+        /// Hannのほうが性能が良い。
+        /// </summary>
         public enum WindowType {
             Bartlett,
             Hann,
@@ -21,6 +24,11 @@ namespace WWMath {
         private WWRadix2Fft mFFT;
         private List<double[]> mInputList = new List<double[]>();
 
+        /// <summary>
+        /// Short-time Fourier Transform for frequency domain DSP.
+        /// time domain data → freq domain data.
+        /// </summary>
+        /// <param name="processBlockSize">FFT size</param>
         public WWTimeDependentForwardFourierTransform(int processBlockSize, WindowType windowType) {
             if (!Functions.IsPowerOfTwo(processBlockSize) || processBlockSize < 4) {
                 throw new ArgumentException("processBlockSize should be power of two and 4 or larger int");

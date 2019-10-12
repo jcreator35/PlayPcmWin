@@ -6,8 +6,9 @@ namespace WWAudioFilterCore {
     public class AddFundamentalsFilter : FilterBase {
         public double Gain { get; set; }
         private int mFftLength;
-        private OverlappedFft mOverlappedFft = null;
         private PcmFormat mPcmFormat;
+        private WWTimeDependentForwardFourierTransform mFFTfwd;
+        private WWTimeDependentInverseFourierTransform mFFTinv;
 
         public AddFundamentalsFilter(double gain)
             : base(FilterType.AddFundamentals) {
@@ -45,13 +46,20 @@ namespace WWAudioFilterCore {
         }
 
         public override long NumOfSamplesNeeded() {
-            return mOverlappedFft.NumOfSamplesNeeded();
+            return mFFTfwd.WantSamples;
         }
 
         public override PcmFormat Setup(PcmFormat inputFormat) {
             mPcmFormat = new PcmFormat(inputFormat);
+
+            /* 周波数の精度 = メインローブの幅/2
+             * Bartlett窓やHann窓のとき 4π/M ラジアン、M == FFTsize
+             * 人間の耳は、超低音域の音程は長3音(=1.26倍)ずれていても気にならないという。
+             */
             mFftLength = Functions.NextPowerOf2(mPcmFormat.SampleRate);
-            mOverlappedFft = new OverlappedFft(mFftLength);
+            mFFTfwd = new WWTimeDependentForwardFourierTransform(mFftLength,
+                WWTimeDependentForwardFourierTransform.WindowType.Hann);
+            mFFTinv = new WWTimeDependentInverseFourierTransform(mFftLength);
 
             return inputFormat;
         }
@@ -62,14 +70,15 @@ namespace WWAudioFilterCore {
 
         public override void FilterEnd() {
             base.FilterEnd();
-
-            mOverlappedFft.Clear();
         }
 
         public override WWUtil.LargeArray<double> FilterDo(WWUtil.LargeArray<double> inPcmLA) {
             var inPcm = inPcmLA.ToArray();
 
-            var pcmF = mOverlappedFft.ForwardFft(inPcm);
+            var pcmF = mFFTfwd.Process(inPcm);
+            if (pcmF.Length == 0) {
+                return new WWUtil.LargeArray<double>(0);
+            }
 
             int idx20Hz = (int)(20.0 * mFftLength / mPcmFormat.SampleRate);
             int idx40Hz = (int)(40.0 * mFftLength / mPcmFormat.SampleRate);
@@ -90,7 +99,7 @@ namespace WWAudioFilterCore {
                 }
             }
 
-            return new WWUtil.LargeArray<double>(mOverlappedFft.InverseFft(pcmF));
+            return new WWUtil.LargeArray<double>(mFFTinv.Process(pcmF));
         }
     }
 }
