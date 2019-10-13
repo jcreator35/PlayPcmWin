@@ -13,9 +13,6 @@ namespace WWAudioFilterCore {
 
         private WWOverlappedFft mFFT;
 
-        private PcmFormat mInputPcmFormat;
-        private PcmFormat mOutputPcmFormat;
-
         public FftUpsampler(int factor, int fftLength)
                 : base(FilterType.FftUpsampler) {
 
@@ -66,25 +63,13 @@ namespace WWAudioFilterCore {
             return mFFT.WantSamples;
         }
 
-        public override void FilterStart() {
-            base.FilterStart();
-        }
-
-        public override void FilterEnd() {
-            base.FilterEnd();
-        }
-
         public override PcmFormat Setup(PcmFormat inputFormat) {
-            mInputPcmFormat = inputFormat;
 
             var r = new PcmFormat(inputFormat);
             r.SampleRate *= Factor;
             r.NumSamples *= Factor;
 
-            mOutputPcmFormat = r;
-
-            mFFT.SetNumOutSamples(r.NumSamples);
-
+            // mFFT.SetNumOutSamples(r.NumSamples);
             return r;
         }
 
@@ -93,9 +78,9 @@ namespace WWAudioFilterCore {
             var inPcm = inPcmLA.ToArray();
 
             // inPcmTをFFTしてinPcmFを得る。
-            var inPcmF = mFFT.ForwardFft(inPcm);
+            // inPcmFを0で水増ししたデータoutPcmFを作って逆FFTしoutPcmを得る。
 
-            // inPcmFを0で水増ししたデータoutPcmFを作ってローパスフィルターを通し逆FFTしoutPcmを得る。
+            var inPcmF = mFFT.ForwardFft(inPcm);
 
             var outPcmF = new WWComplex[UpsampleFftLength];
             for (int i=0; i < outPcmF.Length; ++i) {
