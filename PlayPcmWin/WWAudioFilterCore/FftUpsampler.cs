@@ -15,8 +15,6 @@ namespace WWAudioFilterCore {
 
         private PcmFormat mInputPcmFormat;
         private PcmFormat mOutputPcmFormat;
-        private double[] mFreqFilter;
-
 
         public FftUpsampler(int factor, int fftLength)
                 : base(FilterType.FftUpsampler) {
@@ -28,7 +26,7 @@ namespace WWAudioFilterCore {
 
             System.Diagnostics.Debug.Assert(IsPowerOfTwo(FftLength));
 
-            mFFT = new WWOverlappedFft(fftLength);
+            mFFT = new WWOverlappedFft(fftLength, fftLength * mFactor);
         }
 
         public override FilterBase CreateCopy() {
@@ -85,24 +83,9 @@ namespace WWAudioFilterCore {
 
             mOutputPcmFormat = r;
 
-            DesignFreqFilter();
-
-            mFFT.SetNumSamples(r.NumSamples);
+            mFFT.SetNumOutSamples(r.NumSamples);
 
             return r;
-        }
-
-        private void DesignFreqFilter() {
-            var filter = ButterworthFilter.Design(mInputPcmFormat.SampleRate, mInputPcmFormat.SampleRate * 0.465, FftLength, 600);
-
-            mFreqFilter = new double[UpsampleFftLength];
-            mFreqFilter[0] = filter[0].Magnitude();
-            for (int i = 1; i < mFreqFilter.Length; ++i) {
-                if (i <= FftLength / 2) {
-                    mFreqFilter[i] = filter[i].Magnitude();
-                    mFreqFilter[UpsampleFftLength - i] = mFreqFilter[i];
-                }
-            }
         }
 
         public override WWUtil.LargeArray<double> FilterDo(WWUtil.LargeArray<double> inPcmLA) {
@@ -124,7 +107,6 @@ namespace WWAudioFilterCore {
                 } else {
                     outPcmF[i] = WWComplex.Zero();
                 }
-                outPcmF[i] = WWComplex.Mul(outPcmF[i], mFreqFilter[i]);
             }
             inPcmF = null;
 
