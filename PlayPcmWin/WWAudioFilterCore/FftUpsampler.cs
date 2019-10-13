@@ -6,17 +6,12 @@ namespace WWAudioFilterCore {
     public class FftUpsampler : FilterBase {
         private const int DEFAULT_FFT_LENGTH = 262144;
 
-        public int Factor { get; set; }
-        public int FftLength { get; set; }
+        private int mFactor;
+        public int Factor { get { return mFactor; } }
+        public int FftLength { get { return mFFT.FftLength; } }
         public int UpsampleFftLength { get { return FftLength * Factor; } }
 
-        private WWTimeDependentForwardFourierTransform mFFTfwd;
-        private WWTimeDependentInverseFourierTransform mFFTinv;
-        private int OverlapLength {
-            get {
-                return FftLength / 2;
-            }
-        }
+        private WWOverlappedFft mFFT;
 
         private PcmFormat mInputPcmFormat;
         private PcmFormat mOutputPcmFormat;
@@ -29,13 +24,11 @@ namespace WWAudioFilterCore {
             if (factor <= 1 || !IsPowerOfTwo(factor)) {
                 throw new ArgumentException("factor must be power of two integer and larger than 1");
             }
-            Factor = factor;
+            mFactor = factor;
 
-            FftLength = fftLength;
             System.Diagnostics.Debug.Assert(IsPowerOfTwo(FftLength));
 
-            mFFTfwd = new WWTimeDependentForwardFourierTransform(fftLength, WWTimeDependentForwardFourierTransform.WindowType.Hann);
-            mFFTinv = new WWTimeDependentInverseFourierTransform(fftLength * factor);
+            mFFT = new WWOverlappedFft(fftLength);
         }
 
         public override FilterBase CreateCopy() {
@@ -72,7 +65,7 @@ namespace WWAudioFilterCore {
         }
 
         public override long NumOfSamplesNeeded() {
-            return mFFTfwd.WantSamples;
+            return mFFT.WantSamples;
         }
 
         public override void FilterStart() {
@@ -94,7 +87,7 @@ namespace WWAudioFilterCore {
 
             DesignFreqFilter();
 
-            mFFTinv.SetNumSamples(r.NumSamples);
+            mFFT.SetNumSamples(r.NumSamples);
 
             return r;
         }
@@ -120,9 +113,9 @@ namespace WWAudioFilterCore {
 
             // inPcmTをFFTしてinPcmFを得る。
             if (inPcm.Length == 0) {
-                inPcmF = mFFTfwd.Drain();
+                inPcmF = mFFT.Drain();
             } else {
-                inPcmF = mFFTfwd.Process(inPcm);
+                inPcmF = mFFT.ForwardFft(inPcm);
             }
 
             // inPcmFを0で水増ししたデータoutPcmFを作ってローパスフィルターを通し逆FFTしoutPcmを得る。
@@ -141,7 +134,7 @@ namespace WWAudioFilterCore {
             }
             inPcmF = null;
 
-            var outPcm = mFFTinv.Process(outPcmF);
+            var outPcm = mFFT.InverseFft(outPcmF);
             outPcmF = null;
 
             return new WWUtil.LargeArray<double>(outPcm);

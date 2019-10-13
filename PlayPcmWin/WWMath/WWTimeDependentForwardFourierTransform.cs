@@ -62,6 +62,9 @@ namespace WWMath {
             get { return mProcessBlockSize / 2; }
         }
 
+        /// <summary>
+        /// returns FFT size
+        /// </summary>
         public int ProcessSize {
             get { return mProcessBlockSize; }
         }

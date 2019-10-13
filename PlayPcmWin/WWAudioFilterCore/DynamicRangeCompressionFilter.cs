@@ -10,7 +10,7 @@ namespace WWAudioFilterCore {
         private const int    FFT_LENGTH  = 4096;
         private const double LSB_DECIBEL = -144.0;
 
-        OverlappedFft mOverlappedFft = null;
+        WWOverlappedFft mOverlappedFft = null;
 
         public DynamicRangeCompressionFilter(double lsbScalingDb)
                 : base(FilterType.DynamicRangeCompression) {
@@ -18,7 +18,7 @@ namespace WWAudioFilterCore {
         }
 
         public override long NumOfSamplesNeeded() {
-            return mOverlappedFft.NumOfSamplesNeeded();
+            return mOverlappedFft.WantSamples;
         }
 
         public override FilterBase CreateCopy() {
@@ -48,24 +48,32 @@ namespace WWAudioFilterCore {
             return new DynamicRangeCompressionFilter(lsbScalingDb);
         }
 
+        public override PcmFormat Setup(PcmFormat inputFormat) {
+            mOverlappedFft.SetNumSamples(inputFormat.NumSamples);
+            return inputFormat;
+        }
+
         public override void FilterStart() {
             base.FilterStart();
-            mOverlappedFft = new OverlappedFft(FFT_LENGTH);
+            mOverlappedFft = new WWOverlappedFft(FFT_LENGTH);
         }
 
         public override void FilterEnd() {
             base.FilterEnd();
-
-            mOverlappedFft.Clear();
         }
 
 
         public override WWUtil.LargeArray<double> FilterDo(WWUtil.LargeArray<double> inPcmLA) {
-            var inPcm = inPcmLA.ToArray();
-            var pcmF = mOverlappedFft.ForwardFft(inPcm);
+            WWComplex[] pcmF = null;
+
+            if (inPcmLA.LongLength == 0) {
+                pcmF = mOverlappedFft.Drain();
+            } else {
+                var inPcm = inPcmLA.ToArray();
+                pcmF = mOverlappedFft.ForwardFft(inPcm);
+            }
 
             double scaleLsb = Math.Pow(10, LsbScalingDb / 20.0);
-
             double maxMagnitude = FFT_LENGTH / 2;
 
             for (int i = 0; i < pcmF.Length; ++i) {

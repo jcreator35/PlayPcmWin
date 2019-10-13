@@ -38,10 +38,16 @@ namespace WWMath {
             mNumSamples = numSamples;
         }
 
+        /// <summary>
+        /// required data size to start IFFT (== ProcessSize)
+        /// </summary>
         public int WantSamples {
             get { return mProcessBlockSize; }
         }
 
+        /// <summary>
+        /// FFT size
+        /// </summary>
         public int ProcessSize {
             get { return mProcessBlockSize; }
         }
@@ -92,8 +98,12 @@ namespace WWMath {
         }
 
         public double[] Process(WWComplex[] X) {
-            System.Diagnostics.Debug.Assert(0 < X.Length);
-            mInputList.Add(X);
+            if (0 < X.Length) {
+                mInputList.Add(X);
+            }
+            if ((X.Length % WantSamples) != 0) {
+                throw new ArgumentException("X should be multiply of WantSamples");
+            }
 
             var outBuff = new List<double[]>();
 
