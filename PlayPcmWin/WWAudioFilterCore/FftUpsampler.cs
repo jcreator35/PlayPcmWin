@@ -109,14 +109,8 @@ namespace WWAudioFilterCore {
             System.Diagnostics.Debug.Assert(inPcmLA.LongLength == NumOfSamplesNeeded());
             var inPcm = inPcmLA.ToArray();
 
-            WWComplex [] inPcmF = null;
-
             // inPcmTをFFTしてinPcmFを得る。
-            if (inPcm.Length == 0) {
-                inPcmF = mFFT.Drain();
-            } else {
-                inPcmF = mFFT.ForwardFft(inPcm);
-            }
+            var inPcmF = mFFT.ForwardFft(inPcm);
 
             // inPcmFを0で水増ししたデータoutPcmFを作ってローパスフィルターを通し逆FFTしoutPcmを得る。
 

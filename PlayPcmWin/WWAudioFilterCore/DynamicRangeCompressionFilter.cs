@@ -10,15 +10,16 @@ namespace WWAudioFilterCore {
         private const int    FFT_LENGTH  = 4096;
         private const double LSB_DECIBEL = -144.0;
 
-        WWOverlappedFft mOverlappedFft = null;
+        WWOverlappedFft mFFT = null;
 
         public DynamicRangeCompressionFilter(double lsbScalingDb)
                 : base(FilterType.DynamicRangeCompression) {
             LsbScalingDb = lsbScalingDb;
+            mFFT = new WWOverlappedFft(FFT_LENGTH);
         }
 
         public override long NumOfSamplesNeeded() {
-            return mOverlappedFft.WantSamples;
+            return mFFT.WantSamples;
         }
 
         public override FilterBase CreateCopy() {
@@ -48,14 +49,9 @@ namespace WWAudioFilterCore {
             return new DynamicRangeCompressionFilter(lsbScalingDb);
         }
 
-        public override PcmFormat Setup(PcmFormat inputFormat) {
-            mOverlappedFft.SetNumSamples(inputFormat.NumSamples);
-            return inputFormat;
-        }
-
         public override void FilterStart() {
             base.FilterStart();
-            mOverlappedFft = new WWOverlappedFft(FFT_LENGTH);
+            mFFT = new WWOverlappedFft(FFT_LENGTH);
         }
 
         public override void FilterEnd() {
@@ -64,14 +60,12 @@ namespace WWAudioFilterCore {
 
 
         public override WWUtil.LargeArray<double> FilterDo(WWUtil.LargeArray<double> inPcmLA) {
-            WWComplex[] pcmF = null;
-
             if (inPcmLA.LongLength == 0) {
-                pcmF = mOverlappedFft.Drain();
-            } else {
-                var inPcm = inPcmLA.ToArray();
-                pcmF = mOverlappedFft.ForwardFft(inPcm);
+                return new WWUtil.LargeArray<double>(0);
             }
+
+            var inPcm = inPcmLA.ToArray();
+            var pcmF = mFFT.ForwardFft(inPcm);
 
             double scaleLsb = Math.Pow(10, LsbScalingDb / 20.0);
             double maxMagnitude = FFT_LENGTH / 2;
@@ -105,7 +99,7 @@ namespace WWAudioFilterCore {
                 pcmF[i] = WWComplex.Mul(pcmF[i], scale);
             }
 
-            return new WWUtil.LargeArray<double>(mOverlappedFft.InverseFft(pcmF));
+            return new WWUtil.LargeArray<double>(mFFT.InverseFft(pcmF));
         }
     }
 }
