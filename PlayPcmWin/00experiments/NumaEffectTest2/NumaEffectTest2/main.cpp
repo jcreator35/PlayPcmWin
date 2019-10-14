@@ -125,7 +125,7 @@ MeasureMemorySpeed(int64_t allocBytes)
     for (int repeat = 0; repeat < BENCHMARK_REPEAT_COUNT; ++repeat) {
         printf("Test %d/%d\n", repeat+1, BENCHMARK_REPEAT_COUNT);
 
-        printf("Logical processor id, Memory NUMA node id, elapsed time in millisec\n");
+        printf("Logical processor id, Memory NUMA node id, elapsed time in sec, Gbytes/sec\n");
         for (int i = 0; i < nt.NumOfProcessors(); i++) {
             SetThreadAffinityMask(GetCurrentThread(), 1 << i);
 
@@ -141,8 +141,11 @@ MeasureMemorySpeed(int64_t allocBytes)
                 MemoryWriteTest(buff, allocBytes);
 
                 QueryPerformanceCounter(&after);
-                printf("%d, %d, %lld\n",
-                    i, numaNodeId, (after.QuadPart - before.QuadPart) / (freq.QuadPart / 1000));
+
+                double elapsedSec = (double)(after.QuadPart - before.QuadPart) / (double)(freq.QuadPart);
+
+                printf("%d, %d, %f, %f\n",
+                    i, numaNodeId, elapsedSec, allocBytes / elapsedSec / 1000/1000/1000);
             }
         }
 
@@ -220,9 +223,9 @@ MallocSleepTest(int64_t allocBytes)
 static void
 PrintUsage(const wchar_t *programName)
 {
-    printf("%s printconfig\n"
+    printf("%S printconfig\n"
         "    print numa configuration\n"
-        "%s [benchmark|malloctest|mallocsleeptest] allocationSize\n"
+        "%S [benchmark|malloctest|mallocsleeptest] allocationSize\n"
         "    perform benchmarks. allocationSize is number in MB",
         programName, programName);
 }
