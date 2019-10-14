@@ -84,6 +84,7 @@
     <Compile Include="CubicHermiteSplineUpsampler.cs" />
     <Compile Include="Downsampler.cs" />
     <Compile Include="DynamicRangeCompressionFilter.cs" />
+    <Compile Include="FftDownsampler.cs" />
     <Compile Include="FftUpsampler.cs" />
     <Compile Include="FilterBase.cs" />
     <Compile Include="FilterFactory.cs" />

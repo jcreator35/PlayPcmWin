@@ -348,6 +348,12 @@ namespace WWAudioFilter {
                     comboBoxDownsampleLen.SelectedIndex = (int)ResampleLenToUpsampleLenType(f.WindowLength + 1);
                 }
                 break;
+            case FilterType.FftDownsampler:
+                var fftd = filter as FftDownsampler;
+                comboBoxDownsamplingFactor.SelectedIndex = (int)ResamplingFactorToResamplingFactorType(fftd.Factor);
+                comboBoxDownsampleType.SelectedIndex = (int)DownsamplerType.FFT;
+                comboBoxDownsampleLen.SelectedIndex = (int)ResampleLenToUpsampleLenType(fftd.BeforeFftLength);
+                break;
             case FilterType.OnebitConversion:
                 break;
             }
@@ -736,6 +742,7 @@ namespace WWAudioFilter {
             Pick0,
             Pick1,
             WindowedSinc,
+            FFT,
         };
 
         private void buttonUseDownsampler_Click(object sender, RoutedEventArgs e) {
@@ -752,6 +759,12 @@ namespace WWAudioFilter {
                 break;
             case DownsamplerType.WindowedSinc:
                 mFilter = new WindowedSincDownsampler(factor, len - 1);
+                break;
+            case DownsamplerType.FFT:
+                mFilter = new FftDownsampler(factor, len);
+                break;
+            default:
+                System.Diagnostics.Debug.Assert(false);
                 break;
             }
 

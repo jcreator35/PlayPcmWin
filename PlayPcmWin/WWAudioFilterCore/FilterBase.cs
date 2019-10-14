@@ -32,19 +32,23 @@ namespace WWAudioFilterCore {
         Normalize,
         AddFundamentals,
         LineDrawUpsampler,
+
         CubicHermiteSplineUpsampler,
         ReduceBitDepth,
         FirstOrderAllPassIIR,
         SecondOrderAllPassIIR,
         WindowedSincUpsampler,
+        
         SubsonicFilter,
         TimeReversal,
         ZohNosdacCompensation,
         WindowedSincDownsampler,
         AWeighting,
+        
         ITUR4684Weighting,
         OnebitConversion,
         RandomNoise,
+        FftDownsampler,
     }
 
     public struct TagData {

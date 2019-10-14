@@ -440,6 +440,15 @@ namespace WWAudioFilterCore.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to FFT downsample: {0}x, FFT length={1}.
+        /// </summary>
+        public static string FilterFftDownsampleDesc {
+            get {
+                return ResourceManager.GetString("FilterFftDownsampleDesc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to FFT upsample: {0}x, FFT length={1}.
         /// </summary>
         public static string FilterFftUpsampleDesc {

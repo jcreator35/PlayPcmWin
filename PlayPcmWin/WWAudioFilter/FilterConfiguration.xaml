@@ -154,7 +154,8 @@
                             <ComboBox HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Grid.Row="1" Grid.Column="1" Name="comboBoxDownsampleType" VerticalAlignment="Center" Grid.ColumnSpan="2" Margin="0,8" SelectionChanged="comboBoxDownsampleType_SelectionChanged">
                                 <ComboBoxItem x:Name="cbItemDownsamplerOption0" Content="pick 1st sample from incoming f samples" />
                                 <ComboBoxItem x:Name="cbItemDownsamplerOption1" Content="pick 2nd sample from incoming f samples" />
-                                <ComboBoxItem x:Name="cbItemWindowedSincDownsampler" Content="Windowed Sinc Downsampler" IsSelected="True" />
+                                <ComboBoxItem x:Name="cbItemWindowedSincDownsampler" Content="Windowed Sinc Downsampler" />
+                                <ComboBoxItem x:Name="cbItemFftDownsampler" Content="FFT Downsampler" IsSelected="True" />
                             </ComboBox>
                             <Label Grid.Column="0" Grid.Row="2" Content="Filter length:" Name="labelDownsampleLen" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
                             <ComboBox Grid.Column="1" Grid.Row="2" HorizontalAlignment="Stretch" Margin="6,0" Name="comboBoxDownsampleLen" VerticalAlignment="Center" HorizontalContentAlignment="Center" >

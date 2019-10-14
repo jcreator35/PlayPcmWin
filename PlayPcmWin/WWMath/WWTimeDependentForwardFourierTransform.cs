@@ -24,6 +24,8 @@ namespace WWMath {
         private WWRadix2Fft mFFT;
         private List<double[]> mInputList = new List<double[]>();
 
+        private double mGain = 1.0;
+
         /// <summary>
         /// Short-time Fourier Transform for frequency domain DSP.
         /// time domain data → freq domain data.
@@ -40,6 +42,13 @@ namespace WWMath {
             PrepareWindow(processBlockSize + 1, windowType);
 
             mFFT = new WWRadix2Fft(processBlockSize);
+        }
+
+        /// <summary>
+        /// FFTのゲイン。デフォルト=1.0
+        /// </summary>
+        public void SetGain(double gain) {
+            mGain = gain;
         }
 
         private void PrepareWindow(int windowSize, WindowType windowType) {
@@ -243,7 +252,7 @@ namespace WWMath {
             var xw = Functions.Mul(x, 0, mWindow, 0, ProcessSize);
 
             // DFTする。
-            var X = mFFT.ForwardFft(WWComplex.FromRealArray(xw));
+            var X = mFFT.ForwardFft(WWComplex.FromRealArray(xw), mGain);
 
             return X;
         }

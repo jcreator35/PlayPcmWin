@@ -3,40 +3,45 @@ using System.Globalization;
 using WWMath;
 
 namespace WWAudioFilterCore {
-    public class FftUpsampler : FilterBase {
+    public class FftDownsampler : FilterBase {
         private const int DEFAULT_FFT_LENGTH = 262144;
 
         private int mFactor;
         public int Factor { get { return mFactor; } }
-        public int FftLength { get { return mFFT.FftLength; } }
-        public int UpsampleFftLength { get { return FftLength * Factor; } }
+        public int BeforeFftLength { get { return mFFT.FftLength; } }
+        public int AfterFftLength { get { return BeforeFftLength / Factor; } }
 
         private WWOverlappedFft mFFT;
 
-        public FftUpsampler(int factor, int fftLength)
-                : base(FilterType.FftUpsampler) {
+        public FftDownsampler(int factor, int fftLength)
+                : base(FilterType.FftDownsampler) {
 
             if (factor <= 1 || !IsPowerOfTwo(factor)) {
                 throw new ArgumentException("factor must be power of two integer and larger than 1");
             }
+
+            if (fftLength < factor * 4) {
+                throw new ArgumentException("factor must be equal or smaller than fftLength/4");
+            }
+
             mFactor = factor;
 
             System.Diagnostics.Debug.Assert(IsPowerOfTwo(fftLength));
 
-            mFFT = new WWOverlappedFft(fftLength, fftLength * mFactor);
-            mFFT.SetGain(mFactor);
+            mFFT = new WWOverlappedFft(fftLength, fftLength / mFactor);
+            mFFT.SetGain(1.0 / mFactor);
         }
 
         public override FilterBase CreateCopy() {
-            return new FftUpsampler(Factor, FftLength);
+            return new FftDownsampler(Factor, BeforeFftLength);
         }
 
         public override string ToDescriptionText() {
-            return string.Format(CultureInfo.CurrentCulture, Properties.Resources.FilterFftUpsampleDesc, Factor, FftLength);
+            return string.Format(CultureInfo.CurrentCulture, Properties.Resources.FilterFftDownsampleDesc, Factor, BeforeFftLength);
         }
 
         public override string ToSaveText() {
-            return string.Format(CultureInfo.InvariantCulture, "{0} {1}", Factor, FftLength);
+            return string.Format(CultureInfo.InvariantCulture, "{0} {1}", Factor, BeforeFftLength);
         }
 
         public static FilterBase Restore(string[] tokens) {
@@ -57,7 +62,7 @@ namespace WWAudioFilterCore {
                 }
             }
 
-            return new FftUpsampler(factor, fftLength);
+            return new FftDownsampler(factor, fftLength);
         }
 
         public override long NumOfSamplesNeeded() {
@@ -67,8 +72,8 @@ namespace WWAudioFilterCore {
         public override PcmFormat Setup(PcmFormat inputFormat) {
 
             var r = new PcmFormat(inputFormat);
-            r.SampleRate *= Factor;
-            r.NumSamples *= Factor;
+            r.SampleRate /= Factor;
+            r.NumSamples /= Factor;
 
             // mFFT.SetNumOutSamples(r.NumSamples);
             return r;
@@ -79,17 +84,17 @@ namespace WWAudioFilterCore {
             var inPcm = inPcmLA.ToArray();
 
             // inPcmTをFFTしてinPcmFを得る。
-            // inPcmFを0で水増ししたデータoutPcmFを作って逆FFTしoutPcmを得る。
+            // inPcmFの低周波成分を取り出しoutPcmFを作って逆FFTしoutPcmを得る。
 
             var inPcmF = mFFT.ForwardFft(inPcm);
 
-            var outPcmF = new WWComplex[UpsampleFftLength];
+            var outPcmF = new WWComplex[AfterFftLength];
 
             for (int i=0; i < outPcmF.Length; ++i) {
-                if (i <= FftLength / 2) {
+                if (i <= outPcmF.Length / 2) {
                     outPcmF[i] = inPcmF[i];
-                } else if (UpsampleFftLength - FftLength / 2 <= i) {
-                    int pos = i + FftLength - UpsampleFftLength;
+                } else if (outPcmF.Length/ 2 <= i) {
+                    int pos = i + BeforeFftLength - AfterFftLength;
                     outPcmF[i] = inPcmF[pos];
                 } else {
                     outPcmF[i] = WWComplex.Zero();

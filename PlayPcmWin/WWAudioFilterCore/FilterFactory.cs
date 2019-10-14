@@ -114,10 +114,6 @@ namespace WWAudioFilterCore {
                 return GainFilter.Restore(tokens);
             case "ZohUpsampler":
                 return ZeroOrderHoldUpsampler.Restore(tokens);
-            case "LineDrawUpsampler":
-                return LineDrawUpsampler.Restore(tokens);
-            case "CubicHermiteSplineUpsampler":
-                return CubicHermiteSplineUpsampler.Restore(tokens);
             case "LowPassFilter":
                 return LowpassFilter.Restore(tokens);
             case "FftUpsampler":
@@ -146,14 +142,20 @@ namespace WWAudioFilterCore {
                 return JitterAddFilter.Restore(tokens);
             case "GaussianNoise":
                 return GaussianNoiseFilter.Restore(tokens);
-            case "RandomNoise":
-                return RandomNoiseFilter.Restore(tokens);
+
             case "DynamicRangeCompression":
                 return DynamicRangeCompressionFilter.Restore(tokens);
             case "UnevenBitDac":
                 return UnevenBitDacFilter.Restore(tokens);
             case "Normalize":
                 return NormalizeFilter.Restore(tokens);
+            case "AddFundamentals":
+                return AddFundamentalsFilter.Restore(tokens);
+            case "LineDrawUpsampler":
+                return LineDrawUpsampler.Restore(tokens);
+
+            case "CubicHermiteSplineUpsampler":
+                return CubicHermiteSplineUpsampler.Restore(tokens);
             case "ReduceBitDepth":
                 return ReduceBitDepth.Restore(tokens);
             case "FirstOrderAllPassIIR":
@@ -162,6 +164,7 @@ namespace WWAudioFilterCore {
                 return SecondOrderAllPassIIRFilter.Restore(tokens);
             case "WindowedSincUpsampler":
                 return WindowedSincUpsampler.Restore(tokens);
+
             case "SubsonicFilter":
                 return SubsonicFilter.Restore(tokens);
             case "TimeReversal":
@@ -172,10 +175,16 @@ namespace WWAudioFilterCore {
                 return WindowedSincDownsampler.Restore(tokens);
             case "AWeighting":
                 return AWeightingFilter.Restore(tokens);
+
             case "ITUR4684Weighting":
                 return ITUR4684WeightingFilter.Restore(tokens);
             case "OnebitConversion":
                 return OnebitConversionFilter.Restore(tokens);
+            case "RandomNoise":
+                return RandomNoiseFilter.Restore(tokens);
+            case "FftDownsampler":
+                return FftDownsampler.Restore(tokens);
+
             default:
                 return null;
             }

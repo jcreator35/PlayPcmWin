@@ -34,6 +34,10 @@ namespace WWMath {
             }
         }
 
+        public void SetGain(double gain) {
+            mFFTfwd.SetGain(gain);
+        }
+
         public WWComplex[] ForwardFft(double[] timeDomain) {
             return mFFTfwd.Process(timeDomain);
         }

@@ -450,4 +450,7 @@
   <data name="RandomNoiseDesc" xml:space="preserve">
     <value>ランダムノイズ加算: {0} {1} dB</value>
   </data>
+  <data name="FilterFftDownsampleDesc" xml:space="preserve">
+    <value>FFTダウンサンプル: {0}倍, FFT長={1}</value>
+  </data>
 </root>

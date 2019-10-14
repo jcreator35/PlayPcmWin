@@ -354,4 +354,7 @@ Processing...
   <data name="RandomNoiseDesc" xml:space="preserve">
     <value>Add Random noise: {0} {1} dB</value>
   </data>
+  <data name="FilterFftDownsampleDesc" xml:space="preserve">
+    <value>FFT downsample: {0}x, FFT length={1}</value>
+  </data>
 </root>
