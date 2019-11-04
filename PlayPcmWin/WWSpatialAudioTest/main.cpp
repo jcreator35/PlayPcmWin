@@ -50,7 +50,7 @@ Run(void)
 
     int devNr = atoi(devNrStr);
     HRG(sa.ChooseDevice(devNr));
-    HRG(sa.ActivateAudioStream(1));
+    HRG(sa.ActivateAudioStream(32));
     
 
     das.buffer = (BYTE*)PrepareSound(nBufBytes);
