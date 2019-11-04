@@ -153,11 +153,15 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="WWGuidToStr.cpp" />
+    <ClCompile Include="WWPrintDeviceProp.cpp" />
     <ClCompile Include="WWSpatialAudioUser.cpp" />
     <ClCompile Include="WWUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="WWDynamicAudioStreamChannel.h" />
     <ClInclude Include="WWGuidToStr.h" />
+    <ClInclude Include="WWPrintDeviceProp.h" />
+    <ClInclude Include="WWSpatialAudioObjects.h" />
     <ClInclude Include="WWSpatialAudioUser.h" />
     <ClInclude Include="WWUtil.h" />
   </ItemGroup>

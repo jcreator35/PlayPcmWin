@@ -1,3 +1,4 @@
+﻿// 日本語
 #include "WWGuidToStr.h"
 #include <mmdeviceapi.h>
 #include <MMDeviceAPI.h>

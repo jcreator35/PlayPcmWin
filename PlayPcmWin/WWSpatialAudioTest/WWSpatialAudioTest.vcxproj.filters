@@ -27,6 +27,9 @@
     <ClCompile Include="WWGuidToStr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="WWPrintDeviceProp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WWSpatialAudioUser.h">
@@ -36,6 +39,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="WWGuidToStr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWDynamicAudioStreamChannel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWPrintDeviceProp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWSpatialAudioObjects.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

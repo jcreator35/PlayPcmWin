@@ -1,3 +1,4 @@
+﻿// 日本語
 #include "WWUtil.h"
 #include <Windows.h>
 #include <stdio.h>

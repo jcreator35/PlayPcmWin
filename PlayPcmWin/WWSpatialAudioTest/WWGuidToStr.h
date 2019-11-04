@@ -1,3 +1,4 @@
+﻿// 日本語
 #pragma once
 
 #include <guiddef.h>

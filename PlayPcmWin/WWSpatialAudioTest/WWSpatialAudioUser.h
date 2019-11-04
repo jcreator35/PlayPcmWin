@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <Windows.h>
 #include <MMDeviceAPI.h>
 #include <AudioClient.h>
@@ -9,6 +9,9 @@
 #include <SpatialAudioMetadata.h>
 #include <devicetopology.h>
 #include <set>
+#include <list>
+// 日本語
+#include "WWSpatialAudioObjects.h"
 
 #define WW_DEVICE_NAME_COUNT (256)
 
@@ -29,8 +32,6 @@ struct WWDeviceInf {
 
 class WWSpatialAudioUser {
 public:
-    WWSpatialAudioUser(void) : mComInit(false), mDeviceCollection(nullptr), mDeviceToUse(nullptr),
-            mSAClient(nullptr) { }
     HRESULT Init(void);
     void Term(void);
 
@@ -41,36 +42,44 @@ public:
     // when unchoosing device, call ChooseDevice(-1)
     HRESULT ChooseDevice(int id);
 
-    HRESULT PrintDeviceProperties(int id);
+    HRESULT ActivateAudioStream(int maxDynObjectCount);
 
-    HRESULT PrintDeviceTopo(int id);
+    /// @param dasc [inout] 成功するとdasc.idxにユニークな番号が書き込まれる。
+    HRESULT AddStream(WWDynamicAudioStreamChannel &dasc);
+
+    /// @param dascIdx dasc.idxを渡す。
+    /// @param x 右が+ (左が-) 単位メートル
+    /// @param y 上が+ (下が-) 単位メートル
+    /// @param z 後ろが+ (前は-)。単位メートル。
+    /// @param volume 0～1
+    bool SetPosVolume(int dascIdx, float x, float y, float z, float volume);
+
+    void DeactivateAudioStream(void);
+
+    int PlayStreamCount(void);
 
 private:
-    bool mComInit;
+    bool mComInit = false;
     std::vector<WWDeviceInf> mDeviceInf;
-    IMMDeviceCollection *mDeviceCollection;
-    IMMDevice *mDeviceToUse;
+    IMMDeviceCollection *mDeviceCollection = nullptr;
+    IMMDevice *mDeviceToUse = nullptr;
 
-    ISpatialAudioClient *mSAClient;
-    std::set<IConnector *> mConnSet;
-    std::set<IDeviceTopology *>mTopoSet;
+    UINT mMaxDynamicObjectCount = 0;
+    int mNextDynStreamIdx = 0;
 
-    HRESULT PrintDeviceTopo1(int layer, IDeviceTopology *topo);
-    HRESULT PrintConnector(int layer, IConnector *conn);
-    HRESULT PrintPart(int layer, IPart *part);
-    HRESULT PrintSubunit(int layer, ISubunit *subUnit);
-    HRESULT PrintAudioMute(int layer, IAudioMute *am);
-    HRESULT PrintAudioVolumeLevel(int layer, IAudioVolumeLevel *avl);
-    HRESULT PrintAudioPeakMeter(int layer, IAudioPeakMeter *apm);
-    HRESULT PrintAudioAutoGainControl(int layer, IAudioAutoGainControl *agc);
-    HRESULT PrintAudioBass(int layer, IAudioBass *ab);
-    HRESULT PrintAudioChannelConfig(int layer, IAudioChannelConfig *acc);
-    HRESULT PrintAudioInputSelector(int layer, IAudioInputSelector *ais);
-    HRESULT PrintAudioLoudness(int layer, IAudioLoudness *al);
-    HRESULT PrintAudioMidrange(int layer, IAudioMidrange *amid);
-    HRESULT PrintAudioOutputSelector(int layer, IAudioOutputSelector *aos);
-    HRESULT PrintAudioTreble(int layer, IAudioTreble *atre);
-    HRESULT PrintKsJackDesc(int layer, IKsJackDescription *jd);
-    HRESULT PrintKsFormatSupport(int layer, IKsFormatSupport *fs);
-    HRESULT PrintControlInterface(int layer, int id, IControlInterface *ci);
+    ISpatialAudioClient             *mSAClient = nullptr;
+    ISpatialAudioObjectRenderStream *mSAORStream = nullptr;
+    WWSpatialAudioObjects            mSAObjects;
+    HANDLE mEvent = nullptr;
+
+    WAVEFORMATEXTENSIBLE mUseFmt = { 0 };
+    HANDLE mRenderThread = nullptr;
+    HANDLE mMutex = nullptr;
+    HANDLE mShutdownEvent = nullptr;
+    int    mPlayStreamCount = 0;
+
+    static DWORD RenderEntry(LPVOID lpThreadParameter);
+    HRESULT RenderMain(void);
+    HRESULT Render1(void);
 };
+
