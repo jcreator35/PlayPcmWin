@@ -817,7 +817,10 @@ WWGuidToStr(GUID &t)
     }
 
     OLECHAR* guidString = nullptr;
-    StringFromCLSID(t, &guidString);
+    HRESULT hr = StringFromCLSID(t, &guidString);
+    if (FAILED(hr)) {
+        return "Unknown";
+    }
 
     char s[256];
     sprintf_s(s, "Unknown%S", guidString);

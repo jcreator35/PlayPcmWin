@@ -154,15 +154,21 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="WWGuidToStr.cpp" />
     <ClCompile Include="WWPrintDeviceProp.cpp" />
+    <ClCompile Include="WWSpatialAudioHrtfUser.cpp" />
     <ClCompile Include="WWSpatialAudioUser.cpp" />
     <ClCompile Include="WWUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="WWDynamicAudioStreamChannel.h" />
+    <ClInclude Include="WWDeviceInf.h" />
+    <ClInclude Include="WWDynAudioHrtfObject.h" />
+    <ClInclude Include="WWDynAudioObject.h" />
+    <ClInclude Include="WWDynAudioObjectTemplate.h" />
     <ClInclude Include="WWGuidToStr.h" />
     <ClInclude Include="WWPrintDeviceProp.h" />
-    <ClInclude Include="WWSpatialAudioObjects.h" />
+    <ClInclude Include="WWSpatialAudioHrtfUser.h" />
+    <ClInclude Include="WWDynAudioObjectListTemplate.h" />
     <ClInclude Include="WWSpatialAudioUser.h" />
+    <ClInclude Include="WWSpatialAudioUserTemplate.h" />
     <ClInclude Include="WWUtil.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

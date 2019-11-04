@@ -3,6 +3,7 @@
 
 #include <Windows.h>
 #include <comdef.h>
+#include <MMDeviceAPI.h>
 
 void WWErrorDescription(HRESULT hr);
 
@@ -57,3 +58,9 @@ template <class T> void SafeRelease(T **ppT)
     }
 }
 
+/// q[0] == x, q[1] ==y, q[2] == z, q[3] == w
+void WWQuaternionToRowMajorRotMat(const float q[4], float m_return[9]);
+
+HRESULT
+WWDeviceNameGet(
+    IMMDeviceCollection *dc, UINT id, wchar_t *name, size_t nameBytes);
