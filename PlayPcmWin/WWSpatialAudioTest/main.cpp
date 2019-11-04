@@ -31,7 +31,7 @@ Run(void)
     WWDynamicAudioStreamChannel das;
     const int soundSec = 8;
     const int nBufBytes = soundSec * 48000 * sizeof(float);
-
+    
     sa.Init();
 
     sa.DoDeviceEnumeration();
@@ -81,6 +81,10 @@ end:
 int
 main(void)
 {
+    // _CrtSetBreakAlloc(35);
+    // COM leak cannot be detected by debug heap manager ...
+    _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+
     Run();
     return 0;
 }

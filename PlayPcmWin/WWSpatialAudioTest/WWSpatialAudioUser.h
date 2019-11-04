@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿// 日本語
+#pragma once
 #include <Windows.h>
 #include <MMDeviceAPI.h>
 #include <AudioClient.h>
@@ -10,7 +11,6 @@
 #include <devicetopology.h>
 #include <set>
 #include <list>
-// 日本語
 #include "WWSpatialAudioObjects.h"
 
 #define WW_DEVICE_NAME_COUNT (256)

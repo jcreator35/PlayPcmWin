@@ -401,7 +401,10 @@ WWSpatialAudioUser::ActivateAudioStream(int dynObjectCount)
     mSAORStream->Start();
 
 end:
-    //PropVariantClear(&pv);
+    // blobの指す先はdelete不可。
+    pv.blob.cbSize = 0;
+    pv.blob.pBlobData = nullptr;
+    PropVariantClear(&pv);
 
     return hr;
 }
