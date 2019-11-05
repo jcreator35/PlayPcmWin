@@ -10,6 +10,9 @@
 
 using namespace std;
 
+#define TEST_SA
+//#define TEST_SA_HRTF
+
 static const int MAX_DYN_STREAM = 16;
 
 // Creates full scale white noise
@@ -27,12 +30,13 @@ PrepareSound(int bytes)
     return r;
 }
 
+#ifdef TEST_SA
 static int
 Run(void)
 {
     HRESULT hr = S_OK;
     WWSpatialAudioUser sa;
-    WWDynAudioObject das;
+    WWDynAudioObject dyn;
     const int soundSec = 8;
     const int nBufBytes = soundSec * 48000 * sizeof(float);
     
@@ -55,12 +59,12 @@ Run(void)
     int devNr = atoi(devNrStr);
     HRG(sa.ChooseDevice(devNr, MAX_DYN_STREAM));
     
-    das.buffer = (BYTE*)PrepareSound(nBufBytes);
-    das.bufferBytes = nBufBytes;
-    das.SetPos3D(1.0f, 0, 0.0f);
-    das.volume = 1.0f;
+    dyn.buffer = (BYTE*)PrepareSound(nBufBytes);
+    dyn.bufferBytes = nBufBytes;
+    dyn.SetPos3D(1.0f, 0, 0.0f);
+    dyn.volume = 1.0f;
 
-    HRG(sa.AddStream(das));
+    HRG(sa.AddStream(dyn));
 
     HRG(sa.Start());
 
@@ -73,7 +77,7 @@ Run(void)
         float y = 0;
         float z = -sin(theta);
         float volume = 1.0f;
-        sa.SetPosVolume(das.idx, x, y, z, volume);
+        sa.SetPosVolume(dyn.idx, x, y, z, volume);
     }
 
     sa.Stop();
@@ -82,7 +86,9 @@ end:
     sa.Term();
     return hr;
 }
+#endif
 
+#ifdef TEST_SA_HRTF
 static int
 RunHrtf(void)
 {
@@ -138,6 +144,7 @@ end:
     sa.Term();
     return hr;
 }
+#endif
 
 int
 main(void)
@@ -146,11 +153,14 @@ main(void)
     // COM leak cannot be detected by debug heap manager ...
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-#if 0
-    RunHrtf();
-#else
+#ifdef TEST_SA
     Run();
 #endif
+
+#ifdef TEST_SA_HRTF
+    RunHrtf();
+#endif
+
     return 0;
 }
 
