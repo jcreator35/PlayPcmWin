@@ -10,6 +10,8 @@
 
 using namespace std;
 
+static const int MAX_DYN_STREAM = 16;
+
 // Creates full scale white noise
 static float *
 PrepareSound(int bytes)
@@ -51,8 +53,7 @@ Run(void)
     cin.getline(devNrStr, sizeof devNrStr - 1);
 
     int devNr = atoi(devNrStr);
-    HRG(sa.ChooseDevice(devNr));
-    HRG(sa.ActivateAudioStream(32));
+    HRG(sa.ChooseDevice(devNr, MAX_DYN_STREAM));
     
     das.buffer = (BYTE*)PrepareSound(nBufBytes);
     das.bufferBytes = nBufBytes;
@@ -60,6 +61,8 @@ Run(void)
     das.volume = 1.0f;
 
     HRG(sa.AddStream(das));
+
+    HRG(sa.Start());
 
     for (int i=0; i<(soundSec+2) * 10; ++i) {
         printf("Playing %d %d\n", sa.PlayStreamCount(), i);
@@ -73,8 +76,9 @@ Run(void)
         sa.SetPosVolume(das.idx, x, y, z, volume);
     }
 
+    sa.Stop();
+
 end:
-    sa.DeactivateAudioStream();
     sa.Term();
     return hr;
 }
@@ -105,8 +109,7 @@ RunHrtf(void)
     cin.getline(devNrStr, sizeof devNrStr - 1);
 
     int devNr = atoi(devNrStr);
-    HRG(sa.ChooseDevice(devNr));
-    HRG(sa.ActivateAudioStream(32));
+    HRG(sa.ChooseDevice(devNr, MAX_DYN_STREAM));
 
     dyn.buffer = (BYTE*)PrepareSound(nBufBytes);
     dyn.bufferBytes = nBufBytes;
@@ -114,6 +117,8 @@ RunHrtf(void)
     dyn.volume = 1.0f;
 
     HRG(sa.AddStream(dyn));
+
+    HRG(sa.Start());
 
     for (int i = 0; i < (soundSec + 2) * 10; ++i) {
         printf("Playing %d %d\n", sa.PlayStreamCount(), i);
@@ -127,8 +132,9 @@ RunHrtf(void)
         sa.SetPosVolume(dyn.idx, x, y, z, volume);
     }
 
+    sa.Stop();
+
 end:
-    sa.DeactivateAudioStream();
     sa.Term();
     return hr;
 }

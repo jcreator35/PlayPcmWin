@@ -171,8 +171,6 @@ WWSpatialAudioUser::ActivateAudioStream(int dynObjectCount)
     HRG(mSAClient->ActivateSpatialAudioStream(&pv, __uuidof(mSAORStream),
         (void**)&mSAORStream));
 
-    mSAORStream->Start();
-
 end:
     // blobの指す先はdelete不可。
     pv.blob.cbSize = 0;

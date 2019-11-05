@@ -145,7 +145,7 @@ public:
 
 
     // when unchoosing device, call ChooseDevice(-1)
-    HRESULT ChooseDevice(int id) {
+    HRESULT ChooseDevice(int id, int maxDynObjectCount) {
         HRESULT hr = 0;
 
         // アクティベーションの設定値pv。
@@ -215,11 +215,15 @@ public:
             }
         }
 
+        HRG(ActivateAudioStream(maxDynObjectCount));
+
     end:
         SafeRelease(&mDeviceToUse);
         PropVariantClear(&pv);
         return hr;
     }
+
+    virtual HRESULT ActivateAudioStream(int maxDynObjectCount) =0;
 
     /// @param dasc [inout] 成功するとdasc.idxにユニークな番号が書き込まれる。
     HRESULT AddStream(T_DynAudioObject &dasc) {
@@ -273,10 +277,6 @@ public:
         return rv;
     }
 
-    void DeactivateAudioStream(void) {
-        mDynObjectList.ReleaseAll();
-    }
-
     int PlayStreamCount(void) {
         int r = 0;
 
@@ -287,6 +287,14 @@ public:
         ReleaseMutex(mMutex);
 
         return r;
+    }
+
+    HRESULT Start(void) {
+        return mSAORStream->Start();
+    }
+
+    HRESULT Stop(void) {
+        return mSAORStream->Stop();
     }
 
 protected:

@@ -10,7 +10,7 @@ class WWSpatialAudioUser :
 public:
     HRESULT Init(void) override;
     //void Term(void) override;
-    HRESULT ActivateAudioStream(int maxDynObjectCount);
+    HRESULT ActivateAudioStream(int maxDynObjectCount) override;
 
 private:
 

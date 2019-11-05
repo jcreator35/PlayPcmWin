@@ -9,7 +9,7 @@ class WWSpatialAudioHrtfUser :
 public:
     HRESULT Init(void) override;
     //void Term(void) override;
-    HRESULT ActivateAudioStream(int maxDynObjectCount);
+    HRESULT ActivateAudioStream(int maxDynObjectCount) override;
 
 private:
     static DWORD RenderEntry(LPVOID lpThreadParameter);
