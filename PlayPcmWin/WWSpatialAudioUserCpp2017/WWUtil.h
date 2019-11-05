@@ -50,7 +50,7 @@ void WWErrorDescription(HRESULT hr);
     }                              \
 }                                  \
 
-template <class T> void SafeRelease(T **ppT)
+template <class T_SpatialAudioObject> void SafeRelease(T_SpatialAudioObject **ppT)
 {
     if (*ppT) {
         (*ppT)->Release();

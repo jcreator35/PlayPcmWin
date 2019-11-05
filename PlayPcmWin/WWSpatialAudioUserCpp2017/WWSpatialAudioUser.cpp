@@ -41,7 +41,7 @@ WWSpatialAudioUser::Render1(void)
         }
 
         if (dyn.sao == nullptr) {
-            HRG(mSAORStream->ActivateSpatialAudioObject(AudioObjectType_Dynamic, &dyn.sao));
+            HRG(mSAORStream->ActivateSpatialAudioObject(dyn.aot, &dyn.sao));
         }
 
         HRG(dyn.sao->GetBuffer(&buffer, &bufferLength));
@@ -54,7 +54,10 @@ WWSpatialAudioUser::Render1(void)
             dyn.ReleaseAll();
         } else {
             ++mPlayStreamCount;
-            HRG(dyn.sao->SetPosition(dyn.posX, dyn.posY, dyn.posZ));
+
+            if (dyn.aot == AudioObjectType_Dynamic) {
+                HRG(dyn.sao->SetPosition(dyn.posX, dyn.posY, dyn.posZ));
+            }
             HRG(dyn.sao->SetVolume(dyn.volume));
         }
     }
@@ -138,7 +141,7 @@ end:
 }
 
 HRESULT
-WWSpatialAudioUser::ActivateAudioStream(int dynObjectCount)
+WWSpatialAudioUser::ActivateAudioStream(int dynObjectCount, int staticObjectTypeMask)
 {
     HRESULT hr = S_OK;
     SpatialAudioObjectRenderStreamActivationParams p;
@@ -156,8 +159,8 @@ WWSpatialAudioUser::ActivateAudioStream(int dynObjectCount)
 
     p.ObjectFormat = (const WAVEFORMATEX*)&mUseFmt;
     
-    // 1つもスタティックなオブジェクトが無い。Dynamicにするとエラーが起きた。
-    p.StaticObjectTypeMask = AudioObjectType_None;
+    // 1つもスタティックなオブジェクトが無いときはNone。Dynamicにするとエラーが起きた。
+    p.StaticObjectTypeMask = (AudioObjectType)staticObjectTypeMask;
     p.MinDynamicObjectCount = 0;
     p.MaxDynamicObjectCount = dynObjectCount;
     p.Category = AudioCategory_SoundEffects;

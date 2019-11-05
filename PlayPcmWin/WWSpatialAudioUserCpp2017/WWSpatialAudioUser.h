@@ -10,7 +10,9 @@ class WWSpatialAudioUser :
 public:
     HRESULT Init(void) override;
     //void Term(void) override;
-    HRESULT ActivateAudioStream(int maxDynObjectCount) override;
+
+    /// @param staticObjectTypeMask 1つもスタティックなオブジェクトが無いときはNone。Dynamicにするとエラーが起きた。
+    HRESULT ActivateAudioStream(int maxDynObjectCount, int staticObjectTypeMask) override;
 
 private:
 

@@ -145,7 +145,7 @@ public:
 
 
     // when unchoosing device, call ChooseDevice(-1)
-    HRESULT ChooseDevice(int id, int maxDynObjectCount) {
+    HRESULT ChooseDevice(int id, int maxDynObjectCount, int staticObjectTypeMask) {
         HRESULT hr = 0;
 
         // アクティベーションの設定値pv。
@@ -215,7 +215,7 @@ public:
             }
         }
 
-        HRG(ActivateAudioStream(maxDynObjectCount));
+        HRG(ActivateAudioStream(maxDynObjectCount, staticObjectTypeMask));
 
     end:
         SafeRelease(&mDeviceToUse);
@@ -223,7 +223,8 @@ public:
         return hr;
     }
 
-    virtual HRESULT ActivateAudioStream(int maxDynObjectCount) =0;
+    /// @param staticObjectTypeMask  1つもスタティックなオブジェクトが無いときはAudioObjectType_None。Dynamicにするとエラーが起きた。
+    virtual HRESULT ActivateAudioStream(int maxDynObjectCount, int staticObjectTypeMask) =0;
 
     /// @param dasc [inout] 成功するとdasc.idxにユニークな番号が書き込まれる。
     HRESULT AddStream(T_DynAudioObject &dasc) {

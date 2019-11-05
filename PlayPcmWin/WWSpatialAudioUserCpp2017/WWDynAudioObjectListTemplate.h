@@ -4,7 +4,7 @@
 #include "WWUtil.h"
 #include "WWDynAudioObject.h"
 
-template <typename T>
+template <typename T_SpatialAudioObject>
 class WWDynAudioObjectListTemplate {
 public:
     void ReleaseAll(void) {
@@ -16,7 +16,7 @@ public:
         mDynAudioObjectList.clear();
     }
 
-    T *Find(int idx) {
+    T_SpatialAudioObject *Find(int idx) {
         for (auto ite = mDynAudioObjectList.begin(); ite != mDynAudioObjectList.end(); ++ite) {
             auto &r = *ite;
             if (r.idx == idx) {
@@ -26,5 +26,5 @@ public:
         return nullptr;
     }
 
-    std::list<T> mDynAudioObjectList;
+    std::list<T_SpatialAudioObject> mDynAudioObjectList;
 };

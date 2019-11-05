@@ -4,7 +4,7 @@
 #include "WWUtil.h"
 #include <assert.h>
 
-template <typename T>
+template <typename T_SpatialAudioObject>
 class WWDynAudioObjectTemplate {
 public:
     void ReleaseAll(void) {
@@ -38,12 +38,16 @@ public:
         posZ = z;
     }
 
-    T *sao = nullptr;
+    T_SpatialAudioObject *sao = nullptr;
     BYTE *buffer = nullptr; ///< new BYTE[] で確保すること。
     int   bufferBytes = 0;
     int   posInBytes = 0;
 
     int idx = -1; //< set on WWSpatialAudioUser::AddStream(). unique index starts from 0
+
+    // AudioObjectType_Dynamic   for dynamic positioned speaker
+    // AudioObjectType_FrontLeft for static front left speaker
+    AudioObjectType aot = AudioObjectType_Dynamic;
 
     // SetPosition(posX, posY, posZ)
     float posX   = +0.0f;   ///< in meters, positive value : right

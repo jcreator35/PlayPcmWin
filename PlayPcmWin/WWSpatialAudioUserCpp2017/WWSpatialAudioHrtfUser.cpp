@@ -41,7 +41,7 @@ WWSpatialAudioHrtfUser::Render1(void)
         }
 
         if (dyn.sao == nullptr) {
-            HRG(mSAORStream->ActivateSpatialAudioObjectForHrtf(AudioObjectType_Dynamic, &dyn.sao));
+            HRG(mSAORStream->ActivateSpatialAudioObjectForHrtf(dyn.aot, &dyn.sao));
         }
 
         HRG(dyn.sao->GetBuffer(&buffer, &bufferLength));
@@ -54,17 +54,19 @@ WWSpatialAudioHrtfUser::Render1(void)
             dyn.ReleaseAll();
         } else {
             ++mPlayStreamCount;
-            HRG(dyn.sao->SetPosition(dyn.posX, dyn.posY, dyn.posZ));
             HRG(dyn.sao->SetGain(dyn.volume));
-            HRG(dyn.sao->SetEnvironment(dyn.env));
-            HRG(dyn.sao->SetDistanceDecay(&dyn.dd));
-            HRG(dyn.sao->SetDirectivity(&dyn.directivity));
-            if (dyn.directivity.Omni.Type != SpatialAudioHrtfDirectivity_OmniDirectional) {
-                // 向きがあるので向きを指定。
-                // row major 3x3 mat
-                SpatialAudioHrtfOrientation o;
-                WWQuaternionToRowMajorRotMat(dyn.orientation, o);
-                HRG(dyn.sao->SetOrientation(&o));
+            if (dyn.aot == AudioObjectType_Dynamic) {
+                HRG(dyn.sao->SetPosition(dyn.posX, dyn.posY, dyn.posZ));
+                HRG(dyn.sao->SetEnvironment(dyn.env));
+                HRG(dyn.sao->SetDistanceDecay(&dyn.dd));
+                HRG(dyn.sao->SetDirectivity(&dyn.directivity));
+                if (dyn.directivity.Omni.Type != SpatialAudioHrtfDirectivity_OmniDirectional) {
+                    // 向きがあるので向きを指定。
+                    // row major 3x3 mat
+                    SpatialAudioHrtfOrientation o;
+                    WWQuaternionToRowMajorRotMat(dyn.orientation, o);
+                    HRG(dyn.sao->SetOrientation(&o));
+                }
             }
         }
     }
@@ -148,7 +150,7 @@ end:
 }
 
 HRESULT
-WWSpatialAudioHrtfUser::ActivateAudioStream(int dynObjectCount)
+WWSpatialAudioHrtfUser::ActivateAudioStream(int dynObjectCount, int staticObjectTypeMask)
 {
     HRESULT hr = S_OK;
     SpatialAudioHrtfActivationParams p;
@@ -171,7 +173,7 @@ WWSpatialAudioHrtfUser::ActivateAudioStream(int dynObjectCount)
     p.ObjectFormat = (const WAVEFORMATEX*)&mUseFmt;
     
     // 1つもスタティックなオブジェクトが無いときはNone。Dynamicにするとエラーが起きた。
-    p.StaticObjectTypeMask = AudioObjectType_None;
+    p.StaticObjectTypeMask = (AudioObjectType)staticObjectTypeMask;
     p.MinDynamicObjectCount = 0;
     p.MaxDynamicObjectCount = dynObjectCount;
     p.Category = AudioCategory_SoundEffects;

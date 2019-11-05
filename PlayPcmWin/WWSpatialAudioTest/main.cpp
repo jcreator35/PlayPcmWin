@@ -13,6 +13,9 @@ using namespace std;
 #define TEST_SA
 //#define TEST_SA_HRTF
 
+// dynamic moving speaker (or static speaker)
+#define TEST_DYNAMIC
+
 static const int MAX_DYN_STREAM = 16;
 
 // Creates full scale white noise
@@ -57,12 +60,23 @@ Run(void)
     cin.getline(devNrStr, sizeof devNrStr - 1);
 
     int devNr = atoi(devNrStr);
-    HRG(sa.ChooseDevice(devNr, MAX_DYN_STREAM));
+
+#ifdef TEST_DYNAMIC
+    int staticObjectTypeMask = AudioObjectType_None;
+#else
+    int staticObjectTypeMask = (AudioObjectType)(AudioObjectType_FrontLeft | AudioObjectType_FrontRight);
+#endif
+    HRG(sa.ChooseDevice(devNr, MAX_DYN_STREAM, staticObjectTypeMask));
     
     dyn.buffer = (BYTE*)PrepareSound(nBufBytes);
     dyn.bufferBytes = nBufBytes;
-    dyn.SetPos3D(1.0f, 0, 0.0f);
     dyn.volume = 1.0f;
+#ifdef TEST_DYNAMIC
+    dyn.aot = AudioObjectType_Dynamic;
+    dyn.SetPos3D(1.0f, 0, 0.0f);
+#else
+    dyn.aot = AudioObjectType_FrontLeft;
+#endif
 
     HRG(sa.AddStream(dyn));
 
@@ -72,12 +86,14 @@ Run(void)
         printf("Playing %d %d\n", sa.PlayStreamCount(), i);
         Sleep(100); // wait 0.1 sec
 
+#ifdef TEST_DYNAMIC
         float theta = 2 * 3.141592f * i / (soundSec * 10);
         float x = cos(theta);
         float y = 0;
         float z = -sin(theta);
         float volume = 1.0f;
         sa.SetPosVolume(dyn.idx, x, y, z, volume);
+#endif
     }
 
     sa.Stop();
@@ -115,7 +131,7 @@ RunHrtf(void)
     cin.getline(devNrStr, sizeof devNrStr - 1);
 
     int devNr = atoi(devNrStr);
-    HRG(sa.ChooseDevice(devNr, MAX_DYN_STREAM));
+    HRG(sa.ChooseDevice(devNr, MAX_DYN_STREAM, AudioObjectType_None));
 
     dyn.buffer = (BYTE*)PrepareSound(nBufBytes);
     dyn.bufferBytes = nBufBytes;
