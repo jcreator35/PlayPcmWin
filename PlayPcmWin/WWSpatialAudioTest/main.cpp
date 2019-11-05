@@ -10,6 +10,7 @@
 
 using namespace std;
 
+// Creates full scale white noise
 static float *
 PrepareSound(int bytes)
 {
@@ -53,17 +54,16 @@ Run(void)
     HRG(sa.ChooseDevice(devNr));
     HRG(sa.ActivateAudioStream(32));
     
-
     das.buffer = (BYTE*)PrepareSound(nBufBytes);
     das.bufferBytes = nBufBytes;
-    das.SetPos3D(10.0f, 0, -10.0f);
+    das.SetPos3D(1.0f, 0, 0.0f);
     das.volume = 1.0f;
 
     HRG(sa.AddStream(das));
 
     for (int i=0; i<(soundSec+2) * 10; ++i) {
         printf("Playing %d %d\n", sa.PlayStreamCount(), i);
-        Sleep(100);
+        Sleep(100); // wait 0.1 sec
 
         float theta = 2 * 3.141592f * i / (soundSec * 10);
         float x = cos(theta);
@@ -108,17 +108,16 @@ RunHrtf(void)
     HRG(sa.ChooseDevice(devNr));
     HRG(sa.ActivateAudioStream(32));
 
-
     dyn.buffer = (BYTE*)PrepareSound(nBufBytes);
     dyn.bufferBytes = nBufBytes;
-    dyn.SetPos3D(10.0f, 0, -10.0f);
+    dyn.SetPos3D(1.0f, 0, 0.0f);
     dyn.volume = 1.0f;
 
     HRG(sa.AddStream(dyn));
 
     for (int i = 0; i < (soundSec + 2) * 10; ++i) {
         printf("Playing %d %d\n", sa.PlayStreamCount(), i);
-        Sleep(100);
+        Sleep(100); // wait 0.1 sec
 
         float theta = 2 * 3.141592f * i / (soundSec * 10);
         float x = cos(theta);
@@ -141,7 +140,7 @@ main(void)
     // COM leak cannot be detected by debug heap manager ...
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-#if 1
+#if 0
     RunHrtf();
 #else
     Run();
