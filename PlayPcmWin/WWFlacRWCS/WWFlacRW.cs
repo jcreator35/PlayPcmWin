@@ -1,12 +1,15 @@
 ﻿using System.Runtime.InteropServices;
 using System;
 using System.Collections.Generic;
+using WWUtil;
 
 namespace WWFlacRWCS {
     public class FlacRW {
-        public const int PCM_BUFFER_BYTES = 1048576;
-        private byte[] mPcmBuffer = new byte[PCM_BUFFER_BYTES];
+        public const int PCM_FRAGMENT_BUFFER_BYTES = 1048576;
+        private byte[] mPcmFragmentBuffer = new byte[PCM_FRAGMENT_BUFFER_BYTES];
         private int mId = (int)FlacErrorCode.IdNotFound;
+        private Metadata mDecodedMetadata = null;
+        private LargeArray<byte> mPcmAllBuffer = null;
 
         public static string ErrorCodeToStr(int ercd) {
             switch (ercd) {
@@ -69,21 +72,115 @@ namespace WWFlacRWCS {
             }
         }
 
+        /// <summary>
+        /// ヘッダと全PCMデータを抽出する。
+        /// この関数呼び出し後
+        /// ・GetDecodedMetadata()でメタデータを取り出す。
+        /// ・GetDecodedCuesheet()でキューシートを取り出す。
+        /// ・GetDecodedPicture()でアルバムカバー画像を取り出す。
+        /// ・GetDecodedPcmBytes()でPCMデータを取り出す。
+        /// ・DecodeEnd()で後片付けする。
+        /// 
+        /// DecodeAll()が中で呼んでいる関数を個別に呼び出しても良い。
+        /// </summary>
+        /// <param name="path">FLACのファイル名</param>
+        /// <returns>0以上のとき成功。負のときFlacErrorCode</returns>
+        public int DecodeAll(string path) {
+            int rv = 0;
+
+            rv = DecodeStreamStart(path);
+            if (rv < 0) {
+                return rv;
+            }
+
+            rv = GetDecodedMetadata(out mDecodedMetadata);
+            if (rv < 0) {
+                return rv;
+            }
+
+            mPcmAllBuffer = new LargeArray<byte>(mDecodedMetadata.PcmBytes);
+            long pos = 0;
+            while (pos < mDecodedMetadata.PcmBytes) {
+                byte[] fragment;
+                rv = DecodeStreamOne(out fragment);
+                if (rv < 0) {
+                    return rv;
+                }
+                mPcmAllBuffer.CopyFrom(fragment, 0, pos, fragment.Length);
+                pos += fragment.Length;
+            }
+
+            // mPcmAllBufferから取り出す。
+
+            return 0;
+        }
+
+        /// <summary>
+        /// デコードされたPCMデータを取り出す。DecodeAllの後に呼ぶ。
+        /// </summary>
+        /// <param name="copyBytes">コピーするバイト数。大体512MB程度まで可能。</param>
+        /// <returns>0以上のときコピーされたバイト数。負のときFlacErrorCode</returns>
+        public int GetDecodedPcmBytes(int ch, long posBytes, out byte[] fragment, long copyBytes) {
+            int rv = 0;
+
+            System.Diagnostics.Debug.Assert(mDecodedMetadata != null);
+
+            int bytesPerFrame = mDecodedMetadata.BytesPerFrame;
+            int bytesPerSample =  mDecodedMetadata.BytesPerSample;
+            int numChannels = mDecodedMetadata.channels;
+
+            System.Diagnostics.Debug.Assert(mPcmAllBuffer != null);
+            System.Diagnostics.Debug.Assert((posBytes % bytesPerSample) == 0);
+            System.Diagnostics.Debug.Assert((copyBytes % bytesPerSample) == 0);
+
+            if (mPcmAllBuffer.LongLength < posBytes + copyBytes) {
+                copyBytes = mPcmAllBuffer.LongLength - posBytes;
+                if (copyBytes < 0) {
+                    copyBytes = 0;
+                }
+            }
+            fragment = new byte[copyBytes];
+            long copySamples = copyBytes / bytesPerSample;
+            long posSamples = posBytes / bytesPerSample;
+
+
+            for (int i=0; i<copySamples; ++i) {
+                long fromPosBytes = posBytes + i * bytesPerFrame + ch * bytesPerSample;
+                int toPosBytes = i * bytesPerSample;
+                mPcmAllBuffer.CopyTo(fromPosBytes, ref fragment, toPosBytes, bytesPerFrame);
+            }
+
+            return (int)copyBytes;
+        }
+
+        /// <summary>
+        /// FLACファイルのヘッダー部分を読み込んでメタデータを取り出す。
+        /// この関数呼び出し後
+        /// ・GetDecodedMetadata()でメタデータを取り出す。
+        /// ・GetDecodedCuesheet()でキューシートを取り出す。
+        /// ・GetDecodedPicture()でアルバムカバー画像を取り出す。
+        /// </summary>
+        /// <param name="path">FLACファイルのパス</param>
+        /// <returns>0以上のとき成功。負のときFlacErrorCode</returns>
         public int DecodeHeader(string path) {
+            mDecodedMetadata = null;
+            mPcmAllBuffer = null;
             mId = NativeMethods.WWFlacRW_Decode(NativeMethods.WWFLAC_FRDT_HEADER, path);
             return mId;
         }
 
         public int DecodeStreamStart(string path) {
+            mDecodedMetadata = null;
+            mPcmAllBuffer = null;
             mId = NativeMethods.WWFlacRW_Decode(NativeMethods.WWFLAC_FRDT_STREAM_ONE, path);
             return mId;
         }
 
         public int DecodeStreamOne(out byte [] pcmReturn) {
-            int ercd = NativeMethods.WWFlacRW_DecodeStreamOne(mId, mPcmBuffer, mPcmBuffer.Length);
+            int ercd = NativeMethods.WWFlacRW_DecodeStreamOne(mId, mPcmFragmentBuffer, mPcmFragmentBuffer.Length);
             if (0 < ercd) {
                 pcmReturn = new byte[ercd];
-                Array.Copy(mPcmBuffer, 0, pcmReturn, 0, ercd);
+                Array.Copy(mPcmFragmentBuffer, 0, pcmReturn, 0, ercd);
             } else {
                 pcmReturn = new byte[0];
             }
@@ -91,12 +188,17 @@ namespace WWFlacRWCS {
             return ercd;
         }
 
-        public int DecodeStreamSkip(long skipFrames) {
-            int ercd = NativeMethods.WWFlacRW_DecodeStreamSeekAbsolute(mId, skipFrames);
+        public int DecodeStreamSeekAbsolute(long numFramesFromBegin) {
+            int ercd = NativeMethods.WWFlacRW_DecodeStreamSeekAbsolute(mId, numFramesFromBegin);
             return ercd;
         }
 
         public int GetDecodedMetadata(out Metadata meta) {
+            if (mDecodedMetadata != null) {
+                meta = new Metadata(mDecodedMetadata);
+                return 0;
+            }
+
             NativeMethods.Metadata nMeta;
             int result = NativeMethods.WWFlacRW_GetDecodedMetadata(mId, out nMeta);
             meta = new Metadata();
@@ -160,6 +262,10 @@ namespace WWFlacRWCS {
 
         public void DecodeEnd() {
             NativeMethods.WWFlacRW_DecodeEnd(mId);
+
+            mDecodedMetadata = null;
+            mPcmAllBuffer = null;
+
             mId = (int)FlacErrorCode.IdNotFound;
         }
 
@@ -229,6 +335,8 @@ namespace WWFlacRWCS {
             return NativeMethods.WWFlacRW_CheckIntegrity(path);
         }
     }
+
+#region NativeMethodsRegion
 
     internal static class NativeMethods {
         public const int WWFLAC_TRACK_IDX_NUM = 99;
@@ -354,4 +462,5 @@ namespace WWFlacRWCS {
         internal extern static
         int WWFlacRW_GetDecodedCuesheetByTrackIdx(int id, int trackIdx, out WWFlacCuesheetTrack trackReturn);
     }
+#endregion
 }

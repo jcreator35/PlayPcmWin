@@ -30,10 +30,16 @@ namespace WWFlacRWCS {
         public Metadata() {
         }
 
+        /// <summary>
+        /// 全チャンネル1サンプルのバイト数。
+        /// </summary>
         public int BytesPerFrame {
             get { return channels * bitsPerSample / 8; }
         }
 
+        /// <summary>
+        /// 1チャンネル1サンプルのバイト数。
+        /// </summary>
         public int BytesPerSample {
             get { return bitsPerSample / 8; }
         }

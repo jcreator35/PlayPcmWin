@@ -126,13 +126,13 @@ namespace PlayPcmWin {
 
             // ストリームデータを頭出しする。
             if (0 < skipFrames) {
-                mFlacRW.DecodeStreamSkip(skipFrames);
+                mFlacRW.DecodeStreamSeekAbsolute(skipFrames);
             }
 
             if (CalcMD5 && skipFrames == 0) {
                 md5 = new MD5CryptoServiceProvider();
                 mMD5SumOfPcm = new byte[MD5_BYTES];
-                mMD5TmpBuffer = new byte[WWFlacRWCS.FlacRW.PCM_BUFFER_BYTES];
+                mMD5TmpBuffer = new byte[WWFlacRWCS.FlacRW.PCM_FRAGMENT_BUFFER_BYTES];
             }
 
             return 0;
