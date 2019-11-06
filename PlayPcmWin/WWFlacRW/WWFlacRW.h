@@ -11,8 +11,7 @@
 #endif
 
 enum FlacRWDecodeType {
-    FRDT_All,    ///< メタデータの抽出とPCMデータの抽出をブロッキングですべて行うモード。
-    FRDT_Header, ///< メタデータの抽出だけを行う。
+    FRDT_Header = 1, ///< メタデータの抽出だけを行う。
     FRDT_One, ///< WWFlacRW_DecodeStreamOne()を使用してフレームを1個ずつ受け取るモード。
 };
 
@@ -116,7 +115,7 @@ struct WWFlacCuesheetTrack {
 
 /// FLACヘッダーを読み込んで、フォーマット情報を取得、FRDT_Allの場合さらにすべてのサンプルデータを取得。
 /// 中のグローバル変数に貯める。
-/// @param frdt FlacFWDecodeType (FRDT_All または FRDT_Header)
+/// @param frdt FlacFWDecodeType (FRDT_One または FRDT_Header)
 /// @param path パス名(UTF-16)
 /// @return 0以上: デコーダーId。負: エラー。FlacRWResultType参照。
 extern "C" WWFLACRW_API
@@ -128,11 +127,11 @@ extern "C" WWFLACRW_API
 int __stdcall
 WWFlacRW_DecodeStreamOne(int id, uint8_t *pcmReturn, int pcmBytes);
 
-/// @param skipFrames 先頭からのスキップするサンプル数。
+/// @param numFramesFromBegin 先頭からのサンプル数(0のとき先頭にシーク)。
 /// @return 0以上: 成功。負: エラー。FlacRWResultType参照。
 extern "C" WWFLACRW_API
 int __stdcall
-WWFlacRW_DecodeStreamSkip(int id, int64_t skipFrames);
+WWFlacRW_DecodeStreamSeekAbsolute(int id, int64_t numFramesFromBegin);
 
 /// @return 0以上: 成功。負: エラー。FlacRWResultType参照。
 extern "C" WWFLACRW_API
@@ -143,11 +142,6 @@ WWFlacRW_GetDecodedMetadata(int id, WWFlacMetadata &metaReturn);
 extern "C" WWFLACRW_API
 int __stdcall
 WWFlacRW_GetDecodedPicture(int id, uint8_t * pictureReturn, int pictureBytes);
-
-/// @return 0以上: コピーしたバイト数。負: エラー。FlacRWResultType参照。
-extern "C" WWFLACRW_API
-int __stdcall
-WWFlacRW_GetDecodedPcmBytes(int id, int channel, int64_t startBytes, uint8_t * pcmReturn, int pcmBytes);
 
 /// キューシートのトラック数を戻す。
 /// @return 0以上: 成功。負: エラー。FlacRWResultType参照。

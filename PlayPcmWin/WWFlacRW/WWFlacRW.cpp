@@ -107,8 +107,11 @@ struct FlacDecodeInfo {
     int          channels;
     int          bitsPerSample;
 
+    /// このサンプルはサンプリングの回数。
     int64_t      totalSamples;
     int64_t      totalBytesPerChannel;
+    /// このサンプルはサンプリングの回数。
+    int64_t      processedSamplesAcc;
 
     int minFrameSize;
     int minBlockSize;
@@ -118,13 +121,8 @@ struct FlacDecodeInfo {
     /// 1個のブロックに何サンプル(frame)データが入っているか。
     int          numFramesPerBlock;
 
-    // DecodeAllで使用。チャンネルごとにバッファが分かれている。
-    uint8_t           **buffPerChannel;
-    int               retrievedFrames;
-
     // DecodeOneで使用。チャンネルインターリーブされたPCMデータ。
-    uint8_t           *rawPcmData;
-    int               rawPcmDataBytes;
+    std::vector<uint8_t> rawPcmData;
 
     char titleStr[WWFLAC_TEXT_STRSZ];
     char artistStr[WWFLAC_TEXT_STRSZ];
@@ -165,6 +163,7 @@ struct FlacDecodeInfo {
 
         totalSamples = 0;
         totalBytesPerChannel = 0;
+        processedSamplesAcc = 0;
 
         minFrameSize = 0;
         minBlockSize = 0;
@@ -173,11 +172,7 @@ struct FlacDecodeInfo {
 
         numFramesPerBlock = 0;
 
-        buffPerChannel = nullptr;
-        retrievedFrames = 0;
-
-        rawPcmData = nullptr;
-        rawPcmDataBytes = 0;
+        rawPcmData.clear();
 
         memset(titleStr,       0, sizeof titleStr);
         memset(artistStr,      0, sizeof artistStr);
@@ -208,20 +203,7 @@ struct FlacDecodeInfo {
     }
    
     ~FlacDecodeInfo(void) {
-        if (buffPerChannel) {
-            for (int ch=0; ch<channels; ++ch) {
-                delete [] buffPerChannel[ch];
-                buffPerChannel[ch] = nullptr;
-            }
-            delete [] buffPerChannel;
-            buffPerChannel = nullptr;
-        }
-
-        if (rawPcmData) {
-            delete [] rawPcmData;
-            rawPcmData = nullptr;
-        }
-        rawPcmDataBytes = 0;
+        rawPcmData.clear();
 
         delete [] pictureData;
         pictureData = nullptr;
@@ -379,76 +361,9 @@ RecvDecodedDataOneCallback(const FLAC__StreamDecoder *decoder,
         return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
     }
 
-    if(fdi->totalSamples == 0) {
-        dprintf("%s decode 0 == totalSamples\n", __FUNCTION__);
-        return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
-    }
-
     // データが来た。ブロック数は frame->header.blocksize
     if (fdi->numFramesPerBlock != (int)frame->header.blocksize) {
         // dprintf(fdi->logFP, "%s fdi->numFramesPerBlock changed %d to %d\n", __FUNCTION__, fdi->numFramesPerBlock, frame->header.blocksize);
-        fdi->numFramesPerBlock = frame->header.blocksize;
-    }
-
-    //dprintf("%s numFrames=%d retrieved=%d/%d channels=%d bitsPerSample=%d\n",
-    //    __FUNCTION__, fdi->numFramesPerBlock, fdi->retrievedFrames, 
-    //    fdi->totalBytesPerChannel, fdi->channels, fdi->bitsPerSample);
-
-    {
-        const int bytesPerSample = fdi->bitsPerSample / 8;
-        const int bytesPerFrame  = bytesPerSample * fdi->channels;
-
-        fdi->retrievedFrames += fdi->numFramesPerBlock;
-        fdi->rawPcmDataBytes = fdi->numFramesPerBlock * bytesPerFrame;
-
-        assert(fdi->rawPcmData == nullptr);
-        
-        if (0 < fdi->rawPcmDataBytes) {
-            fdi->rawPcmData = new uint8_t[fdi->rawPcmDataBytes];
-
-            for (int nFrame=0; nFrame<fdi->numFramesPerBlock; ++nFrame) {
-                int64_t writePos = nFrame * bytesPerFrame;
-                for (int ch = 0; ch < fdi->channels; ++ch) {
-                    memcpy(&fdi->rawPcmData[writePos], &buffer[ch][nFrame], bytesPerSample);
-                    writePos += bytesPerSample;
-                }
-            }
-        }
-    }
-
-    return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;
-}
-
-// 全部いっぺんに受け取るコールバック。
-static FLAC__StreamDecoderWriteStatus
-RecvDecodedDataAllCallback(const FLAC__StreamDecoder *decoder,
-        const FLAC__Frame *frame, const FLAC__int32 * const buffer[],
-        void *clientData)
-{
-    FlacDecodeInfo *fdi = (FlacDecodeInfo*)clientData;
-    (void)decoder;
-
-    if(fdi->totalSamples == 0) {
-        return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
-    }
-
-    if(frame->header.number.sample_number == 0) {
-        fdi->numFramesPerBlock = frame->header.blocksize;
-
-        // 最初のデータが来た。
-        //dprintf("%s fdi->numFramesPerBlock = %d\n", __FUNCTION__, frame->header.blocksize);
-    }
-
-    if (fdi->errorCode != FRT_Success) {
-        // デコードエラーが起きた。
-        dprintf("%s decode error %d. set commandCompleteEvent\n", __FUNCTION__, fdi->errorCode);
-        return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
-    }
-
-    // データが来た。ブロック内サンプル数は frame->header.blocksize
-    if (fdi->numFramesPerBlock != (int)frame->header.blocksize) {
-        // 最後のフレームのサンプル数は異なる。余りが入っているので。
-        //dprintf("%s fdi->numFramesPerBlock changed %d to %d\n", __FUNCTION__, fdi->numFramesPerBlock, frame->header.blocksize);
         fdi->numFramesPerBlock = frame->header.blocksize;
     }
 
@@ -464,25 +379,38 @@ RecvDecodedDataAllCallback(const FLAC__StreamDecoder *decoder,
     */
 
     //printf("%d", frame->header.channel_assignment);
+    //dprintf("%s numFrames=%d retrieved=%d/%d channels=%d bitsPerSample=%d\n",
+    //    __FUNCTION__, fdi->numFramesPerBlock, fdi->retrievedFrames, 
+    //    fdi->totalBytesPerChannel, fdi->channels, fdi->bitsPerSample);
 
-    if ((fdi->totalSamples - fdi->retrievedFrames) < fdi->numFramesPerBlock) {
-        fdi->errorCode = FRT_RecvBufferSizeInsufficient;
-        return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
-    }
+    // チャンネルごとに別れた音声バッファーbuffer[ch][nFrame]を
+    // チャンネルインターリーブされた単一PCMデータにしてrawPcmDataに書き込む。
 
     {
-        int bytesPerSample = fdi->bitsPerSample / 8;
-        int bytesPerFrame  = bytesPerSample * fdi->channels;
+        // 1ch、1サンプルのバイト数。
+        const int bytesPerSample = fdi->bitsPerSample / 8;
 
-        for (int ch = 0; ch < fdi->channels; ++ch) {
-            int64_t writePos=fdi->retrievedFrames*bytesPerSample;
-            for (int offs=0; offs<fdi->numFramesPerBlock; ++offs) {
-                memcpy(&fdi->buffPerChannel[ch][writePos], &buffer[ch][offs], bytesPerSample);
-                writePos += bytesPerSample;
+        // 全チャンネル、１サンプルのバイト数。
+        const int bytesPerFrame  = bytesPerSample * fdi->channels;
+
+        if (0 < fdi->numFramesPerBlock) {
+            // fdi->rawPcmDataは、今回の受信データだけを格納する。
+            fdi->rawPcmData.resize(fdi->numFramesPerBlock * bytesPerFrame);
+
+            for (int readPos=0; readPos<fdi->numFramesPerBlock; ++readPos) {
+                int64_t writePos = readPos * bytesPerFrame;
+                for (int ch = 0; ch < fdi->channels; ++ch) {
+                    memcpy(&fdi->rawPcmData[writePos], &buffer[ch][readPos], bytesPerSample);
+                    writePos += bytesPerSample;
+                }
             }
+            fdi->processedSamplesAcc += fdi->numFramesPerBlock;
+        } else {
+            // データが全く来ない場合。
+            fdi->rawPcmData.clear();
         }
     }
-    fdi->retrievedFrames += fdi->numFramesPerBlock;
+
     return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;
 }
 
@@ -512,30 +440,8 @@ MetadataCallback(const FLAC__StreamDecoder *decoder,
         fdi->maxFrameSize  = metadata->data.stream_info.max_framesize;
         fdi->maxBlockSize  = metadata->data.stream_info.max_blocksize;
         memcpy(fdi->md5sum, metadata->data.stream_info.md5sum, WWFLAC_MD5SUM_BYTES);
-        assert(!fdi->buffPerChannel);
-        fdi->totalBytesPerChannel = fdi->totalSamples * (fdi->bitsPerSample/ 8);
-        fdi->buffPerChannel = new uint8_t*[fdi->channels];
-        if (fdi->buffPerChannel == nullptr) {
-            dprintf("memory exhausted");
-            fdi->errorCode = FRT_MemoryExhausted;
-            return;
-        }
-        memset(fdi->buffPerChannel, 0, sizeof(uint8_t*)*fdi->channels);
 
-        for (int ch=0; ch<fdi->channels; ++ch) {
-            fdi->buffPerChannel[ch] = new uint8_t[fdi->totalBytesPerChannel];
-            if (fdi->buffPerChannel[ch] == nullptr) {
-                for (int i=0; i<fdi->channels; ++i) {
-                    delete [] fdi->buffPerChannel[i];
-                    fdi->buffPerChannel[i] = nullptr;
-                }
-                delete [] fdi->buffPerChannel;
-                fdi->buffPerChannel = nullptr;
-                dprintf("memory exhausted");
-                fdi->errorCode = FRT_MemoryExhausted;
-                return;
-            }
-        }
+        fdi->totalBytesPerChannel = fdi->totalSamples * (fdi->bitsPerSample/ 8);
     }
 
     if (metadata->type == FLAC__METADATA_TYPE_VORBIS_COMMENT) {
@@ -637,6 +543,43 @@ MetadataCallback(const FLAC__StreamDecoder *decoder,
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
+// fdi->totalSamplesを確定する。
+// ストリームを頭出しする。
+static FLAC__bool
+InspectTotalSamples(FlacDecodeInfo *fdi)
+{
+    FLAC__bool ok = true;
+
+    assert(0 == fdi->totalSamples);
+
+    ok = FLAC__stream_decoder_process_until_end_of_stream(fdi->decoder);
+    if (!ok || fdi->errorCode < 0) {
+        if (fdi->errorCode == FRT_Success) {
+                fdi->errorCode = FRT_DecorderProcessFailed;
+        }
+        dprintf("%s 1 Flac decode error fdi->errorCode=%d\n",
+                __FUNCTION__, fdi->errorCode);
+        goto end;
+    }
+
+    // fdi->totalSamples確定。
+    fdi->totalSamples         = fdi->processedSamplesAcc;
+    fdi->totalBytesPerChannel = fdi->processedSamplesAcc * (fdi->bitsPerSample/8);
+
+    ok = FLAC__stream_decoder_seek_absolute(fdi->decoder, 0);
+    if (!ok || fdi->errorCode < 0) {
+        if (fdi->errorCode == FRT_Success) {
+                fdi->errorCode = FRT_DecorderProcessFailed;
+        }
+        dprintf("%s 2 Flac decode error fdi->errorCode=%d\n",
+                __FUNCTION__, fdi->errorCode);
+        goto end;
+    }
+
+end:
+    return ok;
+}
+
 extern "C" __declspec(dllexport)
 int __stdcall
 WWFlacRW_Decode(int frdt, const wchar_t *path)
@@ -650,7 +593,9 @@ WWFlacRW_Decode(int frdt, const wchar_t *path)
         return FRT_OtherError;
     }
 
+    // fdiの初期化。
     fdi->errorCode = FRT_Success;
+    fdi->processedSamplesAcc = 0;
 
     fdi->decoder = FLAC__stream_decoder_new();
     if(fdi->decoder == nullptr) {
@@ -682,10 +627,6 @@ WWFlacRW_Decode(int frdt, const wchar_t *path)
         initStatus = FLAC__stream_decoder_init_FILE(
                 fdi->decoder, fdi->fp, RecvDecodedDataOneCallback, MetadataCallback, ErrorCallback, fdi);
         break;
-    case FRDT_All:
-        initStatus = FLAC__stream_decoder_init_FILE(
-                fdi->decoder, fdi->fp, RecvDecodedDataAllCallback, MetadataCallback, ErrorCallback, fdi);
-        break;
     default:
         assert(0);
         break;
@@ -711,31 +652,19 @@ WWFlacRW_Decode(int frdt, const wchar_t *path)
 
     if (frdt == FRDT_Header) {
         // ヘッダーのみデコードするモードの時。
-        // ストリームが頭出しされた状態になる。
-        fdi->errorCode = FRT_Success;
-        goto end;
-    }
 
-    if (frdt == FRDT_One) {
-        // この後WWFlacRW_DecodeStreamOneでストリームを1フレームずつ読み出す。
-        fdi->errorCode = FRT_Success;
-        goto end;
-    }
-
-    // FRDT_Allの場合ここに来る。
-    // ストリームを取り出す。
-
-    ok = FLAC__stream_decoder_process_until_end_of_stream(fdi->decoder);
-    if (!ok || fdi->errorCode < 0) {
-        if (fdi->errorCode == FRT_Success) {
-                fdi->errorCode = FRT_DecorderProcessFailed;
+        if (0 == fdi->totalSamples) {
+            // totalSamplesを調べる。
+            // ストリームを頭出しする。
+            ok = InspectTotalSamples(fdi);
         }
-        dprintf("%s Flac decode error fdi->errorCode=%d\n",
-                __FUNCTION__, fdi->errorCode);
+
+        // ストリームが頭出しされた状態になる。
         goto end;
     }
 
-    fdi->errorCode = FRT_Completed;
+    assert(frdt == FRDT_One);
+    // この後WWFlacRW_DecodeStreamOneでストリームを1フレームずつ読み出す。
 
 end:
     if (fdi->errorCode < 0) {
@@ -763,6 +692,7 @@ extern "C" WWFLACRW_API
 int __stdcall
 WWFlacRW_DecodeStreamOne(int id, uint8_t *pcmReturn, int pcmBytes)
 {
+    int rv = 0;
     FLAC__bool ok = true;
 
     FlacDecodeInfo *fdi = FlacTInfoFindById<FlacDecodeInfo>(g_flacDecodeInfoMap, id);
@@ -770,20 +700,9 @@ WWFlacRW_DecodeStreamOne(int id, uint8_t *pcmReturn, int pcmBytes)
         return FRT_IdNotFound;
     }
 
-    if (fdi->totalSamples == fdi->retrievedFrames) {
-        // ストリームの最後に達した。
-        fdi->errorCode = FRT_Completed;
-        return 0;
-    }
-
-    if (fdi->rawPcmData != nullptr) {
+    if (fdi->rawPcmData.size() != 0) {
         // WWFlacRW_DecodeStreamSkipを呼び出した後のこの関数が呼ばれるとここに来る。
-
-        ok = 1;
-        assert(0 < fdi->rawPcmDataBytes);
     } else {
-        fdi->rawPcmDataBytes = 0;
-
         //dprintf("%s FLAC__stream_decoder_process_single\n", __FUNCTION__);
 
         ok = FLAC__stream_decoder_process_single(fdi->decoder);
@@ -800,16 +719,16 @@ WWFlacRW_DecodeStreamOne(int id, uint8_t *pcmReturn, int pcmBytes)
     //dprintf("%s decodeStreamOne returned %d bytes, pcmReturn=%p pcmBytes=%d\n",
     //    __FUNCTION__, fdi->rawPcmDataBytes, pcmReturn, pcmBytes);
 
-    if (pcmBytes < fdi->rawPcmDataBytes) {
+    if (pcmBytes < fdi->rawPcmData.size()) {
         dprintf("%s Flac decode error. buffer size insuficient %d needed but size is %d\n",
-                __FUNCTION__, fdi->rawPcmDataBytes, pcmBytes);
+                __FUNCTION__, fdi->rawPcmData.size(), pcmBytes);
         fdi->errorCode = FRT_RecvBufferSizeInsufficient;
         goto end;
     }
 
-    if (0 < fdi->rawPcmDataBytes) {
-        assert(fdi->rawPcmData);
-        memcpy(pcmReturn, fdi->rawPcmData, fdi->rawPcmDataBytes);
+    if (0 < fdi->rawPcmData.size()) {
+        memcpy(pcmReturn, &fdi->rawPcmData[0], fdi->rawPcmData.size());
+        rv = fdi->rawPcmData.size();
     }
 
     fdi->errorCode = FRT_Success;
@@ -829,28 +748,26 @@ end:
         return result;
     }
 
-    delete[] fdi->rawPcmData;
-    fdi->rawPcmData = nullptr;
+    fdi->rawPcmData.clear();
 
-    return fdi->rawPcmDataBytes;
+    return rv;
 }
 
 extern "C" __declspec(dllexport)
 int __stdcall
-WWFlacRW_DecodeStreamSkip(int id, int64_t skipFrames)
+WWFlacRW_DecodeStreamSeekAbsolute(int id, int64_t framesFromBegin)
 {
     FlacDecodeInfo *fdi = FlacTInfoFindById<FlacDecodeInfo>(g_flacDecodeInfoMap, id);
     if (nullptr == fdi) {
         return FRT_IdNotFound;
     }
 
-    assert(fdi->rawPcmData == nullptr);
-    fdi->rawPcmDataBytes = 0;
+    fdi->rawPcmData.clear();
 
-    dprintf("WWFlacRW_DecodeStreamSkip FLAC__stream_decoder_seek_absolute %lld\n", skipFrames);
+    dprintf("WWFlacRW_DecodeStreamSkip FLAC__stream_decoder_seek_absolute %lld\n", framesFromBegin);
 
     int ercd = 0;
-    FLAC__bool ok = FLAC__stream_decoder_seek_absolute(fdi->decoder, skipFrames);
+    FLAC__bool ok = FLAC__stream_decoder_seek_absolute(fdi->decoder, framesFromBegin);
 
     // 成功すると、0 < fdi->rawPcmDataBytesで fdi->rawPcmDataにPCMデータが入ることがある。
     // 次に呼び出されるWWFlacRW_DecodeStreamOneで回収する。
@@ -924,36 +841,6 @@ WWFlacRW_GetDecodedPicture(int id, uint8_t * pictureReturn, int pictureBytes)
 
     memcpy(pictureReturn, fdi->pictureData, pictureBytes);
     return FRT_Success;
-}
-
-extern "C" __declspec(dllexport)
-int __stdcall
-WWFlacRW_GetDecodedPcmBytes(int id, int channel, int64_t startBytes, uint8_t * pcmReturn, int pcmBytes)
-{
-    if (nullptr == pcmReturn || pcmBytes <= 0) {
-        return FRT_BadParams;
-    }
-
-    FlacDecodeInfo *fdi = FlacTInfoFindById<FlacDecodeInfo>(g_flacDecodeInfoMap, id);
-    if (nullptr == fdi) {
-        return FRT_IdNotFound;
-    }
-
-    if (fdi->channels <= channel){
-        return FRT_OtherError;
-    }
-
-    if (fdi->totalBytesPerChannel <= startBytes) {
-        return FRT_RecvBufferSizeInsufficient;
-    }
-
-    int copyBytes = pcmBytes;
-    if (fdi->totalBytesPerChannel < startBytes + pcmBytes) {
-        copyBytes = (int)(fdi->totalBytesPerChannel - startBytes);
-    }
-
-    memcpy(pcmReturn, &fdi->buffPerChannel[channel][startBytes], copyBytes);
-    return copyBytes;
 }
 
 extern "C" __declspec(dllexport)

@@ -74,13 +74,8 @@ namespace WWFlacRWCS {
             return mId;
         }
 
-        public int DecodeAll(string path) {
-            mId = NativeMethods.WWFlacRW_Decode(NativeMethods.WWFLAC_FRDT_ALL, path);
-            return mId;
-        }
-
         public int DecodeStreamStart(string path) {
-            mId = NativeMethods.WWFlacRW_Decode(NativeMethods.WWFLAC_FRDT_ONE, path);
+            mId = NativeMethods.WWFlacRW_Decode(NativeMethods.WWFLAC_FRDT_STREAM_ONE, path);
             return mId;
         }
 
@@ -97,7 +92,7 @@ namespace WWFlacRWCS {
         }
 
         public int DecodeStreamSkip(long skipFrames) {
-            int ercd = NativeMethods.WWFlacRW_DecodeStreamSkip(mId, skipFrames);
+            int ercd = NativeMethods.WWFlacRW_DecodeStreamSeekAbsolute(mId, skipFrames);
             return ercd;
         }
 
@@ -161,21 +156,6 @@ namespace WWFlacRWCS {
         public int GetDecodedPicture(out byte[] pictureReturn, int pictureBytes) {
             pictureReturn = new byte[pictureBytes];
             return NativeMethods.WWFlacRW_GetDecodedPicture(mId, pictureReturn, pictureReturn.Length);
-        }
-
-        public int GetDecodedPcmBytes(int channel, long startBytes, out byte[] pcmReturn, int pcmBytes) {
-            pcmReturn = new byte[pcmBytes];
-            return NativeMethods.WWFlacRW_GetDecodedPcmBytes(mId, channel, startBytes, pcmReturn, pcmReturn.Length);
-        }
-
-        public int GetDecodedPcmBytes(int channel, long startBytes, ref byte[] pcmTo, int pcmToOffs, int pcmBytes) {
-            var tmp = new byte[pcmBytes];
-            int ercd = NativeMethods.WWFlacRW_GetDecodedPcmBytes(mId, channel, startBytes, tmp, tmp.Length);
-            if (0 <= ercd) {
-                Array.Copy(tmp, 0, pcmTo, pcmToOffs, pcmBytes);
-            }
-
-            return ercd;
         }
 
         public void DecodeEnd() {
@@ -255,9 +235,8 @@ namespace WWFlacRWCS {
         public const int WWFLAC_TEXT_STRSZ = 256;
         public const int WWFLAC_MD5SUM_BYTES = 16;
 
-        public const int WWFLAC_FRDT_ALL = 0;
         public const int WWFLAC_FRDT_HEADER = 1;
-        public const int WWFLAC_FRDT_ONE = 2;
+        public const int WWFLAC_FRDT_STREAM_ONE = 2;
 
         [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Unicode)]
         internal struct Metadata {
@@ -329,7 +308,7 @@ namespace WWFlacRWCS {
 
         [DllImport("WWFlacRW.dll", CharSet = CharSet.Unicode)]
         internal extern static
-        int WWFlacRW_DecodeStreamSkip(int id, long skipFrames);
+        int WWFlacRW_DecodeStreamSeekAbsolute(int id, long skipFrames);
 
         [DllImport("WWFlacRW.dll", CharSet = CharSet.Unicode)]
         internal extern static
@@ -338,10 +317,6 @@ namespace WWFlacRWCS {
         [DllImport("WWFlacRW.dll", CharSet = CharSet.Unicode)]
         internal extern static
         int WWFlacRW_GetDecodedPicture(int id, byte[] pictureReturn, int pictureBytes);
-
-        [DllImport("WWFlacRW.dll", CharSet = CharSet.Unicode)]
-        internal extern static
-        int WWFlacRW_GetDecodedPcmBytes(int id, int channel, long startBytes, byte[] pcmReturn, int pcmBytes);
 
         [DllImport("WWFlacRW.dll", CharSet = CharSet.Unicode)]
         internal extern static
