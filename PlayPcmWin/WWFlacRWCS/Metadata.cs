@@ -25,6 +25,8 @@ namespace WWFlacRWCS {
 
         public string pictureDescriptionStr = string.Empty;
 
+        public bool totalSamplesWasUnknown = false;
+
         public byte[] md5sum = new byte[NativeMethods.WWFLAC_MD5SUM_BYTES];
 
         public Metadata() {
@@ -77,6 +79,8 @@ namespace WWFlacRWCS {
             SafeCopy(rhs.pictureMimeTypeStr, ref pictureMimeTypeStr);
 
             SafeCopy(rhs.pictureDescriptionStr, ref pictureDescriptionStr);
+
+            totalSamplesWasUnknown = rhs.totalSamplesWasUnknown;
 
             if (rhs.md5sum != null && rhs.md5sum.Length != 0) {
                 md5sum = new byte[rhs.md5sum.Length];

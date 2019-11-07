@@ -110,6 +110,10 @@ struct FlacDecodeInfo {
     /// このサンプルはサンプリングの回数。
     int64_t      totalSamples;
     int64_t      totalBytesPerChannel;
+
+    /// TotalSamplesがUnknownのため、計算する必要があった。
+    bool totalSamplesWasUnknown;
+
     /// このサンプルはサンプリングの回数。
     int64_t      processedSamplesAcc;
 
@@ -163,6 +167,8 @@ struct FlacDecodeInfo {
 
         totalSamples = 0;
         totalBytesPerChannel = 0;
+        totalSamplesWasUnknown = false;
+
         processedSamplesAcc = 0;
 
         minFrameSize = 0;
@@ -442,6 +448,8 @@ MetadataCallback(const FLAC__StreamDecoder *decoder,
         memcpy(fdi->md5sum, metadata->data.stream_info.md5sum, WWFLAC_MD5SUM_BYTES);
 
         fdi->totalBytesPerChannel = fdi->totalSamples * (fdi->bitsPerSample/ 8);
+
+        fdi->totalSamplesWasUnknown = fdi->totalBytesPerChannel == 0;
     }
 
     if (metadata->type == FLAC__METADATA_TYPE_VORBIS_COMMENT) {
@@ -816,6 +824,11 @@ WWFlacRW_GetDecodedMetadata(int id, WWFlacMetadata &metaReturn)
     UTF8TOMB(pictureMimeTypeStr);
 
     UTF8TOMB(pictureDescriptionStr);
+
+    metaReturn.flags = 0;
+    if (fdi->totalSamplesWasUnknown) {
+        metaReturn.flags |= WWFLAC_FLAG_TOTAL_SAMPLES_WAS_UNKNOWN;
+    }
 
     memcpy(metaReturn.md5sum, fdi->md5sum, sizeof metaReturn.md5sum);
 
@@ -1627,9 +1640,15 @@ static void
 IntegrityCheck_MetadataCallback(const FLAC__StreamDecoder *decoder,
         const FLAC__StreamMetadata *metadata, void *clientData)
 {
-    int *errorCode = (int*)clientData;
+    auto *result = (WWFlacIntegrityCheckResult*)clientData;
 
     if(metadata->type == FLAC__METADATA_TYPE_STREAMINFO) {
+        // totalSamplesがUnknownかどうか。
+        if (0 == metadata->data.stream_info.total_samples) {
+            result->flags |= WWFLAC_FLAG_TOTAL_SAMPLES_WAS_UNKNOWN;
+        }
+
+
         // 値が全部0ならばMD5情報は入っていないというFLACの仕様。
         bool allZero = true;
         for (int i=0; i<16; ++i) {
@@ -1638,8 +1657,8 @@ IntegrityCheck_MetadataCallback(const FLAC__StreamDecoder *decoder,
             }
         }
 
-        if (allZero && StatusIsSuccess(*errorCode)) {
-            *errorCode = FRT_SuccessButMd5WasNotCalculated;
+        if (allZero && StatusIsSuccess(result->rv)) {
+            result->rv = FRT_SuccessButMd5WasNotCalculated;
         }
     }
 }
@@ -1648,35 +1667,37 @@ static void
 IntegrityCheck_ErrorCallback(const FLAC__StreamDecoder *decoder,
         FLAC__StreamDecoderErrorStatus status, void *clientData)
 {
-    int *errorCode = (int*)clientData;
+    auto *result = (WWFlacIntegrityCheckResult*)clientData;
 
     (void)decoder;
 
     dprintf("%s status=%d\n", __FUNCTION__, status);
 
-    if (!StatusIsSuccess(*errorCode)) {
+    if (!StatusIsSuccess(result->rv)) {
         // すでにエラーが起きているので別のエラーで上書きしない。
         return;
     }
 
-    *errorCode = FlacStreamDecoderErrorStatusToWWError(status);
+    result->rv = FlacStreamDecoderErrorStatusToWWError(status);
 };
 
 extern "C" __declspec(dllexport)
 int __stdcall
-WWFlacRW_CheckIntegrity(const wchar_t *path)
+WWFlacRW_CheckIntegrity(const wchar_t *path, WWFlacIntegrityCheckResult &result)
 {
     FLAC__bool ok = true;
     FILE *fp = nullptr;
-    errno_t ercd;
-    int result = FRT_Success;
+    errno_t ercd = 0;
+    result.rv = FRT_Success;
+    result.flags = 0;
+
     FLAC__StreamDecoderInitStatus initStatus = FLAC__STREAM_DECODER_INIT_STATUS_ERROR_OPENING_FILE;
 
     FLAC__StreamDecoder * decoder = FLAC__stream_decoder_new();
     if(decoder == nullptr) {
-        result = FRT_FlacStreamDecoderNewFailed;
+        result.rv = FRT_FlacStreamDecoderNewFailed;
         dprintf("%s FLAC__stream_decoder_new failed %d.\n",
-                __FUNCTION__, result);
+                __FUNCTION__, result.rv);
         goto end;
     }
 
@@ -1686,7 +1707,7 @@ WWFlacRW_CheckIntegrity(const wchar_t *path)
     // Windowsでは、この方法でファイルを開かなければならぬ。
     ercd = _wfopen_s(&fp, path, L"rb");
     if (ercd != 0 || nullptr == fp) {
-        result = FRT_FileOpenError;
+        result.rv = FRT_FileOpenError;
         goto end;
     }
 
@@ -1711,7 +1732,7 @@ WWFlacRW_CheckIntegrity(const wchar_t *path)
 #endif
 
     if(initStatus != FLAC__STREAM_DECODER_INIT_STATUS_OK) {
-        result = FRT_FlacStreamDecoderInitFailed;
+        result.rv = FRT_FlacStreamDecoderInitFailed;
         dprintf("%s Flac checkIntegrity error %d.\n",
                 __FUNCTION__, result);
         goto end;
@@ -1719,10 +1740,10 @@ WWFlacRW_CheckIntegrity(const wchar_t *path)
 
     ok = FLAC__stream_decoder_process_until_end_of_metadata(decoder);
     if (!ok) {
-        if (StatusIsSuccess(result)) {
-            result = FlacStreamDecoderStateToWWError(FLAC__stream_decoder_get_state(decoder));
-            if (StatusIsSuccess(result)) {
-                result = FRT_DecorderProcessFailed;
+        if (StatusIsSuccess(result.rv)) {
+            result.rv = FlacStreamDecoderStateToWWError(FLAC__stream_decoder_get_state(decoder));
+            if (StatusIsSuccess(result.rv)) {
+                result.rv = FRT_DecorderProcessFailed;
             }
         }
         dprintf("%s Flac metadata process error %d\n",
@@ -1732,10 +1753,10 @@ WWFlacRW_CheckIntegrity(const wchar_t *path)
 
     ok = FLAC__stream_decoder_process_until_end_of_stream(decoder);
     if (!ok) {
-        if (StatusIsSuccess(result)) {
-            result = FlacStreamDecoderStateToWWError(FLAC__stream_decoder_get_state(decoder));
-            if (StatusIsSuccess(result)) {
-                result = FRT_DecorderProcessFailed;
+        if (StatusIsSuccess(result.rv)) {
+            result.rv = FlacStreamDecoderStateToWWError(FLAC__stream_decoder_get_state(decoder));
+            if (StatusIsSuccess(result.rv)) {
+                result.rv = FRT_DecorderProcessFailed;
             }
         }
         dprintf("%s Flac decode error fdi->errorCode=%d\n",
@@ -1750,8 +1771,8 @@ end:
             ok = FLAC__stream_decoder_finish(decoder);
             if (!ok) {
                 // MD5 check failed!!
-                if (StatusIsSuccess(result)) {
-                    result = FRT_MD5SignatureDoesNotMatch;
+                if (StatusIsSuccess(result.rv)) {
+                    result.rv = FRT_MD5SignatureDoesNotMatch;
                 }
             }
         }
@@ -1770,6 +1791,6 @@ end:
     fdi = nullptr;
 #endif
 
-    return result;
+    return result.rv;
 }
 

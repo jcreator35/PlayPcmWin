@@ -95,7 +95,40 @@ namespace FlacIntegrityCheck {
         private long mLastUpdateMillisec = 0;
         private long UPDATE_INTERVAL_MILLISEC = 1000;
 
+
+        private void InspectOneFile(string path, int numFiles) {
+            var flacrw = new WWFlacRWCS.FlacRW();
+            var result = flacrw.CheckIntegrity(path);
+            int ercd = result.rv;
+            lock (mBw) {
+                if (ercd < 0) {
+                    ++mBackgroundResult.corrupted;
+                } else {
+                    ++mBackgroundResult.ok;
+                }
+
+                ++mFinished;
+
+                if (result.totalSamplesUnknown) {
+                    mSbLog.AppendLine(string.Format("FLAC Metadata total_samples field is Unknown : {0}", path));
+                }
+
+                if (ercd < 0) {
+                    mSbLog.AppendLine(string.Format("({0}/{1}) {2} : {3}\n",
+                        mFinished, numFiles,
+                        WWFlacRWCS.FlacRW.ErrorCodeToStr(ercd), path));
+                }
+                if (UPDATE_INTERVAL_MILLISEC < (mStopwatch.ElapsedMilliseconds - mLastUpdateMillisec)) {
+                    mLastUpdateMillisec = mStopwatch.ElapsedMilliseconds;
+
+                    mBw.ReportProgress((int)(1000000L * mFinished / numFiles),
+                        new ReportProgressArgs("", 0, true));
+                }
+            }
+        }
+
         private BackgroundResult mBackgroundResult;
+        private int mFinished = 0;
 
         private void Background_DoWork(object sender, DoWorkEventArgs e) {
             var args = (BackgroundParams)e.Argument;
@@ -107,61 +140,24 @@ namespace FlacIntegrityCheck {
                 args.path), -1, true));
 
             var flacList = DirectoryUtil.CollectFlacFilesOnFolder(args.path, ".FLAC");
+
             mBw.ReportProgress(0, new ReportProgressArgs(string.Format(Properties.Resources.LogCount + "\n{1}\n",
                 flacList.Length,
                 Properties.Resources.LogIntegrityChecking), -1, true));
             mLastUpdateMillisec = mStopwatch.ElapsedMilliseconds;
 
-            int finished = 0;
+            mFinished = 0;
 
             if (args.parallelScan) {
                 Parallel.For(0, flacList.Length, i => {
                     System.Threading.Thread.CurrentThread.Priority = System.Threading.ThreadPriority.Lowest;
 
                     string path = flacList[i];
-                    var flacrw = new WWFlacRWCS.FlacRW();
-                    int ercd = flacrw.CheckIntegrity(path);
-                    lock (mBw) {
-                        if (ercd < 0) {
-                            ++mBackgroundResult.corrupted;
-                        } else {
-                            ++mBackgroundResult.ok;
-                        }
-
-                        ++finished;
-
-                        if (ercd < 0 || UPDATE_INTERVAL_MILLISEC < (mStopwatch.ElapsedMilliseconds - mLastUpdateMillisec)) {
-                            mLastUpdateMillisec = mStopwatch.ElapsedMilliseconds;
-
-                            string text = string.Format("({0}/{1}) {2} : {3}\n",
-                                finished, flacList.Length,
-                                WWFlacRWCS.FlacRW.ErrorCodeToStr(ercd), path);
-
-                            mBw.ReportProgress((int)(1000000L * finished / flacList.Length),
-                                new ReportProgressArgs(text, ercd, false));
-                        }
-                    }
+                    InspectOneFile(path, flacList.Length);
                 });
             } else {
                 foreach (var path in flacList) {
-                    var flacrw = new WWFlacRWCS.FlacRW();
-                    int ercd = flacrw.CheckIntegrity(path);
-
-                    if (ercd < 0) {
-                        ++mBackgroundResult.corrupted;
-                    } else {
-                        ++mBackgroundResult.ok;
-                    }
-                    ++finished;
-
-                    if (ercd < 0 || UPDATE_INTERVAL_MILLISEC < (mStopwatch.ElapsedMilliseconds - mLastUpdateMillisec)) {
-                        mLastUpdateMillisec = mStopwatch.ElapsedMilliseconds;
-                        string text = string.Format("({0}/{1}) {2} : {3}\n",
-                            finished, flacList.Length,
-                            WWFlacRWCS.FlacRW.ErrorCodeToStr(ercd), path);
-                        mBw.ReportProgress((int)(1000000L * finished / flacList.Length),
-                            new ReportProgressArgs(text, ercd, false));
-                    }
+                    InspectOneFile(path, flacList.Length);
                 }
             }
         }

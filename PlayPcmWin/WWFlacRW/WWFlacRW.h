@@ -11,7 +11,7 @@
 #endif
 
 enum FlacRWDecodeType {
-    FRDT_Header = 1, ///< メタデータの抽出だけを行う。
+    FRDT_Header = 1, ///< ヘッダ部分を呼んでメタデータの抽出。(totalSamplesがUNKNOWNのときサンプル数を数える。)
     FRDT_One, ///< WWFlacRW_DecodeStreamOne()を使用してフレームを1個ずつ受け取るモード。
 };
 
@@ -63,6 +63,9 @@ enum FlacRWResultType {
 /// 最大トラックインデックス数
 #define WWFLAC_TRACK_IDX_NUM (99)
 
+/// ヘッダ部を読み出したところTotalSamplesがUnknownなので数える必要があった。
+#define WWFLAC_FLAG_TOTAL_SAMPLES_WAS_UNKNOWN (1)
+
 #pragma pack(push, 4)
 struct WWFlacMetadata {
     int          sampleRate;
@@ -86,6 +89,8 @@ struct WWFlacMetadata {
 
     wchar_t pictureDescriptionStr[WWFLAC_TEXT_STRSZ];
 
+    // WWFLAC_FLAG_TOTAL_SAMPLES_WAS_UNKNOWN 等。
+    int     flags;
     uint8_t md5sum[WWFLAC_MD5SUM_BYTES];
 };
 
@@ -107,6 +112,12 @@ struct WWFlacCuesheetTrack {
 
     WWFlacCuesheetTrackIdx trackIdx[WWFLAC_TRACK_IDX_NUM];
 };
+
+struct WWFlacIntegrityCheckResult {
+    int rv;
+    int flags;
+};
+
 
 #pragma pack(pop)
 
@@ -195,5 +206,5 @@ WWFlacRW_EncodeEnd(int id);
 /// @return 0以上: 成功。負: エラー。FlacRWResultType参照。
 extern "C" WWFLACRW_API
 int __stdcall
-WWFlacRW_CheckIntegrity(const wchar_t *path);
+WWFlacRW_CheckIntegrity(const wchar_t *path, WWFlacIntegrityCheckResult &result);
 

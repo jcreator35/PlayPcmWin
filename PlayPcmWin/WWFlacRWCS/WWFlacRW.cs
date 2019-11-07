@@ -219,6 +219,11 @@ namespace WWFlacRWCS {
                 meta.discNumberStr = nMeta.discNumberStr;
                 meta.pictureMimeTypeStr = nMeta.pictureMimeTypeStr;
                 meta.pictureDescriptionStr = nMeta.pictureDescriptionStr;
+
+                if (0 != (nMeta.flags &NativeMethods.WWFLAC_FLAG_TOTAL_SAMPLES_WAS_UNKNOWN)) {
+                    meta.totalSamplesWasUnknown = true;
+                }
+
                 meta.md5sum = nMeta.md5sum;
             }
             return result;
@@ -287,6 +292,7 @@ namespace WWFlacRWCS {
             nMeta.discNumberStr = meta.discNumberStr;
             nMeta.pictureMimeTypeStr = meta.pictureMimeTypeStr;
             nMeta.pictureDescriptionStr = meta.pictureDescriptionStr;
+            nMeta.flags = 0;
             nMeta.md5sum = meta.md5sum;
             mId = NativeMethods.WWFlacRW_EncodeInit(ref nMeta);
             return mId;
@@ -331,8 +337,21 @@ namespace WWFlacRWCS {
             mId = (int)FlacErrorCode.IdNotFound;
         }
 
-        public int CheckIntegrity(string path) {
-            return NativeMethods.WWFlacRW_CheckIntegrity(path);
+        // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+        public class CheckIntegrityResult {
+            public int rv;
+            public bool totalSamplesUnknown;
+        };
+
+        public CheckIntegrityResult CheckIntegrity(string path) {
+            NativeMethods.WWFlacIntegrityCheckResult n;
+            NativeMethods.WWFlacRW_CheckIntegrity(path, out n);
+
+            CheckIntegrityResult cir = new CheckIntegrityResult();
+            cir.rv = n.rv;
+            cir.totalSamplesUnknown = 0 != (n.flags & NativeMethods.WWFLAC_FLAG_TOTAL_SAMPLES_WAS_UNKNOWN);
+            return cir;
         }
     }
 
@@ -345,6 +364,11 @@ namespace WWFlacRWCS {
 
         public const int WWFLAC_FRDT_HEADER = 1;
         public const int WWFLAC_FRDT_STREAM_ONE = 2;
+
+        /// <summary>
+        ///  flagsの値。
+        /// </summary>
+        public const int WWFLAC_FLAG_TOTAL_SAMPLES_WAS_UNKNOWN = 1;
 
         [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Unicode)]
         internal struct Metadata {
@@ -380,6 +404,8 @@ namespace WWFlacRWCS {
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = WWFLAC_TEXT_STRSZ)]
             public string pictureDescriptionStr;
 
+            public int flags;
+
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
             public byte[] md5sum;
         };
@@ -404,6 +430,12 @@ namespace WWFlacRWCS {
 
             [MarshalAs(UnmanagedType.ByValArray, SizeConst=WWFLAC_TRACK_IDX_NUM)]
             public WWFlacCuesheetTrackIdx [] trackIdx;
+        };
+
+        [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Unicode)]
+        internal struct WWFlacIntegrityCheckResult {
+            public int rv;
+            public int flags;
         };
 
         [DllImport("WWFlacRW.dll", CharSet = CharSet.Unicode)]
@@ -452,7 +484,7 @@ namespace WWFlacRWCS {
 
         [DllImport("WWFlacRW.dll", CharSet = CharSet.Unicode)]
         internal extern static
-        int WWFlacRW_CheckIntegrity(string path);
+        int WWFlacRW_CheckIntegrity(string path, out WWFlacIntegrityCheckResult result);
 
         [DllImport("WWFlacRW.dll", CharSet = CharSet.Unicode)]
         internal extern static
