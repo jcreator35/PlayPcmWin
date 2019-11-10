@@ -58,7 +58,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\WWSpatialAudioUserCpp2017</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\WWSpatialAudioUserCpp</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -76,7 +76,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\WWSpatialAudioUserCpp2017</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\WWSpatialAudioUserCpp</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -87,24 +87,24 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="..\WWSpatialAudioUserCpp2017\WWGuidToStr.cpp" />
-    <ClCompile Include="..\WWSpatialAudioUserCpp2017\WWPrintDeviceProp.cpp" />
-    <ClCompile Include="..\WWSpatialAudioUserCpp2017\WWSpatialAudioHrtfUser.cpp" />
-    <ClCompile Include="..\WWSpatialAudioUserCpp2017\WWSpatialAudioUser.cpp" />
-    <ClCompile Include="..\WWSpatialAudioUserCpp2017\WWUtil.cpp" />
+    <ClCompile Include="..\WWSpatialAudioUserCpp\WWGuidToStr.cpp" />
+    <ClCompile Include="..\WWSpatialAudioUserCpp\WWPrintDeviceProp.cpp" />
+    <ClCompile Include="..\WWSpatialAudioUserCpp\WWSpatialAudioHrtfUser.cpp" />
+    <ClCompile Include="..\WWSpatialAudioUserCpp\WWSpatialAudioUser.cpp" />
+    <ClCompile Include="..\WWSpatialAudioUserCpp\WWUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\WWSpatialAudioUserCpp2017\WWDeviceInf.h" />
-    <ClInclude Include="..\WWSpatialAudioUserCpp2017\WWDynAudioHrtfObject.h" />
-    <ClInclude Include="..\WWSpatialAudioUserCpp2017\WWDynAudioObject.h" />
-    <ClInclude Include="..\WWSpatialAudioUserCpp2017\WWDynAudioObjectTemplate.h" />
-    <ClInclude Include="..\WWSpatialAudioUserCpp2017\WWGuidToStr.h" />
-    <ClInclude Include="..\WWSpatialAudioUserCpp2017\WWPrintDeviceProp.h" />
-    <ClInclude Include="..\WWSpatialAudioUserCpp2017\WWSpatialAudioHrtfUser.h" />
-    <ClInclude Include="..\WWSpatialAudioUserCpp2017\WWDynAudioObjectListTemplate.h" />
-    <ClInclude Include="..\WWSpatialAudioUserCpp2017\WWSpatialAudioUser.h" />
-    <ClInclude Include="..\WWSpatialAudioUserCpp2017\WWSpatialAudioUserTemplate.h" />
-    <ClInclude Include="..\WWSpatialAudioUserCpp2017\WWUtil.h" />
+    <ClInclude Include="..\WWSpatialAudioUserCpp\WWDeviceInf.h" />
+    <ClInclude Include="..\WWSpatialAudioUserCpp\WWDynAudioHrtfObject.h" />
+    <ClInclude Include="..\WWSpatialAudioUserCpp\WWDynAudioObject.h" />
+    <ClInclude Include="..\WWSpatialAudioUserCpp\WWDynAudioObjectTemplate.h" />
+    <ClInclude Include="..\WWSpatialAudioUserCpp\WWGuidToStr.h" />
+    <ClInclude Include="..\WWSpatialAudioUserCpp\WWPrintDeviceProp.h" />
+    <ClInclude Include="..\WWSpatialAudioUserCpp\WWSpatialAudioHrtfUser.h" />
+    <ClInclude Include="..\WWSpatialAudioUserCpp\WWDynAudioObjectListTemplate.h" />
+    <ClInclude Include="..\WWSpatialAudioUserCpp\WWSpatialAudioUser.h" />
+    <ClInclude Include="..\WWSpatialAudioUserCpp\WWSpatialAudioUserTemplate.h" />
+    <ClInclude Include="..\WWSpatialAudioUserCpp\WWUtil.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

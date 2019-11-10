@@ -110,11 +110,11 @@
       <Project>{35c58f30-ad19-4e81-8555-a560ade9075c}</Project>
       <Name>WWMFResamplerCs2017</Name>
     </ProjectReference>
-    <ProjectReference Include="..\WWSpatialAudioUserCpp2017\WWSpatialAudioUserCpp2017.vcxproj">
+    <ProjectReference Include="..\WWSpatialAudioUserCpp\WWSpatialAudioUserCpp2017.vcxproj">
       <Project>{73224500-bbdf-40dc-afc0-7b4ae4fa5758}</Project>
       <Name>WWSpatialAudioUserCpp2017</Name>
     </ProjectReference>
-    <ProjectReference Include="..\WWSpatialAudioUserCs2017\WWSpatialAudioUserCs2017.csproj">
+    <ProjectReference Include="..\WWSpatialAudioUserCs\WWSpatialAudioUserCs2017.csproj">
       <Project>{48f7f7a8-e4b5-4416-bcf6-a73e9dafe96e}</Project>
       <Name>WWSpatialAudioUserCs2017</Name>
     </ProjectReference>
