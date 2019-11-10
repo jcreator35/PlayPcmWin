@@ -57,7 +57,7 @@
     <ClInclude Include="WWSpatialAudioUserTemplate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WWSpatialAudioHrtfUserIF.h">
+    <ClInclude Include="WWSpatialAudioUserIF.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -80,7 +80,7 @@
     <ClCompile Include="WWSpatialAudioHrtfUser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WWSpatialAudioHrtfUserIF.cpp">
+    <ClCompile Include="WWSpatialAudioUserIF.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

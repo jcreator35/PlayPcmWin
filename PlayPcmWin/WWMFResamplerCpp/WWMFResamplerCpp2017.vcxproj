@@ -12,9 +12,9 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{73224500-BBDF-40DC-AFC0-7B4AE4FA5758}</ProjectGuid>
+    <ProjectGuid>{B2DF1144-009E-4F95-8DFB-BBC981AC333F}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>WWSpatialAudioUserCpp2017</RootNamespace>
+    <RootNamespace>WWMFResamplerCpp2017</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -59,7 +59,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;WWSPATIALAUDIOUSER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;WWMFRESAMPLERCPP2017_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -75,7 +75,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;WWSPATIALAUDIOUSER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;WWMFRESAMPLERCPP2017_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -87,29 +87,19 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="WWDeviceInf.h" />
-    <ClInclude Include="WWDynAudioHrtfObject.h" />
-    <ClInclude Include="WWDynAudioObject.h" />
-    <ClInclude Include="WWDynAudioObjectListTemplate.h" />
-    <ClInclude Include="WWDynAudioObjectTemplate.h" />
-    <ClInclude Include="WWGuidToStr.h" />
-    <ClInclude Include="WWPrintDeviceProp.h" />
-    <ClInclude Include="WWSpatialAudioDeviceProperty.h" />
-    <ClInclude Include="WWSpatialAudioHrtfUser.h" />
-    <ClInclude Include="WWSpatialAudioStream.h" />
-    <ClInclude Include="WWSpatialAudioUser.h" />
-    <ClInclude Include="WWSpatialAudioUserIF.h" />
-    <ClInclude Include="WWSpatialAudioUserTemplate.h" />
+    <ClInclude Include="WWMFResampler.h" />
+    <ClInclude Include="WWMFResamplerCppIF.h" />
+    <ClInclude Include="WWTypes.h" />
     <ClInclude Include="WWUtil.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="WWGuidToStr.cpp" />
-    <ClCompile Include="WWPrintDeviceProp.cpp" />
-    <ClCompile Include="WWSpatialAudioHrtfUser.cpp" />
-    <ClCompile Include="WWSpatialAudioUser.cpp" />
-    <ClCompile Include="WWSpatialAudioUserIF.cpp" />
+    <ClCompile Include="WWMFResampler.cpp" />
+    <ClCompile Include="WWMFResamplerCppIF.cpp" />
     <ClCompile Include="WWUtil.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Runtime.InteropServices;
 
 namespace WWMFReaderCs {
@@ -159,18 +157,30 @@ namespace WWMFReaderCs {
                 public string composer;
             };
 
+#if vs2017
+            [DllImport("WWMFReaderCpp2017.dll", CharSet = CharSet.Unicode)]
+#else
             [DllImport("WWMFReader.dll", CharSet = CharSet.Unicode)]
+#endif
             internal extern static int WWMFReaderReadHeader(
                 string wszSourceFile,
                 out NativeMetadata meta_return);
 
+#if vs2017
+            [DllImport("WWMFReaderCpp2017.dll", CharSet = CharSet.Unicode)]
+#else
             [DllImport("WWMFReader.dll", CharSet = CharSet.Unicode)]
+#endif
             internal extern static int WWMFReaderGetCoverart(
                     string wszSourceFile,
                     byte[] data_return,
                     ref long dataBytes_inout);
 
+#if vs2017
+            [DllImport("WWMFReaderCpp2017.dll", CharSet = CharSet.Unicode)]
+#else
             [DllImport("WWMFReader.dll", CharSet = CharSet.Unicode)]
+#endif
             internal extern static int WWMFReaderReadData(
                     string wszSourceFile,
                     byte[] data_return,

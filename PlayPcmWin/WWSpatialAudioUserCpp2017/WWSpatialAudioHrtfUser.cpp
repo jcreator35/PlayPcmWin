@@ -31,7 +31,8 @@ WWSpatialAudioHrtfUser::Render1(void)
     UINT32 frameCountPerBuffer = 0;
 
     HRG(mSAORStream->BeginUpdatingAudioObjects(&availableDyn, &frameCountPerBuffer));
-    for (auto ite = mDynObjectList.mDynAudioObjectList.begin(); ite != mDynObjectList.mDynAudioObjectList.end(); ++ite) {
+    for (auto ite = mDynObjectList.mDynAudioObjectList.begin();
+            ite != mDynObjectList.mDynAudioObjectList.end(); ++ite) {
         auto &dyn = *ite;
         BYTE *buffer = nullptr;
         UINT32 bufferLength = 0;
@@ -141,7 +142,7 @@ WWSpatialAudioHrtfUser::Init(void)
     assert(nullptr == mRenderThread);
     mRenderThread = CreateThread(nullptr, 0, RenderEntry, this, 0, nullptr);
     if (nullptr == mRenderThread) {
-        printf("E: WWSpatialAudioUser::Init() CreateThread failed\n");
+        printf("E: WWSpatialAudioHrtfUser::Init() CreateThread failed\n");
         hr = E_FAIL;
     }
 

@@ -5,11 +5,16 @@
 #include <SpatialAudioHrtf.h>
 
 class WWSpatialAudioHrtfUser :
-    public WWSpatialAudioUserTemplate<ISpatialAudioObjectRenderStreamForHrtf, WWDynAudioHrtfObject> {
+    public WWSpatialAudioUserTemplate<
+        ISpatialAudioObjectRenderStreamForHrtf,
+        WWDynAudioHrtfObject>
+{
 public:
     HRESULT Init(void) override;
-    //void Term(void) override;
-    HRESULT ActivateAudioStream(int maxDynObjectCount, int staticObjectTypeMask) override;
+
+    /// @param staticObjectTypeMask 1つもスタティックなオブジェクトが無いときはNone。Dynamicにするとエラーが起きた。
+    HRESULT ActivateAudioStream(int maxDynObjectCount,
+        int staticObjectTypeMask) override;
 
 private:
     static DWORD RenderEntry(LPVOID lpThreadParameter);

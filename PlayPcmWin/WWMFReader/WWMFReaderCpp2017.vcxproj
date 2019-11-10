@@ -10,11 +10,19 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="WWMFReader.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="WWMFReader.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{73224500-BBDF-40DC-AFC0-7B4AE4FA5758}</ProjectGuid>
+    <ProjectGuid>{1342D295-C319-41A7-8C12-EDEE22FDD949}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>WWSpatialAudioUserCpp2017</RootNamespace>
+    <RootNamespace>WWMFReaderCpp2017</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -53,18 +61,25 @@
     <OutDir>$(SolutionDir)bin\$(PlatformToolset)\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>obj\$(PlatformToolset)\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IntDir>obj\$(PlatformToolset)\$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IntDir>obj\$(PlatformToolset)\$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;WWSPATIALAUDIOUSER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;WWMFREADER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>mfplat.lib;mfreadwrite.lib;mfuuid.lib;Propsys.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -75,7 +90,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;WWSPATIALAUDIOUSER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;WWMFREADER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -83,34 +98,9 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>mfplat.lib;mfreadwrite.lib;mfuuid.lib;Propsys.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="targetver.h" />
-    <ClInclude Include="WWDeviceInf.h" />
-    <ClInclude Include="WWDynAudioHrtfObject.h" />
-    <ClInclude Include="WWDynAudioObject.h" />
-    <ClInclude Include="WWDynAudioObjectListTemplate.h" />
-    <ClInclude Include="WWDynAudioObjectTemplate.h" />
-    <ClInclude Include="WWGuidToStr.h" />
-    <ClInclude Include="WWPrintDeviceProp.h" />
-    <ClInclude Include="WWSpatialAudioDeviceProperty.h" />
-    <ClInclude Include="WWSpatialAudioHrtfUser.h" />
-    <ClInclude Include="WWSpatialAudioStream.h" />
-    <ClInclude Include="WWSpatialAudioUser.h" />
-    <ClInclude Include="WWSpatialAudioUserIF.h" />
-    <ClInclude Include="WWSpatialAudioUserTemplate.h" />
-    <ClInclude Include="WWUtil.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="WWGuidToStr.cpp" />
-    <ClCompile Include="WWPrintDeviceProp.cpp" />
-    <ClCompile Include="WWSpatialAudioHrtfUser.cpp" />
-    <ClCompile Include="WWSpatialAudioUser.cpp" />
-    <ClCompile Include="WWSpatialAudioUserIF.cpp" />
-    <ClCompile Include="WWUtil.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

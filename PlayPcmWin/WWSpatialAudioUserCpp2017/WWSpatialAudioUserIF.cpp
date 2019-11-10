@@ -1,15 +1,14 @@
 ﻿// 日本語 UTF-8
 
-#define WWSPATIALAUDIOUSER_EXPORTS
-#include "WWSpatialAudioHrtfUserIF.h"
-#include "WWSpatialAudioHrtfUser.h"
+#include "WWSpatialAudioUserIF.h"
+#include "WWSpatialAudioUser.h"
 #include "WWSpatialAudioDeviceProperty.h"
 
 #include <list>
 
-static std::list<WWSpatialAudioHrtfUser*> gInstanceList;
+static std::list<WWSpatialAudioUser*> gInstanceList;
 
-static WWSpatialAudioHrtfUser *
+static WWSpatialAudioUser *
 FindInstance(int idx)
 {
     if (idx < 0 || gInstanceList.size() <= idx) {
@@ -26,9 +25,9 @@ FindInstance(int idx)
 
 /// 新たに実体を作成。
 WWSPATIALAUDIOUSER_API int __stdcall
-WWSpatialAudioHrtfUserInit(void)
+WWSpatialAudioUserInit(void)
 {
-    auto p = new WWSpatialAudioHrtfUser();
+    auto p = new WWSpatialAudioUser();
     p->Init();
 
     gInstanceList.push_back(p);
@@ -38,7 +37,7 @@ WWSpatialAudioHrtfUserInit(void)
 /// 実体を削除する。
 /// @param instanceId 実体のID番号。Initで戻る値。
 WWSPATIALAUDIOUSER_API int __stdcall
-WWSpatialAudioHrtfUserTerm(int instanceId)
+WWSpatialAudioUserTerm(int instanceId)
 {
     if (instanceId < 0 || gInstanceList.size() <= instanceId) {
         return E_NOTFOUND;
@@ -69,21 +68,21 @@ WWSpatialAudioHrtfUserTerm(int instanceId)
 
 
 WWSPATIALAUDIOUSER_API int __stdcall
-WWSpatialAudioHrtfUserDoEnumeration(int instanceId)
+WWSpatialAudioUserDoEnumeration(int instanceId)
 {
     FIND_INSTANCE;
     return p->DoDeviceEnumeration();
 }
 
 WWSPATIALAUDIOUSER_API int __stdcall
-WWSpatialAudioHrtfUserGetDeviceCount(int instanceId)
+WWSpatialAudioUserGetDeviceCount(int instanceId)
 {
     FIND_INSTANCE;
     return p->GetDeviceCount();
 }
 
 WWSPATIALAUDIOUSER_API int __stdcall
-WWSpatialAudioHrtfUserGetDeviceProperty(int instanceId, int devIdx, WWSpatialAudioDeviceProperty &sadp_r)
+WWSpatialAudioUserGetDeviceProperty(int instanceId, int devIdx, WWSpatialAudioDeviceProperty &sadp_r)
 {
     FIND_INSTANCE;
     return p->GetDeviceName(devIdx, sadp_r.name, sizeof sadp_r.name);

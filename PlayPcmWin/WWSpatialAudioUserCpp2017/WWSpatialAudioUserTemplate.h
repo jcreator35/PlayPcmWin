@@ -116,6 +116,7 @@ public:
         UINT nDevices = 0;
         HRG(mDeviceCollection->GetCount(&nDevices));
 
+        mDeviceInf.clear();
         for (UINT i = 0; i < nDevices; ++i) {
             wchar_t name[WW_DEVICE_NAME_COUNT];
             HRG(WWDeviceNameGet(mDeviceCollection, i, name, sizeof name));
