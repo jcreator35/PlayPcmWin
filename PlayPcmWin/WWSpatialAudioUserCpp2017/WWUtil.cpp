@@ -115,3 +115,18 @@ end:
     SafeRelease(&ps);
     return hr;
 }
+
+int
+WWCountNumberOf1s(uint64_t v)
+{
+    int acc = 0;
+    for (int i = 0; i < 64; ++i) {
+        uint64_t bit = 1LLU << i;
+        if (v & bit) {
+            ++acc;
+        }
+    }
+
+    return acc;
+}
+

@@ -7,7 +7,8 @@
 #include <set>
 
 HRESULT
-WWPrintStaticAudioObjectTypeFlags(ISpatialAudioClient *saClient);
+WWGetAndPrintStaticAudioObjectProp(ISpatialAudioClient *saClient);
+
 const char *
 WWGuidToKsDataFormatStr(GUID *guid);
 

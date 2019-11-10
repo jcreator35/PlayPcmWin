@@ -181,14 +181,18 @@ public:
 
             HRG(mSAClient->GetMaxDynamicObjectCount(&mMaxDynamicObjectCount));
 
+            // dynamic objects
             if (mMaxDynamicObjectCount == 0) {
-                printf("    Spatial audio is not enabled\n");
+                printf("  Spatial audio is not enabled\n");
                 goto end;
             }
-            printf("    Spatial audio is enabled\n");
-            printf("    MaxDynamicObjectCount=%u\n", mMaxDynamicObjectCount);
+            printf("  Spatial audio is enabled\n");
+            printf("  MaxDynamicObjectCount=%u\n", mMaxDynamicObjectCount);
 
-            //WWPrintStaticAudioObjectTypeFlags(mSAClient);
+            // static objects
+            HRG(mSAClient->GetNativeStaticObjectTypeMask(&mNativeStaticObjectTypeFlags));
+            printf("  Native Static Audio Objects : %d ch\n", WWCountNumberOf1s(mNativeStaticObjectTypeFlags));
+            WWGetAndPrintStaticAudioObjectProp(mSAClient);
 
             // prepare WFEX
             {
@@ -305,6 +309,7 @@ protected:
     IMMDevice *mDeviceToUse = nullptr;
 
     UINT mMaxDynamicObjectCount = 0;
+    AudioObjectType  mNativeStaticObjectTypeFlags = AudioObjectType_None;
     int mNextDynStreamIdx = 0;
 
     ISpatialAudioClient *mSAClient = nullptr;

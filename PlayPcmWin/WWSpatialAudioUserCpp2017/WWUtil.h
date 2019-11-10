@@ -4,6 +4,7 @@
 #include <Windows.h>
 #include <comdef.h>
 #include <MMDeviceAPI.h>
+#include <stdint.h>
 
 void WWErrorDescription(HRESULT hr);
 
@@ -64,3 +65,6 @@ void WWQuaternionToRowMajorRotMat(const float q[4], float m_return[9]);
 HRESULT
 WWDeviceNameGet(
     IMMDeviceCollection *dc, UINT id, wchar_t *name, size_t nameBytes);
+
+int
+WWCountNumberOf1s(uint64_t v);

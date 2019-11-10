@@ -16,40 +16,39 @@ PrintAudioObjectPosition(ISpatialAudioClient *saClient, const char *name, AudioO
 
     HRG(saClient->GetStaticObjectPosition(aot, &v[0], &v[1], &v[2]));
 
-    printf("    %s (%f %f %f)\n", name, v[0], v[1], v[2]);
+    printf("    %s %12.7f %12.7f %12.7f\n", name, v[0], v[1], v[2]);
 
 end:
     return hr;
 }
 
 HRESULT
-WWPrintStaticAudioObjectTypeFlags(ISpatialAudioClient *saClient)
+WWGetAndPrintStaticAudioObjectProp(ISpatialAudioClient *saClient)
 {
     HRESULT hr = S_OK;
     AudioObjectType f = AudioObjectType_None;
     HRG(saClient->GetNativeStaticObjectTypeMask(&f));
 
-    if (f & AudioObjectType_FrontLeft) { HRG(PrintAudioObjectPosition(saClient, "FrontLeft", AudioObjectType_FrontLeft)); }
-    if (f & AudioObjectType_FrontRight) { HRG(PrintAudioObjectPosition(saClient, "FrontRight", AudioObjectType_FrontRight)); }
-    if (f & AudioObjectType_FrontCenter) { HRG(PrintAudioObjectPosition(saClient, "FrontCenter", AudioObjectType_FrontCenter)); }
-    if (f & AudioObjectType_LowFrequency) { HRG(PrintAudioObjectPosition(saClient, "LowFrequency", AudioObjectType_LowFrequency)); }
+    if (f & AudioObjectType_FrontLeft)        { HRG(PrintAudioObjectPosition(saClient, "FrontLeft       ", AudioObjectType_FrontLeft)); }
+    if (f & AudioObjectType_FrontRight)       { HRG(PrintAudioObjectPosition(saClient, "FrontRight      ", AudioObjectType_FrontRight)); }
+    if (f & AudioObjectType_FrontCenter)      { HRG(PrintAudioObjectPosition(saClient, "FrontCenter     ", AudioObjectType_FrontCenter)); }
+    if (f & AudioObjectType_LowFrequency)     { HRG(PrintAudioObjectPosition(saClient, "LowFrequency    ", AudioObjectType_LowFrequency)); }
 
-    if (f & AudioObjectType_SideLeft) { HRG(PrintAudioObjectPosition(saClient, "SideLeft", AudioObjectType_SideLeft)); }
-    if (f & AudioObjectType_SideRight) { HRG(PrintAudioObjectPosition(saClient, "SideRight", AudioObjectType_SideRight)); }
-    if (f & AudioObjectType_BackLeft) { HRG(PrintAudioObjectPosition(saClient, "BackLeft", AudioObjectType_BackLeft)); }
-    if (f & AudioObjectType_BackRight) { HRG(PrintAudioObjectPosition(saClient, "BackRight", AudioObjectType_BackRight)); }
-    if (f & AudioObjectType_TopFrontLeft) { HRG(PrintAudioObjectPosition(saClient, "TopFrontLeft", AudioObjectType_TopFrontLeft)); }
+    if (f & AudioObjectType_SideLeft)         { HRG(PrintAudioObjectPosition(saClient, "SideLeft        ", AudioObjectType_SideLeft)); }
+    if (f & AudioObjectType_SideRight)        { HRG(PrintAudioObjectPosition(saClient, "SideRight       ", AudioObjectType_SideRight)); }
+    if (f & AudioObjectType_BackLeft)         { HRG(PrintAudioObjectPosition(saClient, "BackLeft        ", AudioObjectType_BackLeft)); }
+    if (f & AudioObjectType_BackRight)        { HRG(PrintAudioObjectPosition(saClient, "BackRight       ", AudioObjectType_BackRight)); }
+    if (f & AudioObjectType_TopFrontLeft)     { HRG(PrintAudioObjectPosition(saClient, "TopFrontLeft    ", AudioObjectType_TopFrontLeft)); }
 
-    if (f & AudioObjectType_TopFrontRight) { HRG(PrintAudioObjectPosition(saClient, "TopFrontRight", AudioObjectType_TopFrontRight)); }
-    if (f & AudioObjectType_TopBackLeft) { HRG(PrintAudioObjectPosition(saClient, "TopBackLeft", AudioObjectType_TopBackLeft)); }
-    if (f & AudioObjectType_TopBackRight) { HRG(PrintAudioObjectPosition(saClient, "TopBackRight", AudioObjectType_TopBackRight)); }
-    if (f & AudioObjectType_BottomFrontLeft) { HRG(PrintAudioObjectPosition(saClient, "BottomFrontLeft", AudioObjectType_BottomFrontLeft)); }
+    if (f & AudioObjectType_TopFrontRight)    { HRG(PrintAudioObjectPosition(saClient, "TopFrontRight   ", AudioObjectType_TopFrontRight)); }
+    if (f & AudioObjectType_TopBackLeft)      { HRG(PrintAudioObjectPosition(saClient, "TopBackLeft     ", AudioObjectType_TopBackLeft)); }
+    if (f & AudioObjectType_TopBackRight)     { HRG(PrintAudioObjectPosition(saClient, "TopBackRight    ", AudioObjectType_TopBackRight)); }
+    if (f & AudioObjectType_BottomFrontLeft)  { HRG(PrintAudioObjectPosition(saClient, "BottomFrontLeft ", AudioObjectType_BottomFrontLeft)); }
     if (f & AudioObjectType_BottomFrontRight) { HRG(PrintAudioObjectPosition(saClient, "BottomFrontRight", AudioObjectType_BottomFrontRight)); }
 
-    if (f & AudioObjectType_BottomBackLeft) { HRG(PrintAudioObjectPosition(saClient, "BottomBackLeft", AudioObjectType_BottomBackLeft)); }
-    if (f & AudioObjectType_BottomBackRight) { HRG(PrintAudioObjectPosition(saClient, "BottomBackRight", AudioObjectType_BottomBackRight)); }
-    if (f & AudioObjectType_BackCenter) { HRG(PrintAudioObjectPosition(saClient, "BackCenter", AudioObjectType_BackCenter)); }
-
+    if (f & AudioObjectType_BottomBackLeft)   { HRG(PrintAudioObjectPosition(saClient, "BottomBackLeft  ", AudioObjectType_BottomBackLeft)); }
+    if (f & AudioObjectType_BottomBackRight)  { HRG(PrintAudioObjectPosition(saClient, "BottomBackRight ", AudioObjectType_BottomBackRight)); }
+    if (f & AudioObjectType_BackCenter)       { HRG(PrintAudioObjectPosition(saClient, "BackCenter      ", AudioObjectType_BackCenter)); }
 end:
     return hr;
 }
@@ -253,7 +252,7 @@ WWPrintDeviceProp::PrintDeviceProperties(IMMDevice *device)
     printf("    Spatial audio is enabled\n");
     printf("    MaxDynamicObjectCount=%u\n", maxDynObjCount);
 
-    WWPrintStaticAudioObjectTypeFlags(saClient);
+    WWGetAndPrintStaticAudioObjectProp(saClient);
 
     HRG(saClient->GetSupportedAudioObjectFormatEnumerator(&afEnum));
 
