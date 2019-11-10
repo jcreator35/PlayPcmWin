@@ -491,7 +491,10 @@ namespace Wasapi {
                 result = 0x3f; // 5.1 surround (FL FR FC LFE BL BR)
                 break;
             case 8:
-                result = 0x63f; // 7.1 surround (FL FR FC LFE BL BR SL SR)
+                result = 0x63f;    // 7.1 surround   (FL FR FC LFE BL BR SL SR)
+                break;
+            case 12:
+                result = 0x2d63f; //< 7.1.4 surround (FL FR FC LFE BL BR SL SR TFL TFR TBL TBR)
                 break;
             default:
                 // 0 means we does not specify particular speaker locations.
