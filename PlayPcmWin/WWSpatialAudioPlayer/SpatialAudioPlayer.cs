@@ -23,7 +23,11 @@ namespace WWSpatialAudioPlayer  {
         public int NumChannels {  get { return mPcmByChannel.Count; } }
         public byte[] Pcm(int ch) { return mPcmByChannel[ch]; }
 
-        int ChannelToDefaultDwChannelMask(int ch) {
+        public int DwChannelMask {
+            get { return mMetadata.dwChannelMask; }
+        }
+
+        private int GetDefaultDwChannelMask(int ch) {
             int mask = 0;
             switch (ch) {
             case 1:
@@ -57,6 +61,12 @@ namespace WWSpatialAudioPlayer  {
             if (hr < 0) {
                 return hr;
             }
+
+            // update DwChannelMask
+            if (0 == mMetadata.dwChannelMask) {
+                mMetadata.dwChannelMask = GetDefaultDwChannelMask(mMetadata.numChannels);
+            }
+
             return hr;
         }
 
@@ -65,11 +75,11 @@ namespace WWSpatialAudioPlayer  {
 
             // 48000Hz 32bit floatに変換。
             var fromFmt = new WWPcmFormat(WWPcmFormat.SampleFormat.SF_Int, mMetadata.numChannels,
-                mMetadata.bitsPerSample, mMetadata.sampleRate, ChannelToDefaultDwChannelMask(mMetadata.numChannels),
+                mMetadata.bitsPerSample, mMetadata.sampleRate, DwChannelMask,
                 mMetadata.bitsPerSample);
 
             var toFmt = new WWPcmFormat(WWPcmFormat.SampleFormat.SF_Float, mMetadata.numChannels,
-                32, 48000, ChannelToDefaultDwChannelMask(mMetadata.numChannels),
+                32, 48000, DwChannelMask,
                 32);
 
             var toBufList = new List<byte[]>();

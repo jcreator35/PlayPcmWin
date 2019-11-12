@@ -88,3 +88,9 @@ WWSpatialAudioUserGetDeviceProperty(int instanceId, int devIdx, WWSpatialAudioDe
     return p->GetDeviceName(devIdx, sadp_r.name, sizeof sadp_r.name);
 }
 
+WWSPATIALAUDIOUSER_API int __stdcall
+WWSpatialAudioUserChooseDevice(int instanceId, int devIdx, int maxDynObjectCount, int staticObjectTypeMask)
+{
+    FIND_INSTANCE;
+    return p->ChooseDevice(devIdx, maxDynObjectCount, staticObjectTypeMask);
+}

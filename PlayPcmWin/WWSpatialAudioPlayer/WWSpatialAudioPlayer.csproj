@@ -102,17 +102,9 @@
       <Project>{7b9a2e60-ce68-4ec8-9b2e-07a4f8585c94}</Project>
       <Name>WWMFReaderCs2017</Name>
     </ProjectReference>
-    <ProjectReference Include="..\WWMFResamplerCpp\WWMFResamplerCpp2017.vcxproj">
-      <Project>{b2df1144-009e-4f95-8dfb-bbc981ac333f}</Project>
-      <Name>WWMFResamplerCpp2017</Name>
-    </ProjectReference>
     <ProjectReference Include="..\WWMFResamplerCs\WWMFResamplerCs2017.csproj">
       <Project>{35c58f30-ad19-4e81-8555-a560ade9075c}</Project>
       <Name>WWMFResamplerCs2017</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\WWSpatialAudioUserCpp\WWSpatialAudioUserCpp2017.vcxproj">
-      <Project>{73224500-bbdf-40dc-afc0-7b4ae4fa5758}</Project>
-      <Name>WWSpatialAudioUserCpp2017</Name>
     </ProjectReference>
     <ProjectReference Include="..\WWSpatialAudioUserCs\WWSpatialAudioUserCs2017.csproj">
       <Project>{48f7f7a8-e4b5-4416-bcf6-a73e9dafe96e}</Project>

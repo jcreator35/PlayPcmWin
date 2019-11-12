@@ -301,6 +301,7 @@ WWMFReaderReadHeader(
     IMFMediaSource *pMediaSource = nullptr;
     IMFPresentationDescriptor *pPD = nullptr;
     WAVEFORMATEX *pWfex = nullptr;
+    WAVEFORMATEXTENSIBLE *pWfext = nullptr;
     UINT32 cbFormat = 0;
     MFTIME hnsDuration = 0;
     DWORD dwStream = 0;
@@ -319,6 +320,9 @@ WWMFReaderReadHeader(
     HRG(GetUncompressedPcmAudio(pReader, &pMTPcmAudio));
 
     HRG(MFCreateWaveFormatExFromMFMediaType(pMTPcmAudio, &pWfex, &cbFormat));
+    if (22 <= pWfex->cbSize) {
+        pWfext = (WAVEFORMATEXTENSIBLE*)pWfex;
+    }
 
     HRG(GetDuration(pReader, &hnsDuration));
 
@@ -344,6 +348,7 @@ WWMFReaderReadHeader(
     meta_return->bitsPerSample = pWfex->wBitsPerSample;
     meta_return->numChannels = pWfex->nChannels;
     meta_return->sampleRate = pWfex->nSamplesPerSec;
+    meta_return->dwChannelMask = pWfext ? pWfext->dwChannelMask : 0;
     meta_return->numApproxFrames =
             (int64_t)((double)hnsDuration * meta_return->sampleRate / (1000 * 1000 * 10));
     if (pMetadata) {

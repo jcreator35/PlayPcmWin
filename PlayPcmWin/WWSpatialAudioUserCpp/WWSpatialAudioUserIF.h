@@ -32,3 +32,7 @@ WWSpatialAudioUserGetDeviceProperty(
     int instanceId, int devIdx,
     WWSpatialAudioDeviceProperty &sadp_r);
 
+/// @param staticObjectTypeMask AudioObjectType
+WWSPATIALAUDIOUSER_API int __stdcall
+WWSpatialAudioUserChooseDevice(
+    int instanceId, int devIdx, int maxDynObjectCount, int staticObjectTypeMask);

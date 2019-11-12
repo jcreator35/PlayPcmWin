@@ -8,6 +8,7 @@ using System.Globalization;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using WWSpatialAudioUserCs;
 
 namespace WWSpatialAudioPlayer {
     /// <summary>
@@ -24,8 +25,6 @@ namespace WWSpatialAudioPlayer {
         private const int LOG_LINE_NUM = 100;
 
         private List<string> mLogList = new List<string>();
-
-
 
         public MainWindow() {
             mVirtualSpeakerTypeDisplayNames = new ObservableCollection<VirtualSpeakerMotionType>() { VirtualSpeakerMotionType.Static, VirtualSpeakerMotionType.UserSpecifiedPosition, VirtualSpeakerMotionType.RotateAroundYourHead };
@@ -57,6 +56,7 @@ namespace WWSpatialAudioPlayer {
             }
         }
 
+        #region File Read worker thread stuff
         class LoadParams {
             public string path;
         }
@@ -85,7 +85,7 @@ namespace WWSpatialAudioPlayer {
                 r.hr = hr;
                 return;
             }
-            mBwLoad.ReportProgress(50, new LoadProgress("  Resampling...\n"));
+            mBwLoad.ReportProgress(66, new LoadProgress("  Resampling...\n"));
 
             hr = mPlayer.Resample();
             if (hr < 0) {
@@ -96,6 +96,7 @@ namespace WWSpatialAudioPlayer {
         private void MBwLoad_ProgressChanged(object sender, ProgressChangedEventArgs e) {
             var param = e.UserState as LoadProgress;
             AddLog(param.msg);
+            mProgressbar.Value = e.ProgressPercentage;
         }
 
         private void MBwLoad_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
@@ -113,10 +114,13 @@ namespace WWSpatialAudioPlayer {
             } else {
                 mButtonPlay.IsEnabled = true;
                 AddLog(string.Format("Read succeeded : {0}\n", mTextBoxInputFileName.Text));
+                UpdateCheckBoxStaticSpeakers();
             }
 
             mProgressbar.Value = 0;
         }
+
+        #endregion
 
         private static string AssemblyVersion {
             get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); }
@@ -152,6 +156,60 @@ namespace WWSpatialAudioPlayer {
             mBwLoad.RunWorkerAsync(param);
         }
 
+        /// <summary>
+        /// AudioObjectTypeMaskの順に並べたチェックボックスのリスト。
+        /// </summary>
+        private List<CheckBox> StaticSpeakerCheckBoxList() {
+            var cbList =new List<CheckBox>();
+            cbList.Add(mCbFL);
+            cbList.Add(mCbFR);
+            cbList.Add(mCbFC);
+            cbList.Add(mCbLF);
+            cbList.Add(mCbSL);
+
+            cbList.Add(mCbSR);
+            cbList.Add(mCbBL);
+            cbList.Add(mCbBR);
+            cbList.Add(mCbTFL);
+            cbList.Add(mCbTFR);
+
+            cbList.Add(mCbTBL);
+            cbList.Add(mCbTBR);
+            cbList.Add(mCbBFL);
+            cbList.Add(mCbBFR);
+            cbList.Add(mCbBBL);
+
+            cbList.Add(mCbBBR);
+            cbList.Add(mCbBC);
+            return cbList;
+        }
+
+        private void UpdateCheckBoxStaticSpeakers() {
+            var cbList = StaticSpeakerCheckBoxList();
+
+            foreach (var item in cbList) {
+                item.IsChecked = false;
+            }
+
+            int aoTypeMask = WWSpatialAudioUser.DwChannelMaskToAudioObjectTypeMask(mPlayer.DwChannelMask);
+            for (int i=0; i<cbList.Count; ++i) {
+                if (0 != (aoTypeMask & (1<<(i + 1)))) {
+                    cbList[i].IsChecked = true;
+                }
+            }
+        }
+
+        private int CheckBoxStateToStaticAudioObjectTypeMask() {
+            int r = 0;
+            var cbList = StaticSpeakerCheckBoxList();
+            for (int i = 0; i < cbList.Count; ++i) {
+                if (true == cbList[i].IsChecked) {
+                    r |= (1 << (i + 1));
+                }
+            }
+            return r;
+        }
+
         // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
         private void dataGridVirtualSpeakerSettings_SelectionChanged(object sender, SelectionChangedEventArgs e) {
@@ -160,7 +218,7 @@ namespace WWSpatialAudioPlayer {
 
         private void ButtonBrowse_Click(object sender, RoutedEventArgs e) {
             var dlg = new Microsoft.Win32.OpenFileDialog();
-            dlg.Filter = "Audio files(*.flac)|*.flac";
+            dlg.Filter = "Audio files(*wav;*.flac)|*.wav;*.flac";
             dlg.ValidateNames = true;
 
             var result = dlg.ShowDialog();
@@ -221,7 +279,7 @@ namespace WWSpatialAudioPlayer {
             Dispose(true);
         }
 
-        private void MButtonUpdatePlaybackDeviceList_Click(object sender, RoutedEventArgs e) {
+        private void ButtonUpdatePlaybackDeviceList_Click(object sender, RoutedEventArgs e) {
             UpdateDeviceList();
         }
 
@@ -235,6 +293,24 @@ namespace WWSpatialAudioPlayer {
                 MessageBox.Show(string.Format("Error: Read file failed. {0}", path));
                 return;
             }
+
+            UpdateCheckBoxStaticSpeakers();
+        }
+
+        private void ButtonActivateDevice_Click(object sender, RoutedEventArgs e) {
+            int devIdx = mListBoxPlaybackDevices.SelectedIndex;
+            int maxDynObjCount = 0;
+            if (!int.TryParse(mTextBoxMaxDynObjCount.Text, out maxDynObjCount)) {
+                MessageBox.Show("Error: MaxDynamicObjectCount is not number");
+                return;
+            }
+            int staticObjMask = CheckBoxStateToStaticAudioObjectTypeMask();
+
+            mPlayer.SpatialAudio.ChooseDevice(devIdx, maxDynObjCount, staticObjMask);
+        }
+
+        private void ButtonDeactivateDevice_Click(object sender, RoutedEventArgs e) {
+
         }
     }
 }

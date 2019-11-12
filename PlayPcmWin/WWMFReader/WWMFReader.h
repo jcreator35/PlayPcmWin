@@ -23,8 +23,10 @@ struct WWMFReaderMetadata {
     int sampleRate;
     int numChannels;
     int bitsPerSample;
-
     int bitRate;
+
+    uint32_t dwChannelMask;
+    uint32_t dummy0;
 
     /// おおよその値が戻る。
     int64_t numApproxFrames;

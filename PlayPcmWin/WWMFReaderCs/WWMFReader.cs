@@ -11,6 +11,8 @@ namespace WWMFReaderCs {
             public int bitsPerSample;
             public int bitRate;
 
+            public int dwChannelMask;
+
             /// おおよその値が戻る。
             public long numApproxFrames;
 
@@ -76,6 +78,8 @@ namespace WWMFReaderCs {
             meta_return.numChannels = nativeMeta.numChannels;
             meta_return.bitsPerSample = nativeMeta.bitsPerSample;
             meta_return.bitRate = nativeMeta.bitRate;
+            meta_return.dwChannelMask = nativeMeta.dwChannelMask;
+
             meta_return.numApproxFrames = nativeMeta.numApproxFrames;
 
             meta_return.title = nativeMeta.title;
@@ -126,7 +130,8 @@ namespace WWMFReaderCs {
 
             return hr;
         }
-
+    
+        #region Native Stuff
         internal static class NativeMethods {
             public const int TEXT_STRSZ = 256;
 
@@ -135,8 +140,10 @@ namespace WWMFReaderCs {
                 public int sampleRate;
                 public int numChannels;
                 public int bitsPerSample;
-
                 public int bitRate;
+
+                public int dwChannelMask;
+                public int dummy0;
 
                 /// おおよその値が戻る。
                 public long numApproxFrames;
@@ -186,5 +193,6 @@ namespace WWMFReaderCs {
                     byte[] data_return,
                     ref long dataBytes_inout);
         };
+        #endregion
     };
 };

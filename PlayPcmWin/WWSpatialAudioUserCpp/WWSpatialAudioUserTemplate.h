@@ -228,6 +228,7 @@ public:
         return hr;
     }
 
+    /// @param maxDynObjectCount 0でも可。AV Receiverの上限値は20程度。ソフトウェア実装は110程度。
     /// @param staticObjectTypeMask  1つもスタティックなオブジェクトが無いときはAudioObjectType_None。Dynamicにするとエラーが起きた。
     virtual HRESULT ActivateAudioStream(int maxDynObjectCount, int staticObjectTypeMask) =0;
 
