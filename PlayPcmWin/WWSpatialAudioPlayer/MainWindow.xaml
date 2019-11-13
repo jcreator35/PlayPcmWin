@@ -5,14 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WWSpatialAudioPlayer"
         mc:Ignorable="d"
-        Title="WWSpatialAudioPlayer" Height="800" Width="800" Closed="Window_Closed" >
+        Title="WWSpatialAudioPlayer" Height="800" Width="800" Closed="Window_Closed" Loaded="Window_Loaded" >
     <Grid Name="mGridWholeContainer" >
         <Grid Name="mGridMainContainer" Visibility="Visible">
             <Grid Margin="6,0,6,0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="90"/>
                     <RowDefinition Height="120*"/>
-                    <RowDefinition Height="120*"/>
+                    <RowDefinition Height="80*"/>
                     <RowDefinition Height="50"/>
                     <RowDefinition Height="120"/>
                     <RowDefinition Height="20" />
@@ -32,6 +32,7 @@
                         <TextBox IsReadOnly="True" x:Name="mTextBoxInputFileName" TextWrapping="Wrap" Text="C:/audio/multichannel.flac" VerticalAlignment="Center" Grid.Column="1" Margin="0,0,0,0" />
                         <Button x:Name="mButtonBrowse" Content="_Browse..." Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center" Width="100" Margin="6,0,0,0" Click="ButtonBrowse_Click"/>
                         <Button x:Name="mButtonRead" Content="_Read" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" Width="100" Margin="-60,0,0,0" Click="ButtonRead_Click"/>
+                        <Label x:Name="mLabelInputAudioFmt" Content="" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Margin="60,0,0,0" VerticalAlignment="Center" />
                     </Grid>
                 </GroupBox>
                 <GroupBox Header="Playback Device" Grid.Row="1" >
@@ -41,11 +42,7 @@
                             <RowDefinition Height="30" />
                         </Grid.RowDefinitions>
                         <Grid Grid.Row="0" >
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="1*" />
-                                <ColumnDefinition Width="1*" />
-                            </Grid.ColumnDefinitions>
-                            <Grid Grid.Column="0" >
+                            <Grid >
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="1*" />
                                     <RowDefinition Height="30" />
@@ -55,52 +52,6 @@
                                 </GroupBox>
                                 <Button Grid.Row="1" x:Name="mButtonUpdatePlaybackDeviceList" Width="100" Content="_Update list" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="6,0,0,0" Click="ButtonUpdatePlaybackDeviceList_Click"/>
                             </Grid>
-                            <Grid Grid.Column="1" >
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="30" />
-                                    <RowDefinition Height="1*" />
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="3*" />
-                                    <ColumnDefinition Width="1*" />
-                                </Grid.ColumnDefinitions>
-                                <Label HorizontalAlignment="Right"  Content="Max Dynamic Object count:" />
-                                <TextBox x:Name="mTextBoxMaxDynObjCount" Grid.Column="1" Text="10" VerticalAlignment="Center" HorizontalContentAlignment="Right" />
-                                <GroupBox Header="Static (real or virtual) Speakers to Use" Grid.Row="1" Grid.ColumnSpan="2">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="1*" />
-                                            <ColumnDefinition Width="1*" />
-                                            <ColumnDefinition Width="1*" />
-                                        </Grid.ColumnDefinitions>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="1*" />
-                                            <RowDefinition Height="1*" />
-                                            <RowDefinition Height="1*" />
-                                            <RowDefinition Height="1*" />
-                                            <RowDefinition Height="1*" />
-                                            <RowDefinition Height="1*" />
-                                        </Grid.RowDefinitions>
-                                        <CheckBox Grid.Column="0" Grid.Row="0" Content="FrontLeft" VerticalAlignment="Center" x:Name="mCbFL" />
-                                        <CheckBox Grid.Column="0" Grid.Row="1" Content="FrontRight" VerticalAlignment="Center" x:Name="mCbFR"  />
-                                        <CheckBox Grid.Column="0" Grid.Row="2" Content="FrontCenter" VerticalAlignment="Center" x:Name="mCbFC"  />
-                                        <CheckBox Grid.Column="0" Grid.Row="3" Content="LowFrequency" VerticalAlignment="Center" x:Name="mCbLF"  />
-                                        <CheckBox Grid.Column="0" Grid.Row="4" Content="SideLeft" VerticalAlignment="Center" x:Name="mCbSL"  />
-                                        <CheckBox Grid.Column="0" Grid.Row="5" Content="SideRight" VerticalAlignment="Center" x:Name="mCbSR"  />
-                                        <CheckBox Grid.Column="1" Grid.Row="0" Content="BackLeft" VerticalAlignment="Center" x:Name="mCbBL"  />
-                                        <CheckBox Grid.Column="1" Grid.Row="1" Content="BackRight" VerticalAlignment="Center" x:Name="mCbBR"  />
-                                        <CheckBox Grid.Column="1" Grid.Row="2" Content="TopFrontLeft" VerticalAlignment="Center" x:Name="mCbTFL"  />
-                                        <CheckBox Grid.Column="1" Grid.Row="3" Content="TopFrontRight" VerticalAlignment="Center" x:Name="mCbTFR"  />
-                                        <CheckBox Grid.Column="1" Grid.Row="4" Content="TopBackLeft" VerticalAlignment="Center" x:Name="mCbTBL"  />
-                                        <CheckBox Grid.Column="1" Grid.Row="5" Content="TopBackRight" VerticalAlignment="Center" x:Name="mCbTBR"  />
-                                        <CheckBox Grid.Column="2" Grid.Row="0" Content="BottomFrontLeft" VerticalAlignment="Center" x:Name="mCbBFL"  />
-                                        <CheckBox Grid.Column="2" Grid.Row="1" Content="BottomFrontRight" VerticalAlignment="Center" x:Name="mCbBFR"  />
-                                        <CheckBox Grid.Column="2" Grid.Row="2" Content="BottomBackLeft" VerticalAlignment="Center" x:Name="mCbBBL"  />
-                                        <CheckBox Grid.Column="2" Grid.Row="3" Content="BottomBackRight" VerticalAlignment="Center" x:Name="mCbBBR"  />
-                                        <CheckBox Grid.Column="2" Grid.Row="4" Content="BackCenter" VerticalAlignment="Center" x:Name="mCbBC"  />
-                                    </Grid>
-                                </GroupBox>
-                            </Grid>
                         </Grid>
                         <StackPanel Grid.Row="1" Orientation="Horizontal" >
                             <Button x:Name="mButtonActivate" Width="120" Content="_Activate device" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="6,0,0,0" Click="ButtonActivateDevice_Click"/>
@@ -108,35 +59,22 @@
                         </StackPanel>
                     </Grid>
                 </GroupBox>
-                <GroupBox Header="Virtual speaker settings" Grid.Row="2" >
-                    <DataGrid 
-                        Name="dataGridVirtualSpeakerSettings"
-                        GridLinesVisibility="None"
-                        AutoGenerateColumns="False"
-                        CanUserSortColumns="False"
-                        CanUserReorderColumns="False"
-                        CanUserResizeColumns="True"
-                        CanUserAddRows="False"
-                        CanUserResizeRows="False"
-                        SelectionUnit="FullRow"
-                        SelectionChanged="dataGridVirtualSpeakerSettings_SelectionChanged"
-                        IsReadOnly="False"
-                        Background="{x:Null}" IsEnabled="True">
-
-                        <DataGrid.RowHeaderStyle>
-                            <Style TargetType="{x:Type DataGridRowHeader}">
-                                <Setter Property="Content" Value="{Binding Channel}"/>
-                            </Style>
-                        </DataGrid.RowHeaderStyle>
-
-                        <DataGrid.Columns>
-                            <DataGridTextColumn x:Name="dataGridColumnChannel" Width="Auto" Binding="{Binding ChannelName}" Header="Sound Source Channel Name" IsReadOnly="True" />
-                            <DataGridTextColumn x:Name="dataGridColumnSPX" Width="Auto" Binding="{Binding PosX}" Header="Position X"/>
-                            <DataGridTextColumn x:Name="dataGridColumnSPY" Width="Auto" Binding="{Binding PosY}" Header="Position Y"/>
-                            <DataGridTextColumn x:Name="dataGridColumnSPZ" Width="Auto" Binding="{Binding PosZ}" Header="Position Z"/>
-                        </DataGrid.Columns>
-
-                    </DataGrid>
+                <GroupBox Header="PCM channel to virtual speaker mapping" Grid.Row="2" >
+                    <Grid Margin="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+                        <ListBox x:Name="mListBoxSpeakerConfig" VerticalContentAlignment="Center" SelectionChanged="ListBoxSpeakerConfig_SelectionChanged" >
+                            <ListBoxItem x:Name="mListBoxCh2" Content="2 ch" IsSelected="True"/>
+                            <ListBoxItem x:Name="mListBoxCh6" Content="5.1 ch"/>
+                            <ListBoxItem x:Name="mListBoxCh8" Content="7.1 ch"/>
+                            <ListBoxItem x:Name="mListBoxCh12" Content="7.1.4 ch"/>
+                        </ListBox>
+                        <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+                            <StackPanel x:Name="mStackPanelChannelMap" />
+                        </ScrollViewer>
+                    </Grid>
                 </GroupBox>
                 <GroupBox Header="Playback controls" Grid.Row="3" >
                     <Grid>

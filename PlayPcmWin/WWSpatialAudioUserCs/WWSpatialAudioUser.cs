@@ -71,6 +71,17 @@ namespace WWSpatialAudioUserCs {
             TopBackRight = 0x20000,
         }
 
+        public static List<DwChannelMaskType> DwChannelMaskToList(int dwChannelMask) {
+            var r = new List<DwChannelMaskType>();
+
+            for (int i=1; i<=0x20000; i*=2) {
+                if (0 != (dwChannelMask & i)) {
+                    r.Add((DwChannelMaskType)i);
+                }
+            }
+            return r;
+        }
+
         #region DwChannelMask and AudioObjectTypeMask conversion
         public static int DwChannelMaskToAudioObjectTypeMask(int dwChannelMask) {
             int r = 0;
