@@ -8,24 +8,28 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#include <list>
+#include <map>
 
-static std::list<WWMFResampler*> gResamplerList;
+static int gNextInstanceId = 300;
+static std::map<int, WWMFResampler*> gInstances;
 
 static WWMFResampler *
 FindInstance(int idx)
 {
-    if (idx < 0 || gResamplerList.size() <= idx) {
+    auto ite = gInstances.find(idx);
+    if (ite == gInstances.end()) {
         return nullptr;
     }
 
-    auto ite = gResamplerList.begin();
-    for (int i = 0; i < idx; ++i) {
-        ++ite;
-    }
-
-    return *ite;
+    return ite->second;
 }
+
+#define FIND_INSTANCE                   \
+    HRESULT hr = S_OK;                  \
+    auto *p = FindInstance(instanceId); \
+    if (nullptr == p) {                 \
+        return E_INVALIDARG;            \
+    }
 
 WWMFRESAMPLER_API int __stdcall
 WWMFResamplerInit(
@@ -34,7 +38,6 @@ WWMFResamplerInit(
         int halfFilterLength)
 {
     HRESULT hr = S_OK;
-    const int id = (int)gResamplerList.size();
     WWMFPcmFormat inPF((WWMFBitFormatType)inPFM->sampleFormat, inPFM->nChannels, inPFM->bits, inPFM->sampleRate, inPFM->dwChannelMask, inPFM->validBitsPerSample);
     WWMFPcmFormat outPF((WWMFBitFormatType)outPFM->sampleFormat, outPFM->nChannels, outPFM->bits, outPFM->sampleRate, outPFM->dwChannelMask, outPFM->validBitsPerSample);
 
@@ -48,30 +51,23 @@ WWMFResamplerInit(
         return hr;
     }
 
-    gResamplerList.push_back(p);
-    return id;
+    // 成功。
+    int instanceId = gNextInstanceId++;
+    gInstances.insert(std::pair<int, WWMFResampler*>(instanceId, p));
+
+    return instanceId;
 }
 
 WWMFRESAMPLER_API int __stdcall
-WWMFResamplerTerm(int idx)
+WWMFResamplerTerm(int instanceId)
 {
-    if (idx < 0 || gResamplerList.size() <= idx) {
-        return E_INVALIDARG;
-    }
+    FIND_INSTANCE;
 
-    auto ite = gResamplerList.begin();
-    for (int i = 0; i < idx; ++i) {
-        ++ite;
-    }
-
-    WWMFResampler *p = *ite;
     p->Finalize();
 
     delete p;
     p = nullptr;
-    *ite = nullptr;
-
-    gResamplerList.erase(ite);
+    gInstances.erase(instanceId);
 
     return S_OK;
 }
@@ -79,12 +75,7 @@ WWMFResamplerTerm(int idx)
 WWMFRESAMPLER_API int __stdcall
 WWMFResamplerResample(int instanceId, const unsigned char *buff, int bytes, unsigned char * buffResult_inout, int * resultBytes_inout)
 {
-    HRESULT hr = S_OK;
-
-    auto *p = FindInstance(instanceId);
-    if (nullptr == p) {
-        return E_INVALIDARG;
-    }
+    FIND_INSTANCE;
 
     WWMFSampleData sd;
     hr = p->Resample(buff, bytes, &sd);
@@ -110,12 +101,7 @@ WWMFResamplerResample(int instanceId, const unsigned char *buff, int bytes, unsi
 WWMFRESAMPLER_API int __stdcall
 WWMFResamplerDrain(int instanceId, unsigned char * buffResult_inout, int * resultBytes_inout)
 {
-    HRESULT hr = S_OK;
-
-    auto *p = FindInstance(instanceId);
-    if (nullptr == p) {
-        return E_INVALIDARG;
-    }
+    FIND_INSTANCE;
 
     WWMFSampleData sd;
     hr = p->Drain(*resultBytes_inout, &sd);
