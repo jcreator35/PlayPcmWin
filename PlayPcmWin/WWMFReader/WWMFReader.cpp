@@ -1,21 +1,8 @@
 // 日本語
 
-#define WWMFREADER_EXPORTS
-
 #include "WWMFReader.h"
-#include <SDKDDKVer.h>
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-
-#include <mfapi.h>
-#include <mfidl.h>
-#include <mfreadwrite.h>
-#include <stdio.h>
-#include <mferror.h>
-#include <assert.h>
-#include <Propvarutil.h>
-
-#include "../WasapiIODLL/WWUtil.h"
+#include "WWMFUtil.h"
+#include <list>
 
 #if 0
 
@@ -225,31 +212,7 @@ end:
     return hr;
 }
 
-static HRESULT
-ConfigureAudioTypeToUncompressedPcm(
-        IMFSourceReader *pReader)
-{
-    HRESULT hr = S_OK;
 
-    assert(pReader);
-    IMFMediaType *pPartialType = nullptr;
-
-    // Create a partial media type that specifies uncompressed PCM audio.
-    HRG(MFCreateMediaType(&pPartialType));
-    HRG(pPartialType->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Audio));
-    HRG(pPartialType->SetGUID(MF_MT_SUBTYPE, MFAudioFormat_PCM));
-
-    // Set this type on the source reader. The source reader will
-    // load the necessary decoder.
-    HRG(pReader->SetCurrentMediaType((DWORD)MF_SOURCE_READER_FIRST_AUDIO_STREAM, nullptr, pPartialType));
-
-    // Ensure the stream is selected.
-    HRG(pReader->SetStreamSelection((DWORD)MF_SOURCE_READER_FIRST_AUDIO_STREAM, TRUE));
-
-end:
-    SafeRelease(&pPartialType);
-    return hr;
-}
 
 static HRESULT
 GetDuration(IMFSourceReader *pReader, MFTIME *phnsDuration)
@@ -287,7 +250,7 @@ end:
     return hr;
 }
 
-extern "C" __declspec(dllexport) int __stdcall
+int
 WWMFReaderReadHeader(
         const wchar_t *wszSourceFile,
         WWMFReaderMetadata *meta_return)
@@ -370,7 +333,7 @@ end:
     return hr;
 }
 
-extern "C" __declspec(dllexport) int __stdcall
+int
 WWMFReaderGetCoverart(
         const wchar_t *wszSourceFile,
         unsigned char *data_return,
@@ -431,89 +394,3 @@ end:
     return hr;
 }
 
-extern "C" __declspec(dllexport) int __stdcall
-WWMFReaderReadData(
-        const wchar_t *wszSourceFile,
-        unsigned char *data_return,
-        int64_t *dataBytes_inout)
-{
-    assert(data_return);
-
-    HRESULT hr = S_OK;
-
-    IMFSourceReader *pReader = nullptr;
-    IMFSample *pSample = nullptr;
-    IMFMediaBuffer *pBuffer = nullptr;
-    BYTE *pAudioData = nullptr;
-    DWORD dwFlags = 0;
-    int64_t cbAudioData = 0;
-    DWORD cbBuffer = 0;
-
-    const int64_t cbMaxAudioData = *dataBytes_inout;
-    *dataBytes_inout = 0;
-
-    HRG(MFStartup(MF_VERSION));
-
-    HRG(MFCreateSourceReaderFromURL(wszSourceFile, nullptr, &pReader));
-    HRG(ConfigureAudioTypeToUncompressedPcm(pReader));
-
-    while (true) {
-        dwFlags = 0;
-        assert(pSample == nullptr);
-        HRB_Quiet(pReader->ReadSample(
-                (DWORD)MF_SOURCE_READER_FIRST_AUDIO_STREAM,
-                0,
-                NULL,
-                &dwFlags,
-                NULL,
-                &pSample));
-
-        if (dwFlags & MF_SOURCE_READERF_CURRENTMEDIATYPECHANGED) {
-            dprintf("Type change - not supported by WAVE file format.\n");
-            break;
-        }
-        if (dwFlags & MF_SOURCE_READERF_ENDOFSTREAM) {
-            //dprintf("End of input file.\n");
-            break;
-        }
-        if (pSample == nullptr) {
-            dprintf("No sample\n");
-            continue;
-        }
-        
-        assert(pBuffer == nullptr);
-        HRB_Quiet(pSample->ConvertToContiguousBuffer(&pBuffer));
-
-        cbBuffer = 0;
-        HRB_Quiet(pBuffer->Lock(&pAudioData, NULL, &cbBuffer));
-
-        if (cbMaxAudioData - cbAudioData < cbBuffer) {
-            cbBuffer = (int)(cbMaxAudioData - cbAudioData);
-        }
-
-        memcpy(&data_return[cbAudioData], pAudioData, cbBuffer);
-
-        hr = pBuffer->Unlock();
-        pAudioData = nullptr;
-        if (FAILED(hr)) { break; }
-
-        cbAudioData += cbBuffer;
-        if (cbAudioData >= cbMaxAudioData) {
-            break;
-        }
-
-        SafeRelease(&pSample);
-        SafeRelease(&pBuffer);
-    }
-
-    *dataBytes_inout = cbAudioData;
-
-end:
-
-    SafeRelease(&pSample);
-    SafeRelease(&pBuffer);
-    SafeRelease(&pReader);
-    MFShutdown();
-
-    return hr;
-}

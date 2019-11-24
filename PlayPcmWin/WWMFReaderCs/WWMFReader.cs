@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using WWUtil;
 
 namespace WWMFReaderCs {
     public class WWMFReader {
@@ -13,9 +15,12 @@ namespace WWMFReaderCs {
 
             public int dwChannelMask;
 
-            /// おおよその値が戻る。
+            /// おおよその値が戻る。ReadHeader()で入る。0のとき不明。
             public long numApproxFrames;
 
+            /// <summary>
+            /// 正確なフレーム数が戻る。ReadHeader()ではわからない。ReadHeaderAndData()で確定する。
+            /// </summary>
             public long numExactFrames;
 
             public string title;
@@ -25,8 +30,8 @@ namespace WWMFReaderCs {
 
             public byte[] picture;
 
-            public long CalcApproxDataBytes() {
-                return numApproxFrames * numChannels * bitsPerSample / 8;
+            public long CalcExactDataBytes() {
+                return numExactFrames * numChannels * bitsPerSample / 8;
             }
         };
 
@@ -69,7 +74,7 @@ namespace WWMFReaderCs {
             meta_return = new Metadata();
 
             NativeMethods.NativeMetadata nativeMeta;
-            int hr = NativeMethods.WWMFReaderReadHeader(wszSourceFile, out nativeMeta);
+            int hr = NativeMethods.WWMFReaderIFReadHeader(wszSourceFile, out nativeMeta);
             if (hr < 0) {
                 return hr;
             }
@@ -90,7 +95,7 @@ namespace WWMFReaderCs {
             if (0 < nativeMeta.pictureBytes) {
                 var picture = new byte[nativeMeta.pictureBytes];
                 long pictureBytes = nativeMeta.pictureBytes;
-                hr = NativeMethods.WWMFReaderGetCoverart(wszSourceFile, picture, ref pictureBytes);
+                hr = NativeMethods.WWMFReaderIFGetCoverart(wszSourceFile, picture, ref pictureBytes);
                 if (0 <= hr) {
                     // ゴミが最初についているので取る。
                     var picJpeg = TrimJpeg(picture);
@@ -113,24 +118,55 @@ namespace WWMFReaderCs {
         public static int ReadHeaderAndData(
                 string wszSourceFile,
                 out Metadata meta_return,
-                out byte[] data) {
+                out LargeArray<byte> data) {
+            int hr = 0;
 
-            ReadHeader(wszSourceFile, out meta_return);
+            data = new LargeArray<byte>(0);
 
-            long dataBytes = meta_return.CalcApproxDataBytes();
-            data = new byte[dataBytes];
-
-            int hr = NativeMethods.WWMFReaderReadData(
-                    wszSourceFile, data, ref dataBytes);
+            hr = ReadHeader(wszSourceFile, out meta_return);
             if (hr < 0) {
                 return hr;
             }
 
-            meta_return.numExactFrames = dataBytes / (meta_return.numChannels * meta_return.bitsPerSample / 8);
+            // データのバイト数はこの時点で不明。
+            // 全て読んでから数える。
+
+            hr = NativeMethods.WWMFReaderIFReadDataStart(wszSourceFile);
+            if (hr < 0) {
+                return hr;
+            }
+
+            int instanceId = hr;
+
+            long bufTotalBytes = 0;
+            var bufList = new List<byte[]>();
+            while (true) {
+                byte[] buf = new byte[1024 * 1024];
+                long bufBytes = buf.Length;
+                hr = NativeMethods.WWMFReaderIFReadDataFragment(instanceId, buf, ref bufBytes);
+                if (hr < 0) {
+                    break;
+                }
+
+                if (bufBytes == 0) {
+                    break;
+                }
+
+                byte[] bufTrim = new byte[bufBytes];
+                Array.Copy(buf, 0, bufTrim, 0, bufBytes);
+                bufList.Add(bufTrim);
+                bufTotalBytes += bufBytes;
+            }
+
+            NativeMethods.WWMFReaderIFReadDataEnd(instanceId);
+
+            // データのバイト数が確定。
+            data = WWUtil.ListUtil.GetLargeArrayFragment(bufList, 0, bufTotalBytes);
+            meta_return.numExactFrames = data.LongLength / (meta_return.numChannels * meta_return.bitsPerSample / 8);
 
             return hr;
         }
-    
+
         #region Native Stuff
         internal static class NativeMethods {
             public const int TEXT_STRSZ = 256;
@@ -147,7 +183,6 @@ namespace WWMFReaderCs {
 
                 /// おおよその値が戻る。
                 public long numApproxFrames;
-                public long numExactFrames;
 
                 public long pictureBytes;
 
@@ -169,7 +204,7 @@ namespace WWMFReaderCs {
 #else
             [DllImport("WWMFReader.dll", CharSet = CharSet.Unicode)]
 #endif
-            internal extern static int WWMFReaderReadHeader(
+            internal extern static int WWMFReaderIFReadHeader(
                 string wszSourceFile,
                 out NativeMetadata meta_return);
 
@@ -178,7 +213,7 @@ namespace WWMFReaderCs {
 #else
             [DllImport("WWMFReader.dll", CharSet = CharSet.Unicode)]
 #endif
-            internal extern static int WWMFReaderGetCoverart(
+            internal extern static int WWMFReaderIFGetCoverart(
                     string wszSourceFile,
                     byte[] data_return,
                     ref long dataBytes_inout);
@@ -188,10 +223,26 @@ namespace WWMFReaderCs {
 #else
             [DllImport("WWMFReader.dll", CharSet = CharSet.Unicode)]
 #endif
-            internal extern static int WWMFReaderReadData(
-                    string wszSourceFile,
+            internal extern static int WWMFReaderIFReadDataStart(
+                    string wszSourceFile);
+
+#if vs2017
+            [DllImport("WWMFReaderCpp2017.dll", CharSet = CharSet.Unicode)]
+#else
+            [DllImport("WWMFReader.dll", CharSet = CharSet.Unicode)]
+#endif
+            internal extern static int WWMFReaderIFReadDataFragment(
+                    int instanceId,
                     byte[] data_return,
                     ref long dataBytes_inout);
+
+#if vs2017
+            [DllImport("WWMFReaderCpp2017.dll", CharSet = CharSet.Unicode)]
+#else
+            [DllImport("WWMFReader.dll", CharSet = CharSet.Unicode)]
+#endif
+            internal extern static int WWMFReaderIFReadDataEnd(
+                    int instanceId);
         };
         #endregion
     };
