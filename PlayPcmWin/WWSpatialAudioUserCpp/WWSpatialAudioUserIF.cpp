@@ -120,6 +120,8 @@ WWSpatialAudioClearAllPcm(int instanceId)
 {
     FIND_INSTANCE;
     ps->Clear();
+    sau->ClearAllStreams();
+
     return S_OK;
 }
 
@@ -166,14 +168,22 @@ WWSpatialAudioSetPcmFragment(
 
 WWSPATIALAUDIOUSER_API int __stdcall
 WWSpatialAudioSetPcmEnd(
-    int instanceId, int ch)
+    int instanceId, int ch, int audioObjectType)
 {
     FIND_INSTANCE;
     if (ch < 0 || NUM_CHANNELS <= ch) {
         return E_NOTFOUND;
     }
 
-    return S_OK;
+    WWAudioObject ao;
+
+    ao.bufferBytes = sizeof(float) * ps->mPcm[ch].pcm.size();
+    ao.buffer = new byte[ao.bufferBytes];
+    memcpy(ao.buffer, &ps->mPcm[ch].pcm[0], ao.bufferBytes);
+
+    ao.volume = 1.0f;
+    ao.aot = (AudioObjectType)audioObjectType;
+    return sau->AddStream(ao);
 }
 
 WWSPATIALAUDIOUSER_API int __stdcall
@@ -191,4 +201,5 @@ WWSpatialAudioStop(
 {
     FIND_INSTANCE;
 
+    return sau->Stop();
 }

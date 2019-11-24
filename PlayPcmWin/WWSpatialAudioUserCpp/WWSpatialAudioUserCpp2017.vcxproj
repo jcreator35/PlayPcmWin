@@ -89,11 +89,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="WWAudioHrtfObject.h" />
+    <ClInclude Include="WWAudioObject.h" />
+    <ClInclude Include="WWAudioObjectListTemplate.h" />
+    <ClInclude Include="WWAudioObjectTemplate.h" />
     <ClInclude Include="WWDeviceInf.h" />
-    <ClInclude Include="WWDynAudioHrtfObject.h" />
-    <ClInclude Include="WWDynAudioObject.h" />
-    <ClInclude Include="WWDynAudioObjectListTemplate.h" />
-    <ClInclude Include="WWDynAudioObjectTemplate.h" />
     <ClInclude Include="WWGuidToStr.h" />
     <ClInclude Include="WWPcm.h" />
     <ClInclude Include="WWPcmStore.h" />
@@ -103,7 +103,6 @@
     <ClInclude Include="WWSpatialAudioUser.h" />
     <ClInclude Include="WWSpatialAudioUserIF.h" />
     <ClInclude Include="WWSpatialAudioUserTemplate.h" />
-    <ClInclude Include="WWStaticAudioObject.h" />
     <ClInclude Include="WWUtil.h" />
   </ItemGroup>
   <ItemGroup>

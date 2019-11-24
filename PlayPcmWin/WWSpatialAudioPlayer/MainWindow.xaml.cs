@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 using System.Windows;
@@ -25,6 +26,9 @@ namespace WWSpatialAudioPlayer {
         private const int LOG_LINE_NUM = 100;
 
         private List<string> mLogList = new List<string>();
+        private Stopwatch mStopwatch = new Stopwatch();
+        private const int MESSAGE_INTERVAL_MS = 1000;
+        private StringBuilder mBwMsgSB = new StringBuilder();
 
         public MainWindow() {
             InitializeComponent();
@@ -39,16 +43,38 @@ namespace WWSpatialAudioPlayer {
             mBwLoad.ProgressChanged += MBwLoad_ProgressChanged;
 
             UpdateDeviceList();
+            mStopwatch.Restart();
         }
         private void Window_Loaded(object sender, RoutedEventArgs e) {
             mInitialized = true;
         }
 
         private void UpdateDeviceList() {
+            AddLog("UpdateDeviceList()\n");
+
+            // 以前選択されていたデバイスのIdStr
+            var lastSelectedIdStr = "";
+            if (0 <= mListBoxPlaybackDevices.SelectedIndex) {
+                lastSelectedIdStr = mPlayer.SpatialAudio.DevicePropertyList[
+                    mListBoxPlaybackDevices.SelectedIndex].devIdStr;
+            }
+
             mPlayer.SpatialAudio.UpdateDeviceList();
             mListBoxPlaybackDevices.Items.Clear();
             foreach (var item in mPlayer.SpatialAudio.DevicePropertyList) {
                 mListBoxPlaybackDevices.Items.Add(string.Format("{0}", item.name));
+                if (0 == item.devIdStr.CompareTo(lastSelectedIdStr)) {
+                    // 以前選択されていたデバイスを選択状態にする。
+                    mListBoxPlaybackDevices.SelectedIndex = mListBoxPlaybackDevices.Items.Count - 1;
+                }
+            }
+
+            if (0 < mListBoxPlaybackDevices.Items.Count) {
+                mButtonActivate.IsEnabled = true;
+                mButtonDeactivate.IsEnabled = false;
+            } else {
+                mButtonActivate.IsEnabled = false;
+                mButtonDeactivate.IsEnabled = false;
             }
         }
 
@@ -57,46 +83,69 @@ namespace WWSpatialAudioPlayer {
             public string path;
         }
 
-        class LoadProgress {
-            public string msg;
-            public LoadProgress(string s) {
-                msg = s;
-            }
-        }
-
         class LoadResult {
             public int hr;
         }
 
+        private void ReportProgress(int percent, string s) {
+            if (MESSAGE_INTERVAL_MS < mStopwatch.ElapsedMilliseconds) {
+                // OK
+                mBwMsgSB.Append(s);
+                mBwLoad.ReportProgress(percent, mBwMsgSB.ToString());
+                mBwMsgSB.Clear();
+                mStopwatch.Restart();
+            } else {
+                mBwMsgSB.Append(s);
+            }
+        }
+
         private void MBwLoad_DoWork(object sender, DoWorkEventArgs e) {
+            mBwMsgSB.Clear();
+
             var param = e.Argument as LoadParams;
             var r = new LoadResult();
             e.Result = r;
             r.hr = 0;
 
-            mBwLoad.ReportProgress(10, new LoadProgress(string.Format("Reading {0}\n", param.path)));
+            ReportProgress(10, string.Format("Reading {0}\n", param.path));
 
             int hr = mPlayer.ReadAudioFile(param.path);
             if (hr < 0) {
                 r.hr = hr;
                 return;
             }
-            mBwLoad.ReportProgress(66, new LoadProgress("  Resampling...\n"));
+            ReportProgress(66, "  Resampling...\n");
 
             hr = mPlayer.Resample();
             if (hr < 0) {
                 r.hr = hr;
                 return;
             }
+
+            ReportProgress(90, "  Storing to native buffer...\n");
+            hr = mPlayer.StoreSamples();
+            if (hr < 0) {
+                r.hr = hr;
+                return;
+            }
         }
         private void MBwLoad_ProgressChanged(object sender, ProgressChangedEventArgs e) {
-            var param = e.UserState as LoadProgress;
-            AddLog(param.msg);
+            var param = e.UserState as string;
+            AddLog(param);
             mProgressbar.Value = e.ProgressPercentage;
         }
 
         private void MBwLoad_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
             var r = e.Result as LoadResult;
+
+            if (0 < mPlayer.NumChannels && !mPlayer.IsChannelSupported(mPlayer.NumChannels)) {
+                string msg = string.Format(
+                    "Error: Audio File of {0}ch is currently not supported!",
+                    mPlayer.NumChannels);
+                MessageBox.Show(msg);
+                AddLog(msg + "\n");
+                r.hr = -1;
+            }
 
             if (r.hr < 0) {
                 string msg = string.Format(
@@ -105,14 +154,14 @@ namespace WWSpatialAudioPlayer {
                 MessageBox.Show(msg);
                 AddLog(msg + "\n");
 
-                mButtonPlay.IsEnabled = false;
-                mButtonStop.IsEnabled = false;
+                mGroupBoxPlaybackDevice.IsEnabled = false;
             } else {
                 // 成功。
-                mButtonPlay.IsEnabled = true;
                 AddLog(string.Format("Read succeeded : {0}\n", mTextBoxInputFileName.Text));
                 mLabelInputAudioFmt.Content = string.Format("File contains {0} ch PCM", mPlayer.NumChannels);
+                SelectBestSpeakerConfig();
                 UpdateVirtualSpeakerMap();
+                mGroupBoxPlaybackDevice.IsEnabled = true;
             }
 
             mProgressbar.Value = 0;
@@ -154,6 +203,20 @@ namespace WWSpatialAudioPlayer {
             mBwLoad.RunWorkerAsync(param);
         }
 
+        int NumChannelsToListBoxIdx(int ch) {
+            switch (ch) {
+            case 2:
+                return 0;
+            case 6:
+                return 1;
+            case 8:
+                return 2;
+            case 12:
+            default:
+                return 3;
+            }
+        }
+
         private int ListBoxSpeakerConfigToNumChannels() {
             int ch = 2;
             if (mListBoxCh6.IsSelected) {
@@ -168,20 +231,28 @@ namespace WWSpatialAudioPlayer {
             return ch;
         }
 
+        private void SelectBestSpeakerConfig() {
+            mListBoxSpeakerConfig.SelectedIndex = NumChannelsToListBoxIdx(mPlayer.NumChannels);
+        }
+
         private void UpdateVirtualSpeakerMap() {
             var dwChannelList = WWSpatialAudioUser.DwChannelMaskToList(mPlayer.DwChannelMask);
             System.Diagnostics.Debug.Assert(dwChannelList.Count == mPlayer.NumChannels);
 
-
+            // NumChとdwChannelList、少ない方のチャンネル数にする。
             int NumCh = ListBoxSpeakerConfigToNumChannels();
+            if (dwChannelList.Count < NumCh) {
+                NumCh = dwChannelList.Count;
+            }
 
             mStackPanelChannelMap.Children.Clear();
-            for (int ch=0; ch<NumCh; ++ch) {
+            for (int ch=0; ch< NumCh; ++ch) {
                 var lbl = new Label();
                 lbl.Content = string.Format("Ch{0} : {1}", ch + 1, dwChannelList[ch]);
                 mStackPanelChannelMap.Children.Add(lbl);
             }
         }
+
 
         // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
@@ -205,20 +276,24 @@ namespace WWSpatialAudioPlayer {
         }
 
         private void ButtonPlay_Click(object sender, RoutedEventArgs e) {
-            bool b = mPlayer.Play();
+            bool b = mPlayer.Start();
             if (b) {
+                mGroupBoxInputAudioFile.IsEnabled = false;
+                mButtonUpdatePlaybackDeviceList.IsEnabled = false;
+                mButtonDeactivate.IsEnabled = false;
                 mButtonPlay.IsEnabled = false;
                 mButtonStop.IsEnabled = true;
-                mButtonBrowse.IsEnabled = false;
             }
         }
 
         private void ButtonStop_Click(object sender, RoutedEventArgs e) {
             bool b = mPlayer.Stop();
             if (b) {
+                mGroupBoxInputAudioFile.IsEnabled = true;
+                mButtonUpdatePlaybackDeviceList.IsEnabled = false;
+                mButtonDeactivate.IsEnabled = true;
                 mButtonPlay.IsEnabled = true;
                 mButtonStop.IsEnabled = false;
-                mButtonBrowse.IsEnabled = true;
             }
         }
 
@@ -257,27 +332,63 @@ namespace WWSpatialAudioPlayer {
         }
 
         private void ButtonRead_Click(object sender, RoutedEventArgs e) {
-            int hr = 0;
-
-            string path = mTextBoxInputFileName.Text;
-
-            hr = mPlayer.ReadAudioFile(path);
-            if (hr < 0) {
-                MessageBox.Show(string.Format("Error: Read file failed. {0}", path));
-                return;
-            }
+            ReadFile();
         }
+
+        const uint E_UNSUPPORTED_TYPE = 0x8007065e;
 
         private void ButtonActivateDevice_Click(object sender, RoutedEventArgs e) {
             int devIdx = mListBoxPlaybackDevices.SelectedIndex;
+
+            AddLog(string.Format("Activating device #{0} ...\n", devIdx));
+
             int maxDynObjCount = 0;
             int staticObjMask = WWSpatialAudioUser.DwChannelMaskToAudioObjectTypeMask(mPlayer.DwChannelMask);
 
-            mPlayer.SpatialAudio.ChooseDevice(devIdx, maxDynObjCount, staticObjMask);
+            mGroupBoxDeviceList.IsEnabled = false;
+            mButtonActivate.IsEnabled = false;
+            int hr = mPlayer.SpatialAudio.ChooseDevice(devIdx, maxDynObjCount, staticObjMask);
+            if (0 <= hr) {
+                // 成功。
+                AddLog(string.Format("SpatialAudio.ChooseDevice({0}) success.\n", devIdx));
+                mGroupBoxDeviceList.IsEnabled = false;
+                mButtonUpdatePlaybackDeviceList.IsEnabled = false;
+                mButtonActivate.IsEnabled = false;
+                mButtonDeactivate.IsEnabled = true;
+                mButtonPlay.IsEnabled = true;
+                mButtonStop.IsEnabled = false;
+            } else {
+                // 失敗。
+                if (E_UNSUPPORTED_TYPE == (uint)hr) {
+                    var s = string.Format("Error: Spatial Audio of the specified device is not enabled! Please enable Spatial Audio of the device.\n", devIdx);
+                    AddLog(s);
+                    MessageBox.Show(s);
+                } else {
+                    var s = string.Format("SpatialAudio.ChooseDevice({0}) failed with error {1:X8}.\n", devIdx, hr);
+                    AddLog(s);
+                    MessageBox.Show(s);
+                }
+                mGroupBoxDeviceList.IsEnabled = true;
+                mButtonUpdatePlaybackDeviceList.IsEnabled = true;
+                mButtonActivate.IsEnabled = true;
+                mButtonDeactivate.IsEnabled = false;
+                mButtonPlay.IsEnabled = false;
+                mButtonStop.IsEnabled = false;
+            }
         }
 
         private void ButtonDeactivateDevice_Click(object sender, RoutedEventArgs e) {
+            int hr = mPlayer.SpatialAudio.ChooseDevice(-1, 0, 0);
+            AddLog(string.Format("SpatialAudio.ChooseDevice(-1) hr={0:X8}\n", hr));
 
+            mGroupBoxDeviceList.IsEnabled = true;
+            mButtonUpdatePlaybackDeviceList.IsEnabled = true;
+            mButtonActivate.IsEnabled = true;
+            mButtonDeactivate.IsEnabled = false;
+            mButtonPlay.IsEnabled = false;
+            mButtonStop.IsEnabled = false;
+
+            UpdateDeviceList();
         }
 
         private void ListBoxSpeakerConfig_SelectionChanged(object sender, SelectionChangedEventArgs e) {

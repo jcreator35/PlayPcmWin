@@ -10,14 +10,14 @@
         <Grid Name="mGridMainContainer" Visibility="Visible">
             <Grid Margin="6,0,6,0">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="90"/>
+                    <RowDefinition Height="110"/>
                     <RowDefinition Height="120*"/>
                     <RowDefinition Height="80*"/>
                     <RowDefinition Height="50"/>
                     <RowDefinition Height="120"/>
                     <RowDefinition Height="20" />
                 </Grid.RowDefinitions>
-                <GroupBox Header="Input Audio File:" >
+                <GroupBox x:Name="mGroupBoxInputAudioFile" Header="Input Audio File:" >
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="2*"/>
@@ -27,15 +27,16 @@
                         <Grid.RowDefinitions>
                             <RowDefinition />
                             <RowDefinition />
+                            <RowDefinition />
                         </Grid.RowDefinitions>
                         <Label Content="Input _File name" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                         <TextBox IsReadOnly="True" x:Name="mTextBoxInputFileName" TextWrapping="Wrap" Text="C:/audio/multichannel.flac" VerticalAlignment="Center" Grid.Column="1" Margin="0,0,0,0" />
                         <Button x:Name="mButtonBrowse" Content="_Browse..." Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center" Width="100" Margin="6,0,0,0" Click="ButtonBrowse_Click"/>
                         <Button x:Name="mButtonRead" Content="_Read" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" Width="100" Margin="-60,0,0,0" Click="ButtonRead_Click"/>
-                        <Label x:Name="mLabelInputAudioFmt" Content="" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Margin="60,0,0,0" VerticalAlignment="Center" />
+                        <Label x:Name="mLabelInputAudioFmt" Content="" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Margin="4,0,0,0" VerticalAlignment="Center" />
                     </Grid>
                 </GroupBox>
-                <GroupBox Header="Playback Device" Grid.Row="1" >
+                <GroupBox x:Name="mGroupBoxPlaybackDevice" Header="Playback Device" Grid.Row="1" IsEnabled="False" >
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="1*" />
@@ -47,7 +48,7 @@
                                     <RowDefinition Height="1*" />
                                     <RowDefinition Height="30" />
                                 </Grid.RowDefinitions>
-                                <GroupBox Header="Device to use" >
+                                <GroupBox x:Name="mGroupBoxDeviceList" Header="Device to use" >
                                     <ListBox x:Name="mListBoxPlaybackDevices" />
                                 </GroupBox>
                                 <Button Grid.Row="1" x:Name="mButtonUpdatePlaybackDeviceList" Width="100" Content="_Update list" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="6,0,0,0" Click="ButtonUpdatePlaybackDeviceList_Click"/>
@@ -67,9 +68,9 @@
                         </Grid.ColumnDefinitions>
                         <ListBox x:Name="mListBoxSpeakerConfig" VerticalContentAlignment="Center" SelectionChanged="ListBoxSpeakerConfig_SelectionChanged" >
                             <ListBoxItem x:Name="mListBoxCh2" Content="2 ch" IsSelected="True"/>
-                            <ListBoxItem x:Name="mListBoxCh6" Content="5.1 ch"/>
-                            <ListBoxItem x:Name="mListBoxCh8" Content="7.1 ch"/>
-                            <ListBoxItem x:Name="mListBoxCh12" Content="7.1.4 ch"/>
+                            <ListBoxItem x:Name="mListBoxCh6" Content="6 ch"/>
+                            <ListBoxItem x:Name="mListBoxCh8" Content="8 ch"/>
+                            <ListBoxItem x:Name="mListBoxCh12" Content="12 ch"/>
                         </ListBox>
                         <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
                             <StackPanel x:Name="mStackPanelChannelMap" />
@@ -82,14 +83,14 @@
                             <RowDefinition />
                         </Grid.RowDefinitions>
                         <StackPanel Orientation="Horizontal" Grid.Row="0" >
-                            <Button x:Name="mButtonPlay" Content="_Play" VerticalAlignment="Center" Width="100" Margin="6,0,0,0" IsEnabled="False" Click="ButtonPlay_Click"/>
+                            <Button x:Name="mButtonPlay" Content="_Play" VerticalAlignment="Bottom" Width="100" Margin="6,0,0,3.667" IsEnabled="False" Click="ButtonPlay_Click"/>
                             <Button x:Name="mButtonStop" Content="_Stop" VerticalAlignment="Center" Width="100" Margin="6,0,0,0" IsEnabled="False" Click="ButtonStop_Click"/>
                             <Label Content="00:00:00 / 00:00:00" Margin="6,0,0,0" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Grid>
                 </GroupBox>
                 <GroupBox Header="Log" Grid.Row="4" >
-                    <TextBox x:Name="mTextBoxLog" Text="Show logs here" AcceptsTab="True" AcceptsReturn="True" ScrollViewer.CanContentScroll="True" IsReadOnly="True" />
+                    <TextBox x:Name="mTextBoxLog" Text="Show logs here" AcceptsTab="True" AcceptsReturn="True" ScrollViewer.CanContentScroll="True" IsReadOnly="True" VerticalScrollBarVisibility="Auto" />
                 </GroupBox>
                 <ProgressBar x:Name="mProgressbar" Grid.Row="5" />
 

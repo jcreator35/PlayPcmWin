@@ -18,7 +18,7 @@
 #include "WWPrintDeviceProp.h"
 #include <functiondiscoverykeys.h>
 
-template <typename T_RenderStream, typename T_DynAudioObject>
+template <typename T_RenderStream, typename T_AudioObject>
 class WWSpatialAudioUserTemplate {
 public:
     virtual HRESULT Init(void) {
@@ -186,7 +186,7 @@ public:
     virtual HRESULT ActivateAudioStream(int maxDynObjectCount, int staticObjectTypeMask) =0;
 
     /// @param dasc [inout] 成功するとdasc.idxにユニークな番号が書き込まれる。
-    HRESULT AddStream(T_DynAudioObject &dasc) {
+    HRESULT AddStream(T_AudioObject &dasc) {
         HRESULT hr = S_OK;
         if (dasc.bufferBytes == 0 || dasc.buffer == nullptr) {
             printf("E: WWSpatialAudioUser::AddStream data err\n");
@@ -212,6 +212,17 @@ public:
 
     end:
         return hr;
+    }
+
+    HRESULT ClearAllStreams(void) {
+        assert(mMutex);
+        WaitForSingleObject(mMutex, INFINITE);
+        {
+            mAudioObjectList.ReleaseAll();
+        }
+        ReleaseMutex(mMutex);
+
+        return S_OK;
     }
 
     /// @param dascIdx dasc.idxを渡す。
@@ -274,7 +285,7 @@ protected:
 
     ISpatialAudioClient *mSAClient = nullptr;
     T_RenderStream *mSAORStream = nullptr;
-    WWAudioObjectListTemplate<T_DynAudioObject> mAudioObjectList;
+    WWAudioObjectListTemplate<T_AudioObject> mAudioObjectList;
     HANDLE mRenderThread = nullptr;
 
     WAVEFORMATEXTENSIBLE mUseFmt = { 0 };

@@ -50,7 +50,7 @@ WWSpatialAudioSetPcmFragment(
 
 WWSPATIALAUDIOUSER_API int __stdcall
 WWSpatialAudioSetPcmEnd(
-    int instanceId, int ch);
+    int instanceId, int ch, int audioObjectType);
 
 WWSPATIALAUDIOUSER_API int __stdcall
 WWSpatialAudioStart(

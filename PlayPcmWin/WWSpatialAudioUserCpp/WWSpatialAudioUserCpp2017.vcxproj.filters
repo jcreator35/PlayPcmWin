@@ -30,18 +30,6 @@
     <ClInclude Include="WWSpatialAudioDeviceProperty.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WWDynAudioHrtfObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WWDynAudioObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WWDynAudioObjectListTemplate.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WWDynAudioObjectTemplate.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="WWGuidToStr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -63,7 +51,16 @@
     <ClInclude Include="WWPcm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WWStaticAudioObject.h">
+    <ClInclude Include="WWAudioHrtfObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWAudioObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWAudioObjectListTemplate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWAudioObjectTemplate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

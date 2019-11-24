@@ -5,26 +5,46 @@ using System.Collections.Generic;
 using WWMFReaderCs;
 using WWMFResamplerCs;
 using WWSpatialAudioUserCs;
+using WWUtil;
 
 namespace WWSpatialAudioPlayer  {
     public class SpatialAudioPlayer : IDisposable {
-        private WWSpatialAudioUser mSAudio = new WWSpatialAudioUser();
-        private WWMFReader.Metadata mMetadata;
-        private byte[] mPcmData;
+        /// 1 to 60
+        private const int RESAMPLE_QUALITY = 60;
 
+        private WWSpatialAudioUser mSAudio = new WWSpatialAudioUser();
         public WWSpatialAudioUser SpatialAudio {  get { return mSAudio; } }
 
+        private WWMFReader.Metadata mMetadata;
         public WWMFReader.Metadata Metadata {  get { return mMetadata; } }
 
-        public byte[] OriginalPcmData { get { return mPcmData; } }
+        private LargeArray<byte> mPcmData;
+        public LargeArray<byte> PcmData { get { return mPcmData; } }
 
-        private List<byte[]> mPcmByChannel = new List<byte[]>();
+        private List<LargeArray<float>> mResampledPcmByChannel = new List<LargeArray<float>>();
 
-        public int NumChannels {  get { return mPcmByChannel.Count; } }
-        public byte[] Pcm(int ch) { return mPcmByChannel[ch]; }
+        public LargeArray<float> Pcm(int ch) { return mResampledPcmByChannel[ch]; }
+        public int NumChannels { get { return mResampledPcmByChannel.Count; } }
 
         public int DwChannelMask {
             get { return mMetadata.dwChannelMask; }
+        }
+
+        public int AudioObjectTypeMask {
+            get { return WWSpatialAudioUser.DwChannelMaskToAudioObjectTypeMask(DwChannelMask); }
+        }
+
+        public bool IsChannelSupported(int ch) {
+            switch (ch) {
+            case 2:
+            case 4:
+            case 6:
+            case 8:
+            case 12:
+                return true;
+            default:
+                return false;
+            }
         }
 
         private int GetDefaultDwChannelMask(int ch) {
@@ -56,6 +76,20 @@ namespace WWSpatialAudioPlayer  {
             return mask;
         }
 
+        private WWSpatialAudioUser.AudioObjectType GetAudioObjectType(int ch) {
+            // DwChannelMaskからAudioObjectTypeのリストを作成。
+            int aoMask = AudioObjectTypeMask;
+            var aoList = WWSpatialAudioUser.AudioObjectTypeMaskToList(aoMask);
+
+            if (ch < 0 || aoList.Count <= ch) {
+                // Dynamicにしても良い？
+                return WWSpatialAudioUser.AudioObjectType.None;
+            }
+
+            return aoList[ch];
+        }
+
+
         public int ReadAudioFile(string path) {
             int hr = WWMFReader.ReadHeaderAndData(path, out mMetadata, out mPcmData);
             if (hr < 0) {
@@ -70,6 +104,11 @@ namespace WWSpatialAudioPlayer  {
             return hr;
         }
 
+        /// <summary>
+        /// サンプルフォーマットがmMetadataのmPcmDataを
+        /// Spatial Audio用のフォーマットにリサンプルして
+        /// mResampledPcmByChannelに入れる。
+        /// </summary>
         public int Resample() {
             int hr = 0;
 
@@ -85,7 +124,7 @@ namespace WWSpatialAudioPlayer  {
             var toBufList = new List<byte[]>();
 
             using (var resampler = new WWMFResampler()) { 
-                hr = resampler.Init(fromFmt, toFmt, 60);
+                hr = resampler.Init(fromFmt, toFmt, RESAMPLE_QUALITY);
                 if (hr < 0) {
                     return hr;
                 }
@@ -94,12 +133,12 @@ namespace WWSpatialAudioPlayer  {
                 do {
                     // 少しずつ変換。
                     int inBytes = 256 * fromFmt.FrameBytes;
-                    if (mPcmData.Length < inPos + inBytes) {
-                        inBytes = mPcmData.Length - inPos;
+                    if (mPcmData.LongLength < inPos + inBytes) {
+                        inBytes = (int)(mPcmData.LongLength - inPos);
                     }
 
                     var inBuf = new byte[inBytes];
-                    Array.Copy(mPcmData, inPos, inBuf, 0, inBytes);
+                    mPcmData.CopyTo(inPos, ref inBuf, 0, inBytes);
                     inPos += inBytes;
 
                     byte[] outBuf;
@@ -111,7 +150,7 @@ namespace WWSpatialAudioPlayer  {
                     if (0 < outBuf.Length) {
                         toBufList.Add(outBuf);
                     }
-                } while (inPos < mPcmData.Length);
+                } while (inPos < mPcmData.LongLength);
 
                 {
                     byte[] outBuf;
@@ -127,42 +166,88 @@ namespace WWSpatialAudioPlayer  {
             }
 
             // 整列する。
-            int totalBytes = 0;
+            long totalBytes = 0;
             foreach (var item in toBufList) {
                 totalBytes += item.Length;
             }
-            var toBuf = new byte[totalBytes];
-            int toPos = 0;
-            foreach (var item in toBufList) {
-                Array.Copy(item, 0, toBuf, toPos, item.Length);
-                toPos += item.Length;
-            }
 
-            mPcmByChannel = new List<byte[]>();
+            var fullPcm = WWUtil.ListUtil.GetLargeArrayFragment<byte>(toBufList, 0, totalBytes);
+            toBufList.Clear();
+
+            // fullPcmからチャンネルごとのfloatデータを取得し、
+            // mResampledPcmByChannelに入れる。
+            mResampledPcmByChannel.Clear();
 
             int sampleBytes = toFmt.bits / 8;
             int nCh = toFmt.nChannels;
-            int numFrames = totalBytes / (sampleBytes * nCh);
-            for (int ch=0; ch<nCh; ++ch) {
-                var buf = new byte[numFrames * sampleBytes];
-                for (int i=0; i<numFrames; ++i) {
-                    for (int b=0; b<sampleBytes; ++b) {
-                        buf[i * sampleBytes + b] = toBuf[sampleBytes * ( nCh * i + ch) + b];
-                    }
-                }
-                //Console.WriteLine("Rearranged {0}/{1}", ch+1, nCh);
+            long numFrames = totalBytes / (sampleBytes * nCh);
+            for (int ch = 0; ch < nCh; ++ch) {
+                var buf = new LargeArray<float>(numFrames);
+                mResampledPcmByChannel.Add(buf);
+            }
 
-                mPcmByChannel.Add(buf);
+            for (long b = 0; b < numFrames; ++b) {
+                for (int ch = 0; ch < nCh; ++ch) {
+                    var buf4 = new byte[4];
+                    fullPcm.CopyTo(sampleBytes * (nCh * b + ch), ref buf4, 0, 4);
+                    var bufCh = mResampledPcmByChannel[ch];
+                    var f1 = new float[1];
+                    f1[0] = BitConverter.ToSingle(buf4, 0);
+                    bufCh.CopyFrom(f1, 0, b, 1);
+                }
             }
 
             return hr;
         }
 
-        public bool Play() {
-            return true;
+        /// <summary>
+        /// mResampledPcmByChannelのPCMデータをNativeストアーに入れる。
+        /// </summary>
+        public int StoreSamples() {
+            if (mResampledPcmByChannel.Count == 0) {
+                Console.WriteLine("Error: WWSpatialAudioPlayer::StoreSamples() PCM sample not found\n");
+                return -1;
+            }
+
+            int hr = 0;
+
+            mSAudio.ClearAllPcm();
+            for (int ch = 0; ch < mResampledPcmByChannel.Count; ++ch) {
+                var from = mResampledPcmByChannel[ch];
+
+                mSAudio.SetPcmBegin(ch, from.LongLength);
+
+                int COPY_COUNT = 4096;
+
+                for (long pos=0; pos < from.LongLength; pos += COPY_COUNT) {
+                    int copyCount = COPY_COUNT;
+                    if (from.LongLength < pos + COPY_COUNT) {
+                        copyCount = (int)(from.LongLength - pos);
+                    }
+
+                    var buf = new float[copyCount];
+                    from.CopyTo(pos, ref buf, 0, copyCount);
+                    mSAudio.SetPcmFragment(ch, pos, buf);
+                }
+                mSAudio.SetPcmEnd(ch, GetAudioObjectType(ch));
+            }
+
+            return hr;
+        }
+
+        public bool Start() {
+            int hr = mSAudio.Start();
+            if (0 <= hr) {
+                return true;
+            }
+            return false;
         }
         public bool Stop() {
-            return true;
+            int hr = mSAudio.Stop();
+            if (0 <= hr) {
+                return true;
+            }
+            return false;
         }
 
         #region IDisposable Support

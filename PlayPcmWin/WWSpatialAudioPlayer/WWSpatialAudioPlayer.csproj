@@ -110,6 +110,10 @@
       <Project>{48f7f7a8-e4b5-4416-bcf6-a73e9dafe96e}</Project>
       <Name>WWSpatialAudioUserCs2017</Name>
     </ProjectReference>
+    <ProjectReference Include="..\WWUtil\WWUtilVS2017.csproj">
+      <Project>{f3dccd96-a62c-4a5b-a925-a7fd74fabb3d}</Project>
+      <Name>WWUtilVS2017</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

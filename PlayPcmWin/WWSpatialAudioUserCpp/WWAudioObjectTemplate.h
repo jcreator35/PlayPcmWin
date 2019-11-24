@@ -17,7 +17,7 @@ public:
     /// @retval true : 最後のPCMデータを送出した。
     bool CopyNextPcmTo(BYTE *buffTo, int buffToBytes) {
         assert(buffToBytes);
-        int copyBytes = bufferBytes - posInBytes;
+        int64_t copyBytes = bufferBytes - posInBytes;
         if (copyBytes < buffToBytes) {
             // 残りのPCMデータが少ない場合。
             // データがない部分は0で埋める。
@@ -40,8 +40,8 @@ public:
 
     T_SpatialAudioObject *sao = nullptr;
     BYTE *buffer = nullptr; ///< new BYTE[] で確保すること。
-    int   bufferBytes = 0;
-    int   posInBytes = 0;
+    int64_t bufferBytes = 0;
+    int64_t posInBytes = 0;
 
     int idx = -1; //< set on WWSpatialAudioUser::AddStream(). unique index starts from 0
 

@@ -4,6 +4,7 @@
              xmlns:local="clr-namespace:WWSpatialAudioPlayer"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <ResourceDictionary>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>
