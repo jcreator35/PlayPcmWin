@@ -4,9 +4,9 @@
 #include <SpatialAudioHrtf.h>
 #include "WWUtil.h"
 #include <assert.h>
-#include "WWDynAudioObjectTemplate.h"
+#include "WWAudioObjectTemplate.h"
 
-class WWDynAudioHrtfObject : public WWDynAudioObjectTemplate<ISpatialAudioObjectForHrtf> {
+class WWAudioHrtfObject : public WWAudioObjectTemplate<ISpatialAudioObjectForHrtf> {
 public:
     // SetOrientation(QuatToMat(orientation))
     //                       qx qy qz qw

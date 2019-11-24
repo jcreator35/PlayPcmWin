@@ -14,7 +14,7 @@ using namespace std;
 //#define TEST_SA_HRTF
 
 // dynamic moving speaker (or static speaker)
-#define TEST_DYNAMIC
+//#define TEST_DYNAMIC
 
 static const int MAX_DYN_STREAM = 16;
 
@@ -39,7 +39,7 @@ Run(void)
 {
     HRESULT hr = S_OK;
     WWSpatialAudioUser sa;
-    WWDynAudioObject dyn;
+    WWAudioObject ao;
     const int soundSec = 8;
     const int nBufBytes = soundSec * 48000 * sizeof(float);
     
@@ -68,17 +68,17 @@ Run(void)
 #endif
     HRG(sa.ChooseDevice(devNr, MAX_DYN_STREAM, staticObjectTypeMask));
     
-    dyn.buffer = (BYTE*)PrepareSound(nBufBytes);
-    dyn.bufferBytes = nBufBytes;
-    dyn.volume = 1.0f;
+    ao.buffer = (BYTE*)PrepareSound(nBufBytes);
+    ao.bufferBytes = nBufBytes;
+    ao.volume = 1.0f;
 #ifdef TEST_DYNAMIC
-    dyn.aot = AudioObjectType_Dynamic;
-    dyn.SetPos3D(1.0f, 0, 0.0f);
+    ao.aot = AudioObjectType_Dynamic;
+    ao.SetPos3D(1.0f, 0, 0.0f);
 #else
-    dyn.aot = AudioObjectType_FrontLeft;
+    ao.aot = AudioObjectType_FrontLeft;
 #endif
 
-    HRG(sa.AddStream(dyn));
+    HRG(sa.AddStream(ao));
 
     HRG(sa.Start());
 
@@ -92,7 +92,7 @@ Run(void)
         float y = 0;
         float z = -sin(theta);
         float volume = 1.0f;
-        sa.SetPosVolume(dyn.idx, x, y, z, volume);
+        sa.SetDynPosVolume(ao.idx, x, y, z, volume);
 #endif
     }
 

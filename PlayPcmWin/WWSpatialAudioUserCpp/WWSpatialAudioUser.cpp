@@ -31,35 +31,35 @@ WWSpatialAudioUser::Render1(void)
     UINT32 frameCountPerBuffer = 0;
 
     HRG(mSAORStream->BeginUpdatingAudioObjects(&availableDyn, &frameCountPerBuffer));
-    for (auto ite = mDynObjectList.mDynAudioObjectList.begin();
-            ite != mDynObjectList.mDynAudioObjectList.end(); ++ite) {
-        auto &dyn = *ite;
+    for (auto ite = mAudioObjectList.mAudioObjectList.begin();
+            ite != mAudioObjectList.mAudioObjectList.end(); ++ite) {
+        auto &ao = *ite;
         BYTE *buffer = nullptr;
         UINT32 bufferLength = 0;
         bool bEnd = false;
-        if (dyn.buffer == nullptr) {
+        if (ao.buffer == nullptr) {
             continue;
         }
 
-        if (dyn.sao == nullptr) {
-            HRG(mSAORStream->ActivateSpatialAudioObject(dyn.aot, &dyn.sao));
+        if (ao.sao == nullptr) {
+            HRG(mSAORStream->ActivateSpatialAudioObject(ao.aot, &ao.sao));
         }
 
-        HRG(dyn.sao->GetBuffer(&buffer, &bufferLength));
+        HRG(ao.sao->GetBuffer(&buffer, &bufferLength));
 
-        bEnd = dyn.CopyNextPcmTo(buffer, bufferLength);
+        bEnd = ao.CopyNextPcmTo(buffer, bufferLength);
 
         if (bEnd) {
             //printf("SetEndOfStream %d\n", bufferLength / mUseFmt.Format.nBlockAlign);
-            HRG(dyn.sao->SetEndOfStream(bufferLength / mUseFmt.Format.nBlockAlign));
-            dyn.ReleaseAll();
+            HRG(ao.sao->SetEndOfStream(bufferLength / mUseFmt.Format.nBlockAlign));
+            ao.ReleaseAll();
         } else {
             ++mPlayStreamCount;
 
-            if (dyn.aot == AudioObjectType_Dynamic) {
-                HRG(dyn.sao->SetPosition(dyn.posX, dyn.posY, dyn.posZ));
+            if (ao.aot == AudioObjectType_Dynamic) {
+                HRG(ao.sao->SetPosition(ao.posX, ao.posY, ao.posZ));
             }
-            HRG(dyn.sao->SetVolume(dyn.volume));
+            HRG(ao.sao->SetVolume(ao.volume));
         }
     }
 
@@ -123,9 +123,10 @@ end:
 HRESULT
 WWSpatialAudioUser::Init(void)
 {
+    dprintf("WWSpatialAudioUser::Init()\n");
     HRESULT hr = S_OK;
 
-    hr = WWSpatialAudioUserTemplate<ISpatialAudioObjectRenderStream, WWDynAudioObject>::Init();
+    hr = WWSpatialAudioUserTemplate<ISpatialAudioObjectRenderStream, WWAudioObject>::Init();
     if (FAILED(hr)) {
         goto end;
     }

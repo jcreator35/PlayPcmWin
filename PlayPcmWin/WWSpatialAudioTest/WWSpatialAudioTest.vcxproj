@@ -59,6 +59,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>..\WWSpatialAudioUserCpp</AdditionalIncludeDirectories>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -77,6 +78,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>..\WWSpatialAudioUserCpp</AdditionalIncludeDirectories>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -95,13 +97,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\WWSpatialAudioUserCpp\WWDeviceInf.h" />
-    <ClInclude Include="..\WWSpatialAudioUserCpp\WWDynAudioHrtfObject.h" />
-    <ClInclude Include="..\WWSpatialAudioUserCpp\WWDynAudioObject.h" />
-    <ClInclude Include="..\WWSpatialAudioUserCpp\WWDynAudioObjectTemplate.h" />
+    <ClInclude Include="..\WWSpatialAudioUserCpp\WWAudioHrtfObject.h" />
+    <ClInclude Include="..\WWSpatialAudioUserCpp\WWAudioObject.h" />
+    <ClInclude Include="..\WWSpatialAudioUserCpp\WWAudioObjectTemplate.h" />
     <ClInclude Include="..\WWSpatialAudioUserCpp\WWGuidToStr.h" />
     <ClInclude Include="..\WWSpatialAudioUserCpp\WWPrintDeviceProp.h" />
     <ClInclude Include="..\WWSpatialAudioUserCpp\WWSpatialAudioHrtfUser.h" />
-    <ClInclude Include="..\WWSpatialAudioUserCpp\WWDynAudioObjectListTemplate.h" />
+    <ClInclude Include="..\WWSpatialAudioUserCpp\WWAudioObjectListTemplate.h" />
     <ClInclude Include="..\WWSpatialAudioUserCpp\WWSpatialAudioUser.h" />
     <ClInclude Include="..\WWSpatialAudioUserCpp\WWSpatialAudioUserTemplate.h" />
     <ClInclude Include="..\WWSpatialAudioUserCpp\WWUtil.h" />

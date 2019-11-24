@@ -11,7 +11,7 @@
 #include <devicetopology.h>
 #include <set>
 #include <list>
-#include "WWDynAudioObjectListTemplate.h"
+#include "WWAudioObjectListTemplate.h"
 #include "WWDeviceInf.h"
 #include "WWUtil.h"
 #include "WWGuidToStr.h"
@@ -22,6 +22,7 @@ template <typename T_RenderStream, typename T_DynAudioObject>
 class WWSpatialAudioUserTemplate {
 public:
     virtual HRESULT Init(void) {
+        dprintf("WWSpatialAudioUserTemplate::Init()\n");
         HRESULT hr = 0;
 
         // ComInitializeする。
@@ -59,6 +60,7 @@ public:
 
 
     virtual void Term(void) {
+        dprintf("WWSpatialAudioUserTemplate::Term()\n");
         if (mSAORStream) {
             mSAORStream->Stop();
             mSAORStream->Reset();
@@ -75,7 +77,7 @@ public:
             mRenderThread = nullptr;
         }
 
-        mDynObjectList.ReleaseAll();
+        mAudioObjectList.ReleaseAll();
 
         if (mBufferEvent != nullptr) {
             CloseHandle(mBufferEvent);
@@ -94,7 +96,6 @@ public:
 
         mDeviceInf.clear();
         SafeRelease(&mDeviceCollection);
-        SafeRelease(&mDeviceToUse);
         SafeRelease(&mSAClient);
 
         if (mComInit) {
@@ -107,9 +108,11 @@ public:
         HRESULT hr = 0;
         IMMDeviceEnumerator *devEnum = nullptr;
 
+
         HRR(CoCreateInstance(__uuidof(MMDeviceEnumerator),
             nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&devEnum)));
 
+        SafeRelease(&mDeviceCollection);
         HRR(devEnum->EnumAudioEndpoints(
             eRender, DEVICE_STATE_ACTIVE, &mDeviceCollection));
 
@@ -118,9 +121,12 @@ public:
 
         mDeviceInf.clear();
         for (UINT i = 0; i < nDevices; ++i) {
+            wchar_t devIdStr[WW_DEVICE_NAME_COUNT];
             wchar_t name[WW_DEVICE_NAME_COUNT];
+
+            HRG(WWDeviceIdStrGet(mDeviceCollection, i, devIdStr, sizeof devIdStr));
             HRG(WWDeviceNameGet(mDeviceCollection, i, name, sizeof name));
-            mDeviceInf.push_back(WWDeviceInf(i, name));
+            mDeviceInf.push_back(WWDeviceInf(i, devIdStr, name));
         }
 
     end:
@@ -131,6 +137,17 @@ public:
     int GetDeviceCount(void) {
         assert(mDeviceCollection);
         return (int)mDeviceInf.size();
+    }
+
+    bool GetDeviceIdStr(int id, LPWSTR devIdStr, size_t devIdStrBytes) {
+        assert(devIdStr);
+        memset(devIdStr, 0, devIdStrBytes);
+        if (id < 0 || mDeviceInf.size() <= (unsigned int)id) {
+            assert(0);
+            return false;
+        }
+        wcsncpy_s(devIdStr, devIdStrBytes / sizeof devIdStr[0], mDeviceInf[id].devIdStr, _TRUNCATE);
+        return true;
     }
 
     bool GetDeviceName(int id, LPWSTR name, size_t nameBytes) {
@@ -144,87 +161,23 @@ public:
         return true;
     }
 
-
     // when unchoosing device, call ChooseDevice(-1)
     HRESULT ChooseDevice(int id, int maxDynObjectCount, int staticObjectTypeMask) {
-        HRESULT hr = 0;
-
-        // アクティベーションの設定値pv。
-        auto p = reinterpret_cast<SpatialAudioClientActivationParams *>(
-            CoTaskMemAlloc(sizeof(SpatialAudioClientActivationParams)));
-        if (nullptr == p) {
-            throw new std::bad_alloc();
-        }
-        memset(p, 0, sizeof *p);
-        p->majorVersion = 1;
-        PROPVARIANT pv;
-        PropVariantInit(&pv);
-        pv.vt = VT_BLOB;
-        pv.blob.cbSize = sizeof(*p);
-        pv.blob.pBlobData = reinterpret_cast<BYTE *>(p);
-
+        HRESULT hr = S_OK;
+     
         if (id < 0) {
             // Unchoose device
+            if (mSAORStream) {
+                SafeRelease(&mSAORStream);
+            }
+
             if (mSAClient) {
                 SafeRelease(&mSAClient);
             }
         } else {
             // Choose device
-            assert(!mDeviceToUse);
-            HRG(mDeviceCollection->Item(id, &mDeviceToUse));
-
-            assert(mDeviceToUse);
-            assert(!mSAClient);
-
-            HRG(mDeviceToUse->Activate(
-                __uuidof(ISpatialAudioClient), CLSCTX_INPROC_SERVER, &pv, (void**)&mSAClient));
-            assert(mSAClient);
-
-            HRG(mSAClient->GetMaxDynamicObjectCount(&mMaxDynamicObjectCount));
-
-            // dynamic objects
-            if (mMaxDynamicObjectCount == 0) {
-                printf("  Spatial audio is not enabled\n");
-                goto end;
-            }
-            printf("  Spatial audio is enabled\n");
-            printf("  MaxDynamicObjectCount=%u\n", mMaxDynamicObjectCount);
-
-            // static objects
-            HRG(mSAClient->GetNativeStaticObjectTypeMask(&mNativeStaticObjectTypeFlags));
-            printf("  Native Static Audio Objects : %d ch\n", WWCountNumberOf1s(mNativeStaticObjectTypeFlags));
-            WWGetAndPrintStaticAudioObjectProp(mSAClient);
-
-            // prepare WFEX
-            {
-                int numChannels = 1;
-                int sampleRate = 48000;
-                int bitsPerSample = 32;
-                int byteRate = sampleRate * numChannels * bitsPerSample / 8;
-                int blockAlign = numChannels * bitsPerSample / 8;
-
-                mUseFmt.Format.wFormatTag = WAVE_FORMAT_EXTENSIBLE;
-                mUseFmt.Format.nChannels = numChannels;
-                mUseFmt.Format.nSamplesPerSec = sampleRate;
-                mUseFmt.Format.nAvgBytesPerSec = byteRate;
-                mUseFmt.Format.nBlockAlign = blockAlign;
-                mUseFmt.Format.wBitsPerSample = bitsPerSample;
-                mUseFmt.Format.cbSize = 22;
-                mUseFmt.Samples.wValidBitsPerSample = bitsPerSample;
-                mUseFmt.dwChannelMask = 0;
-                mUseFmt.SubFormat = KSDATAFORMAT_SUBTYPE_IEEE_FLOAT;
-                printf("  %dHz %dbit %dch container=%dbit %s\n",
-                    (int)mUseFmt.Format.nSamplesPerSec, (int)mUseFmt.Samples.wValidBitsPerSample,
-                    (int)mUseFmt.Format.nChannels, (int)mUseFmt.Format.wBitsPerSample,
-                    WWGuidToKsDataFormatStr(&mUseFmt.SubFormat));
-            }
+            hr = ChooseDevice1(id, maxDynObjectCount, staticObjectTypeMask);
         }
-
-        HRG(ActivateAudioStream(maxDynObjectCount, staticObjectTypeMask));
-
-    end:
-        SafeRelease(&mDeviceToUse);
-        PropVariantClear(&pv);
         return hr;
     }
 
@@ -253,7 +206,7 @@ public:
         assert(mMutex);
         WaitForSingleObject(mMutex, INFINITE);
         {   // この中はgoto 不可。
-            mDynObjectList.mDynAudioObjectList.push_back(dasc);
+            mAudioObjectList.mAudioObjectList.push_back(dasc);
         }
         ReleaseMutex(mMutex);
 
@@ -266,12 +219,12 @@ public:
     /// @param y 上が+ (下が-) 単位メートル
     /// @param z 後ろが+ (前は-)。単位メートル。
     /// @param volume 0～1
-    bool SetPosVolume(int dascIdx, float x, float y, float z, float volume) {
+    bool SetDynPosVolume(int dascIdx, float x, float y, float z, float volume) {
         bool rv = true;
         assert(mMutex);
         WaitForSingleObject(mMutex, INFINITE);
         do { // この中はgoto 不可。
-            auto * dasc = mDynObjectList.Find(dascIdx);
+            auto * dasc = mAudioObjectList.Find(dascIdx);
             if (dasc == nullptr) {
                 rv = false;
                 break;
@@ -297,18 +250,23 @@ public:
     }
 
     HRESULT Start(void) {
-        return mSAORStream->Start();
+        HRESULT hr = S_OK;
+        HRG(mSAORStream->Start());
+    end:
+        return hr;
     }
 
     HRESULT Stop(void) {
-        return mSAORStream->Stop();
+        HRESULT hr = S_OK;
+        HRG(mSAORStream->Stop());
+    end:
+        return hr;
     }
 
 protected:
     bool mComInit = false;
     std::vector<WWDeviceInf> mDeviceInf;
     IMMDeviceCollection *mDeviceCollection = nullptr;
-    IMMDevice *mDeviceToUse = nullptr;
 
     UINT mMaxDynamicObjectCount = 0;
     AudioObjectType  mNativeStaticObjectTypeFlags = AudioObjectType_None;
@@ -316,7 +274,7 @@ protected:
 
     ISpatialAudioClient *mSAClient = nullptr;
     T_RenderStream *mSAORStream = nullptr;
-    WWDynAudioObjectListTemplate<T_DynAudioObject> mDynObjectList;
+    WWAudioObjectListTemplate<T_DynAudioObject> mAudioObjectList;
     HANDLE mRenderThread = nullptr;
 
     WAVEFORMATEXTENSIBLE mUseFmt = { 0 };
@@ -324,5 +282,86 @@ protected:
     HANDLE mShutdownEvent = nullptr;
     HANDLE mBufferEvent = nullptr;
     int    mPlayStreamCount = 0;
+
+    HRESULT ChooseDevice1(int id, int maxDynObjectCount, int staticObjectTypeMask) {
+        HRESULT hr = 0;
+        IMMDevice *deviceToUse = nullptr;
+        PROPVARIANT pv;
+        PropVariantInit(&pv);
+
+        // アクティベーションの設定値pv。
+        auto p = reinterpret_cast<SpatialAudioClientActivationParams *>(
+            CoTaskMemAlloc(sizeof(SpatialAudioClientActivationParams)));
+        if (nullptr == p) {
+            throw new std::bad_alloc();
+        }
+        memset(p, 0, sizeof *p);
+        p->majorVersion = 1;
+        pv.vt = VT_BLOB;
+        pv.blob.cbSize = sizeof(*p);
+        pv.blob.pBlobData = reinterpret_cast<BYTE *>(p);
+
+        // Choose device
+        assert(!deviceToUse);
+        assert(mDeviceCollection);
+
+        HRG(mDeviceCollection->Item(id, &deviceToUse));
+        assert(deviceToUse);
+
+        assert(!mSAClient);
+
+        HRG(deviceToUse->Activate(
+            __uuidof(ISpatialAudioClient), CLSCTX_INPROC_SERVER, &pv, (void**)&mSAClient));
+        assert(mSAClient);
+
+        HRG(mSAClient->GetMaxDynamicObjectCount(&mMaxDynamicObjectCount));
+
+        // dynamic objects
+        if (mMaxDynamicObjectCount == 0) {
+            printf("  Spatial audio is not enabled\n");
+            hr = E_UNSUPPORTED_TYPE;
+            goto end;
+        }
+        printf("  Spatial audio is enabled\n");
+        printf("  MaxDynamicObjectCount=%u\n", mMaxDynamicObjectCount);
+
+        // static objects
+        HRG(mSAClient->GetNativeStaticObjectTypeMask(&mNativeStaticObjectTypeFlags));
+        printf("  Native Static Audio Objects : %d ch\n", WWCountNumberOf1s(mNativeStaticObjectTypeFlags));
+        WWGetAndPrintStaticAudioObjectProp(mSAClient);
+
+        // prepare WFEX
+        {
+            int numChannels = 1;
+            int sampleRate = 48000;
+            int bitsPerSample = 32;
+            int byteRate = sampleRate * numChannels * bitsPerSample / 8;
+            int blockAlign = numChannels * bitsPerSample / 8;
+
+            mUseFmt.Format.wFormatTag = WAVE_FORMAT_EXTENSIBLE;
+            mUseFmt.Format.nChannels = numChannels;
+            mUseFmt.Format.nSamplesPerSec = sampleRate;
+            mUseFmt.Format.nAvgBytesPerSec = byteRate;
+            mUseFmt.Format.nBlockAlign = blockAlign;
+            mUseFmt.Format.wBitsPerSample = bitsPerSample;
+            mUseFmt.Format.cbSize = 22;
+            mUseFmt.Samples.wValidBitsPerSample = bitsPerSample;
+            mUseFmt.dwChannelMask = 0;
+            mUseFmt.SubFormat = KSDATAFORMAT_SUBTYPE_IEEE_FLOAT;
+            printf("  %dHz %dbit %dch container=%dbit %s\n",
+                (int)mUseFmt.Format.nSamplesPerSec, (int)mUseFmt.Samples.wValidBitsPerSample,
+                (int)mUseFmt.Format.nChannels, (int)mUseFmt.Format.wBitsPerSample,
+                WWGuidToKsDataFormatStr(&mUseFmt.SubFormat));
+        }
+
+        HRG(ActivateAudioStream(maxDynObjectCount, staticObjectTypeMask));
+    end:
+        if (FAILED(hr)) {
+            SafeRelease(&mSAClient);
+        }
+        SafeRelease(&deviceToUse);
+        PropVariantClear(&pv);
+        return hr;
+    }
 };
 

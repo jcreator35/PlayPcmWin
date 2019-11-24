@@ -61,6 +61,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;WWSPATIALAUDIOUSER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -77,6 +78,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;WWSPATIALAUDIOUSER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -93,13 +95,15 @@
     <ClInclude Include="WWDynAudioObjectListTemplate.h" />
     <ClInclude Include="WWDynAudioObjectTemplate.h" />
     <ClInclude Include="WWGuidToStr.h" />
+    <ClInclude Include="WWPcm.h" />
+    <ClInclude Include="WWPcmStore.h" />
     <ClInclude Include="WWPrintDeviceProp.h" />
     <ClInclude Include="WWSpatialAudioDeviceProperty.h" />
     <ClInclude Include="WWSpatialAudioHrtfUser.h" />
-    <ClInclude Include="WWSpatialAudioStream.h" />
     <ClInclude Include="WWSpatialAudioUser.h" />
     <ClInclude Include="WWSpatialAudioUserIF.h" />
     <ClInclude Include="WWSpatialAudioUserTemplate.h" />
+    <ClInclude Include="WWStaticAudioObject.h" />
     <ClInclude Include="WWUtil.h" />
   </ItemGroup>
   <ItemGroup>

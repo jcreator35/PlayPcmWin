@@ -81,6 +81,31 @@ void WWQuaternionToRowMajorRotMat(const float q[4], float m_return[9])
 }
 
 HRESULT
+WWDeviceIdStrGet(
+    IMMDeviceCollection *dc, UINT id, wchar_t *devIdStr, size_t idStrBytes)
+{
+    HRESULT hr = 0;
+
+    IMMDevice *device = nullptr;
+    LPWSTR deviceId = nullptr;
+
+    assert(dc);
+    assert(devIdStr);
+    devIdStr[0] = 0;
+    assert(0 < idStrBytes);
+
+    HRG(dc->Item(id, &device));
+    HRG(device->GetId(&deviceId));
+    wcsncpy_s(devIdStr, idStrBytes / sizeof devIdStr[0], deviceId, _TRUNCATE);
+
+end:
+    if (nullptr != deviceId) {
+        CoTaskMemFree(deviceId);
+    }
+    return hr;
+}
+
+HRESULT
 WWDeviceNameGet(
     IMMDeviceCollection *dc, UINT id, wchar_t *name, size_t nameBytes)
 {

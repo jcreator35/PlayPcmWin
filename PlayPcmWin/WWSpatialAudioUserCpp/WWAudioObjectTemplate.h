@@ -5,7 +5,7 @@
 #include <assert.h>
 
 template <typename T_SpatialAudioObject>
-class WWDynAudioObjectTemplate {
+class WWAudioObjectTemplate {
 public:
     void ReleaseAll(void) {
         SafeRelease(&sao);

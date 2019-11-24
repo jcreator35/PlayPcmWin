@@ -31,42 +31,42 @@ WWSpatialAudioHrtfUser::Render1(void)
     UINT32 frameCountPerBuffer = 0;
 
     HRG(mSAORStream->BeginUpdatingAudioObjects(&availableDyn, &frameCountPerBuffer));
-    for (auto ite = mDynObjectList.mDynAudioObjectList.begin();
-            ite != mDynObjectList.mDynAudioObjectList.end(); ++ite) {
-        auto &dyn = *ite;
+    for (auto ite = mAudioObjectList.mAudioObjectList.begin();
+            ite != mAudioObjectList.mAudioObjectList.end(); ++ite) {
+        auto &ao = *ite;
         BYTE *buffer = nullptr;
         UINT32 bufferLength = 0;
         bool bEnd = false;
-        if (dyn.buffer == nullptr) {
+        if (ao.buffer == nullptr) {
             continue;
         }
 
-        if (dyn.sao == nullptr) {
-            HRG(mSAORStream->ActivateSpatialAudioObjectForHrtf(dyn.aot, &dyn.sao));
+        if (ao.sao == nullptr) {
+            HRG(mSAORStream->ActivateSpatialAudioObjectForHrtf(ao.aot, &ao.sao));
         }
 
-        HRG(dyn.sao->GetBuffer(&buffer, &bufferLength));
+        HRG(ao.sao->GetBuffer(&buffer, &bufferLength));
 
-        bEnd = dyn.CopyNextPcmTo(buffer, bufferLength);
+        bEnd = ao.CopyNextPcmTo(buffer, bufferLength);
 
         if (bEnd) {
             //printf("SetEndOfStream %d\n", bufferLength / mUseFmt.Format.nBlockAlign);
-            HRG(dyn.sao->SetEndOfStream(bufferLength / mUseFmt.Format.nBlockAlign));
-            dyn.ReleaseAll();
+            HRG(ao.sao->SetEndOfStream(bufferLength / mUseFmt.Format.nBlockAlign));
+            ao.ReleaseAll();
         } else {
             ++mPlayStreamCount;
-            HRG(dyn.sao->SetGain(dyn.volume));
-            if (dyn.aot == AudioObjectType_Dynamic) {
-                HRG(dyn.sao->SetPosition(dyn.posX, dyn.posY, dyn.posZ));
-                HRG(dyn.sao->SetEnvironment(dyn.env));
-                HRG(dyn.sao->SetDistanceDecay(&dyn.dd));
-                HRG(dyn.sao->SetDirectivity(&dyn.directivity));
-                if (dyn.directivity.Omni.Type != SpatialAudioHrtfDirectivity_OmniDirectional) {
+            HRG(ao.sao->SetGain(ao.volume));
+            if (ao.aot == AudioObjectType_Dynamic) {
+                HRG(ao.sao->SetPosition(ao.posX, ao.posY, ao.posZ));
+                HRG(ao.sao->SetEnvironment(ao.env));
+                HRG(ao.sao->SetDistanceDecay(&ao.dd));
+                HRG(ao.sao->SetDirectivity(&ao.directivity));
+                if (ao.directivity.Omni.Type != SpatialAudioHrtfDirectivity_OmniDirectional) {
                     // 向きがあるので向きを指定。
                     // row major 3x3 mat
                     SpatialAudioHrtfOrientation o;
-                    WWQuaternionToRowMajorRotMat(dyn.orientation, o);
-                    HRG(dyn.sao->SetOrientation(&o));
+                    WWQuaternionToRowMajorRotMat(ao.orientation, o);
+                    HRG(ao.sao->SetOrientation(&o));
                 }
             }
         }
@@ -132,9 +132,10 @@ end:
 HRESULT
 WWSpatialAudioHrtfUser::Init(void)
 {
+    dprintf("WWSpatialAudioHrtfUser::Term()\n");
     HRESULT hr = S_OK;
 
-    hr = WWSpatialAudioUserTemplate<ISpatialAudioObjectRenderStreamForHrtf, WWDynAudioHrtfObject > ::Init();
+    hr = WWSpatialAudioUserTemplate<ISpatialAudioObjectRenderStreamForHrtf, WWAudioHrtfObject > ::Init();
     if (FAILED(hr)) {
         goto end;
     }
@@ -155,7 +156,7 @@ WWSpatialAudioHrtfUser::ActivateAudioStream(int dynObjectCount, int staticObject
 {
     HRESULT hr = S_OK;
     SpatialAudioHrtfActivationParams p;
-    WWDynAudioHrtfObject dyn;
+    WWAudioHrtfObject dyn;
     SpatialAudioHrtfOrientation oriMat;
     PROPVARIANT pv;
     PropVariantInit(&pv);

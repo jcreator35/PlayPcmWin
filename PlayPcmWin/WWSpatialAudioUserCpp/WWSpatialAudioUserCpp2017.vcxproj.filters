@@ -27,9 +27,6 @@
     <ClInclude Include="WWUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WWSpatialAudioStream.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="WWSpatialAudioDeviceProperty.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -58,6 +55,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="WWSpatialAudioUserIF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWPcmStore.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWPcm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWStaticAudioObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

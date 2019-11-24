@@ -18,54 +18,54 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\WWSpatialAudioUserCpp2017\WWGuidToStr.cpp">
+    <ClCompile Include="..\WWSpatialAudioUserCpp\WWGuidToStr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\WWSpatialAudioUserCpp2017\WWPrintDeviceProp.cpp">
+    <ClCompile Include="..\WWSpatialAudioUserCpp\WWPrintDeviceProp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\WWSpatialAudioUserCpp2017\WWSpatialAudioHrtfUser.cpp">
+    <ClCompile Include="..\WWSpatialAudioUserCpp\WWSpatialAudioHrtfUser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\WWSpatialAudioUserCpp2017\WWSpatialAudioUser.cpp">
+    <ClCompile Include="..\WWSpatialAudioUserCpp\WWSpatialAudioUser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\WWSpatialAudioUserCpp2017\WWUtil.cpp">
+    <ClCompile Include="..\WWSpatialAudioUserCpp\WWUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\WWSpatialAudioUserCpp2017\WWDeviceInf.h">
+    <ClInclude Include="..\WWSpatialAudioUserCpp\WWDeviceInf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\WWSpatialAudioUserCpp2017\WWDynAudioHrtfObject.h">
+    <ClInclude Include="..\WWSpatialAudioUserCpp\WWGuidToStr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\WWSpatialAudioUserCpp2017\WWDynAudioObject.h">
+    <ClInclude Include="..\WWSpatialAudioUserCpp\WWPrintDeviceProp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\WWSpatialAudioUserCpp2017\WWDynAudioObjectTemplate.h">
+    <ClInclude Include="..\WWSpatialAudioUserCpp\WWSpatialAudioHrtfUser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\WWSpatialAudioUserCpp2017\WWGuidToStr.h">
+    <ClInclude Include="..\WWSpatialAudioUserCpp\WWSpatialAudioUser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\WWSpatialAudioUserCpp2017\WWPrintDeviceProp.h">
+    <ClInclude Include="..\WWSpatialAudioUserCpp\WWSpatialAudioUserTemplate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\WWSpatialAudioUserCpp2017\WWSpatialAudioHrtfUser.h">
+    <ClInclude Include="..\WWSpatialAudioUserCpp\WWUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\WWSpatialAudioUserCpp2017\WWDynAudioObjectListTemplate.h">
+    <ClInclude Include="..\WWSpatialAudioUserCpp\WWAudioHrtfObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\WWSpatialAudioUserCpp2017\WWSpatialAudioUser.h">
+    <ClInclude Include="..\WWSpatialAudioUserCpp\WWAudioObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\WWSpatialAudioUserCpp2017\WWSpatialAudioUserTemplate.h">
+    <ClInclude Include="..\WWSpatialAudioUserCpp\WWAudioObjectListTemplate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\WWSpatialAudioUserCpp2017\WWUtil.h">
+    <ClInclude Include="..\WWSpatialAudioUserCpp\WWAudioObjectTemplate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

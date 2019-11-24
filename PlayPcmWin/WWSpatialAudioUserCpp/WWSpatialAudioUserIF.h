@@ -36,3 +36,26 @@ WWSpatialAudioUserGetDeviceProperty(
 WWSPATIALAUDIOUSER_API int __stdcall
 WWSpatialAudioUserChooseDevice(
     int instanceId, int devIdx, int maxDynObjectCount, int staticObjectTypeMask);
+
+WWSPATIALAUDIOUSER_API int __stdcall
+WWSpatialAudioClearAllPcm(int instanceId);
+
+WWSPATIALAUDIOUSER_API int __stdcall
+WWSpatialAudioSetPcmBegin(
+    int instanceId, int ch, int64_t numSamples);
+
+WWSPATIALAUDIOUSER_API int __stdcall
+WWSpatialAudioSetPcmFragment(
+    int instanceId, int ch, int64_t startSamplePos, int sampleCount, float * samples);
+
+WWSPATIALAUDIOUSER_API int __stdcall
+WWSpatialAudioSetPcmEnd(
+    int instanceId, int ch);
+
+WWSPATIALAUDIOUSER_API int __stdcall
+WWSpatialAudioStart(
+    int instanceId);
+
+WWSPATIALAUDIOUSER_API int __stdcall
+WWSpatialAudioStop(
+    int instanceId);

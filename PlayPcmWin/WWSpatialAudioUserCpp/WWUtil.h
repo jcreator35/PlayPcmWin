@@ -63,6 +63,10 @@ template <class T_SpatialAudioObject> void SafeRelease(T_SpatialAudioObject **pp
 void WWQuaternionToRowMajorRotMat(const float q[4], float m_return[9]);
 
 HRESULT
+WWDeviceIdStrGet(
+    IMMDeviceCollection *dc, UINT id, wchar_t *devIdStr, size_t idStrBytes);
+
+HRESULT
 WWDeviceNameGet(
     IMMDeviceCollection *dc, UINT id, wchar_t *name, size_t nameBytes);
 

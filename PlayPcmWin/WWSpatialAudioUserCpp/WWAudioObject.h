@@ -3,8 +3,8 @@
 #include <SpatialAudioClient.h>
 #include "WWUtil.h"
 #include <assert.h>
-#include "WWDynAudioObjectTemplate.h"
+#include "WWAudioObjectTemplate.h"
 
-class WWDynAudioObject : public WWDynAudioObjectTemplate<ISpatialAudioObject> {
+class WWAudioObject : public WWAudioObjectTemplate<ISpatialAudioObject> {
 public:
 };

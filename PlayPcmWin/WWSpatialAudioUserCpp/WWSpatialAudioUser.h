@@ -1,13 +1,13 @@
 ﻿// 日本語
 #pragma once
 #include "WWSpatialAudioUserTemplate.h"
-#include "WWDynAudioObject.h"
+#include "WWAudioObject.h"
 #include <SpatialAudioClient.h>
 
 class WWSpatialAudioUser :
     public WWSpatialAudioUserTemplate<
         ISpatialAudioObjectRenderStream,
-        WWDynAudioObject>
+        WWAudioObject>
 {
 public:
     HRESULT Init(void) override;
