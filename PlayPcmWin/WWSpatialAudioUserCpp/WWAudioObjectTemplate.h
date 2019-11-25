@@ -38,6 +38,10 @@ public:
         posZ = z;
     }
 
+    void Rewind(void) {
+        posInBytes = 0;
+    }
+
     T_SpatialAudioObject *sao = nullptr;
     BYTE *buffer = nullptr; ///< new BYTE[] で確保すること。
     int64_t bufferBytes = 0;

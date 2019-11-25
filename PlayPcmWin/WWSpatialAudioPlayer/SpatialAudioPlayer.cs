@@ -201,11 +201,11 @@ namespace WWSpatialAudioPlayer  {
         }
 
         /// <summary>
-        /// mResampledPcmByChannelのPCMデータをNativeストアーに入れる。
+        /// mResampledPcmByChannelのPCMデータをNativeバッファーに入れる。
         /// </summary>
-        public int StoreSamples() {
+        public int StoreSamplesToNativeBuffer() {
             if (mResampledPcmByChannel.Count == 0) {
-                Console.WriteLine("Error: WWSpatialAudioPlayer::StoreSamples() PCM sample not found\n");
+                Console.WriteLine("Error: WWSpatialAudioPlayer::StoreSamplesToNativeBuffer() PCM sample not found\n");
                 return -1;
             }
 

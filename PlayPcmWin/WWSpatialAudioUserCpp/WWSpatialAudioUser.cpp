@@ -51,7 +51,7 @@ WWSpatialAudioUser::Render1(void)
 
         if (bEnd) {
             //printf("SetEndOfStream %d\n", bufferLength / mUseFmt.Format.nBlockAlign);
-            HRG(ao.sao->SetEndOfStream(bufferLength / mUseFmt.Format.nBlockAlign));
+            HRG(ao.sao->SetEndOfStream(bufferLength / mUseFmt.nBlockAlign));
             ao.ReleaseAll();
         } else {
             ++mPlayStreamCount;

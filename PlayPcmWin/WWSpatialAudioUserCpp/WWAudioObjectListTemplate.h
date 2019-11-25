@@ -16,17 +16,12 @@ public:
         mAudioObjectList.clear();
     }
 
-    /*
-    T_SpatialAudioObject *Find(int idx) {
+    void Rewind(void) {
         for (auto ite = mAudioObjectList.begin(); ite != mAudioObjectList.end(); ++ite) {
             auto &r = *ite;
-            if (r.idx == idx) {
-                return &r;
-            }
+            r.Rewind();
         }
-        return nullptr;
     }
-    */
 
     std::list<T_SpatialAudioObject> mAudioObjectList;
 };

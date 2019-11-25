@@ -201,5 +201,12 @@ WWSpatialAudioStop(
 {
     FIND_INSTANCE;
 
-    return sau->Stop();
+    HRESULT hr = sau->Stop();
+    if (FAILED(hr)) {
+        return hr;
+    }
+
+    sau->Rewind();
+
+    return hr;
 }

@@ -1,5 +1,9 @@
 ﻿// 日本語
 #pragma once
+
+// 参考ページ。
+// https://msdn.microsoft.com/en-us/windows/desktop/mt809289
+
 #include <Windows.h>
 #include <MMDeviceAPI.h>
 #include <AudioClient.h>
@@ -274,6 +278,10 @@ public:
         return hr;
     }
 
+    void Rewind(void) {
+        mAudioObjectList.Rewind();
+    }
+
 protected:
     bool mComInit = false;
     std::vector<WWDeviceInf> mDeviceInf;
@@ -288,7 +296,7 @@ protected:
     WWAudioObjectListTemplate<T_AudioObject> mAudioObjectList;
     HANDLE mRenderThread = nullptr;
 
-    WAVEFORMATEXTENSIBLE mUseFmt = { 0 };
+    WAVEFORMATEX mUseFmt = { 0 };
     HANDLE mMutex = nullptr;
     HANDLE mShutdownEvent = nullptr;
     HANDLE mBufferEvent = nullptr;
@@ -349,20 +357,20 @@ protected:
             int byteRate = sampleRate * numChannels * bitsPerSample / 8;
             int blockAlign = numChannels * bitsPerSample / 8;
 
-            mUseFmt.Format.wFormatTag = WAVE_FORMAT_EXTENSIBLE;
-            mUseFmt.Format.nChannels = numChannels;
-            mUseFmt.Format.nSamplesPerSec = sampleRate;
-            mUseFmt.Format.nAvgBytesPerSec = byteRate;
-            mUseFmt.Format.nBlockAlign = blockAlign;
-            mUseFmt.Format.wBitsPerSample = bitsPerSample;
-            mUseFmt.Format.cbSize = 22;
-            mUseFmt.Samples.wValidBitsPerSample = bitsPerSample;
-            mUseFmt.dwChannelMask = 0;
-            mUseFmt.SubFormat = KSDATAFORMAT_SUBTYPE_IEEE_FLOAT;
-            printf("  %dHz %dbit %dch container=%dbit %s\n",
-                (int)mUseFmt.Format.nSamplesPerSec, (int)mUseFmt.Samples.wValidBitsPerSample,
-                (int)mUseFmt.Format.nChannels, (int)mUseFmt.Format.wBitsPerSample,
-                WWGuidToKsDataFormatStr(&mUseFmt.SubFormat));
+            mUseFmt.wFormatTag = WAVE_FORMAT_IEEE_FLOAT;
+            mUseFmt.nChannels = numChannels;
+            mUseFmt.nSamplesPerSec = sampleRate;
+            mUseFmt.nAvgBytesPerSec = byteRate;
+            mUseFmt.nBlockAlign = blockAlign;
+            mUseFmt.wBitsPerSample = bitsPerSample;
+            mUseFmt.cbSize = 0;
+
+            printf("  %dHz %dbit %dch x (static:%d + dyn:%d)\n",
+                (int)mUseFmt.nSamplesPerSec,
+                (int)mUseFmt.wBitsPerSample,
+                (int)mUseFmt.nChannels,
+                WWCountNumberOf1s(mNativeStaticObjectTypeFlags),
+                mMaxDynamicObjectCount);
         }
 
         HRG(ActivateAudioStream(maxDynObjectCount, staticObjectTypeMask));

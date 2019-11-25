@@ -123,7 +123,7 @@ namespace WWSpatialAudioPlayer {
             }
 
             ReportProgress(90, "  Storing to native buffer...\n");
-            hr = mPlayer.StoreSamples();
+            hr = mPlayer.StoreSamplesToNativeBuffer();
             if (hr < 0) {
                 r.hr = hr;
                 return;
