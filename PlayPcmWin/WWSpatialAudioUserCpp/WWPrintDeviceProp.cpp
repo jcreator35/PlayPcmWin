@@ -29,6 +29,10 @@ WWGetAndPrintStaticAudioObjectProp(ISpatialAudioClient *saClient)
     AudioObjectType f = AudioObjectType_None;
     HRG(saClient->GetNativeStaticObjectTypeMask(&f));
 
+    printf("\n  3D Virtual Speaker Positions in meters\n");
+    printf("    x axis is right + , y axis is up + , z axis is back + (Right-handed coordinates)\n");
+    printf("    Name                 x            y            z\n");
+
     if (f & AudioObjectType_FrontLeft)        { HRG(PrintAudioObjectPosition(saClient, "FrontLeft       ", AudioObjectType_FrontLeft)); }
     if (f & AudioObjectType_FrontRight)       { HRG(PrintAudioObjectPosition(saClient, "FrontRight      ", AudioObjectType_FrontRight)); }
     if (f & AudioObjectType_FrontCenter)      { HRG(PrintAudioObjectPosition(saClient, "FrontCenter     ", AudioObjectType_FrontCenter)); }

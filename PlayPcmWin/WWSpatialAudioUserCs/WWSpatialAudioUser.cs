@@ -87,6 +87,52 @@ namespace WWSpatialAudioUserCs {
 
         #region DwChannelMask and AudioObjectTypeMask conversion
 
+        public static string DwChannelMaskShortStr(DwChannelMaskType t) {
+            switch (t) {
+            case DwChannelMaskType.FrontLeft:
+                return "FL";
+            case DwChannelMaskType.FrontRight:
+                return "FR";
+            case DwChannelMaskType.FrontCenter:
+                return "FC";
+            case DwChannelMaskType.LowFrequency:
+                return "LFE";
+            case DwChannelMaskType.BackLeft:
+                return "BL";
+
+            case DwChannelMaskType.BackRight:
+                return "BR";
+            case DwChannelMaskType.FrontLeftOfCenter:
+                return "FLC";
+            case DwChannelMaskType.FrontRightOfCenter:
+                return "FRC";
+            case DwChannelMaskType.BackCenter:
+                return "BC";
+            case DwChannelMaskType.SideLeft:
+                return "SL";
+
+            case DwChannelMaskType.SideRight:
+                return "SR";
+            case DwChannelMaskType.TopCenter:
+                return "TC";
+            case DwChannelMaskType.TopFrontCenter:
+                return "TFC";
+            case DwChannelMaskType.TopFrontLeft:
+                return "TFL";
+            case DwChannelMaskType.TopFrontRight:
+                return "TFR";
+
+            case DwChannelMaskType.TopBackLeft:
+                return "TBL";
+            case DwChannelMaskType.TopBackCenter:
+                return "TBC";
+            case DwChannelMaskType.TopBackRight:
+                return "TBR";
+            default:
+                return string.Format("Unknown({0})", (int)t);
+            }
+        }
+
         public static List<DwChannelMaskType> DwChannelMaskToList(int dwChannelMask) {
             var r = new List<DwChannelMaskType>();
 

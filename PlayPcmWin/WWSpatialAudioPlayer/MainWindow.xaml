@@ -5,14 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WWSpatialAudioPlayer"
         mc:Ignorable="d"
-        Title="WWSpatialAudioPlayer" Height="800" Width="800" Closed="Window_Closed" Loaded="Window_Loaded" >
+        Title="WWSpatialAudioPlayer" Height="600" Width="800" Closed="Window_Closed" Loaded="Window_Loaded" >
     <Grid Name="mGridWholeContainer" >
         <Grid Name="mGridMainContainer" Visibility="Visible">
             <Grid Margin="6,0,6,0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="110"/>
                     <RowDefinition Height="120*"/>
-                    <RowDefinition Height="80*"/>
                     <RowDefinition Height="50"/>
                     <RowDefinition Height="120"/>
                     <RowDefinition Height="20" />
@@ -38,46 +37,23 @@
                 </GroupBox>
                 <GroupBox x:Name="mGroupBoxPlaybackDevice" Header="Playback Device" Grid.Row="1" IsEnabled="False" >
                     <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="1*" />
-                            <RowDefinition Height="30" />
-                        </Grid.RowDefinitions>
-                        <Grid Grid.Row="0" >
-                            <Grid >
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="1*" />
-                                    <RowDefinition Height="30" />
-                                </Grid.RowDefinitions>
-                                <GroupBox x:Name="mGroupBoxDeviceList" Header="Device to use" >
-                                    <ListBox x:Name="mListBoxPlaybackDevices" />
-                                </GroupBox>
-                                <Button Grid.Row="1" x:Name="mButtonUpdatePlaybackDeviceList" Width="100" Content="_Update list" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="6,0,0,0" Click="ButtonUpdatePlaybackDeviceList_Click"/>
-                            </Grid>
+                        <Grid >
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="30" />
+                            </Grid.RowDefinitions>
+                            <GroupBox x:Name="mGroupBoxDeviceList" Header="Device to use" >
+                                <ListBox x:Name="mListBoxPlaybackDevices" />
+                            </GroupBox>
+                            <StackPanel Grid.Row="1" Orientation="Horizontal" >
+                                <Button x:Name="mButtonActivate" Width="120" Content="_Activate device" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="6,0,0,0" Click="ButtonActivateDevice_Click"/>
+                                <Button x:Name="mButtonDeactivate" Width="120" Content="_Deactivate device" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="6,0,6,0" Click="ButtonDeactivateDevice_Click" IsEnabled="False"/>
+                                <Button x:Name="mButtonUpdatePlaybackDeviceList" Width="100" Content="_Update list" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="6,0,6,0" Click="ButtonUpdatePlaybackDeviceList_Click"/>
+                            </StackPanel>
                         </Grid>
-                        <StackPanel Grid.Row="1" Orientation="Horizontal" >
-                            <Button x:Name="mButtonActivate" Width="120" Content="_Activate device" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="6,0,0,0" Click="ButtonActivateDevice_Click"/>
-                            <Button x:Name="mButtonDeactivate" Width="120" Content="_Deactivate device" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="6,0,0,0" Click="ButtonDeactivateDevice_Click" IsEnabled="False"/>
-                        </StackPanel>
                     </Grid>
                 </GroupBox>
-                <GroupBox Header="PCM channel to virtual speaker mapping" Grid.Row="2" >
-                    <Grid Margin="4">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1*"/>
-                            <ColumnDefinition Width="1*"/>
-                        </Grid.ColumnDefinitions>
-                        <ListBox x:Name="mListBoxSpeakerConfig" VerticalContentAlignment="Center" SelectionChanged="ListBoxSpeakerConfig_SelectionChanged" >
-                            <ListBoxItem x:Name="mListBoxCh2" Content="2 ch" IsSelected="True"/>
-                            <ListBoxItem x:Name="mListBoxCh6" Content="6 ch"/>
-                            <ListBoxItem x:Name="mListBoxCh8" Content="8 ch"/>
-                            <ListBoxItem x:Name="mListBoxCh12" Content="12 ch"/>
-                        </ListBox>
-                        <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
-                            <StackPanel x:Name="mStackPanelChannelMap" />
-                        </ScrollViewer>
-                    </Grid>
-                </GroupBox>
-                <GroupBox Header="Playback controls" Grid.Row="3" >
+                <GroupBox Header="Playback controls" Grid.Row="2" >
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition />
@@ -89,7 +65,7 @@
                         </StackPanel>
                     </Grid>
                 </GroupBox>
-                <GroupBox Header="Log" Grid.Row="4" >
+                <GroupBox Header="Log" Grid.Row="3" >
                     <TextBox x:Name="mTextBoxLog" Text="Show logs here" AcceptsTab="True" AcceptsReturn="True" ScrollViewer.CanContentScroll="True" IsReadOnly="True" VerticalScrollBarVisibility="Auto" />
                 </GroupBox>
                 <ProgressBar x:Name="mProgressbar" Grid.Row="5" />

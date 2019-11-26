@@ -228,13 +228,23 @@ namespace WWSpatialAudioPlayer {
             } else {
                 // 成功。
                 AddLog(string.Format("Read succeeded : {0}\n", mTextBoxInputFileName.Text));
-                mLabelInputAudioFmt.Content = string.Format("File contains {0} ch PCM", mPlayer.NumChannels);
-                SelectBestSpeakerConfig();
-                UpdateVirtualSpeakerMap();
+                mLabelInputAudioFmt.Content = string.Format("File contains {0} ch PCM, channel to speaker map = {1}",
+                    mPlayer.NumChannels, DwChannelMaskToStr(mPlayer.DwChannelMask));
+
                 mGroupBoxPlaybackDevice.IsEnabled = true;
             }
 
             mProgressbar.Value = 0;
+        }
+
+        private string DwChannelMaskToStr(int dwChannelMask) {
+            var sb = new StringBuilder();
+
+            foreach (var item in WWSpatialAudioUser.DwChannelMaskToList(dwChannelMask)) {
+                sb.AppendFormat("{0} ", WWSpatialAudioUser.DwChannelMaskShortStr(item));
+            }
+
+            return sb.ToString().TrimEnd(new char[] {' '});
         }
 
         #endregion
@@ -248,59 +258,6 @@ namespace WWSpatialAudioPlayer {
 
         private void FilenameTextBoxUpdated() {
             // 特にない。
-        }
-
-        // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
-        // Speaker config
-
-        private static int NumChannelsToListBoxIdx(int ch) {
-            switch (ch) {
-            case 2:
-                return 0;
-            case 6:
-                return 1;
-            case 8:
-                return 2;
-            case 12:
-            default:
-                return 3;
-            }
-        }
-
-        private int ListBoxSpeakerConfigToNumChannels() {
-            int ch = 2;
-            if (mListBoxCh6.IsSelected) {
-                ch = 6;
-            }
-            if (mListBoxCh8.IsSelected) {
-                ch = 8;
-            }
-            if (mListBoxCh12.IsSelected) {
-                ch = 12;
-            }
-            return ch;
-        }
-
-        private void SelectBestSpeakerConfig() {
-            mListBoxSpeakerConfig.SelectedIndex = NumChannelsToListBoxIdx(mPlayer.NumChannels);
-        }
-
-        private void UpdateVirtualSpeakerMap() {
-            var dwChannelList = WWSpatialAudioUser.DwChannelMaskToList(mPlayer.DwChannelMask);
-            System.Diagnostics.Debug.Assert(dwChannelList.Count == mPlayer.NumChannels);
-
-            // NumChとdwChannelList、少ない方のチャンネル数にする。
-            int NumCh = ListBoxSpeakerConfigToNumChannels();
-            if (dwChannelList.Count < NumCh) {
-                NumCh = dwChannelList.Count;
-            }
-
-            mStackPanelChannelMap.Children.Clear();
-            for (int ch=0; ch< NumCh; ++ch) {
-                var lbl = new Label();
-                lbl.Content = string.Format("Ch{0} : {1}", ch + 1, dwChannelList[ch]);
-                mStackPanelChannelMap.Children.Add(lbl);
-            }
         }
 
         // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
@@ -369,7 +326,7 @@ namespace WWSpatialAudioPlayer {
             }
 
             // 全ての再生データ出力完了。
-            ButtonStopPressed();
+            Stop();
         }
 
         #endregion
@@ -411,7 +368,7 @@ namespace WWSpatialAudioPlayer {
             mBwPlay.RunWorkerAsync();
         }
 
-        private void ButtonStopPressed() {
+        private void Stop() {
             int hr = mPlayer.Stop();
             if (hr < 0) {
                 string msg = string.Format("Error: ISpatialAudioObjectRenderStream::Stop failed {0:X8}\n", hr);
@@ -431,7 +388,7 @@ namespace WWSpatialAudioPlayer {
         }
 
         private void ButtonStop_Click(object sender, RoutedEventArgs e) {
-            ButtonStopPressed();
+            mBwPlay.CancelAsync();
         }
 
         private void ButtonUpdatePlaybackDeviceList_Click(object sender, RoutedEventArgs e) {
@@ -502,8 +459,6 @@ namespace WWSpatialAudioPlayer {
             if (!mInitialized) {
                 return;
             }
-
-            UpdateVirtualSpeakerMap();
         }
 
     }
