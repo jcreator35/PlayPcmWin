@@ -95,7 +95,8 @@
     <ClInclude Include="WWAudioObjectTemplate.h" />
     <ClInclude Include="WWDeviceInf.h" />
     <ClInclude Include="WWGuidToStr.h" />
-    <ClInclude Include="WWPcm.h" />
+    <ClInclude Include="WWPcmFloat.h" />
+    <ClInclude Include="WWPcmCtrl.h" />
     <ClInclude Include="WWPcmStore.h" />
     <ClInclude Include="WWPrintDeviceProp.h" />
     <ClInclude Include="WWSpatialAudioDeviceProperty.h" />

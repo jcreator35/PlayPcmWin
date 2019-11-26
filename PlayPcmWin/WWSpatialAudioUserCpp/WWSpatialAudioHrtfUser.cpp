@@ -37,9 +37,6 @@ WWSpatialAudioHrtfUser::Render1(void)
         BYTE *buffer = nullptr;
         UINT32 bufferLength = 0;
         bool bEnd = false;
-        if (ao.buffer == nullptr) {
-            continue;
-        }
 
         if (ao.sao == nullptr) {
             HRG(mSAORStream->ActivateSpatialAudioObjectForHrtf(ao.aot, &ao.sao));

@@ -2,55 +2,60 @@
 #pragma once
 #include <SpatialAudioClient.h>
 #include "WWUtil.h"
+#include "WWPcmCtrl.h"
 #include <assert.h>
 
+/// @param T_SpatialAudioObject ISpatialAudioObject　または ISpatialAudioObjectForHrtf
 template <typename T_SpatialAudioObject>
 class WWAudioObjectTemplate {
 public:
-    void ReleaseAll(void) {
+    void Init(int ch, WWPcmStore &ps, WWPcmFloat *sound, AudioObjectType aAot, float aVolume) {
+        assert(nullptr == sao);
+        pcmCtrl.Init(ch, ps, sound);
+        aot = aAot;
+        volume = aVolume;
+    }
+
+    void
+    ReleaseAll(void) {
         SafeRelease(&sao);
-
-        delete[] buffer;
-        buffer = nullptr;
     }
 
-    /// @retval true : 最後のPCMデータを送出した。
-    bool CopyNextPcmTo(BYTE *buffTo, int buffToBytes) {
-        assert(buffToBytes);
-        int64_t copyBytes = bufferBytes - posInBytes;
-        if (copyBytes < buffToBytes) {
-            // 残りのPCMデータが少ない場合。
-            // データがない部分は0で埋める。
-            memset(buffTo, 0, buffToBytes);
-            memcpy(buffTo, &buffer[posInBytes], copyBytes);
-        } else {
-            copyBytes = buffToBytes;
-            memcpy(buffTo, &buffer[posInBytes], copyBytes);
-        }
-        posInBytes += copyBytes;
-
-        return copyBytes != buffToBytes;
+    /// @retval true 最後のPCMデータを送出した。
+    /// @retval false まだ再生できるPCMデータが残っている。
+    bool
+    CopyNextPcmTo(BYTE *buffTo, int buffToBytes) {
+        assert(buffTo);
+        assert(0 <= buffToBytes);
+        return pcmCtrl.GetNextPcm((float*)buffTo, buffToBytes / sizeof(float));
     }
 
-    void SetPos3D(float x, float y, float z) {
+    void
+    Rewind(void) {
+        pcmCtrl.Rewind();
+    }
+
+    void
+    SetPos3D(float x, float y, float z) {
         posX = x;
         posY = y;
         posZ = z;
     }
 
-    void Rewind(void) {
-        posInBytes = 0;
+    int Channel(void) const {
+        return pcmCtrl.Channel();
     }
 
+    // saoの実体はこのクラスが管理する。
     T_SpatialAudioObject *sao = nullptr;
-    BYTE *buffer = nullptr; ///< new BYTE[] で確保すること。
-    int64_t bufferBytes = 0;
-    int64_t posInBytes = 0;
 
-    int idx = -1; //< set on WWSpatialAudioUser::AddStream(). unique index starts from 0
+    WWPcmCtrl pcmCtrl;
 
-    // AudioObjectType_Dynamic   for dynamic positioned speaker
-    // AudioObjectType_FrontLeft for static front left speaker
+    // このオーディオオブジェクトの番号。
+    int idx = -1;
+
+    // AudioObjectType_Dynamic      for any dynamic positioned speaker
+    // AudioObjectType_FrontLeft... for static front left speaker
     AudioObjectType aot = AudioObjectType_Dynamic;
 
     // SetPosition(posX, posY, posZ)

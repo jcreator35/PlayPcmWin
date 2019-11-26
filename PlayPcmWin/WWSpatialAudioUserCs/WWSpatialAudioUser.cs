@@ -254,26 +254,33 @@ namespace WWSpatialAudioUserCs {
                 int instanceId, int devIdx, int maxDynObjectCount, int staticObjectTypeMask);
 
             [DllImport("WWSpatialAudioUserCpp2017.dll", CharSet = CharSet.Unicode)]
-            internal extern static int WWSpatialAudioClearAllPcm(int instanceId);
+            internal extern static int WWSpatialAudioUserClearAllPcm(int instanceId);
 
             [DllImport("WWSpatialAudioUserCpp2017.dll", CharSet = CharSet.Unicode)]
-            internal extern static int WWSpatialAudioSetPcmBegin(
+            internal extern static int WWSpatialAudioUserSetPcmBegin(
                 int instanceId, int ch, long numSamples);
 
             [DllImport("WWSpatialAudioUserCpp2017.dll", CharSet = CharSet.Unicode)]
-            internal extern static int WWSpatialAudioSetPcmFragment(
+            internal extern static int WWSpatialAudioUserSetPcmFragment(
                 int instanceId, int ch, long startSamplePos, int sampleCount, float[] samples);
 
             [DllImport("WWSpatialAudioUserCpp2017.dll", CharSet = CharSet.Unicode)]
-            internal extern static int WWSpatialAudioSetPcmEnd(
+            internal extern static int WWSpatialAudioUserSetPcmEnd(
                 int instanceId, int ch, int audioObjectType);
 
             [DllImport("WWSpatialAudioUserCpp2017.dll", CharSet = CharSet.Unicode)]
-            internal extern static int WWSpatialAudioStart(
+            internal extern static int WWSpatialAudioUserStart(
                 int instanceId);
             [DllImport("WWSpatialAudioUserCpp2017.dll", CharSet = CharSet.Unicode)]
-            internal extern static int WWSpatialAudioStop(
+            internal extern static int WWSpatialAudioUserStop(
                 int instanceId);
+
+            [DllImport("WWSpatialAudioUserCpp2017.dll", CharSet = CharSet.Unicode)]
+            internal extern static int WWSpatialAudioUserGetSoundDuration(
+                int instanceId, int ch, ref long duration_r);
+            [DllImport("WWSpatialAudioUserCpp2017.dll", CharSet = CharSet.Unicode)]
+            internal extern static int WWSpatialAudioUserGetPlayPosition(
+                int instanceId, int ch, ref long playPos_r);
         };
 #endregion
 
@@ -328,12 +335,12 @@ namespace WWSpatialAudioUserCs {
         }
 
         public void ClearAllPcm() {
-            int hr = NativeMethods.WWSpatialAudioClearAllPcm(mInstanceId);
+            int hr = NativeMethods.WWSpatialAudioUserClearAllPcm(mInstanceId);
             System.Diagnostics.Debug.Assert(0 <= hr);
         }
 
         public int SetPcmBegin(int ch, long numSamples) {
-            int hr = NativeMethods.WWSpatialAudioSetPcmBegin(mInstanceId, ch, numSamples);
+            int hr = NativeMethods.WWSpatialAudioUserSetPcmBegin(mInstanceId, ch, numSamples);
             return hr;
         }
 
@@ -341,26 +348,41 @@ namespace WWSpatialAudioUserCs {
         /// ネイティブPCMストアーのstartSamplePosにpcmFragmentを全てコピーする。
         /// </summary>
         public int SetPcmFragment(int ch, long startSamplePos, float [] pcmFragment) {
-            int hr = NativeMethods.WWSpatialAudioSetPcmFragment(mInstanceId, ch, startSamplePos, pcmFragment.Length, pcmFragment);
+            int hr = NativeMethods.WWSpatialAudioUserSetPcmFragment(mInstanceId, ch, startSamplePos, pcmFragment.Length, pcmFragment);
             return hr;
         }
 
         public void SetPcmEnd(int ch, AudioObjectType aot) {
-            int hr = NativeMethods.WWSpatialAudioSetPcmEnd(mInstanceId, ch, (int)aot);
+            int hr = NativeMethods.WWSpatialAudioUserSetPcmEnd(mInstanceId, ch, (int)aot);
             System.Diagnostics.Debug.Assert(0 <= hr);
         }
 
         public int Start() {
-            int hr = NativeMethods.WWSpatialAudioStart(mInstanceId);
+            int hr = NativeMethods.WWSpatialAudioUserStart(mInstanceId);
             return hr;
         }
 
         public int Stop() {
-            int hr = NativeMethods.WWSpatialAudioStop(mInstanceId);
+            int hr = NativeMethods.WWSpatialAudioUserStop(mInstanceId);
             return hr;
         }
 
+        public long GetSoundDuration(int ch) {
+            long r = 0;
+            int hr = NativeMethods.WWSpatialAudioUserGetSoundDuration(mInstanceId, ch, ref r);
+            System.Diagnostics.Debug.Assert(0 <= hr);
+            return r;
+        }
+
+        public long GetPlayPosition(int ch) {
+            long r = 0;
+            int hr = NativeMethods.WWSpatialAudioUserGetPlayPosition(mInstanceId, ch, ref r);
+            System.Diagnostics.Debug.Assert(0 <= hr);
+            return r;
+        }
+
         // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+        // 終了処理とDispose。
 
         private void Term() {
             if (mInstanceId < 0) {

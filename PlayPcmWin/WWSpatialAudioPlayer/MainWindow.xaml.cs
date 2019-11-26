@@ -20,15 +20,39 @@ namespace WWSpatialAudioPlayer {
         private List<VirtualSpeakerProperty> mVirtualSpeakerList = new List<VirtualSpeakerProperty>();
         private SpatialAudioPlayer mPlayer = new SpatialAudioPlayer();
         private BackgroundWorker mBwLoad = new BackgroundWorker();
+        private BackgroundWorker mBwPlay = new BackgroundWorker();
+
         /// <summary>
         /// ログの表示行数。
         /// </summary>
         private const int LOG_LINE_NUM = 100;
 
         private List<string> mLogList = new List<string>();
-        private Stopwatch mStopwatch = new Stopwatch();
+        private Stopwatch mSWProgressReport = new Stopwatch();
         private const int MESSAGE_INTERVAL_MS = 1000;
         private StringBuilder mBwMsgSB = new StringBuilder();
+        private static string AssemblyVersion {
+            get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); }
+        }
+
+        private void AddLog(string s) {
+            // Console.Write(s);
+
+            // ログを適当なエントリ数で流れるようにする。
+            // sは複数行の文字列が入っていたり、改行が入っていなかったりするので、行数制限にはなっていない。
+            mLogList.Add(s);
+            while (LOG_LINE_NUM < mLogList.Count) {
+                mLogList.RemoveAt(0);
+            }
+
+            var sb = new StringBuilder();
+            foreach (var item in mLogList) {
+                sb.Append(item);
+            }
+
+            mTextBoxLog.Text = sb.ToString();
+            mTextBoxLog.ScrollToEnd();
+        }
 
         public MainWindow() {
             InitializeComponent();
@@ -42,12 +66,50 @@ namespace WWSpatialAudioPlayer {
             mBwLoad.WorkerReportsProgress = true;
             mBwLoad.ProgressChanged += MBwLoad_ProgressChanged;
 
+            mBwPlay.DoWork += MBwPlay_DoWork;
+            mBwPlay.RunWorkerCompleted += MBwPlay_RunWorkerCompleted;
+            mBwPlay.WorkerReportsProgress = true;
+            mBwPlay.ProgressChanged += MBwPlay_ProgressChanged;
+            mBwPlay.WorkerSupportsCancellation = true;
+
             UpdateDeviceList();
-            mStopwatch.Restart();
+            mSWProgressReport.Restart();
         }
+
         private void Window_Loaded(object sender, RoutedEventArgs e) {
             mInitialized = true;
         }
+
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        protected virtual void Dispose(bool disposing) {
+            if (!disposedValue) {
+                if (disposing) {
+                    if (mBwLoad != null) {
+                        mBwLoad.Dispose();
+                        mBwLoad = null;
+                    }
+                    if (mPlayer != null) {
+                        mPlayer.Dispose();
+                        mPlayer = null;
+                    }
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        void IDisposable.Dispose() {
+            // Do not change this code.
+            Dispose(true);
+        }
+
+        private void Window_Closed(object sender, EventArgs e) {
+            Dispose(true);
+        }
+
+        #endregion
 
         private void UpdateDeviceList() {
             AddLog("UpdateDeviceList()\n");
@@ -88,12 +150,12 @@ namespace WWSpatialAudioPlayer {
         }
 
         private void ReportProgress(int percent, string s) {
-            if (MESSAGE_INTERVAL_MS < mStopwatch.ElapsedMilliseconds) {
+            if (MESSAGE_INTERVAL_MS < mSWProgressReport.ElapsedMilliseconds) {
                 // OK
                 mBwMsgSB.Append(s);
                 mBwLoad.ReportProgress(percent, mBwMsgSB.ToString());
                 mBwMsgSB.Clear();
-                mStopwatch.Restart();
+                mSWProgressReport.Restart();
             } else {
                 mBwMsgSB.Append(s);
             }
@@ -169,33 +231,6 @@ namespace WWSpatialAudioPlayer {
 
         #endregion
 
-        private static string AssemblyVersion {
-            get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); }
-        }
-
-        private void AddLog(string s) {
-            // Console.Write(s);
-
-            // ログを適当なエントリ数で流れるようにする。
-            // sは複数行の文字列が入っていたり、改行が入っていなかったりするので、行数制限にはなっていない。
-            mLogList.Add(s);
-            while (LOG_LINE_NUM < mLogList.Count) {
-                mLogList.RemoveAt(0);
-            }
-
-            var sb = new StringBuilder();
-            foreach (var item in mLogList) {
-                sb.Append(item);
-            }
-
-            mTextBoxLog.Text = sb.ToString();
-            mTextBoxLog.ScrollToEnd();
-        }
-
-        private void FilenameTextBoxUpdated() {
-            // 特にない。
-        }
-
         private void ReadFile() {
             var param = new LoadParams();
             param.path = mTextBoxInputFileName.Text;
@@ -203,7 +238,14 @@ namespace WWSpatialAudioPlayer {
             mBwLoad.RunWorkerAsync(param);
         }
 
-        int NumChannelsToListBoxIdx(int ch) {
+        private void FilenameTextBoxUpdated() {
+            // 特にない。
+        }
+
+        // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+        // Speaker config
+
+        private static int NumChannelsToListBoxIdx(int ch) {
             switch (ch) {
             case 2:
                 return 0;
@@ -253,12 +295,58 @@ namespace WWSpatialAudioPlayer {
             }
         }
 
+        // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+        // Play time update
+
+        #region Play time update 
+
+        const int PLAY_TIME_INTERVAL_MS = 100;
+
+        private void MBwPlay_DoWork(object sender, DoWorkEventArgs e) {
+            while (!mBwPlay.CancellationPending) {
+                System.Threading.Thread.Sleep(100);
+                mBwPlay.ReportProgress(0);
+            }
+
+            if (mBwPlay.CancellationPending) {
+                e.Cancel = true;
+            }
+        }
+
+        private static string SecondsToMSString(int seconds) {
+            int m = seconds / 60;
+            int s = seconds - m * 60;
+            return string.Format(CultureInfo.CurrentCulture, "{0:D2}:{1:D2}", m, s);
+        }
+
+        private void MBwPlay_ProgressChanged(object sender, ProgressChangedEventArgs e) {
+            if (mBwPlay.CancellationPending) {
+                return;
+            }
+
+            long soundDuration = mPlayer.SpatialAudio.GetSoundDuration(0);
+            long playPosition = mPlayer.SpatialAudio.GetPlayPosition(0);
+
+            string sD = SecondsToMSString((int)(soundDuration / mPlayer.PlaySampleRate));
+            string sP = SecondsToMSString((int)(playPosition / mPlayer.PlaySampleRate));
+            string s = string.Format("{0} / {1}", sP, sD);
+
+            if (0 == s.CompareTo(mLabelPlayingTime.Content.ToString())) {
+                // 時間が変わっていないので描画更新しない。
+                return;
+            }
+
+            mLabelPlayingTime.Content = s;
+        }
+
+        private void MBwPlay_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
+            mLabelPlayingTime.Content = "--:-- / --:--";
+        }
+
+        #endregion
 
         // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
-
-        private void dataGridVirtualSpeakerSettings_SelectionChanged(object sender, SelectionChangedEventArgs e) {
-
-        }
+        // Event handling
 
         private void ButtonBrowse_Click(object sender, RoutedEventArgs e) {
             var dlg = new Microsoft.Win32.OpenFileDialog();
@@ -276,55 +364,41 @@ namespace WWSpatialAudioPlayer {
         }
 
         private void ButtonPlay_Click(object sender, RoutedEventArgs e) {
-            bool b = mPlayer.Start();
-            if (b) {
-                mGroupBoxInputAudioFile.IsEnabled = false;
-                mButtonUpdatePlaybackDeviceList.IsEnabled = false;
-                mButtonDeactivate.IsEnabled = false;
-                mButtonPlay.IsEnabled = false;
-                mButtonStop.IsEnabled = true;
+            int hr = mPlayer.Start();
+            if (hr < 0) {
+                string msg = string.Format("Error: ISpatialAudioObjectRenderStream::Start failed {0:X8}\n", hr);
+                MessageBox.Show(msg);
+                AddLog(msg);
+                return;
             }
+
+            AddLog(string.Format("Start Success {0:X8}\n", hr));
+
+            mGroupBoxInputAudioFile.IsEnabled = false;
+            mButtonUpdatePlaybackDeviceList.IsEnabled = false;
+            mButtonDeactivate.IsEnabled = false;
+            mButtonPlay.IsEnabled = false;
+            mButtonStop.IsEnabled = true;
+            mBwPlay.RunWorkerAsync();
         }
 
         private void ButtonStop_Click(object sender, RoutedEventArgs e) {
-            bool b = mPlayer.Stop();
-            if (b) {
-                mGroupBoxInputAudioFile.IsEnabled = true;
-                mButtonUpdatePlaybackDeviceList.IsEnabled = false;
-                mButtonDeactivate.IsEnabled = true;
-                mButtonPlay.IsEnabled = true;
-                mButtonStop.IsEnabled = false;
+            int hr = mPlayer.Stop();
+            if (hr < 0) {
+                string msg = string.Format("Error: ISpatialAudioObjectRenderStream::Stop failed {0:X8}\n", hr);
+                MessageBox.Show(msg);
+                AddLog(msg);
+                return;
             }
-        }
 
-        #region IDisposable Support
-        private bool disposedValue = false; // To detect redundant calls
+            AddLog(string.Format("Stop Success {0:X8}\n", hr));
 
-        protected virtual void Dispose(bool disposing) {
-            if (!disposedValue) {
-                if (disposing) {
-                    if (mBwLoad != null) { 
-                        mBwLoad.Dispose();
-                        mBwLoad = null;
-                    }
-                    if (mPlayer != null) {
-                        mPlayer.Dispose();
-                        mPlayer = null;
-                    }
-                }
-
-                disposedValue = true;
-            }
-        }
-
-        void IDisposable.Dispose() {
-            // Do not change this code.
-            Dispose(true);
-        }
-        #endregion
-
-        private void Window_Closed(object sender, EventArgs e) {
-            Dispose(true);
+            mGroupBoxInputAudioFile.IsEnabled = true;
+            mButtonUpdatePlaybackDeviceList.IsEnabled = false;
+            mButtonDeactivate.IsEnabled = true;
+            mButtonPlay.IsEnabled = true;
+            mButtonStop.IsEnabled = false;
+            mBwPlay.CancelAsync();
         }
 
         private void ButtonUpdatePlaybackDeviceList_Click(object sender, RoutedEventArgs e) {

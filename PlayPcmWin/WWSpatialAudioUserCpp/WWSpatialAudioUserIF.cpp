@@ -8,8 +8,9 @@
 #include <list>
 
 struct Instances {
-    WWSpatialAudioUser * sau;
-    WWPcmStore *ps;
+    WWSpatialAudioUser * sau = nullptr;
+    WWPcmStore *ps = nullptr;
+    WWPcmFloat *pcm = nullptr;
 };
 
 static std::list<Instances> gInstanceList;
@@ -116,7 +117,7 @@ WWSpatialAudioUserChooseDevice(int instanceId, int devIdx, int maxDynObjectCount
 }
 
 WWSPATIALAUDIOUSER_API int __stdcall
-WWSpatialAudioClearAllPcm(int instanceId)
+WWSpatialAudioUserClearAllPcm(int instanceId)
 {
     FIND_INSTANCE;
     ps->Clear();
@@ -126,7 +127,7 @@ WWSpatialAudioClearAllPcm(int instanceId)
 }
 
 WWSPATIALAUDIOUSER_API int __stdcall
-WWSpatialAudioSetPcmBegin(
+WWSpatialAudioUserSetPcmBegin(
     int instanceId, int ch, int64_t numSamples)
 {
     FIND_INSTANCE;
@@ -134,13 +135,13 @@ WWSpatialAudioSetPcmBegin(
         return E_NOTFOUND;
     }
 
-    ps->mPcm[ch].Clear();
-    ps->mPcm[ch].pcm.resize(numSamples, 0.0f);
+    ps->ClearPcmOfSpecifiedChannel(ch);
+    inst->pcm = ps->NewSilentPcm(ch, numSamples);
     return S_OK;
 }
 
 WWSPATIALAUDIOUSER_API int __stdcall
-WWSpatialAudioSetPcmFragment(
+WWSpatialAudioUserSetPcmFragment(
     int instanceId, int ch, int64_t startSamplePos, int sampleCount, float * samples)
 {
     FIND_INSTANCE;
@@ -152,22 +153,25 @@ WWSpatialAudioSetPcmFragment(
         return S_OK;
     }
 
+    assert(inst->pcm); //< SetPcmBegin()を呼ばずにSetPcmFragmentを呼ぶとエラー。
+
+
     // sampleCountは正の値。
 
     if (ch < 0 || NUM_CHANNELS <= ch) {
         return E_NOTFOUND;
     }
 
-    if (startSamplePos < 0 || ps->mPcm[ch].pcm.size() <= (uint64_t)(startSamplePos + sampleCount)) {
+    if (startSamplePos < 0 || inst->pcm->pcm.size() <= (uint64_t)(startSamplePos + sampleCount)) {
         return E_INVALIDARG;
     }
     
-    memcpy(&ps->mPcm[ch].pcm[startSamplePos], samples, sizeof(float)*sampleCount);
+    memcpy(&inst->pcm->pcm[startSamplePos], samples, sizeof(float)*sampleCount);
     return S_OK;
 }
 
 WWSPATIALAUDIOUSER_API int __stdcall
-WWSpatialAudioSetPcmEnd(
+WWSpatialAudioUserSetPcmEnd(
     int instanceId, int ch, int audioObjectType)
 {
     FIND_INSTANCE;
@@ -176,18 +180,12 @@ WWSpatialAudioSetPcmEnd(
     }
 
     WWAudioObject ao;
-
-    ao.bufferBytes = sizeof(float) * ps->mPcm[ch].pcm.size();
-    ao.buffer = new byte[ao.bufferBytes];
-    memcpy(ao.buffer, &ps->mPcm[ch].pcm[0], ao.bufferBytes);
-
-    ao.volume = 1.0f;
-    ao.aot = (AudioObjectType)audioObjectType;
+    ao.Init(ch, *ps, inst->pcm, (AudioObjectType)audioObjectType, 1.0f);
     return sau->AddStream(ao);
 }
 
 WWSPATIALAUDIOUSER_API int __stdcall
-WWSpatialAudioStart(
+WWSpatialAudioUserStart(
     int instanceId)
 {
     FIND_INSTANCE;
@@ -196,7 +194,7 @@ WWSpatialAudioStart(
 }
 
 WWSPATIALAUDIOUSER_API int __stdcall
-WWSpatialAudioStop(
+WWSpatialAudioUserStop(
     int instanceId)
 {
     FIND_INSTANCE;
@@ -209,4 +207,28 @@ WWSpatialAudioStop(
     sau->Rewind();
 
     return hr;
+}
+
+WWSPATIALAUDIOUSER_API int __stdcall
+WWSpatialAudioUserGetSoundDuration(
+    int instanceId, int ch, int64_t *durationSamples_r)
+{
+    FIND_INSTANCE;
+
+    assert(durationSamples_r);
+
+    *durationSamples_r = sau->GetSoundDuration(ch);
+    return S_OK;
+}
+
+WWSPATIALAUDIOUSER_API int __stdcall
+WWSpatialAudioUserGetPlayPosition(
+    int instanceId, int ch, int64_t *playPos_r)
+{
+    FIND_INSTANCE;
+
+    assert(playPos_r);
+
+    *playPos_r = sau->GetPlayPosition(ch);
+    return S_OK;
 }

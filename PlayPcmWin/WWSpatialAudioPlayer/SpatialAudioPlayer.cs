@@ -104,6 +104,10 @@ namespace WWSpatialAudioPlayer  {
             return hr;
         }
 
+        public int PlaySampleRate {
+            get { return 48000; }
+        }
+
         /// <summary>
         /// サンプルフォーマットがmMetadataのmPcmDataを
         /// Spatial Audio用のフォーマットにリサンプルして
@@ -118,7 +122,7 @@ namespace WWSpatialAudioPlayer  {
                 mMetadata.bitsPerSample);
 
             var toFmt = new WWPcmFormat(WWPcmFormat.SampleFormat.SF_Float, mMetadata.numChannels,
-                32, 48000, DwChannelMask,
+                32, PlaySampleRate, DwChannelMask,
                 32);
 
             var toBufList = new List<byte[]>();
@@ -235,19 +239,13 @@ namespace WWSpatialAudioPlayer  {
             return hr;
         }
 
-        public bool Start() {
+        public int Start() {
             int hr = mSAudio.Start();
-            if (0 <= hr) {
-                return true;
-            }
-            return false;
+            return hr;
         }
-        public bool Stop() {
+        public int Stop() {
             int hr = mSAudio.Stop();
-            if (0 <= hr) {
-                return true;
-            }
-            return false;
+            return hr;
         }
 
         #region IDisposable Support

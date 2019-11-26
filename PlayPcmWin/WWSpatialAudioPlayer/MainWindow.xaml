@@ -85,7 +85,7 @@
                         <StackPanel Orientation="Horizontal" Grid.Row="0" >
                             <Button x:Name="mButtonPlay" Content="_Play" VerticalAlignment="Bottom" Width="100" Margin="6,0,0,3.667" IsEnabled="False" Click="ButtonPlay_Click"/>
                             <Button x:Name="mButtonStop" Content="_Stop" VerticalAlignment="Center" Width="100" Margin="6,0,0,0" IsEnabled="False" Click="ButtonStop_Click"/>
-                            <Label Content="00:00:00 / 00:00:00" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                            <Label x:Name="mLabelPlayingTime" Content="--:-- / --:--" Margin="6,0,0,0" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Grid>
                 </GroupBox>

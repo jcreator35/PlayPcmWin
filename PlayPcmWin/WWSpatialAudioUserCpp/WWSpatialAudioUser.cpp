@@ -35,23 +35,20 @@ WWSpatialAudioUser::Render1(void)
             ite != mAudioObjectList.mAudioObjectList.end(); ++ite) {
         auto &ao = *ite;
         BYTE *buffer = nullptr;
-        UINT32 bufferLength = 0;
+        UINT32 buffBytes = 0;
         bool bEnd = false;
-        if (ao.buffer == nullptr) {
-            continue;
-        }
 
         if (ao.sao == nullptr) {
             HRG(mSAORStream->ActivateSpatialAudioObject(ao.aot, &ao.sao));
         }
 
-        HRG(ao.sao->GetBuffer(&buffer, &bufferLength));
+        HRG(ao.sao->GetBuffer(&buffer, &buffBytes));
 
-        bEnd = ao.CopyNextPcmTo(buffer, bufferLength);
+        bEnd = ao.CopyNextPcmTo(buffer, buffBytes);
 
         if (bEnd) {
             //printf("SetEndOfStream %d\n", bufferLength / mUseFmt.Format.nBlockAlign);
-            HRG(ao.sao->SetEndOfStream(bufferLength / mUseFmt.nBlockAlign));
+            HRG(ao.sao->SetEndOfStream(buffBytes / mUseFmt.nBlockAlign));
             ao.ReleaseAll();
         } else {
             ++mPlayStreamCount;

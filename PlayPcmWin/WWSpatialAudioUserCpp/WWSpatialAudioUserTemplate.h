@@ -22,6 +22,8 @@
 #include "WWPrintDeviceProp.h"
 #include <functiondiscoverykeys.h>
 
+/// @param T_RenderStream ISpatialAudioObjectRenderStream または ISpatialAudioObjectRenderStreamForHrtf
+/// @param T_AudioObject WWAudioObject または WWAudioHrtfObject
 template <typename T_RenderStream, typename T_AudioObject>
 class WWSpatialAudioUserTemplate {
 public:
@@ -61,7 +63,6 @@ public:
     end:
         return S_OK;
     }
-
 
     virtual void Term(void) {
         dprintf("WWSpatialAudioUserTemplate::Term()\n");
@@ -192,7 +193,7 @@ public:
     /// @param dasc [inout] 成功するとdasc.idxにユニークな番号が書き込まれる。
     HRESULT AddStream(T_AudioObject &dasc) {
         HRESULT hr = S_OK;
-        if (dasc.bufferBytes == 0 || dasc.buffer == nullptr) {
+        if (dasc.pcmCtrl.IsEmpty()) {
             printf("E: WWSpatialAudioUser::AddStream data err\n");
             hr = E_FAIL;
             goto end;
@@ -281,6 +282,17 @@ public:
     void Rewind(void) {
         mAudioObjectList.Rewind();
     }
+
+    /// @return サンプル数。
+    int64_t GetSoundDuration(int ch) {
+        return mAudioObjectList.GetSoundDuration(ch);
+    }
+
+    /// @return サンプル数。
+    int64_t GetPlayPosition(int ch) {
+        return mAudioObjectList.GetPlayPosition(ch);
+    }
+
 
 protected:
     bool mComInit = false;
