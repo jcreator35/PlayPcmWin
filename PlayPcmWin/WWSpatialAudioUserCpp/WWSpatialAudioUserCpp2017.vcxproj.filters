@@ -66,6 +66,9 @@
     <ClInclude Include="WWPcmFloat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="WWTrackEnum.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

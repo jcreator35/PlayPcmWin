@@ -104,6 +104,7 @@
     <ClInclude Include="WWSpatialAudioUser.h" />
     <ClInclude Include="WWSpatialAudioUserIF.h" />
     <ClInclude Include="WWSpatialAudioUserTemplate.h" />
+    <ClInclude Include="WWTrackEnum.h" />
     <ClInclude Include="WWUtil.h" />
   </ItemGroup>
   <ItemGroup>

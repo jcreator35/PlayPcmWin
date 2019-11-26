@@ -39,10 +39,12 @@ public:
 
     /// 新しい無音WWPcmFloatを生成し登録。
     /// @param numSamples 無音のサンプル数。(バイト数では無い。)
-    WWPcmFloat *NewSilentPcm(int ch, int64_t numSamples) {
+    WWPcmFloat *NewSilentPcm(int ch, WWTrackEnum trackType, int64_t numSamples) {
         assert(0 <= ch && ch < NUM_CHANNELS);
         
         auto *p = new WWPcmFloat();
+        p->ch = ch;
+        p->trackType = trackType;
         p->pcm.resize(numSamples, 0.0f);
 
         mPcm[ch].push_back(p);

@@ -17,6 +17,20 @@ namespace WWSpatialAudioUserCs {
         public StateEnum State { get { return mState; } }
 
         /// <summary>
+        /// WWTrackEnumと同じにする。
+        /// </summary>
+        public enum PlayingTrackEnum {
+            Prologue = -1,
+            Epilogue = -2,
+            Splice = -3,
+            None = -4,
+
+            Track0 = 0,
+            Track1 = 1,
+            Track2 = 2,
+        }
+
+        /// <summary>
         /// AudioObjectType of SpatialAudioClient.h
         /// </summary>
         public enum AudioObjectType {
@@ -286,6 +300,9 @@ namespace WWSpatialAudioUserCs {
             internal extern static int WWSpatialAudioUserGetThreadErcd(
                 int instanceId);
 
+            [DllImport("WWSpatialAudioUserCpp2017.dll", CharSet = CharSet.Unicode)]
+            internal extern static int WWSpatialAudioUserGetPlayingTrackNr(
+                int instanceId, int ch, ref int trackNr_r);
         };
 #endregion
 
@@ -388,6 +405,14 @@ namespace WWSpatialAudioUserCs {
 
         public int GetThreadErcd() {
             return NativeMethods.WWSpatialAudioUserGetThreadErcd(mInstanceId);
+        }
+
+        /// <returns>PlayingTrackEnumが戻る。</returns>
+        public int GetPlayingTrackNr(int ch) {
+            int r = 0;
+            int hr = NativeMethods.WWSpatialAudioUserGetPlayingTrackNr(mInstanceId, ch, ref r);
+            System.Diagnostics.Debug.Assert(0 <= hr);
+            return r;
         }
 
         // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■

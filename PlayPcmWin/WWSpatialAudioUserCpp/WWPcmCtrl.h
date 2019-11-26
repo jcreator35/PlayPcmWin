@@ -5,6 +5,8 @@
 #include "WWPcmFloat.h"
 #include "WWPcmStore.h"
 #include <assert.h>
+#include <stdint.h>
+#include "WWTrackEnum.h"
 
 class WWPcmCtrl {
 private:
@@ -13,9 +15,9 @@ private:
 
     WWPcmFloat *sound = nullptr;
 
-    WWPcmFloat *start = nullptr;
+    WWPcmFloat *prologue = nullptr;
+    WWPcmFloat *epilogue = nullptr;
     WWPcmFloat *splice = nullptr;
-    WWPcmFloat *end = nullptr;
 
     WWPcmFloat *cur = nullptr;
 
@@ -40,19 +42,19 @@ public:
         assert(ps);
         assert(sound);
 
-        assert(!start);
+        assert(!prologue);
         assert(!splice);
-        assert(!end);
+        assert(!epilogue);
         assert(!cur);
 
-        start  = ps->NewSilentPcm(ch, START_SILENCE_FRAMES);
-        end    = ps->NewSilentPcm(ch, END_SILENCE_FRAMES);
-        splice = ps->NewSilentPcm(ch, SPLICE_SILENCE_FRAMES);
+        prologue = ps->NewSilentPcm(ch, WWTE_Prologue, START_SILENCE_FRAMES);
+        epilogue = ps->NewSilentPcm(ch, WWTE_Epilogue, END_SILENCE_FRAMES);
+        splice   = ps->NewSilentPcm(ch, WWTE_Splice, SPLICE_SILENCE_FRAMES);
 
-        cur = start;
-        start->next = sound;
-        sound->next = end;
-        end->next = nullptr;
+        cur = prologue;
+        prologue->next = sound;
+        sound->next = epilogue;
+        epilogue->next = nullptr;
 
         // 再生位置変更時はsplice->next = sound。
         // 再生停止ボタン押下時はフェードアウトのためsplice->next = endになる。
@@ -60,7 +62,7 @@ public:
     }
 
     /// @return サンプル数。
-    int64_t GetSoundSamples(void) {
+    int64_t GetSoundSamples(void) const {
         if (sound == nullptr) {
             return 0;
         }
@@ -69,7 +71,7 @@ public:
     }
 
     /// @return サンプル数。
-    int64_t GetPlayPosition(void) {
+    int64_t GetPlayPosition(void) const {
         if (sound == nullptr) {
             return 0;
         }
@@ -77,15 +79,32 @@ public:
         return sound->pos;
     }
 
-    bool IsEmpty(void) {
+    /// @return WWTrackEnumが戻る。
+    int GetPlayingTrackNr(void) const {
+        if (cur == nullptr) {
+            return WWTE_None;
+        }
+
+        return cur->trackType;
+
+        assert(0);
+        return WWTE_None;
+    }
+
+    bool IsEmpty(void) const {
         return sound == nullptr;
     }
 
     void Rewind(void) {
-        cur = start;
-        start->next = sound;
-        sound->next = end;
-        end->next = nullptr;
+        sound->pos = 0;
+        prologue->pos = 0;
+        epilogue->pos = 0;
+        splice->pos = 0;
+
+        cur = prologue;
+        prologue->next = sound;
+        sound->next = epilogue;
+        epilogue->next = nullptr;
     }
 
     /// @param buff [out] 取得したPCMを置く場所。
@@ -101,6 +120,8 @@ public:
                 break;
             }
 
+            // 巻き戻してから次のPCMに移動。(行儀が良い。)
+            cur->pos = 0;
             cur = cur->next;
         }
 

@@ -72,3 +72,9 @@ WWSpatialAudioUserGetPlayPosition(
 WWSPATIALAUDIOUSER_API int __stdcall
 WWSpatialAudioUserGetThreadErcd(
     int instanceId);
+
+/// WWTrackEnumが戻る。
+WWSPATIALAUDIOUSER_API int __stdcall
+WWSpatialAudioUserGetPlayingTrackNr(
+    int instanceId, int ch, int *trackNr_r);
+

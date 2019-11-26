@@ -120,6 +120,7 @@ WWSpatialAudioHrtfUser::RenderMain(void)
     }
 
 end:
+    dprintf("WWSpatialAudioHrtfUser::RenderMain() end\n");
     CoUninitialize();
     return hr;
 }

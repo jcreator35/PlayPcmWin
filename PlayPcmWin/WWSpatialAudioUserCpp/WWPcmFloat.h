@@ -4,11 +4,14 @@
 
 #include <vector>
 #include <stdint.h>
+#include "WWTrackEnum.h"
 
 /// float型のPCMデータに特化したPCMクラス。
 class WWPcmFloat {
 public:
     void Clear(void) {
+        ch = -1;
+        trackType = WWTE_None;
         next = nullptr;
         pos = 0;
         pcm.clear();
@@ -26,11 +29,17 @@ public:
             copySamples = (int)(pcm.size() - pos);
         }
 
+        if (copySamples == 0) {
+            return 0;
+        }
+
         memcpy(bufTo, &pcm[pos], sizeof(float) * copySamples);
         pos += copySamples;
         return copySamples;
     }
 
+    int ch;
+    WWTrackEnum trackType = WWTE_None;
     WWPcmFloat *next = nullptr;
     int64_t pos = 0;
     std::vector<float> pcm;

@@ -135,8 +135,10 @@ WWSpatialAudioUserSetPcmBegin(
         return E_NOTFOUND;
     }
 
+    int trackNr = 0;
+
     ps->ClearPcmOfSpecifiedChannel(ch);
-    inst->pcm = ps->NewSilentPcm(ch, numSamples);
+    inst->pcm = ps->NewSilentPcm(ch, (WWTrackEnum)trackNr, numSamples);
     return S_OK;
 }
 
@@ -241,3 +243,15 @@ WWSpatialAudioUserGetThreadErcd(
 
     return sau->GetThreadErcd();
 }
+
+WWSPATIALAUDIOUSER_API int __stdcall
+WWSpatialAudioUserGetPlayingTrackNr(
+    int instanceId, int ch, int *trackNr_r)
+{
+    FIND_INSTANCE;
+
+    *trackNr_r = sau->GetPlayingTrackNr(ch);
+
+    return S_OK;
+}
+

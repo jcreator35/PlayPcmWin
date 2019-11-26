@@ -112,6 +112,7 @@ WWSpatialAudioUser::RenderMain(void)
     }
 
 end:
+    dprintf("WWSpatialAudioUser::RenderMain() end\n");
     CoUninitialize();
     return hr;
 }

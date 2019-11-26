@@ -21,6 +21,7 @@
 #include "WWGuidToStr.h"
 #include "WWPrintDeviceProp.h"
 #include <functiondiscoverykeys.h>
+#include "WWTrackEnum.h"
 
 /// @param T_RenderStream ISpatialAudioObjectRenderStream または ISpatialAudioObjectRenderStreamForHrtf
 /// @param T_AudioObject WWAudioObject または WWAudioHrtfObject
@@ -269,6 +270,7 @@ public:
 
     HRESULT Start(void) {
         HRESULT hr = S_OK;
+        assert(mSAORStream);
         HRG(mSAORStream->Start());
     end:
         return hr;
@@ -276,6 +278,7 @@ public:
 
     HRESULT Stop(void) {
         HRESULT hr = S_OK;
+        assert(mSAORStream);
         HRG(mSAORStream->Stop());
     end:
         return hr;
@@ -301,6 +304,10 @@ public:
         return mThreadErcd;
     }
 
+    /// @return WWTrackEnumが戻る。
+    int GetPlayingTrackNr(int ch) const {
+        return mAudioObjectList.GetPlayingTrackNr(ch);
+    }
 
 protected:
     bool mComInit = false;

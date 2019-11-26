@@ -320,6 +320,11 @@ namespace WWSpatialAudioPlayer {
                     break;
                 }
 
+                int trackNr = mPlayer.SpatialAudio.GetPlayingTrackNr(0);
+                if (trackNr == (int)WWSpatialAudioUser.PlayingTrackEnum.None) {
+                    break;
+                }
+
             }
 
             if (mBwPlay.CancellationPending) {
@@ -360,7 +365,11 @@ namespace WWSpatialAudioPlayer {
             if (hr < 0) {  
                 MessageBox.Show(string.Format("Unrecoverable error: Playback thread encountered error {0:X8} !\nProgram will exit.", hr));
                 Exit();
+                return;
             }
+
+            // 全ての再生データ出力完了。
+            ButtonStopPressed();
         }
 
         #endregion
@@ -402,7 +411,7 @@ namespace WWSpatialAudioPlayer {
             mBwPlay.RunWorkerAsync();
         }
 
-        private void ButtonStop_Click(object sender, RoutedEventArgs e) {
+        private void ButtonStopPressed() {
             int hr = mPlayer.Stop();
             if (hr < 0) {
                 string msg = string.Format("Error: ISpatialAudioObjectRenderStream::Stop failed {0:X8}\n", hr);
@@ -419,6 +428,10 @@ namespace WWSpatialAudioPlayer {
             mButtonPlay.IsEnabled = true;
             mButtonStop.IsEnabled = false;
             mBwPlay.CancelAsync();
+        }
+
+        private void ButtonStop_Click(object sender, RoutedEventArgs e) {
+            ButtonStopPressed();
         }
 
         private void ButtonUpdatePlaybackDeviceList_Click(object sender, RoutedEventArgs e) {
