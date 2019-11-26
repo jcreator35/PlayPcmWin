@@ -956,6 +956,22 @@ namespace Wasapi {
             case 0x88890028: return "AUDCLNT_E_ENGINE_PERIODICITY_LOCKED";
             case 0x88890029: return "AUDCLNT_E_ENGINE_FORMAT_LOCKED";
 
+            case 0x88890100: return "SPTLAUDCLNT_E_DESTROYED";
+            case 0x88890101: return "SPTLAUDCLNT_E_OUT_OF_ORDER";
+            case 0x88890102: return "SPTLAUDCLNT_E_RESOURCES_INVALIDATED";
+            case 0x88890103: return "SPTLAUDCLNT_E_NO_MORE_OBJECTS";
+            case 0x88890104: return "SPTLAUDCLNT_E_PROPERTY_NOT_SUPPORTED";
+
+            case 0x88890105: return "SPTLAUDCLNT_E_ERRORS_IN_OBJECT_CALLS";
+            case 0x88890106: return "SPTLAUDCLNT_E_METADATA_FORMAT_NOT_SUPPORTED";
+            case 0x88890107: return "SPTLAUDCLNT_E_STREAM_NOT_AVAILABLE";
+            case 0x88890108: return "SPTLAUDCLNT_E_INVALID_LICENSE";
+
+            case 0x8889010a: return "SPTLAUDCLNT_E_STREAM_NOT_STOPPED";
+            case 0x8889010b: return "SPTLAUDCLNT_E_STATIC_OBJECT_NOT_AVAILABLE";
+            case 0x8889010c: return "SPTLAUDCLNT_E_OBJECT_ALREADY_ACTIVE";
+            case 0x8889010d: return "SPTLAUDCLNT_E_INTERNAL";
+
             default:
                 return "";
             }

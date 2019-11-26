@@ -67,3 +67,8 @@ WWSpatialAudioUserGetSoundDuration(
 WWSPATIALAUDIOUSER_API int __stdcall
 WWSpatialAudioUserGetPlayPosition(
     int instanceId, int ch, int64_t *playPos_r);
+
+/// HRESULTが戻る。
+WWSPATIALAUDIOUSER_API int __stdcall
+WWSpatialAudioUserGetThreadErcd(
+    int instanceId);

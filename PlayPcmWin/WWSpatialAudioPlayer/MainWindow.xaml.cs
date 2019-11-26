@@ -80,6 +80,14 @@ namespace WWSpatialAudioPlayer {
             mInitialized = true;
         }
 
+        /// <summary>
+        ///  プログラムを即時終了する。
+        /// </summary>
+        private void Exit() {
+            Close();
+        }
+
+
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
@@ -306,6 +314,12 @@ namespace WWSpatialAudioPlayer {
             while (!mBwPlay.CancellationPending) {
                 System.Threading.Thread.Sleep(100);
                 mBwPlay.ReportProgress(0);
+
+                int hr = mPlayer.SpatialAudio.GetThreadErcd();
+                if (hr < 0) {
+                    break;
+                }
+
             }
 
             if (mBwPlay.CancellationPending) {
@@ -341,6 +355,12 @@ namespace WWSpatialAudioPlayer {
 
         private void MBwPlay_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
             mLabelPlayingTime.Content = "--:-- / --:--";
+
+            int hr = mPlayer.SpatialAudio.GetThreadErcd();
+            if (hr < 0) {  
+                MessageBox.Show(string.Format("Unrecoverable error: Playback thread encountered error {0:X8} !\nProgram will exit.", hr));
+                Exit();
+            }
         }
 
         #endregion

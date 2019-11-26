@@ -106,6 +106,7 @@ WWSpatialAudioUser::RenderMain(void)
         ReleaseMutex(mMutex);
 
         if (FAILED(hr)) {
+            mThreadErcd = hr;
             goto end;
         }
     }

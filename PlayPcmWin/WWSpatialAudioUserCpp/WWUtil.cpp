@@ -5,6 +5,72 @@
 #include <assert.h>
 #include <functiondiscoverykeys.h>
 
+static const char *
+AudClntErrorMsg(HRESULT hr) {
+    switch (hr) {
+    case 0x800700AA: return "Resource is in use";
+    case 0x88890001: return "AUDCLNT_E_NOT_INITIALIZED";
+    case 0x88890002: return "AUDCLNT_E_ALREADY_INITIALIZED";
+    case 0x88890003: return "AUDCLNT_E_WRONG_ENDPOINT_TYPE";
+    case 0x88890004: return "AUDCLNT_E_DEVICE_INVALIDATED";
+    case 0x88890005: return "AUDCLNT_E_NOT_STOPPED";
+
+    case 0x88890006: return "AUDCLNT_E_BUFFER_TOO_LARGE";
+    case 0x88890007: return "AUDCLNT_E_OUT_OF_ORDER";
+    case 0x88890008: return "AUDCLNT_E_UNSUPPORTED_FORMAT";
+    case 0x88890009: return "AUDCLNT_E_INVALID_SIZE";
+    case 0x8889000a: return "AUDCLNT_E_DEVICE_IN_USE";
+
+    case 0x8889000b: return "AUDCLNT_E_BUFFER_OPERATION_PENDING";
+    case 0x8889000c: return "AUDCLNT_E_THREAD_NOT_REGISTERED";
+    case 0x8889000e: return "AUDCLNT_E_EXCLUSIVE_MODE_NOT_ALLOWED";
+    case 0x8889000f: return "AUDCLNT_E_ENDPOINT_CREATE_FAILED";
+    case 0x88890010: return "AUDCLNT_E_SERVICE_NOT_RUNNING";
+
+    case 0x88890011: return "AUDCLNT_E_EVENTHANDLE_NOT_EXPECTED";
+    case 0x88890012: return "AUDCLNT_E_EXCLUSIVE_MODE_ONLY";
+    case 0x88890013: return "AUDCLNT_E_BUFDURATION_PERIOD_NOT_EQUAL";
+    case 0x88890014: return "AUDCLNT_E_EVENTHANDLE_NOT_SET";
+    case 0x88890015: return "AUDCLNT_E_INCORRECT_BUFFER_SIZE";
+
+    case 0x88890016: return "AUDCLNT_E_BUFFER_SIZE_ERROR";
+    case 0x88890017: return "AUDCLNT_E_CPUUSAGE_EXCEEDED";
+    case 0x88890018: return "AUDCLNT_E_BUFFER_ERROR";
+    case 0x88890019: return "AUDCLNT_E_BUFFER_SIZE_NOT_ALIGNED";
+    case 0x88890020: return "AUDCLNT_E_INVALID_DEVICE_PERIOD";
+
+    case 0x88890021: return "AUDCLNT_E_INVALID_STREAM_FLAG";
+    case 0x88890022: return "AUDCLNT_E_ENDPOINT_OFFLOAD_NOT_CAPABLE";
+    case 0x88890023: return "AUDCLNT_E_OUT_OF_OFFLOAD_RESOURCES";
+    case 0x88890024: return "AUDCLNT_E_OFFLOAD_MODE_ONLY";
+    case 0x88890025: return "AUDCLNT_E_NONOFFLOAD_MODE_ONLY";
+
+    case 0x88890026: return "AUDCLNT_E_RESOURCES_INVALIDATED";
+    case 0x88890027: return "AUDCLNT_E_RAW_MODE_UNSUPPORTED";
+    case 0x88890028: return "AUDCLNT_E_ENGINE_PERIODICITY_LOCKED";
+    case 0x88890029: return "AUDCLNT_E_ENGINE_FORMAT_LOCKED";
+
+    case 0x88890100: return "SPTLAUDCLNT_E_DESTROYED";
+    case 0x88890101: return "SPTLAUDCLNT_E_OUT_OF_ORDER";
+    case 0x88890102: return "SPTLAUDCLNT_E_RESOURCES_INVALIDATED";
+    case 0x88890103: return "SPTLAUDCLNT_E_NO_MORE_OBJECTS";
+    case 0x88890104: return "SPTLAUDCLNT_E_PROPERTY_NOT_SUPPORTED";
+
+    case 0x88890105: return "SPTLAUDCLNT_E_ERRORS_IN_OBJECT_CALLS";
+    case 0x88890106: return "SPTLAUDCLNT_E_METADATA_FORMAT_NOT_SUPPORTED";
+    case 0x88890107: return "SPTLAUDCLNT_E_STREAM_NOT_AVAILABLE";
+    case 0x88890108: return "SPTLAUDCLNT_E_INVALID_LICENSE";
+
+    case 0x8889010a: return "SPTLAUDCLNT_E_STREAM_NOT_STOPPED";
+    case 0x8889010b: return "SPTLAUDCLNT_E_STATIC_OBJECT_NOT_AVAILABLE";
+    case 0x8889010c: return "SPTLAUDCLNT_E_OBJECT_ALREADY_ACTIVE";
+    case 0x8889010d: return "SPTLAUDCLNT_E_INTERNAL";
+
+    default:
+        return nullptr;
+    }
+}
+
 void
 WWErrorDescription(HRESULT hr)
 {
@@ -12,17 +78,25 @@ WWErrorDescription(HRESULT hr)
         hr = HRESULT_CODE(hr);
     }
 
+    if (AudClntErrorMsg(hr)) {
+        // 自前のエラー文字列が見つかったので表示。
+        printf("    0x%08x is: %s\n", hr, AudClntErrorMsg(hr));
+        return;
+    }
+
+    // OSのエラー文字列を探して表示。
+
     char* szErrMsg = nullptr;
 
     if (!FormatMessageA(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-        nullptr, hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-        (LPSTR)&szErrMsg, 0, nullptr) != 0) {
+            FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+            nullptr, hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+            (LPSTR)&szErrMsg, 0, nullptr) != 0) {
         //_tprintf(TEXT("unknown HRESULT %#x\n"), hr);
         return;
     }
 
-    printf("    0x%08x is: %s", hr, szErrMsg);
+    printf("    0x%08x is: %s\n", hr, szErrMsg);
     LocalFree(szErrMsg);
 }
 

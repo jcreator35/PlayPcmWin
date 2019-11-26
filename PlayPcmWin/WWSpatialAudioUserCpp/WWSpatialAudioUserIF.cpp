@@ -232,3 +232,12 @@ WWSpatialAudioUserGetPlayPosition(
     *playPos_r = sau->GetPlayPosition(ch);
     return S_OK;
 }
+
+WWSPATIALAUDIOUSER_API int __stdcall
+WWSpatialAudioUserGetThreadErcd(
+    int instanceId)
+{
+    FIND_INSTANCE;
+
+    return sau->GetThreadErcd();
+}

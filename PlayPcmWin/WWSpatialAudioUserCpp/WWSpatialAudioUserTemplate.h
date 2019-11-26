@@ -31,6 +31,8 @@ public:
         dprintf("WWSpatialAudioUserTemplate::Init()\n");
         HRESULT hr = 0;
 
+        mThreadErcd = S_OK;
+
         // ComInitializeする。
         assert(mComInit == false);
         hr = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
@@ -293,6 +295,12 @@ public:
         return mAudioObjectList.GetPlayPosition(ch);
     }
 
+    /// スレッドのエラーコード。
+    /// エラーの場合、Term()してからInit()し直す。
+    HRESULT GetThreadErcd(void) const {
+        return mThreadErcd;
+    }
+
 
 protected:
     bool mComInit = false;
@@ -313,6 +321,7 @@ protected:
     HANDLE mShutdownEvent = nullptr;
     HANDLE mBufferEvent = nullptr;
     int    mPlayStreamCount = 0;
+    HRESULT mThreadErcd = S_OK;
 
     HRESULT ChooseDevice1(int id, int maxDynObjectCount, int staticObjectTypeMask) {
         HRESULT hr = 0;

@@ -281,6 +281,11 @@ namespace WWSpatialAudioUserCs {
             [DllImport("WWSpatialAudioUserCpp2017.dll", CharSet = CharSet.Unicode)]
             internal extern static int WWSpatialAudioUserGetPlayPosition(
                 int instanceId, int ch, ref long playPos_r);
+
+            [DllImport("WWSpatialAudioUserCpp2017.dll", CharSet = CharSet.Unicode)]
+            internal extern static int WWSpatialAudioUserGetThreadErcd(
+                int instanceId);
+
         };
 #endregion
 
@@ -379,6 +384,10 @@ namespace WWSpatialAudioUserCs {
             int hr = NativeMethods.WWSpatialAudioUserGetPlayPosition(mInstanceId, ch, ref r);
             System.Diagnostics.Debug.Assert(0 <= hr);
             return r;
+        }
+
+        public int GetThreadErcd() {
+            return NativeMethods.WWSpatialAudioUserGetThreadErcd(mInstanceId);
         }
 
         // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■

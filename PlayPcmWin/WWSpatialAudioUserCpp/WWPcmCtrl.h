@@ -97,9 +97,11 @@ public:
         while (cur != nullptr) {
             int copySamples = cur->GetNextPcm(&buff[accSamples], wantSamples - accSamples);
             accSamples += copySamples;
-            if (accSamples < wantSamples) {
-                cur = cur->next;
+            if (accSamples == wantSamples) {
+                break;
             }
+
+            cur = cur->next;
         }
 
         if (accSamples < wantSamples) {
