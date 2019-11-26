@@ -156,6 +156,10 @@ namespace WWSpatialAudioUserCs {
             return r;
         }
 
+        public static AudioObjectType DwChannelMaskTypeToAudioObjectType(DwChannelMaskType t) {
+            return (AudioObjectType)DwChannelMaskToAudioObjectTypeMask((int)t);
+        }
+
         public static int DwChannelMaskToAudioObjectTypeMask(int dwChannelMask) {
             int r = 0;
             if (0 != (dwChannelMask & (int)DwChannelMaskType.FrontLeft)) {

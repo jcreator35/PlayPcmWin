@@ -76,7 +76,7 @@ namespace WWSpatialAudioPlayer  {
             return mask;
         }
 
-        private WWSpatialAudioUser.AudioObjectType GetAudioObjectType(int ch) {
+        private WWSpatialAudioUser.AudioObjectType DwChannelMaskChannelGetAudioObjectTypeof(int ch) {
             // DwChannelMaskからAudioObjectTypeのリストを作成。
             int aoMask = AudioObjectTypeMask;
             var aoList = WWSpatialAudioUser.AudioObjectTypeMaskToList(aoMask);
@@ -190,17 +190,18 @@ namespace WWSpatialAudioPlayer  {
                 mResampledPcmByChannel.Add(buf);
             }
 
-            for (long b = 0; b < numFrames; ++b) {
-                for (int ch = 0; ch < nCh; ++ch) {
-                    var buf4 = new byte[4];
-                    fullPcm.CopyTo(sampleBytes * (nCh * b + ch), ref buf4, 0, 4);
-                    var bufCh = mResampledPcmByChannel[ch];
-                    var f1 = new float[1];
-                    f1[0] = BitConverter.ToSingle(buf4, 0);
-                    bufCh.CopyFrom(f1, 0, b, 1);
+            { 
+                var buf4 = new byte[4];
+                var f1 = new float[1];
+                for (long b = 0; b < numFrames; ++b) {
+                    for (int ch = 0; ch < nCh; ++ch) {
+                        fullPcm.CopyTo(sampleBytes * (nCh * b + ch), ref buf4, 0, 4);
+                        var bufCh = mResampledPcmByChannel[ch];
+                        f1[0] = BitConverter.ToSingle(buf4, 0);
+                        bufCh.CopyFrom(f1, 0, b, 1);
+                    }
                 }
             }
-
             return hr;
         }
 
@@ -233,7 +234,11 @@ namespace WWSpatialAudioPlayer  {
                     from.CopyTo(pos, ref buf, 0, copyCount);
                     mSAudio.SetPcmFragment(ch, pos, buf);
                 }
-                mSAudio.SetPcmEnd(ch, GetAudioObjectType(ch));
+
+                // チャンネル番号ch のDwChannekMaskType
+                var cmt = WWSpatialAudioUser.DwChannelMaskToList(DwChannelMask)[ch];
+                var aot = WWSpatialAudioUser.DwChannelMaskTypeToAudioObjectType(cmt);
+                mSAudio.SetPcmEnd(ch, aot);
             }
 
             return hr;
