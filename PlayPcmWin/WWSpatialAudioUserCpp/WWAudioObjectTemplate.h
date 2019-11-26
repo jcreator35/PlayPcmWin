@@ -32,6 +32,7 @@ public:
 
     void
     Rewind(void) {
+        SafeRelease(&sao);
         pcmCtrl.Rewind();
     }
 
