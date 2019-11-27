@@ -12,7 +12,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="110"/>
                     <RowDefinition Height="120*"/>
-                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="80"/>
                     <RowDefinition Height="120"/>
                     <RowDefinition Height="20" />
                 </Grid.RowDefinitions>
@@ -57,12 +57,14 @@
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition />
+                            <RowDefinition />
                         </Grid.RowDefinitions>
                         <StackPanel Orientation="Horizontal" Grid.Row="0" >
-                            <Button x:Name="mButtonPlay" Content="_Play" VerticalAlignment="Bottom" Width="100" Margin="6,0,0,3.667" IsEnabled="False" Click="ButtonPlay_Click"/>
+                            <Button x:Name="mButtonPlay" Content="_Play" VerticalAlignment="Center" Width="100" Margin="6,0,0,0" IsEnabled="False" Click="ButtonPlay_Click"/>
                             <Button x:Name="mButtonStop" Content="_Stop" VerticalAlignment="Center" Width="100" Margin="6,0,0,0" IsEnabled="False" Click="ButtonStop_Click"/>
                             <Label x:Name="mLabelPlayingTime" Content="--:-- / --:--" Margin="6,0,0,0" VerticalAlignment="Center"/>
                         </StackPanel>
+                        <Slider x:Name="mSliderPlayPosion" Grid.Row="1" VerticalAlignment="Center" IsMoveToPointEnabled="True" MouseMove="MSliderPlayPosion_MouseMove" MouseLeftButtonDown="MSliderPlayPosion_MouseLeftButtonDown" MouseLeftButtonUp="MSliderPlayPosion_MouseLeftButtonUp" />
                     </Grid>
                 </GroupBox>
                 <GroupBox Header="Log" Grid.Row="3" >

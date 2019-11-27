@@ -22,6 +22,7 @@
 #include "WWPrintDeviceProp.h"
 #include <functiondiscoverykeys.h>
 #include "WWTrackEnum.h"
+#include "WWPlayStatus.h"
 
 /// @param T_RenderStream ISpatialAudioObjectRenderStream または ISpatialAudioObjectRenderStreamForHrtf
 /// @param T_AudioObject WWAudioObject または WWAudioHrtfObject
@@ -288,14 +289,18 @@ public:
         mAudioObjectList.Rewind();
     }
 
-    /// @return サンプル数。
-    int64_t GetSoundDuration(int ch) {
-        return mAudioObjectList.GetSoundDuration(ch);
-    }
+    HRESULT GetPlayStatus(int ch, WWPlayStatus &ps_r) {
+        HRESULT hr = S_OK;
 
-    /// @return サンプル数。
-    int64_t GetPlayPosition(int ch) {
-        return mAudioObjectList.GetPlayPosition(ch);
+        assert(mMutex);
+        WaitForSingleObject(mMutex, INFINITE);
+        {
+            ps_r.posFrame      = mAudioObjectList.GetPlayPosition(ch);
+            ps_r.totalFrameNum = mAudioObjectList.GetSoundDuration(ch);
+        }
+        ReleaseMutex(mMutex);
+
+        return hr;
     }
 
     /// スレッドのエラーコード。
@@ -307,6 +312,18 @@ public:
     /// @return WWTrackEnumが戻る。
     int GetPlayingTrackNr(int ch) const {
         return mAudioObjectList.GetPlayingTrackNr(ch);
+    }
+
+    HRESULT UpdatePlayPosition(int64_t frame) {
+        HRESULT hr = S_OK;
+
+        assert(mMutex);
+        WaitForSingleObject(mMutex, INFINITE);
+        {
+            hr = mAudioObjectList.UpdatePlayPosition(frame);
+        }
+        ReleaseMutex(mMutex);
+        return hr;
     }
 
 protected:

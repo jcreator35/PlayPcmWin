@@ -10,6 +10,7 @@
 
 #include "WWSpatialAudioUser.h"
 #include "WWSpatialAudioDeviceProperty.h"
+#include "WWPlayStatus.h"
 
 /// 新たに実体を作成。
 /// @return instanceId 0以上の番号。
@@ -60,14 +61,6 @@ WWSPATIALAUDIOUSER_API int __stdcall
 WWSpatialAudioUserStop(
     int instanceId);
 
-WWSPATIALAUDIOUSER_API int __stdcall
-WWSpatialAudioUserGetSoundDuration(
-    int instanceId, int ch, int64_t *durationSamples_r);
-
-WWSPATIALAUDIOUSER_API int __stdcall
-WWSpatialAudioUserGetPlayPosition(
-    int instanceId, int ch, int64_t *playPos_r);
-
 /// HRESULTが戻る。
 WWSPATIALAUDIOUSER_API int __stdcall
 WWSpatialAudioUserGetThreadErcd(
@@ -78,3 +71,10 @@ WWSPATIALAUDIOUSER_API int __stdcall
 WWSpatialAudioUserGetPlayingTrackNr(
     int instanceId, int ch, int *trackNr_r);
 
+/// 全てのチャンネルの再生位置を変更。
+WWSPATIALAUDIOUSER_API int __stdcall
+WWSpatialAudioUserSetPosFrame(
+    int instanceId, int64_t frame);
+
+WWSPATIALAUDIOUSER_API int __stdcall
+WWSpatialAudioUserGetPlayStatus(int instanceId, int ch, WWPlayStatus *pos_return);

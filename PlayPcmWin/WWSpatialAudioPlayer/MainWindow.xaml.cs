@@ -9,6 +9,8 @@ using System.Globalization;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Input;
 using WWSpatialAudioUserCs;
 
 namespace WWSpatialAudioPlayer {
@@ -65,6 +67,7 @@ namespace WWSpatialAudioPlayer {
             mBwLoad.RunWorkerCompleted += MBwLoad_RunWorkerCompleted;
             mBwLoad.WorkerReportsProgress = true;
             mBwLoad.ProgressChanged += MBwLoad_ProgressChanged;
+            mBwLoad.WorkerSupportsCancellation = true;
 
             mBwPlay.DoWork += MBwPlay_DoWork;
             mBwPlay.RunWorkerCompleted += MBwPlay_RunWorkerCompleted;
@@ -77,6 +80,18 @@ namespace WWSpatialAudioPlayer {
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
+            {
+                // sliderのTrackをクリックしてThumbがクリック位置に移動した時Thumbがつままれた状態になるようにする
+                mSliderPlayPosion.ApplyTemplate();
+                (mSliderPlayPosion.Template.FindName("PART_Track", mSliderPlayPosion) as Track).Thumb.MouseEnter += new MouseEventHandler((sliderSender, se) => {
+                    if (se.LeftButton == MouseButtonState.Pressed && se.MouseDevice.Captured == null) {
+                        var args = new MouseButtonEventArgs(se.MouseDevice, se.Timestamp, MouseButton.Left);
+                        args.RoutedEvent = MouseLeftButtonDownEvent;
+                        (sliderSender as Thumb).RaiseEvent(args);
+                    }
+                });
+            }
+
             mInitialized = true;
         }
 
@@ -94,10 +109,29 @@ namespace WWSpatialAudioPlayer {
         protected virtual void Dispose(bool disposing) {
             if (!disposedValue) {
                 if (disposing) {
+                    mBwPlay.CancelAsync();
+                    while (mBwPlay.IsBusy) {
+                        System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(
+                                System.Windows.Threading.DispatcherPriority.Background,
+                                new System.Threading.ThreadStart(delegate { }));
+                        System.Threading.Thread.Sleep(100);
+                    }
+
+                    mBwLoad.CancelAsync();
+                    while (mBwLoad.IsBusy) {
+                        System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(
+                                System.Windows.Threading.DispatcherPriority.Background,
+                                new System.Threading.ThreadStart(delegate { }));
+                        System.Threading.Thread.Sleep(100);
+                    }
+
+                    /*
                     if (mBwLoad != null) {
                         mBwLoad.Dispose();
                         mBwLoad = null;
                     }
+                    */
+
                     if (mPlayer != null) {
                         mPlayer.Dispose();
                         mPlayer = null;
@@ -169,6 +203,8 @@ namespace WWSpatialAudioPlayer {
             }
         }
 
+        const int E_ABORT = -128;
+
         private void MBwLoad_DoWork(object sender, DoWorkEventArgs e) {
             mBwMsgSB.Clear();
 
@@ -184,11 +220,20 @@ namespace WWSpatialAudioPlayer {
                 r.hr = hr;
                 return;
             }
+            if (e.Cancel) {
+                r.hr = E_ABORT;
+                return;
+            }
+
             ReportProgress(66, "  Resampling...\n");
 
             hr = mPlayer.Resample();
             if (hr < 0) {
                 r.hr = hr;
+                return;
+            }
+            if (e.Cancel) {
+                r.hr = E_ABORT;
                 return;
             }
 
@@ -206,6 +251,10 @@ namespace WWSpatialAudioPlayer {
         }
 
         private void MBwLoad_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
+            if (e.Cancelled) {
+                return;
+            }
+
             var r = e.Result as LoadResult;
 
             if (0 < mPlayer.NumChannels && !mPlayer.IsChannelSupported(mPlayer.NumChannels)) {
@@ -296,15 +345,14 @@ namespace WWSpatialAudioPlayer {
         }
 
         private void MBwPlay_ProgressChanged(object sender, ProgressChangedEventArgs e) {
-            if (mBwPlay.CancellationPending) {
+            if (mBwPlay.CancellationPending || mPlayer == null) {
                 return;
             }
 
-            long soundDuration = mPlayer.SpatialAudio.GetSoundDuration(0);
-            long playPosition = mPlayer.SpatialAudio.GetPlayPosition(0);
+            var pp = mPlayer.SpatialAudio.GetPlayStatus(0);
 
-            string sD = SecondsToMSString((int)(soundDuration / mPlayer.PlaySampleRate));
-            string sP = SecondsToMSString((int)(playPosition / mPlayer.PlaySampleRate));
+            string sD = SecondsToMSString((int)(pp.TotalFrameNum / mPlayer.PlaySampleRate));
+            string sP = SecondsToMSString((int)(pp.PosFrame / mPlayer.PlaySampleRate));
             string s = string.Format("{0} / {1}", sP, sD);
 
             if (0 == s.CompareTo(mLabelPlayingTime.Content.ToString())) {
@@ -312,10 +360,16 @@ namespace WWSpatialAudioPlayer {
                 return;
             }
 
+            UpdateSliderPosition(pp);
+
             mLabelPlayingTime.Content = s;
         }
 
         private void MBwPlay_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
+            if (e.Cancelled) {
+                return;
+            }
+
             mLabelPlayingTime.Content = "--:-- / --:--";
 
             int hr = mPlayer.SpatialAudio.GetThreadErcd();
@@ -461,5 +515,71 @@ namespace WWSpatialAudioPlayer {
             }
         }
 
+        // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+        // Slider event
+
+        private long mLastSliderValue = 0;
+        private bool mSliderSliding = false;
+        private long mLastSliderPositionUpdateTime = 0;
+        
+        /// <summary>
+        /// スライダー位置の更新頻度 (500ミリ秒)
+        /// </summary>
+        private const long SLIDER_UPDATE_TICKS = 500 * 10000;
+
+        private void UpdateSliderPosition(WWSpatialAudioUser.PlayStatus playPos) {
+            long now = DateTime.Now.Ticks;
+            if (now - mLastSliderPositionUpdateTime > SLIDER_UPDATE_TICKS) {
+                // スライダー位置の更新。0.5秒に1回
+
+                //Console.WriteLine("SliderPos={0} / {1}", playPos.PosFrame, playPos.TotalFrameNum);
+
+                mSliderPlayPosion.Maximum = playPos.TotalFrameNum;
+                if (!mSliderSliding || playPos.TotalFrameNum <= mSliderPlayPosion.Value) {
+                    mSliderPlayPosion.Value = playPos.PosFrame;
+                }
+
+                mLastSliderPositionUpdateTime = now;
+            }
+        }
+
+        private void MSliderPlayPosion_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
+            if (e.Source != mSliderPlayPosion) {
+                return;
+            }
+
+            mLastSliderValue = (long)mSliderPlayPosion.Value;
+            mSliderSliding = true;
+        }
+
+        private void MSliderPlayPosion_MouseMove(object sender, System.Windows.Input.MouseEventArgs e) {
+            if (e.Source != mSliderPlayPosion) {
+                return;
+            }
+
+            if (e.LeftButton == MouseButtonState.Pressed) {
+                if (!mButtonPlay.IsEnabled &&
+                        mLastSliderValue != (long)mSliderPlayPosion.Value) {
+                    // 再生中。再生位置を変更する。
+                    mPlayer.SpatialAudio.SetPlayPos((long)mSliderPlayPosion.Value);
+                    mLastSliderValue = (long)mSliderPlayPosion.Value;
+                }
+            }
+        }
+
+        private void MSliderPlayPosion_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) {
+            if (e.Source != mSliderPlayPosion) {
+                return;
+            }
+
+            if (!mButtonPlay.IsEnabled &&
+                    mLastSliderValue != (long)mSliderPlayPosion.Value) {
+                // 再生中。再生位置を変更する。
+                mPlayer.SpatialAudio.SetPlayPos((long)mSliderPlayPosion.Value);
+            }
+
+            mLastSliderValue = 0;
+            mSliderSliding = false;
+        }
     }
 }

@@ -212,30 +212,6 @@ WWSpatialAudioUserStop(
 }
 
 WWSPATIALAUDIOUSER_API int __stdcall
-WWSpatialAudioUserGetSoundDuration(
-    int instanceId, int ch, int64_t *durationSamples_r)
-{
-    FIND_INSTANCE;
-
-    assert(durationSamples_r);
-
-    *durationSamples_r = sau->GetSoundDuration(ch);
-    return S_OK;
-}
-
-WWSPATIALAUDIOUSER_API int __stdcall
-WWSpatialAudioUserGetPlayPosition(
-    int instanceId, int ch, int64_t *playPos_r)
-{
-    FIND_INSTANCE;
-
-    assert(playPos_r);
-
-    *playPos_r = sau->GetPlayPosition(ch);
-    return S_OK;
-}
-
-WWSPATIALAUDIOUSER_API int __stdcall
 WWSpatialAudioUserGetThreadErcd(
     int instanceId)
 {
@@ -255,3 +231,20 @@ WWSpatialAudioUserGetPlayingTrackNr(
     return S_OK;
 }
 
+WWSPATIALAUDIOUSER_API int __stdcall
+WWSpatialAudioUserSetPosFrame(
+    int instanceId, int64_t frame)
+{
+    FIND_INSTANCE;
+
+    return sau->UpdatePlayPosition(frame);
+}
+
+WWSPATIALAUDIOUSER_API int __stdcall
+WWSpatialAudioUserGetPlayStatus(int instanceId, int ch, WWPlayStatus *pos_return)
+{
+    FIND_INSTANCE;
+    assert(pos_return);
+
+    return sau->GetPlayStatus(ch, *pos_return);
+}

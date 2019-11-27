@@ -340,19 +340,27 @@ namespace WWSpatialAudioUserCs {
                 int instanceId);
 
             [DllImport("WWSpatialAudioUserCpp2017.dll", CharSet = CharSet.Unicode)]
-            internal extern static int WWSpatialAudioUserGetSoundDuration(
-                int instanceId, int ch, ref long duration_r);
-            [DllImport("WWSpatialAudioUserCpp2017.dll", CharSet = CharSet.Unicode)]
-            internal extern static int WWSpatialAudioUserGetPlayPosition(
-                int instanceId, int ch, ref long playPos_r);
-
-            [DllImport("WWSpatialAudioUserCpp2017.dll", CharSet = CharSet.Unicode)]
             internal extern static int WWSpatialAudioUserGetThreadErcd(
                 int instanceId);
 
             [DllImport("WWSpatialAudioUserCpp2017.dll", CharSet = CharSet.Unicode)]
             internal extern static int WWSpatialAudioUserGetPlayingTrackNr(
                 int instanceId, int ch, ref int trackNr_r);
+
+            /// 全てのチャンネルの再生位置を変更。
+            [DllImport("WWSpatialAudioUserCpp2017.dll", CharSet = CharSet.Unicode)]
+            internal extern static int WWSpatialAudioUserSetPosFrame(
+                int instanceId, long frame);
+
+            [StructLayout(LayoutKind.Sequential, Pack = 8)]
+            internal struct WWPlayStatus {
+                public long posFrame;
+                public long totalFrameNum;
+            };
+
+            [DllImport("WWSpatialAudioUserCpp2017.dll")]
+            internal extern static int
+            WWSpatialAudioUserGetPlayStatus(int instanceId, int ch, ref WWPlayStatus a);
         };
 #endregion
 
@@ -439,20 +447,6 @@ namespace WWSpatialAudioUserCs {
             return hr;
         }
 
-        public long GetSoundDuration(int ch) {
-            long r = 0;
-            int hr = NativeMethods.WWSpatialAudioUserGetSoundDuration(mInstanceId, ch, ref r);
-            System.Diagnostics.Debug.Assert(0 <= hr);
-            return r;
-        }
-
-        public long GetPlayPosition(int ch) {
-            long r = 0;
-            int hr = NativeMethods.WWSpatialAudioUserGetPlayPosition(mInstanceId, ch, ref r);
-            System.Diagnostics.Debug.Assert(0 <= hr);
-            return r;
-        }
-
         public int GetThreadErcd() {
             return NativeMethods.WWSpatialAudioUserGetThreadErcd(mInstanceId);
         }
@@ -464,6 +458,31 @@ namespace WWSpatialAudioUserCs {
             System.Diagnostics.Debug.Assert(0 <= hr);
             return r;
         }
+
+        public int SetPlayPos(long frame) {
+            //Console.WriteLine("SetPlayPos {0}", frame);
+            int hr = NativeMethods.WWSpatialAudioUserSetPosFrame(mInstanceId, frame);
+            return hr;
+        }
+
+        public class PlayStatus {
+            public long PosFrame { get; set; }
+            public long TotalFrameNum { get; set; }
+            public PlayStatus(long posFrame, long totalFrameNum) {
+                PosFrame = posFrame;
+                TotalFrameNum = totalFrameNum;
+            }
+        };
+
+        public PlayStatus GetPlayStatus(int ch) {
+            var p = new NativeMethods.WWPlayStatus();
+            int hr = NativeMethods.WWSpatialAudioUserGetPlayStatus(mInstanceId, ch, ref p);
+            if (hr < 0) {
+                return null;
+            }
+            return new PlayStatus(p.posFrame, p.totalFrameNum);
+        }
+
 
         // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
         // 終了処理とDispose。

@@ -62,5 +62,17 @@ public:
         return WWTE_None;
     }
 
+    int UpdatePlayPosition(int64_t frame) {
+        HRESULT hr = S_OK;
+
+        for (auto ite = mAudioObjectList.begin(); ite != mAudioObjectList.end(); ++ite) {
+            auto &r = *ite;
+
+            r.pcmCtrl.UpdatePlayPosition(frame);
+        }
+
+        return hr;
+    }
+
     std::list<T_WWAudioObject> mAudioObjectList;
 };

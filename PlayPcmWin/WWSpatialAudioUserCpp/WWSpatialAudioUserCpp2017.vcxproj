@@ -98,6 +98,7 @@
     <ClInclude Include="WWPcmFloat.h" />
     <ClInclude Include="WWPcmCtrl.h" />
     <ClInclude Include="WWPcmStore.h" />
+    <ClInclude Include="WWPlayStatus.h" />
     <ClInclude Include="WWPrintDeviceProp.h" />
     <ClInclude Include="WWSpatialAudioDeviceProperty.h" />
     <ClInclude Include="WWSpatialAudioHrtfUser.h" />

@@ -22,9 +22,9 @@ private:
     WWPcmFloat *cur = nullptr;
 
     // 48kHz PCMを想定。
-    const int START_SILENCE_FRAMES  = 40000;
+    const int START_SILENCE_FRAMES  = 48000;
     const int END_SILENCE_FRAMES    = 24000;
-    const int SPLICE_SILENCE_FRAMES = 4800;
+    const int SPLICE_SILENCE_FRAMES = 480;
 
 public:
     int Channel(void) const {
@@ -70,7 +70,7 @@ public:
         return (int64_t)sound->pcm.size();
     }
 
-    /// @return サンプル数。
+    /// @return 音声の再生位置(サンプル)。
     int64_t GetPlayPosition(void) const {
         if (sound == nullptr) {
             return 0;
@@ -89,6 +89,29 @@ public:
 
         assert(0);
         return WWTE_None;
+    }
+
+    int UpdatePlayPosition(int64_t frame) {
+        if (cur != sound) {
+            // nullptr : 再生していない。
+            // prologue: 再生開始直後は無音を送出する必要あり。
+            // splice  : すでにSplice中。あまり起こらないはず。
+            // epilogue: 再生終了中のシーク要求は断る。
+            return E_NOT_VALID_STATE;
+        }
+
+        int advance = splice->CreateCrossfadeDataPcm(
+            *sound, sound->pos,
+            *sound, frame);
+
+        // splice後の再生位置をsoundのframeからadvanceサンプル後に設定。
+        sound->pos = frame;
+        splice->next = WWPcmFloat::AdvanceFrames(sound, advance);
+
+        // spliceを再生する。
+        cur = splice;
+
+        return S_OK;
     }
 
     bool IsEmpty(void) const {
