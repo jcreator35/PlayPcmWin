@@ -206,8 +206,6 @@ WWSpatialAudioUserStop(
         return hr;
     }
 
-    sau->Rewind();
-
     return hr;
 }
 
@@ -247,4 +245,14 @@ WWSpatialAudioUserGetPlayStatus(int instanceId, int ch, WWPlayStatus *pos_return
     assert(pos_return);
 
     return sau->GetPlayStatus(ch, *pos_return);
+}
+
+WWSPATIALAUDIOUSER_API int __stdcall
+WWSpatialAudioUserRewind(
+    int instanceId)
+{
+    FIND_INSTANCE;
+
+    sau->Rewind();
+    return S_OK;
 }

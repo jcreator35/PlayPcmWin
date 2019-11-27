@@ -6,6 +6,7 @@ namespace WWSpatialAudioUserCs {
     public class WWSpatialAudioUser : IDisposable {
         private int mInstanceId = -1;
 
+        #region various enums
         public enum StateEnum {
             NoAudioDevice,
             SpatialAudioIsNotEnabled,
@@ -84,6 +85,7 @@ namespace WWSpatialAudioUserCs {
             TopBackCenter = 0x10000,
             TopBackRight = 0x20000,
         }
+        #endregion
 
         #region DwChannelMask and AudioObjectTypeMask conversion
 
@@ -361,6 +363,10 @@ namespace WWSpatialAudioUserCs {
             [DllImport("WWSpatialAudioUserCpp2017.dll")]
             internal extern static int
             WWSpatialAudioUserGetPlayStatus(int instanceId, int ch, ref WWPlayStatus a);
+
+            [DllImport("WWSpatialAudioUserCpp2017.dll", CharSet = CharSet.Unicode)]
+            internal extern static int WWSpatialAudioUserRewind(
+                int instanceId);
         };
 #endregion
 
@@ -483,6 +489,10 @@ namespace WWSpatialAudioUserCs {
             return new PlayStatus(p.posFrame, p.totalFrameNum);
         }
 
+        public void Rewind() {
+            int hr = NativeMethods.WWSpatialAudioUserRewind(mInstanceId);
+            System.Diagnostics.Debug.Assert(0 <= hr);
+        }
 
         // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
         // 終了処理とDispose。

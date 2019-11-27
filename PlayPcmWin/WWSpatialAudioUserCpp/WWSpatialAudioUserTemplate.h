@@ -195,27 +195,27 @@ public:
     virtual HRESULT ActivateAudioStream(int maxDynObjectCount, int staticObjectTypeMask) =0;
 
     /// @param dasc [inout] 成功するとdasc.idxにユニークな番号が書き込まれる。
-    HRESULT AddStream(T_AudioObject &dasc) {
+    HRESULT AddStream(T_AudioObject &ao) {
         HRESULT hr = S_OK;
-        if (dasc.pcmCtrl.IsEmpty()) {
+        if (ao.pcmCtrl.IsEmpty()) {
             printf("E: WWSpatialAudioUser::AddStream data err\n");
             hr = E_FAIL;
             goto end;
         }
 
-        if (dasc.sao != nullptr) {
+        if (ao.sao != nullptr) {
             printf("E: WWSpatialAudioUser::AddStream sao should be nullptr\n");
             hr = E_FAIL;
             goto end;
         }
 
-        dasc.idx = mNextDynStreamIdx;
+        ao.idx = mNextDynStreamIdx;
         ++mNextDynStreamIdx;
 
         assert(mMutex);
         WaitForSingleObject(mMutex, INFINITE);
         {   // この中はgoto 不可。
-            mAudioObjectList.mAudioObjectList.push_back(dasc);
+            mAudioObjectList.mAudioObjectList.push_back(ao);
         }
         ReleaseMutex(mMutex);
 
@@ -286,7 +286,13 @@ public:
     }
 
     void Rewind(void) {
-        mAudioObjectList.Rewind();
+        assert(mMutex);
+        WaitForSingleObject(mMutex, INFINITE);
+        {
+            // RenderMain()の使用しているsaoをReleaseするので、mMutexで守る。
+            mAudioObjectList.Rewind();
+        }
+        ReleaseMutex(mMutex);
     }
 
     HRESULT GetPlayStatus(int ch, WWPlayStatus &ps_r) {

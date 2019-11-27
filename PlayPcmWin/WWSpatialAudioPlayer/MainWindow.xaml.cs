@@ -19,6 +19,7 @@ namespace WWSpatialAudioPlayer {
     /// </summary>
     public partial class MainWindow : Window, IDisposable {
         private bool mInitialized = false;
+        private bool mShuttingdown = false;
         private List<VirtualSpeakerProperty> mVirtualSpeakerList = new List<VirtualSpeakerProperty>();
         private SpatialAudioPlayer mPlayer = new SpatialAudioPlayer();
         private BackgroundWorker mBwLoad = new BackgroundWorker();
@@ -80,17 +81,7 @@ namespace WWSpatialAudioPlayer {
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
-            {
-                // sliderのTrackをクリックしてThumbがクリック位置に移動した時Thumbがつままれた状態になるようにする
-                mSliderPlayPosion.ApplyTemplate();
-                (mSliderPlayPosion.Template.FindName("PART_Track", mSliderPlayPosion) as Track).Thumb.MouseEnter += new MouseEventHandler((sliderSender, se) => {
-                    if (se.LeftButton == MouseButtonState.Pressed && se.MouseDevice.Captured == null) {
-                        var args = new MouseButtonEventArgs(se.MouseDevice, se.Timestamp, MouseButton.Left);
-                        args.RoutedEvent = MouseLeftButtonDownEvent;
-                        (sliderSender as Thumb).RaiseEvent(args);
-                    }
-                });
-            }
+            SetupSlider();
 
             mInitialized = true;
         }
@@ -109,6 +100,8 @@ namespace WWSpatialAudioPlayer {
         protected virtual void Dispose(bool disposing) {
             if (!disposedValue) {
                 if (disposing) {
+                    mShuttingdown = true;
+
                     mBwPlay.CancelAsync();
                     while (mBwPlay.IsBusy) {
                         System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(
@@ -125,12 +118,14 @@ namespace WWSpatialAudioPlayer {
                         System.Threading.Thread.Sleep(100);
                     }
 
-                    /*
+                    if (mBwPlay != null) {
+                        mBwPlay.Dispose();
+                        mBwPlay = null;
+                    }
                     if (mBwLoad != null) {
                         mBwLoad.Dispose();
                         mBwLoad = null;
                     }
-                    */
 
                     if (mPlayer != null) {
                         mPlayer.Dispose();
@@ -220,7 +215,8 @@ namespace WWSpatialAudioPlayer {
                 r.hr = hr;
                 return;
             }
-            if (e.Cancel) {
+            if (mBwLoad.CancellationPending) {
+                e.Cancel = true;
                 r.hr = E_ABORT;
                 return;
             }
@@ -232,7 +228,8 @@ namespace WWSpatialAudioPlayer {
                 r.hr = hr;
                 return;
             }
-            if (e.Cancel) {
+            if (mBwLoad.CancellationPending) {
+                e.Cancel = true;
                 r.hr = E_ABORT;
                 return;
             }
@@ -245,6 +242,10 @@ namespace WWSpatialAudioPlayer {
             }
         }
         private void MBwLoad_ProgressChanged(object sender, ProgressChangedEventArgs e) {
+            if (mBwLoad.CancellationPending || mShuttingdown) {
+                return;
+            }
+
             var param = e.UserState as string;
             AddLog(param);
             mProgressbar.Value = e.ProgressPercentage;
@@ -345,7 +346,7 @@ namespace WWSpatialAudioPlayer {
         }
 
         private void MBwPlay_ProgressChanged(object sender, ProgressChangedEventArgs e) {
-            if (mBwPlay.CancellationPending || mPlayer == null) {
+            if (mBwPlay.CancellationPending || mShuttingdown) {
                 return;
             }
 
@@ -366,7 +367,8 @@ namespace WWSpatialAudioPlayer {
         }
 
         private void MBwPlay_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
-            if (e.Cancelled) {
+            Stop();
+            if (mShuttingdown) {
                 return;
             }
 
@@ -379,8 +381,8 @@ namespace WWSpatialAudioPlayer {
                 return;
             }
 
-            // 全ての再生データ出力完了。
-            Stop();
+            mPlayer.SpatialAudio.Rewind();
+            mSliderPlayPosion.Value = 0;
         }
 
         #endregion
@@ -526,6 +528,18 @@ namespace WWSpatialAudioPlayer {
         /// スライダー位置の更新頻度 (500ミリ秒)
         /// </summary>
         private const long SLIDER_UPDATE_TICKS = 500 * 10000;
+
+        private void SetupSlider() {
+            // sliderのTrackをクリックしてThumbがクリック位置に移動した時Thumbがつままれた状態になるようにする
+            mSliderPlayPosion.ApplyTemplate();
+            (mSliderPlayPosion.Template.FindName("PART_Track", mSliderPlayPosion) as Track).Thumb.MouseEnter += new MouseEventHandler((sliderSender, se) => {
+                if (se.LeftButton == MouseButtonState.Pressed && se.MouseDevice.Captured == null) {
+                    var args = new MouseButtonEventArgs(se.MouseDevice, se.Timestamp, MouseButton.Left);
+                    args.RoutedEvent = MouseLeftButtonDownEvent;
+                    (sliderSender as Thumb).RaiseEvent(args);
+                }
+            });
+        }
 
         private void UpdateSliderPosition(WWSpatialAudioUser.PlayStatus playPos) {
             long now = DateTime.Now.Ticks;

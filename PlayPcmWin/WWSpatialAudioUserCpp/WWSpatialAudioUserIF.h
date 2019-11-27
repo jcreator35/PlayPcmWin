@@ -78,3 +78,8 @@ WWSpatialAudioUserSetPosFrame(
 
 WWSPATIALAUDIOUSER_API int __stdcall
 WWSpatialAudioUserGetPlayStatus(int instanceId, int ch, WWPlayStatus *pos_return);
+
+WWSPATIALAUDIOUSER_API int __stdcall
+WWSpatialAudioUserRewind(
+    int instanceId);
+
