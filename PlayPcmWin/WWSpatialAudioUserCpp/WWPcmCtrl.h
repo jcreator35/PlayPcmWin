@@ -22,7 +22,7 @@ private:
     WWPcmFloat *cur = nullptr;
 
     // 48kHz PCMを想定。
-    const int START_SILENCE_FRAMES  = 48000;
+    const int START_SILENCE_FRAMES  = 2 * 48000;
     const int END_SILENCE_FRAMES    = 24000;
     const int SPLICE_SILENCE_FRAMES = 480;
 
