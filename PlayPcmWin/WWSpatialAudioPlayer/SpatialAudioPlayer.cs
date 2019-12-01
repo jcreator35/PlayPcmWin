@@ -36,6 +36,7 @@ namespace WWSpatialAudioPlayer  {
 
         public bool IsChannelSupported(int ch) {
             switch (ch) {
+            case 1:
             case 2:
             case 4:
             case 6:
@@ -51,22 +52,49 @@ namespace WWSpatialAudioPlayer  {
             int mask = 0;
             switch (ch) {
             case 1:
-                mask = 0;
+                mask = (int)(WWSpatialAudioUser.DwChannelMaskType.FrontCenter);
                 break;
             case 2:
-                mask = 3;
+                mask = (int)(WWSpatialAudioUser.DwChannelMaskType.FrontLeft
+                    | WWSpatialAudioUser.DwChannelMaskType.FrontRight);
                 break;
             case 4:
-                mask = 0x33;
+                mask = (int)(WWSpatialAudioUser.DwChannelMaskType.FrontLeft
+                    | WWSpatialAudioUser.DwChannelMaskType.FrontRight
+                    | WWSpatialAudioUser.DwChannelMaskType.BackLeft
+                    | WWSpatialAudioUser.DwChannelMaskType.BackRight);
                 break;
             case 6:
-                mask = 0x3f;
+                mask = (int)(WWSpatialAudioUser.DwChannelMaskType.FrontLeft
+                    | WWSpatialAudioUser.DwChannelMaskType.FrontRight
+                    | WWSpatialAudioUser.DwChannelMaskType.FrontCenter
+                    | WWSpatialAudioUser.DwChannelMaskType.LowFrequency
+                    | WWSpatialAudioUser.DwChannelMaskType.BackLeft
+                    | WWSpatialAudioUser.DwChannelMaskType.BackRight);
                 break;
             case 8:
-                mask = 0xff;
+                mask = (int)(WWSpatialAudioUser.DwChannelMaskType.FrontLeft
+                    | WWSpatialAudioUser.DwChannelMaskType.FrontRight
+                    | WWSpatialAudioUser.DwChannelMaskType.FrontCenter
+                    | WWSpatialAudioUser.DwChannelMaskType.LowFrequency
+                    | WWSpatialAudioUser.DwChannelMaskType.BackLeft
+                    | WWSpatialAudioUser.DwChannelMaskType.BackRight
+                    | WWSpatialAudioUser.DwChannelMaskType.SideLeft
+                    | WWSpatialAudioUser.DwChannelMaskType.SideRight);
                 break;
-            case 12:
-                mask = 0x2d63f; //< 7.1.4ch
+            case 12: //< 7.1.4ch
+                mask = (int)(WWSpatialAudioUser.DwChannelMaskType.FrontLeft
+                    | WWSpatialAudioUser.DwChannelMaskType.FrontRight
+                    | WWSpatialAudioUser.DwChannelMaskType.FrontCenter
+                    | WWSpatialAudioUser.DwChannelMaskType.LowFrequency
+                    | WWSpatialAudioUser.DwChannelMaskType.BackLeft
+                    | WWSpatialAudioUser.DwChannelMaskType.BackRight
+                    | WWSpatialAudioUser.DwChannelMaskType.SideLeft
+                    | WWSpatialAudioUser.DwChannelMaskType.SideRight
+                    | WWSpatialAudioUser.DwChannelMaskType.TopFrontLeft
+                    | WWSpatialAudioUser.DwChannelMaskType.TopFrontRight
+                    | WWSpatialAudioUser.DwChannelMaskType.TopBackLeft
+                    | WWSpatialAudioUser.DwChannelMaskType.TopBackRight);
                 break;
             default:
                 mask = 0;
@@ -133,15 +161,17 @@ namespace WWSpatialAudioPlayer  {
                     return hr;
                 }
 
-                int inPos = 0;
-                do {
+                long inPos = 0;
+                int inBytes = 1024 * 1024 * fromFmt.FrameBytes;
+                var inBuf = new byte[inBytes];
+                do
+                {
                     // 少しずつ変換。
-                    int inBytes = 256 * fromFmt.FrameBytes;
                     if (mPcmData.LongLength < inPos + inBytes) {
                         inBytes = (int)(mPcmData.LongLength - inPos);
+                        inBuf = new byte[inBytes];
                     }
 
-                    var inBuf = new byte[inBytes];
                     mPcmData.CopyTo(inPos, ref inBuf, 0, inBytes);
                     inPos += inBytes;
 
@@ -154,7 +184,9 @@ namespace WWSpatialAudioPlayer  {
                     if (0 < outBuf.Length) {
                         toBufList.Add(outBuf);
                     }
+                    outBuf = null;
                 } while (inPos < mPcmData.LongLength);
+                inBuf = null;
 
                 {
                     byte[] outBuf;
@@ -166,6 +198,7 @@ namespace WWSpatialAudioPlayer  {
                     if (0 < outBuf.Length) {
                         toBufList.Add(outBuf);
                     }
+                    outBuf = null;
                 }
             }
 
@@ -177,6 +210,7 @@ namespace WWSpatialAudioPlayer  {
 
             var fullPcm = WWUtil.ListUtil.GetLargeArrayFragment<byte>(toBufList, 0, totalBytes);
             toBufList.Clear();
+            toBufList = null;
 
             // fullPcmからチャンネルごとのfloatデータを取得し、
             // mResampledPcmByChannelに入れる。
@@ -222,15 +256,16 @@ namespace WWSpatialAudioPlayer  {
 
                 mSAudio.SetPcmBegin(ch, from.LongLength);
 
-                int COPY_COUNT = 4096;
+                int COPY_COUNT = 16 * 1024 * 1024;
+                var buf = new float[COPY_COUNT];
 
                 for (long pos=0; pos < from.LongLength; pos += COPY_COUNT) {
                     int copyCount = COPY_COUNT;
                     if (from.LongLength < pos + COPY_COUNT) {
                         copyCount = (int)(from.LongLength - pos);
+                        buf = new float[copyCount];
                     }
 
-                    var buf = new float[copyCount];
                     from.CopyTo(pos, ref buf, 0, copyCount);
                     mSAudio.SetPcmFragment(ch, pos, buf);
                 }
@@ -238,7 +273,12 @@ namespace WWSpatialAudioPlayer  {
                 // チャンネル番号ch のDwChannekMaskType
                 var cmt = WWSpatialAudioUser.DwChannelMaskToList(DwChannelMask)[ch];
                 var aot = WWSpatialAudioUser.DwChannelMaskTypeToAudioObjectType(cmt);
-                mSAudio.SetPcmEnd(ch, aot);
+                if (aot == WWSpatialAudioUser.AudioObjectType.None)
+                {
+                    Console.WriteLine("D: channel {0} {1} does not map to audio object...", ch, cmt);
+                } else { 
+                    mSAudio.SetPcmEnd(ch, aot);
+                }
             }
 
             return hr;

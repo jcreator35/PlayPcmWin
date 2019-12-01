@@ -164,7 +164,7 @@ WWSpatialAudioUserSetPcmFragment(
         return E_NOTFOUND;
     }
 
-    if (startSamplePos < 0 || inst->pcm->pcm.size() <= (uint64_t)(startSamplePos + sampleCount)) {
+    if (startSamplePos < 0 || inst->pcm->pcm.size() < (uint64_t)(startSamplePos + sampleCount)) {
         return E_INVALIDARG;
     }
     

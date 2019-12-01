@@ -84,6 +84,7 @@ namespace WWMFResamplerCs {
 
             outPcm = new byte[outLength];
             Array.Copy(tmp, outPcm, outLength);
+            tmp = null;
 
             return 0;
         }

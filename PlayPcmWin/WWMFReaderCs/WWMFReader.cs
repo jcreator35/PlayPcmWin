@@ -8,6 +8,7 @@ namespace WWMFReaderCs {
     public class WWMFReader {
 
         public struct Metadata {
+            public string path;
             public int sampleRate;
             public int numChannels;
             public int bitsPerSample;
@@ -69,16 +70,17 @@ namespace WWMFReaderCs {
         }
 
         public static int ReadHeader(
-               string wszSourceFile,
+               string path,
                out Metadata meta_return) {
             meta_return = new Metadata();
 
             NativeMethods.NativeMetadata nativeMeta;
-            int hr = NativeMethods.WWMFReaderIFReadHeader(wszSourceFile, out nativeMeta);
+            int hr = NativeMethods.WWMFReaderIFReadHeader(path, out nativeMeta);
             if (hr < 0) {
                 return hr;
             }
 
+            meta_return.path = path;
             meta_return.sampleRate = nativeMeta.sampleRate;
             meta_return.numChannels = nativeMeta.numChannels;
             meta_return.bitsPerSample = nativeMeta.bitsPerSample;
@@ -95,7 +97,7 @@ namespace WWMFReaderCs {
             if (0 < nativeMeta.pictureBytes) {
                 var picture = new byte[nativeMeta.pictureBytes];
                 long pictureBytes = nativeMeta.pictureBytes;
-                hr = NativeMethods.WWMFReaderIFGetCoverart(wszSourceFile, picture, ref pictureBytes);
+                hr = NativeMethods.WWMFReaderIFGetCoverart(path, picture, ref pictureBytes);
                 if (0 <= hr) {
                     // ゴミが最初についているので取る。
                     var picJpeg = TrimJpeg(picture);
@@ -139,9 +141,9 @@ namespace WWMFReaderCs {
             int instanceId = hr;
 
             long bufTotalBytes = 0;
+            var buf = new byte[1024 * 1024];
             var bufList = new List<byte[]>();
             while (true) {
-                byte[] buf = new byte[1024 * 1024];
                 long bufBytes = buf.Length;
                 hr = NativeMethods.WWMFReaderIFReadDataFragment(instanceId, buf, ref bufBytes);
                 if (hr < 0) {
@@ -152,7 +154,7 @@ namespace WWMFReaderCs {
                     break;
                 }
 
-                byte[] bufTrim = new byte[bufBytes];
+                var bufTrim = new byte[bufBytes];
                 Array.Copy(buf, 0, bufTrim, 0, bufBytes);
                 bufList.Add(bufTrim);
                 bufTotalBytes += bufBytes;

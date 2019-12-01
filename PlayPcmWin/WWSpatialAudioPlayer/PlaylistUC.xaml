@@ -1,0 +1,67 @@
+﻿<UserControl x:Class="WWUserControls.PlaylistUC"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:WWUserControls"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <DataGrid x:Name="mDGPlayList"
+                    Margin="6,6,6,37"
+                    GridLinesVisibility="None"
+                    AutoGenerateColumns="False"
+                    CanUserSortColumns="False"
+                    CanUserReorderColumns="True"
+                    CanUserResizeColumns="True"
+                    CanUserAddRows="False"
+                    CanUserResizeRows="False"
+                    SelectionUnit="FullRow"
+                    AllowDrop="True"
+                    IsReadOnly="True"
+                    Background="{x:Null}"
+                    IsEnabled="False"
+                    PreviewMouseDown    ="DGPlayList_PreviewMouseDown"
+                    PreviewMouseUp      ="DGPlayList_PreviewMouseUp"
+                    SelectionChanged    ="DGPlayList_SelectionChanged"
+                    DragEnter           ="DGPlayList_CheckDropTarget"
+                    DragLeave           ="DGPlayList_CheckDropTarget"
+                    DragOver            ="DGPlayList_CheckDropTarget"
+                    Drop                ="DGPlayList_Drop"
+                    MouseMove           ="DGPlayList_MouseMove"
+                    SelectedCellsChanged="DGPlayList_SelectedCellsChanged"
+                    LoadingRow          ="DGPlayList_LoadingRow">
+            <DataGrid.RowHeaderStyle>
+                <Style TargetType="{x:Type DataGridRowHeader}">
+                    <Setter Property="Content" Value="{Binding RowId}"/>
+                </Style>
+            </DataGrid.RowHeaderStyle>
+
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Setter Property="ToolTip" Value="{Binding Path=Path}" />
+                </Style>
+            </DataGrid.RowStyle>
+
+            <DataGrid.Columns>
+                <DataGridTextColumn x:Name="mDGColumnTitle" Width="Auto" Binding="{Binding Path=Title}" Header="Title" />
+                <DataGridTextColumn x:Name="mDGColumnDuration" Width="Auto" Binding="{Binding Path=Duration}" Header="Duration"/>
+                <DataGridTextColumn x:Name="mDGColumnArtist" Width="Auto" Binding="{Binding Path=ArtistName}" Header="Artists"/>
+                <DataGridTextColumn x:Name="mDGColumnAlbumTitle" Width="Auto" Binding="{Binding Path=AlbumTitle}" Header="Album name"/>
+                <DataGridTextColumn x:Name="mDGColumnComposerName" Width="Auto" Binding="{Binding Path=ComposerName}" Header="Composer"/>
+
+                <DataGridTextColumn x:Name="mDGColumnSampleRate" Width="SizeToCells" Binding="{Binding Path=SampleRate}" Header="Sample rate"/>
+                <DataGridTextColumn x:Name="mDGColumnQuantizationBitRate" Width="SizeToCells" Binding="{Binding Path=QuantizationBitRate}" Header="Quantization bit rate"/>
+                <DataGridTextColumn x:Name="mDGColumnNumChannels" Width="SizeToCells"  Binding="{Binding Path=NumChannels}" Header="Num of channels"/>
+                <DataGridTextColumn x:Name="mDGColumnBitRate" Width="SizeToCells" Binding="{Binding Path=BitRate}" Header="Bitrate"/>
+                <DataGridTextColumn x:Name="mDGColumnTrackNr" Width="SizeToCells" Binding="{Binding Path=TrackNr}" Header="Track"/>
+
+                <DataGridTextColumn x:Name="mDGColumnIndexNr" Width="SizeToCells" Binding="{Binding Path=IndexNr}" Header="Index"/>
+                <DataGridTextColumn x:Name="mDGColumnFileExtension" Width="SizeToCells" Binding="{Binding Path=FileExtension}" Header="FileExtension"/>
+                <DataGridCheckBoxColumn x:Name="mDGColumnReadSeparaterAfter" Width="SizeToCells" Binding="{Binding Path=ReadSeparaterAfter}" Header="Batch read endpoint"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <Button Content="_Clear the playlist" HorizontalAlignment="Left" Margin="6,0,0,8" Name="mDGButtonClearPlayList" Width="156" VerticalAlignment="Bottom" Click="DGButtonClearPlayList_Click" IsEnabled="False" />
+        <Button Content="Delist the selected file(_R)" HorizontalAlignment="Left" Margin="170,0,0,8" Name="mDGButtonDelistSelected" Width="179" VerticalAlignment="Bottom" Click="DGButtonRemovePlayList_Click" IsEnabled="False" />
+    </Grid>
+</UserControl>

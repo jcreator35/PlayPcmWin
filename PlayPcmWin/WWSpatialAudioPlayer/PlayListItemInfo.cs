@@ -1,0 +1,147 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.ComponentModel;
+using System.Globalization;
+
+namespace WWUserControls {
+    /// <summary>
+    /// 再生リスト1項目の情報。
+    /// dataGridPlayList.Itemsの項目と一対一に対応する。
+    /// </summary>
+    class PlayListItemInfo : INotifyPropertyChanged {
+#if false
+        private static int mNextRowId = 1;
+        private WWMFReaderCs.WWMFReader.Metadata mPcmData;
+        private bool mReadSeparatorAfter;
+        private int mRowId;
+        private FileDisappearCheck mFileDisappearCheck;
+
+        public static void SetNextRowId(int id) {
+            mNextRowId = id;
+        }
+
+        public int RowId {
+            get { return mRowId; }
+            set { mRowId = value; }
+        }
+
+        public string Id {
+            get { return mPcmData.Id.ToString(CultureInfo.CurrentCulture); }
+        }
+
+        public string Title {
+            get { return mPcmData.DisplayName; }
+            set { mPcmData.DisplayName = value; }
+        }
+
+        public string ArtistName {
+            get { return mPcmData.ArtistName; }
+            set { mPcmData.ArtistName = value; }
+        }
+
+        public string AlbumTitle {
+            get { return mPcmData.AlbumTitle; }
+            set { mPcmData.AlbumTitle = value; }
+        }
+
+        public string ComposerName {
+            get { return mPcmData.ComposerName; }
+            set { mPcmData.ComposerName = value; }
+        }
+
+        /// <summary>
+        /// 長さ表示用文字列
+        /// </summary>
+        public string Duration {
+            get { return Util.SecondsToMSString(mPcmData.DurationSeconds); }
+        }
+
+        public string NumChannels {
+            get { return string.Format(CultureInfo.CurrentCulture, "{0}ch", mPcmData.NumChannels); }
+        }
+
+        public int TrackNr {
+            get { return mPcmData.TrackId; }
+        }
+
+        public int IndexNr {
+            get { return mPcmData.CueSheetIndex; }
+        }
+
+        public string SampleRate {
+            get {
+                if (mPcmData.SampleDataType == PcmDataLib.PcmData.DataType.DoP) {
+                    return string.Format(CultureInfo.CurrentCulture, "{0:F1}MHz", (double)mPcmData.SampleRate * 16 / 1000 / 1000);
+                }
+                return string.Format(CultureInfo.CurrentCulture, "{0}kHz", mPcmData.SampleRate * 0.001);
+            }
+        }
+
+        public string QuantizationBitRate {
+            get {
+                if (mPcmData.SampleDataType == PcmDataLib.PcmData.DataType.DoP) {
+                    return "1bit";
+                }
+                if (mPcmData.SampleValueRepresentationType == PcmDataLib.PcmData.ValueRepresentationType.SFloat) {
+                    return mPcmData.BitsPerSample.ToString(CultureInfo.CurrentCulture)
+                            + "bit (" + Properties.Resources.FloatingPointNumbers + ")";
+                }
+                return mPcmData.ValidBitsPerSample.ToString(CultureInfo.CurrentCulture) + "bit";
+            }
+        }
+
+        public string BitRate {
+            get {
+                // Mbpsを小数点以下3桁まで表示する。
+                if (mPcmData.IsLossyCompressed) {
+                    int kbpsComp = mPcmData.BitRate / 1000;
+                    int kbps = mPcmData.ValidBitsPerSample * mPcmData.SampleRate * mPcmData.NumChannels / 1000;
+                    return string.Format(CultureInfo.CurrentCulture, "{0}Mbps → {1}Mbps", kbpsComp * 0.001, kbps*0.001);
+                } else {
+                    int kbps = mPcmData.BitRate / 1000;
+                    return string.Format(CultureInfo.CurrentCulture, "{0}Mbps", kbps * 0.001);
+                }
+            }
+        }
+
+        public WWMFReaderCs.WWMFReader.Metadata PcmData() { return mPcmData; }
+
+        public bool ReadSeparaterAfter {
+            get { return mReadSeparatorAfter; }
+            set {
+                mReadSeparatorAfter = value;
+                OnPropertyChanged("ReadSeparaterAfter");
+            }
+        }
+
+        public PlayListItemInfo(PcmDataLib.PcmData pcmData, FileDisappearCheck.FileDisappearedEventHandler cb) {
+            mPcmData = pcmData;
+            mRowId = mNextRowId++;
+            mFileDisappearCheck = new FileDisappearCheck(System.IO.Path.GetDirectoryName(pcmData.FullPath), System.IO.Path.GetFileName(pcmData.FullPath), cb);
+        }
+
+        public string FileExtension {
+            get { return System.IO.Path.GetExtension(mPcmData.FileName); }
+        }
+
+        public string Path {
+            get { return mPcmData.FullPath; }
+        }
+#endif
+
+        #region INotifyPropertyChanged members
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected void OnPropertyChanged(string propertyName) {
+            if (PropertyChanged != null) {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+        #endregion
+
+    }
+    }
