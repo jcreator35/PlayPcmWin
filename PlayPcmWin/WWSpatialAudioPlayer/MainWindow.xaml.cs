@@ -30,6 +30,8 @@ namespace WWSpatialAudioPlayer {
         /// </summary>
         private const int LOG_LINE_NUM = 100;
 
+        private string NO_DURATION_STR = "--:-- / --:--";
+
         private List<string> mLogList = new List<string>();
         private Stopwatch mSWProgressReport = new Stopwatch();
         private const int MESSAGE_INTERVAL_MS = 1000;
@@ -148,6 +150,60 @@ namespace WWSpatialAudioPlayer {
 
         #endregion
 
+
+        enum State {
+            NoSoundDevices,
+            Deactivated,
+            Activated,
+            Playing,
+        }
+
+        private State mState = State.NoSoundDevices;
+
+        private void UpdateUIState(State s) {
+            switch (s) {
+            case State.NoSoundDevices:
+                mGroupBoxInputAudioFile.IsEnabled = true;
+                mGroupBoxDeviceList.IsEnabled = true;
+                mButtonUpdatePlaybackDeviceList.IsEnabled = true;
+                mButtonActivate.IsEnabled = false;
+                mButtonDeactivate.IsEnabled = false;
+                mButtonPlay.IsEnabled = false;
+                mButtonStop.IsEnabled = false;
+                break;
+            case State.Deactivated:
+                mGroupBoxInputAudioFile.IsEnabled = true;
+                mGroupBoxDeviceList.IsEnabled = true;
+                mButtonUpdatePlaybackDeviceList.IsEnabled = false;
+                mButtonActivate.IsEnabled = true;
+                mButtonDeactivate.IsEnabled = false;
+                mButtonPlay.IsEnabled = false;
+                mButtonStop.IsEnabled = false;
+                break;
+            case State.Activated:
+                mGroupBoxInputAudioFile.IsEnabled = true;
+                mGroupBoxDeviceList.IsEnabled = false;
+                mButtonUpdatePlaybackDeviceList.IsEnabled = false;
+                mButtonActivate.IsEnabled = false;
+                mButtonDeactivate.IsEnabled = true;
+                mButtonPlay.IsEnabled = true;
+                mButtonStop.IsEnabled = false;
+                break;
+            case State.Playing:
+                mGroupBoxInputAudioFile.IsEnabled = false;
+                mGroupBoxDeviceList.IsEnabled = false;
+                mButtonUpdatePlaybackDeviceList.IsEnabled = false;
+                mButtonDeactivate.IsEnabled = false;
+                mButtonPlay.IsEnabled = false;
+                mButtonStop.IsEnabled = true;
+                break;
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                break;
+            }
+            mState = s;
+        }
+
         private void UpdateDeviceList() {
             AddLog("UpdateDeviceList()\n");
 
@@ -169,11 +225,9 @@ namespace WWSpatialAudioPlayer {
             }
 
             if (0 < mListBoxPlaybackDevices.Items.Count) {
-                mButtonActivate.IsEnabled = true;
-                mButtonDeactivate.IsEnabled = false;
+                UpdateUIState(State.Deactivated);
             } else {
-                mButtonActivate.IsEnabled = false;
-                mButtonDeactivate.IsEnabled = false;
+                UpdateUIState(State.NoSoundDevices);
             }
         }
 
@@ -326,12 +380,6 @@ namespace WWSpatialAudioPlayer {
                 if (hr < 0) {
                     break;
                 }
-
-                int trackNr = mPlayer.SpatialAudio.GetPlayingTrackNr(0);
-                if (trackNr == (int)WWSpatialAudioUser.PlayingTrackEnum.None) {
-                    break;
-                }
-
             }
 
             if (mBwPlay.CancellationPending) {
@@ -352,27 +400,34 @@ namespace WWSpatialAudioPlayer {
 
             var pp = mPlayer.SpatialAudio.GetPlayStatus(0);
 
-            string sD = SecondsToMSString((int)(pp.TotalFrameNum / mPlayer.PlaySampleRate));
-            string sP = SecondsToMSString((int)(pp.PosFrame / mPlayer.PlaySampleRate));
-            string s = string.Format("{0} / {1}", sP, sD);
+            string s = NO_DURATION_STR;
+            if (0 <= pp.TrackNr) {
+                string sD = SecondsToMSString((int)(pp.TotalFrameNum / mPlayer.PlaySampleRate));
+                string sP = SecondsToMSString((int)(pp.PosFrame / mPlayer.PlaySampleRate));
+                s = string.Format("{0} / {1}", sP, sD);
+            }
+
+            UpdateSliderPosition(pp);
+
+            if (mState == State.Playing && pp.TrackNr == (int)WWSpatialAudioUser.TrackTypeEnum.None) {
+                // 再生停止。
+                UpdateUIState(State.Activated);
+            }
 
             if (0 == s.CompareTo(mLabelPlayingTime.Content.ToString())) {
                 // 時間が変わっていないので描画更新しない。
                 return;
             }
 
-            UpdateSliderPosition(pp);
-
             mLabelPlayingTime.Content = s;
         }
 
         private void MBwPlay_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
-            Stop();
             if (mShuttingdown) {
                 return;
             }
 
-            mLabelPlayingTime.Content = "--:-- / --:--";
+            mLabelPlayingTime.Content = NO_DURATION_STR;
 
             int hr = mPlayer.SpatialAudio.GetThreadErcd();
             if (hr < 0) {  
@@ -381,7 +436,6 @@ namespace WWSpatialAudioPlayer {
                 return;
             }
 
-            mPlayer.SpatialAudio.Rewind();
             mSliderPlayPosion.Value = 0;
         }
 
@@ -406,45 +460,24 @@ namespace WWSpatialAudioPlayer {
         }
 
         private void ButtonPlay_Click(object sender, RoutedEventArgs e) {
-            int hr = mPlayer.Start();
-            if (hr < 0) {
-                string msg = string.Format("Error: ISpatialAudioObjectRenderStream::Start failed {0:X8}\n", hr);
-                MessageBox.Show(msg);
-                AddLog(msg);
-                return;
-            }
+            mPlayer.SpatialAudio.SetCurrentPcm(
+                WWSpatialAudioUser.TrackTypeEnum.Prologue,
+                WWSpatialAudioUser.ChangeTrackMethod.Immediately);
+            
+            AddLog(string.Format("SetCurrentPcm(Prologue)\n"));
 
-            AddLog(string.Format("Start Success {0:X8}\n", hr));
-
-            mGroupBoxInputAudioFile.IsEnabled = false;
-            mButtonUpdatePlaybackDeviceList.IsEnabled = false;
-            mButtonDeactivate.IsEnabled = false;
-            mButtonPlay.IsEnabled = false;
-            mButtonStop.IsEnabled = true;
-            mBwPlay.RunWorkerAsync();
+            UpdateUIState(State.Playing);
         }
 
         private void Stop() {
-            int hr = mPlayer.Stop();
-            if (hr < 0) {
-                string msg = string.Format("Error: ISpatialAudioObjectRenderStream::Stop failed {0:X8}\n", hr);
-                MessageBox.Show(msg);
-                AddLog(msg);
-                return;
-            }
-
-            AddLog(string.Format("Stop Success {0:X8}\n", hr));
-
-            mGroupBoxInputAudioFile.IsEnabled = true;
-            mButtonUpdatePlaybackDeviceList.IsEnabled = false;
-            mButtonDeactivate.IsEnabled = true;
-            mButtonPlay.IsEnabled = true;
-            mButtonStop.IsEnabled = false;
-            mBwPlay.CancelAsync();
+            mPlayer.SpatialAudio.SetCurrentPcm(
+                WWSpatialAudioUser.TrackTypeEnum.Epilogue,
+                WWSpatialAudioUser.ChangeTrackMethod.Crossfade);
+            AddLog(string.Format("SetCurrentPcm(Epilogue)\n"));
         }
 
         private void ButtonStop_Click(object sender, RoutedEventArgs e) {
-            mBwPlay.CancelAsync();
+            Stop();
         }
 
         private void ButtonUpdatePlaybackDeviceList_Click(object sender, RoutedEventArgs e) {
@@ -465,18 +498,23 @@ namespace WWSpatialAudioPlayer {
             int maxDynObjCount = 0;
             int staticObjMask = WWSpatialAudioUser.DwChannelMaskToAudioObjectTypeMask(mPlayer.DwChannelMask);
 
-            mGroupBoxDeviceList.IsEnabled = false;
-            mButtonActivate.IsEnabled = false;
             int hr = mPlayer.SpatialAudio.ChooseDevice(devIdx, maxDynObjCount, staticObjMask);
             if (0 <= hr) {
-                // 成功。
+                // Activate成功。
                 AddLog(string.Format("SpatialAudio.ChooseDevice({0}) success.\n", devIdx));
-                mGroupBoxDeviceList.IsEnabled = false;
-                mButtonUpdatePlaybackDeviceList.IsEnabled = false;
-                mButtonActivate.IsEnabled = false;
-                mButtonDeactivate.IsEnabled = true;
-                mButtonPlay.IsEnabled = true;
-                mButtonStop.IsEnabled = false;
+                UpdateUIState(State.Activated);
+
+                // 無音送出開始。
+                mPlayer.SpatialAudio.SetCurrentPcm(
+                    WWSpatialAudioUser.TrackTypeEnum.None,
+                    WWSpatialAudioUser.ChangeTrackMethod.Immediately);
+                hr = mPlayer.Start();
+                if (hr < 0) {
+                    var s = string.Format("SpatialAudio.Start({0}) failed with error {1:X8}.\n", devIdx, hr);
+                    AddLog(s);
+                    MessageBox.Show(s);
+                }
+                mBwPlay.RunWorkerAsync();
             } else {
                 // 失敗。
                 if (E_UNSUPPORTED_TYPE == (uint)hr) {
@@ -488,25 +526,18 @@ namespace WWSpatialAudioPlayer {
                     AddLog(s);
                     MessageBox.Show(s);
                 }
-                mGroupBoxDeviceList.IsEnabled = true;
-                mButtonUpdatePlaybackDeviceList.IsEnabled = true;
-                mButtonActivate.IsEnabled = true;
-                mButtonDeactivate.IsEnabled = false;
-                mButtonPlay.IsEnabled = false;
-                mButtonStop.IsEnabled = false;
+                UpdateUIState(State.Deactivated);
             }
         }
 
         private void ButtonDeactivateDevice_Click(object sender, RoutedEventArgs e) {
+            mPlayer.Stop();
+            mBwPlay.CancelAsync();
+
             int hr = mPlayer.SpatialAudio.ChooseDevice(-1, 0, 0);
             AddLog(string.Format("SpatialAudio.ChooseDevice(-1) hr={0:X8}\n", hr));
 
-            mGroupBoxDeviceList.IsEnabled = true;
-            mButtonUpdatePlaybackDeviceList.IsEnabled = true;
-            mButtonActivate.IsEnabled = true;
-            mButtonDeactivate.IsEnabled = false;
-            mButtonPlay.IsEnabled = false;
-            mButtonStop.IsEnabled = false;
+            mPlayer.SpatialAudio.Rewind();
 
             UpdateDeviceList();
         }
@@ -541,16 +572,23 @@ namespace WWSpatialAudioPlayer {
             });
         }
 
-        private void UpdateSliderPosition(WWSpatialAudioUser.PlayStatus playPos) {
+        private void UpdateSliderPosition(WWSpatialAudioUser.PlayStatus ps) {
+
             long now = DateTime.Now.Ticks;
             if (now - mLastSliderPositionUpdateTime > SLIDER_UPDATE_TICKS) {
                 // スライダー位置の更新。0.5秒に1回
 
                 //Console.WriteLine("SliderPos={0} / {1}", playPos.PosFrame, playPos.TotalFrameNum);
 
-                mSliderPlayPosion.Maximum = playPos.TotalFrameNum;
-                if (!mSliderSliding || playPos.TotalFrameNum <= mSliderPlayPosion.Value) {
-                    mSliderPlayPosion.Value = playPos.PosFrame;
+                mSliderPlayPosion.Maximum = ps.TotalFrameNum;
+
+                if (!mSliderSliding || ps.TotalFrameNum <= mSliderPlayPosion.Value) {
+                    if (ps.TrackNr < 0) {
+                        // prologue, epilogue
+                        mSliderPlayPosion.Value = 0;
+                    } else { 
+                        mSliderPlayPosion.Value = ps.PosFrame;
+                    }
                 }
 
                 mLastSliderPositionUpdateTime = now;

@@ -72,6 +72,9 @@
     <ClInclude Include="WWPlayStatus.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="WWChangeTrackMethod.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

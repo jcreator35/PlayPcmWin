@@ -83,3 +83,11 @@ WWSPATIALAUDIOUSER_API int __stdcall
 WWSpatialAudioUserRewind(
     int instanceId);
 
+
+/// Immediately change playing PCM
+/// @param trackEnum WWTrackEnum
+/// @param changeTrackMethod WWChangeTrackMethod
+WWSPATIALAUDIOUSER_API int __stdcall
+WWSpatialAudioUserSetCurrentPcm(
+    int instanceId, int trackEnum, int changeTrackMethod);
+

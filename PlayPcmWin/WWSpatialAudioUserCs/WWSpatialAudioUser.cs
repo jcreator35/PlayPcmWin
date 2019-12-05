@@ -20,7 +20,7 @@ namespace WWSpatialAudioUserCs {
         /// <summary>
         /// WWTrackEnumと同じにする。
         /// </summary>
-        public enum PlayingTrackEnum {
+        public enum TrackTypeEnum {
             Prologue = -1,
             Epilogue = -2,
             Splice = -3,
@@ -29,6 +29,14 @@ namespace WWSpatialAudioUserCs {
             Track0 = 0,
             Track1 = 1,
             Track2 = 2,
+        }
+
+        /// <summary>
+        /// WWChangeTrackMethodと同じにする。
+        /// </summary>
+        public enum ChangeTrackMethod {
+            Immediately = 0,
+            Crossfade = 1,
         }
 
         /// <summary>
@@ -356,6 +364,8 @@ namespace WWSpatialAudioUserCs {
 
             [StructLayout(LayoutKind.Sequential, Pack = 8)]
             internal struct WWPlayStatus {
+                public int trackNr;
+                public int dummy;
                 public long posFrame;
                 public long totalFrameNum;
             };
@@ -367,6 +377,10 @@ namespace WWSpatialAudioUserCs {
             [DllImport("WWSpatialAudioUserCpp2017.dll", CharSet = CharSet.Unicode)]
             internal extern static int WWSpatialAudioUserRewind(
                 int instanceId);
+
+            [DllImport("WWSpatialAudioUserCpp2017.dll", CharSet = CharSet.Unicode)]
+            internal extern static int WWSpatialAudioUserSetCurrentPcm(
+                int instanceId, int trackEnum, int ctm);
         };
 #endregion
 
@@ -465,6 +479,11 @@ namespace WWSpatialAudioUserCs {
             return r;
         }
 
+        public void SetCurrentPcm(TrackTypeEnum te, ChangeTrackMethod ctm) {
+            int hr = NativeMethods.WWSpatialAudioUserSetCurrentPcm(mInstanceId, (int)te, (int)ctm);
+            System.Diagnostics.Debug.Assert(0 <= hr);
+        }
+
         public int SetPlayPos(long frame) {
             //Console.WriteLine("SetPlayPos {0}", frame);
             int hr = NativeMethods.WWSpatialAudioUserSetPosFrame(mInstanceId, frame);
@@ -472,9 +491,11 @@ namespace WWSpatialAudioUserCs {
         }
 
         public class PlayStatus {
+            public int TrackNr { get; set; }
             public long PosFrame { get; set; }
             public long TotalFrameNum { get; set; }
-            public PlayStatus(long posFrame, long totalFrameNum) {
+            public PlayStatus(int tnr, long posFrame, long totalFrameNum) {
+                TrackNr = tnr;
                 PosFrame = posFrame;
                 TotalFrameNum = totalFrameNum;
             }
@@ -486,7 +507,7 @@ namespace WWSpatialAudioUserCs {
             if (hr < 0) {
                 return null;
             }
-            return new PlayStatus(p.posFrame, p.totalFrameNum);
+            return new PlayStatus(p.trackNr, p.posFrame, p.totalFrameNum);
         }
 
         public void Rewind() {

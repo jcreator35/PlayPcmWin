@@ -3,10 +3,14 @@
 #pragma once
 
 #include "WWPcmFloat.h"
+#include "WWTrackEnum.h"
 #include <list>
 
 // static channels (12) + dynamic channels (20)
 #define NUM_CHANNELS (32)
+
+// 1e-6f == -120dB
+#define SILENT_NOISE_LEVEL (1e-6f)
 
 /// WWPcmFloatの実体を保持するクラス。
 /// 他のクラスはWWPcmFloatの実体をnew/deleteしないようにする。
@@ -47,6 +51,14 @@ public:
         p->trackType = trackType;
         p->pcm.resize(numSamples, 0.0f);
 
+#if 0
+        // add small noise
+        for (int64_t pos = 0; pos != numSamples; ++pos) {
+            float v = SimpleNoiseGenerator(SILENT_NOISE_LEVEL);
+            p->pcm[pos] = v;
+        }
+#endif
+
         mPcm[ch].push_back(p);
 
         return p;
@@ -54,4 +66,10 @@ public:
 
 private:
     std::list<WWPcmFloat *> mPcm[NUM_CHANNELS];
+
+    float SimpleNoiseGenerator(float magnitude) {
+        float f = (float)(rand() - RAND_MAX/2) / (RAND_MAX/2);
+        f *= magnitude;
+        return f;
+    }
 };

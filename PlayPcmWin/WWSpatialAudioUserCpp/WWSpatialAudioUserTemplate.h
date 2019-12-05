@@ -23,6 +23,7 @@
 #include <functiondiscoverykeys.h>
 #include "WWTrackEnum.h"
 #include "WWPlayStatus.h"
+#include "WWChangeTrackMethod.h"
 
 /// @param T_RenderStream ISpatialAudioObjectRenderStream または ISpatialAudioObjectRenderStreamForHrtf
 /// @param T_AudioObject WWAudioObject または WWAudioHrtfObject
@@ -70,6 +71,7 @@ public:
 
     virtual void Term(void) {
         dprintf("WWSpatialAudioUserTemplate::Term()\n");
+
         if (mSAORStream) {
             mSAORStream->Stop();
             mSAORStream->Reset();
@@ -175,14 +177,19 @@ public:
         HRESULT hr = S_OK;
      
         if (id < 0) {
-            // Unchoose device
-            if (mSAORStream) {
-                SafeRelease(&mSAORStream);
-            }
+            assert(mMutex);
+            WaitForSingleObject(mMutex, INFINITE);
+            {   // この中はgoto 不可。
+                // Unchoose device
+                if (mSAORStream) {
+                    SafeRelease(&mSAORStream);
+                }
 
-            if (mSAClient) {
-                SafeRelease(&mSAClient);
+                if (mSAClient) {
+                    SafeRelease(&mSAClient);
+                }
             }
+            ReleaseMutex(mMutex);
         } else {
             // Choose device
             hr = ChooseDevice1(id, maxDynObjectCount, staticObjectTypeMask);
@@ -301,6 +308,8 @@ public:
         assert(mMutex);
         WaitForSingleObject(mMutex, INFINITE);
         {
+            ps_r.trackNr       = mAudioObjectList.GetPlayingTrackNr(ch);
+            ps_r.dummy0        = 0;
             ps_r.posFrame      = mAudioObjectList.GetPlayPosition(ch);
             ps_r.totalFrameNum = mAudioObjectList.GetSoundDuration(ch);
         }
@@ -327,6 +336,18 @@ public:
         WaitForSingleObject(mMutex, INFINITE);
         {
             hr = mAudioObjectList.UpdatePlayPosition(frame);
+        }
+        ReleaseMutex(mMutex);
+        return hr;
+    }
+
+    HRESULT SetCurrentPcm(WWTrackEnum te, WWChangeTrackMethod ctm) {
+        HRESULT hr = S_OK;
+
+        assert(mMutex);
+        WaitForSingleObject(mMutex, INFINITE);
+        {
+            hr = mAudioObjectList.SetCurrentPcm(te, ctm);
         }
         ReleaseMutex(mMutex);
         return hr;

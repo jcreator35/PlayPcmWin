@@ -93,6 +93,7 @@
     <ClInclude Include="WWAudioObject.h" />
     <ClInclude Include="WWAudioObjectListTemplate.h" />
     <ClInclude Include="WWAudioObjectTemplate.h" />
+    <ClInclude Include="WWChangeTrackMethod.h" />
     <ClInclude Include="WWDeviceInf.h" />
     <ClInclude Include="WWGuidToStr.h" />
     <ClInclude Include="WWPcmFloat.h" />

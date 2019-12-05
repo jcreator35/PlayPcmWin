@@ -50,6 +50,7 @@ public:
         return 0;
     }
 
+    /// @return WWTrackEnum
     int GetPlayingTrackNr(int ch) const {
         for (auto ite = mAudioObjectList.begin(); ite != mAudioObjectList.end(); ++ite) {
             auto &r = *ite;
@@ -62,7 +63,20 @@ public:
         return WWTE_None;
     }
 
-    int UpdatePlayPosition(int64_t frame) {
+    HRESULT SetCurrentPcm(WWTrackEnum te, WWChangeTrackMethod ctm) {
+        HRESULT hr = S_OK;
+        for (auto ite = mAudioObjectList.begin(); ite != mAudioObjectList.end(); ++ite) {
+            auto &r = *ite;
+            hr = r.pcmCtrl.SetCurrentPcm(te, ctm);
+            if (FAILED(hr)) {
+                return hr;
+            }
+        }
+
+        return S_OK;
+    }
+
+    HRESULT UpdatePlayPosition(int64_t frame) {
         HRESULT hr = S_OK;
 
         for (auto ite = mAudioObjectList.begin(); ite != mAudioObjectList.end(); ++ite) {

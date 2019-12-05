@@ -256,3 +256,13 @@ WWSpatialAudioUserRewind(
     sau->Rewind();
     return S_OK;
 }
+
+WWSPATIALAUDIOUSER_API int __stdcall
+WWSpatialAudioUserSetCurrentPcm(
+    int instanceId, int trackEnum, int changeTrackMethod)
+{
+    FIND_INSTANCE;
+
+    return sau->SetCurrentPcm((WWTrackEnum)trackEnum, (WWChangeTrackMethod)changeTrackMethod);
+}
+

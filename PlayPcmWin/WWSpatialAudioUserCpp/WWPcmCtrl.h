@@ -7,6 +7,7 @@
 #include <assert.h>
 #include <stdint.h>
 #include "WWTrackEnum.h"
+#include "WWChangeTrackMethod.h"
 
 class WWPcmCtrl {
 private:
@@ -22,9 +23,37 @@ private:
     WWPcmFloat *cur = nullptr;
 
     // 48kHz PCMを想定。
-    const int START_SILENCE_FRAMES  = 2 * 48000;
+    const int START_SILENCE_FRAMES  = 24000;
     const int END_SILENCE_FRAMES    = 24000;
     const int SPLICE_SILENCE_FRAMES = 480;
+
+    WWPcmFloat * GetPcm(WWTrackEnum te) {
+        switch (te) {
+        case WWTE_None:
+            return nullptr;
+        case WWTE_Prologue:
+            return prologue;
+        case WWTE_Epilogue:
+            return epilogue;
+        case WWTE_Splice:
+            return splice;
+            break;
+        case WWTE_Track0:
+            return sound;
+        default:
+            assert(0);
+            return nullptr;
+        }
+    }
+
+    int ChangeCurrentPcmImmediately(WWTrackEnum te) {
+        HRESULT hr = S_OK;
+
+        auto *next = GetPcm(te);
+        cur = next;
+
+        return S_OK;
+    }
 
 public:
     int Channel(void) const {
@@ -51,7 +80,7 @@ public:
         epilogue = ps->NewSilentPcm(ch, WWTE_Epilogue, END_SILENCE_FRAMES);
         splice   = ps->NewSilentPcm(ch, WWTE_Splice, SPLICE_SILENCE_FRAMES);
 
-        cur = prologue;
+        cur = nullptr;
         prologue->next = sound;
         sound->next = epilogue;
         epilogue->next = nullptr;
@@ -59,6 +88,33 @@ public:
         // 再生位置変更時はsplice->next = sound。
         // 再生停止ボタン押下時はフェードアウトのためsplice->next = endになる。
         splice->next = sound;
+    }
+
+    int SetCurrentPcm(WWTrackEnum te, WWChangeTrackMethod ctm) {
+        HRESULT hr = S_OK;
+        if (cur == nullptr || ctm == WWCTM_Immediately) {
+            return ChangeCurrentPcmImmediately(te);
+        }
+
+        if (cur->trackType == ctm) {
+            // すでに再生中である。
+            return S_OK;
+        }
+
+        WWPcmFloat *next = GetPcm(te);
+
+        int advance = splice->CreateCrossfadeDataPcm(
+            *cur, cur->pos,
+            *next, 0);
+
+        // splice後の再生位置をsoundのframeからadvanceサンプル後に設定。
+        next->pos = advance;
+        splice->next = WWPcmFloat::AdvanceFrames(next, advance);
+
+        // spliceを再生する。spliceの次はnextをposから再生する。
+        cur = splice;
+
+        return S_OK;
     }
 
     /// @return サンプル数。

@@ -30,6 +30,10 @@ WWSpatialAudioUser::Render1(void)
     UINT32 availableDyn = 0;
     UINT32 frameCountPerBuffer = 0;
 
+    if (nullptr == mSAORStream) {
+        return S_OK;
+    }
+
     HRG(mSAORStream->BeginUpdatingAudioObjects(&availableDyn, &frameCountPerBuffer));
     for (auto ite = mAudioObjectList.mAudioObjectList.begin();
             ite != mAudioObjectList.mAudioObjectList.end(); ++ite) {
@@ -47,9 +51,13 @@ WWSpatialAudioUser::Render1(void)
         bEnd = ao.CopyNextPcmTo(buffer, buffBytes);
 
         if (bEnd) {
-            //printf("SetEndOfStream %d\n", bufferLength / mUseFmt.Format.nBlockAlign);
+#if 0
+            dprintf("SetEndOfStream %d\n", bufferLength / mUseFmt.Format.nBlockAlign);
             HRG(ao.sao->SetEndOfStream(buffBytes / mUseFmt.nBlockAlign));
             ao.ReleaseAll();
+#else
+            // 送るデータが無いので無音をセットした。
+#endif
         } else {
             ++mPlayStreamCount;
 
