@@ -30,6 +30,10 @@ namespace WWSpatialAudioPlayer {
         /// </summary>
         private const int LOG_LINE_NUM = 100;
 
+        private const uint E_UNSUPPORTED_TYPE = 0x8007065e;
+        private const int E_ABORT = -128;
+
+
         private string NO_DURATION_STR = "--:-- / --:--";
 
         private List<string> mLogList = new List<string>();
@@ -38,25 +42,6 @@ namespace WWSpatialAudioPlayer {
         private StringBuilder mBwMsgSB = new StringBuilder();
         private static string AssemblyVersion {
             get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); }
-        }
-
-        private void AddLog(string s) {
-            // Console.Write(s);
-
-            // ログを適当なエントリ数で流れるようにする。
-            // sは複数行の文字列が入っていたり、改行が入っていなかったりするので、行数制限にはなっていない。
-            mLogList.Add(s);
-            while (LOG_LINE_NUM < mLogList.Count) {
-                mLogList.RemoveAt(0);
-            }
-
-            var sb = new StringBuilder();
-            foreach (var item in mLogList) {
-                sb.Append(item);
-            }
-
-            mTextBoxLog.Text = sb.ToString();
-            mTextBoxLog.ScrollToEnd();
         }
 
         public MainWindow() {
@@ -86,6 +71,8 @@ namespace WWSpatialAudioPlayer {
             SetupSlider();
 
             mInitialized = true;
+
+            mBwPlay.RunWorkerAsync();
         }
 
         /// <summary>
@@ -94,7 +81,6 @@ namespace WWSpatialAudioPlayer {
         private void Exit() {
             Close();
         }
-
 
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
@@ -150,7 +136,7 @@ namespace WWSpatialAudioPlayer {
 
         #endregion
 
-
+        #region state stuff
         enum State {
             NoSoundDevices,
             Deactivated,
@@ -174,7 +160,7 @@ namespace WWSpatialAudioPlayer {
             case State.Deactivated:
                 mGroupBoxInputAudioFile.IsEnabled = true;
                 mGroupBoxDeviceList.IsEnabled = true;
-                mButtonUpdatePlaybackDeviceList.IsEnabled = false;
+                mButtonUpdatePlaybackDeviceList.IsEnabled = true;
                 mButtonActivate.IsEnabled = true;
                 mButtonDeactivate.IsEnabled = false;
                 mButtonPlay.IsEnabled = false;
@@ -188,6 +174,8 @@ namespace WWSpatialAudioPlayer {
                 mButtonDeactivate.IsEnabled = true;
                 mButtonPlay.IsEnabled = true;
                 mButtonStop.IsEnabled = false;
+                mLabelPlayingTime.Content = NO_DURATION_STR;
+                mSliderPlayPosion.Value = 0;
                 break;
             case State.Playing:
                 mGroupBoxInputAudioFile.IsEnabled = false;
@@ -202,6 +190,27 @@ namespace WWSpatialAudioPlayer {
                 break;
             }
             mState = s;
+        }
+
+        #endregion
+
+        private void AddLog(string s) {
+            // Console.Write(s);
+
+            // ログを適当なエントリ数で流れるようにする。
+            // sは複数行の文字列が入っていたり、改行が入っていなかったりするので、行数制限にはなっていない。
+            mLogList.Add(s);
+            while (LOG_LINE_NUM < mLogList.Count) {
+                mLogList.RemoveAt(0);
+            }
+
+            var sb = new StringBuilder();
+            foreach (var item in mLogList) {
+                sb.Append(item);
+            }
+
+            mTextBoxLog.Text = sb.ToString();
+            mTextBoxLog.ScrollToEnd();
         }
 
         private void UpdateDeviceList() {
@@ -251,8 +260,6 @@ namespace WWSpatialAudioPlayer {
                 mBwMsgSB.Append(s);
             }
         }
-
-        const int E_ABORT = -128;
 
         private void MBwLoad_DoWork(object sender, DoWorkEventArgs e) {
             mBwMsgSB.Clear();
@@ -351,8 +358,6 @@ namespace WWSpatialAudioPlayer {
             return sb.ToString().TrimEnd(new char[] {' '});
         }
 
-        #endregion
-
         private void ReadFile() {
             var param = new LoadParams();
             param.path = mTextBoxInputFileName.Text;
@@ -360,20 +365,16 @@ namespace WWSpatialAudioPlayer {
             mBwLoad.RunWorkerAsync(param);
         }
 
-        private void FilenameTextBoxUpdated() {
-            // 特にない。
-        }
+        #endregion
 
-        // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
-        // Play time update
 
-        #region Play time update 
+        #region Play time disp update worker thread
 
-        const int PLAY_TIME_INTERVAL_MS = 100;
+        private const int PLAY_TIME_INTERVAL_MS = 100;
 
         private void MBwPlay_DoWork(object sender, DoWorkEventArgs e) {
             while (!mBwPlay.CancellationPending) {
-                System.Threading.Thread.Sleep(100);
+                System.Threading.Thread.Sleep(PLAY_TIME_INTERVAL_MS);
                 mBwPlay.ReportProgress(0);
 
                 int hr = mPlayer.SpatialAudio.GetThreadErcd();
@@ -410,7 +411,7 @@ namespace WWSpatialAudioPlayer {
             UpdateSliderPosition(pp);
 
             if (mState == State.Playing && pp.TrackNr == (int)WWSpatialAudioUser.TrackTypeEnum.None) {
-                // 再生停止。
+                // 再生→再生停止。
                 UpdateUIState(State.Activated);
             }
 
@@ -427,7 +428,7 @@ namespace WWSpatialAudioPlayer {
                 return;
             }
 
-            mLabelPlayingTime.Content = NO_DURATION_STR;
+
 
             int hr = mPlayer.SpatialAudio.GetThreadErcd();
             if (hr < 0) {  
@@ -435,126 +436,16 @@ namespace WWSpatialAudioPlayer {
                 Exit();
                 return;
             }
-
-            mSliderPlayPosion.Value = 0;
         }
 
         #endregion
 
-        // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
-        // Event handling
 
-        private void ButtonBrowse_Click(object sender, RoutedEventArgs e) {
-            var dlg = new Microsoft.Win32.OpenFileDialog();
-            dlg.Filter = "Audio files(*wav;*.flac)|*.wav;*.flac";
-            dlg.ValidateNames = true;
-
-            var result = dlg.ShowDialog();
-            if (result != true) {
-                return;
-            }
-
-            mTextBoxInputFileName.Text = dlg.FileName;
-            FilenameTextBoxUpdated();
-            ReadFile();
-        }
-
-        private void ButtonPlay_Click(object sender, RoutedEventArgs e) {
-            mPlayer.SpatialAudio.SetCurrentPcm(
-                WWSpatialAudioUser.TrackTypeEnum.Prologue,
-                WWSpatialAudioUser.ChangeTrackMethod.Immediately);
-            
-            AddLog(string.Format("SetCurrentPcm(Prologue)\n"));
-
-            UpdateUIState(State.Playing);
-        }
-
-        private void Stop() {
-            mPlayer.SpatialAudio.SetCurrentPcm(
-                WWSpatialAudioUser.TrackTypeEnum.Epilogue,
-                WWSpatialAudioUser.ChangeTrackMethod.Crossfade);
-            AddLog(string.Format("SetCurrentPcm(Epilogue)\n"));
-        }
-
-        private void ButtonStop_Click(object sender, RoutedEventArgs e) {
-            Stop();
-        }
-
-        private void ButtonUpdatePlaybackDeviceList_Click(object sender, RoutedEventArgs e) {
-            UpdateDeviceList();
-        }
-
-        private void ButtonRead_Click(object sender, RoutedEventArgs e) {
-            ReadFile();
-        }
-
-        const uint E_UNSUPPORTED_TYPE = 0x8007065e;
-
-        private void ButtonActivateDevice_Click(object sender, RoutedEventArgs e) {
-            int devIdx = mListBoxPlaybackDevices.SelectedIndex;
-
-            AddLog(string.Format("Activating device #{0} ...\n", devIdx));
-
-            int maxDynObjCount = 0;
-            int staticObjMask = WWSpatialAudioUser.DwChannelMaskToAudioObjectTypeMask(mPlayer.DwChannelMask);
-
-            int hr = mPlayer.SpatialAudio.ChooseDevice(devIdx, maxDynObjCount, staticObjMask);
-            if (0 <= hr) {
-                // Activate成功。
-                AddLog(string.Format("SpatialAudio.ChooseDevice({0}) success.\n", devIdx));
-                UpdateUIState(State.Activated);
-
-                // 無音送出開始。
-                mPlayer.SpatialAudio.SetCurrentPcm(
-                    WWSpatialAudioUser.TrackTypeEnum.None,
-                    WWSpatialAudioUser.ChangeTrackMethod.Immediately);
-                hr = mPlayer.Start();
-                if (hr < 0) {
-                    var s = string.Format("SpatialAudio.Start({0}) failed with error {1:X8}.\n", devIdx, hr);
-                    AddLog(s);
-                    MessageBox.Show(s);
-                }
-                mBwPlay.RunWorkerAsync();
-            } else {
-                // 失敗。
-                if (E_UNSUPPORTED_TYPE == (uint)hr) {
-                    var s = string.Format("Error: Spatial Audio of the specified device is not enabled! Please enable Spatial Audio of the device.\n", devIdx);
-                    AddLog(s);
-                    MessageBox.Show(s);
-                } else {
-                    var s = string.Format("SpatialAudio.ChooseDevice({0}) failed with error {1:X8}.\n", devIdx, hr);
-                    AddLog(s);
-                    MessageBox.Show(s);
-                }
-                UpdateUIState(State.Deactivated);
-            }
-        }
-
-        private void ButtonDeactivateDevice_Click(object sender, RoutedEventArgs e) {
-            mPlayer.Stop();
-            mBwPlay.CancelAsync();
-
-            int hr = mPlayer.SpatialAudio.ChooseDevice(-1, 0, 0);
-            AddLog(string.Format("SpatialAudio.ChooseDevice(-1) hr={0:X8}\n", hr));
-
-            mPlayer.SpatialAudio.Rewind();
-
-            UpdateDeviceList();
-        }
-
-        private void ListBoxSpeakerConfig_SelectionChanged(object sender, SelectionChangedEventArgs e) {
-            if (!mInitialized) {
-                return;
-            }
-        }
-
-        // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
-        // Slider event
-
+        #region slider event
         private long mLastSliderValue = 0;
         private bool mSliderSliding = false;
         private long mLastSliderPositionUpdateTime = 0;
-        
+
         /// <summary>
         /// スライダー位置の更新頻度 (500ミリ秒)
         /// </summary>
@@ -586,7 +477,7 @@ namespace WWSpatialAudioPlayer {
                     if (ps.TrackNr < 0) {
                         // prologue, epilogue
                         mSliderPlayPosion.Value = 0;
-                    } else { 
+                    } else {
                         mSliderPlayPosion.Value = ps.PosFrame;
                     }
                 }
@@ -633,5 +524,102 @@ namespace WWSpatialAudioPlayer {
             mLastSliderValue = 0;
             mSliderSliding = false;
         }
+
+        #endregion
+
+        // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+        // Event handling
+
+        private void ButtonBrowse_Click(object sender, RoutedEventArgs e) {
+            var dlg = new Microsoft.Win32.OpenFileDialog();
+            dlg.Filter = "Audio files(*wav;*.flac)|*.wav;*.flac";
+            dlg.ValidateNames = true;
+
+            var result = dlg.ShowDialog();
+            if (result != true) {
+                return;
+            }
+
+            mTextBoxInputFileName.Text = dlg.FileName;
+            ReadFile();
+        }
+
+        private void ButtonUpdatePlaybackDeviceList_Click(object sender, RoutedEventArgs e) {
+            UpdateDeviceList();
+        }
+
+        private void ButtonRead_Click(object sender, RoutedEventArgs e) {
+            ReadFile();
+        }
+
+        private void ButtonActivateDevice_Click(object sender, RoutedEventArgs e) {
+            int devIdx = mListBoxPlaybackDevices.SelectedIndex;
+
+            AddLog(string.Format("Activating device #{0} ...\n", devIdx));
+
+            int maxDynObjCount = 0;
+            int staticObjMask = WWSpatialAudioUser.DwChannelMaskToAudioObjectTypeMask(mPlayer.DwChannelMask);
+
+            int hr = mPlayer.SpatialAudio.ChooseDevice(devIdx, maxDynObjCount, staticObjMask);
+            if (0 <= hr) {
+                // Activate成功。
+                AddLog(string.Format("SpatialAudio.ChooseDevice({0}) success.\n", devIdx));
+                UpdateUIState(State.Activated);
+
+                // 無音送出開始。
+                mPlayer.SpatialAudio.SetCurrentPcm(
+                    WWSpatialAudioUser.TrackTypeEnum.None,
+                    WWSpatialAudioUser.ChangeTrackMethod.Immediately);
+                hr = mPlayer.Start();
+                if (hr < 0) {
+                    var s = string.Format("SpatialAudio.Start({0}) failed with error {1:X8}.\n", devIdx, hr);
+                    AddLog(s);
+                    MessageBox.Show(s);
+                }
+
+            } else {
+                // 失敗。
+                if (E_UNSUPPORTED_TYPE == (uint)hr) {
+                    var s = string.Format("Error: Spatial Audio of the specified device is not enabled! Please enable Spatial Audio of the device.\n", devIdx);
+                    AddLog(s);
+                    MessageBox.Show(s);
+                } else {
+                    var s = string.Format("SpatialAudio.ChooseDevice({0}) failed with error {1:X8}.\n", devIdx, hr);
+                    AddLog(s);
+                    MessageBox.Show(s);
+                }
+                UpdateUIState(State.Deactivated);
+            }
+        }
+
+        private void ButtonDeactivateDevice_Click(object sender, RoutedEventArgs e) {
+            mPlayer.Stop();
+
+            int hr = mPlayer.SpatialAudio.ChooseDevice(-1, 0, 0);
+            AddLog(string.Format("SpatialAudio.ChooseDevice(-1) hr={0:X8}\n", hr));
+
+            mPlayer.SpatialAudio.Rewind();
+
+            UpdateDeviceList();
+        }
+
+        private void ButtonPlay_Click(object sender, RoutedEventArgs e) {
+            mPlayer.SpatialAudio.Rewind();
+            mPlayer.SpatialAudio.SetCurrentPcm(
+                WWSpatialAudioUser.TrackTypeEnum.Prologue,
+                WWSpatialAudioUser.ChangeTrackMethod.Immediately);
+
+            AddLog(string.Format("SetCurrentPcm(Prologue)\n"));
+
+            UpdateUIState(State.Playing);
+        }
+
+        private void ButtonStop_Click(object sender, RoutedEventArgs e) {
+            mPlayer.SpatialAudio.SetCurrentPcm(
+                WWSpatialAudioUser.TrackTypeEnum.Epilogue,
+                WWSpatialAudioUser.ChangeTrackMethod.Crossfade);
+            AddLog(string.Format("SetCurrentPcm(Epilogue)\n"));
+        }
+
     }
 }

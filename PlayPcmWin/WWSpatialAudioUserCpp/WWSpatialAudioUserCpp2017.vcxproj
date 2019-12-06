@@ -91,7 +91,7 @@
     <ClInclude Include="targetver.h" />
     <ClInclude Include="WWAudioHrtfObject.h" />
     <ClInclude Include="WWAudioObject.h" />
-    <ClInclude Include="WWAudioObjectListTemplate.h" />
+    <ClInclude Include="WWAudioObjectListHolder.h" />
     <ClInclude Include="WWAudioObjectTemplate.h" />
     <ClInclude Include="WWChangeTrackMethod.h" />
     <ClInclude Include="WWDeviceInf.h" />

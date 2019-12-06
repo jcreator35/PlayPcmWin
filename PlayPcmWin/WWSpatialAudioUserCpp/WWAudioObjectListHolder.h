@@ -7,7 +7,7 @@
 
 /// @param T_WWAudioObject WWAudioObject または WWAudioHrtfObject
 template <typename T_WWAudioObject>
-class WWAudioObjectListTemplate {
+class WWAudioObjectListHolder {
 public:
     void ReleaseAll(void) {
         for (auto ite = mAudioObjectList.begin(); ite != mAudioObjectList.end(); ++ite) {
@@ -15,6 +15,13 @@ public:
             r.ReleaseAll();
         }
         mAudioObjectList.clear();
+    }
+
+    void ReleaseSAO(void) {
+        for (auto ite = mAudioObjectList.begin(); ite != mAudioObjectList.end(); ++ite) {
+            auto &r = *ite;
+            r.ReleaseSAO();
+        }
     }
 
     void Rewind(void) {

@@ -16,8 +16,15 @@ public:
         volume = aVolume;
     }
 
+    /// 保持するすべてのものを削除。
     void
     ReleaseAll(void) {
+        SafeRelease(&sao);
+    }
+
+    /// SpatialAudioオブジェクトを削除。
+    void
+        ReleaseSAO(void) {
         SafeRelease(&sao);
     }
 

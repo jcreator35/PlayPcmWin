@@ -31,8 +31,8 @@ WWSpatialAudioHrtfUser::Render1(void)
     UINT32 frameCountPerBuffer = 0;
 
     HRG(mSAORStream->BeginUpdatingAudioObjects(&availableDyn, &frameCountPerBuffer));
-    for (auto ite = mAudioObjectList.mAudioObjectList.begin();
-            ite != mAudioObjectList.mAudioObjectList.end(); ++ite) {
+    for (auto ite = mAudioObjectListHolder.mAudioObjectList.begin();
+            ite != mAudioObjectListHolder.mAudioObjectList.end(); ++ite) {
         auto &ao = *ite;
         BYTE *buffer = nullptr;
         UINT32 bufferLength = 0;

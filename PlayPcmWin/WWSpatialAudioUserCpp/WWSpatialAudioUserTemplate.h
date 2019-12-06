@@ -15,7 +15,7 @@
 #include <devicetopology.h>
 #include <set>
 #include <list>
-#include "WWAudioObjectListTemplate.h"
+#include "WWAudioObjectListHolder.h"
 #include "WWDeviceInf.h"
 #include "WWUtil.h"
 #include "WWGuidToStr.h"
@@ -88,7 +88,7 @@ public:
             mRenderThread = nullptr;
         }
 
-        mAudioObjectList.ReleaseAll();
+        mAudioObjectListHolder.ReleaseAll();
 
         if (mBufferEvent != nullptr) {
             CloseHandle(mBufferEvent);
@@ -188,6 +188,8 @@ public:
                 if (mSAClient) {
                     SafeRelease(&mSAClient);
                 }
+
+                mAudioObjectListHolder.ReleaseSAO();
             }
             ReleaseMutex(mMutex);
         } else {
@@ -222,7 +224,7 @@ public:
         assert(mMutex);
         WaitForSingleObject(mMutex, INFINITE);
         {   // この中はgoto 不可。
-            mAudioObjectList.mAudioObjectList.push_back(ao);
+            mAudioObjectListHolder.mAudioObjectList.push_back(ao);
         }
         ReleaseMutex(mMutex);
 
@@ -234,7 +236,7 @@ public:
         assert(mMutex);
         WaitForSingleObject(mMutex, INFINITE);
         {
-            mAudioObjectList.ReleaseAll();
+            mAudioObjectListHolder.ReleaseAll();
         }
         ReleaseMutex(mMutex);
 
@@ -251,7 +253,7 @@ public:
         assert(mMutex);
         WaitForSingleObject(mMutex, INFINITE);
         do { // この中はgoto 不可。
-            auto * dasc = mAudioObjectList.Find(dascIdx);
+            auto * dasc = mAudioObjectListHolder.Find(dascIdx);
             if (dasc == nullptr) {
                 rv = false;
                 break;
@@ -296,8 +298,7 @@ public:
         assert(mMutex);
         WaitForSingleObject(mMutex, INFINITE);
         {
-            // RenderMain()の使用しているsaoをReleaseするので、mMutexで守る。
-            mAudioObjectList.Rewind();
+            mAudioObjectListHolder.Rewind();
         }
         ReleaseMutex(mMutex);
     }
@@ -308,10 +309,10 @@ public:
         assert(mMutex);
         WaitForSingleObject(mMutex, INFINITE);
         {
-            ps_r.trackNr       = mAudioObjectList.GetPlayingTrackNr(ch);
+            ps_r.trackNr       = mAudioObjectListHolder.GetPlayingTrackNr(ch);
             ps_r.dummy0        = 0;
-            ps_r.posFrame      = mAudioObjectList.GetPlayPosition(ch);
-            ps_r.totalFrameNum = mAudioObjectList.GetSoundDuration(ch);
+            ps_r.posFrame      = mAudioObjectListHolder.GetPlayPosition(ch);
+            ps_r.totalFrameNum = mAudioObjectListHolder.GetSoundDuration(ch);
         }
         ReleaseMutex(mMutex);
 
@@ -326,7 +327,7 @@ public:
 
     /// @return WWTrackEnumが戻る。
     int GetPlayingTrackNr(int ch) const {
-        return mAudioObjectList.GetPlayingTrackNr(ch);
+        return mAudioObjectListHolder.GetPlayingTrackNr(ch);
     }
 
     HRESULT UpdatePlayPosition(int64_t frame) {
@@ -335,7 +336,7 @@ public:
         assert(mMutex);
         WaitForSingleObject(mMutex, INFINITE);
         {
-            hr = mAudioObjectList.UpdatePlayPosition(frame);
+            hr = mAudioObjectListHolder.UpdatePlayPosition(frame);
         }
         ReleaseMutex(mMutex);
         return hr;
@@ -347,7 +348,7 @@ public:
         assert(mMutex);
         WaitForSingleObject(mMutex, INFINITE);
         {
-            hr = mAudioObjectList.SetCurrentPcm(te, ctm);
+            hr = mAudioObjectListHolder.SetCurrentPcm(te, ctm);
         }
         ReleaseMutex(mMutex);
         return hr;
@@ -364,7 +365,7 @@ protected:
 
     ISpatialAudioClient *mSAClient = nullptr;
     T_RenderStream *mSAORStream = nullptr;
-    WWAudioObjectListTemplate<T_AudioObject> mAudioObjectList;
+    WWAudioObjectListHolder<T_AudioObject> mAudioObjectListHolder;
     HANDLE mRenderThread = nullptr;
 
     WAVEFORMATEX mUseFmt = { 0 };
