@@ -2,13 +2,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using WWSpatialAudioUserCs;
@@ -83,6 +81,7 @@ namespace WWSpatialAudioPlayer {
         }
 
         #region IDisposable Support
+
         private bool disposedValue = false; // To detect redundant calls
 
         protected virtual void Dispose(bool disposing) {
@@ -249,18 +248,6 @@ namespace WWSpatialAudioPlayer {
             public int hr;
         }
 
-        private void ReportProgress(int percent, string s) {
-            if (MESSAGE_INTERVAL_MS < mSWProgressReport.ElapsedMilliseconds) {
-                // OK
-                mBwMsgSB.Append(s);
-                mBwLoad.ReportProgress(percent, mBwMsgSB.ToString());
-                mBwMsgSB.Clear();
-                mSWProgressReport.Restart();
-            } else {
-                mBwMsgSB.Append(s);
-            }
-        }
-
         private void MBwLoad_DoWork(object sender, DoWorkEventArgs e) {
             mBwMsgSB.Clear();
 
@@ -302,6 +289,19 @@ namespace WWSpatialAudioPlayer {
                 return;
             }
         }
+
+        private void ReportProgress(int percent, string s) {
+            if (MESSAGE_INTERVAL_MS < mSWProgressReport.ElapsedMilliseconds) {
+                // OK
+                mBwMsgSB.Append(s);
+                mBwLoad.ReportProgress(percent, mBwMsgSB.ToString());
+                mBwMsgSB.Clear();
+                mSWProgressReport.Restart();
+            } else {
+                mBwMsgSB.Append(s);
+            }
+        }
+
         private void MBwLoad_ProgressChanged(object sender, ProgressChangedEventArgs e) {
             if (mBwLoad.CancellationPending || mShuttingdown) {
                 return;
@@ -315,6 +315,11 @@ namespace WWSpatialAudioPlayer {
         private void MBwLoad_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
             if (e.Cancelled) {
                 return;
+            }
+
+            if (0 < mBwMsgSB.Length) {
+                AddLog(mBwMsgSB.ToString());
+                mBwMsgSB.Clear();
             }
 
             var r = e.Result as LoadResult;
@@ -367,14 +372,13 @@ namespace WWSpatialAudioPlayer {
 
         #endregion
 
-
         #region Play time disp update worker thread
 
-        private const int PLAY_TIME_INTERVAL_MS = 100;
+        private const int PLAY_TIME_UPDATE_THREAD_WAKEUP_INTERVAL_MS = 100;
 
         private void MBwPlay_DoWork(object sender, DoWorkEventArgs e) {
             while (!mBwPlay.CancellationPending) {
-                System.Threading.Thread.Sleep(PLAY_TIME_INTERVAL_MS);
+                System.Threading.Thread.Sleep(PLAY_TIME_UPDATE_THREAD_WAKEUP_INTERVAL_MS);
                 mBwPlay.ReportProgress(0);
 
                 int hr = mPlayer.SpatialAudio.GetThreadErcd();
@@ -415,20 +419,16 @@ namespace WWSpatialAudioPlayer {
                 UpdateUIState(State.Activated);
             }
 
-            if (0 == s.CompareTo(mLabelPlayingTime.Content.ToString())) {
-                // 時間が変わっていないので描画更新しない。
-                return;
+            if (0 < s.CompareTo(mLabelPlayingTime.Content.ToString())) {
+                // 時間が変わったので描画更新。
+                mLabelPlayingTime.Content = s;
             }
-
-            mLabelPlayingTime.Content = s;
         }
 
         private void MBwPlay_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
             if (mShuttingdown) {
                 return;
             }
-
-
 
             int hr = mPlayer.SpatialAudio.GetThreadErcd();
             if (hr < 0) {  
@@ -440,8 +440,8 @@ namespace WWSpatialAudioPlayer {
 
         #endregion
 
+        #region Slider event
 
-        #region slider event
         private long mLastSliderValue = 0;
         private bool mSliderSliding = false;
         private long mLastSliderPositionUpdateTime = 0;
@@ -553,18 +553,18 @@ namespace WWSpatialAudioPlayer {
         }
 
         private void ButtonActivateDevice_Click(object sender, RoutedEventArgs e) {
+            int hr = 0;
             int devIdx = mListBoxPlaybackDevices.SelectedIndex;
 
-            AddLog(string.Format("Activating device #{0} ...\n", devIdx));
+            {
+                int maxDynObjCount = 0;
+                int staticObjMask = WWSpatialAudioUser.DwChannelMaskToAudioObjectTypeMask(mPlayer.DwChannelMask);
 
-            int maxDynObjCount = 0;
-            int staticObjMask = WWSpatialAudioUser.DwChannelMaskToAudioObjectTypeMask(mPlayer.DwChannelMask);
-
-            int hr = mPlayer.SpatialAudio.ChooseDevice(devIdx, maxDynObjCount, staticObjMask);
+                hr = mPlayer.SpatialAudio.ChooseDevice(devIdx, maxDynObjCount, staticObjMask);
+            }
             if (0 <= hr) {
                 // Activate成功。
                 AddLog(string.Format("SpatialAudio.ChooseDevice({0}) success.\n", devIdx));
-                UpdateUIState(State.Activated);
 
                 // 無音送出開始。
                 mPlayer.SpatialAudio.SetCurrentPcm(
@@ -575,8 +575,13 @@ namespace WWSpatialAudioPlayer {
                     var s = string.Format("SpatialAudio.Start({0}) failed with error {1:X8}.\n", devIdx, hr);
                     AddLog(s);
                     MessageBox.Show(s);
+                    hr = mPlayer.SpatialAudio.ChooseDevice(-1, 0, 0);
+                    AddLog(string.Format("SpatialAudio.ChooseDevice(-1)\n"));
+                    return;
                 }
 
+                // 全て成功。
+                UpdateUIState(State.Activated);
             } else {
                 // 失敗。
                 if (E_UNSUPPORTED_TYPE == (uint)hr) {
@@ -619,6 +624,8 @@ namespace WWSpatialAudioPlayer {
                 WWSpatialAudioUser.TrackTypeEnum.Epilogue,
                 WWSpatialAudioUser.ChangeTrackMethod.Crossfade);
             AddLog(string.Format("SetCurrentPcm(Epilogue)\n"));
+
+            // BwPlayスレッドで、再生物が無くなったことを検知してActivatedに遷移。
         }
 
     }

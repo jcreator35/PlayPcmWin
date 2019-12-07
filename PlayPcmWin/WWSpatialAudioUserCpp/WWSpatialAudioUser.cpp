@@ -83,6 +83,9 @@ WWSpatialAudioUser::RenderMain(void)
     // MTA
     HRG(CoInitializeEx(nullptr, COINIT_MULTITHREADED));
 
+    mTimerResolution.Setup();
+    mThreadCharacteristics.Setup();
+
     while (stillPlaying) {
         waitResult = WaitForMultipleObjects(nWaitObjects, waitArray, FALSE, INFINITE);
         
@@ -115,6 +118,10 @@ WWSpatialAudioUser::RenderMain(void)
 
 end:
     dprintf("WWSpatialAudioUser::RenderMain() end\n");
+
+    mThreadCharacteristics.Unsetup();
+    mTimerResolution.Unsetup();
+
     CoUninitialize();
     return hr;
 }
@@ -141,6 +148,12 @@ WWSpatialAudioUser::Init(void)
 
 end:
     return hr;
+}
+
+void
+WWSpatialAudioUser::Term(void)
+{
+    WWSpatialAudioUserTemplate<ISpatialAudioObjectRenderStream, WWAudioObject>::Term();
 }
 
 HRESULT

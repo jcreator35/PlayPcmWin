@@ -24,7 +24,7 @@ public:
 
     /// SpatialAudioオブジェクトを削除。
     void
-        ReleaseSAO(void) {
+    ReleaseSAO(void) {
         SafeRelease(&sao);
     }
 
@@ -39,7 +39,6 @@ public:
 
     void
     Rewind(void) {
-        SafeRelease(&sao);
         pcmCtrl.Rewind();
     }
 

@@ -189,6 +189,7 @@ public:
                     SafeRelease(&mSAClient);
                 }
 
+                // このSA固有のオブジェクト SAOも削除。
                 mAudioObjectListHolder.ReleaseSAO();
             }
             ReleaseMutex(mMutex);
