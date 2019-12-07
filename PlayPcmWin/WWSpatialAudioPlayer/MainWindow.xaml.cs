@@ -61,6 +61,8 @@ namespace WWSpatialAudioPlayer {
             mBwPlay.ProgressChanged += MBwPlay_ProgressChanged;
             mBwPlay.WorkerSupportsCancellation = true;
 
+            mTextBoxInputFileName.Text = Properties.Settings.Default.LastReadFileName;
+
             UpdateDeviceList();
             mSWProgressReport.Restart();
         }
@@ -127,6 +129,11 @@ namespace WWSpatialAudioPlayer {
         void IDisposable.Dispose() {
             // Do not change this code.
             Dispose(true);
+        }
+
+        private void Window_Closing(object sender, CancelEventArgs e) {
+            Properties.Settings.Default.LastReadFileName = mTextBoxInputFileName.Text;
+            Properties.Settings.Default.Save();
         }
 
         private void Window_Closed(object sender, EventArgs e) {
@@ -216,7 +223,7 @@ namespace WWSpatialAudioPlayer {
             AddLog("UpdateDeviceList()\n");
 
             // 以前選択されていたデバイスのIdStr
-            var lastSelectedIdStr = "";
+            var lastSelectedIdStr = Properties.Settings.Default.LastUsedDevice;
             if (0 <= mListBoxPlaybackDevices.SelectedIndex) {
                 lastSelectedIdStr = mPlayer.SpatialAudio.DevicePropertyList[
                     mListBoxPlaybackDevices.SelectedIndex].devIdStr;
@@ -317,6 +324,8 @@ namespace WWSpatialAudioPlayer {
                 return;
             }
 
+            mGroupBoxInputAudioFile.IsEnabled = true;
+
             if (0 < mBwMsgSB.Length) {
                 AddLog(mBwMsgSB.ToString());
                 mBwMsgSB.Clear();
@@ -366,6 +375,7 @@ namespace WWSpatialAudioPlayer {
         private void ReadFile() {
             var param = new LoadParams();
             param.path = mTextBoxInputFileName.Text;
+            mGroupBoxInputAudioFile.IsEnabled = false;
 
             mBwLoad.RunWorkerAsync(param);
         }
@@ -555,6 +565,10 @@ namespace WWSpatialAudioPlayer {
         private void ButtonActivateDevice_Click(object sender, RoutedEventArgs e) {
             int hr = 0;
             int devIdx = mListBoxPlaybackDevices.SelectedIndex;
+
+            Properties.Settings.Default.LastUsedDevice = mPlayer.SpatialAudio.DevicePropertyList[
+                    mListBoxPlaybackDevices.SelectedIndex].devIdStr;
+
 
             {
                 int maxDynObjCount = 0;

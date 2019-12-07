@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WWSpatialAudioPlayer"
         mc:Ignorable="d"
-        Title="WWSpatialAudioPlayer" Height="600" Width="800" Closed="Window_Closed" Loaded="Window_Loaded" >
+        Title="WWSpatialAudioPlayer" Height="600" Width="800" Closed="Window_Closed" Loaded="Window_Loaded" Closing="Window_Closing" >
     <Grid Name="mGridWholeContainer" >
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="0" />
