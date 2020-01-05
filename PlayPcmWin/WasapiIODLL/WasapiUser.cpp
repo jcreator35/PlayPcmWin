@@ -2,12 +2,13 @@
 // WASAPIの機能を使って音を出したり録音したりするWasapiUserクラス。
 
 #include "WasapiUser.h"
-#include "WWUtil.h"
+#include "WWWasapiIOUtil.h"
 #include <assert.h>
 #include <strsafe.h>
 #include <mmsystem.h>
 #include <malloc.h>
 #include <stdint.h>
+#include "WWCommonUtil.h"
 
 #define FOOTER_SEND_FRAME_NUM                   (2)
 #define PERIODS_PER_BUFFER_ON_TIMER_DRIVEN_MODE (4)

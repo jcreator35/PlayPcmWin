@@ -1,7 +1,7 @@
 // 日本語 UTF-8
 
 #include "WWPcmStream.h"
-#include "WWUtil.h"
+#include "WWCommonUtil.h"
 #include <assert.h>
 
 WWPcmStream::WWPcmStream(void)

@@ -291,6 +291,20 @@ namespace WWUtil {
         }
 
         [Pure]
+        public LargeArray<T> Skip(long count) {
+            if (mCount <= count) {
+                return new LargeArray<T>(0);
+            }
+            if (count < 0) {
+                throw new ArgumentOutOfRangeException("count");
+            }
+
+            var r = new LargeArray<T>(mCount - count);
+            CopyTo(count, ref r, 0, mCount - count);
+            return r;
+        }
+
+        [Pure]
         public long CopyTo(long fromPos, ref LargeArray<T> to, long toPos, long count) {
             if (to == null) {
                 throw new ArgumentNullException("to");

@@ -1,10 +1,11 @@
 // 日本語 UTF-8
 
 #include "WWAudioDeviceEnumerator.h"
-#include "WWUtil.h"
+#include "WWWasapiIOUtil.h"
 #include <functiondiscoverykeys.h>
 #include <assert.h>
 #include <algorithm>
+#include "WWCommonUtil.h"
 
 static HRESULT
 DeviceNameGet(IMMDeviceCollection *dc, UINT id, wchar_t *name, size_t nameBytes)

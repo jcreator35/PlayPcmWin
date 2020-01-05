@@ -2,7 +2,8 @@
 
 #include "WWAudioFilterChannelMapping.h"
 #include "WWTypes.h"
-#include "WWUtil.h"
+#include "WWWasapiIOUtil.h"
+#include "WWCommonUtil.h"
 #include <assert.h>
 #include <vector>
 #include <string>

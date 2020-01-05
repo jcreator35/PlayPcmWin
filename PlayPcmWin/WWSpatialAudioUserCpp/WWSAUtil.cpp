@@ -1,5 +1,6 @@
 ﻿// 日本語
-#include "WWUtil.h"
+#include "WWSAUtil.h"
+#include "WWCommonUtil.h"
 #include <Windows.h>
 #include <stdio.h>
 #include <assert.h>

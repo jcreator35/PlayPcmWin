@@ -1,7 +1,7 @@
 // 日本語 UTF-8
 
 #include "WWMMNotificationClient.h"
-#include "WWUtil.h"
+#include "WWCommonUtil.h"
 #include <assert.h>
 
 WWMMNotificationClient::WWMMNotificationClient(IWWDeviceStateCallback *pCallback)

@@ -158,7 +158,11 @@ namespace PlayPcmWin {
                 result = mDsdiffR.ReadStreamReadOne(mBr, preferredFrames);
                 break;
             case Format.MP3:
-                result = mMp3Reader.data;
+                if (int.MaxValue < mMp3Reader.data.LongLength) {
+                    result = new byte[0];
+                } else {
+                    result = mMp3Reader.data.ToArray();
+                }
                 break;
             default:
                 System.Diagnostics.Debug.Assert(false);
@@ -334,8 +338,8 @@ namespace PlayPcmWin {
             mMp3Reader = new Mp3Reader();
             int hr = mMp3Reader.Read(path);
             if (0 <= hr && 0 < startFrame) {
-                if (startFrame < mMp3Reader.data.Length) {
-                    mMp3Reader.data = mMp3Reader.data.Skip(startFrame).ToArray();
+                if (startFrame < mMp3Reader.data.LongLength) {
+                    mMp3Reader.data = mMp3Reader.data.Skip(startFrame);
                 }
             }
 

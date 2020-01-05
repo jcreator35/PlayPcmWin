@@ -1,6 +1,7 @@
 // 日本語 UTF-8
 
-#include "WWUtil.h"
+#include "WWWasapiIOUtil.h"
+#include "WWCommonUtil.h"
 #include <stdint.h>
 #include <assert.h>
 #include <string.h>

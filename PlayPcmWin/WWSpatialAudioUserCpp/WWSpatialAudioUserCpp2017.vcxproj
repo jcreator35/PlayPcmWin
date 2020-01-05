@@ -62,6 +62,7 @@
       <PreprocessorDefinitions>_DEBUG;WWSPATIALAUDIOUSER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>../WWMFResamplerCpp;../WWMFReader;../WWCommonCpp</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -80,6 +81,7 @@
       <PreprocessorDefinitions>NDEBUG;WWSPATIALAUDIOUSER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>../WWMFResamplerCpp;../WWMFReader;../WWCommonCpp</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -95,6 +97,7 @@
     <ClInclude Include="WWAudioObject.h" />
     <ClInclude Include="WWAudioObjectListHolder.h" />
     <ClInclude Include="WWAudioObjectTemplate.h" />
+    <ClInclude Include="WWAudioReadThread.h" />
     <ClInclude Include="WWChangeTrackMethod.h" />
     <ClInclude Include="WWDeviceInf.h" />
     <ClInclude Include="WWGuidToStr.h" />
@@ -111,10 +114,11 @@
     <ClInclude Include="WWThreadCharacteristics.h" />
     <ClInclude Include="WWTimerResolution.h" />
     <ClInclude Include="WWTrackEnum.h" />
-    <ClInclude Include="WWUtil.h" />
+    <ClInclude Include="WWSAUtil.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="WWAudioReadThread.cpp" />
     <ClCompile Include="WWGuidToStr.cpp" />
     <ClCompile Include="WWPrintDeviceProp.cpp" />
     <ClCompile Include="WWSpatialAudioHrtfUser.cpp" />
@@ -122,7 +126,18 @@
     <ClCompile Include="WWSpatialAudioUserIF.cpp" />
     <ClCompile Include="WWThreadCharacteristics.cpp" />
     <ClCompile Include="WWTimerResolution.cpp" />
-    <ClCompile Include="WWUtil.cpp" />
+    <ClCompile Include="WWSAUtil.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WWCommonCpp\WWCommonCpp2017.vcxproj">
+      <Project>{258d3f60-b82f-4bf5-8bed-7195c2f09423}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\WWMFReader\WWMFReaderCpp2017.vcxproj">
+      <Project>{1342d295-c319-41a7-8c12-edee22fdd949}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\WWMFResamplerCpp\WWMFResamplerCpp2017.vcxproj">
+      <Project>{b2df1144-009e-4f95-8dfb-bbc981ac333f}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

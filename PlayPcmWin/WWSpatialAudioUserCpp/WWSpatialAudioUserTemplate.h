@@ -17,7 +17,8 @@
 #include <list>
 #include "WWAudioObjectListHolder.h"
 #include "WWDeviceInf.h"
-#include "WWUtil.h"
+#include "WWCommonUtil.h"
+#include "WWSAUtil.h"
 #include "WWGuidToStr.h"
 #include "WWPrintDeviceProp.h"
 #include <functiondiscoverykeys.h>

@@ -3,6 +3,7 @@
 #pragma once
 
 #define WWMFReaderStrCount 256
+#include <stdint.h>
 
 extern "C" {
 

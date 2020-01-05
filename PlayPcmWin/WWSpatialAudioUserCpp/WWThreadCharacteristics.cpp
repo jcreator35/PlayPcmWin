@@ -1,10 +1,11 @@
 // 日本語 UTF-8
 
 #include "WWThreadCharacteristics.h"
-#include "WWUtil.h"
+#include "WWSAUtil.h"
 #include <avrt.h>
 #include <assert.h>
 #include <Dwmapi.h>
+#include "WWCommonUtil.h"
 
 static const wchar_t*
 WWSchedulerTaskTypeToStr(WWSchedulerTaskType t)

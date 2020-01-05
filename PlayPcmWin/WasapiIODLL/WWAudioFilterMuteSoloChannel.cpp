@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
-#include "WWUtil.h"
+#include "WWWasapiIOUtil.h"
 
 WWAudioFilterMuteSoloChannel::WWAudioFilterMuteSoloChannel(WWAFMSModeType mode, PCWSTR args)
 {

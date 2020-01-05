@@ -7,9 +7,6 @@
     <ClCompile Include="WasapiUser.cpp">
       <Filter>source files</Filter>
     </ClCompile>
-    <ClCompile Include="WWUtil.cpp">
-      <Filter>source files</Filter>
-    </ClCompile>
     <ClCompile Include="WWPcmData.cpp">
       <Filter>source files</Filter>
     </ClCompile>
@@ -62,12 +59,12 @@
     <ClCompile Include="WWAudioFilterDelay.cpp">
       <Filter>source files</Filter>
     </ClCompile>
+    <ClCompile Include="WWWasapiIOUtil.cpp">
+      <Filter>source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WasapiIOIF.h">
-      <Filter>header files</Filter>
-    </ClInclude>
-    <ClInclude Include="WWUtil.h">
       <Filter>header files</Filter>
     </ClInclude>
     <ClInclude Include="WasapiUser.h">
@@ -131,6 +128,9 @@
       <Filter>header files</Filter>
     </ClInclude>
     <ClInclude Include="WWAudioFilterDelay.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWWasapiIOUtil.h">
       <Filter>header files</Filter>
     </ClInclude>
   </ItemGroup>

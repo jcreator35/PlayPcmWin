@@ -1,7 +1,7 @@
 // 日本語 UTF-8
 
 #include "WWThreadCharacteristics.h"
-#include "WWUtil.h"
+#include "WWCommonUtil.h"
 #include <avrt.h>
 #include <assert.h>
 #include <Dwmapi.h>

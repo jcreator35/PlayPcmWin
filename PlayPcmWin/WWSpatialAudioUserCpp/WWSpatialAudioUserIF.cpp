@@ -4,7 +4,7 @@
 #include "WWSpatialAudioUser.h"
 #include "WWSpatialAudioDeviceProperty.h"
 #include "WWPcmStore.h"
-
+#include "WWCommonUtil.h"
 #include <list>
 
 struct Instances {

@@ -1,6 +1,7 @@
 // 日本語 UTF-8
 
-#include "WWUtil.h"
+#include "WWMFRSUtil.h"
+#include "WWCommonUtil.h"
 
 void
 WWWaveFormatDebug(WAVEFORMATEX *v)

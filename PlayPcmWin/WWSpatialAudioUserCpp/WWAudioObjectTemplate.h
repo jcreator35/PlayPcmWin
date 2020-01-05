@@ -1,7 +1,7 @@
 ﻿// 日本語
 #pragma once
 #include <SpatialAudioClient.h>
-#include "WWUtil.h"
+#include "WWSAUtil.h"
 #include "WWPcmCtrl.h"
 #include <assert.h>
 

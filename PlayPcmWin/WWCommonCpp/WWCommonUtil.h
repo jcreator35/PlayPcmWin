@@ -1,10 +1,13 @@
-// 日本語 UTF-8
+﻿// 日本語。
 
 #pragma once
 
-#include <Windows.h>
-#include <mmsystem.h>
-#include <MMReg.h>
+#include <SDKDDKVer.h>
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+
+#include <stdio.h>
+#include <assert.h>
 
 #ifdef _DEBUG
 #  include <stdio.h>
@@ -77,8 +80,7 @@
 
 template <class T> void SafeRelease(T **ppT)
 {
-    if (*ppT)
-    {
+    if (*ppT) {
         (*ppT)->Release();
         *ppT = nullptr;
     }
@@ -87,10 +89,4 @@ template <class T> void SafeRelease(T **ppT)
 #define SAFE_RELEASE(x) { if (x) { x->Release(); x = nullptr; } }
 
 #define SAFE_DELETE(x) { delete x; x=nullptr; }
-
-void
-WWWaveFormatDebug(WAVEFORMATEX *v);
-
-void
-WWWFEXDebug(WAVEFORMATEXTENSIBLE *v);
 

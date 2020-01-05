@@ -22,9 +22,4 @@ WWMFReaderGetCoverart(
         unsigned char *data_return,
         int64_t *dataBytes_inout);
 
-int
-WWMFReaderReadData(
-        const wchar_t *wszSourceFile,
-        unsigned char *data_return,
-        int64_t *dataBytes_inout);
 

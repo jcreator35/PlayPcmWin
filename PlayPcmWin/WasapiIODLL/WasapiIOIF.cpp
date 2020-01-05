@@ -3,7 +3,7 @@
 #include "WasapiIOIF.h"
 #include "WasapiUser.h"
 #include "WWPlayPcmGroup.h"
-#include "WWUtil.h"
+#include "WWWasapiIOUtil.h"
 #include "WWTimerResolution.h"
 #include "WWAudioDeviceEnumerator.h"
 #include "WWAudioFilterType.h"
@@ -15,6 +15,7 @@
 #include "WWAudioFilterDelay.h"
 #include <assert.h>
 #include <map>
+#include "WWCommonUtil.h"
 
 class WasapiIO : public IWWDeviceStateCallback {
 public:
@@ -405,7 +406,14 @@ WasapiIO_AddPlayPcmDataSetPcmFragment(int instanceId, int pcmId, int64_t posByte
         return false;
     }
 
-    assert(posBytes + bytes <= p->Frames() * p->BytesPerFrame());
+    if (p->Frames() * p->BytesPerFrame() < posBytes + bytes) {
+        // MP3のときに起きる。
+        bytes = p->Frames() * p->BytesPerFrame() - posBytes;
+    }
+    if (bytes <= 0) {
+        // コピーの必要なし。
+        return true;
+    }
 
     memcpy(&(p->Stream()[posBytes]), data, bytes);
     return true;

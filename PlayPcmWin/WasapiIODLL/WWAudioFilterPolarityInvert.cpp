@@ -2,7 +2,7 @@
 
 #include "WWAudioFilterPolarityInvert.h"
 #include <assert.h>
-#include "WWUtil.h"
+#include "WWWasapiIOUtil.h"
 
 WWAudioFilterPolarityInvert::WWAudioFilterPolarityInvert(PCWSTR args)
 {

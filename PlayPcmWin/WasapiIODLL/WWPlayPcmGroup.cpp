@@ -2,7 +2,7 @@
 
 #include "WWPlayPcmGroup.h"
 #include "WWMFResampler.h"
-#include "WWUtil.h"
+#include "WWCommonUtil.h"
 #include <assert.h>
 #include <stdint.h>
 #include <list>

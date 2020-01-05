@@ -18,13 +18,16 @@
     <ClCompile Include="dllmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WWMFUtil.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="WWMFReaderIF.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="WWMFReader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WWMFReadFragments.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WWMFReaderFunctions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -38,13 +41,13 @@
     <ClInclude Include="WWMFReaderIF.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WWMFUtil.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="WWMFReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="WWMFReaderMetadata.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWMFReaderFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

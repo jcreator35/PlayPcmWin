@@ -1,7 +1,7 @@
 ﻿// 日本語 UTF-8
 
 #include "WWPcmData.h"
-#include "WWUtil.h"
+#include "WWCommonUtil.h"
 #include <assert.h>
 #include <malloc.h>
 #include <stdint.h>

@@ -5,12 +5,13 @@ using System.IO;
 using System.Threading.Tasks;
 using WWMFReaderCs;
 using System.Linq;
+using WWUtil;
 
 namespace PlayPcmWin {
 
     class Mp3Reader {
         public string path;
-        public byte[] data;
+        public LargeArray<byte> data;
         public WWMFReader.Metadata meta;
 
         public int Read(string path) {

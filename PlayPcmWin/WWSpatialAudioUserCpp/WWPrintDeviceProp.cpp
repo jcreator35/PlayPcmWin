@@ -3,10 +3,11 @@
 #include <SpatialAudioClient.h>
 #include <exception>
 #include <mmdeviceapi.h>
-#include "WWUtil.h"
+#include "WWSAUtil.h"
 #include <functiondiscoverykeys.h>
 #include <assert.h>
 #include "WWGuidToStr.h"
+#include "WWCommonUtil.h"
 
 static HRESULT
 PrintAudioObjectPosition(ISpatialAudioClient *saClient, const char *name, AudioObjectType aot)

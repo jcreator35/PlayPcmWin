@@ -170,7 +170,7 @@ namespace WasapiBitmatchChecker {
             mInitialized = true;
         }
 
-        public void StateChangedCallback(StringBuilder idStr) {
+        public void StateChangedCallback(StringBuilder idStr, int dwNewState) {
             Dispatcher.BeginInvoke(new Action(delegate() {
                 lock (mLock) {
                     if (mState == State.Init) {

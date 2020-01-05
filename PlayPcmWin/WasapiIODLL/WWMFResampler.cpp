@@ -2,7 +2,7 @@
 #pragma warning(disable:4127)  // Disable warning C4127: conditional expression is constant
 
 #include "WWMFResampler.h"
-#include "WWUtil.h"
+#include "WWCommonUtil.h"
 #include <windows.h>
 #include <atlbase.h>
 #include <mfapi.h>

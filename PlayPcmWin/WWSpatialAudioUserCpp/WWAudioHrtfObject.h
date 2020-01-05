@@ -2,7 +2,7 @@
 #pragma once
 #include <SpatialAudioClient.h>
 #include <SpatialAudioHrtf.h>
-#include "WWUtil.h"
+#include "WWSAUtil.h"
 #include <assert.h>
 #include "WWAudioObjectTemplate.h"
 

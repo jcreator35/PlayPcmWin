@@ -1,7 +1,7 @@
 // 日本語 UTF-8
 
 #include "WWTimerResolution.h"
-#include "WWUtil.h"
+#include "WWCommonUtil.h"
 #include <assert.h>
 
 // 100 nanosec * ONE_MILLISEC == one millisec

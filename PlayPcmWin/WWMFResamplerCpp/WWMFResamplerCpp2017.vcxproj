@@ -62,6 +62,7 @@
       <PreprocessorDefinitions>_DEBUG;WWMFRESAMPLERCPP2017_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>../WWCommonCpp</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -79,6 +80,7 @@
       <PreprocessorDefinitions>NDEBUG;WWMFRESAMPLERCPP2017_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>../WWCommonCpp</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -92,13 +94,18 @@
     <ClInclude Include="WWMFResampler.h" />
     <ClInclude Include="WWMFResamplerCppIF.h" />
     <ClInclude Include="WWTypes.h" />
-    <ClInclude Include="WWUtil.h" />
+    <ClInclude Include="WWMFRSUtil.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="WWMFResampler.cpp" />
     <ClCompile Include="WWMFResamplerCppIF.cpp" />
-    <ClCompile Include="WWUtil.cpp" />
+    <ClCompile Include="WWMFRSUtil.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WWCommonCpp\WWCommonCpp2017.vcxproj">
+      <Project>{258d3f60-b82f-4bf5-8bed-7195c2f09423}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

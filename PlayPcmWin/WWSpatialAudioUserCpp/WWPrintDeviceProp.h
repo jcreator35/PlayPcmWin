@@ -3,7 +3,7 @@
 #include <SpatialAudioClient.h>
 #include <mmdeviceapi.h>
 #include <devicetopology.h>
-#include "WWUtil.h"
+#include "WWSAUtil.h"
 #include <set>
 
 HRESULT

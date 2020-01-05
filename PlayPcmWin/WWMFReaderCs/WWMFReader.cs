@@ -163,7 +163,7 @@ namespace WWMFReaderCs {
             NativeMethods.WWMFReaderIFReadDataEnd(instanceId);
 
             // データのバイト数が確定。
-            data = WWUtil.ListUtil.GetLargeArrayFragment(bufList, 0, bufTotalBytes);
+            data = WWUtil.ListUtils<byte>.GetLargeArrayFragment(bufList, 0, bufTotalBytes);
             meta_return.numExactFrames = data.LongLength / (meta_return.numChannels * meta_return.bitsPerSample / 8);
 
             return hr;

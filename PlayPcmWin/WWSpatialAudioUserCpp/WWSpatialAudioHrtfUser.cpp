@@ -3,7 +3,7 @@
 #include <SpatialAudioClient.h>
 #include <exception>
 #include <mmdeviceapi.h>
-#include "WWUtil.h"
+#include "WWSAUtil.h"
 #include <functiondiscoverykeys.h>
 #include <assert.h>
 #include "WWGuidToStr.h"

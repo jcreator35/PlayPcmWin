@@ -15,33 +15,12 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="targetver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WWMFResamplerCppIF.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WWMFResampler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WWTypes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WWMFRSUtil.h">
+    <ClInclude Include="WWCommonUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dllmain.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="WWMFResampler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="WWMFResamplerCppIF.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="WWMFRSUtil.cpp">
+    <ClCompile Include="WWCommonUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
