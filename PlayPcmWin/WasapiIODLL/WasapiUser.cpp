@@ -407,6 +407,7 @@ WasapiUser::Setup(IMMDevice *device, WWDeviceType deviceType, const WWPcmFormat 
         wfex->dwChannelMask          = m_pcmFormat.dwChannelMask;
     }
 
+    // Note: AUDCLNT_STREAMFLAGS_RATEADJUST is only for Asynchronous SRC such as 44100.001Hz to 44100Hz conversion
     DWORD streamFlags      = 0;
     int   periodsPerBuffer = 1;
     switch (m_dataFeedMode) {
