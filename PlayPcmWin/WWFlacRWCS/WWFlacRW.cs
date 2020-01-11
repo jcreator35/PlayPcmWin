@@ -116,41 +116,38 @@ namespace WWFlacRWCS {
         }
 
         /// <summary>
-        /// デコードされたPCMデータを取り出す。DecodeAllの後に呼ぶ。
+        /// 指定チャンネル番号のPCMデータを取り出す。
         /// </summary>
-        /// <param name="copyBytes">コピーするバイト数。大体512MB程度まで可能。</param>
-        /// <returns>0以上のときコピーされたバイト数。負のときFlacErrorCode</returns>
-        public int GetDecodedPcmBytes(int ch, long posBytes, out byte[] fragment, long copyBytes) {
-            int rv = 0;
-
+        /// <param name="copySamples">バイト換算で512MBくらいまで可能。</param>
+        /// <returns>コピーされたサンプル数。</returns>
+        public int GetPcmOfChannel(int ch, long posSamples, ref byte[] fragment, int copySamples) {
             System.Diagnostics.Debug.Assert(mDecodedMetadata != null);
-
-            int bytesPerFrame = mDecodedMetadata.BytesPerFrame;
-            int bytesPerSample =  mDecodedMetadata.BytesPerSample;
-            int numChannels = mDecodedMetadata.channels;
-
             System.Diagnostics.Debug.Assert(mPcmAllBuffer != null);
-            System.Diagnostics.Debug.Assert((posBytes % bytesPerSample) == 0);
-            System.Diagnostics.Debug.Assert((copyBytes % bytesPerSample) == 0);
+            System.Diagnostics.Debug.Assert(0 <= ch && ch < mDecodedMetadata.channels);
 
-            if (mPcmAllBuffer.LongLength < posBytes + copyBytes) {
-                copyBytes = mPcmAllBuffer.LongLength - posBytes;
-                if (copyBytes < 0) {
-                    copyBytes = 0;
-                }
+            int bpf = mDecodedMetadata.BytesPerFrame;
+            int bps = mDecodedMetadata.BytesPerSample;
+
+            // copySamplesを決定します。
+            long totalSamples = mPcmAllBuffer.LongLength / bpf;
+            if (totalSamples < posSamples + copySamples) {
+                copySamples = (int)(totalSamples - posSamples);
             }
-            fragment = new byte[copyBytes];
-            long copySamples = copyBytes / bytesPerSample;
-            long posSamples = posBytes / bytesPerSample;
-
-
-            for (int i=0; i<copySamples; ++i) {
-                long fromPosBytes = posBytes + i * bytesPerFrame + ch * bytesPerSample;
-                int toPosBytes = i * bytesPerSample;
-                mPcmAllBuffer.CopyTo(fromPosBytes, ref fragment, toPosBytes, bytesPerFrame);
+            if (copySamples < 0) {
+                copySamples = 0;
             }
 
-            return (int)copyBytes;
+            if (fragment.Length < copySamples * bps) {
+                throw new ArgumentException("fragment");
+            }
+
+            for (int i = 0; i < copySamples; ++i) {
+                long fromPosBytes = (posSamples + i ) * bpf + ch * bps;
+                int toPosBytes = i * bps;
+                mPcmAllBuffer.CopyTo(fromPosBytes, ref fragment, toPosBytes, bps);
+            }
+
+            return copySamples;
         }
 
         /// <summary>

@@ -137,7 +137,7 @@ namespace WWUtil {
         }
 
         /// <summary>
-        /// 要素数を戻す。バイト数ではありません。
+        /// 要素数を戻す。バイト数ではありません。(ただしTがbyteの場合はバイト数になる。)
         /// </summary>
         public long LongLength { get { return mCount; } }
 

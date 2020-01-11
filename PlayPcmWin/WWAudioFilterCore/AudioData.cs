@@ -199,29 +199,37 @@ namespace WWAudioFilterCore {
                 return rv;
             }
 
+            // ad.pcmにPCMデータを入れる。
+
+            int bpf = ad.meta.BytesPerFrame;
+            int bps = ad.meta.BytesPerSample;
+            int fragmentSamples = 4096;
+            int fragmentBytes = fragmentSamples * bps;
+            var fragment = new byte[fragmentBytes];
+
             ad.pcm = new List<AudioDataPerChannel>();
             for (int ch = 0; ch < ad.meta.channels; ++ch) {
 
-                // ■■■ 1チャンネル分のデータを取り出す。■■■
-                long totalBytes = ad.meta.totalSamples * ad.meta.bitsPerSample / 8;
+                // ■■■ 1チャンネル分のpcmを取り出す。■■■
 
-                var pcm = new WWUtil.LargeArray<byte>(totalBytes);
-                int fragmentBytes = 4096 * ad.meta.bitsPerSample / 8;
-                for (long pos = 0; pos < totalBytes; ) {
-                    int copyBytes = fragmentBytes;
-                    if (pos + fragmentBytes < totalBytes) {
-                        copyBytes = (int)(totalBytes - pos);
+                long oneChannelPcmBytes = ad.meta.totalSamples * bps;
+                var pcm = new WWUtil.LargeArray<byte>(oneChannelPcmBytes);
+
+                for (long posS = 0; posS < ad.meta.totalSamples; ) {
+                    // copySamples : コピーするサンプル数を決定する。
+                    int copySamples = fragmentSamples;
+                    if (ad.meta.totalSamples < posS + fragmentSamples) {
+                        copySamples = (int)(ad.meta.totalSamples - posS);
                     }
 
-                    var fragment = new byte[copyBytes];
-                    int lrv = flac.GetDecodedPcmBytes(ch, pos, out fragment, copyBytes);
-                    if (lrv < 0) {
-                        return lrv;
+                    copySamples = flac.GetPcmOfChannel(ch, posS, ref fragment, copySamples);
+                    if (copySamples < 0) {
+                        return copySamples;
                     }
 
-                    // fragmentに入っているPCMデータのサイズはlrvバイト。
-                    pcm.CopyFrom(fragment, 0, pos, lrv);
-                    pos += copyBytes;
+                    // fragmentに入っているPCMデータのサイズはcopySamples * bpsバイト。
+                    pcm.CopyFrom(fragment, 0, posS * bps, copySamples * bps);
+                    posS += copySamples;
                 }
 
                 var pcm24 = PcmDataLib.PcmDataUtil.ConvertTo24bit(ad.meta.bitsPerSample,
