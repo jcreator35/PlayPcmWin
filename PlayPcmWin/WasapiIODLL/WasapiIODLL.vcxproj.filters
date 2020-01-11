@@ -23,12 +23,6 @@
     <ClCompile Include="WWMMNotificationClient.cpp">
       <Filter>source files</Filter>
     </ClCompile>
-    <ClCompile Include="WWTimerResolution.cpp">
-      <Filter>source files</Filter>
-    </ClCompile>
-    <ClCompile Include="WWThreadCharacteristics.cpp">
-      <Filter>source files</Filter>
-    </ClCompile>
     <ClCompile Include="WWAudioDeviceEnumerator.cpp">
       <Filter>source files</Filter>
     </ClCompile>
@@ -83,12 +77,6 @@
       <Filter>header files</Filter>
     </ClInclude>
     <ClInclude Include="WWMMNotificationClient.h">
-      <Filter>header files</Filter>
-    </ClInclude>
-    <ClInclude Include="WWTimerResolution.h">
-      <Filter>header files</Filter>
-    </ClInclude>
-    <ClInclude Include="WWThreadCharacteristics.h">
       <Filter>header files</Filter>
     </ClInclude>
     <ClInclude Include="WWAudioDeviceEnumerator.h">

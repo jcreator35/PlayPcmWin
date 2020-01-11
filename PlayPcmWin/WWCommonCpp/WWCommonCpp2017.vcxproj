@@ -20,9 +20,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WWCommonUtil.cpp" />
+    <ClCompile Include="WWThreadCharacteristics.cpp" />
+    <ClCompile Include="WWTimerResolution.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WWCommonUtil.h" />
+    <ClInclude Include="WWThreadCharacteristics.h" />
+    <ClInclude Include="WWTimerResolution.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

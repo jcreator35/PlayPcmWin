@@ -72,12 +72,6 @@
     <ClInclude Include="WWAudioObjectListHolder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WWThreadCharacteristics.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WWTimerResolution.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="WWAudioReadThread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -102,12 +96,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="WWSpatialAudioUserIF.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="WWThreadCharacteristics.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="WWTimerResolution.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="WWAudioReadThread.cpp">

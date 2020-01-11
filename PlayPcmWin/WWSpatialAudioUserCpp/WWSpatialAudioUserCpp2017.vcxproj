@@ -111,8 +111,6 @@
     <ClInclude Include="WWSpatialAudioUser.h" />
     <ClInclude Include="WWSpatialAudioUserIF.h" />
     <ClInclude Include="WWSpatialAudioUserTemplate.h" />
-    <ClInclude Include="WWThreadCharacteristics.h" />
-    <ClInclude Include="WWTimerResolution.h" />
     <ClInclude Include="WWTrackEnum.h" />
     <ClInclude Include="WWSAUtil.h" />
   </ItemGroup>
@@ -124,8 +122,6 @@
     <ClCompile Include="WWSpatialAudioHrtfUser.cpp" />
     <ClCompile Include="WWSpatialAudioUser.cpp" />
     <ClCompile Include="WWSpatialAudioUserIF.cpp" />
-    <ClCompile Include="WWThreadCharacteristics.cpp" />
-    <ClCompile Include="WWTimerResolution.cpp" />
     <ClCompile Include="WWSAUtil.cpp" />
   </ItemGroup>
   <ItemGroup>

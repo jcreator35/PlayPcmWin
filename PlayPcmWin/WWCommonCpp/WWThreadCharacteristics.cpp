@@ -6,7 +6,7 @@
 #include <assert.h>
 #include <Dwmapi.h>
 
-static wchar_t*
+static const wchar_t*
 WWSchedulerTaskTypeToStr(WWSchedulerTaskType t)
 {
     switch (t) {
@@ -20,7 +20,7 @@ WWSchedulerTaskTypeToStr(WWSchedulerTaskType t)
 
 #ifndef NDEBUG
 
-static wchar_t *
+static const wchar_t *
 WWMMThreadPriorityTypeToStr(WWMMThreadPriorityType t)
 {
     switch (t) {

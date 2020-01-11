@@ -198,8 +198,6 @@
     <ClInclude Include="WWPcmSampleManipulator.h" />
     <ClInclude Include="WWPcmStream.h" />
     <ClInclude Include="WWPlayPcmGroup.h" />
-    <ClInclude Include="WWThreadCharacteristics.h" />
-    <ClInclude Include="WWTimerResolution.h" />
     <ClInclude Include="WWTypes.h" />
     <ClInclude Include="WWWasapiIOUtil.h" />
   </ItemGroup>
@@ -305,18 +303,6 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
     </ClCompile>
     <ClCompile Include="WWPlayPcmGroup.cpp">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-    </ClCompile>
-    <ClCompile Include="WWThreadCharacteristics.cpp">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-    </ClCompile>
-    <ClCompile Include="WWTimerResolution.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>

@@ -208,7 +208,7 @@ namespace WWSpatialAudioPlayer  {
                 totalBytes += item.Length;
             }
 
-            var fullPcm = WWUtil.ListUtil.GetLargeArrayFragment<byte>(toBufList, 0, totalBytes);
+            var fullPcm = WWUtil.ListUtils<byte>.GetLargeArrayFragment(toBufList, 0, totalBytes);
             toBufList.Clear();
             toBufList = null;
 
