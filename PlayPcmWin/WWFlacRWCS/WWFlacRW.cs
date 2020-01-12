@@ -117,6 +117,7 @@ namespace WWFlacRWCS {
 
         /// <summary>
         /// 指定チャンネル番号のPCMデータを取り出す。
+        /// DecodeAll()後に呼ぶ。
         /// </summary>
         /// <param name="copySamples">バイト換算で512MBくらいまで可能。</param>
         /// <returns>コピーされたサンプル数。</returns>
