@@ -497,7 +497,6 @@ namespace PcmDataLib {
                     break;
                 }
                 break;
-                break;
             default:
                 System.Diagnostics.Debug.Assert(false);
                 break;
