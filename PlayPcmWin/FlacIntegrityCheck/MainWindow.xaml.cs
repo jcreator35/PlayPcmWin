@@ -139,7 +139,7 @@ namespace FlacIntegrityCheck {
             mBw.ReportProgress(0, new ReportProgressArgs(string.Format(Properties.Resources.LogCountingFiles,
                 args.path), -1, true));
 
-            var flacList = DirectoryUtil.CollectFlacFilesOnFolder(args.path, ".FLAC");
+            var flacList = WWUtil.DirectoryUtil.CollectFlacFilesOnFolder(args.path, ".FLAC");
 
             mBw.ReportProgress(0, new ReportProgressArgs(string.Format(Properties.Resources.LogCount + "\n{1}\n",
                 flacList.Length,

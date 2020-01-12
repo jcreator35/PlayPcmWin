@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace FlacIntegrityCheck {
-    class DirectoryUtil {
+namespace WWUtil {
+    public class DirectoryUtil {
         // this code is from https://msdn.microsoft.com/en-us/library/bb513869.aspx
         public static string[] CollectFlacFilesOnFolder(string root, string extension) {
             var result = new List<string>();
@@ -19,13 +17,17 @@ namespace FlacIntegrityCheck {
             while (dirs.Count > 0) {
                 var currentDir = dirs.Pop();
                 string[] subDirs;
+
                 try {
                     subDirs = System.IO.Directory.GetDirectories(currentDir);
                 } catch (UnauthorizedAccessException e) {
-                    Console.WriteLine(e.Message);
+                    //Console.WriteLine(e);
                     continue;
                 } catch (System.IO.DirectoryNotFoundException e) {
-                    Console.WriteLine(e.Message);
+                    Console.WriteLine(e);
+                    continue;
+                } catch (System.Exception ex) {
+                    Console.WriteLine(ex);
                     continue;
                 }
 
@@ -33,10 +35,13 @@ namespace FlacIntegrityCheck {
                 try {
                     files = System.IO.Directory.GetFiles(currentDir);
                 } catch (UnauthorizedAccessException e) {
-                    Console.WriteLine(e.Message);
+                    //Console.WriteLine(e);
                     continue;
                 } catch (System.IO.DirectoryNotFoundException e) {
-                    Console.WriteLine(e.Message);
+                    Console.WriteLine(e);
+                    continue;
+                } catch (System.Exception ex) {
+                    Console.WriteLine(ex);
                     continue;
                 }
 
@@ -48,7 +53,13 @@ namespace FlacIntegrityCheck {
                             //Console.WriteLine("{0}: {1}, {2}", fi.Name, fi.Length, fi.CreationTime);
                         }
                     } catch (System.IO.FileNotFoundException e) {
-                        Console.WriteLine(e.Message);
+                        Console.WriteLine(e);
+                        continue;
+                    } catch (System.IO.PathTooLongException ex) {
+                        //Console.WriteLine(ex);
+                        continue;
+                    } catch (System.Exception ex) {
+                        Console.WriteLine(ex);
                         continue;
                     }
                 }

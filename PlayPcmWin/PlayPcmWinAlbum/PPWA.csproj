@@ -79,7 +79,6 @@
     </ApplicationDefinition>
     <Compile Include="BackgroundContentListBuilder.cs" />
     <Compile Include="DataGridPlayListHandler.cs" />
-    <Compile Include="DirectoryUtil.cs" />
     <Compile Include="ContentList.cs" />
     <Compile Include="InterceptMediaKeys.cs" />
     <Compile Include="PlaybackController.cs" />
