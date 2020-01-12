@@ -268,7 +268,6 @@ namespace PlayPcmWinAlbum {
 
         private void OnBackgroundContentListBuilder_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
             if (mBwContentListBuilder.IsCanceled()) {
-                mBwContentListBuilder = null;
                 return;
             }
 
@@ -291,8 +290,6 @@ namespace PlayPcmWinAlbum {
                 mContentList.Save();
                 UpdateContentList();
             }
-
-            mBwContentListBuilder = null;
         }
 
         private void UpdateContentList() {
@@ -333,6 +330,8 @@ namespace PlayPcmWinAlbum {
             PreferenceStore.Save(mPreference);
 
             if (mBwContentListBuilder != null) {
+                // 一度もリスト再作成を呼ばない場合、実体が作られない。
+
                 mBwContentListBuilder.CancelAsync();
                 while (mBwContentListBuilder.IsBusy()) {
                     System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(

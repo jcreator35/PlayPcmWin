@@ -140,7 +140,7 @@ namespace PlayPcmWinAlbum {
                     }
                 }
             } catch (System.IO.IOException ex) {
-                Console.WriteLine(ex);
+                //Console.WriteLine(ex);
             } catch (System.Exception ex) {
                 Console.WriteLine(ex);
             }

@@ -90,7 +90,7 @@ namespace PlayPcmWinAlbum.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Counting Files {0} ....
+        ///   Looks up a localized string similar to Counting Files : {0} ....
         /// </summary>
         internal static string LogCountingFiles {
             get {

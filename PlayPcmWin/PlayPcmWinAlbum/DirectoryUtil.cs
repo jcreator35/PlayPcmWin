@@ -19,13 +19,17 @@ namespace PlayPcmWinAlbum {
             while (dirs.Count > 0) {
                 var currentDir = dirs.Pop();
                 string[] subDirs;
+
                 try {
                     subDirs = System.IO.Directory.GetDirectories(currentDir);
                 } catch (UnauthorizedAccessException e) {
-                    Console.WriteLine(e);
+                    //Console.WriteLine(e);
                     continue;
                 } catch (System.IO.DirectoryNotFoundException e) {
                     Console.WriteLine(e);
+                    continue;
+                } catch (System.Exception ex) {
+                    Console.WriteLine(ex);
                     continue;
                 }
 
@@ -33,10 +37,13 @@ namespace PlayPcmWinAlbum {
                 try {
                     files = System.IO.Directory.GetFiles(currentDir);
                 } catch (UnauthorizedAccessException e) {
-                    Console.WriteLine(e);
+                    //Console.WriteLine(e);
                     continue;
                 } catch (System.IO.DirectoryNotFoundException e) {
                     Console.WriteLine(e);
+                    continue;
+                } catch (System.Exception ex) {
+                    Console.WriteLine(ex);
                     continue;
                 }
 
@@ -49,6 +56,12 @@ namespace PlayPcmWinAlbum {
                         }
                     } catch (System.IO.FileNotFoundException e) {
                         Console.WriteLine(e);
+                        continue;
+                    } catch (System.IO.PathTooLongException ex) {
+                        //Console.WriteLine(ex);
+                        continue;
+                    } catch (System.Exception ex) {
+                        Console.WriteLine(ex);
                         continue;
                     }
                 }

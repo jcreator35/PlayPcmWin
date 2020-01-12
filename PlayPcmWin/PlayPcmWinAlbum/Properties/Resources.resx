@@ -129,7 +129,7 @@ Press No to exit this app.</value>
     <value>Float</value>
   </data>
   <data name="LogCountingFiles" xml:space="preserve">
-    <value>Counting Files {0} ...</value>
+    <value>Counting Files : {0} ...</value>
   </data>
   <data name="LogCreatingMusicList" xml:space="preserve">
     <value>Creating Music Album List ({0}%) ...</value>
