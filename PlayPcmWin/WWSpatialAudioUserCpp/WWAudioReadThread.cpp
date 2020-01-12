@@ -81,14 +81,11 @@ WWMFReaderReadHeader(
 
 	IMFSourceReader *pReader = nullptr;
 	IMFMediaType *pMTPcmAudio = nullptr;
-	IMFMetadataProvider * pMetaProvider = nullptr;
 	IMFMetadata *pMetadata = nullptr;
 	IMFMediaSource *pMediaSource = nullptr;
-	IMFPresentationDescriptor *pPD = nullptr;
 	WAVEFORMATEX *pWfex = nullptr;
 	WAVEFORMATEXTENSIBLE *pWfext = nullptr;
 	UINT32 cbFormat = 0;
-	DWORD dwStream = 0;
     MFTIME hnsDuration = 0;
 
 	memset(meta_return, 0, sizeof(WWMFReaderMetadata));
@@ -118,13 +115,13 @@ WWMFReaderReadHeader(
 		(int64_t)((double)hnsDuration * meta_return->sampleRate / (1000 * 1000 * 10));
 
 end:
-	CoTaskMemFree(pWfex);
+    pWfext = nullptr;
+
+    CoTaskMemFree(pWfex);
 	pWfex = nullptr;
 
-	SafeRelease(&pPD);
 	SafeRelease(&pMediaSource);
 	SafeRelease(&pMetadata);
-	SafeRelease(&pMetaProvider);
 	SafeRelease(&pMTPcmAudio);
 	SafeRelease(&pReader);
 	MFShutdown();
@@ -132,17 +129,17 @@ end:
 	return hr;
 }
 
-#if 0
+// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
 DWORD
-WWSpatialAudioUser::RenderEntry(LPVOID lpThreadParameter)
+WWAudioReadThread::ReadThreadEntry(LPVOID lpThreadParameter)
 {
-    WWSpatialAudioUser* self = (WWSpatialAudioUser*)lpThreadParameter;
-    return self->RenderMain();
+    WWAudioReadThread* self = (WWAudioReadThread*)lpThreadParameter;
+    return self->ReadThreadMain();
 }
 
 HRESULT
-WWSpatialAudioUser::Render1(void)
+WWAudioReadThread::Read1(void)
 {
     HRESULT hr = S_OK;
     mPlayStreamCount = 0;
@@ -188,7 +185,7 @@ end:
 }
 
 HRESULT
-WWSpatialAudioUser::RenderMain(void)
+WWAudioReadThread::ReadThreadMain(void)
 {
     bool stillPlaying = true;
     HANDLE waitArray[2] = { mShutdownEvent, mBufferEvent };
@@ -201,9 +198,6 @@ WWSpatialAudioUser::RenderMain(void)
 
     // MTA
     HRG(CoInitializeEx(nullptr, COINIT_MULTITHREADED));
-
-    mTimerResolution.Setup();
-    mThreadCharacteristics.Setup();
 
     while (stillPlaying) {
         waitResult = WaitForMultipleObjects(nWaitObjects, waitArray, FALSE, INFINITE);
@@ -248,20 +242,18 @@ end:
 // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
 HRESULT
-WWSpatialAudioUser::Init(void)
+WWAudioReadThread::Init(const wchar_t *path, const WWMFPcmFormat &wantFmt)
 {
-    dprintf("WWSpatialAudioUser::Init()\n");
+    dprintf("WWAudioReadThread::Init()\n");
     HRESULT hr = S_OK;
 
-    hr = WWSpatialAudioUserTemplate<ISpatialAudioObjectRenderStream, WWAudioObject>::Init();
-    if (FAILED(hr)) {
-        goto end;
-    }
+    mTargetFmt = wantFmt;
 
-    assert(nullptr == mRenderThread);
-    mRenderThread = CreateThread(nullptr, 0, RenderEntry, this, 0, nullptr);
-    if (nullptr == mRenderThread) {
-        printf("E: WWSpatialAudioUser::Init() CreateThread failed\n");
+
+    assert(nullptr == mReadThread);
+    mReadThread = CreateThread(nullptr, 0, ReadThreadEntry, this, 0, nullptr);
+    if (nullptr == mReadThread) {
+        printf("E: WWAudioReadThread::Init() CreateThread failed\n");
         hr = E_FAIL;
     }
 

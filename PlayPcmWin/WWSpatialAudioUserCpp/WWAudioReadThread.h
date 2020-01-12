@@ -6,22 +6,24 @@
 class WWAudioReadThread 
 {
 public:
-    HRESULT Init(const WWMFPcmFormat &wantFmt);
+    /// スレッドを起動。最初の方を読み出す。
+    /// @param path 読みだすファイル。
+    /// @return S_OK 成功。負の値: エラー。
+    HRESULT Init(const wchar_t *path, const WWMFPcmFormat &wantFmt);
 
     void Term(void);
 
-    /// @param path 読みだすファイル。
-	/// @return S_OK 成功。負の値: エラー。
-    HRESULT Start(const wchar_t *path);
 	HRESULT Seek(int64_t pos);
-
-	HRESULT End(void);
 
 	HRESULT GetPcm(int64_t pos, unsigned char *data_return, int64_t *dataBytes_inout);
 
 private:
 	WWMFPcmFormat mTargetFmt;
 	WWMFPcmFormat mFileFmt;
+    HANDLE mMutex = nullptr;
+    HANDLE mShutdownEvent = nullptr;
+    HANDLE mBufferEvent = nullptr;
+    HANDLE mReadThread = nullptr;
 
     static DWORD ReadThreadEntry(LPVOID lpThreadParameter);
     HRESULT ReadThreadMain(void);

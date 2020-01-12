@@ -7,7 +7,7 @@
     </Filter>
     <Filter Include="Header Files">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
@@ -15,30 +15,42 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="targetver.h">
+    <ClInclude Include="WWMFReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WWMFResamplerCppIF.h">
+    <ClInclude Include="WWMFReaderFunctions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWMFReaderMetadata.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWMFReadFragments.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="WWMFResampler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="WWMFRSTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="WWMFRSUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WWMFRSTypes.h">
+    <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dllmain.cpp">
+    <ClCompile Include="WWMFReader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WWMFReaderFunctions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WWMFReadFragments.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="WWMFResampler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="WWMFResamplerCppIF.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="WWMFRSUtil.cpp">

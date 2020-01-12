@@ -93,7 +93,7 @@
     <ClInclude Include="targetver.h" />
     <ClInclude Include="WWMFResampler.h" />
     <ClInclude Include="WWMFResamplerCppIF.h" />
-    <ClInclude Include="WWTypes.h" />
+    <ClInclude Include="WWMFRSTypes.h" />
     <ClInclude Include="WWMFRSUtil.h" />
   </ItemGroup>
   <ItemGroup>

@@ -68,23 +68,23 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)bin\x86\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)obj\x86\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)bin\$(PlatformToolset)\x86\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(PlatformToolset)\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)bin\x64\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)obj\x64\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)bin\$(PlatformToolset)\x64\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(PlatformToolset)\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)bin\x86\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)obj\x86\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)bin\$(PlatformToolset)\x86\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(PlatformToolset)\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)bin\x64\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)obj\x64\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)bin\$(PlatformToolset)\x64\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(PlatformToolset)\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -98,7 +98,7 @@
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <AdditionalIncludeDirectories>../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../WWDSPCpp;../WWCommonCpp;../WWMFCommonCpp</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -117,7 +117,7 @@
       <ExceptionHandling>Async</ExceptionHandling>
       <TreatWarningAsError>true</TreatWarningAsError>
       <DisableSpecificWarnings>4819</DisableSpecificWarnings>
-      <AdditionalIncludeDirectories>../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../WWDSPCpp;../WWCommonCpp;../WWMFCommonCpp</AdditionalIncludeDirectories>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -137,7 +137,7 @@
       <ExceptionHandling>Async</ExceptionHandling>
       <TreatWarningAsError>false</TreatWarningAsError>
       <DisableSpecificWarnings>4819</DisableSpecificWarnings>
-      <AdditionalIncludeDirectories>../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../WWDSPCpp;../WWCommonCpp;../WWMFCommonCpp</AdditionalIncludeDirectories>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -162,7 +162,7 @@
       <ExceptionHandling>Async</ExceptionHandling>
       <TreatWarningAsError>true</TreatWarningAsError>
       <DisableSpecificWarnings>4819</DisableSpecificWarnings>
-      <AdditionalIncludeDirectories>../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../WWDSPCpp;../WWCommonCpp;../WWMFCommonCpp</AdditionalIncludeDirectories>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -191,7 +191,6 @@
     <ClInclude Include="WWAudioFilterPolarityInvert.h" />
     <ClInclude Include="WWAudioFilterSequencer.h" />
     <ClInclude Include="WWAudioFilterZohNosdacCompensation.h" />
-    <ClInclude Include="WWMFResampler.h" />
     <ClInclude Include="WWMMNotificationClient.h" />
     <ClInclude Include="WWPcmData.h" />
     <ClInclude Include="WWPcmDelay.h" />
@@ -205,115 +204,25 @@
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsManaged>
     </ClCompile>
-    <ClCompile Include="WasapiIOIF.cpp">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-    </ClCompile>
-    <ClCompile Include="WasapiUser.cpp">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-    </ClCompile>
-    <ClCompile Include="WWAudioDeviceEnumerator.cpp">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-    </ClCompile>
-    <ClCompile Include="WWAudioFilterChannelMapping.cpp">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-    </ClCompile>
-    <ClCompile Include="WWAudioFilterDelay.cpp">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-    </ClCompile>
-    <ClCompile Include="WWAudioFilterMonauralMix.cpp">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-    </ClCompile>
-    <ClCompile Include="WWAudioFilterMuteSoloChannel.cpp">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-    </ClCompile>
-    <ClCompile Include="WWAudioFilterPolarityInvert.cpp">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-    </ClCompile>
-    <ClCompile Include="WWAudioFilterSequencer.cpp">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-    </ClCompile>
-    <ClCompile Include="WWAudioFilterZohNosdacCompensation.cpp">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-    </ClCompile>
-    <ClCompile Include="WWMFResampler.cpp">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-    </ClCompile>
-    <ClCompile Include="WWMMNotificationClient.cpp">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-    </ClCompile>
+    <ClCompile Include="WasapiIOIF.cpp" />
+    <ClCompile Include="WasapiUser.cpp" />
+    <ClCompile Include="WWAudioDeviceEnumerator.cpp" />
+    <ClCompile Include="WWAudioFilterChannelMapping.cpp" />
+    <ClCompile Include="WWAudioFilterDelay.cpp" />
+    <ClCompile Include="WWAudioFilterMonauralMix.cpp" />
+    <ClCompile Include="WWAudioFilterMuteSoloChannel.cpp" />
+    <ClCompile Include="WWAudioFilterPolarityInvert.cpp" />
+    <ClCompile Include="WWAudioFilterSequencer.cpp" />
+    <ClCompile Include="WWAudioFilterZohNosdacCompensation.cpp" />
+    <ClCompile Include="WWMMNotificationClient.cpp" />
     <ClCompile Include="WWPcmData.cpp">
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Level4</WarningLevel>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
     </ClCompile>
-    <ClCompile Include="WWPcmDelay.cpp">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-    </ClCompile>
-    <ClCompile Include="WWPcmSampleManipulator.cpp">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-    </ClCompile>
-    <ClCompile Include="WWPcmStream.cpp">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-    </ClCompile>
-    <ClCompile Include="WWPlayPcmGroup.cpp">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-    </ClCompile>
-    <ClCompile Include="WWWasapiIOUtil.cpp">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../WWDSPCpp;../WWCommonCpp</AdditionalIncludeDirectories>
-    </ClCompile>
+    <ClCompile Include="WWPcmDelay.cpp" />
+    <ClCompile Include="WWPcmSampleManipulator.cpp" />
+    <ClCompile Include="WWPcmStream.cpp" />
+    <ClCompile Include="WWPlayPcmGroup.cpp" />
+    <ClCompile Include="WWWasapiIOUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WWCommonCpp\WWCommonCpp.vcxproj">
@@ -326,6 +235,9 @@
       <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
       <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
+    <ProjectReference Include="..\WWMFCommonCpp\WWMFCommonCpp.vcxproj">
+      <Project>{bbd7e639-b6c0-4dec-886c-95a9e9796af9}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
