@@ -5,30 +5,33 @@
 #include <string.h>
 #include <crtdbg.h>
 #include "WWMFReader.h"
+#include "WWMFReadFragments.h"
 #include <SDKDDKVer.h>
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include "../WasapiIODLL/WWUtil.h"
+#include "WWCommonUtil.h"
 #include <mfapi.h>
 
-static int
+static HRESULT
 ReadHeader(const wchar_t *inputFile)
 {
+    HRESULT hr = S_OK;
     unsigned char *picture = nullptr;
     WWMFReaderMetadata meta;
-    int rv = WWMFReaderReadHeader(inputFile, &meta);
-    if (rv < 0) {
+
+    hr = WWMFReaderReadHeader(inputFile, 0, &meta);
+    if (FAILED(hr)) {
         printf("Error: read failed %S\n", inputFile);
-        return rv;
+        return hr;
     }
 
-    int durationSec = (int)(meta.numApproxFrames/meta.sampleRate);
+    int durationSec = (int)(meta.numFrames/meta.sampleRate);
 
     printf("bitsPerSample = %d\n", meta.bitsPerSample);
     printf("sampleRate    = %d\n", meta.sampleRate);
     printf("numChannels   = %d\n", meta.numChannels);
     printf("bitrate       = %d\n", meta.bitRate);
-    printf("nApproxFrames = %lld\n", meta.numApproxFrames);
+    printf("numFrames     = %lld\n", meta.numFrames);
     printf("duration      = %d:%02d\n", durationSec/60, durationSec%60);
     printf("Title         = %S\n", meta.title);
     printf("Artist        = %S\n", meta.artist);
@@ -39,13 +42,19 @@ ReadHeader(const wchar_t *inputFile)
     picture = new unsigned char[meta.pictureBytes];
 
     if (0 < meta.pictureBytes) {
-        rv = WWMFReaderGetCoverart(inputFile, picture, &meta.pictureBytes);
-        if (rv < 0) {
+        hr = WWMFReaderGetCoverart(inputFile, picture, &meta.pictureBytes);
+        if (FAILED(hr)) {
             printf("Error: error read coverart\n");
+            return hr;
         }
 
         {
-            FILE *fp = fopen("picture.jpg", "wb");
+            FILE *fp = nullptr;
+            errno_t erno = fopen_s(&fp, "picture.jpg", "wb");
+            if (erno != 0 || fp == nullptr) {
+                printf("Error: write picture.jpg failed\n");
+                return E_FAIL;
+            }
             fwrite(picture, meta.pictureBytes, 1, fp);
             fclose(fp);
         }
@@ -54,44 +63,48 @@ ReadHeader(const wchar_t *inputFile)
         picture = nullptr;
     }
 
-    return rv;
+    return hr;
 }
 
 static int
 ReadHeaderAndData(
         const wchar_t *inputFile)
 {
-    unsigned char *data = nullptr;
+    uint8_t *data = nullptr;
     int64_t dataBytes = 0;
+    int64_t readBytes = 0;
     WWMFReaderMetadata meta;
+    WWMFReadFragments mReader;
     HRESULT hr = S_OK;
 
-    hr = WWMFReaderReadHeader(inputFile, &meta);
+    hr = WWMFReaderReadHeader(inputFile, WWMFREADER_FLAG_RESOLVE_NUM_FRAMES, &meta);
     if (hr < 0) {
         printf("Error: WWMFReaderReadHeader failed %S\n", inputFile);
         return hr;
     }
 
-    data = new unsigned char[meta.CalcApproxDataBytes()];
+    dataBytes = meta.PcmBytes();
+    printf("data bytes = %lld\n", dataBytes);
+    data = new uint8_t[dataBytes];
     if (nullptr == data) {
         return E_OUTOFMEMORY;
     }
 
-    dataBytes = meta.CalcApproxDataBytes();
-    hr = WWMFReaderReadData(inputFile, data, &dataBytes);
+    hr = mReader.Start(inputFile);
     if (hr < 0) {
         printf("Error: WWMFReaderReadData failed %S\n", inputFile);
-    } else {
-        printf("data bytes = %lld\n", dataBytes);
-
-        int bytesPerFrame = meta.numChannels * meta.bitsPerSample / 8;
-        int64_t numFrames = dataBytes / bytesPerFrame;
-        meta.numExactFrames = numFrames;
-
-        int sec = (int)(dataBytes / (meta.sampleRate * bytesPerFrame));
-
-        printf("duration   = %d:%02d\n", sec / 60, sec % 60);
+        goto end;
     }
+
+    while (readBytes < dataBytes) {
+        int64_t wantBytes = dataBytes - readBytes;
+        HRG(mReader.ReadFragment(&data[readBytes], &wantBytes));
+        readBytes += wantBytes;
+    }
+
+end:
+
+    mReader.End();
 
     delete [] data;
     data = nullptr;
@@ -127,7 +140,6 @@ wmain(int argc, wchar_t *argv[])
 
     // Initialize the COM library.
     HRG(CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE));
-
 
     switch (argc) {
     case 3:

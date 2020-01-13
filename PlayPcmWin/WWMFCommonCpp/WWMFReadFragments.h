@@ -16,20 +16,22 @@
 
 class WWMFReadFragments {
 public:
-    WWMFReadFragments(void) : mReader(nullptr) {
+    WWMFReadFragments(void) : mReader(nullptr), mMFStarted(false) {
         memset(&mMfext, 0, sizeof mMfext);
     }
 
     IMFSourceReader *mReader;
     WAVEFORMATEXTENSIBLE mMfext;
+    bool mMFStarted;
 
     ~WWMFReadFragments(void) {
-        SafeRelease(&mReader);
+        End();
     }
 
     HRESULT Start(const wchar_t *wszSourceFile);
 
     /// std::length_errorがthrowされることがある。
     HRESULT ReadFragment(unsigned char *data_return, int64_t *dataBytes_inout);
+    
     void End(void);
 };

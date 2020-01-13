@@ -178,7 +178,8 @@ WWMFReaderGetDuration(IMFSourceReader *pReader, MFTIME *phnsDuration)
     HRESULT hr = S_OK;
 
     HRG(pReader->GetPresentationAttribute(
-        MF_SOURCE_READER_MEDIASOURCE, MF_PD_DURATION, &var));
+        MF_SOURCE_READER_MEDIASOURCE,
+        MF_PD_DURATION, &var));
 
     PropVariantToInt64(var, phnsDuration);
 
@@ -191,6 +192,8 @@ end:
 HRESULT
 WWMFReaderGetAudioEncodingBitrate(IMFSourceReader *pReader, UINT32 *bitrate_return)
 {
+    *bitrate_return = 0;
+
     PROPVARIANT var;
     PropVariantInit(&var);
     HRESULT hr = S_OK;

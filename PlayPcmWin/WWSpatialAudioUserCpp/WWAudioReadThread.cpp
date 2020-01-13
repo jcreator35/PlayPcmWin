@@ -159,13 +159,12 @@ WWAudioReadThread::ReadThreadMain(void)
     DWORD waitResult;
     HRESULT hr = 0;
 
-    assert(waitArray[0]);
-    assert(waitArray[1]);
-
     // MTA
     HRG(CoInitializeEx(nullptr, COINIT_MULTITHREADED));
 
     while (stillPlaying) {
+        assert(waitArray[0] != nullptr);
+        assert(waitArray[1] != nullptr);
         waitResult = WaitForMultipleObjects(nWaitObjects, waitArray, FALSE, INFINITE);
         
         assert(mMutex);

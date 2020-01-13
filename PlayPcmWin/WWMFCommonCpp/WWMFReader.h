@@ -11,9 +11,12 @@
 
 #include "WWMFReaderMetadata.h"
 
+// ヘッダー部にPCMデータサイズが書かれていないとき、PCMデータをすべて読んでmeta_return->numFramesを確定する。
+#define WWMFREADER_FLAG_RESOLVE_NUM_FRAMES (1)
+
 int
 WWMFReaderReadHeader(
-        const wchar_t *wszSourceFile,
+        const wchar_t *wszSourceFile, int flags,
         WWMFReaderMetadata *meta_return);
 
 int

@@ -75,6 +75,8 @@ WWMFReadFragments::Start(const wchar_t *wszSourceFile)
     memset(&mMfext, 0, sizeof mMfext);
     
     HRG(MFStartup(MF_VERSION));
+    mMFStarted = true;
+
     HRG(MFCreateSourceReaderFromURL(wszSourceFile, nullptr, &mReader));
     HRG(WWMFReaderConfigureAudioTypeToUncompressedPcm(mReader));
 
@@ -97,8 +99,11 @@ WWMFReadFragments::ReadFragment(
         unsigned char *data_return, int64_t *dataBytes_inout)
 {
     HRESULT hr = S_OK;
+    assert(mMFStarted);
     assert(data_return);
     const int64_t cbMaxAudioData = *dataBytes_inout;
+    assert(0 < cbMaxAudioData);
+
     *dataBytes_inout = 0;
 
     IMFSample *pSample = nullptr;
@@ -147,7 +152,9 @@ WWMFReadFragments::ReadFragment(
 
         if (cbMaxAudioData < cbBuffer) {
             // 十分に大きいサイズを指定して呼んで下さい。
-            throw std::length_error("dataBytes_inout");
+            dprintf("D: %s:%d Result data trimmed! cbMaxAudioData=%lld, cbBuffer=%u\n",
+                __FILE__, __LINE__, cbMaxAudioData, cbBuffer);
+            cbBuffer = (DWORD)cbMaxAudioData;
         }
 
         memcpy(&data_return[0], pAudioData, cbBuffer);
@@ -168,7 +175,10 @@ end:
 void WWMFReadFragments::End(void)
 {
     SafeRelease(&mReader);
-    MFShutdown();
+    if (mMFStarted) {
+        MFShutdown();
+        mMFStarted =false;
+    }
 }
 
 
