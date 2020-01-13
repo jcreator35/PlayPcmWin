@@ -24,6 +24,7 @@ private:
     HANDLE mShutdownEvent = nullptr;
     HANDLE mBufferEvent = nullptr;
     HANDLE mReadThread = nullptr;
+    int mPlayStreamCount = 0;
 
     static DWORD ReadThreadEntry(LPVOID lpThreadParameter);
     HRESULT ReadThreadMain(void);

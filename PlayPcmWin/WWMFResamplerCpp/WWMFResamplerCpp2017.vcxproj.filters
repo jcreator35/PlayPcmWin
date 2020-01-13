@@ -21,27 +21,12 @@
     <ClInclude Include="WWMFResamplerCppIF.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WWMFResampler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WWMFRSUtil.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WWMFRSTypes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WWMFResampler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="WWMFResamplerCppIF.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="WWMFRSUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

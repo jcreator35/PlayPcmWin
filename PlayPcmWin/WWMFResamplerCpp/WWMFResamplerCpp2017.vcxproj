@@ -28,7 +28,7 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -62,7 +62,7 @@
       <PreprocessorDefinitions>_DEBUG;WWMFRESAMPLERCPP2017_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>../WWCommonCpp</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../WWCommonCpp;../WWMFCommonCpp</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -80,7 +80,7 @@
       <PreprocessorDefinitions>NDEBUG;WWMFRESAMPLERCPP2017_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>../WWCommonCpp</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../WWCommonCpp;../WWMFCommonCpp</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -91,20 +91,18 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="WWMFResampler.h" />
     <ClInclude Include="WWMFResamplerCppIF.h" />
-    <ClInclude Include="WWMFRSTypes.h" />
-    <ClInclude Include="WWMFRSUtil.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="WWMFResampler.cpp" />
     <ClCompile Include="WWMFResamplerCppIF.cpp" />
-    <ClCompile Include="WWMFRSUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WWCommonCpp\WWCommonCpp2017.vcxproj">
       <Project>{258d3f60-b82f-4bf5-8bed-7195c2f09423}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\WWMFCommonCpp\WWMFCommonCppVs2017.vcxproj">
+      <Project>{bbd7e639-b6c0-4dec-886c-95a9e9796af9}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

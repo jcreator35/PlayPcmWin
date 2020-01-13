@@ -146,40 +146,6 @@ WWAudioReadThread::Read1(void)
     UINT32 availableDyn = 0;
     UINT32 frameCountPerBuffer = 0;
 
-    if (nullptr == mSAORStream) {
-        return S_OK;
-    }
-
-    HRG(mSAORStream->BeginUpdatingAudioObjects(&availableDyn, &frameCountPerBuffer));
-    for (auto ite = mAudioObjectListHolder.mAudioObjectList.begin();
-            ite != mAudioObjectListHolder.mAudioObjectList.end(); ++ite) {
-        auto &ao = *ite;
-        BYTE *buffer = nullptr;
-        UINT32 buffBytes = 0;
-        bool bEnd = false;
-
-        if (ao.sao == nullptr) {
-            HRG(mSAORStream->ActivateSpatialAudioObject(ao.aot, &ao.sao));
-        }
-
-        HRG(ao.sao->GetBuffer(&buffer, &buffBytes));
-
-        bEnd = ao.CopyNextPcmTo(buffer, buffBytes);
-
-        if (bEnd) {
-            // 送るデータが無いので無音をセットした。
-        } else {
-            ++mPlayStreamCount;
-
-            if (ao.aot == AudioObjectType_Dynamic) {
-                HRG(ao.sao->SetPosition(ao.posX, ao.posY, ao.posZ));
-            }
-            HRG(ao.sao->SetVolume(ao.volume));
-        }
-    }
-
-    HRG(mSAORStream->EndUpdatingAudioObjects());
-
 end:
     return hr;
 }
