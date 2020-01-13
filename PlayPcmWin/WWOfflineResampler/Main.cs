@@ -92,12 +92,12 @@ namespace WWOfflineResampler {
         // FLACからPCMのバイト列を取得し、最大値1のdouble型のサンプル値の配列を作る。
         private double[] InputSamples(WWFlacRWCS.FlacRW flacR, WWFlacRWCS.Metadata meta,
                 int ch, long posSamples, int nSamples) {
-            int nBytes = nSamples * meta.bitsPerSample / 8;
-            byte[] pcm;
-            int rv = flacR.GetDecodedPcmBytes(ch, posSamples * meta.BytesPerSample,
-                out pcm, nBytes);
-            if (rv != nBytes) {
-                return null;
+            // 1ch分のnサンプルのPCMデータ。
+            int nBytes = nSamples * meta.BytesPerSample;
+            var pcm = new byte[nBytes];
+            nSamples = flacR.GetPcmOfChannel(ch, posSamples, ref pcm, nSamples);
+            if (nSamples <= 0) {
+                return new double[0];
             }
             double[] result = new double[nSamples];
             switch (meta.bitsPerSample) {
