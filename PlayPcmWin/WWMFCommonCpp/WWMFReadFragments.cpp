@@ -67,11 +67,11 @@ end:
 HRESULT
 WWMFReadFragments::Start(const wchar_t *wszSourceFile)
 {
-    HRESULT hr = S_OK;
-    IMFMediaType *pMTPcmAudio = nullptr;
-    UINT32 cbFormat = 0;
-    WAVEFORMATEX *pWfex = nullptr;
-    WAVEFORMATEXTENSIBLE *pWfext = nullptr;
+    HRESULT              hr           = S_OK;
+    IMFMediaType         *pMTPcmAudio = nullptr;
+    UINT32               cbFormat     = 0;
+    WAVEFORMATEX         *pWfex       = nullptr;
+    WAVEFORMATEXTENSIBLE *pWfext      = nullptr;
     memset(&mMfext, 0, sizeof mMfext);
     
     HRG(MFStartup(MF_VERSION));
@@ -84,8 +84,10 @@ WWMFReadFragments::Start(const wchar_t *wszSourceFile)
 
     HRG(MFCreateWaveFormatExFromMFMediaType(pMTPcmAudio, &pWfex, &cbFormat));
     if (22 <= pWfex->cbSize) {
+        // WAVEFORMATEXTENSIBLEが入っていた。
         mMfext = *((WAVEFORMATEXTENSIBLE*)pWfex);
     } else {
+        // WAVEFORMATEXが入っていた。
         WAVEFORMATEX *pTo = (WAVEFORMATEX*)&mMfext;
         *pTo = *pWfex;
     }
@@ -93,6 +95,34 @@ WWMFReadFragments::Start(const wchar_t *wszSourceFile)
 end:
     return hr;
 }
+
+HRESULT
+WWMFReadFragments::SeekToFrame(int64_t nFrame)
+{
+    HRESULT hr = S_OK;
+    assert(mReader);
+
+    PROPVARIANT pv;
+    PropVariantInit(&pv);
+
+    // 100 nanosec = 1tick
+    int sampleRate = mMfext.Format.nSamplesPerSec;
+    double posSec = (double)nFrame / sampleRate;
+
+    pv.vt= VT_I8;
+    //                                      m     μ     n
+    pv.hVal.QuadPart = (int64_t)(posSec * 1000 * 1000 * 10);
+
+    HRG(mReader->SetCurrentPosition(
+        GUID_NULL, // 100 nanosecond 
+        pv));
+
+end:
+    PropVariantClear(&pv);
+
+    return hr;
+}
+
 
 HRESULT
 WWMFReadFragments::ReadFragment(

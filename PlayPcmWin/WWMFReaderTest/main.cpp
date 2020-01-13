@@ -112,6 +112,63 @@ end:
     return 0;
 }
 
+static int
+ReadSeekTest(
+        const wchar_t *inputFile)
+{
+    uint8_t *data = nullptr;
+    int64_t totalBytes = 0;
+    int64_t posBytes = 0;
+    WWMFReaderMetadata meta;
+    WWMFReadFragments mReader;
+    HRESULT hr = S_OK;
+
+    hr = WWMFReaderReadHeader(inputFile, WWMFREADER_FLAG_RESOLVE_NUM_FRAMES, &meta);
+    if (hr < 0) {
+        printf("Error: WWMFReaderReadHeader failed %S\n", inputFile);
+        return hr;
+    }
+
+    totalBytes = meta.PcmBytes();
+    printf("data bytes = %lld\n", totalBytes);
+    data = new uint8_t[totalBytes];
+    if (nullptr == data) {
+        return E_OUTOFMEMORY;
+    }
+
+    hr = mReader.Start(inputFile);
+    if (hr < 0) {
+        printf("Error: WWMFReaderReadData failed %S\n", inputFile);
+        goto end;
+    }
+
+    // シークします。
+    int64_t posFrames = meta.numFrames/2;
+    posBytes = posFrames * meta.BytesPerFrame();
+    HRG(mReader.SeekToFrame(posFrames));
+
+    while (posBytes < totalBytes) {
+        int64_t wantBytes = totalBytes - posBytes;
+
+        int64_t readBytes = wantBytes;
+        HRG(mReader.ReadFragment(&data[posBytes], &readBytes));
+        if (readBytes == 0) {
+            break;
+        }
+
+        posBytes += readBytes;
+    }
+
+end:
+
+    mReader.End();
+
+    delete [] data;
+    data = nullptr;
+
+    return 0;
+}
+
 static void
 PrintUsage(const wchar_t *appName)
 {
@@ -120,8 +177,10 @@ PrintUsage(const wchar_t *appName)
         "    %S -h inputFile\n"
         "        read header and print\n"
         "    %S -a inputFile\n"
-        "        convert to wav\n",
-        appName, appName);
+        "        whole PCM extract test\n",
+        "    %S -s inputFile\n"
+        "        seek test\n",
+        appName, appName, appName);
 }
 
 int
@@ -149,6 +208,10 @@ wmain(int argc, wchar_t *argv[])
         }
         if (0 == wcsncmp(L"-a", argv[1], 3)) {
             rv = ReadHeaderAndData(argv[2]);
+            printUsage = false;
+        }
+        if (0 == wcsncmp(L"-s", argv[1], 3)) {
+            rv = ReadSeekTest(argv[2]);
             printUsage = false;
         }
         break;

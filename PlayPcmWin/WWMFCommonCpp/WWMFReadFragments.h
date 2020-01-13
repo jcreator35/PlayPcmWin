@@ -30,6 +30,9 @@ public:
 
     HRESULT Start(const wchar_t *wszSourceFile);
 
+    /// ファイルの先頭からのフレーム数指定でシークする。
+    HRESULT SeekToFrame(int64_t nFrame);
+
     /// std::length_errorがthrowされることがある。
     HRESULT ReadFragment(unsigned char *data_return, int64_t *dataBytes_inout);
     
