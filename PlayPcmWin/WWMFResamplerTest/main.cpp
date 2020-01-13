@@ -5,6 +5,7 @@
 #define WINVER _WIN32_WINNT_WIN7
 
 #include "WWMFResampler.h"
+#include "WWMFRSUtil.h"
 #include <crtdbg.h>
 #include <math.h>
 #include <stdio.h>
