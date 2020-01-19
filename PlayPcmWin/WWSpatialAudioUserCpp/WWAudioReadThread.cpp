@@ -111,7 +111,7 @@ WWMFReaderReadHeader(
 	meta_return->numChannels = pWfex->nChannels;
 	meta_return->sampleRate = pWfex->nSamplesPerSec;
 	meta_return->dwChannelMask = pWfext ? pWfext->dwChannelMask : 0;
-    meta_return->numApproxFrames = 
+    meta_return->numFrames = 
 		(int64_t)((double)hnsDuration * meta_return->sampleRate / (1000 * 1000 * 10));
 
 end:
@@ -172,14 +172,10 @@ WWAudioReadThread::ReadThreadMain(void)
         {   // この中はgoto 不可。
             switch (waitResult) {
             case WAIT_OBJECT_0 + 0: // m_shutdownEvent
-                if (mSAORStream) {
-                    mSAORStream->Stop();
-                    mSAORStream->Reset();
-                }
                 stillPlaying = false;
                 break;
             case WAIT_OBJECT_0 + 1: //< mBufferEvent
-                hr = Render1();
+                hr = Read1();
                 break;
             default:
                 assert(0);
@@ -195,16 +191,20 @@ WWAudioReadThread::ReadThreadMain(void)
     }
 
 end:
-    dprintf("WWSpatialAudioUser::RenderMain() end\n");
+    dprintf("WWSpatialAudioUser::RenderMain() end. hr=%08x\n", hr);
 
-    mThreadCharacteristics.Unsetup();
-    mTimerResolution.Unsetup();
-
+    mReader.End();
     CoUninitialize();
     return hr;
 }
 
 // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+WWAudioReadThread::~WWAudioReadThread(void)
+{
+    Term();
+}
+
 
 HRESULT
 WWAudioReadThread::Init(const wchar_t *path, const WWMFPcmFormat &wantFmt)
@@ -214,6 +214,19 @@ WWAudioReadThread::Init(const wchar_t *path, const WWMFPcmFormat &wantFmt)
 
     mTargetFmt = wantFmt;
 
+    HRG(mReader.Start(path));
+
+    assert(!mMutex);
+    mMutex = CreateMutex(nullptr, FALSE, nullptr);
+    CHK(mMutex);
+
+    assert(!mShutdownEvent);
+    mShutdownEvent = CreateEventEx(nullptr, nullptr, 0, EVENT_MODIFY_STATE | SYNCHRONIZE);
+    CHK(mShutdownEvent);
+
+    assert(!mBufferEvent);
+    mBufferEvent = CreateEventEx(nullptr, nullptr, 0, EVENT_MODIFY_STATE | SYNCHRONIZE);
+    CHK(mBufferEvent);
 
     assert(nullptr == mReadThread);
     mReadThread = CreateThread(nullptr, 0, ReadThreadEntry, this, 0, nullptr);
@@ -227,52 +240,49 @@ end:
 }
 
 void
-WWSpatialAudioUser::Term(void)
+WWAudioReadThread::Term(void)
 {
-    WWSpatialAudioUserTemplate<ISpatialAudioObjectRenderStream, WWAudioObject>::Term();
+    if (mReadThread) {
+        assert(mShutdownEvent != nullptr);
+        SetEvent(mShutdownEvent);
+
+        WaitForSingleObject(mReadThread, INFINITE);
+        dprintf("D: %s:%d CloseHandle(%p)\n", __FILE__, __LINE__, mReadThread);
+        if (mReadThread) {
+            CloseHandle(mReadThread);
+        }
+        mReadThread = nullptr;
+    }
+
+    if (nullptr != mShutdownEvent) {
+        dprintf("D: %s:%d CloseHandle(%p)\n", __FILE__, __LINE__, mShutdownEvent);
+        CloseHandle(mShutdownEvent);
+        mShutdownEvent = nullptr;
+    }
+
+    if (nullptr != mBufferEvent) {
+        dprintf("D: %s:%d CloseHandle(%p)\n", __FILE__, __LINE__, mBufferEvent);
+        CloseHandle(mBufferEvent);
+        mBufferEvent = nullptr;
+    }
+
+    if (mMutex) {
+        CloseHandle(mMutex);
+        mMutex = nullptr;
+    }
 }
 
 HRESULT
-WWSpatialAudioUser::ActivateAudioStream(int dynObjectCount, int staticObjectTypeMask)
+WWAudioReadThread::Seek(int64_t pos)
 {
     HRESULT hr = S_OK;
-    SpatialAudioObjectRenderStreamActivationParams p;
-    PROPVARIANT pv;
-    PropVariantInit(&pv);
 
-    if (mSAORStream) {
-        printf("E: WWSpatialAudioUser::ActivateAudioStream() already activated\n");
-        hr = E_FAIL;
-        goto end;
+    assert(mMutex);
+    WaitForSingleObject(mMutex, INFINITE);
+    {
+        hr = mReader.SeekToFrame(pos);
     }
-
-    // 念の為。
-    HRG(mSAClient->IsAudioObjectFormatSupported((const WAVEFORMATEX*)&mUseFmt));
-
-    p.ObjectFormat = (const WAVEFORMATEX*)&mUseFmt;
-    
-    // 1つもスタティックなオブジェクトが無いときはNone。Dynamicにするとエラーが起きた。
-    p.StaticObjectTypeMask = (AudioObjectType)staticObjectTypeMask;
-    p.MinDynamicObjectCount = 0;
-    p.MaxDynamicObjectCount = dynObjectCount;
-    p.Category = AudioCategory_SoundEffects;
-    p.EventHandle = mBufferEvent;
-    p.NotifyObject = nullptr;
-
-    pv.vt = VT_BLOB;
-    pv.blob.cbSize = sizeof(p);
-    pv.blob.pBlobData = reinterpret_cast<BYTE *>(&p);
-
-    HRG(mSAClient->ActivateSpatialAudioStream(&pv, __uuidof(mSAORStream),
-        (void**)&mSAORStream));
-
-end:
-    // blobの指す先はdelete不可。
-    pv.blob.cbSize = 0;
-    pv.blob.pBlobData = nullptr;
-    PropVariantClear(&pv);
-
+    ReleaseMutex(mMutex);
     return hr;
 }
 
-#endif // 0

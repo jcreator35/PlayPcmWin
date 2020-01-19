@@ -112,6 +112,8 @@ end:
     return 0;
 }
 
+#define FRAGMENT_BYTES (1024 * 1024)
+
 static int
 ReadSeekTest(
         const wchar_t *inputFile)
@@ -136,6 +138,8 @@ ReadSeekTest(
         return E_OUTOFMEMORY;
     }
 
+    uint8_t *buff = new uint8_t[FRAGMENT_BYTES];
+
     hr = mReader.Start(inputFile);
     if (hr < 0) {
         printf("Error: WWMFReaderReadData failed %S\n", inputFile);
@@ -143,25 +147,29 @@ ReadSeekTest(
     }
 
     // シークします。
-    int64_t posFrames = meta.numFrames/2;
+    int64_t posFrames = meta.numFrames/2+1;
     posBytes = posFrames * meta.BytesPerFrame();
     HRG(mReader.SeekToFrame(posFrames));
 
-    while (posBytes < totalBytes) {
-        int64_t wantBytes = totalBytes - posBytes;
+    int64_t accBytes = 0;
+    while (true) {
+        int64_t wantBytes = FRAGMENT_BYTES;
 
         int64_t readBytes = wantBytes;
-        HRG(mReader.ReadFragment(&data[posBytes], &readBytes));
+        HRG(mReader.ReadFragment(buff, &readBytes));
         if (readBytes == 0) {
             break;
         }
 
-        posBytes += readBytes;
+        accBytes += readBytes;
     }
 
 end:
 
     mReader.End();
+
+    delete [] buff;
+    buff = nullptr;
 
     delete [] data;
     data = nullptr;

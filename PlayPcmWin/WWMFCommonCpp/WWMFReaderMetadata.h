@@ -16,6 +16,7 @@ extern "C" {
         uint32_t dwChannelMask;
         uint32_t dummy0;
 
+        /// 不明のとき0になる。
         int64_t numFrames;
 
         int64_t pictureBytes;

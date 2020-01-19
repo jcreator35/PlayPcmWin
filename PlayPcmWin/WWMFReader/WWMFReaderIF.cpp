@@ -23,7 +23,7 @@ WWMFReaderIFReadHeader(
         const wchar_t *wszSourceFile,
         WWMFReaderMetadata *meta_return)
 {
-    return WWMFReaderReadHeader(wszSourceFile, meta_return);
+    return WWMFReaderReadHeader(wszSourceFile, WWMFREADER_FLAG_RESOLVE_NUM_FRAMES, meta_return);
 }
 
 extern "C" __declspec(dllexport) int __stdcall

@@ -97,7 +97,7 @@ end:
 }
 
 HRESULT
-WWMFReadFragments::SeekToFrame(int64_t nFrame)
+WWMFReadFragments::SeekToFrame(int64_t &nFrame_inout)
 {
     HRESULT hr = S_OK;
     assert(mReader);
@@ -107,7 +107,7 @@ WWMFReadFragments::SeekToFrame(int64_t nFrame)
 
     // 100 nanosec = 1tick
     int sampleRate = mMfext.Format.nSamplesPerSec;
-    double posSec = (double)nFrame / sampleRate;
+    double posSec = (double)nFrame_inout / sampleRate;
 
     pv.vt= VT_I8;
     //                                      m     μ     n
@@ -126,19 +126,22 @@ end:
 
 HRESULT
 WWMFReadFragments::ReadFragment(
-        unsigned char *data_return, int64_t *dataBytes_inout)
+        unsigned char *data_return,
+        int64_t *dataBytes_inout)
 {
     HRESULT hr = S_OK;
     assert(mMFStarted);
     assert(data_return);
     const int64_t cbMaxAudioData = *dataBytes_inout;
     assert(0 < cbMaxAudioData);
+    DWORD streamIdx = 0;
 
     *dataBytes_inout = 0;
 
     IMFSample *pSample = nullptr;
     IMFMediaBuffer *pBuffer = nullptr;
     DWORD cbBuffer = 0;
+    LONGLONG timeStamp;
 
     // pSampleが1個出てくるまで繰り返す。
     while (true) {
@@ -147,9 +150,9 @@ WWMFReadFragments::ReadFragment(
         HRB_Quiet(mReader->ReadSample(
             (DWORD)MF_SOURCE_READER_FIRST_AUDIO_STREAM,
             0,
-            NULL,
+            &streamIdx,
             &dwFlags,
-            NULL,
+            &timeStamp,
             &pSample));
 
         if (dwFlags & MF_SOURCE_READERF_CURRENTMEDIATYPECHANGED) {

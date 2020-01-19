@@ -2,10 +2,13 @@
 #pragma once
 #include "WWSpatialAudioUserTemplate.h"
 #include "WWMFResampler.h"
+#include "WWMFReadFragments.h"
 
 class WWAudioReadThread 
 {
 public:
+    ~WWAudioReadThread(void);
+
     /// スレッドを起動。最初の方を読み出す。
     /// @param path 読みだすファイル。
     /// @return S_OK 成功。負の値: エラー。
@@ -17,14 +20,18 @@ public:
 
 	HRESULT GetPcm(int64_t pos, unsigned char *data_return, int64_t *dataBytes_inout);
 
+    HRESULT GetThreadErcd(void) const { return mThreadErcd; }
+
 private:
 	WWMFPcmFormat mTargetFmt;
 	WWMFPcmFormat mFileFmt;
+    WWMFReadFragments mReader;
     HANDLE mMutex = nullptr;
     HANDLE mShutdownEvent = nullptr;
     HANDLE mBufferEvent = nullptr;
     HANDLE mReadThread = nullptr;
     int mPlayStreamCount = 0;
+    HRESULT mThreadErcd = 0;
 
     static DWORD ReadThreadEntry(LPVOID lpThreadParameter);
     HRESULT ReadThreadMain(void);
