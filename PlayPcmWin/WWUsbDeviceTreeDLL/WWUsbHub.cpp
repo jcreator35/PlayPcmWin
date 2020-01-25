@@ -28,6 +28,69 @@ WWHubsClear(void)
     mHubs.clear();
 }
 
+static std::string
+DeviceRemovableFlagToStr(int nPorts, int flag)
+{
+    char s[256];
+    memset(s, 0, sizeof s);
+
+    if (15 < nPorts) {
+        nPorts = 15;
+    }
+
+    for (int i = 0; i < nPorts; ++i) {
+        // flag 1 : non-removable
+        // flag 0 : removable
+        if (flag & (1 << (i + 1))) {
+            s[i] = 'N';
+        } else {
+            s[i] = 'R';
+        }
+    }
+    return std::string(s);
+}
+
+static std::string
+HubCharacteristicsToStr(int a)
+{
+    std::string s;
+
+    // 00
+    // 01
+    // 1x
+    switch (a & 3) {
+    case 0:
+        s.append("PowerPortSwitchingGanged ");
+        break;
+    case 1:
+        s.append("PowerPortSwitchingIndividual ");
+        break;
+    default:
+        s.append("PowerPortSwitchingReserved ");
+        break;
+    }
+
+    if (a & 0x4) {
+        s.append("HubIsPartOfCompondDevice ");
+    } else {
+        s.append("HubIsNotPartOfCompondDevice ");
+    }
+
+    switch ((a >> 3) & 3) {
+    case 0:
+        s.append("GlobalOverCurrentProtection ");
+        break;
+    case 1:
+        s.append("IndividualPortOverCurrentProtection ");
+        break;
+    default:
+        s.append("NoOverCurrentProtection ");
+        break;
+    }
+
+    return s;
+}
+
 HRESULT
 WWGetHubInf(int level, int parentIdx, std::wstring hubName)
 {
@@ -73,9 +136,31 @@ WWGetHubInf(int level, int parentIdx, std::wstring hubName)
     mHubs.push_back(hub);
 
     WWPrintIndentSpace(level);
-    printf("#%d UsbHub : %d ports %S %S\n", hub.idx, hub.numPorts,
+    printf("#%d UsbHub : %d ports %S %S", hub.idx, hub.numPorts,
         hub.isBusPowered ? L"BusPowered" : L"SelfPowered",
         WWUsbDeviceBusSpeedToStr(hub.hubType));
+    switch (hub.hi.HubType) {
+    case Usb20Hub:
+        printf("  %s PowerOnDelay=%dms HubControlCurrent=%dmA",
+            HubCharacteristicsToStr(hub.hi.u.UsbHubDescriptor.wHubCharacteristics).c_str(),
+            2 * (int)hub.hi.u.UsbHubDescriptor.bPowerOnToPowerGood,
+            (int)hub.hi.u.UsbHubDescriptor.bHubControlCurrent);
+        break;
+    case Usb30Hub:
+        printf("  %s PowerOnDelay=%dms HubControlCurrent=%dmA PacketHeaderDecodeLatency=%4.2fus HubDelay=%dns DeviceRemovableFlags=%s",
+            HubCharacteristicsToStr(hub.hi.u.Usb30HubDescriptor.wHubCharacteristics).c_str(),
+            2 * (int)hub.hi.u.Usb30HubDescriptor.bPowerOnToPowerGood,
+            (int)hub.hi.u.Usb30HubDescriptor.bHubControlCurrent,
+            0.1 * (int)hub.hi.u.Usb30HubDescriptor.bHubHdrDecLat,
+
+            (int)hub.hi.u.Usb30HubDescriptor.wHubDelay,
+            DeviceRemovableFlagToStr(hub.numPorts, hub.hi.u.Usb30HubDescriptor.DeviceRemovable).c_str());
+        break;
+    default:
+        break;
+    }
+
+    printf("\n");
 
     HRG(WWEnumHubPorts(level+1, hub.idx, hHub, hub.idx, hub.numPorts));
 

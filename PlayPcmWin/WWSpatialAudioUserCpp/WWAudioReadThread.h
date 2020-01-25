@@ -33,6 +33,12 @@ private:
     int mPlayStreamCount = 0;
     HRESULT mThreadErcd = 0;
 
+    /// フレーム備蓄上限値。→読み出しスレッドを止める閾値。
+    int mQueueFullFrames = 1024 * 128;
+
+    /// フレーム備蓄が不足→読み出しスレッドを起動する閾値。
+    int mQueueLowFrames  = 1024 * 64;
+
     static DWORD ReadThreadEntry(LPVOID lpThreadParameter);
     HRESULT ReadThreadMain(void);
     HRESULT Read1(void);

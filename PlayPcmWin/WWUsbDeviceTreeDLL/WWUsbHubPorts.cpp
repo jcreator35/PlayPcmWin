@@ -590,6 +590,8 @@ GetHubPortInf(int level, int parentIdx, HANDLE hHub, int hubIdx, int connIdx, WW
         PUSB_BOS_DESCRIPTOR pbd = (PUSB_BOS_DESCRIPTOR)(pcr + 1);
         hp_r.bosDesc = pbd;
         hp_r.pbr = pbr;
+
+        WWPrintBosDesc(level + 1, pbd);
     } else {
         hp_r.bosDesc = nullptr;
         hp_r.pbr = nullptr;
@@ -610,7 +612,7 @@ GetHubPortInf(int level, int parentIdx, HANDLE hHub, int hubIdx, int connIdx, WW
         hp_r.parentIdx = parentIdx;
 
         WWPrintIndentSpace(level);
-        printf("#%d %S %S %S %04x ", hp_r.idx,
+        printf("#%d %x %S %S %S %04x ", hp_r.idx, hp_r.devDesc.bcdUSB,
             hp_r.pcp->UsbPortProperties.PortConnectorIsTypeC ? L"TypeC" : L"TypeA",
             WWUsbDeviceBusSpeedToStr(hp_r.speed), hp_r.devStr.deviceDesc.c_str(), hp_r.devDesc.idVendor);
         if (hp_r.confDesc->bmAttributes & USB_CONFIG_BUS_POWERED) {
