@@ -78,6 +78,9 @@
     <ClInclude Include="WWSAUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="WWAudioSampleBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

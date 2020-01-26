@@ -44,6 +44,31 @@ struct WWMFPcmFormat {
         validBitsPerSample = aValidBitsPerSample;
     }
 
+    void Set(WAVEFORMATEXTENSIBLE &wfext) {
+        // WAVEFORMATEX相当の情報を取り出す。
+        nChannels = wfext.Format.nChannels;
+        bits = wfext.Format.wBitsPerSample;
+        sampleRate = wfext.Format.nSamplesPerSec;
+        validBitsPerSample = (WORD)wfext.Format.nSamplesPerSec;
+        dwChannelMask = 0;
+        if (wfext.Format.wFormatTag == WAVE_FORMAT_IEEE_FLOAT) {
+            sampleFormat = WWMFBitFormatFloat;
+        } else {
+            sampleFormat = WWMFBitFormatInt;
+        }
+
+        if (40 <= wfext.Format.cbSize) {
+            // WAVEFORMATEXTENSIBLE部分。
+            dwChannelMask = wfext.dwChannelMask;
+            if (wfext.SubFormat == KSDATAFORMAT_SUBTYPE_IEEE_FLOAT) {
+                sampleFormat = WWMFBitFormatFloat;
+            } else {
+                sampleFormat = WWMFBitFormatInt;
+            }
+            validBitsPerSample = wfext.Samples.wValidBitsPerSample;
+        }
+    }
+
     WORD FrameBytes(void) const {
         return (WORD)(nChannels * bits /8U);
     }
@@ -55,10 +80,10 @@ struct WWMFPcmFormat {
 
 /// WWMFSampleData contains new[] ed byte buffer pointer(data) and buffer size(bytes).
 struct WWMFSampleData {
-    DWORD  bytes;
     BYTE  *data;
+    DWORD  bytes;
 
-    WWMFSampleData(void) : bytes(0), data(nullptr) { }
+    WWMFSampleData(void) :data(nullptr), bytes(0) { }
 
     /// @param aData must point new[] ed memory address
     WWMFSampleData(BYTE *aData, int aBytes) {

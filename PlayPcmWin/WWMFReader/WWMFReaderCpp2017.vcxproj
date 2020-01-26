@@ -12,22 +12,18 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="WWMFReaderFunctions.cpp" />
-    <ClCompile Include="WWMFReader.cpp" />
     <ClCompile Include="WWMFReaderIF.cpp" />
-    <ClCompile Include="WWMFReadFragments.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="WWMFReaderFunctions.h" />
-    <ClInclude Include="WWMFReader.h" />
-    <ClInclude Include="WWMFReaderMetadata.h" />
     <ClInclude Include="WWMFReaderIF.h" />
-    <ClInclude Include="WWMFReadFragments.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WWCommonCpp\WWCommonCpp2017.vcxproj">
       <Project>{258d3f60-b82f-4bf5-8bed-7195c2f09423}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\WWMFCommonCpp\WWMFCommonCppVs2017.vcxproj">
+      <Project>{bbd7e639-b6c0-4dec-886c-95a9e9796af9}</Project>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -88,7 +84,7 @@
       <PreprocessorDefinitions>_DEBUG;WWMFREADER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>../WWCommonCpp</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../WWCommonCpp;../WWMFCommonCpp</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -107,7 +103,7 @@
       <PreprocessorDefinitions>NDEBUG;WWMFREADER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>../WWCommonCpp</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../WWCommonCpp;../WWMFCommonCpp</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

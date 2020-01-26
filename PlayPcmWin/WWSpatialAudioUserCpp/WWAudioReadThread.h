@@ -3,7 +3,10 @@
 #include "WWSpatialAudioUserTemplate.h"
 #include "WWMFResampler.h"
 #include "WWMFReadFragments.h"
+#include "WWAudioSampleBuffer.h"
+#include <list>
 
+/// 1個のファイルを読む。
 class WWAudioReadThread 
 {
 public:
@@ -18,7 +21,7 @@ public:
 
 	HRESULT Seek(int64_t pos);
 
-	HRESULT GetPcm(int64_t pos, unsigned char *data_return, int64_t *dataBytes_inout);
+	HRESULT GetNextPcm(unsigned char *data_return, int64_t *dataBytes_inout);
 
     HRESULT GetThreadErcd(void) const { return mThreadErcd; }
 
@@ -26,12 +29,17 @@ private:
 	WWMFPcmFormat mTargetFmt;
 	WWMFPcmFormat mFileFmt;
     WWMFReadFragments mReader;
+    WWMFResampler mResampler;
     HANDLE mMutex = nullptr;
     HANDLE mShutdownEvent = nullptr;
     HANDLE mBufferEvent = nullptr;
     HANDLE mReadThread = nullptr;
     int mPlayStreamCount = 0;
     HRESULT mThreadErcd = 0;
+    uint8_t *mFromBuff = nullptr;
+    uint8_t *mToBuff   = nullptr;
+
+    std::list<WWAudioSampleBuffer *> mSampleQueue;
 
     /// フレーム備蓄上限値。→読み出しスレッドを止める閾値。
     int mQueueFullFrames = 1024 * 128;

@@ -65,7 +65,7 @@ end:
 }
 
 HRESULT
-WWMFReadFragments::Start(const wchar_t *wszSourceFile)
+WWMFReadFragments::Start(const wchar_t *wszSourceFile, WAVEFORMATEXTENSIBLE *mfext_r)
 {
     HRESULT              hr           = S_OK;
     IMFMediaType         *pMTPcmAudio = nullptr;
@@ -90,6 +90,10 @@ WWMFReadFragments::Start(const wchar_t *wszSourceFile)
         // WAVEFORMATEXが入っていた。
         WAVEFORMATEX *pTo = (WAVEFORMATEX*)&mMfext;
         *pTo = *pWfex;
+    }
+
+    if (mfext_r) {
+        *mfext_r = mMfext;
     }
 
 end:

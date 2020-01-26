@@ -28,7 +28,12 @@ public:
         End();
     }
 
-    HRESULT Start(const wchar_t *wszSourceFile);
+    HRESULT Start(const wchar_t *wszSourceFile, WAVEFORMATEXTENSIBLE *mfext_r);
+
+    /// Startが成功したらMfextが取得可能。
+    void GetMfext(WAVEFORMATEXTENSIBLE &mfext_r) {
+        mfext_r = mMfext;
+    }
 
     /// ファイルの先頭からのフレーム数指定でシークする。
     /// 指定フレーム番号のところにピッタリ移動できないことがあるので注意。

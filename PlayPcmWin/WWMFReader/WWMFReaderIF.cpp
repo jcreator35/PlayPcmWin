@@ -67,7 +67,7 @@ WWMFReaderIFReadDataStart(
     const wchar_t *wszSourceFile)
 {
     auto *p = new WWMFReadFragments();
-    HRESULT hr = p->Start(wszSourceFile);
+    HRESULT hr = p->Start(wszSourceFile, nullptr);
 
     if (FAILED(hr)) {
         delete p;

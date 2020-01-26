@@ -67,7 +67,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>avrt.lib;winmm.lib;Dwmapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>mfplat.lib;mfreadwrite.lib;mfuuid.lib;Propsys.lib;avrt.lib;winmm.lib;Dwmapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -88,7 +88,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>avrt.lib;winmm.lib;Dwmapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>mfplat.lib;mfreadwrite.lib;mfuuid.lib;Propsys.lib;avrt.lib;winmm.lib;Dwmapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -98,6 +98,7 @@
     <ClInclude Include="WWAudioObjectListHolder.h" />
     <ClInclude Include="WWAudioObjectTemplate.h" />
     <ClInclude Include="WWAudioReadThread.h" />
+    <ClInclude Include="WWAudioSampleBuffer.h" />
     <ClInclude Include="WWChangeTrackMethod.h" />
     <ClInclude Include="WWDeviceInf.h" />
     <ClInclude Include="WWGuidToStr.h" />
@@ -127,6 +128,9 @@
   <ItemGroup>
     <ProjectReference Include="..\WWCommonCpp\WWCommonCpp2017.vcxproj">
       <Project>{258d3f60-b82f-4bf5-8bed-7195c2f09423}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\WWMFCommonCpp\WWMFCommonCppVs2017.vcxproj">
+      <Project>{bbd7e639-b6c0-4dec-886c-95a9e9796af9}</Project>
     </ProjectReference>
     <ProjectReference Include="..\WWMFReader\WWMFReaderCpp2017.vcxproj">
       <Project>{1342d295-c319-41a7-8c12-edee22fdd949}</Project>
