@@ -585,22 +585,23 @@ GetHubPortInf(int level, int parentIdx, HANDLE hHub, int hubIdx, int connIdx, WW
         hp_r.pcr = nullptr;
     }
 
+    // StringDescriptorをsdsに溜め込む。
+    if (pcr != nullptr && IsStringDescAvailable(&cie->DeviceDescriptor, (PUSB_CONFIGURATION_DESCRIPTOR)(pcr + 1))) {
+        GetAllStringDescs(hHub, connIdx, &cie->DeviceDescriptor, (PUSB_CONFIGURATION_DESCRIPTOR)(pcr + 1), hp_r.sds);
+    }
+
     if (pcr != nullptr && cie->DeviceDescriptor.bcdUSB > 0x0200) {
         HRG(GetBOSDescriptor(hHub, connIdx, &pbr));
         PUSB_BOS_DESCRIPTOR pbd = (PUSB_BOS_DESCRIPTOR)(pcr + 1);
         hp_r.bosDesc = pbd;
         hp_r.pbr = pbr;
 
-        WWPrintBosDesc(level + 1, pbd);
+        WWPrintBosDesc(level + 1, pbd, hp_r.sds);
     } else {
         hp_r.bosDesc = nullptr;
         hp_r.pbr = nullptr;
     }
 
-    if (pcr != nullptr && IsStringDescAvailable(&cie->DeviceDescriptor, (PUSB_CONFIGURATION_DESCRIPTOR)(pcr + 1))) {
-        GetAllStringDescs(hHub, connIdx, &cie->DeviceDescriptor, (PUSB_CONFIGURATION_DESCRIPTOR)(pcr + 1), hp_r.sds);
-    }
-    
     if (hp_r.deviceIsHub) {
         HRG(GetExternalHubName(hHub, connIdx, hp_r.extHubName));
     }
@@ -611,6 +612,7 @@ GetHubPortInf(int level, int parentIdx, HANDLE hHub, int hubIdx, int connIdx, WW
         hp_r.idx = WWUsbIdGenerate();
         hp_r.parentIdx = parentIdx;
 
+        // ポート情報表示。
         WWPrintIndentSpace(level);
         printf("#%d %x %S %S %S %04x ", hp_r.idx, hp_r.devDesc.bcdUSB,
             hp_r.pcp->UsbPortProperties.PortConnectorIsTypeC ? L"TypeC" : L"TypeA",
@@ -623,7 +625,7 @@ GetHubPortInf(int level, int parentIdx, HANDLE hHub, int hubIdx, int connIdx, WW
         }
         printf("\n");
 
-        WWPrintConfDesc(level+1, (int)WWUDB_SuperSpeed <= (int)hp_r.speed, hp_r.confDesc, hp_r.sds);
+        WWPrintConfDesc(level+1, hp_r.confDesc, hp_r.sds);
 
         hr = S_OK;
     } else {
