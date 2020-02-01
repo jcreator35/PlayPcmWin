@@ -42,7 +42,7 @@ namespace WWShowUSBDeviceTree {
             case BusSpeed.HighSpeed: return "USB 2.0";
             case BusSpeed.SuperSpeed: return "USB 3.0/USB3.1 Gen1";
             case BusSpeed.SuperSpeedPlus10: return "USB 3.1 Gen2";
-            case BusSpeed.SuperSpeedPlus20: return "USB 3.1 Gen2x2";
+            case BusSpeed.SuperSpeedPlus20: return "USB 3.2 Gen2x2";
                 default: return "Unknown";
             }
         }
