@@ -12,7 +12,8 @@ WWUsbDeviceBusSpeedToStr(WWUsbDeviceBusSpeed t)
     case WWUDB_FullSpeed: return L"FullSpeed(1.5MB/s)";
     case WWUDB_HighSpeed: return L"HighSpeed(60MB/s)";
     case WWUDB_SuperSpeed: return L"SuperSpeed(625MB/s)";
-    case WWUDB_SuperSpeedPlus: return L"SuperSpeed+(1.25GB/s～)";
+    case WWUDB_SuperSpeedPlus10: return L"SuperSpeed USB 10Gbps";
+    case WWUDB_SuperSpeedPlus20: return L"SuperSpeed USB 20Gbps";
     default:
         assert(0);
         return L"Unknown";
@@ -291,4 +292,47 @@ WWStringDescFindString(std::vector<WWStringDesc> &sds, int idx)
         }
     }
     return L"";
+}
+
+static PUSB_COMMON_DESCRIPTOR
+NextDescriptor(PUSB_COMMON_DESCRIPTOR cd)
+{
+    if (cd->bLength == 0) {
+        return nullptr;
+    }
+    return (PUSB_COMMON_DESCRIPTOR)((PUCHAR)cd + cd->bLength);
+}
+
+/// @param firstD very first descriptor
+/// @param totalBytes descriptor total bytes
+/// @param startD current descriptor
+/// @param descType wanted descriptor type. -1 means any type
+PUSB_COMMON_DESCRIPTOR
+WWGetNextDescriptor(
+    PUSB_COMMON_DESCRIPTOR firstD,
+    ULONG totalBytes,
+    PUSB_COMMON_DESCRIPTOR startD,
+    long descType)
+{
+    PUSB_COMMON_DESCRIPTOR curD = nullptr;
+    PUSB_COMMON_DESCRIPTOR endD = nullptr;
+
+    endD = (PUSB_COMMON_DESCRIPTOR)((PUCHAR)firstD + totalBytes);
+
+    if (endD <= startD || endD <= NextDescriptor(startD)) {
+        return nullptr;
+    }
+
+    if (descType == -1) {
+        return NextDescriptor(startD);
+    }
+
+    curD = startD;
+    while (((curD = NextDescriptor(curD)) < endD)
+        && curD != nullptr) {
+        if (curD->bDescriptorType == (UCHAR)descType) {
+            return curD;
+        }
+    }
+    return nullptr;
 }

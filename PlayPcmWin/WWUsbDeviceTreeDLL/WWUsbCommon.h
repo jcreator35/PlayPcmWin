@@ -19,12 +19,16 @@
 #define WW_SIZEOF_USB_INTERFACE_DESCRIPTOR2 (11)
 
 enum WWUsbDeviceBusSpeed {
+    WWUDB_Unknown = -1,
+
     WWUDB_RootHub, //< RootHubは別格の扱い。
     WWUDB_LowSpeed,
     WWUDB_FullSpeed,
     WWUDB_HighSpeed,
     WWUDB_SuperSpeed,
-    WWUDB_SuperSpeedPlus,
+
+    WWUDB_SuperSpeedPlus10,
+    WWUDB_SuperSpeedPlus20,
 };
 
 enum WWUsbPortConnectorType {
@@ -78,3 +82,14 @@ WWGetDeviceCharacteristics(HANDLE h, USB_DEVICE_CHARACTERISTICS &dc_r);
 
 void
 WWPrintIndentSpace(int level);
+
+/// @param firstD very first descriptor
+/// @param totalBytes descriptor total bytes
+/// @param startD current descriptor
+/// @param descType wanted descriptor type. -1 means any type
+PUSB_COMMON_DESCRIPTOR
+WWGetNextDescriptor(
+    PUSB_COMMON_DESCRIPTOR firstD,
+    ULONG totalBytes,
+    PUSB_COMMON_DESCRIPTOR startD,
+    long descType);

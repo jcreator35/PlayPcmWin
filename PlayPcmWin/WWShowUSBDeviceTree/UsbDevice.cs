@@ -60,8 +60,10 @@ namespace WWShowUSBDeviceTree {
                 return new SolidColorBrush(Colors.White);
             case UsbDeviceTreeCs.BusSpeed.SuperSpeed:
                 return new SolidColorBrush(Color.FromRgb(0x40, 0xc0, 0xff));
-            case UsbDeviceTreeCs.BusSpeed.SuperSpeedPlus:
+            case UsbDeviceTreeCs.BusSpeed.SuperSpeedPlus10:
                 return new SolidColorBrush(Color.FromRgb(0xff, 0, 0xff));
+            case UsbDeviceTreeCs.BusSpeed.SuperSpeedPlus20:
+                return new SolidColorBrush(Color.FromRgb(0xff, 0x80, 0xff));
             case UsbDeviceTreeCs.BusSpeed.LowSpeed:
             case UsbDeviceTreeCs.BusSpeed.FullSpeed:
                 return new SolidColorBrush(Color.FromRgb(0xff, 0xff, 0));

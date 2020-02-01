@@ -112,9 +112,6 @@
     <ClInclude Include="WWUsbVendorIdToStr.h" />
     <ClInclude Include="WWUtil.h" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="..\wwshowusbdevicetree\wwusbdevicetreecs.cs" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

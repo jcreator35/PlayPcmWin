@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace WWShowUSBDeviceTree {
+    // WWUsbCommon.h WWUsbDeviceBusSpeed
     public class UsbDeviceTreeCs {
         public enum BusSpeed {
             RootHub, //< RootHubは別格の扱い。
@@ -10,7 +11,9 @@ namespace WWShowUSBDeviceTree {
             FullSpeed,
             HighSpeed,
             SuperSpeed,
-            SuperSpeedPlus,
+
+            SuperSpeedPlus10,
+            SuperSpeedPlus20,
         };
 
         public enum PortConnectorType {
@@ -25,8 +28,9 @@ namespace WWShowUSBDeviceTree {
             case BusSpeed.FullSpeed: return "FullSpeed(1.5MB/s)";
             case BusSpeed.HighSpeed: return "HighSpeed(60MB/s)";
             case BusSpeed.SuperSpeed: return "SuperSpeed(625MB/s)";
-            case BusSpeed.SuperSpeedPlus: return "SuperSpeed+(1.25GB/s～)";
-            default: return "Unknown";
+            case BusSpeed.SuperSpeedPlus10: return "SuperSpeed+";
+            case BusSpeed.SuperSpeedPlus20: return "SuperSpeed USB 20Gbps";
+                default: return "Unknown";
             }
         }
 
@@ -37,8 +41,9 @@ namespace WWShowUSBDeviceTree {
             case BusSpeed.FullSpeed: return "USB 1.x";
             case BusSpeed.HighSpeed: return "USB 2.0";
             case BusSpeed.SuperSpeed: return "USB 3.0/USB3.1 Gen1";
-            case BusSpeed.SuperSpeedPlus: return "USB 3.1 Gen2 or higher";
-            default: return "Unknown";
+            case BusSpeed.SuperSpeedPlus10: return "USB 3.1 Gen2";
+            case BusSpeed.SuperSpeedPlus20: return "USB 3.1 Gen2x2";
+                default: return "Unknown";
             }
         }
 

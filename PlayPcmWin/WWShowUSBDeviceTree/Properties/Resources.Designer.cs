@@ -76,9 +76,9 @@ namespace WWShowUSBDeviceTree.Properties {
         ///FullSpeed : 1.5MB/s signaling bit rate, Half duplex. Yellow Colored Curve.
         ///HighSpeed : 60MB/s signaling bit rate, Half duplex. White Colored Curve.
         ///SuperSpeed : 625MB/s signaling bit rate, Full duplex. Cyan Colored Curve.
-        ///SuperSpeed+ : 1.25GB/s or 2.5GB/s(USB3.2 Gen2x2) signaling bit rate, Full duplex. Magenta Colored Curve.
+        ///SuperSpeed+ : 1.25GB/s(SuperSpeed USB 10Gbps) or 2.5GB/s(SuperSpeed USB 20Gbps on USB3.2 Gen2x2) signaling bit rate, Full duplex. Magenta Colored Curve.
         ///
-        ///USB1.x supports LowSpeed and FullSpeed. Yellow Colored Borde [rest of string was truncated]&quot;;.
+        ///USB1.x suppo [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string DescriptionText {
             get {

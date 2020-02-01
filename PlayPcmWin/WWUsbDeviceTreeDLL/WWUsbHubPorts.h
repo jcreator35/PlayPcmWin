@@ -11,6 +11,7 @@ struct WWHubPort
     int idx;
     int parentIdx;
     int connIdx;
+    WWUsbDeviceBusSpeed usbVersion;
     WWUsbDeviceBusSpeed speed;
     USB_DEVICE_DESCRIPTOR devDesc;
     BOOLEAN deviceIsHub;

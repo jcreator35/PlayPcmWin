@@ -480,6 +480,56 @@ end:
     return hr;
 }
 
+static WWUsbDeviceBusSpeed
+GetSpeedCapabilityFromBos(PUSB_BOS_DESCRIPTOR bd)
+{
+    PUSB_COMMON_DESCRIPTOR dFirst = (PUSB_COMMON_DESCRIPTOR)bd;
+    PUSB_COMMON_DESCRIPTOR dCur = dFirst;
+    int giga = -1;
+
+    do {
+        switch (dCur->bDescriptorType) {
+        case USB_DEVICE_CAPABILITY_DESCRIPTOR_TYPE:
+            {
+                PUSB_DEVICE_CAPABILITY_DESCRIPTOR capD = (PUSB_DEVICE_CAPABILITY_DESCRIPTOR)dCur;
+                if (capD->bDevCapabilityType == USB_DEVICE_CAPABILITY_SUPERSPEEDPLUS_USB) {
+                    PUSB_DEVICE_CAPABILITY_SUPERSPEEDPLUS_USB_DESCRIPTOR spD = (PUSB_DEVICE_CAPABILITY_SUPERSPEEDPLUS_USB_DESCRIPTOR)dCur;
+                    int ssaCount = spD->bmAttributes.SublinkSpeedAttrCount;
+                    for (int i = 0; i < ssaCount; ++i) {
+                        auto & a = spD->bmSublinkSpeedAttr[i];
+                        if (3 == a.LaneSpeedExponent) {
+                            // Update giga
+                            // LaneSpeedMantissa Gbps
+                            if (giga < (int)a.LaneSpeedMantissa) {
+                                giga = a.LaneSpeedMantissa;
+                            }
+                        }
+                    }
+                }
+            }
+            break;
+        default:
+            break;
+        }
+
+        dCur = WWGetNextDescriptor(dFirst, bd->wTotalLength, dCur, -1);
+    } while (dCur != nullptr);
+
+    // 戻り値rを決める。
+    WWUsbDeviceBusSpeed r = WWUDB_Unknown;
+    if (5 <= giga) {
+        r = WWUDB_SuperSpeed;
+    }
+    if (10 <= giga) {
+        r = WWUDB_SuperSpeedPlus10;
+    }
+    if (20 <= giga) {
+        r = WWUDB_SuperSpeedPlus20;
+    }
+
+    return r;
+}
+
 /// @return E_FAIL ポートに何もつながっていない。
 static HRESULT
 GetHubPortInf(int level, int parentIdx, HANDLE hHub, int hubIdx, int connIdx, WWHubPort & hp_r)
@@ -549,7 +599,7 @@ GetHubPortInf(int level, int parentIdx, HANDLE hHub, int hubIdx, int connIdx, WW
         // speedを決定する。
         if (ci2.ConnectionIndex != 0 && cie->Speed == UsbHighSpeed) {
             if (ci2.Flags.DeviceIsOperatingAtSuperSpeedPlusOrHigher) {
-                hp_r.speed = WWUDB_SuperSpeedPlus;
+                hp_r.speed = WWUDB_SuperSpeedPlus10;
             } else if (ci2.Flags.DeviceIsOperatingAtSuperSpeedOrHigher) {
                 hp_r.speed = WWUDB_SuperSpeed;
             } else {
@@ -580,24 +630,23 @@ GetHubPortInf(int level, int parentIdx, HANDLE hHub, int hubIdx, int connIdx, WW
         PUSB_CONFIGURATION_DESCRIPTOR pcd = (PUSB_CONFIGURATION_DESCRIPTOR)(pcr + 1);
         hp_r.confDesc = pcd;
         hp_r.pcr = pcr;
+
+        // StringDescriptorをsdsに溜め込む。
+        if (IsStringDescAvailable(&cie->DeviceDescriptor, (PUSB_CONFIGURATION_DESCRIPTOR)(pcr + 1))) {
+            GetAllStringDescs(hHub, connIdx, &cie->DeviceDescriptor, (PUSB_CONFIGURATION_DESCRIPTOR)(pcr + 1), hp_r.sds);
+        }
+
     } else {
         hp_r.confDesc = nullptr;
         hp_r.pcr = nullptr;
     }
 
-    // StringDescriptorをsdsに溜め込む。
-    if (pcr != nullptr && IsStringDescAvailable(&cie->DeviceDescriptor, (PUSB_CONFIGURATION_DESCRIPTOR)(pcr + 1))) {
-        GetAllStringDescs(hHub, connIdx, &cie->DeviceDescriptor, (PUSB_CONFIGURATION_DESCRIPTOR)(pcr + 1), hp_r.sds);
-    }
-
-    if (pcr != nullptr && cie->DeviceDescriptor.bcdUSB > 0x0200) {
+    if (cie->ConnectionStatus == DeviceConnected && cie->DeviceDescriptor.bcdUSB > 0x0200) {
         HRG(GetBOSDescriptor(hHub, connIdx, &pbr));
-        PUSB_BOS_DESCRIPTOR pbd = (PUSB_BOS_DESCRIPTOR)(pcr + 1);
+        PUSB_BOS_DESCRIPTOR pbd = (PUSB_BOS_DESCRIPTOR)(pbr + 1);
         hp_r.bosDesc = pbd;
         hp_r.pbr = pbr;
-
-        WWPrintBosDesc(level + 1, pbd, hp_r.sds);
-    } else {
+	} else {
         hp_r.bosDesc = nullptr;
         hp_r.pbr = nullptr;
     }
@@ -627,11 +676,34 @@ GetHubPortInf(int level, int parentIdx, HANDLE hHub, int hubIdx, int connIdx, WW
 
         WWPrintConfDesc(level+1, hp_r.confDesc, hp_r.sds);
 
+		if (hp_r.bosDesc) {
+			WWPrintBosDesc(level+1, hp_r.bosDesc, hp_r.sds);
+		}
+
         hr = S_OK;
     } else {
         // ポート情報は取得成功したが、
         // 何もつながっていないので不要。
         hr = E_FAIL;
+    }
+
+    // USBversionを決定する。
+    if (hp_r.ci2.Flags.DeviceIsSuperSpeedPlusCapableOrHigher) {
+        hp_r.usbVersion = WWUDB_SuperSpeedPlus10;
+        if (hp_r.bosDesc) {
+            // スーパースピードプラスCapabilityを調べ、あれば更新。
+            auto s = GetSpeedCapabilityFromBos(hp_r.bosDesc);
+            if (s != WWUDB_Unknown) {
+                hp_r.usbVersion = s;
+            }
+        }
+
+    } else if (hp_r.ci2.Flags.DeviceIsSuperSpeedCapableOrHigher) {
+        hp_r.usbVersion = WWUDB_SuperSpeed;
+    } else if (hp_r.ci2.SupportedUsbProtocols.Usb200 && 0x200 <= hp_r.cie->DeviceDescriptor.bcdUSB) {
+        hp_r.usbVersion = WWUDB_HighSpeed;
+    } else {
+        hp_r.usbVersion = WWUDB_FullSpeed;
     }
 
 end:

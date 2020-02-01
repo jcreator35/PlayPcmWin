@@ -126,49 +126,6 @@ DeviceClassToStr(int c)
 
 // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
-PUSB_COMMON_DESCRIPTOR
-NextDescriptor(PUSB_COMMON_DESCRIPTOR cd)
-{
-    if (cd->bLength == 0) {
-        return nullptr;
-    }
-    return (PUSB_COMMON_DESCRIPTOR)((PUCHAR)cd + cd->bLength);
-}
-
-/// @param firstD very first descriptor
-/// @param totalBytes descriptor total bytes
-/// @param startD current descriptor
-/// @param descType wanted descriptor type. -1 means any type
-PUSB_COMMON_DESCRIPTOR
-GetNextDescriptor(
-    PUSB_COMMON_DESCRIPTOR firstD,
-    ULONG totalBytes,
-    PUSB_COMMON_DESCRIPTOR startD,
-    long descType)
-{
-    PUSB_COMMON_DESCRIPTOR curD = nullptr;
-    PUSB_COMMON_DESCRIPTOR endD = nullptr;
-
-    endD = (PUSB_COMMON_DESCRIPTOR)((PUCHAR)firstD + totalBytes);
-
-    if (endD <= startD || endD <= NextDescriptor(startD)) {
-        return nullptr;
-    }
-
-    if (descType == -1) {
-        return NextDescriptor(startD);
-    }
-
-    curD = startD;
-    while (((curD = NextDescriptor(curD)) < endD)
-        && curD != nullptr) {
-        if (curD->bDescriptorType == (UCHAR)descType) {
-            return curD;
-        }
-    }
-    return nullptr;
-}
-
 enum WWEndPointDirection {
     WWED_Unknown = -1,
     WWED_In,
@@ -408,24 +365,6 @@ PrintDeviceDesc(int level, PUSB_COMMON_DESCRIPTOR d)
 // https://github.com/microsoft/Windows-driver-samples/blob/master/usb/usbview/display.c
 // USB 3.2 specification Revision 1.0 9.6.2.2
 
-static PUSB_COMMON_DESCRIPTOR
-NextDescriptor(
-        PUSB_COMMON_DESCRIPTOR firstD,
-        int totalLength,
-        PUSB_COMMON_DESCRIPTOR startD)
-{
-    PUSB_COMMON_DESCRIPTOR curD = nullptr;
-    PUSB_COMMON_DESCRIPTOR endD = nullptr;
-
-    endD = (PUSB_COMMON_DESCRIPTOR)((PUCHAR)firstD + totalLength);
-
-    if (startD >= endD ||
-            NextDescriptor(startD) >= endD) {
-        return nullptr;
-    }
-
-    return NextDescriptor(startD);
-}
 
 static void
 PrintUsb20ExtensionCapabilityDesc(int level, PUSB_DEVICE_CAPABILITY_USB20_EXTENSION_DESCRIPTOR d)
@@ -598,24 +537,51 @@ PrintSuperSpeedEndpointCompanionDesc(int level, int endpointType, PUSB_SUPERSPEE
     return d->bMaxBurst;
 }
 
+static std::string
+DeviceCapabilityTypeToStr(int t)
+{
+	switch (t) {
+	case USB_DEVICE_CAPABILITY_WIRELESS_USB: return "Wireless USB";
+	case USB_DEVICE_CAPABILITY_USB20_EXTENSION: return "USB20 Extension";
+	case USB_DEVICE_CAPABILITY_SUPERSPEED_USB: return "SuperSpeed USB";
+	case USB_DEVICE_CAPABILITY_CONTAINER_ID: return "Container ID";
+	case USB_DEVICE_CAPABILITY_PLATFORM: return "Platform";
+	case USB_DEVICE_CAPABILITY_POWER_DELIVERY: return "Power Delivery";
+	case USB_DEVICE_CAPABILITY_BATTERY_INFO: return "Battery Info";
+	case USB_DEVICE_CAPABILITY_PD_CONSUMER_PORT: return "PD Consumer Port";
+	case USB_DEVICE_CAPABILITY_PD_PROVIDER_PORT: return "PD Provider Port";
+	case USB_DEVICE_CAPABILITY_SUPERSPEEDPLUS_USB: return "SuperSpeedPlus USB";
+	case USB_DEVICE_CAPABILITY_PRECISION_TIME_MEASUREMENT: return "Precision Timer Measurement";
+	case USB_DEVICE_CAPABILITY_BILLBOARD: return "Billboard";
+	case USB_DEVICE_CAPABILITY_FIRMWARE_STATUS: return "Firmware Status";
+	default:
+		{
+			char s[256];
+			sprintf_s(s, "UnknownCapabilityType %d", t);
+			return std::string(s);
+		}
+	}
+}
+
+
 static void
 PrintCapabilityDesc(int level, PUSB_COMMON_DESCRIPTOR d)
 {
     PUSB_DEVICE_CAPABILITY_DESCRIPTOR capD = (PUSB_DEVICE_CAPABILITY_DESCRIPTOR)d;
     switch (capD->bDevCapabilityType) {
     case USB_DEVICE_CAPABILITY_USB20_EXTENSION:
-        PrintUsb20ExtensionCapabilityDesc(level + 2, (PUSB_DEVICE_CAPABILITY_USB20_EXTENSION_DESCRIPTOR)d);
+        PrintUsb20ExtensionCapabilityDesc(level, (PUSB_DEVICE_CAPABILITY_USB20_EXTENSION_DESCRIPTOR)d);
         break;
     case USB_DEVICE_CAPABILITY_SUPERSPEED_USB:
-        PrintSuperSpeedCapabilityDesc(level + 2, (PUSB_DEVICE_CAPABILITY_SUPERSPEED_USB_DESCRIPTOR)d);
+        PrintSuperSpeedCapabilityDesc(level, (PUSB_DEVICE_CAPABILITY_SUPERSPEED_USB_DESCRIPTOR)d);
         break;
     case USB_DEVICE_CAPABILITY_SUPERSPEEDPLUS_USB:
-        PrintSuperSpeedPlusCapabilityDesc(level + 2, (PUSB_DEVICE_CAPABILITY_SUPERSPEEDPLUS_USB_DESCRIPTOR)d);
+        PrintSuperSpeedPlusCapabilityDesc(level, (PUSB_DEVICE_CAPABILITY_SUPERSPEEDPLUS_USB_DESCRIPTOR)d);
         break;
-    default:
+	default:
         WWPrintIndentSpace(level);
-        printf("Unknown Capability Descriptor(%d)\n",
-            capD->bDevCapabilityType);
+        printf("%s\n",
+            DeviceCapabilityTypeToStr(capD->bDevCapabilityType).c_str());
         break;
     }
 }
@@ -625,6 +591,15 @@ PrintOtgDesc(int level, PUSB_COMMON_DESCRIPTOR d)
 {
     WWPrintIndentSpace(level);
     printf("OTG\n");
+}
+
+static void
+PrintBosDesc(int level, PUSB_COMMON_DESCRIPTOR d)
+{
+	PUSB_BOS_DESCRIPTOR bos = (PUSB_BOS_DESCRIPTOR)d;
+
+	WWPrintIndentSpace(level);
+	printf("BOS nCaps=%d totalLen=%d\n", bos->bNumDeviceCaps, bos->wTotalLength);
 }
 
 // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
@@ -648,26 +623,29 @@ public:
                 PrintDeviceDesc(level, d);
                 break;
             case USB_DEVICE_CAPABILITY_DESCRIPTOR_TYPE:
-                PrintCapabilityDesc(level+2, d);
+                PrintCapabilityDesc(level+1, d);
                 break;
             case USB_SUPERSPEED_ENDPOINT_COMPANION_DESCRIPTOR_TYPE:
-                PrintSuperSpeedEndpointCompanionDesc(level+2, endpointType, (PUSB_SUPERSPEED_ENDPOINT_COMPANION_DESCRIPTOR)d);
+                PrintSuperSpeedEndpointCompanionDesc(level+1, endpointType, (PUSB_SUPERSPEED_ENDPOINT_COMPANION_DESCRIPTOR)d);
                 break;
             case USB_ENDPOINT_DESCRIPTOR_TYPE:
-                endpointType = PrintEndpointDesc(level+2, (PUSB_ENDPOINT_DESCRIPTOR)d);
+                endpointType = PrintEndpointDesc(level+1, (PUSB_ENDPOINT_DESCRIPTOR)d);
                 break;
             case WW_USB_HID_DESCRIPTOR_TYPE:
-                PrintHidDesc(level+2, (PWW_USB_HID_DESCRIPTOR)d);
+                PrintHidDesc(level+1, (PWW_USB_HID_DESCRIPTOR)d);
                 break;
             case USB_OTG_DESCRIPTOR_TYPE:
-                PrintOtgDesc(level + 2, d);
+                PrintOtgDesc(level + 1, d);
                 break;
+			case USB_BOS_DESCRIPTOR_TYPE:
+				PrintBosDesc(level + 0, d);
+				break;
             default:
-                //PrintOtherDesc(level + 2, d);
+                PrintOtherDesc(level + 1, d);
                 break;
             }
 
-            d = GetNextDescriptor((PUSB_COMMON_DESCRIPTOR)dFirst, bytes, d, -1);
+            d = WWGetNextDescriptor((PUSB_COMMON_DESCRIPTOR)dFirst, bytes, d, -1);
         } while (d != nullptr);
     }
 };
@@ -684,13 +662,9 @@ WWPrintConfDesc(int level, PUSB_CONFIGURATION_DESCRIPTOR cd, std::vector<WWStrin
 void
 WWPrintBosDesc(int level, PUSB_BOS_DESCRIPTOR pbd, std::vector<WWStringDesc> &sds)
 {
-    PUSB_COMMON_DESCRIPTOR            d    = (PUSB_COMMON_DESCRIPTOR)pbd;
-
-    WWPrintIndentSpace(level);
-    printf("BOS bLength=%d bDescriptorType=%d wTotalLength=%d bNumDeviceCaps=%d\n",
-        pbd->bLength, pbd->bDescriptorType, pbd->wTotalLength, pbd->bNumDeviceCaps);
+    PUSB_COMMON_DESCRIPTOR d = (PUSB_COMMON_DESCRIPTOR)pbd;
 
     DescriptorPrinter dp;
-    dp.PrintDesc(level+1, d, pbd->wTotalLength, sds);
+    dp.PrintDesc(level, d, pbd->wTotalLength, sds);
 }
 

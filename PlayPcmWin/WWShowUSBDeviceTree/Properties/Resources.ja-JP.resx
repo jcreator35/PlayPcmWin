@@ -127,7 +127,7 @@ Low Speed : 0.19MB/sのシグナリングビットレート、半二重。線を
 FullSpeed : 1.5MB/sのシグナリングビットレート、半二重。線を黄色表示。
 HighSpeed : 60MB/sのシグナリングビットレート、半二重。線を白色表示。
 SuperSpeed : 625MB/sのシグナリングビットレート、全二重。線を水色表示。
-SuperSpeed+ : 1.25GB/s か 2.5GB/s(USB3.2 Gen2x2)のシグナリングビットレート、全二重。線を紫色表示。
+SuperSpeed+ : 1.25GB/s(SuperSpeed USB 10Gbps) か 2.5GB/s(USB3.2 Gen2x2のSuperSpeed USB 20Gbps)のシグナリングビットレート、全二重。線を紫色表示。
 
 USB1.xはLowSpeedとFullSpeedをサポート。枠を黄色表示。
 USB2.0はLowSpeedとFullSpeedとHighSpeedをサポート。枠を白色表示。
