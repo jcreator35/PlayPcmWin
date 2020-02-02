@@ -214,13 +214,14 @@ SyncTypeToStr(UCHAR sync)
 
 /// @return endpointType (USB_ENDPOINT_TYPE_ISOCHRONOUS, USB_ENDPOINT_TYPE_BULK etc)
 static int
-PrintEndpointDesc(int level, PUSB_ENDPOINT_DESCRIPTOR cd)
+PrintEndpointDesc(int level, PUSB_COMMON_DESCRIPTOR d)
 {
-    WWEndPointDirection dir = EndPointAddressToDir(cd->bEndpointAddress);
-    int epAddr = cd->bEndpointAddress & USB_ENDPOINT_ADDRESS_MASK;
-    UCHAR epType = cd->bmAttributes & USB_ENDPOINT_TYPE_MASK;
-    UCHAR sync = USB_ENDPOINT_TYPE_ISOCHRONOUS_SYNCHRONIZATION(cd->bmAttributes);
-    WWIsocEndpointUsage usage = EndPointAttrToUsage(cd->bmAttributes);
+    PUSB_ENDPOINT_DESCRIPTOR ed = (PUSB_ENDPOINT_DESCRIPTOR)d;
+    WWEndPointDirection dir = EndPointAddressToDir(ed->bEndpointAddress);
+    int epAddr = ed->bEndpointAddress & USB_ENDPOINT_ADDRESS_MASK;
+    UCHAR epType = ed->bmAttributes & USB_ENDPOINT_TYPE_MASK;
+    UCHAR sync = USB_ENDPOINT_TYPE_ISOCHRONOUS_SYNCHRONIZATION(ed->bmAttributes);
+    WWIsocEndpointUsage usage = EndPointAttrToUsage(ed->bmAttributes);
 
     switch (epType) {
     case USB_ENDPOINT_TYPE_ISOCHRONOUS:
@@ -228,12 +229,12 @@ PrintEndpointDesc(int level, PUSB_ENDPOINT_DESCRIPTOR cd)
         printf("Addr=%2d Isochronous %S %S %S Endpoint. MaxPacketSize=%d\n",
             epAddr,
             SyncTypeToStr(sync), WWIsocEndpointUsageToStr(usage), WWEndPointDirectionToStr(dir),
-            cd->wMaxPacketSize);
+            ed->wMaxPacketSize);
             break;
     case USB_ENDPOINT_TYPE_BULK:
         WWPrintIndentSpace(level);
         printf("Addr=%2d Bulk transfer %S Endpoint. MaxPacketSize=%d\n",
-            epAddr, WWEndPointDirectionToStr(dir), cd->wMaxPacketSize);
+            epAddr, WWEndPointDirectionToStr(dir), ed->wMaxPacketSize);
         break;
     default:
         // 表示しない。
@@ -333,8 +334,10 @@ PrintConfDesc(int level, PUSB_COMMON_DESCRIPTOR d, std::vector<WWStringDesc> &sd
 }
 
 static void
-PrintHidDesc(int level, PWW_USB_HID_DESCRIPTOR d)
+PrintHidDesc(int level, PUSB_COMMON_DESCRIPTOR cd)
 {
+
+    PWW_USB_HID_DESCRIPTOR d = (PWW_USB_HID_DESCRIPTOR)cd;
     WWPrintIndentSpace(level);
     printf("HID bcdHID=%x %s\n", d->bcdHID, CountryCodeToStr(d->bCountryCode).c_str());
     for (int i = 0; i < d->bNumDescriptors; ++i) {
@@ -510,8 +513,10 @@ PrintSuperSpeedPlusCapabilityDesc(int level, PUSB_DEVICE_CAPABILITY_SUPERSPEEDPL
 
 /// @return bMaxBurst
 static int
-PrintSuperSpeedEndpointCompanionDesc(int level, int endpointType, PUSB_SUPERSPEED_ENDPOINT_COMPANION_DESCRIPTOR d)
+PrintSuperSpeedEndpointCompanionDesc(int level, int endpointType, PUSB_COMMON_DESCRIPTOR cd)
 {
+    PUSB_SUPERSPEED_ENDPOINT_COMPANION_DESCRIPTOR d = (PUSB_SUPERSPEED_ENDPOINT_COMPANION_DESCRIPTOR)cd;
+
     WWPrintIndentSpace(level);
     printf("SuperSpeedEndopintCompanion MaxBurst=%dpackets bmAttributes=0x%02x ",
         d->bMaxBurst + 1,
@@ -626,13 +631,13 @@ public:
                 PrintCapabilityDesc(level+1, d);
                 break;
             case USB_SUPERSPEED_ENDPOINT_COMPANION_DESCRIPTOR_TYPE:
-                PrintSuperSpeedEndpointCompanionDesc(level+1, endpointType, (PUSB_SUPERSPEED_ENDPOINT_COMPANION_DESCRIPTOR)d);
+                PrintSuperSpeedEndpointCompanionDesc(level+1, endpointType, d);
                 break;
             case USB_ENDPOINT_DESCRIPTOR_TYPE:
-                endpointType = PrintEndpointDesc(level+1, (PUSB_ENDPOINT_DESCRIPTOR)d);
+                endpointType = PrintEndpointDesc(level+1, d);
                 break;
             case WW_USB_HID_DESCRIPTOR_TYPE:
-                PrintHidDesc(level+1, (PWW_USB_HID_DESCRIPTOR)d);
+                PrintHidDesc(level+1, d);
                 break;
             case USB_OTG_DESCRIPTOR_TYPE:
                 PrintOtgDesc(level + 1, d);
