@@ -60,27 +60,27 @@ namespace WWCompareTwoImages
         {
             try { 
                 mColorCtx[(int)ColorProfileType.sRGB]     = new ColorContext(new Uri(mColorDir + "sRGB Color Space Profile.icm", UriKind.Absolute));
-            } catch (Exception ex) {
+            } catch (Exception) {
                 MessageBox.Show("Error: \"sRGB Color Space Profile.icm\" Color Profile is not found!");
                 return false;
             }
             try { 
                 mColorCtx[(int)ColorProfileType.AdobeRGB] = new ColorContext(new Uri(mColorDir + "AdobeRGB1998.icc", UriKind.Absolute));
-            } catch (Exception ex) {
+            } catch (Exception) {
                 var w = new WWDescriptionWindow(WWDescriptionWindow.LocalPathToUri("desc/InstallAdobeRGB.html"));
                 w.ShowDialog();
                 return false;
             }
             try {
                 mColorCtx[(int)ColorProfileType.Rec709]   = new ColorContext(new Uri(mColorDir + "ITU-RBT709ReferenceDisplay.icc", UriKind.Absolute));
-            } catch (Exception ex) {
+            } catch (Exception) {
                 var w = new WWDescriptionWindow(WWDescriptionWindow.LocalPathToUri("desc/InstallRec709.html"));
                 w.ShowDialog();
                 return false;
             }
             try {
                 mColorCtx[(int)ColorProfileType.Monitor]  = new ColorContext(new Uri(mColorDir + mMonitorProfileName, UriKind.Absolute));
-            } catch (Exception ex) {
+            } catch (Exception) {
                 var w = new WWDescriptionWindow(WWDescriptionWindow.LocalPathToUri("desc/SettingMonitorProfile.html"));
                 w.ShowDialog();
                 return false;
