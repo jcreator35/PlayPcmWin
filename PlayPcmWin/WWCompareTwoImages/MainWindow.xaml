@@ -5,8 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WWCompareTwoImages"
         mc:Ignorable="d"
-        Title="MainWindow" WindowState="Maximized"
-    WindowStyle="None" Loaded="Window_Loaded" KeyDown="Window_KeyDown">
+        Title="MainWindow" WindowState="Maximized" Loaded="Window_Loaded" KeyDown="Window_KeyDown">
     <Grid Background="#FF808080" >
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*" />
@@ -21,7 +20,7 @@
         <DockPanel Grid.Column="1" Grid.Row="1">
             <Menu Background="{x:Null}" DockPanel.Dock="Top" >
                 <Button Content="E_xit" Click="Button_Click" />
-                <Button Content="_Read Images..." Click="Button_ReadImages" />
+                <Button Content="_Read Images..." Click="ButtonReadImages_Clicked" />
                 <CheckBox Content="_Swap Image position" Checked="CheckBoxSwapImg_Checked" Unchecked="CheckBoxSwapImg_Unchecked" />
             </Menu>
             <Grid x:Name="mGridMain" >

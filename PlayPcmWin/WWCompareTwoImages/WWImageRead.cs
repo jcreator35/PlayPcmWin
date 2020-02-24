@@ -5,7 +5,7 @@ using System.Windows.Media.Imaging;
 
 namespace WWCompareTwoImages
 {
-    class WWImageRead
+    public class WWImageRead
     {
         string mColorDir;
         string mMonitorProfileName;

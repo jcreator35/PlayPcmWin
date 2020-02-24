@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Globalization;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
@@ -7,10 +8,15 @@ namespace WWCompareTwoImages
 {
     public partial class MainWindow : Window
     {
+        private static string AssemblyVersion {
+            get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); }
+        }
+
         class ImgInf
         {
             public string path;
             public BitmapSource img;
+            public WWImageRead.ColorProfileType cp;
         }
 
         WWImageRead mImageRead;
@@ -22,6 +28,8 @@ namespace WWCompareTwoImages
         public MainWindow()
         {
             InitializeComponent();
+            Title = string.Format(CultureInfo.CurrentCulture,
+                "WWCompareTwoImages version {0}", AssemblyVersion);
         }
 
         enum ImgOrientation
@@ -65,6 +73,8 @@ namespace WWCompareTwoImages
         {
             mImgA.path = pathA;
             mImgB.path = pathB;
+            mImgA.cp = cpA;
+            mImgB.cp = cpB;
             mImgA.img = mImageRead.ColorConvertedRead(pathA, cpA);
             mImgB.img = mImageRead.ColorConvertedRead(pathB, cpB);
         }
@@ -112,11 +122,6 @@ namespace WWCompareTwoImages
             Close();
         }
 
-        private void Button_ReadImages(object sender, RoutedEventArgs e)
-        {
-
-        }
-
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
             switch (e.Key) {
@@ -154,6 +159,26 @@ namespace WWCompareTwoImages
                 return;
             }
 
+            UpdateImgDisp();
+        }
+
+        private void ButtonReadImages_Clicked(object sender, RoutedEventArgs e)
+        {
+            var w = new WWOpenTwoImageFilesWindow();
+
+            w.FirstImgPath = mImgA.path;
+            w.SecondImgPath = mImgB.path;
+            w.FirstImgColorProfile = mImgA.cp;
+            w.SecondImgColorProfile = mImgB.cp;
+
+            var r = w.ShowDialog();
+            if (r != true) {
+                return;
+            }
+
+            ReadTwoImgs(
+                w.FirstImgPath, w.FirstImgColorProfile,
+                w.SecondImgPath, w.SecondImgColorProfile);
             UpdateImgDisp();
         }
     }
