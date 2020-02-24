@@ -1,0 +1,17 @@
+﻿<Window x:Class="WWCompareTwoImages.WWDescriptionWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WWCompareTwoImages"
+        mc:Ignorable="d"
+        Title="DescriptionWindow" Height="450" Width="800" ResizeMode="CanResizeWithGrip">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="32"/>
+        </Grid.RowDefinitions>
+        <Button x:Name="mButtonOK" Grid.Row="1" Content="_OK" HorizontalAlignment="Right" Margin="0,0,22,6" VerticalAlignment="Bottom" Width="75" IsDefault="True" Click="MButtonOK_Click"/>
+        <WebBrowser x:Name="mWebBrowser" />
+    </Grid>
+</Window>

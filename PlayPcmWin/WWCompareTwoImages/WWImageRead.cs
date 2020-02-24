@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -8,6 +9,9 @@ namespace WWCompareTwoImages
     {
         string mColorDir;
         string mMonitorProfileName;
+        bool mInitSuccess = false;
+
+        public bool InitSuccess { get { return mInitSuccess;  } }
 
         public enum ColorProfileType
         {
@@ -28,26 +32,61 @@ namespace WWCompareTwoImages
             get { return mColorDir; }
         }
 
-        public WWImageRead()
-        {
+        public WWImageRead() {
+        }
+
+        public bool Init() {
             mColorDir = WWMonitorProfile.GetColorDirectory();
             mMonitorProfileName = WWMonitorProfile.GetMonitorProfile();
 
-            if (mColorDir == null || mMonitorProfileName == null) {
-                return;
+            if (mColorDir == null) {
+                MessageBox.Show("Error: Color Profile Directory is not found!");
+                return false;
+            }
+
+            if (mMonitorProfileName == null) {
+                var w = new WWDescriptionWindow(WWDescriptionWindow.LocalPathToUri("desc/SettingMonitorProfile.html"));
+                w.ShowDialog();
+                return false;
             }
 
             mColorDir = mColorDir + "\\";
 
-            SetupColorCtx();
+            mInitSuccess = SetupColorCtx();
+            return mInitSuccess;
         }
 
-        private void SetupColorCtx()
+        private bool SetupColorCtx()
         {
-            mColorCtx[(int)ColorProfileType.sRGB]     = new ColorContext(new Uri(mColorDir + "sRGB Color Space Profile.icm", UriKind.Absolute));
-            mColorCtx[(int)ColorProfileType.AdobeRGB] = new ColorContext(new Uri(mColorDir + "AdobeRGB1998.icc", UriKind.Absolute));
-            mColorCtx[(int)ColorProfileType.Rec709]   = new ColorContext(new Uri(mColorDir + "ITU-RBT709ReferenceDisplay.icc", UriKind.Absolute));
-            mColorCtx[(int)ColorProfileType.Monitor]  = new ColorContext(new Uri(mColorDir + mMonitorProfileName, UriKind.Absolute));
+            try { 
+                mColorCtx[(int)ColorProfileType.sRGB]     = new ColorContext(new Uri(mColorDir + "sRGB Color Space Profile.icm", UriKind.Absolute));
+            } catch (Exception ex) {
+                MessageBox.Show("Error: \"sRGB Color Space Profile.icm\" Color Profile is not found!");
+                return false;
+            }
+            try { 
+                mColorCtx[(int)ColorProfileType.AdobeRGB] = new ColorContext(new Uri(mColorDir + "AdobeRGB1998.icc", UriKind.Absolute));
+            } catch (Exception ex) {
+                var w = new WWDescriptionWindow(WWDescriptionWindow.LocalPathToUri("desc/InstallAdobeRGB.html"));
+                w.ShowDialog();
+                return false;
+            }
+            try {
+                mColorCtx[(int)ColorProfileType.Rec709]   = new ColorContext(new Uri(mColorDir + "ITU-RBT709ReferenceDisplay.icc", UriKind.Absolute));
+            } catch (Exception ex) {
+                var w = new WWDescriptionWindow(WWDescriptionWindow.LocalPathToUri("desc/InstallRec709.html"));
+                w.ShowDialog();
+                return false;
+            }
+            try {
+                mColorCtx[(int)ColorProfileType.Monitor]  = new ColorContext(new Uri(mColorDir + mMonitorProfileName, UriKind.Absolute));
+            } catch (Exception ex) {
+                var w = new WWDescriptionWindow(WWDescriptionWindow.LocalPathToUri("desc/SettingMonitorProfile.html"));
+                w.ShowDialog();
+                return false;
+            }
+
+            return true;
         }
 
         public BitmapImage SimpleImageRead(string path)

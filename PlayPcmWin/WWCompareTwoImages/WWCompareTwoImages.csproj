@@ -52,8 +52,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="WWDescriptionWindow.xaml.cs">
+      <DependentUpon>WWDescriptionWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="WWImageRead.cs" />
     <Compile Include="WWMonitorProfile.cs" />
+    <Page Include="WWDescriptionWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

@@ -5,9 +5,6 @@ using System.Windows.Media.Imaging;
 
 namespace WWCompareTwoImages
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         class ImgInf
@@ -97,6 +94,10 @@ namespace WWCompareTwoImages
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             mImageRead = new WWImageRead();
+            if (!mImageRead.Init()) {
+                Close();
+                return;
+            }
 
             //ReadTwoImgs("images\\ColorChart_AdobeRGB.png", WWImageRead.ColorProfileType.AdobeRGB, "images\\ColorChart_sRGB.png", WWImageRead.ColorProfileType.sRGB);
             ReadTwoImgs("images\\CC_AdobeRGB_D65_24bit_GT.png", WWImageRead.ColorProfileType.AdobeRGB, "images\\CC_sRGB_D65_24bit_GT.png", WWImageRead.ColorProfileType.sRGB);
@@ -104,7 +105,6 @@ namespace WWCompareTwoImages
             UpdateImgDisp();
 
             mInitialized = true;
-
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
