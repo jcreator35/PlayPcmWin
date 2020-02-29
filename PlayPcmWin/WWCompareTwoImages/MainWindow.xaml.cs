@@ -96,11 +96,13 @@ namespace WWCompareTwoImages
 
             int hr = ir.VReadStart(imgInf.path);
             if (hr < 0) {
+                MessageBox.Show(string.Format("Error: {0:x} while reading {1}", hr, imgInf.path));
                 return null;
             }
 
             hr = ir.VReadImage(timeStamp, out BitmapSource bi, ref imgInf.duration, ref imgInf.timeStamp);
             if (hr < 0) {
+                MessageBox.Show(string.Format("Error: {0:x} while reading {1}", hr, imgInf.path));
                 return null;
             }
             return bi;
@@ -110,6 +112,7 @@ namespace WWCompareTwoImages
         {
             int hr = ir.VReadImage(-1, out BitmapSource bi, ref imgInf.duration, ref imgInf.timeStamp);
             if (hr < 0) {
+                MessageBox.Show(string.Format("Error: {0:x} while reading {1}", hr, imgInf.path));
                 return null;
             }
             return bi;
