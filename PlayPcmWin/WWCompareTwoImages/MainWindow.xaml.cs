@@ -42,6 +42,8 @@ namespace WWCompareTwoImages
         {
             double ratio = (double)mSlider.Value / (double)mSlider.Maximum;
             double gridWidth = mGridMain.ColumnDefinitions[1].ActualWidth;
+            double imgRenderHeight = fullImg.PixelHeight * (gridWidth / fullImg.PixelWidth);
+            imgOnScreen.Height = imgRenderHeight;
 
             var cropRect = new Int32Rect();
             switch (o) {
@@ -49,6 +51,9 @@ namespace WWCompareTwoImages
                 cropRect = new Int32Rect(0, 0, (int)(fullImg.PixelWidth * ratio), fullImg.PixelHeight);
                 if (cropRect.Width == 0) {
                     cropRect.Width = 1;
+                }
+                if (fullImg.PixelWidth < cropRect.Width) {
+                    cropRect.Width = fullImg.PixelWidth;
                 }
 
                 imgOnScreen.Width = gridWidth * ratio;

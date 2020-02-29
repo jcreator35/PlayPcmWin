@@ -23,22 +23,20 @@ extern "C" {
             unsigned char *data_return,
             int64_t *dataBytes_inout);
 
-    /// 少しづつ読み出す。
     /// @return instanceIdが戻る。
     WWMFREADER_API int __stdcall
     WWMFReaderIFReadDataStart(
         const wchar_t *wszSourceFile);
 
-    /// 少しづつ読み出す。
-    /// @return instanceIdが戻る。
+    /// @return HRESULTが戻る。
     WWMFREADER_API int __stdcall
     WWMFReaderIFReadDataFragment(
         int instanceId,
         unsigned char *data_return,
         int64_t *dataBytes_inout);
 
-    /// 少しづつ読み出す。
-    /// @return instanceIdが戻る。
+    /// @retval S_OK インスタンスが見つかって、削除成功。
+    /// @retval E_INVALIDARG インスタンスがない。
     WWMFREADER_API int __stdcall
     WWMFReaderIFReadDataEnd(
         int instanceId);

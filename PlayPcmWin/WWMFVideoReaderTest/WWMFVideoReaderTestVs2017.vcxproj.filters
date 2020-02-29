@@ -15,30 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="WWCommonUtil.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WWThreadCharacteristics.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WWTimerResolution.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WWRational.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WWImageWH.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="WWCommonUtil.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="WWThreadCharacteristics.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="WWTimerResolution.cpp">
+    <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

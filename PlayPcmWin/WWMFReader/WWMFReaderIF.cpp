@@ -82,7 +82,7 @@ WWMFReaderIFReadDataStart(
 }
 
 /// 少しづつ読み出す。
-/// @return instanceIdが戻る。
+/// @return HRESULTが戻る。
 extern "C" __declspec(dllexport) int __stdcall
 WWMFReaderIFReadDataFragment(
     int instanceId,
@@ -99,7 +99,6 @@ WWMFReaderIFReadDataFragment(
 }
 
 /// 少しづつ読み出す。
-/// @return instanceIdが戻る。
 extern "C" __declspec(dllexport) int __stdcall
 WWMFReaderIFReadDataEnd(
     int instanceId)

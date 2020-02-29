@@ -15,31 +15,34 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="WWCommonUtil.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WWThreadCharacteristics.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WWTimerResolution.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WWRational.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WWImageWH.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WWMFVideoFormat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WWMFVideoFrameReader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WWMFVideoReaderCommon.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WWMFVideoReaderIF.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="WWCommonUtil.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="WWThreadCharacteristics.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="WWTimerResolution.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
+    <ClInclude Include="WWMFVideoFormat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWMFVideoFrameReader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWMFVideoReaderCommon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWMFVideoReaderIF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
