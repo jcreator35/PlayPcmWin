@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include "WWRational.h"
 #include "WWImageWH.h"
+#include "WWImageXYWH.h"
 
 #define WW_MF_VIDEO_IMAGE_FMT_TopDown 1
 #define WW_MF_VIDEO_IMAGE_FMT_CAN_SEEK 2
@@ -14,7 +15,7 @@
 struct WWMFVideoFormat {
     WWImageWH pixelWH;
     WWImageWH aspectStretchedWH;
-    WWImageWH apertureWH; //< Geometric Aperture
+    WWImageXYWH aperture; //< Geometric Aperture
     WWRational32 aspectRatio;
     WWRational32 frameRate;
     int64_t duration;

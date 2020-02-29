@@ -32,11 +32,11 @@ public:
     HRESULT ReadStart(const wchar_t *path);
 
     /// @param posToSeek シークする位置。負のときシークしないで次のフレームを取得。
-    /// @param ppImg_return new[]されたポインタが戻る。 delete[]で開放して下さい。
-    /// @param pImgBytes_return 画像のバイト数が戻る。4 * vf.w * vf.h
+    /// @param pImg_io 画像を戻すメモリ領域を渡す。画像が入る。
+    /// @param imgBytes_io pImg_ioのバイト数を入力。画像のバイト数が戻る。4 * vf.w * vf.h
     /// @param vf_return ビデオフォーマットが戻る。
-    HRESULT ReadImage(int64_t posToSeek, uint8_t **ppImg_return,
-        int *imgBytes_return, WWMFVideoFormat *vf_return);
+    HRESULT ReadImage(int64_t posToSeek, uint8_t *pImg_io,
+        int *imgBytes_io, WWMFVideoFormat *vf_return);
 
     void ReadEnd(void);
 

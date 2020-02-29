@@ -2,16 +2,17 @@
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using WWMFVideoReaderCs;
 
 namespace WWCompareTwoImages
 {
     public class WWImageRead
     {
-        string mColorDir;
-        string mMonitorProfileName;
-        bool mInitSuccess = false;
+        static string mColorDir;
+        static string mMonitorProfileName;
+        static bool mStaticInitSuccess = false;
 
-        public bool InitSuccess { get { return mInitSuccess;  } }
+        static public bool InitSuccess { get { return mStaticInitSuccess;  } }
 
         public enum ColorProfileType
         {
@@ -22,20 +23,22 @@ namespace WWCompareTwoImages
             NUM
         }
 
-        ColorContext[] mColorCtx = new ColorContext[(int)ColorProfileType.NUM];
+        static ColorContext[] mColorCtx = new ColorContext[(int)ColorProfileType.NUM];
 
-        public string MonitorProfileName {
+        static public string MonitorProfileName {
             get { return mMonitorProfileName; }
         }
 
-        public string ColorDir {
+        static public string ColorDir {
             get { return mColorDir; }
         }
+
+        public bool IsVideo { get; set; }
 
         public WWImageRead() {
         }
 
-        public bool Init() {
+        static public bool StaticInit() {
             mColorDir = WWMonitorProfile.GetColorDirectory();
             mMonitorProfileName = WWMonitorProfile.GetMonitorProfile();
 
@@ -52,11 +55,11 @@ namespace WWCompareTwoImages
 
             mColorDir = mColorDir + "\\";
 
-            mInitSuccess = SetupColorCtx();
-            return mInitSuccess;
+            mStaticInitSuccess = SetupColorCtx();
+            return mStaticInitSuccess;
         }
 
-        private bool SetupColorCtx()
+        static private bool SetupColorCtx()
         {
             try { 
                 mColorCtx[(int)ColorProfileType.sRGB]     = new ColorContext(new Uri(mColorDir + "sRGB Color Space Profile.icm", UriKind.Absolute));
@@ -98,6 +101,8 @@ namespace WWCompareTwoImages
             bmi.EndInit();
             bmi.Freeze();
 
+            IsVideo = false;
+
             return bmi;
         }
 
@@ -117,8 +122,46 @@ namespace WWCompareTwoImages
             ccb.DestinationColorContext = mColorCtx[(int)ColorProfileType.Monitor];
             ccb.EndInit();
 
+            IsVideo = false;
+
             return ccb;
         }
+
+        private WWMFVideoReader videoRead = new WWMFVideoReader();
+
+        public int VReadStart(string path)
+        {
+            return videoRead.ReadStart(path);
+        }
+
+        public int VReadImage(long posToSeek, out BitmapSource bi, ref long duration, ref long timeStamp)
+        {
+            int dpi = 96;
+            var pf = PixelFormats.Bgr32;
+            int hr = videoRead.ReadImage(posToSeek, out WWMFVideoReader.VideoImage vi);
+
+            if (hr < 0) {
+                bi = BitmapSource.Create(0, 0, dpi, dpi, pf, null, null, 1);
+                return hr;
+            }
+
+            var bytesPerPixel = (pf.BitsPerPixel + 7) / 8;
+            var stride = bytesPerPixel * vi.w;
+            bi = BitmapSource.Create(vi.w, vi.h, dpi, dpi, pf, null, vi.img, stride);
+            bi.Freeze();
+
+            duration = vi.duration;
+            timeStamp = vi.timeStamp;
+
+            IsVideo = true;
+            return hr;
+        }
+
+        public void VReadEnd()
+        {
+            videoRead.ReadEnd();
+        }
+
     }
 }
 

@@ -52,7 +52,10 @@ Run(const wchar_t *wszSourceFile)
         goto end;
     }
 
-    HRG(WWMFVReaderIFReadImage(instanceId, pos, &pImg, &imgBytes, &vf));
+    imgBytes = 1920 * 1080 * 4;
+    pImg = new uint8_t[imgBytes];
+
+    HRG(WWMFVReaderIFReadImage(instanceId, pos, pImg, &imgBytes, &vf));
     SaveBufToFile(pImg, imgBytes, L"out.data");
 
 end:

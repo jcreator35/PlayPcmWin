@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{39232881-C7F0-4DBD-92A5-8878EAA73B0E}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <RootNamespace>WWCompareTwoImages</RootNamespace>
     <AssemblyName>WWCompareTwoImages</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
@@ -40,6 +40,9 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -115,5 +118,21 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WWMFVideoReaderCs\WWMFVideoReaderCs2017.csproj">
+      <Project>{a7850762-8c91-4aa7-b12d-2374cca0854b}</Project>
+      <Name>WWMFVideoReaderCs2017</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>mkdir $(SolutionDir)$(OutDir)images
+echo copy $(SolutionDir)images\CC_AdobeRGB_D65_24bit_GT.png $(SolutionDir)$(OutDir)\images\
+copy $(SolutionDir)images\CC_AdobeRGB_D65_24bit_GT.png $(SolutionDir)$(OutDir)\images\
+
+echo copy $(SolutionDir)images\CC_sRGB_D65_24bit_GT.png $(SolutionDir)$(OutDir)\images\
+copy $(SolutionDir)images\CC_sRGB_D65_24bit_GT.png $(SolutionDir)$(OutDir)\images\
+
+</PostBuildEvent>
+  </PropertyGroup>
 </Project>

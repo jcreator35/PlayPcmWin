@@ -47,10 +47,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IntDir>$(ProjectDir)obj\$(PlatformToolset)\$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IntDir>$(ProjectDir)obj\$(PlatformToolset)\$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -98,15 +100,15 @@
     <ClCompile Include="WWMFVideoReaderIF.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\WWCommonCpp\WWCommonCpp2017.vcxproj">
-      <Project>{258d3f60-b82f-4bf5-8bed-7195c2f09423}</Project>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="WWMFVideoFormat.h" />
     <ClInclude Include="WWMFVideoFrameReader.h" />
     <ClInclude Include="WWMFVideoReaderCommon.h" />
     <ClInclude Include="WWMFVideoReaderIF.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WWCommonCpp\WWCommonCpp2017.vcxproj">
+      <Project>{258d3f60-b82f-4bf5-8bed-7195c2f09423}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

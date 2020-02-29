@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -17,9 +18,12 @@ namespace WWCompareTwoImages
             public string path;
             public BitmapSource img;
             public WWImageRead.ColorProfileType cp;
+            public long duration;
+            public long timeStamp;
         }
 
-        WWImageRead mImageRead;
+        WWImageRead mImageReadA = new WWImageRead();
+        WWImageRead mImageReadB = new WWImageRead();
         ImgInf mImgA = new ImgInf();
         ImgInf mImgB = new ImgInf();
         bool mInitialized = false;
@@ -40,6 +44,8 @@ namespace WWCompareTwoImages
 
         private void SetCroppedImg(BitmapSource fullImg, Image imgOnScreen, ImgOrientation o)
         {
+            imgOnScreen.Source = null;
+
             double ratio = (double)mSlider.Value / (double)mSlider.Maximum;
             double gridWidth = mGridMain.ColumnDefinitions[1].ActualWidth;
             double imgRenderHeight = fullImg.PixelHeight * (gridWidth / fullImg.PixelWidth);
@@ -70,18 +76,83 @@ namespace WWCompareTwoImages
             }
 
             var cropImg = new CroppedBitmap(fullImg, cropRect);
+            cropImg.Freeze();
 
             imgOnScreen.Source = cropImg;
         }
 
-        private void ReadTwoImgs(string pathA, WWImageRead.ColorProfileType cpA, string pathB, WWImageRead.ColorProfileType cpB)
+        private BitmapSource ReadFromFile(ImgInf imgInf, long timeStamp, WWImageRead ir)
+        {
+            var ext = System.IO.Path.GetExtension(imgInf.path);
+            string[] imgExt = { ".png", ".jpg", ".jpeg", ".bmp" };
+            if (imgExt.Any(s => s.Equals(ext))) {
+                // 画像の拡張子の場合。
+                imgInf.duration = -1;
+                imgInf.timeStamp = -1;
+                return ir.ColorConvertedRead(imgInf.path, imgInf.cp);
+            }
+
+            ir.VReadEnd();
+
+            int hr = ir.VReadStart(imgInf.path);
+            if (hr < 0) {
+                return null;
+            }
+
+            hr = ir.VReadImage(timeStamp, out BitmapSource bi, ref imgInf.duration, ref imgInf.timeStamp);
+            if (hr < 0) {
+                return null;
+            }
+            return bi;
+        }
+
+        private BitmapSource NextImage(ImgInf imgInf, WWImageRead ir)
+        {
+            int hr = ir.VReadImage(-1, out BitmapSource bi, ref imgInf.duration, ref imgInf.timeStamp);
+            if (hr < 0) {
+                return null;
+            }
+            return bi;
+        }
+
+        static long SecondToHNS(double timeSec)
+        {
+            return (long)(timeSec * 1000 * 1000 * 10);
+        }
+
+        private void ReadTwoNewImgs(string pathA, double timeSecA, WWImageRead.ColorProfileType cpA, string pathB, double timeSecB, WWImageRead.ColorProfileType cpB)
         {
             mImgA.path = pathA;
             mImgB.path = pathB;
+
             mImgA.cp = cpA;
             mImgB.cp = cpB;
-            mImgA.img = mImageRead.ColorConvertedRead(pathA, cpA);
-            mImgB.img = mImageRead.ColorConvertedRead(pathB, cpB);
+
+            mImgA.img = ReadFromFile(mImgA, SecondToHNS(timeSecA), mImageReadA);
+            mImgB.img = ReadFromFile(mImgB, SecondToHNS(timeSecB), mImageReadB);
+        }
+
+        private void ReadTwoNextImgs()
+        {
+            mImgA.img = NextImage(mImgA, mImageReadA);
+            mImgB.img = NextImage(mImgB, mImageReadB);
+        }
+
+        private static string HNStoDurationStr(long hns)
+        {
+            int m = (int)(hns / 60 / 1000 / 1000 / 10);
+            int s = (int)(hns / 1000 / 1000 / 10 - m * 60);
+            int subH = (int)(hns / 1000 / 100 - (m * 60 + s) * 100);
+            return string.Format(CultureInfo.CurrentCulture, "{0:D2}:{1:D2}.{2:D2}", m, s, subH);
+        }
+
+        private string LabelStr(ImgInf imgInf)
+        {
+            string r = System.IO.Path.GetFileName(imgInf.path);
+            if (0 <= imgInf.duration) {
+                r += " (" + HNStoDurationStr(imgInf.timeStamp) + " / " + HNStoDurationStr(imgInf.duration) + ")";
+            }
+            return r;
         }
 
         private void UpdateImgDisp()
@@ -93,13 +164,13 @@ namespace WWCompareTwoImages
             if (mImageSwap) {
                 SetCroppedImg(mImgB.img, mImageA, ImgOrientation.Left);
                 SetCroppedImg(mImgA.img, mImageB, ImgOrientation.Right);
-                mLabelA.Content = System.IO.Path.GetFileName(mImgB.path);
-                mLabelB.Content = System.IO.Path.GetFileName(mImgA.path);
+                mLabelA.Content = LabelStr(mImgB);
+                mLabelB.Content = LabelStr(mImgA);
             } else {
                 SetCroppedImg(mImgA.img, mImageA, ImgOrientation.Left);
                 SetCroppedImg(mImgB.img, mImageB, ImgOrientation.Right);
-                mLabelA.Content = System.IO.Path.GetFileName(mImgA.path);
-                mLabelB.Content = System.IO.Path.GetFileName(mImgB.path);
+                mLabelA.Content = LabelStr(mImgA);
+                mLabelB.Content = LabelStr(mImgB);
             }
         }
 
@@ -108,18 +179,26 @@ namespace WWCompareTwoImages
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            mImageRead = new WWImageRead();
-            if (!mImageRead.Init()) {
+            WWMFVideoReaderCs.WWMFVideoReader.StaticInit();
+
+            if (!WWImageRead.StaticInit()) {
                 Close();
                 return;
             }
 
-            //ReadTwoImgs("images\\ColorChart_AdobeRGB.png", WWImageRead.ColorProfileType.AdobeRGB, "images\\ColorChart_sRGB.png", WWImageRead.ColorProfileType.sRGB);
-            ReadTwoImgs("images\\CC_AdobeRGB_D65_24bit_GT.png", WWImageRead.ColorProfileType.AdobeRGB, "images\\CC_sRGB_D65_24bit_GT.png", WWImageRead.ColorProfileType.sRGB);
+            ReadTwoNewImgs(
+                "images\\CC_AdobeRGB_D65_24bit_GT.png", 0, WWImageRead.ColorProfileType.AdobeRGB,
+                "images\\CC_sRGB_D65_24bit_GT.png", 0, WWImageRead.ColorProfileType.sRGB);
+            mButtonNextFrame.IsEnabled = false; //  mImageReadA.IsVideo && mImageReadB.IsVideo;
 
             UpdateImgDisp();
 
             mInitialized = true;
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            WWMFVideoReaderCs.WWMFVideoReader.StaticTerm();
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -181,9 +260,26 @@ namespace WWCompareTwoImages
                 return;
             }
 
-            ReadTwoImgs(
-                w.FirstImgPath, w.FirstImgColorProfile,
-                w.SecondImgPath, w.SecondImgColorProfile);
+            ReadTwoNewImgs(
+                w.FirstImgPath, w.FirstImgTimeSec, w.FirstImgColorProfile,
+                w.SecondImgPath, w.SecondImgTimeSec, w.SecondImgColorProfile);
+            mButtonNextFrame.IsEnabled = false; // mImageReadA.IsVideo && mImageReadB.IsVideo;
+
+            UpdateImgDisp();
+
+        }
+
+        private void ButtonNextFrame_Clicked(object sender, RoutedEventArgs e)
+        {
+            ReadTwoNextImgs();
+            UpdateImgDisp();
+        }
+
+        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (!mInitialized) {
+                return;
+            }
             UpdateImgDisp();
         }
     }

@@ -17,6 +17,16 @@ namespace WWCompareTwoImages
             set { mSecondImgTextBox.Text = value; }
         }
 
+        private double mTimeASec = 0;
+        private double mTimeBSec = 0;
+        public double FirstImgTimeSec {
+            get { return mTimeASec; }
+        }
+
+        public double SecondImgTimeSec {
+            get { return mTimeBSec; }
+        }
+
         /// <summary>
         /// this should be matched to xaml IsDefault
         /// </summary>
@@ -135,6 +145,16 @@ namespace WWCompareTwoImages
             }
             if (!System.IO.File.Exists(SecondImgPath)) {
                 MessageBox.Show("Error: Second image specified does not exist.");
+                return;
+            }
+
+            if (!double.TryParse(mTimeATextBox.Text, out mTimeASec)) {
+                MessageBox.Show("Error: First image time is not number.");
+                return;
+            }
+
+           if (!double.TryParse(mTimeBTextBox.Text, out mTimeBSec)) {
+                MessageBox.Show("Error: Second image time is not number.");
                 return;
             }
 

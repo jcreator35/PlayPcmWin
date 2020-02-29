@@ -33,13 +33,13 @@ extern "C" {
             int instanceId);
 
     /// @param posToSeek シークする位置。負のときシークしないで次のフレームを取得。
-    /// @param ppImg_return new[]されたポインタが戻る。 delete[]で開放して下さい。
-    /// @param pImgBytes_return 画像のバイト数が戻る。4 * vf.w * vf.h
+    /// @param pImg_io 画像を入れるメモリ領域を渡す。画像が入る。予めメモリを確保して渡す。
+    /// @param imgBytes_io pImg_ioのバイト数を入力。画像のバイト数が戻る。4 * vf.w * vf.h
     /// @param vf_return ビデオフォーマットが戻る。
     WWMFVIDEOREADER_API int __stdcall
         WWMFVReaderIFReadImage(
-            int instanceId, int64_t posToSeek, uint8_t **ppImg_return,
-            int *imgBytes_return, WWMFVideoFormat *vf_return);
+            int instanceId, int64_t posToSeek, uint8_t *pImg_io,
+            int *imgBytes_io, WWMFVideoFormat *vf_return);
 
 }; // extern "C"
 

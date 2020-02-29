@@ -6,6 +6,11 @@
 
 // inspired from Microsoft VideoThumbnail sample.
 
+// 色順表記は、画像1バイトごとに出てくる値の色を表している。
+// ひとつだけ1にし、他は0にする。
+#define IMAGE_RGBA 0
+#define IMAGE_BGRA 1
+
 bool WWMFVideoFrameReader::mStaticInit = false;
 
 HRESULT
@@ -105,6 +110,14 @@ CorrectAspectRatio(const RECT& src, const MFRatio& srcPAR)
     return rc;
 }
 
+static double
+MFOffsetToDouble(const MFOffset &t)
+{
+    double r = t.value;
+    r += t.fract / 65536.0;
+    return r;
+}
+
 HRESULT
 WWMFVideoFrameReader::GetVideoFormat(IMFSample *pSample, WWMFVideoFormat *p)
 {
@@ -174,8 +187,14 @@ WWMFVideoFrameReader::GetVideoFormat(IMFSample *pSample, WWMFVideoFormat *p)
 
     HRG(MFCreateMFVideoFormatFromMFMediaType(pType, &mfvf, &bytes));
     PrintMFVideoFormat(mfvf);
-    p->apertureWH.w = mfvf->videoInfo.GeometricAperture.Area.cx;
-    p->apertureWH.h = mfvf->videoInfo.GeometricAperture.Area.cy;
+
+    assert(0 == MFOffsetToDouble(mfvf->videoInfo.GeometricAperture.OffsetX));
+    assert(0 == MFOffsetToDouble(mfvf->videoInfo.GeometricAperture.OffsetY));
+
+    p->aperture.x = (int32_t)MFOffsetToDouble(mfvf->videoInfo.GeometricAperture.OffsetX);
+    p->aperture.y = (int32_t)MFOffsetToDouble(mfvf->videoInfo.GeometricAperture.OffsetY);
+    p->aperture.w = mfvf->videoInfo.GeometricAperture.Area.cx;
+    p->aperture.h = mfvf->videoInfo.GeometricAperture.Area.cy;
     if (mfvf->videoInfo.NominalRange == MFNominalRange_Wide) {
         p->flags |= WW_MF_VIDEO_IMAGE_FMT_LIMITED_RANGE_16_to_235;
     }
@@ -273,8 +292,8 @@ end:
 }
 
 HRESULT
-WWMFVideoFrameReader::ReadImage(int64_t posToSeek, uint8_t **ppImg_return,
-        int *imgBytes_return, WWMFVideoFormat *vf_return)
+WWMFVideoFrameReader::ReadImage(int64_t posToSeek, uint8_t *pImg_io,
+        int *imgBytes_io, WWMFVideoFormat *vf_return)
 {
     HRESULT hr = S_OK;
     DWORD dwFlags = 0;
@@ -282,16 +301,14 @@ WWMFVideoFrameReader::ReadImage(int64_t posToSeek, uint8_t **ppImg_return,
     IMFMediaBuffer *pBuffer = nullptr;
     IMFSample *pSample = nullptr;
     DWORD cbBitmapData = 0;
+    DWORD cbOutputBytes = 0;
     LONGLONG timeStamp = 0;
     DWORD cSkipped = 0;
-    uint8_t *pTo = nullptr;
+    int toPos = 0;
 
-    assert(ppImg_return);
-    assert(imgBytes_return);
+    assert(pImg_io);
+    assert(0 < imgBytes_io);
     assert(vf_return);
-
-    *ppImg_return = nullptr;
-    *imgBytes_return = 0;
 
     // 1フレームの時間の半分。
     double SEEK_TOLERANCE = 1000LL * 1000 * 10 / 2 / ((double)mVideoFmt.frameRate.numer / mVideoFmt.frameRate.denom);
@@ -302,7 +319,7 @@ WWMFVideoFrameReader::ReadImage(int64_t posToSeek, uint8_t **ppImg_return,
 
     while (true) {
         IMFSample *pSampleTmp = nullptr;
-
+        dwFlags = 0; //< 念のため。
         HRG(mReader->ReadSample((DWORD)MF_SOURCE_READER_FIRST_VIDEO_STREAM,
             0, nullptr, &dwFlags, nullptr, &pSampleTmp));
         if (dwFlags & MF_SOURCE_READERF_ENDOFSTREAM) {
@@ -320,20 +337,20 @@ WWMFVideoFrameReader::ReadImage(int64_t posToSeek, uint8_t **ppImg_return,
         SafeRelease(&pSample);
         pSample = pSampleTmp;
         pSample->AddRef();
+        SafeRelease(&pSampleTmp);
 
-        if (0 <= posToSeek) {
-            if (SUCCEEDED(pSample->GetSampleTime(&timeStamp))) {
+        if (SUCCEEDED(pSample->GetSampleTime(&timeStamp))) {
+            mVideoFmt.timeStamp = timeStamp;
+
+            if (0 <= posToSeek) {
                 // 得られたサンプルの時刻を調べる。
                 if (timeStamp + SEEK_TOLERANCE < posToSeek) {
-                    SafeRelease(&pSampleTmp);
-
                     ++cSkipped;
                     continue;
                 }
             }
         }
 
-        SafeRelease(&pSampleTmp);
         break;
     }
 
@@ -348,34 +365,46 @@ WWMFVideoFrameReader::ReadImage(int64_t posToSeek, uint8_t **ppImg_return,
     HRG(pBuffer->Lock(&pBitmapData, nullptr, &cbBitmapData));
     assert(cbBitmapData == (4 * mVideoFmt.pixelWH.w * mVideoFmt.pixelWH.h));
 
-    pTo = new uint8_t[cbBitmapData];
-    if (nullptr == pTo) {
+    cbOutputBytes = 4
+        * (mVideoFmt.aperture.w - mVideoFmt.aperture.x) 
+        * (mVideoFmt.aperture.h - mVideoFmt.aperture.y);
+    if (*imgBytes_io < (int)cbOutputBytes) {
         hr = E_OUTOFMEMORY;
         goto end;
     }
-    *ppImg_return = pTo;
-    assert(ppImg_return);
 
-    *imgBytes_return = (int)cbBitmapData;
+    *imgBytes_io = (int)cbOutputBytes;
     *vf_return = mVideoFmt;
 
-    // set Alpha to 255
-    memcpy(pTo, pBitmapData, cbBitmapData);
-    for (uint32_t pos = 3; pos < cbBitmapData; pos += 4) {
-        pTo[pos] = 255;
+    toPos = 0;
+    for (int y = mVideoFmt.aperture.y; y < mVideoFmt.aperture.h; ++y) {
+        for (int x = mVideoFmt.aperture.x; x < mVideoFmt.aperture.w; ++x) {
+            int fromPos = 4 * (x + y * mVideoFmt.pixelWH.w);
+            uint8_t blue  = pBitmapData[fromPos + 0];
+            uint8_t green = pBitmapData[fromPos + 1];
+            uint8_t red   = pBitmapData[fromPos + 2];
+            uint8_t alpha = pBitmapData[fromPos + 3];
+#if IMAGE_BGRA
+            pImg_io[toPos++] = blue;
+            pImg_io[toPos++] = green;
+            pImg_io[toPos++] = red;
+            pImg_io[toPos++] = 0xff; //< set Alpha to 255
+#endif
+#if IMAGE_RGBA
+            pImg_io[toPos++] = red;
+            pImg_io[toPos++] = green;
+            pImg_io[toPos++] = blue;
+            pImg_io[toPos++] = 0xff; //< set Alpha to 255
+#endif
+        }
     }
-
-    // swap red and blue
-    for (uint32_t pos = 0; pos < cbBitmapData; pos += 4) {
-        uint8_t red = pTo[pos + 2];
-        uint8_t blue = pTo[pos + 0];
-        pTo[pos + 0] = red;
-        pTo[pos + 2] = blue;
-    }
+    assert(toPos == *imgBytes_io);
 
 end:
     if (pBitmapData) {
+        dprintf("D: pBuffer->Unlock\n");
         pBuffer->Unlock();
+
         pBitmapData = nullptr;
     }
     SafeRelease(&pBuffer);

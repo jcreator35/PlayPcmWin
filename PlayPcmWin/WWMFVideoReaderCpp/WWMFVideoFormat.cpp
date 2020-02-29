@@ -9,7 +9,7 @@ WWMFVideoFormatPrint(WWMFVideoFormat &vf)
 {
     printf("  WH=(%d,%d)\n", vf.pixelWH.w, vf.pixelWH.h);
     printf("  aspectStretchedWH=(%d,%d)\n", vf.aspectStretchedWH.w, vf.aspectStretchedWH.h);
-    printf("  apertureWH=(%d,%d)\n", vf.apertureWH.w, vf.apertureWH.h);
+    printf("  apertureXY=(%d,%d) WH=(%d,%d)\n", vf.aperture.x, vf.aperture.y, vf.aperture.w, vf.aperture.h);
     printf("  aspectRatio=%d:%d\n", vf.aspectRatio.numer, vf.aspectRatio.denom);
     printf("  frameRate=%.2f fps\n", (double)vf.frameRate.numer / vf.frameRate.denom);
     printf("  duration=%.2f sec\n", 0.001 * 0.001 *0.1 * vf.duration);

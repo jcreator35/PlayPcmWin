@@ -2,6 +2,7 @@
 
 #include "WWMFVideoReaderIF.h"
 #include "WWMFVideoFrameReader.h"
+#include "WWCommonUtil.h"
 #include <map>
 
 extern "C" __declspec(dllexport) int __stdcall
@@ -83,12 +84,16 @@ WWMFVReaderIFReadEnd(
 
 WWMFVIDEOREADER_API int __stdcall
 WWMFVReaderIFReadImage(
-        int instanceId, int64_t posToSeek, uint8_t **ppImg_return,
-        int *imgBytes_return, WWMFVideoFormat *vf_return)
+        int instanceId, int64_t posToSeek, uint8_t *pImg_io,
+        int *imgBytes_io, WWMFVideoFormat *vf_return)
 {
     FIND_INSTANCE;
 
-    hr = p->ReadImage(posToSeek, ppImg_return, imgBytes_return, vf_return);
+    assert(pImg_io);
+
+    HRG(p->ReadImage(posToSeek, pImg_io, imgBytes_io, vf_return));
+
+end:
 
     return hr;
 }
