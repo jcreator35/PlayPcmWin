@@ -129,6 +129,8 @@ namespace WWCompareTwoImages
 
         private void ReadTwoNewImgs(string pathA, double timeSecA, WWImageRead.ColorProfileType cpA, string pathB, double timeSecB, WWImageRead.ColorProfileType cpB)
         {
+            mLabelIcc.Content = string.Format("Monitor:{0}, ImageA:{1} ImageB:{2}", WWImageRead.MonitorProfileName, cpA, cpB);
+
             mImgA.path = pathA;
             mImgB.path = pathB;
 

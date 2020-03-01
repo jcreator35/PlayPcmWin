@@ -35,6 +35,8 @@
                     <RowDefinition Height="4*"/>
                     <RowDefinition Height="1*"/>
                 </Grid.RowDefinitions>
+                <Label x:Name="mLabelIcc" Grid.ColumnSpan="3" Content="MonitorIccName" Margin="6,0,0,0" VerticalAlignment="Top"  FontFamily="Courier New" />
+
                 <Label x:Name="mLabelA" Content="Image A" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="0,0,0,20" FontFamily="Courier New"  />
                 <Label x:Name="mLabelB" Content="Image B" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,0,20" FontFamily="Courier New" />
                 <Image x:Name="mImageA" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top"/>

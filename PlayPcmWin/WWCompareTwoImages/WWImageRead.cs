@@ -29,6 +29,23 @@ namespace WWCompareTwoImages
             get { return mMonitorProfileName; }
         }
 
+        static public string ColorProfileName(ColorProfileType t)
+        {
+            switch (t) {
+            case ColorProfileType.sRGB:
+                return "sRGB Color Space Profile.icm";
+            case ColorProfileType.AdobeRGB:
+                return "AdobeRGB1998.icc";
+            case ColorProfileType.Rec709:
+                return "ITU-RBT709ReferenceDisplay.icc";
+            case ColorProfileType.Monitor:
+                return MonitorProfileName;
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                return "";
+            }
+        }
+
         static public string ColorDir {
             get { return mColorDir; }
         }
@@ -62,20 +79,20 @@ namespace WWCompareTwoImages
         static private bool SetupColorCtx()
         {
             try { 
-                mColorCtx[(int)ColorProfileType.sRGB]     = new ColorContext(new Uri(mColorDir + "sRGB Color Space Profile.icm", UriKind.Absolute));
+                mColorCtx[(int)ColorProfileType.sRGB]     = new ColorContext(new Uri(mColorDir + ColorProfileName(ColorProfileType.sRGB), UriKind.Absolute));
             } catch (Exception) {
-                MessageBox.Show("Error: \"sRGB Color Space Profile.icm\" Color Profile is not found!");
+                MessageBox.Show(string.Format("Error: \"{0}\" Color Profile is not found!", ColorProfileName(ColorProfileType.sRGB)));
                 return false;
             }
             try { 
-                mColorCtx[(int)ColorProfileType.AdobeRGB] = new ColorContext(new Uri(mColorDir + "AdobeRGB1998.icc", UriKind.Absolute));
+                mColorCtx[(int)ColorProfileType.AdobeRGB] = new ColorContext(new Uri(mColorDir + ColorProfileName(ColorProfileType.AdobeRGB), UriKind.Absolute));
             } catch (Exception) {
                 var w = new WWDescriptionWindow(WWDescriptionWindow.LocalPathToUri("desc/InstallAdobeRGB.html"));
                 w.ShowDialog();
                 return false;
             }
             try {
-                mColorCtx[(int)ColorProfileType.Rec709]   = new ColorContext(new Uri(mColorDir + "ITU-RBT709ReferenceDisplay.icc", UriKind.Absolute));
+                mColorCtx[(int)ColorProfileType.Rec709]   = new ColorContext(new Uri(mColorDir + ColorProfileName(ColorProfileType.Rec709), UriKind.Absolute));
             } catch (Exception) {
                 var w = new WWDescriptionWindow(WWDescriptionWindow.LocalPathToUri("desc/InstallRec709.html"));
                 w.ShowDialog();
@@ -108,6 +125,8 @@ namespace WWCompareTwoImages
 
         public BitmapSource ColorConvertedRead(string path, ColorProfileType from)
         {
+            BitmapSource r = null;
+
             var bmi = new BitmapImage();
             bmi.BeginInit();
             bmi.UriSource = new Uri(path, UriKind.RelativeOrAbsolute);
@@ -115,17 +134,24 @@ namespace WWCompareTwoImages
             bmi.EndInit();
             bmi.Freeze();
 
-            var ccb = new ColorConvertedBitmap();
-            ccb.BeginInit();
-            ccb.Source = bmi;
-            ccb.SourceColorContext = mColorCtx[(int)from];
-            ccb.DestinationColorContext = mColorCtx[(int)ColorProfileType.Monitor];
-            ccb.EndInit();
-            ccb.Freeze();
+            if (0 == ColorProfileName(from).CompareTo(MonitorProfileName)) {
+                // color space is the same.
+                r = bmi;
+            } else { 
+                var ccb = new ColorConvertedBitmap();
+                ccb.BeginInit();
+                ccb.Source = bmi;
+                ccb.SourceColorContext = mColorCtx[(int)from];
+                ccb.DestinationColorContext = mColorCtx[(int)ColorProfileType.Monitor];
+                ccb.EndInit();
+                ccb.Freeze();
+
+                r = ccb;
+            }
 
             IsVideo = false;
 
-            return ccb;
+            return r;
         }
 
         private WWMFVideoReader videoRead = new WWMFVideoReader();
@@ -148,26 +174,28 @@ namespace WWCompareTwoImages
 
             var bytesPerPixel = (pf.BitsPerPixel + 7) / 8;
             var stride = bytesPerPixel * vi.w;
-#if true
+
             var wb = new WriteableBitmap(vi.w, vi.h, dpi, dpi, pf, null);
             wb.Lock();
             wb.WritePixels(new Int32Rect(0, 0, vi.w, vi.h), vi.img, stride, 0);
             wb.Unlock();
             wb.Freeze();
 
-            var ccb = new ColorConvertedBitmap();
-            ccb.BeginInit();
-            ccb.Source = wb;
-            ccb.SourceColorContext = mColorCtx[(int)from];
-            ccb.DestinationColorContext = mColorCtx[(int)ColorProfileType.Monitor];
-            ccb.EndInit();
-            ccb.Freeze();
+            if (0 == ColorProfileName(from).CompareTo(MonitorProfileName)) {
+                // color space is the same.
+                bs = wb;
+            } else {
+                var ccb = new ColorConvertedBitmap();
+                ccb.BeginInit();
+                ccb.Source = wb;
+                ccb.SourceColorContext = mColorCtx[(int)from];
+                ccb.DestinationColorContext = mColorCtx[(int)ColorProfileType.Monitor];
+                ccb.EndInit();
+                ccb.Freeze();
 
-            bs = ccb;
-#else
-            bs = BitmapSource.Create(vi.w, vi.h, dpi, dpi, pf, null, vi.img, stride);
-            bs.Freeze();
-#endif
+                bs = ccb;
+            }
+
             duration = vi.duration;
             timeStamp = vi.timeStamp;
 
