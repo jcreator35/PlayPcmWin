@@ -135,7 +135,7 @@ namespace WWCompareTwoImages
             return videoRead.ReadStart(path);
         }
 
-        public int VReadImage(long posToSeek, out BitmapSource bs, ref long duration, ref long timeStamp)
+        public int VReadImage(long posToSeek, ColorProfileType from, out BitmapSource bs, ref long duration, ref long timeStamp)
         {
             int dpi = 96;
             var pf = PixelFormats.Bgr32;
@@ -154,7 +154,16 @@ namespace WWCompareTwoImages
             wb.WritePixels(new Int32Rect(0, 0, vi.w, vi.h), vi.img, stride, 0);
             wb.Unlock();
             wb.Freeze();
-            bs = wb;
+
+            var ccb = new ColorConvertedBitmap();
+            ccb.BeginInit();
+            ccb.Source = wb;
+            ccb.SourceColorContext = mColorCtx[(int)from];
+            ccb.DestinationColorContext = mColorCtx[(int)ColorProfileType.Monitor];
+            ccb.EndInit();
+            ccb.Freeze();
+
+            bs = ccb;
 #else
             bs = BitmapSource.Create(vi.w, vi.h, dpi, dpi, pf, null, vi.img, stride);
             bs.Freeze();
