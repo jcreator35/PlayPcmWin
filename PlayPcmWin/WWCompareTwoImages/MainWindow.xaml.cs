@@ -110,6 +110,10 @@ namespace WWCompareTwoImages
 
         private BitmapSource NextImage(ImgInf imgInf, WWImageRead ir)
         {
+            if (imgInf.duration < 0) {
+                return null;
+            }
+
             int hr = ir.VReadImage(-1, out BitmapSource bi, ref imgInf.duration, ref imgInf.timeStamp);
             if (hr < 0) {
                 MessageBox.Show(string.Format("Error: {0:x} while reading {1}", hr, imgInf.path));
@@ -137,8 +141,18 @@ namespace WWCompareTwoImages
 
         private void ReadTwoNextImgs()
         {
-            mImgA.img = NextImage(mImgA, mImageReadA);
-            mImgB.img = NextImage(mImgB, mImageReadB);
+            { 
+                var iA = NextImage(mImgA, mImageReadA);
+                if (iA != null) {
+                    mImgA.img = iA;
+                }
+            }
+            { 
+                var iB = NextImage(mImgB, mImageReadB);
+                if (iB != null) {
+                    mImgB.img = iB;
+                }
+            }
         }
 
         private static string HNStoDurationStr(long hns)
@@ -192,7 +206,7 @@ namespace WWCompareTwoImages
             ReadTwoNewImgs(
                 "images\\CC_AdobeRGB_D65_24bit_GT.png", 0, WWImageRead.ColorProfileType.AdobeRGB,
                 "images\\CC_sRGB_D65_24bit_GT.png", 0, WWImageRead.ColorProfileType.sRGB);
-            mButtonNextFrame.IsEnabled = false; //  mImageReadA.IsVideo && mImageReadB.IsVideo;
+            mButtonNextFrame.IsEnabled = mImageReadA.IsVideo || mImageReadB.IsVideo;
 
             UpdateImgDisp();
 
@@ -266,7 +280,7 @@ namespace WWCompareTwoImages
             ReadTwoNewImgs(
                 w.FirstImgPath, w.FirstImgTimeSec, w.FirstImgColorProfile,
                 w.SecondImgPath, w.SecondImgTimeSec, w.SecondImgColorProfile);
-            mButtonNextFrame.IsEnabled = false; // mImageReadA.IsVideo && mImageReadB.IsVideo;
+            mButtonNextFrame.IsEnabled = mImageReadA.IsVideo || mImageReadB.IsVideo;
 
             UpdateImgDisp();
 

@@ -186,7 +186,7 @@ WWMFVideoFrameReader::GetVideoFormat(IMFSample *pSample, WWMFVideoFormat *p)
     HRG(GetDuration(&p->duration));
 
     HRG(MFCreateMFVideoFormatFromMFMediaType(pType, &mfvf, &bytes));
-    PrintMFVideoFormat(mfvf);
+    //PrintMFVideoFormat(mfvf);
 
     assert(0 == MFOffsetToDouble(mfvf->videoInfo.GeometricAperture.OffsetX));
     assert(0 == MFOffsetToDouble(mfvf->videoInfo.GeometricAperture.OffsetY));
@@ -296,15 +296,9 @@ WWMFVideoFrameReader::ReadImage(int64_t posToSeek, uint8_t *pImg_io,
         int *imgBytes_io, WWMFVideoFormat *vf_return)
 {
     HRESULT hr = S_OK;
-    DWORD dwFlags = 0;
-    BYTE *pBitmapData = nullptr;
-    IMFMediaBuffer *pBuffer = nullptr;
     IMFSample *pSample = nullptr;
-    DWORD cbBitmapData = 0;
-    DWORD cbOutputBytes = 0;
-    LONGLONG timeStamp = 0;
-    DWORD cSkipped = 0;
-    int toPos = 0;
+    IMFMediaBuffer *pBuffer = nullptr;
+    BYTE *pBitmapData = nullptr;
 
     assert(pImg_io);
     assert(0 < imgBytes_io);
@@ -318,10 +312,13 @@ WWMFVideoFrameReader::ReadImage(int64_t posToSeek, uint8_t *pImg_io,
     }
 
     while (true) {
+        DWORD dwFlags = 0;
+        DWORD actualStreamIndex = 0;
+        LONGLONG timeStamp = 0;
         IMFSample *pSampleTmp = nullptr;
-        dwFlags = 0; //< 念のため。
+
         HRG(mReader->ReadSample((DWORD)MF_SOURCE_READER_FIRST_VIDEO_STREAM,
-            0, nullptr, &dwFlags, nullptr, &pSampleTmp));
+            0, &actualStreamIndex, &dwFlags, &timeStamp, &pSampleTmp));
         if (dwFlags & MF_SOURCE_READERF_ENDOFSTREAM) {
             break;
         }
@@ -339,15 +336,12 @@ WWMFVideoFrameReader::ReadImage(int64_t posToSeek, uint8_t *pImg_io,
         pSample->AddRef();
         SafeRelease(&pSampleTmp);
 
-        if (SUCCEEDED(pSample->GetSampleTime(&timeStamp))) {
-            mVideoFmt.timeStamp = timeStamp;
-
-            if (0 <= posToSeek) {
-                // 得られたサンプルの時刻を調べる。
-                if (timeStamp + SEEK_TOLERANCE < posToSeek) {
-                    ++cSkipped;
-                    continue;
-                }
+        dprintf("time=%f\n", (double)timeStamp / (1000.0 *1000.0 * 10));
+        mVideoFmt.timeStamp = timeStamp;
+        if (0 <= posToSeek) {
+            // 得られたサンプルの時刻を調べる。
+            if (timeStamp + SEEK_TOLERANCE < posToSeek) {
+                continue;
             }
         }
 
@@ -359,52 +353,59 @@ WWMFVideoFrameReader::ReadImage(int64_t posToSeek, uint8_t *pImg_io,
         goto end;
     }
 
-    // 画像をppImgReturnにコピーする。
-    // 画像フォーマットをvf_returnにセット。
-    HRG(pSample->ConvertToContiguousBuffer(&pBuffer));
-    HRG(pBuffer->Lock(&pBitmapData, nullptr, &cbBitmapData));
-    assert(cbBitmapData == (4 * mVideoFmt.pixelWH.w * mVideoFmt.pixelWH.h));
+    {
+        DWORD cbBitmapData = 0;
+        DWORD cbOutputBytes = 0;
 
-    cbOutputBytes = 4
-        * (mVideoFmt.aperture.w - mVideoFmt.aperture.x) 
-        * (mVideoFmt.aperture.h - mVideoFmt.aperture.y);
-    if (*imgBytes_io < (int)cbOutputBytes) {
-        hr = E_OUTOFMEMORY;
-        goto end;
+        // 画像をppImgReturnにコピーする。
+        // 画像フォーマットをvf_returnにセット。
+        HRG(pSample->ConvertToContiguousBuffer(&pBuffer));
+        HRG(pBuffer->Lock(&pBitmapData, nullptr, &cbBitmapData));
+        assert(cbBitmapData == (4 * mVideoFmt.pixelWH.w * mVideoFmt.pixelWH.h));
+
+        cbOutputBytes = 4
+            * (mVideoFmt.aperture.w - mVideoFmt.aperture.x) 
+            * (mVideoFmt.aperture.h - mVideoFmt.aperture.y);
+        if (*imgBytes_io < (int)cbOutputBytes) {
+            hr = E_OUTOFMEMORY;
+            goto end;
+        }
+
+        *imgBytes_io = (int)cbOutputBytes;
+        *vf_return = mVideoFmt;
     }
 
-    *imgBytes_io = (int)cbOutputBytes;
-    *vf_return = mVideoFmt;
-
-    toPos = 0;
-    for (int y = mVideoFmt.aperture.y; y < mVideoFmt.aperture.h; ++y) {
-        for (int x = mVideoFmt.aperture.x; x < mVideoFmt.aperture.w; ++x) {
-            int fromPos = 4 * (x + y * mVideoFmt.pixelWH.w);
-            uint8_t blue  = pBitmapData[fromPos + 0];
-            uint8_t green = pBitmapData[fromPos + 1];
-            uint8_t red   = pBitmapData[fromPos + 2];
-            uint8_t alpha = pBitmapData[fromPos + 3];
+    {
+        int toPos = 0;
+        for (int y = mVideoFmt.aperture.y; y < mVideoFmt.aperture.h; ++y) {
+            for (int x = mVideoFmt.aperture.x; x < mVideoFmt.aperture.w; ++x) {
+                int fromPos = 4 * (x + y * mVideoFmt.pixelWH.w);
+                uint8_t blue  = pBitmapData[fromPos + 0];
+                uint8_t green = pBitmapData[fromPos + 1];
+                uint8_t red   = pBitmapData[fromPos + 2];
+                uint8_t alpha = pBitmapData[fromPos + 3];
 #if IMAGE_BGRA
-            pImg_io[toPos++] = blue;
-            pImg_io[toPos++] = green;
-            pImg_io[toPos++] = red;
-            pImg_io[toPos++] = 0xff; //< set Alpha to 255
+                pImg_io[toPos++] = blue;
+                pImg_io[toPos++] = green;
+                pImg_io[toPos++] = red;
+                pImg_io[toPos++] = 0xff; //< set Alpha to 255
 #endif
 #if IMAGE_RGBA
-            pImg_io[toPos++] = red;
-            pImg_io[toPos++] = green;
-            pImg_io[toPos++] = blue;
-            pImg_io[toPos++] = 0xff; //< set Alpha to 255
+                pImg_io[toPos++] = red;
+                pImg_io[toPos++] = green;
+                pImg_io[toPos++] = blue;
+                pImg_io[toPos++] = 0xff; //< set Alpha to 255
 #endif
+            }
         }
+        assert(toPos == *imgBytes_io);
     }
-    assert(toPos == *imgBytes_io);
 
 end:
     if (pBitmapData) {
         dprintf("D: pBuffer->Unlock\n");
         pBuffer->Unlock();
-
+        // After Unlock, pBitmapData pointer is no longer valid!
         pBitmapData = nullptr;
     }
     SafeRelease(&pBuffer);

@@ -50,7 +50,11 @@ WWMFVIDEOREADER_API int __stdcall
 WWMFVReaderIFReadStart(
         const wchar_t *wszSourceFile)
 {
-    auto *p = new WWMFVideoFrameReader();
+    int instanceId = gNextInstanceId++;
+
+    //printf("WWMFVReaderIFReadStart %S\n", wszSourceFile);
+
+    auto *p = new WWMFVideoFrameReader(instanceId);
     HRESULT hr = p->ReadStart(wszSourceFile);
 
     if (FAILED(hr)) {
@@ -60,8 +64,6 @@ WWMFVReaderIFReadStart(
     }
 
     // 成功。
-    int instanceId = gNextInstanceId++;
-
     gInstances.insert(std::pair<int, WWMFVideoFrameReader*>(instanceId, p));
     return instanceId;
 }
@@ -74,6 +76,8 @@ WWMFVReaderIFReadEnd(
     int instanceId)
 {
     FIND_INSTANCE;
+
+    //printf("WWMFVReaderIFReadEnd\n");
 
     p->ReadEnd();
     delete p;
@@ -90,6 +94,8 @@ WWMFVReaderIFReadImage(
     FIND_INSTANCE;
 
     assert(pImg_io);
+
+    //printf("WWMFVReaderIFReadImage posToSeek=%lld\n", posToSeek);
 
     HRG(p->ReadImage(posToSeek, pImg_io, imgBytes_io, vf_return));
 

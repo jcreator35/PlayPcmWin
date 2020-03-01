@@ -21,9 +21,13 @@
 class WWMFVideoFrameReader
 {
 public:
-    ~WWMFVideoFrameReader(void) {
+    WWMFVideoFrameReader(int instanceId) : mInstanceId(instanceId) { }
+
+    ~WWMFVideoFrameReader() {
         ReadEnd();
     }
+
+    int InstanceId(void) const { return mInstanceId; }
 
     // プログラム起動時に1度だけ呼ぶ。
     static HRESULT StaticInit(void);
@@ -42,6 +46,7 @@ public:
 
 private:
     static bool mStaticInit;
+    int mInstanceId;
     IMFSourceReader *mReader = nullptr;
     WWMFVideoFormat mVideoFmt;
 

@@ -115,12 +115,13 @@ namespace WWCompareTwoImages
             bmi.EndInit();
             bmi.Freeze();
 
-            ColorConvertedBitmap ccb = new ColorConvertedBitmap();
+            var ccb = new ColorConvertedBitmap();
             ccb.BeginInit();
             ccb.Source = bmi;
             ccb.SourceColorContext = mColorCtx[(int)from];
             ccb.DestinationColorContext = mColorCtx[(int)ColorProfileType.Monitor];
             ccb.EndInit();
+            ccb.Freeze();
 
             IsVideo = false;
 
@@ -134,22 +135,30 @@ namespace WWCompareTwoImages
             return videoRead.ReadStart(path);
         }
 
-        public int VReadImage(long posToSeek, out BitmapSource bi, ref long duration, ref long timeStamp)
+        public int VReadImage(long posToSeek, out BitmapSource bs, ref long duration, ref long timeStamp)
         {
             int dpi = 96;
             var pf = PixelFormats.Bgr32;
             int hr = videoRead.ReadImage(posToSeek, out WWMFVideoReader.VideoImage vi);
 
             if (hr < 0) {
-                bi = BitmapSource.Create(0, 0, dpi, dpi, pf, null, null, 1);
+                bs = BitmapSource.Create(0, 0, dpi, dpi, pf, null, null, 1);
                 return hr;
             }
 
             var bytesPerPixel = (pf.BitsPerPixel + 7) / 8;
             var stride = bytesPerPixel * vi.w;
-            bi = BitmapSource.Create(vi.w, vi.h, dpi, dpi, pf, null, vi.img, stride);
-            bi.Freeze();
-
+#if true
+            var wb = new WriteableBitmap(vi.w, vi.h, dpi, dpi, pf, null);
+            wb.Lock();
+            wb.WritePixels(new Int32Rect(0, 0, vi.w, vi.h), vi.img, stride, 0);
+            wb.Unlock();
+            wb.Freeze();
+            bs = wb;
+#else
+            bs = BitmapSource.Create(vi.w, vi.h, dpi, dpi, pf, null, vi.img, stride);
+            bs.Freeze();
+#endif
             duration = vi.duration;
             timeStamp = vi.timeStamp;
 

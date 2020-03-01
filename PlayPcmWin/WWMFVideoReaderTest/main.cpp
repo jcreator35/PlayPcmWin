@@ -43,8 +43,9 @@ Run(const wchar_t *wszSourceFile)
     int instanceId = -1;
     uint8_t *pImg = nullptr;
     int imgBytes = 0;
-    int64_t pos = 0;
     WWMFVideoFormat vf;
+    wchar_t path[256];
+    int64_t seekHNS = -1; // 200LL * 1000 * 1000 * 10;
 
     instanceId = WWMFVReaderIFReadStart(wszSourceFile);
     if (instanceId < 0) {
@@ -55,8 +56,14 @@ Run(const wchar_t *wszSourceFile)
     imgBytes = 1920 * 1080 * 4;
     pImg = new uint8_t[imgBytes];
 
-    HRG(WWMFVReaderIFReadImage(instanceId, pos, pImg, &imgBytes, &vf));
-    SaveBufToFile(pImg, imgBytes, L"out.data");
+
+    do {
+        HRG(WWMFVReaderIFReadImage(instanceId, seekHNS, pImg, &imgBytes, &vf));
+        seekHNS = -1;
+
+        swprintf_s(path, L"out/%012lld.data", vf.timeStamp);
+        SaveBufToFile(pImg, imgBytes, path);
+    } while (1);
 
 end:
     delete[] pImg;
@@ -78,7 +85,7 @@ wmain(void)
     
     HRG(WWMFVReaderIFStaticInit());
 
-    hr = Run(L"C:/data/Test1.mp4");
+    hr = Run(L"C:/data/ColorTest.m2t");
 
     WWMFVReaderIFStaticTerm();
 
