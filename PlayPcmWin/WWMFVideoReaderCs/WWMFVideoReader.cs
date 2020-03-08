@@ -5,7 +5,9 @@ namespace WWMFVideoReaderCs
 {
     public class WWMFVideoReader
     {
-        const int E_UNEXPECTED = -2147418113; // 0x8000FFFFL;
+        public const int E_UNEXPECTED = -2147418113; // 0x8000FFFFL
+        public const int MF_E_INVALIDMEDIATYPE = -1072875852; // 0xC00D36B4L
+        public const int MF_E_UNSUPPORTED_BYTESTREAM_TYPE = -1072875836; // 0xC00D36C4L
 
         internal static class NativeMethods
         {

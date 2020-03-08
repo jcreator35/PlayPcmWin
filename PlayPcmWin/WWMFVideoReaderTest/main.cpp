@@ -85,7 +85,7 @@ wmain(void)
     
     HRG(WWMFVReaderIFStaticInit());
 
-    hr = Run(L"C:/data/ColorTest.m2t");
+    hr = Run(L"C:/data/test.mp4");
 
     WWMFVReaderIFStaticTerm();
 

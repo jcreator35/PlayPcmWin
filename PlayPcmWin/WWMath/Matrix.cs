@@ -18,8 +18,8 @@ namespace WWMath {
         /// <para/> ↓
         /// <para/> m[] = { a00, a01, a02, a10, a11, a12, a20, a21, a22 }
         /// </summary>
-        /// <param name="row">行の数</param>
-        /// <param name="column">列の数</param>
+        /// <param name="numRow">行の数</param>
+        /// <param name="numColumn">列の数</param>
         public Matrix(int numRow, int numColumn) {
             mRow = numRow;
             mCol = numColumn;
@@ -41,8 +41,8 @@ namespace WWMath {
         /// <para/> ↓
         /// <para/> m[] = { a00, a01, a02, a10, a11, a12, a20, a21, a22 }
         /// </summary>
-        /// <param name="row">行の数</param>
-        /// <param name="column">列の数</param>
+        /// <param name="numRow">行の数</param>
+        /// <param name="numColumn">列の数</param>
         public Matrix(int numRow, int numColumn, double[] v) {
             mRow = numRow;
             mCol = numColumn;
@@ -125,6 +125,7 @@ namespace WWMath {
         /// <summary>
         /// aを縦行列と見做して後から掛ける
         /// rv := M x aT
+        /// 自分自身を変更しない。
         /// </summary>
         /// <returns>乗算結果の行列を転置したもの</returns>
         public double[] Mul(double[] a) {

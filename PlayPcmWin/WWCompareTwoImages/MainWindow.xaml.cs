@@ -96,8 +96,15 @@ namespace WWCompareTwoImages
 
             int hr = ir.VReadStart(imgInf.path);
             if (hr < 0) {
-                MessageBox.Show(string.Format("Error: {0:x} while reading {1}", hr, imgInf.path));
-                return null;
+                if (hr == WWMFVideoReaderCs.WWMFVideoReader.MF_E_INVALIDMEDIATYPE
+                    || hr == WWMFVideoReaderCs.WWMFVideoReader.MF_E_UNSUPPORTED_BYTESTREAM_TYPE) {
+                    var w = new WWDescriptionWindow(WWDescriptionWindow.LocalPathToUri("desc/UnsupportedMediaType.html"));
+                    w.ShowDialog();
+                    return null;
+                } else { 
+                    MessageBox.Show(string.Format("Error: {0:x} while reading {1}", hr, imgInf.path));
+                    return null;
+                }
             }
 
             hr = ir.VReadImage(timeStamp, imgInf.cp, out BitmapSource bi, ref imgInf.duration, ref imgInf.timeStamp);
