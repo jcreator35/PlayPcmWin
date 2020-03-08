@@ -6,16 +6,14 @@ using WWMFVideoReaderCs;
 
 namespace WWCompareTwoImages
 {
-    public class WWImageRead
-    {
+    public class WWImageRead {
         static string mColorDir;
         static string mMonitorProfileName;
         static bool mStaticInitSuccess = false;
 
-        static public bool InitSuccess { get { return mStaticInitSuccess;  } }
+        static public bool InitSuccess { get { return mStaticInitSuccess; } }
 
-        public enum ColorProfileType
-        {
+        public enum ColorProfileType {
             sRGB,
             AdobeRGB,
             Rec709,
@@ -29,20 +27,19 @@ namespace WWCompareTwoImages
             get { return mMonitorProfileName; }
         }
 
-        static public string ColorProfileName(ColorProfileType t)
-        {
+        static public string ColorProfileName(ColorProfileType t) {
             switch (t) {
-            case ColorProfileType.sRGB:
-                return "sRGB Color Space Profile.icm";
-            case ColorProfileType.AdobeRGB:
-                return "AdobeRGB1998.icc";
-            case ColorProfileType.Rec709:
-                return "ITU-RBT709ReferenceDisplay.icc";
-            case ColorProfileType.Monitor:
-                return MonitorProfileName;
-            default:
-                System.Diagnostics.Debug.Assert(false);
-                return "";
+                case ColorProfileType.sRGB:
+                    return "sRGB Color Space Profile.icm";
+                case ColorProfileType.AdobeRGB:
+                    return "AdobeRGB1998.icc";
+                case ColorProfileType.Rec709:
+                    return "ITU-RBT709ReferenceDisplay.icc";
+                case ColorProfileType.Monitor:
+                    return MonitorProfileName;
+                default:
+                    System.Diagnostics.Debug.Assert(false);
+                    return "";
             }
         }
 
@@ -57,10 +54,16 @@ namespace WWCompareTwoImages
 
         static public bool StaticInit() {
             mColorDir = WWMonitorProfile.GetColorDirectory();
-            mMonitorProfileName = WWMonitorProfile.GetMonitorProfile();
-
             if (mColorDir == null) {
                 MessageBox.Show("Error: Color Profile Directory is not found!");
+                return false;
+            }
+
+            try {
+                mMonitorProfileName = WWMonitorProfile.GetMonitorProfile();
+            } catch (Exception ex) {
+                var w = new WWDescriptionWindow(WWDescriptionWindow.LocalPathToUri("desc/SettingMonitorProfile.html"));
+                w.ShowDialog();
                 return false;
             }
 
