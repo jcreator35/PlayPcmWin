@@ -85,7 +85,7 @@ namespace WWMath {
 
         /// <summary>
         /// rv = lhs * rhs
-        /// 自分自身を変更しない。
+        /// 自分自身(lhs,rhs)を変更しない。
         /// </summary>
         /// <returns>乗算結果。</returns>
         public static MatrixGF2 Mul(MatrixGF2 lhs, MatrixGF2 rhs) {

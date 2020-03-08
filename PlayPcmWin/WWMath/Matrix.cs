@@ -55,6 +55,9 @@ namespace WWMath {
             Array.Copy(v, m, v.Length);
         }
 
+        /// <summary>
+        /// column番号をx,row番号をyとするとAt(y,x)
+        /// </summary>
         public double At(int row, int column) {
             if (row < 0 || mRow <= row) {
                 throw new ArgumentOutOfRangeException("row");
@@ -66,8 +69,28 @@ namespace WWMath {
             return m[column +mCol * row];
         }
 
+        /// <summary>
+        /// 行列のセルに値を入れる。
+        /// column番号がx、row番号がy、値がvのときSet(y,x,v)と書く。
+        /// </summary>
         public void Set(int row, int column, double v) {
             m[column + mCol *row] = v;
+        }
+
+        /// <summary>
+        /// 単位行列にする。
+        /// 自分自身を変更する。
+        /// </summary>
+        public void SetIdentity() {
+            if (mRow != mCol) {
+                throw new InvalidOperationException("Matrix is not square");
+            }
+
+            for (int y = 0; y < mRow; ++y) {
+                for (int x = 0; x < mCol; ++x) {
+                    Set(y, x, x == y ? 1.0 : 0.0);
+                }
+            }
         }
 
         /// <summary>
@@ -151,6 +174,53 @@ namespace WWMath {
             }
         }
 
+        public enum ResultEnum {
+            Success,
+            UnsupportedMatrixShape,
+            FailedToChoosePivot,
+        };
+
+        /// <summary>
+        /// https://en.wikipedia.org/wiki/Crout_matrix_decomposition
+        /// </summary>
+        public static ResultEnum LUdecompose(Matrix inA, out Matrix outL, out Matrix outU, double epsilon = 1.0e-7) {
+            if (inA.Row < 2 || inA.Row != inA.Column) {
+                outL = new Matrix(0, 0);
+                outU = new Matrix(0, 0);
+                return ResultEnum.UnsupportedMatrixShape;
+            }
+
+            int N = inA.Row;
+            outL = new Matrix(N, N);
+            outU = new Matrix(N, N);
+
+            outU.SetIdentity();
+
+            for (int x = 0; x < N; ++x) {
+                for (int y = x; y < N; ++y) {
+                    double sum = 0;
+                    for (int k = 0; k < x; ++k) {
+                        sum += outL.At(y,k) * outU.At(k,x);
+                    }
+                    outL.Set(y,x, inA.At(y,x) - sum);
+                }
+
+                for (int y=x; y<N; ++y) {
+                    double sum = 0;
+                    for (int k = 0; k < x; ++k) {
+                        sum += outL.At(x,k) * outU.At(k,y);
+                    }
+                    if (Math.Abs(outL.At(x,x)) <= epsilon) {
+                        return ResultEnum.FailedToChoosePivot;
+                    }
+
+                    outU.Set(x, y, (inA.At(x, y) - sum) / outL.At(x, x));
+                }
+            }
+
+            return ResultEnum.Success;
+        }
+
         public void Print(string s) {
             Console.WriteLine("{0}: {1}x{2}", s, mRow, mCol);
             for (int r = 0; r < mRow; ++r) {
@@ -159,6 +229,28 @@ namespace WWMath {
                 }
                 Console.WriteLine("");
             }
+        }
+
+        /// <summary>
+        /// aとbが大体同じ時true。異なるときfalse。
+        /// </summary>
+        public static bool IsSame(Matrix a, Matrix b, double epsilon = 1.0e-7) {
+            if (a.Column != b.Column
+                    || a.Row != b.Row) {
+                return false;
+            }
+
+            for (int y = 0; y < a.Row; ++y) {
+                for (int x = 0; x < a.Column; ++x) {
+                    double distance = Math.Abs(a.At(y, x) - b.At(y, x));
+
+                    if (epsilon < distance) {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
         }
 
         public int Row {
