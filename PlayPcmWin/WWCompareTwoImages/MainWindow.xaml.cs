@@ -83,8 +83,8 @@ namespace WWCompareTwoImages
 
         private BitmapSource ReadFromFile(ImgInf imgInf, long timeStamp, WWImageRead ir)
         {
-            var ext = System.IO.Path.GetExtension(imgInf.path);
-            string[] imgExt = { ".png", ".jpg", ".jpeg", ".bmp" };
+            var ext = System.IO.Path.GetExtension(imgInf.path).ToUpper();
+            string[] imgExt = { ".PNG", ".JPG", ".JPEG", ".BMP" };
             if (imgExt.Any(s => s.Equals(ext))) {
                 // 画像の拡張子の場合。
                 imgInf.duration = -1;
