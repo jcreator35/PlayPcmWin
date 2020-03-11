@@ -271,7 +271,7 @@ namespace WWMath {
         }
 
         /// <summary>
-        /// https://en.wikipedia.org/wiki/Crout_matrix_decomposition
+        /// https://www.student.cs.uwaterloo.ca/~cs370/notes/LUExample2.pdf
         /// </summary>
         public static ResultEnum LUdecompose2(Matrix inA, out Matrix outL, out Matrix outP, out Matrix outU, double epsilon = 1.0e-7) {
             if (inA.Row < 2 || inA.Row != inA.Column) {
@@ -291,86 +291,49 @@ namespace WWMath {
             var PA = new Matrix(N, N);
 
             // Lの0行目は [1 0 0 ... 0]
-            {
-                // 最初のピボットを選択する。
-                // column=0で、絶対値が最大のものを探す。
-                int maxRow = 0;
-                double max = 0;
-                for (int y = 0; y < N; ++y) {
-                    if (max < inA.At(y, 0)) {
-                        max = inA.At(y, 0);
-                        maxRow = y;
+
+            for (int c = 0; c < N - 1; ++c) {
+                // c個目のピボットを選択する。
+                // Uのc列を比較し、絶対値が最大のものを選ぶ。
+                // Pのc行目が決定する。
+                int maxRow = c;
+                {
+                    double maxAbs = 0;
+                    for (int y = c; y < N; ++y) {
+                        if (maxAbs < Math.Abs(outU.At(y, c))) {
+                            maxAbs = Math.Abs(outU.At(y, c));
+                            maxRow = y;
+                        }
                     }
                 }
-                // ピボットは、maxRow行0列。
+                // ピボットは、maxRow行c列。
 
-                // Uの0行目、Pの0行目が決定する。
-                outU.ExchangeRows(0, maxRow);
-                outP.ExchangeRows(0, maxRow);
+                outU.ExchangeRows(c, maxRow);
+                outP.ExchangeRows(c, maxRow);
 
-                // 並び替えによりu00がピボットになった。
-                double u00 = outU.At(0, 0);
-                if (WWMathUtil.IsAlmostZero(u00, epsilon)) {
+                outL.ExchangeRows(c, maxRow);
+                outL.ExchangeCols(c, maxRow);
+
+                // 並び替えによりuccがピボットになった。
+                double ucc = outU.At(c, c);
+                if (WWMathUtil.IsAlmostZero(ucc, epsilon)) {
                     return ResultEnum.FailedToChoosePivot;
                 }
 
-                for (int k = 1; k < N; ++k) {
-                    // Uの0行k列の計算。
-                    // Uの0行k列を0にするために、0行0列目をratio倍して引く。
-                    double uk0 = outU.At(k, 0);
-
-                    double ratio = uk0 / u00;
-                    for (int x = 0; x < N; ++x) {
-                        double u0x = outU.At(0, x);
-                        double ukx = outU.At(k, x);
-                        outU.Set(k, x, ukx - ratio * u0x);
-                    }
-
-                    // Lの0行k列 = ratio。
-                    outL.Set(k, 0, ratio);
-                }
-            }
-
-            {
-                // 2つめのピボットを選択する。
-                // Uの1行1列と2行1列を比較し、絶対値が最大のものを選ぶ。
-                // Pの2行目が決定する。
-                int maxRow = 1;
-                double max = 0;
-                for (int y = 1; y < N; ++y) {
-                    if (max < outU.At(y, 1)) {
-                        max = outU.At(y, 1);
-                        maxRow = y;
-                    }
-                }
-                // ピボットは、maxRow行1列。
-
-                outU.ExchangeRows(1, maxRow);
-                outP.ExchangeRows(1, maxRow);
-
-                outL.ExchangeRows(1, maxRow);
-                outL.ExchangeCols(1, maxRow);
-
-                // 並び替えによりu11がピボットになった。
-                double u11 = outU.At(1, 1);
-                if (WWMathUtil.IsAlmostZero(u11, epsilon)) {
-                    return ResultEnum.FailedToChoosePivot;
-                }
-
-                for (int k = 2; k < N; ++k) {
+                for (int k = c + 1; k < N; ++k) {
                     // Uのk列目の計算。
                     // Uのk列目を0にするために、1列目を何倍して足すか。
-                    double uk1 = outU.At(k, 1);
+                    double ukc = outU.At(k, c);
 
-                    double ratio = uk1 / u11;
+                    double ratio = ukc / ucc;
                     for (int x = 0; x < N; ++x) {
-                        double u1x = outU.At(1, x);
+                        double ucx = outU.At(c, x);
                         double ukx = outU.At(k, x);
-                        outU.Set(k, x, ukx - ratio * u1x);
+                        outU.Set(k, x, ukx - ratio * ucx);
                     }
 
-                    // Lの1行k列 = ratio。
-                    outL.Set(k, 1, ratio);
+                    // Lのk行c列 = ratio。
+                    outL.Set(k, c, ratio);
                 }
             }
 
