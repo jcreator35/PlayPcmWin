@@ -6,6 +6,13 @@ using System.Text;
 namespace WWMath {
     public class WWMathUtil {
         /// <summary>
+        /// vが殆ど0のときtrue。
+        /// </summary>
+        public static bool IsAlmostZero(double v, double epsilon = 1.0e-7) {
+            return Math.Abs(v) < epsilon;
+        }
+
+        /// <summary>
         /// 1乗以上の項の係数項の表示。
         /// </summary>
         public static string FirstCoeffToString(WWComplex c, string variableString) {
