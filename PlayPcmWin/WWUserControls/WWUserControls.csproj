@@ -66,6 +66,7 @@
     <Reference Include="PresentationUI, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
@@ -82,6 +83,9 @@
     <Compile Include="Common.cs" />
     <Compile Include="FrequencyResponse.xaml.cs">
       <DependentUpon>FrequencyResponse.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Function1dGraph.xaml.cs">
+      <DependentUpon>Function1dGraph.xaml</DependentUpon>
     </Compile>
     <Compile Include="LevelMeterUC.xaml.cs">
       <DependentUpon>LevelMeterUC.xaml</DependentUpon>
@@ -108,6 +112,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Function1dGraph.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="LevelMeterUC.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -122,10 +130,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\WasapiCS\WasapiCS.csproj">
-      <Project>{0D9C1283-4DA5-4C3F-8A4E-AD8194381DE4}</Project>
-      <Name>WasapiCS</Name>
-    </ProjectReference>
     <ProjectReference Include="..\WWMath\WWMath.csproj">
       <Project>{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}</Project>
       <Name>WWMath</Name>
