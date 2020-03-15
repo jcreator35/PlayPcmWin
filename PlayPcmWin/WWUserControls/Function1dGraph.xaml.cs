@@ -10,6 +10,7 @@ namespace WWUserControls {
 
         public Function1dGraph() {
             InitializeComponent();
+            mInitialized = true;
         }
 
         public string Title {
@@ -77,7 +78,6 @@ namespace WWUserControls {
                 }
                 break;
             case FunctionEnum.ArbitraryFunction:
-
                 for (int i = 0; i < mPoints.Count; ++i) {
                     var xy = mPoints[i];
                     mPolyLine.Points.Add(new System.Windows.Point(W * xy.X, H * (1.0 - xy.Y)));
@@ -151,7 +151,6 @@ namespace WWUserControls {
         }
 
         private void UserControl_Loaded(object sender, System.Windows.RoutedEventArgs e) {
-            mInitialized = true;
             Redraw();
         }
 

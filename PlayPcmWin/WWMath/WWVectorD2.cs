@@ -1,5 +1,7 @@
-﻿
+﻿using System.Diagnostics;
+
 namespace WWMath {
+    [DebuggerDisplay("({v[0]}, {v[1]})")]
     public class WWVectorD2 {
 
         private double[] v = new double[2];

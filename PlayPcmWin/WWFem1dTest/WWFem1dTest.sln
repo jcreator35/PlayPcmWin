@@ -1,0 +1,54 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WWFem1dTest", "WWFem1dTest.csproj", "{E9D5432F-F60B-4FF0-89B7-9BF986814A76}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WWMath", "..\WWMath\WWMath.csproj", "{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WWUtil", "..\WWUtil\WWUtil.csproj", "{FC57308E-CF56-4B3E-B920-4093660D0A4A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WWUserControls", "..\WWUserControls\WWUserControls.csproj", "{2721D7F3-8A5A-4059-A619-BB5ED7ACCC0C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E9D5432F-F60B-4FF0-89B7-9BF986814A76}.Debug|x64.ActiveCfg = Debug|x86
+		{E9D5432F-F60B-4FF0-89B7-9BF986814A76}.Debug|x86.ActiveCfg = Debug|x86
+		{E9D5432F-F60B-4FF0-89B7-9BF986814A76}.Debug|x86.Build.0 = Debug|x86
+		{E9D5432F-F60B-4FF0-89B7-9BF986814A76}.Release|x64.ActiveCfg = Release|x86
+		{E9D5432F-F60B-4FF0-89B7-9BF986814A76}.Release|x86.ActiveCfg = Release|x86
+		{E9D5432F-F60B-4FF0-89B7-9BF986814A76}.Release|x86.Build.0 = Release|x86
+		{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}.Debug|x64.ActiveCfg = Debug|x64
+		{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}.Debug|x64.Build.0 = Debug|x64
+		{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}.Debug|x86.ActiveCfg = Debug|x86
+		{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}.Debug|x86.Build.0 = Debug|x86
+		{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}.Release|x64.ActiveCfg = Release|x64
+		{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}.Release|x64.Build.0 = Release|x64
+		{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}.Release|x86.ActiveCfg = Release|x86
+		{80F0BF47-21F6-4E12-BE21-4036F6C6F3A5}.Release|x86.Build.0 = Release|x86
+		{FC57308E-CF56-4B3E-B920-4093660D0A4A}.Debug|x64.ActiveCfg = Debug|x64
+		{FC57308E-CF56-4B3E-B920-4093660D0A4A}.Debug|x64.Build.0 = Debug|x64
+		{FC57308E-CF56-4B3E-B920-4093660D0A4A}.Debug|x86.ActiveCfg = Debug|x86
+		{FC57308E-CF56-4B3E-B920-4093660D0A4A}.Debug|x86.Build.0 = Debug|x86
+		{FC57308E-CF56-4B3E-B920-4093660D0A4A}.Release|x64.ActiveCfg = Release|x64
+		{FC57308E-CF56-4B3E-B920-4093660D0A4A}.Release|x64.Build.0 = Release|x64
+		{FC57308E-CF56-4B3E-B920-4093660D0A4A}.Release|x86.ActiveCfg = Release|x86
+		{FC57308E-CF56-4B3E-B920-4093660D0A4A}.Release|x86.Build.0 = Release|x86
+		{2721D7F3-8A5A-4059-A619-BB5ED7ACCC0C}.Debug|x64.ActiveCfg = Debug|x64
+		{2721D7F3-8A5A-4059-A619-BB5ED7ACCC0C}.Debug|x64.Build.0 = Debug|x64
+		{2721D7F3-8A5A-4059-A619-BB5ED7ACCC0C}.Debug|x86.ActiveCfg = Debug|x86
+		{2721D7F3-8A5A-4059-A619-BB5ED7ACCC0C}.Debug|x86.Build.0 = Debug|x86
+		{2721D7F3-8A5A-4059-A619-BB5ED7ACCC0C}.Release|x64.ActiveCfg = Release|x64
+		{2721D7F3-8A5A-4059-A619-BB5ED7ACCC0C}.Release|x64.Build.0 = Release|x64
+		{2721D7F3-8A5A-4059-A619-BB5ED7ACCC0C}.Release|x86.ActiveCfg = Release|x86
+		{2721D7F3-8A5A-4059-A619-BB5ED7ACCC0C}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

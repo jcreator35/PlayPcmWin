@@ -60,26 +60,26 @@ namespace WWMathTest
         [TestMethod()]
         public void MatrixLU() {
             int N = 2;
-            var A = new Matrix(N, N, new double[]
+            var A = new WWMatrix(N, N, new double[]
                   { 4, 3,
                     6, 3 });
 
-            Matrix L;
-            Matrix U;
-            var result = Matrix.LUdecompose(A, out L, out U);
-            Assert.IsTrue(result == Matrix.ResultEnum.Success);
+            WWMatrix L;
+            WWMatrix U;
+            var result = WWMatrix.LUdecompose(A, out L, out U);
+            Assert.IsTrue(result == WWMatrix.ResultEnum.Success);
 
             // Lは下三角行列。
             var Ltype = L.DetermineMatType();
-            Assert.IsTrue(0 != (Ltype & (ulong)Matrix.MatType.LowerTriangular));
+            Assert.IsTrue(0 != (Ltype & (ulong)WWMatrix.MatType.LowerTriangular));
 
             // Uは上三角行列。
             var Utype = U.DetermineMatType();
-            Assert.IsTrue(0 != (Utype & (ulong)Matrix.MatType.UpperTriangular));
+            Assert.IsTrue(0 != (Utype & (ulong)WWMatrix.MatType.UpperTriangular));
 
             // L * U = A
-            Matrix Arecovered = Matrix.Mul(L, U);
-            Assert.IsTrue(Matrix.IsSame(A, Arecovered));
+            WWMatrix Arecovered = WWMatrix.Mul(L, U);
+            Assert.IsTrue(WWMatrix.IsSame(A, Arecovered));
         }
 
         [TestMethod()]
@@ -89,26 +89,26 @@ namespace WWMathTest
             var r = new Random();
 
             for (int i = 0; i < 1000; ++i) {
-                var A = new Matrix(N, N, new double[]
+                var A = new WWMatrix(N, N, new double[]
                   { r.Next(10), r.Next(10),
                     r.Next(10), r.Next(10)});
 
-                Matrix P;
-                Matrix L;
-                Matrix U;
-                var result = Matrix.LUdecompose2(A, out L, out P, out U);
-                if (result == Matrix.ResultEnum.FailedToChoosePivot) {
+                WWMatrix P;
+                WWMatrix L;
+                WWMatrix U;
+                var result = WWMatrix.LUdecompose2(A, out L, out P, out U);
+                if (result == WWMatrix.ResultEnum.FailedToChoosePivot) {
                     continue;
                 }
-                Assert.IsTrue(result == Matrix.ResultEnum.Success);
+                Assert.IsTrue(result == WWMatrix.ResultEnum.Success);
 
                 // Lは下三角行列。
                 var Ltype = L.DetermineMatType();
-                Assert.IsTrue(0 != (Ltype & (ulong)Matrix.MatType.LowerTriangular));
+                Assert.IsTrue(0 != (Ltype & (ulong)WWMatrix.MatType.LowerTriangular));
 
                 // Uは上三角行列。
                 var Utype = U.DetermineMatType();
-                Assert.IsTrue(0 != (Utype & (ulong)Matrix.MatType.UpperTriangular));
+                Assert.IsTrue(0 != (Utype & (ulong)WWMatrix.MatType.UpperTriangular));
 
                 A.Print("A");
                 L.Print("L");
@@ -116,9 +116,9 @@ namespace WWMathTest
                 P.Print("P");
 
                 // P * A = L * U
-                var LU = Matrix.Mul(L, U);
-                var PA = Matrix.Mul(P, A);
-                Assert.IsTrue(Matrix.IsSame(PA, LU));
+                var LU = WWMatrix.Mul(L, U);
+                var PA = WWMatrix.Mul(P, A);
+                Assert.IsTrue(WWMatrix.IsSame(PA, LU));
             }
         }
 
@@ -126,24 +126,24 @@ namespace WWMathTest
         public void MatrixLPU_3x3a() {
             int N = 3;
 
-            var A = new Matrix(N, N, new double[]
+            var A = new WWMatrix(N, N, new double[]
                 { 6,4,1,
                   3,3,2,
                   7,7,3});
 
-            Matrix P;
-            Matrix L;
-            Matrix U;
-            var result = Matrix.LUdecompose2(A, out L, out P, out U);
-            Assert.IsTrue(result == Matrix.ResultEnum.Success);
+            WWMatrix P;
+            WWMatrix L;
+            WWMatrix U;
+            var result = WWMatrix.LUdecompose2(A, out L, out P, out U);
+            Assert.IsTrue(result == WWMatrix.ResultEnum.Success);
 
             // Lは下三角行列。
             var Ltype = L.DetermineMatType();
-            Assert.IsTrue(0 != (Ltype & (ulong)Matrix.MatType.LowerTriangular));
+            Assert.IsTrue(0 != (Ltype & (ulong)WWMatrix.MatType.LowerTriangular));
 
             // Uは上三角行列。
             var Utype = U.DetermineMatType();
-            Assert.IsTrue(0 != (Utype & (ulong)Matrix.MatType.UpperTriangular));
+            Assert.IsTrue(0 != (Utype & (ulong)WWMatrix.MatType.UpperTriangular));
 
             A.Print("A");
             L.Print("L");
@@ -151,9 +151,9 @@ namespace WWMathTest
             P.Print("P");
 
             // P * A = L * U
-            var LU = Matrix.Mul(L, U);
-            var PA = Matrix.Mul(P, A);
-            Assert.IsTrue(Matrix.IsSame(PA, LU));
+            var LU = WWMatrix.Mul(L, U);
+            var PA = WWMatrix.Mul(P, A);
+            Assert.IsTrue(WWMatrix.IsSame(PA, LU));
         }
 
         [TestMethod()]
@@ -163,27 +163,27 @@ namespace WWMathTest
             var r = new Random();
 
             for (int i = 0; i < 1000; ++i) {
-                var A = new Matrix(N, N, new double[]
+                var A = new WWMatrix(N, N, new double[]
                   { r.Next(10), r.Next(10), r.Next(10),
                     r.Next(10), r.Next(10), r.Next(10),
                     r.Next(10), r.Next(10), r.Next(10)});
 
-                Matrix P;
-                Matrix L;
-                Matrix U;
-                var result = Matrix.LUdecompose2(A, out L, out P, out U);
-                if (result == Matrix.ResultEnum.FailedToChoosePivot) {
+                WWMatrix P;
+                WWMatrix L;
+                WWMatrix U;
+                var result = WWMatrix.LUdecompose2(A, out L, out P, out U);
+                if (result == WWMatrix.ResultEnum.FailedToChoosePivot) {
                     continue;
                 }
-                Assert.IsTrue(result == Matrix.ResultEnum.Success);
+                Assert.IsTrue(result == WWMatrix.ResultEnum.Success);
 
                 // Lは下三角行列。
                 var Ltype = L.DetermineMatType();
-                Assert.IsTrue(0 != (Ltype & (ulong)Matrix.MatType.LowerTriangular));
+                Assert.IsTrue(0 != (Ltype & (ulong)WWMatrix.MatType.LowerTriangular));
 
                 // Uは上三角行列。
                 var Utype = U.DetermineMatType();
-                Assert.IsTrue(0 != (Utype & (ulong)Matrix.MatType.UpperTriangular));
+                Assert.IsTrue(0 != (Utype & (ulong)WWMatrix.MatType.UpperTriangular));
 
                 A.Print("A");
                 L.Print("L");
@@ -191,9 +191,9 @@ namespace WWMathTest
                 P.Print("P");
 
                 // P * A = L * U
-                var LU = Matrix.Mul(L, U);
-                var PA = Matrix.Mul(P, A);
-                Assert.IsTrue(Matrix.IsSame(PA, LU));
+                var LU = WWMatrix.Mul(L, U);
+                var PA = WWMatrix.Mul(P, A);
+                Assert.IsTrue(WWMatrix.IsSame(PA, LU));
             }
         }
 
@@ -204,28 +204,28 @@ namespace WWMathTest
             var r = new Random();
 
             for (int i = 0; i < 1000; ++i) {
-                var A = new Matrix(N, N, new double[]
+                var A = new WWMatrix(N, N, new double[]
                   { r.Next(10), r.Next(10), r.Next(10), r.Next(10),
                     r.Next(10), r.Next(10), r.Next(10), r.Next(10),
                     r.Next(10), r.Next(10), r.Next(10), r.Next(10),
                     r.Next(10), r.Next(10), r.Next(10), r.Next(10)});
 
-                Matrix P;
-                Matrix L;
-                Matrix U;
-                var result = Matrix.LUdecompose2(A, out L, out P, out U);
-                if (result == Matrix.ResultEnum.FailedToChoosePivot) {
+                WWMatrix P;
+                WWMatrix L;
+                WWMatrix U;
+                var result = WWMatrix.LUdecompose2(A, out L, out P, out U);
+                if (result == WWMatrix.ResultEnum.FailedToChoosePivot) {
                     continue;
                 }
-                Assert.IsTrue(result == Matrix.ResultEnum.Success);
+                Assert.IsTrue(result == WWMatrix.ResultEnum.Success);
 
                 // Lは下三角行列。
                 var Ltype = L.DetermineMatType();
-                Assert.IsTrue(0 != (Ltype & (ulong)Matrix.MatType.LowerTriangular));
+                Assert.IsTrue(0 != (Ltype & (ulong)WWMatrix.MatType.LowerTriangular));
 
                 // Uは上三角行列。
                 var Utype = U.DetermineMatType();
-                Assert.IsTrue(0 != (Utype & (ulong)Matrix.MatType.UpperTriangular));
+                Assert.IsTrue(0 != (Utype & (ulong)WWMatrix.MatType.UpperTriangular));
 
                 A.Print("A");
                 L.Print("L");
@@ -233,9 +233,9 @@ namespace WWMathTest
                 P.Print("P");
 
                 // P * A = L * U
-                var LU = Matrix.Mul(L, U);
-                var PA = Matrix.Mul(P, A);
-                Assert.IsTrue(Matrix.IsSame(PA, LU));
+                var LU = WWMatrix.Mul(L, U);
+                var PA = WWMatrix.Mul(P, A);
+                Assert.IsTrue(WWMatrix.IsSame(PA, LU));
             }
         }
     }
