@@ -19,7 +19,7 @@ namespace WWMath {
                 ++N;
             }
 
-            var m = new Matrix(L, N+1);
+            var m = new WWMatrix(L, N+1);
             for (int r = 0; r < L; ++r) {
                 m.Set(r, 0, from[r]);
             }

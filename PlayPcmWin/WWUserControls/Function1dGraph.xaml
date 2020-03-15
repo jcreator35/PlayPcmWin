@@ -4,15 +4,15 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             d:DesignHeight="340" d:DesignWidth="300">
+             d:DesignHeight="340" d:DesignWidth="300" Loaded="UserControl_Loaded">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="300" />
             <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
 
-        <Canvas Height="256" HorizontalAlignment="Left" Margin="22,22,0,0" Name="canvas1" VerticalAlignment="Top" Width="256" >
-            <Polyline Stroke="Blue" Name="polyLine">
+        <Canvas Height="256" HorizontalAlignment="Left" Margin="22,22,0,0" Name="mCanvas" VerticalAlignment="Top" Width="256" >
+            <Polyline Stroke="Blue" Name="mPolyLine">
                 <Polyline.Points>
                     <Point>0,255</Point>
                     <Point>255,0</Point>
@@ -27,12 +27,12 @@
         <Line X1="278" X2="268" Y1="278" Y2="273" Stroke="Black" />
         <Line X1="278" X2="268" Y1="278" Y2="283" Stroke="Black" />
         
-        <Label Content="Title" HorizontalAlignment="Center" VerticalAlignment="Top" Name="labelTitle" />
-        <Label Content="x" HorizontalAlignment="Center" VerticalAlignment="Bottom" Name="labelX" />
+        <Label Content="Title" HorizontalAlignment="Center" VerticalAlignment="Top" Name="mLabelTitle" />
+        <Label Content="x" HorizontalAlignment="Center" VerticalAlignment="Bottom" Name="mLabelX" />
         <Label Content="0" HorizontalAlignment="Left" VerticalAlignment="Bottom"  Margin="10,0,0,0" Name="labelZero" />
         <Label Content="1" HorizontalAlignment="Left" VerticalAlignment="Bottom"  Margin="270,0,0,0" Name="labelXmax" />
 
-        <Label Content="y" HorizontalAlignment="Left" Margin="0,0,0,0" Name="labelY" VerticalAlignment="Center" >
+        <Label Content="y" HorizontalAlignment="Left" Margin="0,0,0,0" Name="mLabelY" VerticalAlignment="Center" >
             <Label.LayoutTransform>
                 <RotateTransform Angle="-90" />
             </Label.LayoutTransform>
@@ -43,12 +43,12 @@
                 <RotateTransform Angle="-90" />
             </Label.LayoutTransform>
         </Label>
-        <ComboBox Grid.Row="1" HorizontalAlignment="Left" Margin="22,0,0,0" Name="comboBoxFuncPreset" VerticalAlignment="Top" Width="256">
+        <ComboBox Grid.Row="1" HorizontalAlignment="Left" Margin="22,0,0,0" Name="mComboBoxFuncType" VerticalAlignment="Top" Width="256" SelectionChanged="comboBoxFuncType_SelectionChanged">
             <ComboBoxItem Content="y = 1" />
             <ComboBoxItem Content="y = x" IsSelected="True" />
             <ComboBoxItem Content="y = 1 - x" />
             <ComboBoxItem Content="y = x^2" />
-            <ComboBoxItem Content="Free drawing" />
+            <ComboBoxItem Content="Arbitrary function" />
         </ComboBox>
     </Grid>
 </UserControl>

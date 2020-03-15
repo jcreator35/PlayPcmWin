@@ -3,7 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 
 namespace WWMath {
-    public class Matrix {
+    public class WWMatrix {
         private int mRow;
         private int mCol;
         private double[] m;
@@ -59,7 +59,7 @@ namespace WWMath {
         /// </summary>
         /// <param name="numRow">行の数</param>
         /// <param name="numColumn">列の数</param>
-        public Matrix(int numRow, int numColumn) {
+        public WWMatrix(int numRow, int numColumn) {
             mRow = numRow;
             mCol = numColumn;
             m = new double[mRow * mCol];
@@ -82,7 +82,7 @@ namespace WWMath {
         /// </summary>
         /// <param name="numRow">行の数</param>
         /// <param name="numColumn">列の数</param>
-        public Matrix(int numRow, int numColumn, double[] v) {
+        public WWMatrix(int numRow, int numColumn, double[] v) {
             mRow = numRow;
             mCol = numColumn;
 
@@ -98,8 +98,8 @@ namespace WWMath {
         /// コピーを作って戻す。
         /// mの実体も複製される。
         /// </summary>
-        public Matrix DeepCopy() {
-            var r = new Matrix(mRow, mCol, m);
+        public WWMatrix DeepCopy() {
+            var r = new WWMatrix(mRow, mCol, m);
             return r;
         }
 
@@ -129,7 +129,7 @@ namespace WWMath {
         /// 単位行列にする。
         /// 自分自身を変更する。
         /// </summary>
-        public Matrix SetIdentity() {
+        public WWMatrix SetIdentity() {
             if (mRow != mCol) {
                 throw new InvalidOperationException("Matrix is not square");
             }
@@ -164,14 +164,14 @@ namespace WWMath {
             Array.Copy(v, m, v.Length);
         }
 
-        public static Matrix Mul(Matrix lhs, Matrix rhs) {
+        public static WWMatrix Mul(WWMatrix lhs, WWMatrix rhs) {
             if (lhs.Column != rhs.Row) {
                 throw new ArgumentException("lhs.Column != rhs.Row");
             }
 
             int loopCount = lhs.Column;
 
-            var rv = new Matrix(lhs.Row, rhs.Column);
+            var rv = new WWMatrix(lhs.Row, rhs.Column);
             for (int r = 0; r < rv.Row; ++r) {
                 for (int c = 0; c < rv.Column; ++c) {
                     double v = 0;
@@ -190,7 +190,7 @@ namespace WWMath {
         /// 自分自身を変更しない。
         /// </summary>
         /// <returns>乗算結果。</returns>
-        public Matrix Mul(Matrix a) {
+        public WWMatrix Mul(WWMatrix a) {
             return Mul(this, a);
         }
 
@@ -205,7 +205,7 @@ namespace WWMath {
                 throw new ArgumentException("a.Length != mat.Col");
             }
 
-            var aT = new Matrix(a.Length, 1, a);
+            var aT = new WWMatrix(a.Length, 1, a);
             var rv = Mul(aT);
 
             return rv.ToArray();
@@ -232,16 +232,16 @@ namespace WWMath {
         /// <summary>
         /// https://en.wikipedia.org/wiki/Crout_matrix_decomposition
         /// </summary>
-        public static ResultEnum LUdecompose(Matrix inA, out Matrix outL, out Matrix outU, double epsilon = 1.0e-7) {
+        public static ResultEnum LUdecompose(WWMatrix inA, out WWMatrix outL, out WWMatrix outU, double epsilon = 1.0e-7) {
             if (inA.Row < 2 || inA.Row != inA.Column) {
-                outL = new Matrix(0, 0);
-                outU = new Matrix(0, 0);
+                outL = new WWMatrix(0, 0);
+                outU = new WWMatrix(0, 0);
                 return ResultEnum.UnsupportedMatrixShape;
             }
 
             int N = inA.Row;
-            outL = new Matrix(N, N);
-            outU = new Matrix(N, N);
+            outL = new WWMatrix(N, N);
+            outU = new WWMatrix(N, N);
 
             outU.SetIdentity();
 
@@ -273,22 +273,22 @@ namespace WWMath {
         /// <summary>
         /// https://www.student.cs.uwaterloo.ca/~cs370/notes/LUExample2.pdf
         /// </summary>
-        public static ResultEnum LUdecompose2(Matrix inA, out Matrix outL, out Matrix outP, out Matrix outU, double epsilon = 1.0e-7) {
+        public static ResultEnum LUdecompose2(WWMatrix inA, out WWMatrix outL, out WWMatrix outP, out WWMatrix outU, double epsilon = 1.0e-7) {
             if (inA.Row < 2 || inA.Row != inA.Column) {
-                outP = new Matrix(0, 0);
-                outL = new Matrix(0, 0);
-                outU = new Matrix(0, 0);
+                outP = new WWMatrix(0, 0);
+                outL = new WWMatrix(0, 0);
+                outU = new WWMatrix(0, 0);
                 return ResultEnum.UnsupportedMatrixShape;
             }
 
             int N = inA.Row;
-            outP = new Matrix(N, N).SetIdentity();
-            outL = new Matrix(N, N).SetIdentity();
-            outU = new Matrix(N, N);
+            outP = new WWMatrix(N, N).SetIdentity();
+            outL = new WWMatrix(N, N).SetIdentity();
+            outU = new WWMatrix(N, N);
 
             outU = inA.DeepCopy();
 
-            var PA = new Matrix(N, N);
+            var PA = new WWMatrix(N, N);
 
             // Lの0行目は [1 0 0 ... 0]
 
@@ -399,7 +399,7 @@ namespace WWMath {
         /// <summary>
         /// aとbが大体同じ時true。異なるときfalse。
         /// </summary>
-        public static bool IsSame(Matrix a, Matrix b, double epsilon = 1.0e-7) {
+        public static bool IsSame(WWMatrix a, WWMatrix b, double epsilon = 1.0e-7) {
             if (a.Column != b.Column
                     || a.Row != b.Row) {
                 return false;

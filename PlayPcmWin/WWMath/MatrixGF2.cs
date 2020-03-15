@@ -320,8 +320,8 @@ namespace WWMath {
             return acc;
         }
 
-        public Matrix ToMatrix() {
-            Matrix rv = new Matrix(mRow, mCol);
+        public WWMatrix ToMatrix() {
+            WWMatrix rv = new WWMatrix(mRow, mCol);
             for (int r = 0; r < mRow; ++r) {
                 for (int c = 0; c < mCol; ++c) {
                     rv.Set(r, c, At(r, c).Val);

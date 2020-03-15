@@ -92,13 +92,14 @@
     <Compile Include="WWComplex.cs" />
     <Compile Include="WWConvolution.cs" />
     <Compile Include="WWDftCpu.cs" />
-    <Compile Include="Matrix.cs" />
+    <Compile Include="WWMatrix.cs" />
     <Compile Include="WWPolynomial.cs" />
     <Compile Include="WWQuadratureOscillator.cs" />
     <Compile Include="WWQuadratureOscillatorInt.cs" />
     <Compile Include="WWRadix2Fft.cs" />
     <Compile Include="WWRadix2FftLargeArray.cs" />
     <Compile Include="WWSlidingDFT.cs" />
+    <Compile Include="WWLinearEquation.cs" />
     <Compile Include="WWTimeDependentForwardFourierTransform.cs" />
     <Compile Include="WWTimeDependentInverseFourierTransform.cs" />
     <Compile Include="WWUtil.cs" />
