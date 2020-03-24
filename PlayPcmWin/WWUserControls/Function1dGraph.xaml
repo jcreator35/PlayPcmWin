@@ -29,8 +29,8 @@
         
         <Label Content="Title" HorizontalAlignment="Center" VerticalAlignment="Top" Name="mLabelTitle" />
         <Label Content="x" HorizontalAlignment="Center" VerticalAlignment="Bottom" Name="mLabelX" />
-        <Label Content="0" HorizontalAlignment="Left" VerticalAlignment="Bottom"  Margin="10,0,0,0" Name="labelZero" />
-        <Label Content="1" HorizontalAlignment="Left" VerticalAlignment="Bottom"  Margin="270,0,0,0" Name="labelXmax" />
+        <Label Content="0.00" HorizontalAlignment="Left" VerticalAlignment="Bottom"  Margin="10,0,0,0" Name="labelXmin" />
+        <Label Content="1.00" HorizontalAlignment="Left" VerticalAlignment="Bottom"  Margin="265,0,0,0" Name="labelXmax" />
 
         <Label Content="y" HorizontalAlignment="Left" Margin="0,0,0,0" Name="mLabelY" VerticalAlignment="Center" >
             <Label.LayoutTransform>
@@ -38,7 +38,12 @@
             </Label.LayoutTransform>
         </Label>
 
-        <Label Content="1" HorizontalAlignment="Left" Margin="0,15,0,0" Name="labelYmax" VerticalAlignment="Top" >
+        <Label Content="0.00" HorizontalAlignment="Left" Margin="0,255,0,0" Name="labelYmin" VerticalAlignment="Top" >
+            <Label.LayoutTransform>
+                <RotateTransform Angle="-90" />
+            </Label.LayoutTransform>
+        </Label>
+        <Label Content="1.00" HorizontalAlignment="Left" Margin="0,5,0,0" Name="labelYmax" VerticalAlignment="Top" >
             <Label.LayoutTransform>
                 <RotateTransform Angle="-90" />
             </Label.LayoutTransform>

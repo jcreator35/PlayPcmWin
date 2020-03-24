@@ -10,6 +10,7 @@ namespace WWUserControls {
 
         public Function1dGraph() {
             InitializeComponent();
+            Epsilon = 1e-7;
             mInitialized = true;
         }
 
@@ -26,6 +27,11 @@ namespace WWUserControls {
         public string XAxis {
             get { return (string)mLabelX.Content; }
             set { mLabelX.Content = value; }
+        }
+
+        public double Epsilon {
+            get;
+            set;
         }
 
         public enum FunctionEnum {
@@ -55,6 +61,11 @@ namespace WWUserControls {
             double W = mCanvas.ActualWidth;
             double H = mCanvas.ActualHeight;
 
+            double xMin = 0;
+            double xMax = 1;
+            double yMin = 0;
+            double yMax = 1;
+
             mPolyLine.Points.Clear();
             switch (fe) {
             case FunctionEnum.YequalsOne:
@@ -77,13 +88,60 @@ namespace WWUserControls {
                     mPolyLine.Points.Add(new System.Windows.Point(W * x, H * (1.0 - y)));
                 }
                 break;
-            case FunctionEnum.ArbitraryFunction:
-                for (int i = 0; i < mPoints.Count; ++i) {
-                    var xy = mPoints[i];
-                    mPolyLine.Points.Add(new System.Windows.Point(W * xy.X, H * (1.0 - xy.Y)));
+            case FunctionEnum.ArbitraryFunction: {
+                    // 最大値、最小値を調べる。
+                    xMax = double.MinValue;
+                    xMin = double.MaxValue;
+                    yMax = double.MinValue;
+                    yMin = double.MaxValue;
+                    for (int i = 0; i < mPoints.Count; ++i) {
+                        {
+                            double x = mPoints[i].X;
+                            if (xMax < x) {
+                                xMax = x;
+                            }
+                            if (x < xMin) {
+                                xMin = x;
+                            }
+                        }
+                        {
+                            double y = mPoints[i].Y;
+                            if (yMax < y) {
+                                yMax = y;
+                            }
+                            if (y < yMin) {
+                                yMin = y;
+                            }
+                        }
+                    }
+
+                    // x,yの範囲。
+                    double xRange = xMax - xMin;
+                    if (xRange < Epsilon) {
+                        xRange = 1.0;
+                    }
+                    double yRange = yMax - yMin;
+                    if ((yRange / xRange) < Epsilon) {
+                        yRange = 1.0;
+                    }
+
+                    for (int i = 0; i < mPoints.Count; ++i) {
+                        var xy = mPoints[i];
+                        mPolyLine.Points.Add(new System.Windows.Point(
+                            W * (        xy.X - xMin) / xRange,
+                            H * (1.0 - ((xy.Y - yMin) / yRange))));
+                    }
+
+                    // xの最小値、最大値
                 }
                 break;
             }
+
+            // 軸最大値、最小値表示更新。
+            labelXmin.Content = string.Format("{0:0.00}", xMin);
+            labelXmax.Content = string.Format("{0:0.00}", xMax);
+            labelYmin.Content = string.Format("{0:0.00}", yMin);
+            labelYmax.Content = string.Format("{0:0.00}", yMax);
         }
 
         /// <summary>
