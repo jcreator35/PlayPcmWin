@@ -76,6 +76,7 @@ namespace WWUserControls {
             ModeMovePoint,
             ModeDeletePont,
             ModeAddEdge,
+            ModeDeleteEdge,
         };
 
         Mode mMode = Mode.ModeAddPoint;
@@ -99,10 +100,17 @@ namespace WWUserControls {
             case Mode.ModeAddEdge:
                 mLabelDescription.Content = "Left click and connect existing point. Right Click to cancel.";
                 break;
+            case Mode.ModeDeleteEdge:
+                mLabelDescription.Content = "Left click edge to delete.";
+                break;
             }
         }
 
-        
+        private void UpdateGraphStatus() {
+            mLabelNumOfPoints.Content = string.Format("Num of Points = {0}", mPointList.Count);
+            mLabelNumOfEdges.Content = string.Format("Num of Edges = {0}", mEdgeList.Count);
+        }
+
         Brush mGridBrush = new SolidColorBrush(Colors.LightGray);
         Brush mPointBrush = new SolidColorBrush(Colors.Black);
         Brush mTmpBrush = new SolidColorBrush(Colors.Blue);
@@ -124,12 +132,12 @@ namespace WWUserControls {
             }
         }
 
-        List<PointInf> mPoints = new List<PointInf>();
+        List<PointInf> mPointList = new List<PointInf>();
 
         class Edge {
             public int fromPointIdx;
             public int toPointIdx;
-            Line line;
+            public Line line;
             public Edge(Line aLine, int from, int to) {
                 line = aLine;
                 fromPointIdx = from;
@@ -152,8 +160,8 @@ namespace WWUserControls {
 
         private Edge FindEdge(WWVectorD2 pos) {
             foreach (var e in mEdgeList) {
-                var p1 = mPoints[e.fromPointIdx];
-                var p2 = mPoints[e.toPointIdx];
+                var p1 = mPointList[e.fromPointIdx];
+                var p2 = mPointList[e.toPointIdx];
 
                 if (WWVectorD2.Distance(pos, p1.xy) < 1) {
                     return e;
@@ -190,24 +198,35 @@ namespace WWUserControls {
             mMode = Mode.ModeAddPoint;
             Cursor = Cursors.Cross;
             UpdateDescription();
+            CancelAddEdge();
         }
 
         private void mRadioButtonMovePoint_Checked(object sender, RoutedEventArgs e) {
             mMode = Mode.ModeMovePoint;
             Cursor = Cursors.Cross;
             UpdateDescription();
+            CancelAddEdge();
         }
 
         private void mRadioButtonDeletePoint_Checked(object sender, RoutedEventArgs e) {
             mMode = Mode.ModeDeletePont;
             Cursor = Cursors.Cross;
             UpdateDescription();
+            CancelAddEdge();
         }
 
         private void mRadioButtonAddEdge_Checked(object sender, RoutedEventArgs e) {
             mMode = Mode.ModeAddEdge;
             Cursor = Cursors.Cross;
             UpdateDescription();
+            CancelAddEdge();
+        }
+
+        private void mRadioButtonDeleteEdge_Checked(object sender, RoutedEventArgs e) {
+            mMode = Mode.ModeDeleteEdge;
+            Cursor = Cursors.Cross;
+            UpdateDescription();
+            CancelAddEdge();
         }
 
         /// <returns>既存の点と当たったら既存点のPointInfを戻す。</returns>
@@ -215,7 +234,7 @@ namespace WWUserControls {
             var xy = new WWVectorD2(x, y);
 
             int idx = 0;
-            foreach (var p in mPoints) {
+            foreach (var p in mPointList) {
                 if (WWVectorD2.Distance(p.xy, xy) < threshold) {
                     p.idx = idx;
                     return p;
@@ -265,11 +284,12 @@ namespace WWUserControls {
                     // 追加不可能。
                 } else {
                     // 追加可能。
-                    mPoints.Add(new PointInf(el, pos.X, pos.Y));
-
                     mCanvas.Children.Add(el);
                     Canvas.SetLeft(el, pos.X - pointSz / 2);
                     Canvas.SetTop(el,  pos.Y - pointSz / 2);
+
+                    mPointList.Add(new PointInf(el, pos.X, pos.Y));
+                    UpdateGraphStatus();
                 }
             } else {
                 // 一時的点表示を更新。
@@ -310,7 +330,8 @@ namespace WWUserControls {
 
             if (exec) {
                 mCanvas.Children.Remove(pInf.ellipse);
-                mPoints.Remove(pInf);
+                mPointList.Remove(pInf);
+                UpdateGraphStatus();
             } else {
                 // 一時的点表示を更新。
                 mTmpPoint = el;
@@ -347,7 +368,7 @@ namespace WWUserControls {
                 return;
             }
 
-            Console.WriteLine("MovePointSub {0} ({1:0.0} {2:0.0}) nPoints={3} {4}", mm, pos.X, pos.Y, mPoints.Count, mMoveState);
+            Console.WriteLine("MovePointSub {0} ({1:0.0} {2:0.0}) nPoints={3} {4}", mm, pos.X, pos.Y, mPointList.Count, mMoveState);
 
             if (mTmpPoint != null) {
                 // 既存のtmp点を消す。
@@ -386,7 +407,7 @@ namespace WWUserControls {
 
                     // 当たった点を消す。
                     mCanvas.Children.Remove(pInf.ellipse);
-                    mPoints.Remove(pInf);
+                    mPointList.Remove(pInf);
 
                     // マウスポインター位置に赤い点を出す。
                     var el = new Ellipse();
@@ -431,7 +452,7 @@ namespace WWUserControls {
                         Canvas.SetLeft(el, pos.X - pointSz / 2);
                         Canvas.SetTop(el, pos.Y - pointSz / 2);
 
-                        mPoints.Add(new PointInf(el, pos.X, pos.Y));
+                        mPointList.Add(new PointInf(el, pos.X, pos.Y));
                         mMoveState = MovePointState.Init;
                     }
                 }
@@ -626,10 +647,93 @@ namespace WWUserControls {
             l.X2 = pInf.xy.X;
             l.Y2 = pInf.xy.Y;
             l.Stroke = mPointBrush;
-            mEdgeList.Add(new Edge(l,mEdgeFirstPos.idx, pInf.idx));
             mCanvas.Children.Add(l);
 
+            mEdgeList.Add(new Edge(l, mEdgeFirstPos.idx, pInf.idx));
+            UpdateGraphStatus();
+
             mEdgeFirstPos = null;
+        }
+
+        private Edge FindNearestEdge(WWVectorD2 pos) {
+            Edge nearestEdge = null;
+            double nearestDistance = double.MaxValue;
+            double margin = 1.0;
+
+            foreach (var e in mEdgeList) {
+                var p1 = mPointList[e.fromPointIdx];
+                var p2 = mPointList[e.toPointIdx];
+
+                // 直線の方程式 ax + by + c = 0
+                double dx = p2.xy.X - p1.xy.X;
+                double dy = p2.xy.Y - p1.xy.Y;
+                System.Diagnostics.Debug.Assert(dx != 0 || dy != 0);
+
+                double a = dy;
+                double b = -dx;
+                double c = p2.xy.X * p1.xy.Y - p2.xy.Y * p1.xy.X;
+
+                // 直線と点の距離。
+                double distance = Math.Abs(a * pos.X + b * pos.Y + c) / Math.Sqrt(a * a + b * b);
+                double nearestPointOnLineX = (b * (+b * pos.X - a * pos.Y) - a * c) / (a * a + b * b);
+                double nearestPointOnLineY = (a * (-b * pos.X + a * pos.Y) - b * c) / (a * a + b * b);
+                if ((margin + nearestPointOnLineX < p1.xy.X && margin + nearestPointOnLineX < p2.xy.X)
+                        || (margin + p1.xy.X < nearestPointOnLineX && margin + p2.xy.X < nearestPointOnLineX)
+                        || (margin + nearestPointOnLineY < p1.xy.Y && margin + nearestPointOnLineY < p2.xy.Y)
+                        || (margin + p1.xy.Y < nearestPointOnLineY && margin + p2.xy.Y < nearestPointOnLineY)) {
+                    // 点と最短距離の直線上の点が線分の範囲外。
+                    continue;
+                }
+
+                if (distance < nearestDistance) {
+                    // 現時点で最も距離が近いエッジ。
+                    nearestDistance = distance;
+                    nearestEdge = e;
+                }
+            }
+
+            return nearestEdge;
+        }
+
+        private void DeleteEdgeMouseDown(WWVectorD2 pos) {
+            if (mTmpEdge != null) {
+                mCanvas.Children.Remove(mTmpEdge);
+                mTmpEdge = null;
+            }
+
+            var e = FindNearestEdge(pos);
+            if (e == null) {
+                return;
+            }
+
+            mCanvas.Children.Remove(e.line);
+            mEdgeList.Remove(e);
+            UpdateGraphStatus();
+        }
+
+        private void DeleteEdgeMouseMove(WWVectorD2 pos) {
+            if (mTmpEdge != null) {
+                mCanvas.Children.Remove(mTmpEdge);
+                mTmpEdge = null;
+            }
+
+            var e = FindNearestEdge(pos);
+            if (e == null) {
+                return;
+            }
+
+            var p1 = mPointList[e.fromPointIdx];
+            var p2 = mPointList[e.toPointIdx];
+
+            // エッジを強調表示する。
+            var l = new Line();
+            l.X1 = p1.xy.X;
+            l.Y1 = p1.xy.Y;
+            l.X2 = p2.xy.X;
+            l.Y2 = p2.xy.Y;
+            l.Stroke = mErrBrush;
+            mTmpEdge = l;
+            mCanvas.Children.Add(l);
         }
 
         private void CanvasMouseDownLeft(MouseButtonEventArgs e) {
@@ -655,6 +759,9 @@ namespace WWUserControls {
                 break;
             case Mode.ModeAddEdge:
                 AddEdgeMouseDown(pos);
+                break;
+            case Mode.ModeDeleteEdge:
+                DeleteEdgeMouseDown(new WWVectorD2(posExact.X, posExact.Y));
                 break;
             }
         }
@@ -732,6 +839,9 @@ namespace WWUserControls {
             case Mode.ModeAddEdge:
                 AddEdgeMouseMove(pos);
                 break;
+            case Mode.ModeDeleteEdge:
+                DeleteEdgeMouseMove(new WWVectorD2(posExact.X, posExact.Y));
+                break;
             }
         }
 
@@ -785,7 +895,7 @@ namespace WWUserControls {
 
             var newPoints = new List<PointInf>();
 
-            foreach (var p in mPoints) {
+            foreach (var p in mPointList) {
                 mCanvas.Children.Remove(p.ellipse);
 
                 var xy = SnapToGrid(p.xy.X, p.xy.Y, gridSz);
@@ -807,7 +917,7 @@ namespace WWUserControls {
                 newPoints.Add(new PointInf(el, xy.X, xy.Y));
             }
 
-            mPoints = newPoints;
+            mPointList = newPoints;
         }
 
         private void mCanvas_MouseLeave(object sender, MouseEventArgs e) {
@@ -816,10 +926,7 @@ namespace WWUserControls {
                 mCanvas.Children.Remove(mTmpPoint);
                 mTmpPoint = null;
             }
-
-
         }
-
 
     }
 }

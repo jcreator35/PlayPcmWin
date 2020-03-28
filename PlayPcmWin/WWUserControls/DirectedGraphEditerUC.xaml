@@ -19,11 +19,13 @@
                             <RowDefinition Height="1*" />
                             <RowDefinition Height="1*" />
                             <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
                         </Grid.RowDefinitions>
                         <RadioButton Content="_Add Point" Margin="4,4,0,4" IsChecked="True" HorizontalAlignment="Left" Name="mRadioButtonAddPointEdge" VerticalAlignment="Center" Checked="mRadioButtonAddPoint_Checked" />
                         <RadioButton Grid.Row="1" Content="_Move Point" Margin="4,4,0,4" HorizontalAlignment="Left" Name="mRadioButtonMovePoint" VerticalAlignment="Center" Checked="mRadioButtonMovePoint_Checked" />
                         <RadioButton Grid.Row="2" Content="_Delete Point" Margin="4,4,0,4" HorizontalAlignment="Left" Name="mRadioButtonDeletePoint" VerticalAlignment="Center" Checked="mRadioButtonDeletePoint_Checked" />
-                        <RadioButton Grid.Row="3" Content="Add Edge" Margin="4,4,0,4" HorizontalAlignment="Left" Name="mRadioButtonAddEdge" VerticalAlignment="Center" Checked="mRadioButtonAddEdge_Checked" />
+                        <RadioButton Grid.Row="3" Content="Add _Edge" Margin="4,4,0,4" HorizontalAlignment="Left" Name="mRadioButtonAddEdge" VerticalAlignment="Center" Checked="mRadioButtonAddEdge_Checked" />
+                        <RadioButton Grid.Row="4" Content="Delete Ed_ge" Margin="4,4,0,4" HorizontalAlignment="Left" Name="mRadioButtonDeleteEdge" VerticalAlignment="Center" Checked="mRadioButtonDeleteEdge_Checked" />
                     </Grid>
                 </GroupBox>
                 <GroupBox Header="Point Size (pixel)" Margin="4" Name="mGroupBoxPointSize" >
@@ -39,6 +41,16 @@
                         </Grid.RowDefinitions>
                         <TextBox Text="32" Margin="4"  Name="mTextBoxGridSize" HorizontalContentAlignment="Right" />
                         <Button Grid.Row="1" Margin="4" Content="Snap to Grid" Name="mButtonSnapToGrid" Click="mButtonSnapToGrid_Click" />
+                    </Grid>
+                </GroupBox>
+                <GroupBox Header="Graph params" Margin="4" Name="mGroupBoxGraphParams" >
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                        </Grid.RowDefinitions>
+                        <Label Grid.Row="0" Name="mLabelNumOfPoints" Content="Num of Points = 0" />
+                        <Label Grid.Row="1" Name="mLabelNumOfEdges" Content="Num of Edges = 0" />
                     </Grid>
                 </GroupBox>
             </StackPanel>
