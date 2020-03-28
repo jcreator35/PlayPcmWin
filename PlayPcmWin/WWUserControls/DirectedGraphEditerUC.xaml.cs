@@ -121,12 +121,20 @@ namespace WWUserControls {
 
         Ellipse mTmpPoint = null;
 
+        private static int mNextPointIdx = 100;
+
         class PointInf {
-            public int idx;
+            private int idx;
+            public int Idx {
+                get {
+                    return idx;
+                }
+            }
             public Ellipse ellipse;
             public WWVectorD2 xy;
+
             public PointInf(Ellipse e, double x, double y) {
-                idx = -1;
+                idx = mNextPointIdx++;
                 ellipse = e;
                 xy = new WWVectorD2(x, y);
             }
@@ -158,10 +166,19 @@ namespace WWUserControls {
             return null;
         }
 
+        private PointInf FindPointByIdx(int idx) {
+            foreach (var p in mPointList) {
+                if (p.Idx == idx) {
+                    return p;
+                }
+            }
+            return null;
+        }
+
         private Edge FindEdge(WWVectorD2 pos) {
             foreach (var e in mEdgeList) {
-                var p1 = mPointList[e.fromPointIdx];
-                var p2 = mPointList[e.toPointIdx];
+                var p1 = FindPointByIdx(e.fromPointIdx);
+                var p2 = FindPointByIdx(e.toPointIdx);
 
                 if (WWVectorD2.Distance(pos, p1.xy) < 1) {
                     return e;
@@ -172,6 +189,22 @@ namespace WWUserControls {
             }
 
             return null;
+        }
+
+        private void DeleteEdgesByPointIdx(int pIdx) {
+            var delEdgeList = new List<Edge>();
+
+            foreach (var e in mEdgeList) {
+                if (e.fromPointIdx == pIdx
+                        || e.toPointIdx == pIdx) {
+                    delEdgeList.Add(e);
+                }
+            }
+
+            foreach (var e in delEdgeList) {
+                mCanvas.Children.Remove(e.line);
+                mEdgeList.Remove(e);
+            }
         }
 
         private bool PointExists(List<PointInf> points, WWVectorD2 xy) {
@@ -233,13 +266,10 @@ namespace WWUserControls {
         private PointInf TestHit(double x, double y, double threshold) {
             var xy = new WWVectorD2(x, y);
 
-            int idx = 0;
             foreach (var p in mPointList) {
                 if (WWVectorD2.Distance(p.xy, xy) < threshold) {
-                    p.idx = idx;
                     return p;
                 }
-                ++idx;
             }
 
             return null;
@@ -329,9 +359,13 @@ namespace WWUserControls {
             el.Fill = mErrBrush;
 
             if (exec) {
+                // 消えた点のpInf.idx番号を参照しているエッジをすべて削除。
+                DeleteEdgesByPointIdx(pInf.Idx);
+
                 mCanvas.Children.Remove(pInf.ellipse);
                 mPointList.Remove(pInf);
                 UpdateGraphStatus();
+
             } else {
                 // 一時的点表示を更新。
                 mTmpPoint = el;
@@ -635,7 +669,7 @@ namespace WWUserControls {
                 return;
             }
 
-            if (null != FindEdge(mEdgeFirstPos.idx, pInf.idx)) {
+            if (null != FindEdge(mEdgeFirstPos.Idx, pInf.Idx)) {
                 // 既に有るので足さない。
                 CancelAddEdge();
             }
@@ -649,7 +683,7 @@ namespace WWUserControls {
             l.Stroke = mPointBrush;
             mCanvas.Children.Add(l);
 
-            mEdgeList.Add(new Edge(l, mEdgeFirstPos.idx, pInf.idx));
+            mEdgeList.Add(new Edge(l, mEdgeFirstPos.Idx, pInf.Idx));
             UpdateGraphStatus();
 
             mEdgeFirstPos = null;
@@ -661,8 +695,8 @@ namespace WWUserControls {
             double margin = 1.0;
 
             foreach (var e in mEdgeList) {
-                var p1 = mPointList[e.fromPointIdx];
-                var p2 = mPointList[e.toPointIdx];
+                var p1 = FindPointByIdx(e.fromPointIdx);
+                var p2 = FindPointByIdx(e.toPointIdx);
 
                 // 直線の方程式 ax + by + c = 0
                 double dx = p2.xy.X - p1.xy.X;
@@ -722,8 +756,8 @@ namespace WWUserControls {
                 return;
             }
 
-            var p1 = mPointList[e.fromPointIdx];
-            var p2 = mPointList[e.toPointIdx];
+            var p1 = FindPointByIdx(e.fromPointIdx);
+            var p2 = FindPointByIdx(e.toPointIdx);
 
             // エッジを強調表示する。
             var l = new Line();
