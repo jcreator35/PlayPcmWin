@@ -18,10 +18,12 @@
                             <RowDefinition Height="1*" />
                             <RowDefinition Height="1*" />
                             <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
                         </Grid.RowDefinitions>
                         <RadioButton Content="_Add Point" Margin="4,4,0,4" IsChecked="True" HorizontalAlignment="Left" Name="mRadioButtonAddPointEdge" VerticalAlignment="Center" Checked="mRadioButtonAddPoint_Checked" />
                         <RadioButton Grid.Row="1" Content="_Move Point" Margin="4,4,0,4" HorizontalAlignment="Left" Name="mRadioButtonMovePoint" VerticalAlignment="Center" Checked="mRadioButtonMovePoint_Checked" />
                         <RadioButton Grid.Row="2" Content="_Delete Point" Margin="4,4,0,4" HorizontalAlignment="Left" Name="mRadioButtonDeletePoint" VerticalAlignment="Center" Checked="mRadioButtonDeletePoint_Checked" />
+                        <RadioButton Grid.Row="3" Content="Add Edge" Margin="4,4,0,4" HorizontalAlignment="Left" Name="mRadioButtonAddEdge" VerticalAlignment="Center" Checked="mRadioButtonAddEdge_Checked" />
                     </Grid>
                 </GroupBox>
                 <GroupBox Header="Point Size (pixel)" Margin="4" Name="mGroupBoxPointSize" >
@@ -40,9 +42,16 @@
                     </Grid>
                 </GroupBox>
             </StackPanel>
-            <GroupBox Grid.Column="1" Header="Graph" >
-                <Canvas Name="mCanvas" Background="#FFFEFEFE" OpacityMask="{x:Null}" MouseDown="mCanvas_MouseDown" MouseUp="mCanvas_MouseUp" MouseMove="mCanvas_MouseMove" />
-            </GroupBox>
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="32" />
+                    <RowDefinition Height="1*" />
+                </Grid.RowDefinitions>
+                <GroupBox Grid.Row="1" Header="Graph" >
+                    <Canvas Name="mCanvas" Background="#FFFEFEFE" OpacityMask="{x:Null}" MouseDown="mCanvas_MouseDown" MouseUp="mCanvas_MouseUp" MouseMove="mCanvas_MouseMove" MouseLeave="mCanvas_MouseLeave" />
+                </GroupBox>
+                <Label Grid.Row="0" Content="mLabelDescription" HorizontalAlignment="Left" Name="mLabelDescription" VerticalAlignment="Center" />
+            </Grid>
         </Grid>
     </GroupBox>
 </UserControl>
