@@ -121,8 +121,6 @@ namespace WWUserControls {
 
         Ellipse mTmpPoint = null;
 
-        private static int mNextPointIdx = 100;
-
         class PointInf {
             private int idx;
             public int Idx {
@@ -132,6 +130,7 @@ namespace WWUserControls {
             }
             public Ellipse ellipse;
             public WWVectorD2 xy;
+            private static int mNextPointIdx = 100;
 
             public PointInf(Ellipse e, double x, double y) {
                 idx = mNextPointIdx++;
@@ -154,6 +153,52 @@ namespace WWUserControls {
         };
 
         List<Edge> mEdgeList = new List<Edge>();
+
+        /// <summary>
+        /// ポイントやエッジを追加/削除するコマンド。
+        /// </summary>
+        class Command {
+            public PointInf point;
+            public Edge edge;
+            public enum CommandType {
+                AddPoint,
+                DeletePoint,
+                AddEdge,
+                DeleteEdge,
+            };
+            public CommandType cmd;
+
+            public Command(CommandType c, PointInf p, Edge e) {
+                cmd = c;
+                point = p;
+                edge = e;
+            }
+        };
+
+        /// <summary>
+        /// アンドゥー単位となるコマンド列。
+        /// </summary>
+        class CommandAtomic {
+            public List<Command> commandList = new List<Command>();
+            public CommandAtomic(Command c) {
+                commandList = new List<Command>();
+                commandList.Add(c);
+            }
+
+            public CommandAtomic() {
+            }
+        };
+
+        /// <summary>
+        /// アンドゥー用リスト。
+        /// </summary>
+        List<CommandAtomic> mCommandList = new List<CommandAtomic>();
+
+        private void AddCmdToUndoList(CommandAtomic ca) {
+            mCommandList.Add(ca);
+            mButtonUndo.IsEnabled = true;
+        }
+
 
         private Edge FindEdge(int idxFrom, int idxTo) {
             foreach (var e in mEdgeList) {
@@ -191,7 +236,11 @@ namespace WWUserControls {
             return null;
         }
 
+        CommandAtomic mCommandAtomic = null;
+
         private void DeleteEdgesByPointIdx(int pIdx) {
+            System.Diagnostics.Debug.Assert(mCommandAtomic != null);
+
             var delEdgeList = new List<Edge>();
 
             foreach (var e in mEdgeList) {
@@ -202,8 +251,10 @@ namespace WWUserControls {
             }
 
             foreach (var e in delEdgeList) {
-                mCanvas.Children.Remove(e.line);
-                mEdgeList.Remove(e);
+                // アンドゥー用リストに追加。
+                var cmd = new Command(Command.CommandType.DeleteEdge, null, e);
+                CommandDo(cmd, 0);
+                mCommandAtomic.commandList.Add(cmd);
             }
         }
 
@@ -314,11 +365,10 @@ namespace WWUserControls {
                     // 追加不可能。
                 } else {
                     // 追加可能。
-                    mCanvas.Children.Add(el);
-                    Canvas.SetLeft(el, pos.X - pointSz / 2);
-                    Canvas.SetTop(el,  pos.Y - pointSz / 2);
-
-                    mPointList.Add(new PointInf(el, pos.X, pos.Y));
+                    var point = new PointInf(el, pos.X, pos.Y);
+                    var cmd = new Command(Command.CommandType.AddPoint, point, null);
+                    CommandDo(cmd, pointSz);
+                    AddCmdToUndoList(new CommandAtomic(cmd));
                     UpdateGraphStatus();
                 }
             } else {
@@ -359,11 +409,20 @@ namespace WWUserControls {
             el.Fill = mErrBrush;
 
             if (exec) {
+                System.Diagnostics.Debug.Assert(mCommandAtomic == null);
+                mCommandAtomic = new CommandAtomic();
+
                 // 消えた点のpInf.idx番号を参照しているエッジをすべて削除。
                 DeleteEdgesByPointIdx(pInf.Idx);
 
-                mCanvas.Children.Remove(pInf.ellipse);
-                mPointList.Remove(pInf);
+                // 削除コマンドを完成してアンドゥー用リストに追加。
+                var cmd = new Command(Command.CommandType.DeletePoint, pInf, null);
+                CommandDo(cmd, pointSz);
+                mCommandAtomic.commandList.Add(cmd);
+
+                AddCmdToUndoList(mCommandAtomic);
+                mCommandAtomic = null;
+
                 UpdateGraphStatus();
 
             } else {
@@ -440,8 +499,12 @@ namespace WWUserControls {
                     mMoveState = MovePointState.Selected;
 
                     // 当たった点を消す。
-                    mCanvas.Children.Remove(pInf.ellipse);
-                    mPointList.Remove(pInf);
+                    var cmd = new Command(Command.CommandType.DeletePoint, pInf, null);
+                    CommandDo(cmd, 0);
+
+                    // 移動コマンドの前半(点削除)作成。
+                    System.Diagnostics.Debug.Assert(mCommandAtomic == null);
+                    mCommandAtomic = new CommandAtomic(cmd);
 
                     // マウスポインター位置に赤い点を出す。
                     var el = new Ellipse();
@@ -481,12 +544,17 @@ namespace WWUserControls {
                         el.Width = pointSz;
                         el.Height = pointSz;
                         el.Fill = mPointBrush;
+                        var point = new PointInf(el, pos.X, pos.Y);
 
-                        mCanvas.Children.Add(el);
-                        Canvas.SetLeft(el, pos.X - pointSz / 2);
-                        Canvas.SetTop(el, pos.Y - pointSz / 2);
+                        var cmd = new Command(Command.CommandType.AddPoint, point, null);
+                        CommandDo(cmd, pointSz);
 
-                        mPointList.Add(new PointInf(el, pos.X, pos.Y));
+                        // 移動コマンドを完成してアンドゥー用リストに追加。
+                        System.Diagnostics.Debug.Assert(mCommandAtomic != null);
+                        mCommandAtomic.commandList.Add(cmd);
+                        AddCmdToUndoList(mCommandAtomic);
+                        mCommandAtomic = null;
+
                         mMoveState = MovePointState.Init;
                     }
                 }
@@ -681,9 +749,14 @@ namespace WWUserControls {
             l.X2 = pInf.xy.X;
             l.Y2 = pInf.xy.Y;
             l.Stroke = mPointBrush;
-            mCanvas.Children.Add(l);
 
-            mEdgeList.Add(new Edge(l, mEdgeFirstPos.Idx, pInf.Idx));
+            var edge = new Edge(l, mEdgeFirstPos.Idx, pInf.Idx);
+            var cmd = new Command(Command.CommandType.AddEdge, null, edge);
+            CommandDo(cmd, 0);
+
+            // アンドゥー用リストに追加。
+            AddCmdToUndoList(new CommandAtomic(cmd));
+
             UpdateGraphStatus();
 
             mEdgeFirstPos = null;
@@ -740,8 +813,12 @@ namespace WWUserControls {
                 return;
             }
 
-            mCanvas.Children.Remove(e.line);
-            mEdgeList.Remove(e);
+            var cmd = new Command(Command.CommandType.DeleteEdge, null, e);
+            CommandDo(cmd, 0);
+
+            // アンドゥー用リストに追加。
+            AddCmdToUndoList(new CommandAtomic(cmd));
+
             UpdateGraphStatus();
         }
 
@@ -960,6 +1037,82 @@ namespace WWUserControls {
                 mCanvas.Children.Remove(mTmpPoint);
                 mTmpPoint = null;
             }
+        }
+
+        private void CommandDo(Command c, int pointSz) {
+            switch (c.cmd) {
+            case Command.CommandType.DeleteEdge:
+                // エッジを削除。
+                mCanvas.Children.Remove(c.edge.line);
+                mEdgeList.Remove(c.edge);
+                break;
+            case Command.CommandType.AddEdge:
+                // エッジを追加。
+                mCanvas.Children.Add(c.edge.line);
+                mEdgeList.Add(c.edge);
+                break;
+            case Command.CommandType.DeletePoint:
+                // 点を削除。
+                mCanvas.Children.Remove(c.point.ellipse);
+                mPointList.Remove(c.point);
+                break;
+            case Command.CommandType.AddPoint:
+                // 点を追加。
+                mCanvas.Children.Add(c.point.ellipse);
+                Canvas.SetLeft(c.point.ellipse, c.point.xy.X - pointSz / 2);
+                Canvas.SetTop(c.point.ellipse, c.point.xy.Y - pointSz / 2);
+                mPointList.Add(c.point);
+                break;
+            }
+        }
+
+        private void CommandUndo(Command c, int pointSz) {
+            switch (c.cmd) {
+            case Command.CommandType.AddEdge:
+                // エッジを削除。
+                mCanvas.Children.Remove(c.edge.line);
+                mEdgeList.Remove(c.edge);
+                break;
+            case Command.CommandType.DeleteEdge:
+                // エッジを追加。
+                mCanvas.Children.Add(c.edge.line);
+                mEdgeList.Add(c.edge);
+                break;
+            case Command.CommandType.AddPoint:
+                // 点を削除。
+                mCanvas.Children.Remove(c.point.ellipse);
+                mPointList.Remove(c.point);
+                break;
+            case Command.CommandType.DeletePoint:
+                // 点を追加。
+                mCanvas.Children.Add(c.point.ellipse);
+                Canvas.SetLeft(c.point.ellipse, c.point.xy.X - pointSz / 2);
+                Canvas.SetTop(c.point.ellipse, c.point.xy.Y - pointSz / 2);
+                mPointList.Add(c.point);
+                break;
+            }
+        }
+
+        private void mButtonUndo_Click(object sender, RoutedEventArgs e) {
+            int pointSz = 6;
+            if (!int.TryParse(mTextBoxPointSize.Text, out pointSz)) {
+                MessageBox.Show("Error: Point Size parse error!");
+                return;
+            }
+
+            CancelAddEdge();
+
+            // アンドゥー用リストから1個コマンドを取り出し
+            // アンドゥーする。
+            var ca = mCommandList[mCommandList.Count - 1];
+            mCommandList.RemoveAt(mCommandList.Count - 1);
+
+            foreach (var c in ca.commandList.Reverse<Command>()) {
+                CommandUndo(c, pointSz);
+            }
+
+            mButtonUndo.IsEnabled = 0 < mCommandList.Count;
+
         }
 
     }

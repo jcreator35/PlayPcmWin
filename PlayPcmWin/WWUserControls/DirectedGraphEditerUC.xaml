@@ -43,6 +43,14 @@
                         <Button Grid.Row="1" Margin="4" Content="Snap to Grid" Name="mButtonSnapToGrid" Click="mButtonSnapToGrid_Click" />
                     </Grid>
                 </GroupBox>
+                <GroupBox Header="Commands" Margin="4" Name="mGroupBoxCommands" >
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*" />
+                        </Grid.RowDefinitions>
+                        <Button Margin="4" Name="mButtonUndo" Content="_Undo" Click="mButtonUndo_Click" IsEnabled="False" />
+                    </Grid>
+                </GroupBox>
                 <GroupBox Header="Graph params" Margin="4" Name="mGroupBoxGraphParams" >
                     <Grid>
                         <Grid.RowDefinitions>
