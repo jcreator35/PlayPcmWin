@@ -119,7 +119,7 @@ namespace WWUserControls {
         // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
         // Pointの処理。
 
-        Ellipse mTmpPoint = null;
+        PointInf mTmpDrawPoint = null;
 
         class PointInf {
             private int idx;
@@ -160,11 +160,15 @@ namespace WWUserControls {
         class Command {
             public PointInf point;
             public Edge edge;
+            public int beforeIdx;
+            public int afterIdx;
+
             public enum CommandType {
                 AddPoint,
                 DeletePoint,
                 AddEdge,
                 DeleteEdge,
+                ChangePointIdx,
             };
             public CommandType cmd;
 
@@ -329,9 +333,9 @@ namespace WWUserControls {
         private void UpdatePointSub(bool exec, WWVectorD2 pos) {
             if (pos.X < 0 || mCanvas.ActualWidth <= pos.X
                     || pos.Y < 0 || mCanvas.ActualHeight <= pos.Y) {
-                if (mTmpPoint != null) {
+                if (mTmpDrawPoint != null) {
                     // 既存のtmp点を消す。
-                    mCanvas.Children.Remove(mTmpPoint);
+                    mCanvas.Children.Remove(mTmpDrawPoint.ellipse);
                 }
                 return;
             }
@@ -344,9 +348,9 @@ namespace WWUserControls {
 
             var pInf = TestHit(pos.X, pos.Y, pointSz);
 
-            if (mTmpPoint != null) {
+            if (mTmpDrawPoint != null) {
                 // 既存のtmp点を消す。
-                mCanvas.Children.Remove(mTmpPoint);
+                mCanvas.Children.Remove(mTmpDrawPoint.ellipse);
             }
 
             var el = new Ellipse();
@@ -373,7 +377,8 @@ namespace WWUserControls {
                 }
             } else {
                 // 一時的点表示を更新。
-                mTmpPoint = el;
+                var point = new PointInf(el, pos.X, pos.Y);
+                mTmpDrawPoint = point;
 
                 mCanvas.Children.Add(el);
                 Canvas.SetLeft(el, pos.X - pointSz / 2);
@@ -393,9 +398,9 @@ namespace WWUserControls {
                 return;
             }
 
-            if (mTmpPoint != null) {
+            if (mTmpDrawPoint != null) {
                 // 既存のtmp点を消す。
-                mCanvas.Children.Remove(mTmpPoint);
+                mCanvas.Children.Remove(mTmpDrawPoint.ellipse);
             }
 
             var pInf = TestHit(pos.X, pos.Y, pointSz);
@@ -427,7 +432,8 @@ namespace WWUserControls {
 
             } else {
                 // 一時的点表示を更新。
-                mTmpPoint = el;
+                var point = new PointInf(el, pInf.xy.X, pInf.xy.Y);
+                mTmpDrawPoint = point;
 
                 mCanvas.Children.Add(el);
                 Canvas.SetLeft(el, pInf.xy.X - pointSz / 2);
@@ -449,6 +455,74 @@ namespace WWUserControls {
             Exec,
         };
 
+        private PointInf mMoveBeforePoint = null;
+
+        /// <summary>
+        /// 一時的ポイント移動を反映しエッジ描画更新。
+        /// </summary>
+        private void RedrawEdge(PointInf removedPoint, PointInf addedPoint) {
+            foreach (var e in mEdgeList) {
+                PointInf p1 = null;
+                if (e.fromPointIdx == removedPoint.Idx) {
+                    p1 = addedPoint;
+                } else {
+                    p1 = FindPointByIdx(e.fromPointIdx);
+                }
+
+                PointInf p2 = null;
+                if (e.toPointIdx == removedPoint.Idx) {
+                    p2 = addedPoint;
+                } else {
+                    p2 = FindPointByIdx(e.toPointIdx);
+                }
+
+                mCanvas.Children.Remove(e.line);
+                e.line = null;
+
+                var l = new Line();
+                l.X1 = p1.xy.X;
+                l.Y1 = p1.xy.Y;
+                l.X2 = p2.xy.X;
+                l.Y2 = p2.xy.Y;
+                l.Stroke = mPointBrush;
+                e.line = l;
+                mCanvas.Children.Add(l);
+            }
+        }
+
+        /// <summary>
+        /// 点のidxが変わったとき、edgeの点idxを更新する。
+        /// </summary>
+        private void EdgeListReplacePointIdx(int beforeIdx, int afterIdx) {
+            foreach (var e in mEdgeList) {
+                if (e.fromPointIdx == beforeIdx) {
+                    e.fromPointIdx = afterIdx;
+                }
+                if (e.toPointIdx == beforeIdx) {
+                    e.toPointIdx = afterIdx;
+                }
+            }
+        }
+
+        private void RedrawEdge() {
+            foreach (var e in mEdgeList) {
+                var p1 = FindPointByIdx(e.fromPointIdx);
+                var p2 = FindPointByIdx(e.toPointIdx);
+
+                mCanvas.Children.Remove(e.line);
+                e.line = null;
+
+                var l = new Line();
+                l.X1 = p1.xy.X;
+                l.Y1 = p1.xy.Y;
+                l.X2 = p2.xy.X;
+                l.Y2 = p2.xy.Y;
+                l.Stroke = mPointBrush;
+                e.line = l;
+                mCanvas.Children.Add(l);
+            }
+        }
+
         private void MovePointSub(MovePointMode mm, WWVectorD2 pos) {
             if (pos.X < 0 || mCanvas.ActualWidth <= pos.X
                     || pos.Y < 0 || mCanvas.ActualHeight <= pos.Y) {
@@ -463,9 +537,9 @@ namespace WWUserControls {
 
             Console.WriteLine("MovePointSub {0} ({1:0.0} {2:0.0}) nPoints={3} {4}", mm, pos.X, pos.Y, mPointList.Count, mMoveState);
 
-            if (mTmpPoint != null) {
+            if (mTmpDrawPoint != null) {
                 // 既存のtmp点を消す。
-                mCanvas.Children.Remove(mTmpPoint);
+                mCanvas.Children.Remove(mTmpDrawPoint.ellipse);
             }
 
             switch (mm) {
@@ -481,7 +555,8 @@ namespace WWUserControls {
                     el.Height = pointSz;
                     el.Fill = mErrBrush;
 
-                    mTmpPoint = el;
+                    var point = new PointInf(el, pInf.xy.X, pInf.xy.Y);
+                    mTmpDrawPoint = point;
 
                     mCanvas.Children.Add(el);
                     Canvas.SetLeft(el, pInf.xy.X - pointSz / 2);
@@ -499,6 +574,7 @@ namespace WWUserControls {
                     mMoveState = MovePointState.Selected;
 
                     // 当たった点を消す。
+                    mMoveBeforePoint = pInf;
                     var cmd = new Command(Command.CommandType.DeletePoint, pInf, null);
                     CommandDo(cmd, 0);
 
@@ -512,7 +588,8 @@ namespace WWUserControls {
                     el.Height = pointSz;
                     el.Fill = mErrBrush;
 
-                    mTmpPoint = el;
+                    var point = new PointInf(el, pos.X, pos.Y);
+                    mTmpDrawPoint = point;
 
                     mCanvas.Children.Add(el);
                     Canvas.SetLeft(el, pos.X - pointSz / 2);
@@ -528,11 +605,15 @@ namespace WWUserControls {
                         el.Height = pointSz;
                         el.Fill = mErrBrush;
 
-                        mTmpPoint = el;
+                        var point = new PointInf(el, pos.X, pos.Y);
+                        
+                        mTmpDrawPoint = point;
 
                         mCanvas.Children.Add(el);
                         Canvas.SetLeft(el, pos.X - pointSz / 2);
                         Canvas.SetTop(el, pos.Y - pointSz / 2);
+
+                        RedrawEdge(mMoveBeforePoint, point);
                     }
                 }
                 break;
@@ -546,14 +627,31 @@ namespace WWUserControls {
                         el.Fill = mPointBrush;
                         var point = new PointInf(el, pos.X, pos.Y);
 
-                        var cmd = new Command(Command.CommandType.AddPoint, point, null);
-                        CommandDo(cmd, pointSz);
+                        {
+                            var cmd = new Command(Command.CommandType.AddPoint, point, null);
+                            CommandDo(cmd, pointSz);
 
-                        // 移動コマンドを完成してアンドゥー用リストに追加。
-                        System.Diagnostics.Debug.Assert(mCommandAtomic != null);
-                        mCommandAtomic.commandList.Add(cmd);
+                            // 移動コマンドを完成してアンドゥー用リストに追加。
+                            System.Diagnostics.Debug.Assert(mCommandAtomic != null);
+                            mCommandAtomic.commandList.Add(cmd);
+                        }
+
+                        {
+                            // 点の移動とともにエッジも移動する。
+                            // 点が更新されたので、エッジの点idxを更新する。
+                            EdgeListReplacePointIdx(mMoveBeforePoint.Idx, point.Idx);
+                            var cmd = new Command(Command.CommandType.ChangePointIdx, null, null);
+                            cmd.beforeIdx = mMoveBeforePoint.Idx;
+                            cmd.afterIdx = point.Idx;
+
+                            CommandDo(cmd, 0);
+                            mCommandAtomic.commandList.Add(cmd);
+                        }
+
                         AddCmdToUndoList(mCommandAtomic);
                         mCommandAtomic = null;
+
+                        RedrawEdge();
 
                         mMoveState = MovePointState.Init;
                     }
@@ -673,8 +771,7 @@ namespace WWUserControls {
                 return;
             }
 
-            {
-                // 線を引くことができる。
+            {   // 線を引くことができる。
                 var l = new Line();
                 l.X1 = mEdgeFirstPos.xy.X;
                 l.Y1 = mEdgeFirstPos.xy.Y;
@@ -1032,10 +1129,10 @@ namespace WWUserControls {
         }
 
         private void mCanvas_MouseLeave(object sender, MouseEventArgs e) {
-            if (mTmpPoint != null) {
+            if (mTmpDrawPoint != null) {
                 // tmp点を消す。
-                mCanvas.Children.Remove(mTmpPoint);
-                mTmpPoint = null;
+                mCanvas.Children.Remove(mTmpDrawPoint.ellipse);
+                mTmpDrawPoint = null;
             }
         }
 
@@ -1062,6 +1159,17 @@ namespace WWUserControls {
                 Canvas.SetLeft(c.point.ellipse, c.point.xy.X - pointSz / 2);
                 Canvas.SetTop(c.point.ellipse, c.point.xy.Y - pointSz / 2);
                 mPointList.Add(c.point);
+                break;
+            case Command.CommandType.ChangePointIdx:
+                // エッジリストに入っている点番号を更新する。
+                foreach (var e in mEdgeList) {
+                    if (e.fromPointIdx == c.beforeIdx) {
+                        e.fromPointIdx = c.afterIdx;
+                    }
+                    if (e.toPointIdx == c.beforeIdx) {
+                        e.toPointIdx = c.afterIdx;
+                    }
+                }
                 break;
             }
         }
@@ -1090,6 +1198,17 @@ namespace WWUserControls {
                 Canvas.SetTop(c.point.ellipse, c.point.xy.Y - pointSz / 2);
                 mPointList.Add(c.point);
                 break;
+            case Command.CommandType.ChangePointIdx:
+                // エッジリストに入っている点番号を更新する。
+                foreach (var e in mEdgeList) {
+                    if (e.fromPointIdx == c.afterIdx) {
+                        e.fromPointIdx = c.beforeIdx;
+                    }
+                    if (e.toPointIdx == c.afterIdx) {
+                        e.toPointIdx = c.beforeIdx;
+                    }
+                }
+                break;
             }
         }
 
@@ -1110,6 +1229,8 @@ namespace WWUserControls {
             foreach (var c in ca.commandList.Reverse<Command>()) {
                 CommandUndo(c, pointSz);
             }
+
+            RedrawEdge();
 
             mButtonUndo.IsEnabled = 0 < mCommandList.Count;
 
