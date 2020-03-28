@@ -1,16 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using WWMath;
 
 namespace WWFem1dTest {
@@ -46,16 +35,15 @@ namespace WWFem1dTest {
             //                            区間    値
             //   ∫c(x)dVi/dx dVj/dx dx = (2/N) * N^2
             // i=0,j=1のとき
-            //   0≦x＜1/N  の区間でVi'=+N, Vj'=0 → Vi'Vj' = 0
-            //   1/N≦x＜2/Nの区間でVi'=-N, Vj'=N → Vi'Vj' = -N^2
-            //   2/N≦x＜3/Nの区間でVi'=0, Vj'=-N → Vi'Vj' = 0
+            //   0≦x＜1/N  の区間でVi'=+N, Vj'= 0 → Vi'Vj' = 0
+            //   1/N≦x＜2/Nの区間でVi'=-N, Vj'= N → Vi'Vj' = -N^2
+            //   2/N≦x＜3/Nの区間でVi'= 0, Vj'=-N → Vi'Vj' = 0
             //                            区間     値
             //   ∫c(x)dVi/dx dVj/dx dx = (1/N) * (-N^2)
             // i=N-1, j=N-1のとき
             //   N-1/N≦x＜1の区間でVi'=Vj'=N → Vi'Vj' = N^2
             //                            区間     値
             //   ∫c(x)dVi/dx dVj/dx dx = (1/N) * (N^2)
-
             var Kij = new double[N * N];
             for (int i = 0; i < N; ++i) {
                 for (int j = 0; j < N; ++j) {

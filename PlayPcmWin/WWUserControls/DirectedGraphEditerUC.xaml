@@ -1,0 +1,38 @@
+﻿<UserControl x:Class="WWUserControls.DirectedGraphEditerUC"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="1024" d:DesignWidth="1024">
+    <GroupBox Header="Directed Graph Editor Window" >
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="192" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0">
+                <GroupBox Header="Mode" Margin="4" Name="mGroupBoxSettings" >
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                        </Grid.RowDefinitions>
+                        <RadioButton Content="_Add Point / Edge" Margin="4,4,0,4" IsChecked="True" HorizontalAlignment="Left" Name="mRadioButtonAddPointEdge" VerticalAlignment="Center" Checked="mRadioButtonAddPointEdge_Checked" />
+                        <RadioButton Grid.Row="1" Content="_Move Point" Margin="4,4,0,4" HorizontalAlignment="Left" Name="mRadioButtonMovePoint" VerticalAlignment="Center" Checked="mRadioButtonMovePoint_Checked" />
+                        <RadioButton Grid.Row="2" Content="_Delete Point" Margin="4,4,0,4" HorizontalAlignment="Left" Name="mRadioButtonDeletePoint" VerticalAlignment="Center" Checked="mRadioButtonDeletePoint_Checked" />
+                    </Grid>
+                </GroupBox>
+                <GroupBox Header="Point Size (pixel)" Margin="4" Name="mGroupBoxPointSize" >
+                    <Grid>
+                        <TextBox Text="12" Name="mTextBoxPointSize" HorizontalContentAlignment="Right" />
+                    </Grid>
+                </GroupBox>
+            </StackPanel>
+            <GroupBox Grid.Column="1" Header="Graph" >
+                <Canvas Name="mCanvas" Background="#FFFEFEFE" OpacityMask="{x:Null}" MouseDown="mCanvas_MouseDown" MouseUp="mCanvas_MouseUp" MouseMove="mCanvas_MouseMove" />
+            </GroupBox>
+        </Grid>
+    </GroupBox>
+</UserControl>

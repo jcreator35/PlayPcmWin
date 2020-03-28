@@ -81,6 +81,9 @@
       <DependentUpon>AnalogFilterCircuit.xaml</DependentUpon>
     </Compile>
     <Compile Include="Common.cs" />
+    <Compile Include="DirectedGraphEditerUC.xaml.cs">
+      <DependentUpon>DirectedGraphEditerUC.xaml</DependentUpon>
+    </Compile>
     <Compile Include="FrequencyResponse.xaml.cs">
       <DependentUpon>FrequencyResponse.xaml</DependentUpon>
     </Compile>
@@ -105,6 +108,10 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="AnalogFilterCircuit.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="DirectedGraphEditerUC.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -12,14 +12,16 @@ namespace WWMath {
         /// 行列の種類。
         /// </summary>
         public enum MatType {
-            Square = 1,
-            LowerTriangular = 2,
-            UpperTriangular = 4,
-            Diagonal = 8,
-            Tridiagonal = 16,
+            /// 不明。
+            Undetermined = 1,
+            Square = 2,
+            LowerTriangular = 4,
+            UpperTriangular = 8,
+            Diagonal = 16,
+            Tridiagonal = 32,
         };
 
-        private ulong mMatTypeFlags = 0;
+        private ulong mMatTypeFlags = (ulong)MatType.Undetermined;
 
         public int Row {
             get { return (int)mRow; }
@@ -123,6 +125,7 @@ namespace WWMath {
         /// </summary>
         public void Set(int row, int column, double v) {
             m[column + mCol *row] = v;
+            mMatTypeFlags = (ulong)MatType.Undetermined;
         }
 
         /// <summary>
@@ -139,6 +142,14 @@ namespace WWMath {
                     Set(y, x, x == y ? 1.0 : 0.0);
                 }
             }
+
+            mMatTypeFlags =
+                  (ulong)MatType.Square 
+                | (ulong)MatType.LowerTriangular
+                | (ulong)MatType.UpperTriangular
+                | (ulong)MatType.Diagonal
+                | (ulong)MatType.Tridiagonal;
+
             return this;
         }
 
@@ -162,6 +173,7 @@ namespace WWMath {
                 throw new ArgumentException("v.Length mismatch");
             }
             Array.Copy(v, m, v.Length);
+            mMatTypeFlags = (ulong)MatType.Undetermined;
         }
 
         public static WWMatrix Mul(WWMatrix lhs, WWMatrix rhs) {
