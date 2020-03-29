@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿// 日本語。
+
+using System.Diagnostics;
 using System;
 
 namespace WWMath {
@@ -31,9 +33,35 @@ namespace WWMath {
             // setは有りません。
         }
 
+        public double Length() {
+            return Math.Sqrt(X * X + Y * Y);
+        }
+
+        public WWVectorD2 Scale(double s) {
+            return new WWVectorD2(X * s, Y * s);
+        }
+
         static public double Distance(WWVectorD2 a, WWVectorD2 b) {
             double d = Math.Sqrt((a.X - b.X) * (a.X - b.X) + (a.Y - b.Y) * (a.Y - b.Y));
             return d;
+        }
+
+        static public WWVectorD2 Add(WWVectorD2 a, WWVectorD2 b) {
+            return new WWVectorD2(a.X + b.X, a.Y + b.Y);
+        }
+
+        /// <returns>a - b</returns>
+        static public WWVectorD2 Sub(WWVectorD2 a, WWVectorD2 b) {
+            return new WWVectorD2(a.X - b.X, a.Y - b.Y);
+        }
+
+        /// <summary>
+        /// 自分自身は変更しない。
+        /// </summary>
+        /// <returns>長さが1になるよう拡縮されたベクトルv</returns>
+        public WWVectorD2 Normalize() {
+            double length = Length();
+            return new WWVectorD2(X / length, Y / length);
         }
     }
 }

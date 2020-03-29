@@ -33,6 +33,11 @@
                         <TextBox Text="12" Name="mTextBoxPointSize" HorizontalContentAlignment="Right" />
                     </Grid>
                 </GroupBox>
+                <GroupBox Header="Arrow Size (pixel)" Margin="4" Name="mGroupBoxArrowSize" >
+                    <Grid>
+                        <TextBox Text="12" Name="mTextBoxArrowSize" HorizontalContentAlignment="Right" />
+                    </Grid>
+                </GroupBox>
                 <GroupBox Header="Grid Size (pixel)" Margin="4" Name="mGroupBoxGridSize" >
                     <Grid>
                         <Grid.RowDefinitions>

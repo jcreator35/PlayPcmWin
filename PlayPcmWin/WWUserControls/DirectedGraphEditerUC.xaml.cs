@@ -2,15 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 using WWMath;
 
@@ -26,45 +21,38 @@ namespace WWUserControls {
         }
 
         private bool mInitialized = false;
+        private int mPointSz = 12;
+        private int mArrowSz = 12;
+        private int mGridSz = 16;
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e) {
             mInitialized = true;
 
-            int gridSz = int.Parse(mTextBoxGridSize.Text);
+            mPointSz = int.Parse(mTextBoxPointSize.Text);
+            mArrowSz = int.Parse(mTextBoxArrowSize.Text);
+            mGridSz = int.Parse(mTextBoxGridSize.Text);
 
-            RedrawGrid(gridSz);
+            RedrawGrid();
             UpdateDescription();
         }
 
         List<Line> mGridLines = new List<Line>();
 
-        private void RedrawGrid(int gridSz) {
+        private void RedrawGrid() {
             foreach (var p in mGridLines) {
                 mCanvas.Children.Remove(p);
             }
             mGridLines.Clear();
 
-            for (int x = 0; x < mCanvas.ActualWidth; x += gridSz) {
-                var p = new Line();
-                p.X1 = x;
-                p.X2 = x;
-                p.Y1 = 0;
-                p.Y2 = mCanvas.ActualHeight;
-                p.Stroke = mGridBrush;
-
+            for (int x = 0; x < mCanvas.ActualWidth; x += mGridSz) {
+                var p = NewLine(new WWVectorD2(x, 0), new WWVectorD2(x, mCanvas.ActualHeight), mGridBrush);
                 mCanvas.Children.Add(p);
 
                 mGridLines.Add(p);
             }
 
-            for (int y = 0; y < mCanvas.ActualHeight; y += gridSz) {
-                var p = new Line();
-                p.X1 = 0;
-                p.X2 = mCanvas.ActualWidth;
-                p.Y1 = y;
-                p.Y2 = y;
-                p.Stroke = mGridBrush;
-
+            for (int y = 0; y < mCanvas.ActualHeight; y += mGridSz) {
+                var p = NewLine(new WWVectorD2(0, y), new WWVectorD2(mCanvas.ActualWidth, y), mGridBrush);
                 mCanvas.Children.Add(p);
 
                 mGridLines.Add(p);
@@ -145,8 +133,10 @@ namespace WWUserControls {
             public int fromPointIdx;
             public int toPointIdx;
             public Line line;
-            public Edge(Line aLine, int from, int to) {
+            public Polygon arrow;
+            public Edge(Line aLine, Polygon aArrow, int from, int to) {
                 line = aLine;
+                arrow = aArrow;
                 fromPointIdx = from;
                 toPointIdx = to;
             }
@@ -257,7 +247,7 @@ namespace WWUserControls {
             foreach (var e in delEdgeList) {
                 // アンドゥー用リストに追加。
                 var cmd = new Command(Command.CommandType.DeleteEdge, null, e);
-                CommandDo(cmd, 0);
+                CommandDo(cmd);
                 mCommandAtomic.commandList.Add(cmd);
             }
         }
@@ -340,28 +330,18 @@ namespace WWUserControls {
                 return;
             }
 
-            int pointSz = 6;
-            if (!int.TryParse(mTextBoxPointSize.Text, out pointSz)) {
-                MessageBox.Show("Error: Point Size parse error!");
-                return;
-            }
-
-            var pInf = TestHit(pos.X, pos.Y, pointSz);
+            var pInf = TestHit(pos.X, pos.Y, mPointSz);
 
             if (mTmpDrawPoint != null) {
                 // 既存のtmp点を消す。
                 mCanvas.Children.Remove(mTmpDrawPoint.ellipse);
             }
 
-            var el = new Ellipse();
-            el.Width = pointSz;
-            el.Height = pointSz;
-
             var color = exec ? mPointBrush : mTmpBrush;
             if (pInf != null) {
                 color = mErrBrush;
             }
-            el.Fill = color;
+            var el = NewPoint(pos, color);
 
             if (exec) {
                 // 点を追加する。
@@ -371,7 +351,7 @@ namespace WWUserControls {
                     // 追加可能。
                     var point = new PointInf(el, pos.X, pos.Y);
                     var cmd = new Command(Command.CommandType.AddPoint, point, null);
-                    CommandDo(cmd, pointSz);
+                    CommandDo(cmd);
                     AddCmdToUndoList(new CommandAtomic(cmd));
                     UpdateGraphStatus();
                 }
@@ -381,8 +361,6 @@ namespace WWUserControls {
                 mTmpDrawPoint = point;
 
                 mCanvas.Children.Add(el);
-                Canvas.SetLeft(el, pos.X - pointSz / 2);
-                Canvas.SetTop(el,  pos.Y - pointSz / 2);
             }
         }
 
@@ -392,26 +370,17 @@ namespace WWUserControls {
                 return;
             }
 
-            int pointSz = 6;
-            if (!int.TryParse(mTextBoxPointSize.Text, out pointSz)) {
-                MessageBox.Show("Error: Point Size parse error!");
-                return;
-            }
-
             if (mTmpDrawPoint != null) {
                 // 既存のtmp点を消す。
                 mCanvas.Children.Remove(mTmpDrawPoint.ellipse);
             }
 
-            var pInf = TestHit(pos.X, pos.Y, pointSz);
+            var pInf = TestHit(pos.X, pos.Y, mPointSz);
             if (pInf == null) {
                 return;
             }
-    
-            var el = new Ellipse();
-            el.Width = pointSz;
-            el.Height = pointSz;
-            el.Fill = mErrBrush;
+
+            var el = NewPoint(pInf.xy, mErrBrush);
 
             if (exec) {
                 System.Diagnostics.Debug.Assert(mCommandAtomic == null);
@@ -422,7 +391,7 @@ namespace WWUserControls {
 
                 // 削除コマンドを完成してアンドゥー用リストに追加。
                 var cmd = new Command(Command.CommandType.DeletePoint, pInf, null);
-                CommandDo(cmd, pointSz);
+                CommandDo(cmd);
                 mCommandAtomic.commandList.Add(cmd);
 
                 AddCmdToUndoList(mCommandAtomic);
@@ -436,8 +405,6 @@ namespace WWUserControls {
                 mTmpDrawPoint = point;
 
                 mCanvas.Children.Add(el);
-                Canvas.SetLeft(el, pInf.xy.X - pointSz / 2);
-                Canvas.SetTop(el,  pInf.xy.Y - pointSz / 2);
             }
         }
 
@@ -456,6 +423,47 @@ namespace WWUserControls {
         };
 
         private PointInf mMoveBeforePoint = null;
+
+        private Line NewLine(double x1, double y1, double x2, double y2, Brush stroke) {
+            var l = new Line();
+            l.X1 = x1;
+            l.Y1 = y1;
+            l.X2 = x2;
+            l.Y2 = y2;
+            l.Stroke = stroke;
+            return l;
+        }
+
+        private Line NewLine(WWVectorD2 xy1, WWVectorD2 xy2, Brush stroke) {
+            return NewLine(xy1.X, xy1.Y, xy2.X, xy2.Y, stroke);
+        }
+
+        private Polygon NewArrowPoly(WWVectorD2 pos1, WWVectorD2 pos2, Brush stroke) {
+            var dir2to1N = WWVectorD2.Sub(pos1, pos2).Normalize();
+            var dir2to1S = dir2to1N.Scale(mArrowSz);
+            
+            // 2→1の方向と垂直のベクトル2つ。
+            var dirA = new WWVectorD2(-dir2to1N.Y, dir2to1N.X).Scale(mArrowSz*0.5);
+            var dirB = new WWVectorD2(dir2to1N.Y, -dir2to1N.X).Scale(mArrowSz*0.5);
+
+            var vecA = WWVectorD2.Add(dir2to1S, dirA);
+            var vecB = WWVectorD2.Add(dir2to1S, dirB);
+
+            var pos2a = WWVectorD2.Add(pos2, dir2to1N.Scale(mPointSz / 2));
+            var posA = WWVectorD2.Add(pos2a, vecA);
+            var posB = WWVectorD2.Add(pos2a, vecB);
+
+            var pc = new PointCollection();
+            pc.Add(new Point(posB.X,posB.Y));
+            pc.Add(new Point(pos2a.X,pos2a.Y));
+            pc.Add(new Point(posA.X,posA.Y));
+
+            var poly = new Polygon();
+            poly.Points = pc;
+            poly.Fill = stroke;
+            poly.StrokeThickness = 0;
+            return poly;
+        }
 
         /// <summary>
         /// 一時的ポイント移動を反映しエッジ描画更新。
@@ -478,15 +486,17 @@ namespace WWUserControls {
 
                 mCanvas.Children.Remove(e.line);
                 e.line = null;
+                mCanvas.Children.Remove(e.arrow);
+                e.arrow = null;
 
-                var l = new Line();
-                l.X1 = p1.xy.X;
-                l.Y1 = p1.xy.Y;
-                l.X2 = p2.xy.X;
-                l.Y2 = p2.xy.Y;
-                l.Stroke = mPointBrush;
+                var l = NewLine(p1.xy, p2.xy, mPointBrush);
                 e.line = l;
+
+                var poly = NewArrowPoly(p1.xy, p2.xy, mPointBrush);
+                e.arrow = poly;
+
                 mCanvas.Children.Add(l);
+                mCanvas.Children.Add(poly);
             }
         }
 
@@ -511,27 +521,52 @@ namespace WWUserControls {
 
                 mCanvas.Children.Remove(e.line);
                 e.line = null;
+                mCanvas.Children.Remove(e.arrow);
+                e.arrow = null;
 
-                var l = new Line();
-                l.X1 = p1.xy.X;
-                l.Y1 = p1.xy.Y;
-                l.X2 = p2.xy.X;
-                l.Y2 = p2.xy.Y;
-                l.Stroke = mPointBrush;
+                var l = NewLine(p1.xy, p2.xy, mPointBrush);
                 e.line = l;
+
+                var poly = NewArrowPoly(p1.xy, p2.xy, mPointBrush);
+                e.arrow = poly;
+
                 mCanvas.Children.Add(l);
+                mCanvas.Children.Add(poly);
             }
+        }
+
+        private void RedrawAll() {
+            if (!int.TryParse(mTextBoxPointSize.Text, out mPointSz)) {
+                MessageBox.Show("Error: Point Size parse error!");
+                return;
+            }
+            if (!int.TryParse(mTextBoxArrowSize.Text, out mArrowSz)) {
+                MessageBox.Show("Error: Arrow Size parse error!");
+                return;
+            }
+            if (!int.TryParse(mTextBoxGridSize.Text, out mGridSz)) {
+                MessageBox.Show("Error: Grid Size parse error!");
+                return;
+            }
+
+
+        }
+
+        private Ellipse NewPoint(WWVectorD2 pos, Brush brush) {
+            var p = new Ellipse();
+            p.Width = mPointSz;
+            p.Height = mPointSz;
+            p.Fill = brush;
+
+            Canvas.SetLeft(p, pos.X - mPointSz / 2);
+            Canvas.SetTop(p, pos.Y - mPointSz / 2);
+
+            return p;
         }
 
         private void MovePointSub(MovePointMode mm, WWVectorD2 pos) {
             if (pos.X < 0 || mCanvas.ActualWidth <= pos.X
                     || pos.Y < 0 || mCanvas.ActualHeight <= pos.Y) {
-                return;
-            }
-
-            int pointSz = 6;
-            if (!int.TryParse(mTextBoxPointSize.Text, out pointSz)) {
-                MessageBox.Show("Error: Point Size parse error!");
                 return;
             }
 
@@ -545,27 +580,23 @@ namespace WWUserControls {
             switch (mm) {
             case MovePointMode.Hover:
                 {   // 当たったとき、赤い点を出す。
-                    var pInf = TestHit(pos.X, pos.Y, pointSz);
+                    var pInf = TestHit(pos.X, pos.Y, mPointSz);
                     if (pInf == null) {
                         return;
                     }
 
-                    var el = new Ellipse();
-                    el.Width = pointSz;
-                    el.Height = pointSz;
-                    el.Fill = mErrBrush;
+                    var el = NewPoint(pInf.xy, mErrBrush);
 
                     var point = new PointInf(el, pInf.xy.X, pInf.xy.Y);
                     mTmpDrawPoint = point;
 
                     mCanvas.Children.Add(el);
-                    Canvas.SetLeft(el, pInf.xy.X - pointSz / 2);
-                    Canvas.SetTop(el,  pInf.xy.Y - pointSz / 2);
+                    
                 }
                 break;
             case MovePointMode.Select:
                 {
-                    var pInf = TestHit(pos.X, pos.Y, pointSz);
+                    var pInf = TestHit(pos.X, pos.Y, mPointSz);
                     if (pInf == null) {
                         mMoveState = MovePointState.Init;
                         return;
@@ -576,42 +607,32 @@ namespace WWUserControls {
                     // 当たった点を消す。
                     mMoveBeforePoint = pInf;
                     var cmd = new Command(Command.CommandType.DeletePoint, pInf, null);
-                    CommandDo(cmd, 0);
+                    CommandDo(cmd);
 
                     // 移動コマンドの前半(点削除)作成。
                     System.Diagnostics.Debug.Assert(mCommandAtomic == null);
                     mCommandAtomic = new CommandAtomic(cmd);
 
                     // マウスポインター位置に赤い点を出す。
-                    var el = new Ellipse();
-                    el.Width = pointSz;
-                    el.Height = pointSz;
-                    el.Fill = mErrBrush;
+                    var el = NewPoint(pos, mErrBrush);
 
                     var point = new PointInf(el, pos.X, pos.Y);
                     mTmpDrawPoint = point;
 
                     mCanvas.Children.Add(el);
-                    Canvas.SetLeft(el, pos.X - pointSz / 2);
-                    Canvas.SetTop(el,  pos.Y - pointSz / 2);
                 }
                 break;
             case MovePointMode.Move:
                 {
                     if (mMoveState == MovePointState.Selected) {
                         // マウスポインター位置に赤い点を出す。
-                        var el = new Ellipse();
-                        el.Width = pointSz;
-                        el.Height = pointSz;
-                        el.Fill = mErrBrush;
+                        var el = NewPoint(pos, mErrBrush);
 
                         var point = new PointInf(el, pos.X, pos.Y);
                         
                         mTmpDrawPoint = point;
 
                         mCanvas.Children.Add(el);
-                        Canvas.SetLeft(el, pos.X - pointSz / 2);
-                        Canvas.SetTop(el, pos.Y - pointSz / 2);
 
                         RedrawEdge(mMoveBeforePoint, point);
                     }
@@ -621,15 +642,12 @@ namespace WWUserControls {
                 {
                     if (mMoveState == MovePointState.Selected) {
                         // マウスポインター位置の点を追加。
-                        var el = new Ellipse();
-                        el.Width = pointSz;
-                        el.Height = pointSz;
-                        el.Fill = mPointBrush;
+                        var el = NewPoint(pos, mPointBrush);
                         var point = new PointInf(el, pos.X, pos.Y);
 
                         {
                             var cmd = new Command(Command.CommandType.AddPoint, point, null);
-                            CommandDo(cmd, pointSz);
+                            CommandDo(cmd);
 
                             // 移動コマンドを完成してアンドゥー用リストに追加。
                             System.Diagnostics.Debug.Assert(mCommandAtomic != null);
@@ -644,7 +662,7 @@ namespace WWUserControls {
                             cmd.beforeIdx = mMoveBeforePoint.Idx;
                             cmd.afterIdx = point.Idx;
 
-                            CommandDo(cmd, 0);
+                            CommandDo(cmd);
                             mCommandAtomic.commandList.Add(cmd);
                         }
 
@@ -670,13 +688,7 @@ namespace WWUserControls {
         Line mTmpEdge = null;
 
         private void AddEdgeMouseDown(WWVectorD2 pos) {
-            int pointSz = 6;
-            if (!int.TryParse(mTextBoxPointSize.Text, out pointSz)) {
-                MessageBox.Show("Error: Point Size parse error!");
-                return;
-            }
-
-            var pInf = TestHit(pos.X, pos.Y, pointSz);
+            var pInf = TestHit(pos.X, pos.Y, mPointSz);
 
             Console.WriteLine("AddEdgeMouseDown ({0:0.0} {0:0.0})", pos.X, pos.Y);
 
@@ -697,14 +709,9 @@ namespace WWUserControls {
                 mCanvas.Children.Remove(mTmpEdgeP1);
                 mTmpEdgeP1 = null;
             }
-            var el = new Ellipse();
-            el.Width = pointSz;
-            el.Height = pointSz;
-            el.Fill = mTmpBrush;
+            var el = NewPoint(pInf.xy, mTmpBrush);
             mTmpEdgeP1 = el;
             mCanvas.Children.Add(el);
-            Canvas.SetLeft(el, pInf.xy.X - pointSz / 2);
-            Canvas.SetTop(el, pInf.xy.Y - pointSz / 2);
         }
 
         private void AddEdgeMouseMove(WWVectorD2 pos) {
@@ -720,13 +727,7 @@ namespace WWUserControls {
                 mTmpEdge = null;
             }
 
-            int pointSz = 6;
-            if (!int.TryParse(mTextBoxPointSize.Text, out pointSz)) {
-                MessageBox.Show("Error: Point Size parse error!");
-                return;
-            }
-
-            var pInf = TestHit(pos.X, pos.Y, pointSz);
+            var pInf = TestHit(pos.X, pos.Y, mPointSz);
 
             if (mEdgeFirstPos == null) {
                 // 1点目の候補 pInf。
@@ -738,14 +739,9 @@ namespace WWUserControls {
                         mCanvas.Children.Remove(mTmpEdgeP1);
                         mTmpEdgeP1 = null;
                     }
-                    var el = new Ellipse();
-                    el.Width = pointSz;
-                    el.Height = pointSz;
-                    el.Fill = mTmpBrush;
+                    var el = NewPoint(pInf.xy, mTmpBrush);
                     mTmpEdgeP1 = el;
                     mCanvas.Children.Add(el);
-                    Canvas.SetLeft(el, pInf.xy.X - pointSz / 2);
-                    Canvas.SetTop(el, pInf.xy.Y - pointSz / 2);
                 }
                 return;
             }
@@ -755,12 +751,7 @@ namespace WWUserControls {
             if (pInf == null) {
                 // 点を指していない。
                 // 赤い線を引く。
-                var l = new Line();
-                l.X1 = mEdgeFirstPos.xy.X;
-                l.Y1 = mEdgeFirstPos.xy.Y;
-                l.X2 = pos.X;
-                l.Y2 = pos.Y;
-                l.Stroke = mErrBrush;
+                var l = NewLine(mEdgeFirstPos.xy, pos, mErrBrush);
                 mTmpEdge = l;
                 mCanvas.Children.Add(l);
                 return;
@@ -772,42 +763,26 @@ namespace WWUserControls {
             }
 
             {   // 線を引くことができる。
-                var l = new Line();
-                l.X1 = mEdgeFirstPos.xy.X;
-                l.Y1 = mEdgeFirstPos.xy.Y;
-                l.X2 = pInf.xy.X;
-                l.Y2 = pInf.xy.Y;
-                l.Stroke = mTmpBrush;
+                var l = NewLine(mEdgeFirstPos.xy, pInf.xy, mTmpBrush);
                 mTmpEdge = l;
                 mCanvas.Children.Add(l);
 
                 // 点を出す。
-                var el = new Ellipse();
-                el.Width = pointSz;
-                el.Height = pointSz;
-                el.Fill = mTmpBrush;
+                var el = NewPoint(pInf.xy, mTmpBrush);
                 mTmpEdgeP2 = el;
                 mCanvas.Children.Add(el);
-                Canvas.SetLeft(el, pInf.xy.X - pointSz / 2);
-                Canvas.SetTop(el, pInf.xy.Y - pointSz / 2);
             }
         }
 
         private void AddEdgeMouseUp(WWVectorD2 pos) {
             Console.WriteLine("AddEdgeMouseUp ({0:0.0} {0:0.0})", pos.X, pos.Y);
 
-            int pointSz = 6;
-            if (!int.TryParse(mTextBoxPointSize.Text, out pointSz)) {
-                MessageBox.Show("Error: Point Size parse error!");
-                return;
-            }
-
             if (mTmpEdge != null) {
                 mCanvas.Children.Remove(mTmpEdge);
                 mTmpEdge = null;
             }
 
-            var pInf = TestHit(pos.X, pos.Y, pointSz);
+            var pInf = TestHit(pos.X, pos.Y, mPointSz);
 
             if (pInf == null) {
                 // 点を指していない。
@@ -840,16 +815,12 @@ namespace WWUserControls {
             }
 
             // 線を引く。
-            var l = new Line();
-            l.X1 = mEdgeFirstPos.xy.X;
-            l.Y1 = mEdgeFirstPos.xy.Y;
-            l.X2 = pInf.xy.X;
-            l.Y2 = pInf.xy.Y;
-            l.Stroke = mPointBrush;
+            var l = NewLine(mEdgeFirstPos.xy, pInf.xy, mPointBrush);
+            var arrow = NewArrowPoly(mEdgeFirstPos.xy, pInf.xy, mPointBrush);
 
-            var edge = new Edge(l, mEdgeFirstPos.Idx, pInf.Idx);
+            var edge = new Edge(l, arrow, mEdgeFirstPos.Idx, pInf.Idx);
             var cmd = new Command(Command.CommandType.AddEdge, null, edge);
-            CommandDo(cmd, 0);
+            CommandDo(cmd);
 
             // アンドゥー用リストに追加。
             AddCmdToUndoList(new CommandAtomic(cmd));
@@ -911,7 +882,7 @@ namespace WWUserControls {
             }
 
             var cmd = new Command(Command.CommandType.DeleteEdge, null, e);
-            CommandDo(cmd, 0);
+            CommandDo(cmd);
 
             // アンドゥー用リストに追加。
             AddCmdToUndoList(new CommandAtomic(cmd));
@@ -934,26 +905,15 @@ namespace WWUserControls {
             var p2 = FindPointByIdx(e.toPointIdx);
 
             // エッジを強調表示する。
-            var l = new Line();
-            l.X1 = p1.xy.X;
-            l.Y1 = p1.xy.Y;
-            l.X2 = p2.xy.X;
-            l.Y2 = p2.xy.Y;
-            l.Stroke = mErrBrush;
+            var l = NewLine(p1.xy, p2.xy, mErrBrush);
             mTmpEdge = l;
             mCanvas.Children.Add(l);
         }
 
         private void CanvasMouseDownLeft(MouseButtonEventArgs e) {
-            int gridSz = 4;
-            if (!int.TryParse(mTextBoxGridSize.Text, out gridSz)) {
-                MessageBox.Show("Error: Grid Size parse error");
-                return;
-            }
-
             var posExact = e.GetPosition(mCanvas);
 
-            var pos = SnapToGrid(posExact.X, posExact.Y, gridSz);
+            var pos = SnapToGrid(posExact.X, posExact.Y, mGridSz);
 
             switch (mMode) {
             case Mode.ModeAddPoint:
@@ -1012,19 +972,13 @@ namespace WWUserControls {
         WWVectorD2 mPrevPos = null;
 
         private void mCanvas_MouseMove(object sender, MouseEventArgs e) {
-            int gridSz = 4;
-            if (!int.TryParse(mTextBoxGridSize.Text, out gridSz)) {
-                MessageBox.Show("Error: Grid Size parse error");
-                return;
-            }
-
             var posExact = e.GetPosition(mCanvas);
             if (mPrevPos != null && WWVectorD2.Distance(mPrevPos, new WWVectorD2(posExact.X, posExact.Y)) < 1.0) {
                 return;
             }
             mPrevPos = new WWVectorD2(posExact.X, posExact.Y);
 
-            var pos = SnapToGrid(posExact.X, posExact.Y, gridSz);
+            var pos = SnapToGrid(posExact.X, posExact.Y, mGridSz);
 
             if (mMode == Mode.ModeMovePoint) {
                 MovePointSub((e.LeftButton == MouseButtonState.Pressed) ? MovePointMode.Move : MovePointMode.Hover,
@@ -1054,14 +1008,8 @@ namespace WWUserControls {
         }
 
         private void CanvasMouseUpLeft(MouseButtonEventArgs e) {
-            int gridSz = 4;
-            if (!int.TryParse(mTextBoxGridSize.Text, out gridSz)) {
-                MessageBox.Show("Error: Grid Size parse error");
-                return;
-            }
-
             var posExact = e.GetPosition(mCanvas);
-            var pos = SnapToGrid(posExact.X, posExact.Y, gridSz);
+            var pos = SnapToGrid(posExact.X, posExact.Y, mGridSz);
 
             switch (mMode) {
             case Mode.ModeAddPoint:
@@ -1087,40 +1035,27 @@ namespace WWUserControls {
         }
 
         private void mButtonSnapToGrid_Click(object sender, RoutedEventArgs e) {
-            int pointSz = 6;
-            if (!int.TryParse(mTextBoxPointSize.Text, out pointSz)) {
-                MessageBox.Show("Error: Point Size parse error!");
-                return;
-            }
-
-            int gridSz = 4;
-            if (!int.TryParse(mTextBoxGridSize.Text, out gridSz)) {
+            if (!int.TryParse(mTextBoxGridSize.Text, out mGridSz)) {
                 MessageBox.Show("Error: Grid Size parse error");
                 return;
             }
 
-            RedrawGrid(gridSz);
+            RedrawGrid();
 
             var newPoints = new List<PointInf>();
 
             foreach (var p in mPointList) {
                 mCanvas.Children.Remove(p.ellipse);
 
-                var xy = SnapToGrid(p.xy.X, p.xy.Y, gridSz);
+                var xy = SnapToGrid(p.xy.X, p.xy.Y, mGridSz);
                 if (PointExists(newPoints, xy)) {
                     // 同じ位置に点が重なっている。
-                    // この点は削除する。
+                    // この点pは削除する。
                     continue;
                 }
 
-                var el = new Ellipse();
-                el.Width = pointSz;
-                el.Height = pointSz;
-                el.Fill = mPointBrush;
-
+                var el = NewPoint(xy, mPointBrush);
                 mCanvas.Children.Add(el);
-                Canvas.SetLeft(el, xy.X - pointSz / 2);
-                Canvas.SetTop(el, xy.Y - pointSz / 2);
 
                 newPoints.Add(new PointInf(el, xy.X, xy.Y));
             }
@@ -1136,16 +1071,18 @@ namespace WWUserControls {
             }
         }
 
-        private void CommandDo(Command c, int pointSz) {
+        private void CommandDo(Command c) {
             switch (c.cmd) {
             case Command.CommandType.DeleteEdge:
                 // エッジを削除。
                 mCanvas.Children.Remove(c.edge.line);
+                mCanvas.Children.Remove(c.edge.arrow);
                 mEdgeList.Remove(c.edge);
                 break;
             case Command.CommandType.AddEdge:
                 // エッジを追加。
                 mCanvas.Children.Add(c.edge.line);
+                mCanvas.Children.Add(c.edge.arrow);
                 mEdgeList.Add(c.edge);
                 break;
             case Command.CommandType.DeletePoint:
@@ -1156,8 +1093,8 @@ namespace WWUserControls {
             case Command.CommandType.AddPoint:
                 // 点を追加。
                 mCanvas.Children.Add(c.point.ellipse);
-                Canvas.SetLeft(c.point.ellipse, c.point.xy.X - pointSz / 2);
-                Canvas.SetTop(c.point.ellipse, c.point.xy.Y - pointSz / 2);
+                Canvas.SetLeft(c.point.ellipse, c.point.xy.X - mPointSz / 2);
+                Canvas.SetTop(c.point.ellipse, c.point.xy.Y - mPointSz / 2);
                 mPointList.Add(c.point);
                 break;
             case Command.CommandType.ChangePointIdx:
@@ -1174,16 +1111,18 @@ namespace WWUserControls {
             }
         }
 
-        private void CommandUndo(Command c, int pointSz) {
+        private void CommandUndo(Command c) {
             switch (c.cmd) {
             case Command.CommandType.AddEdge:
                 // エッジを削除。
                 mCanvas.Children.Remove(c.edge.line);
+                mCanvas.Children.Remove(c.edge.arrow);
                 mEdgeList.Remove(c.edge);
                 break;
             case Command.CommandType.DeleteEdge:
                 // エッジを追加。
                 mCanvas.Children.Add(c.edge.line);
+                mCanvas.Children.Add(c.edge.arrow);
                 mEdgeList.Add(c.edge);
                 break;
             case Command.CommandType.AddPoint:
@@ -1194,8 +1133,8 @@ namespace WWUserControls {
             case Command.CommandType.DeletePoint:
                 // 点を追加。
                 mCanvas.Children.Add(c.point.ellipse);
-                Canvas.SetLeft(c.point.ellipse, c.point.xy.X - pointSz / 2);
-                Canvas.SetTop(c.point.ellipse, c.point.xy.Y - pointSz / 2);
+                Canvas.SetLeft(c.point.ellipse, c.point.xy.X - mPointSz / 2);
+                Canvas.SetTop(c.point.ellipse, c.point.xy.Y - mPointSz / 2);
                 mPointList.Add(c.point);
                 break;
             case Command.CommandType.ChangePointIdx:
@@ -1213,12 +1152,6 @@ namespace WWUserControls {
         }
 
         private void mButtonUndo_Click(object sender, RoutedEventArgs e) {
-            int pointSz = 6;
-            if (!int.TryParse(mTextBoxPointSize.Text, out pointSz)) {
-                MessageBox.Show("Error: Point Size parse error!");
-                return;
-            }
-
             CancelAddEdge();
 
             // アンドゥー用リストから1個コマンドを取り出し
@@ -1227,14 +1160,13 @@ namespace WWUserControls {
             mCommandList.RemoveAt(mCommandList.Count - 1);
 
             foreach (var c in ca.commandList.Reverse<Command>()) {
-                CommandUndo(c, pointSz);
+                CommandUndo(c);
             }
 
             RedrawEdge();
+            UpdateGraphStatus();
 
             mButtonUndo.IsEnabled = 0 < mCommandList.Count;
-
         }
-
     }
 }
