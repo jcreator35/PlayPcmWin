@@ -549,7 +549,20 @@ namespace WWUserControls {
                 return;
             }
 
+            RedrawGrid();
+            RedrawPoints();
+            RedrawEdge();
+            UpdateGraphStatus();
+        }
 
+        private void RedrawPoints() {
+            foreach (var p in mPointList) {
+                mCanvas.Children.Remove(p.ellipse);
+                p.ellipse = null;
+
+                p.ellipse = NewPoint(p.xy, mPointBrush);
+                mCanvas.Children.Add(p.ellipse);
+            }
         }
 
         private Ellipse NewPoint(WWVectorD2 pos, Brush brush) {
@@ -1167,6 +1180,10 @@ namespace WWUserControls {
             UpdateGraphStatus();
 
             mButtonUndo.IsEnabled = 0 < mCommandList.Count;
+        }
+
+        private void ButtonRedraw_Click(object sender, RoutedEventArgs e) {
+            RedrawAll();
         }
     }
 }

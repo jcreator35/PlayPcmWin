@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
              d:DesignHeight="1024" d:DesignWidth="1024" Loaded="UserControl_Loaded">
-    <GroupBox Header="Directed Graph Editor Window" >
+    <GroupBox Header="Directed Graph Editor" Name="mGroupBoxDGEditor" >
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="192" />
@@ -28,14 +28,22 @@
                         <RadioButton Grid.Row="4" Content="Delete Ed_ge" Margin="4,4,0,4" HorizontalAlignment="Left" Name="mRadioButtonDeleteEdge" VerticalAlignment="Center" Checked="mRadioButtonDeleteEdge_Checked" />
                     </Grid>
                 </GroupBox>
-                <GroupBox Header="Point Size (pixel)" Margin="4" Name="mGroupBoxPointSize" >
+                <GroupBox Header="Draw params" Margin="4" Name="mGroupBoxDrawParams" >
                     <Grid>
-                        <TextBox Text="12" Name="mTextBoxPointSize" HorizontalContentAlignment="Right" />
-                    </Grid>
-                </GroupBox>
-                <GroupBox Header="Arrow Size (pixel)" Margin="4" Name="mGroupBoxArrowSize" >
-                    <Grid>
-                        <TextBox Text="12" Name="mTextBoxArrowSize" HorizontalContentAlignment="Right" />
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Column="0" Grid.Row="0" HorizontalAlignment="Right" Content="Point Size (pixel)" />
+                        <TextBox Grid.Column="1" Grid.Row="0" Text="16" Margin="4" Name="mTextBoxPointSize" HorizontalContentAlignment="Right" />
+                        <Label Grid.Column="0" Grid.Row="1" HorizontalAlignment="Right" Content="Arrow Size (pixel)" />
+                        <TextBox Grid.Column="1" Grid.Row="1" Text="10" Margin="4" Name="mTextBoxArrowSize" HorizontalContentAlignment="Right" />
+                        <Button Grid.ColumnSpan="2" Grid.Row="2" Margin="4" Content="Redraw" Click="ButtonRedraw_Click" />
                     </Grid>
                 </GroupBox>
                 <GroupBox Header="Grid Size (pixel)" Margin="4" Name="mGroupBoxGridSize" >
