@@ -3,8 +3,15 @@ using System.Collections.Generic;
 
 namespace WWUtil {
     public class DirectoryUtil {
-        // this code is from https://msdn.microsoft.com/en-us/library/bb513869.aspx
-        public static string[] CollectFlacFilesOnFolder(string root, string extension) {
+
+        /// <summary>
+        /// Collect recursively file names with specified ext
+        /// this code is from https://msdn.microsoft.com/en-us/library/bb513869.aspx
+        /// </summary>
+        /// <param name="root">root directory to search files</param>
+        /// <param name="extension">collect files with this extension. if null is specified, all files are collected</param>
+        /// <returns>collected file list</returns>
+        public static string[] CollectFilesOnFolder(string root, string extension) {
             var result = new List<string>();
 
             var dirs = new Stack<string>(20);
@@ -48,9 +55,15 @@ namespace WWUtil {
                 foreach (string file in files) {
                     try {
                         System.IO.FileInfo fi = new System.IO.FileInfo(file);
-                        if (String.Equals(extension.ToUpper(), fi.Extension.ToUpper(), StringComparison.Ordinal)) {
+                        if (extension == null) {
+                            // 無条件に足します。
                             result.Add(fi.FullName);
-                            //Console.WriteLine("{0}: {1}, {2}", fi.Name, fi.Length, fi.CreationTime);
+                        } else {
+                            // 拡張子がextensionと一致するファイルだけ足します。
+                            if (String.Equals(extension.ToUpper(), fi.Extension.ToUpper(), StringComparison.Ordinal)) {
+                                result.Add(fi.FullName);
+                                //Console.WriteLine("{0}: {1}, {2}", fi.Name, fi.Length, fi.CreationTime);
+                            }
                         }
                     } catch (System.IO.FileNotFoundException e) {
                         Console.WriteLine(e);

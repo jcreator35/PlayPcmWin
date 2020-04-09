@@ -1,0 +1,38 @@
+﻿<Window x:Class="ReadAllFilesOnSpecifiedFolder.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="ReadAllFilesOnSpecifiedFolder" Height="350" Width="525" Loaded="Window_Loaded" Closing="Window_Closing">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="100" />
+            <RowDefinition Height="32" />
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="20" />
+        </Grid.RowDefinitions>
+        <GroupBox Header="Settings" Name="mGroupBoxSettings" >
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="60*" />
+                    <RowDefinition Height="76*" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="110*" />
+                    <ColumnDefinition Width="265*" />
+                    <ColumnDefinition Width="116*" />
+                </Grid.ColumnDefinitions>
+                <Label Content="Folder:" Name="mLabelFolder" VerticalAlignment="Center" HorizontalAlignment="Right" />
+                <TextBox Grid.Column="1" Margin="0,0,0,0" Name="mTextBoxFolder" VerticalAlignment="Center" Text="D:\" />
+                <Button Content="_Browse..." Grid.Column="2" HorizontalAlignment="Left" Margin="6,0,0,0" Name="mButtonBrowse" VerticalAlignment="Center" Width="75" Click="mButtonBrowse_Click" />
+                <CheckBox Content="_Parallel Read" Grid.Row="1" Grid.ColumnSpan="3" IsChecked="True" HorizontalAlignment="Left" Margin="12,0,0,0" Name="mCheckBoxParallelRead" VerticalAlignment="Center" />
+            </Grid>
+        </GroupBox>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" >
+            <Button Content="_Start" Margin="6,0,0,0" Name="mButtonStart" VerticalAlignment="Center" Width="75" Click="mButtonStart_Click" />
+            <Button Content="S_top" Margin="6,0,0,0" Name="mButtonStop" VerticalAlignment="Center" Width="75" Click="mButtonStop_Click" IsEnabled="False" />
+        </StackPanel>
+        <GroupBox Grid.Row="2" Header="Log" Name="mGroupBoxLog" >
+                <TextBox Name="mTextBoxLog" IsReadOnly="True" AcceptsTab="True" AcceptsReturn="True" AllowDrop="False" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" IsReadOnlyCaretVisible="True" AutoWordSelection="True" />
+        </GroupBox>
+        <ProgressBar Grid.Row="3" Name="mProgressBar" />
+    </Grid>
+</Window>

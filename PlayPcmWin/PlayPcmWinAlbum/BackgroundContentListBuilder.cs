@@ -77,7 +77,7 @@ namespace PlayPcmWinAlbum {
                 mBw.ReportProgress(0, new ReportProgressArgs(string.Format(Properties.Resources.LogCountingFiles, rootPath)));
             }
 
-            var flacList = WWUtil.DirectoryUtil.CollectFlacFilesOnFolder(rootPath, ".FLAC");
+            var flacList = WWUtil.DirectoryUtil.CollectFilesOnFolder(rootPath, ".FLAC");
             if (background) {
                 mBw.ReportProgress(0, new ReportProgressArgs(string.Format(Properties.Resources.LogReportCount, flacList.Length)));
             }
