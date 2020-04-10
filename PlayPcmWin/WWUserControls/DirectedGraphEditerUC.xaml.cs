@@ -187,12 +187,25 @@ namespace WWUserControls {
             return pInf;
         }
 
+        /// <summary>
+        /// 確定の点、または仮の点。
+        /// </summary>
         private PointInf FindPointByIdx(int idx) {
+            // 確定の点。
             foreach (var p in mPointList) {
                 if (p.Idx == idx) {
                     return p;
                 }
             }
+
+            // 仮の点。
+            if (mFromPoint != null && mFromPoint.Idx == idx) {
+                return mFromPoint;
+            }
+            if (mToPoint != null && mToPoint.Idx == idx) {
+                return mToPoint;
+            }
+
             return null;
         }
 
@@ -292,18 +305,48 @@ namespace WWUserControls {
             return l;
         }
 
-        /// <summary>
-        /// 始点が存在し、マウスがホバーしているとき、一時的エッジの描画位置を更新する。
-        /// </summary>
-        private void TmpEdgeRedrawMouseMove(WWVectorD2 pos) {
+        private void MouseMoveUpdateTmpPoint(WWVectorD2 pos) {
             if (mFromPoint == null) {
                 // 始点が無い。
+                Console.WriteLine("MMP FP none");
                 return;
             }
 
             // 始点有り。
-            Console.WriteLine("TmpEdgeRedrawMouseMove ({0:0.0} {0:0.0})", pos.X, pos.Y);
+            Console.WriteLine("MMP ({0:0.0} {0:0.0})", pos.X, pos.Y);
 
+            var toPoint = TestHit(pos, mPointSz);
+            if (toPoint == null) {
+                // 始点が存在し、マウスポインタ位置に確定の終点が無い。
+                if (mToPoint != null && WWVectorD2.Distance(mToPoint.xy, pos) < 1) {
+                    // マウスポインタ位置に仮の終点mToPointが存在。
+                    Console.WriteLine("MMP already toPoint");
+                } else {
+                    // 仮の終点位置が異なるので作り直す。
+                    PointDrawableRemove(mToPoint);
+                    mToPoint = null;
+                    mToPoint = NewPoint(pos, mBrightBrush);
+                    Console.WriteLine("MMP create toPoint");
+                }
+            } else {
+                // マウスポインタ位置に確定の終点が存在する。
+                // 仮の終点は不要。
+                PointDrawableRemove(mToPoint);
+                mToPoint = null;
+            }
+        }
+
+        private void MouseMoveUpdateTmpEdge(WWVectorD2 pos) {
+            if (mFromPoint == null) {
+                // 始点が無い。
+                Console.WriteLine("MME FP none");
+                return;
+            }
+
+            // 始点mFromPoint有り。
+            Console.WriteLine("MME ({0:0.0} {0:0.0})", pos.X, pos.Y);
+
+            // TmpEdgeの始点p1と終点p2
             PointInf p1 = null;
             PointInf p2 = null;
             if (mTmpEdge != null) {
@@ -311,55 +354,64 @@ namespace WWUserControls {
                 p2 = FindPointByIdx(mTmpEdge.toPointIdx);
             }
 
-            if (p1 == null) {
-                // 始点の設定。
-                p1 = mFromPoint;
-            }
+            // マウスポインタ位置に確定の終点toPointがあるか。
+            var toPoint = TestHit(pos, mPointSz);
+            if (toPoint == null) {
+                // マウスポインタ位置に確定の終点が無い。
+                // この場合、確定のエッジは無い。
+                if (mToPoint != null && WWVectorD2.Distance(mToPoint.xy, pos) < 1) {
+                    // マウスポインタ位置に仮の終点mToPointが存在する。
+                    Console.WriteLine("MME already toPoint");
 
-            var toPoint = TestHit(pos.X, pos.Y, mPointSz);
-            if (toPoint != null) {
-                // 終点の候補 toPointが確定で存在する場合。
-
-                if (p2 != toPoint) {
-                    if (toPoint == p1) {
-                        // 始点と終点が同じ点の場合。
-                        // Edgeは作られない。
-                        EdgeDrawablesRemove(mTmpEdge);
-                        mTmpEdge = null;
+                    if (p1 == mFromPoint && p2 == mToPoint) {
+                        // mFromPoint → mToPoint
+                        // 仮のエッジが既に引かれている。
                         return;
                     }
 
-                    // 始点p1と終点toPointが異なる点である。
-
-                    if (null != FindEdge(p1, toPoint, FEOption.SamePosition)) {
-                        // p1→toPointのエッジが既に存在する場合。
-                        // Edgeは作られない。
-                        EdgeDrawablesRemove(mTmpEdge);
-                        mTmpEdge = null;
-                        return;
-                    }
-
-                    // 始点p1と終点toPointが異なる点で、
-                    // p1→toPointのエッジが無い場合。
-                    // Edgeを作成する。
-                    EdgeDrawablesRemove(mTmpEdge);
-                    mTmpEdge = NewEdge(p1, toPoint, mBrightBrush);
-                    return;
+                    // mFromPoint → mToPointのエッジを引く必要がある。
+                    p1 = mFromPoint;
+                    p2 = mToPoint;
                 } else {
-                    // すでにp1→toPointのTmpEdgeが有る。
+                    // マウスポインタ位置に確定の終点も仮の終点も無い。
+                    // 画面外にマウスが行った場合？
+                    // 仮のエッジがあれば消す。
+                    EdgeDrawablesRemove(mTmpEdge);
                     return;
                 }
             } else {
-                // 始点が存在し、マウスポインタ位置に確定の終点が存在しない場合。
-                if (mToPoint != null && WWVectorD2.Distance(mToPoint.xy, pos) < 1) {
-                    // マウスポインタ位置に仮の終点が存在する。
-                } else {
-                    // 仮の終点位置が異なるので作り直す。
-                    PointDrawableRemove(mToPoint);
-                    mToPoint = null;
-                    mToPoint = NewPoint(pos, mBrightBrush);
+                // 確定の終点toPointがある。
+                if (null != FindEdge(mFromPoint.Idx, toPoint.Idx, FEOption.SamePosition)) {
+                    // 確定のエッジが既に引かれている。
+                    // 仮のエッジがあれば消す。
+                    EdgeDrawablesRemove(mTmpEdge);
+                    return;
                 }
+
+                if (p1 == mFromPoint && p2 == toPoint) {
+                    // mFromPoint → toPoint
+                    // 仮のエッジが既に引かれている。
+                    return;
+                }
+
+                // mFromPoint → toPointのエッジを引く必要がある。
+                p1 = mFromPoint;
+                p2 = toPoint;
             }
+
+            // Edgeを作り直す。
+            EdgeDrawablesRemove(mTmpEdge);
+            mTmpEdge = NewEdge(p1, p2, mBrightBrush);
+            Console.WriteLine("MME created edge");
+            return;
+        }
+
+        /// <summary>
+        /// 始点が存在し、マウスがホバーしているとき、一時的エッジの描画位置を更新する。
+        /// </summary>
+        private void TmpEdgeRedrawMouseMove(WWVectorD2 pos) {
+            MouseMoveUpdateTmpPoint(pos);
+            MouseMoveUpdateTmpEdge(pos);
         }
 
         /// <summary>
@@ -770,19 +822,24 @@ namespace WWUserControls {
         /// 一時的点を削除。
         /// </summary>
         private void TmpDrawablesRemove() {
-            if (mFromPoint == null) {
-                return;
+            if (mFromPoint != null) {
+                if (PointExists(mPointList, mFromPoint.xy)) {
+                    // mFromPoint地点に確定の点がある。
+                    // 色を確定の色に変更。
+                    PointChangeColor(mFromPoint, mBrush);
+                    mFromPoint = null;
+                } else {
+                    // mFromPointは仮の点で、確定の点は無い。
+                    PointDrawableRemove(mFromPoint);
+                    mFromPoint = null;
+                }
             }
 
-            if (PointExists(mPointList, mFromPoint.xy)) {
-                // mFromPoint地点には点がある。
-                PointChangeColor(mFromPoint, mBrush);
-                mFromPoint = null;
-            } else {
-                // mFromPoint地点に点は無い。
-                PointDrawableRemove(mFromPoint);
-                mFromPoint = null;
-            }
+            // mToPointは常に仮の点。
+            PointDrawableRemove(mToPoint);
+
+            // mTmpEdgeは常に仮のエッジ。
+            EdgeDrawablesRemove(mTmpEdge);
         }
 
         /// <summary>
@@ -1243,7 +1300,6 @@ namespace WWUserControls {
 
             if (e.LeftButton == MouseButtonState.Released) {
                 // マウスがホバー。
-
                 // 一時的エッジの描画位置更新。
                 TmpEdgeRedrawMouseMove(pos);
             } else {
