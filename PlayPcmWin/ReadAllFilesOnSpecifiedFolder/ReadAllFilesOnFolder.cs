@@ -30,18 +30,20 @@ namespace ReadAllFilesOnSpecifiedFolder {
         /// <summary>
         /// Run()をキャンセルする。
         /// </summary>
-        public void Cancel() {
+        public bool Cancel() {
+            if (mCts == null) {
+                return false;
+            }
+
             if (mCts.Token.CanBeCanceled) {
                 mCts.Cancel();
+                return true;
             }
+            return false;
         }
 
         public void Run(string root, int opt) {
-            if (mCts != null) {
-                mCts.Dispose();
-                mCts = null;
-            }
-            mCts = new CancellationTokenSource();
+            System.Diagnostics.Debug.Assert(mCts != null);
 
             // まずフォルダ内のファイルを列挙します。
             var pathList = WWUtil.DirectoryUtil.CollectFilesOnFolder(root, null);
@@ -95,6 +97,7 @@ namespace ReadAllFilesOnSpecifiedFolder {
                     }
                 }
             } catch (OperationCanceledException ex) {
+                Console.WriteLine("{0}", ex);
                 return;
             }
 
@@ -109,6 +112,8 @@ namespace ReadAllFilesOnSpecifiedFolder {
             try {
                 using (var br = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read))) {
                     long totalBytes = br.BaseStream.Length;
+
+                    //Console.WriteLine("    {0:N0} bytes, {1}", totalBytes, path);
 
                     // bufのサイズ単位で読む。
                     for (long pos = 0; pos < totalBytes; pos += buf.Length) {

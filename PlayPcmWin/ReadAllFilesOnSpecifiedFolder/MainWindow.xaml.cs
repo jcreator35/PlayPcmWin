@@ -47,6 +47,7 @@ namespace ReadAllFilesOnSpecifiedFolder {
             mStopWatch.Restart();
             mStopWatchLogUpdate.Restart();
 
+            // Reader作成。
             System.Diagnostics.Debug.Assert(mReader == null);
             mReader = new ReadAllFilesOnFolder(ReadProgressCallback_WindowMode);
 
@@ -140,6 +141,7 @@ namespace ReadAllFilesOnSpecifiedFolder {
                 opt |= (int)ReadAllFilesOnFolder.Option.Parallel;
             }
 
+            System.Diagnostics.Debug.Assert(mReader != null);
             mReader.Run(args.root, opt);
 
             if (mBW.CancellationPending) {
@@ -150,9 +152,15 @@ namespace ReadAllFilesOnSpecifiedFolder {
         private void mButtonStop_Click(object sender, RoutedEventArgs e) {
             mBW.CancelAsync();
             if (mReader != null) {
-                mReader.Cancel();
+                bool success = mReader.Cancel();
+                if (success) {
+                    mButtonStop.IsEnabled = false;
+                } else {
+                    Console.WriteLine("E: ButtonStop mReader.Cancel() failed.");
+                }
+            } else {
+                Console.WriteLine("E: ButtonStop mReader == null.");
             }
-            mButtonStop.IsEnabled = false;
         }
 
         private static string AssemblyVersion {
