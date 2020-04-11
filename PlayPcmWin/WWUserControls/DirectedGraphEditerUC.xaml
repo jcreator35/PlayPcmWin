@@ -47,7 +47,7 @@
                             <RowDefinition Height="1*" />
                         </Grid.RowDefinitions>
                         <TextBox Text="32" Margin="4"  Name="mTextBoxGridSize" HorizontalContentAlignment="Right" />
-                        <Button Grid.Row="1" Margin="4" Content="Snap to Grid" Name="mButtonSnapToGrid" Click="mButtonSnapToGrid_Click" />
+                        <Button Grid.Row="1" Margin="4" Content="Resize" Name="mButtonResize" Click="mButtonResize_Click" />
                     </Grid>
                 </GroupBox>
                 <GroupBox Header="Commands" Margin="4" Name="mGroupBoxCommands" >

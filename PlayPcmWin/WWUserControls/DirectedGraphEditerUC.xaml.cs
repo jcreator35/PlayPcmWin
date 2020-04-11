@@ -60,11 +60,12 @@ namespace WWUserControls {
         }
 
         enum Mode {
-            ModeAddPoint,
+            ModeSetFirstPoint,
+            ModeAddEdge,
             ModeDeletePont,
         };
 
-        Mode mMode = Mode.ModeAddPoint;
+        Mode mMode = Mode.ModeSetFirstPoint;
 
         private void UpdateDescription() {
             if (!mInitialized) {
@@ -72,7 +73,10 @@ namespace WWUserControls {
             }
 
             switch (mMode) {
-            case Mode.ModeAddPoint:
+            case Mode.ModeSetFirstPoint:
+                mLabelDescription.Content = "Left click to set start point of edge.";
+                break;
+            case Mode.ModeAddEdge:
                 mLabelDescription.Content = "Left click to add new point with edge. Right click to stop adding edge.";
                 break;
             case Mode.ModeDeletePont:
@@ -187,10 +191,16 @@ namespace WWUserControls {
             return pInf;
         }
 
+        enum FindPointMode {
+            FindAll,
+            FindFromPointList,
+        };
+
         /// <summary>
-        /// 確定の点、または仮の点。
+        /// FindAll: 確定の点、または仮の点から点を探す。
+        /// FindFromPointList: 確定の点から探す。
         /// </summary>
-        private PointInf FindPointByIdx(int idx) {
+        private PointInf FindPointByIdx(int idx, FindPointMode fpm) {
             // 確定の点。
             foreach (var p in mPointList) {
                 if (p.Idx == idx) {
@@ -198,12 +208,14 @@ namespace WWUserControls {
                 }
             }
 
-            // 仮の点。
-            if (mFromPoint != null && mFromPoint.Idx == idx) {
-                return mFromPoint;
-            }
-            if (mToPoint != null && mToPoint.Idx == idx) {
-                return mToPoint;
+            if (fpm == FindPointMode.FindAll) {
+                // 仮の点。
+                if (mFromPoint != null && mFromPoint.Idx == idx) {
+                    return mFromPoint;
+                }
+                if (mToPoint != null && mToPoint.Idx == idx) {
+                    return mToPoint;
+                }
             }
 
             return null;
@@ -350,8 +362,8 @@ namespace WWUserControls {
             PointInf p1 = null;
             PointInf p2 = null;
             if (mTmpEdge != null) {
-                p1 = FindPointByIdx(mTmpEdge.fromPointIdx);
-                p2 = FindPointByIdx(mTmpEdge.toPointIdx);
+                p1 = FindPointByIdx(mTmpEdge.fromPointIdx, FindPointMode.FindAll);
+                p2 = FindPointByIdx(mTmpEdge.toPointIdx, FindPointMode.FindAll);
             }
 
             // マウスポインタ位置に確定の終点toPointがあるか。
@@ -404,6 +416,74 @@ namespace WWUserControls {
             mTmpEdge = NewEdge(p1, p2, mBrightBrush);
             Console.WriteLine("MME created edge");
             return;
+        }
+
+        /// <summary>
+        /// 始点が未決定の状態でマウスがホバーしている。
+        /// </summary>
+        private void SetFirstPointMouseMove(WWVectorD2 pos) {
+            var point = TestHit(pos, mPointSz);
+
+            if (mFromPoint == null) {
+                // 始点が無い。
+                Console.WriteLine("SFPMM FP none");
+
+                if (point == null) {
+                    // 始点mFromPointが無く、マウスホバー位置に確定の点も無い。
+                    // マウスポインタ位置に仮の始点を作る。
+                    mFromPoint = NewPoint(pos, mBrightBrush);
+                    Console.WriteLine("SFPMM create fromPoint");
+                    return;
+                }
+
+                // 始点が無く、マウスホバー位置に確定の点が有る。
+                // 確定の点の色をハイライト色に変更。
+                // mFromPointをセットする。
+                mFromPoint = point;
+                PointChangeColor(mFromPoint, mBrightBrush);
+                return;
+            }
+
+            // 始点mFromPoint有り。
+            Console.WriteLine("SFPMM ({0:0.0} {0:0.0})", pos.X, pos.Y);
+
+            if (point == null) {
+                // 始点が存在し、マウスポインタ位置に確定の終点が無い。
+                // この始点は仮の始点である。
+
+                if (WWVectorD2.Distance(mFromPoint.xy, pos) < 1) {
+                    // マウスポインタ位置に仮の始点mFromPointが存在。
+                    Console.WriteLine("SFPMM no need to change tmp FromPoint");
+                } else {
+                    // 仮の始点位置が異なるので作り直す。
+                    PointDrawableRemove(mFromPoint);
+                    mFromPoint = null;
+                    mFromPoint = NewPoint(pos, mBrightBrush);
+                    Console.WriteLine("SFPMM create FromPoint");
+                }
+            } else {
+                // 始点が存在し、マウスホバー位置に確定の始点が存在する。
+                if (mFromPoint == point) {
+                    // マウスホバー位置の確定の点が既に始点としてセットされている。
+                    return;
+                }
+
+                // マウスホバー位置は確定の点である。
+                // mFromPointはそれとは異なる点がセットされている。
+                if (null != FindPointByIdx(mFromPoint.Idx, FindPointMode.FindFromPointList)) {
+                    // mFromPointは確定の点を指している。
+                    // 確定の点を通常状態の点に戻す。
+                    PointChangeColor(mFromPoint, mBrush);
+                    mFromPoint = null;
+                }
+
+                // マウスホバー位置の確定の点をmFromPointにセットする。
+                // 確定の点の色をハイライト色に変更。
+                // mFromPointをセットする。
+                mFromPoint = point;
+                PointChangeColor(mFromPoint, mBrightBrush);
+                return;
+            }
         }
 
         /// <summary>
@@ -485,8 +565,8 @@ namespace WWUserControls {
             System.Diagnostics.Debug.Assert(edge.line == null);
             System.Diagnostics.Debug.Assert(edge.arrow == null);
 
-            var p1 = FindPointByIdx(edge.fromPointIdx);
-            var p2 = FindPointByIdx(edge.toPointIdx);
+            var p1 = FindPointByIdx(edge.fromPointIdx, FindPointMode.FindAll);
+            var p2 = FindPointByIdx(edge.toPointIdx, FindPointMode.FindAll);
 
             edge.line = NewLine(p1.xy, p2.xy, brush);
             edge.arrow = NewArrowPoly(p1.xy, p2.xy, brush);
@@ -516,12 +596,12 @@ namespace WWUserControls {
                 }
                 break;
             case FEOption.SamePosition: {
-                    var p1 = FindPointByIdx(idxFrom);
-                    var p2 = FindPointByIdx(idxTo);
+                    var p1 = FindPointByIdx(idxFrom, FindPointMode.FindAll);
+                    var p2 = FindPointByIdx(idxTo, FindPointMode.FindAll);
                     foreach (var e in mEdgeList) {
-                        var e1 = FindPointByIdx(e.fromPointIdx);
+                        var e1 = FindPointByIdx(e.fromPointIdx, FindPointMode.FindAll);
                         if (WWVectorD2.Distance(e1.xy, p1.xy) < 1) {
-                            var e2 = FindPointByIdx(e.toPointIdx);
+                            var e2 = FindPointByIdx(e.toPointIdx, FindPointMode.FindAll);
                             if (WWVectorD2.Distance(e2.xy, p2.xy) < 1) {
                                 return e;
                             }
@@ -549,9 +629,9 @@ namespace WWUserControls {
                 break;
             case FEOption.SamePosition: {
                     foreach (var e in mEdgeList) {
-                        var e1 = FindPointByIdx(e.fromPointIdx);
+                        var e1 = FindPointByIdx(e.fromPointIdx, FindPointMode.FindAll);
                         if (WWVectorD2.Distance(e1.xy, from.xy) < 1) {
-                            var e2 = FindPointByIdx(e.toPointIdx);
+                            var e2 = FindPointByIdx(e.toPointIdx, FindPointMode.FindAll);
                             if (WWVectorD2.Distance(e2.xy, to.xy) < 1) {
                                 return e;
                             }
@@ -569,8 +649,8 @@ namespace WWUserControls {
         /// </summary>
         private Edge FindEdge(WWVectorD2 pos) {
             foreach (var e in mEdgeList) {
-                var p1 = FindPointByIdx(e.fromPointIdx);
-                var p2 = FindPointByIdx(e.toPointIdx);
+                var p1 = FindPointByIdx(e.fromPointIdx, FindPointMode.FindAll);
+                var p2 = FindPointByIdx(e.toPointIdx, FindPointMode.FindAll);
 
                 if (WWVectorD2.Distance(pos, p1.xy) < 1) {
                     return e;
@@ -591,8 +671,8 @@ namespace WWUserControls {
         /// </summary>
         private void RedrawAllEdges() {
             foreach (var e in mEdgeList) {
-                var p1 = FindPointByIdx(e.fromPointIdx);
-                var p2 = FindPointByIdx(e.toPointIdx);
+                var p1 = FindPointByIdx(e.fromPointIdx, FindPointMode.FindAll);
+                var p2 = FindPointByIdx(e.toPointIdx, FindPointMode.FindAll);
 
                 mCanvas.Children.Remove(e.line);
                 e.line = null;
@@ -619,8 +699,8 @@ namespace WWUserControls {
             double margin = 1.0;
 
             foreach (var e in mEdgeList) {
-                var p1 = FindPointByIdx(e.fromPointIdx);
-                var p2 = FindPointByIdx(e.toPointIdx);
+                var p1 = FindPointByIdx(e.fromPointIdx, FindPointMode.FindAll);
+                var p2 = FindPointByIdx(e.toPointIdx, FindPointMode.FindAll);
 
                 // 直線の方程式 ax + by + c = 0
                 double dx = p2.xy.X - p1.xy.X;
@@ -843,10 +923,34 @@ namespace WWUserControls {
         }
 
         /// <summary>
-        /// 1:始点未決定状態で左クリック：始点を決定する。
-        /// 2A:始点決定状態で左クリック：終点を決定する。始点から終点に向かうエッジを追加。終点が新たに始点となる。
+        /// 始点未決定状態で左クリック：始点を決定する。
+        /// </summary>
+        private void SetFirstPointLeftClicked(WWVectorD2 pos) {
+            // クリック地点に確定の点を作る。
+            var pInf = TestHit(pos, mPointSz);
+            if (pInf == null) {
+                // クリックした場所には点は未だ無い。
+                // 点を追加する → pInf。
+                pInf = new PointInf(null, pos);
+                var cmd = new Command(Command.CommandType.AddPoint, pInf, null);
+                CommandDo(cmd);
+                AddCmdToUndoList(new CommandAtomic(cmd));
+                mFromPoint = pInf;
+            } else {
+                // クリック地点に確定の点あり。
+                // 確定点を通常色にする。
+                //PointChangeColor(pInf, mBrush);
+                mFromPoint = pInf;
+            }
+
+            // エッジ追加モードに遷移。
+            mMode = Mode.ModeAddEdge;
+            UpdateDescription();
+        }
+
+        /// <summary>
+        /// 始点決定状態で左クリック：終点を決定する。始点から終点に向かうエッジを追加。終点が新たに始点となる。
         ///   既存点を左クリックしたとき、点の追加を行わずエッジを追加する。
-        /// (2B:始点決定状態で右クリック：始点が未決定の状態に遷移。)
         /// </summary>
         private void PointAddLeftClicked(WWVectorD2 pos) {
             if (pos.X < 0 || mCanvas.ActualWidth <= pos.X
@@ -934,14 +1038,14 @@ namespace WWUserControls {
                 if (e.fromPointIdx == removedPoint.Idx) {
                     p1 = addedPoint;
                 } else {
-                    p1 = FindPointByIdx(e.fromPointIdx);
+                    p1 = FindPointByIdx(e.fromPointIdx, FindPointMode.FindAll);
                 }
 
                 PointInf p2 = null;
                 if (e.toPointIdx == removedPoint.Idx) {
                     p2 = addedPoint;
                 } else {
-                    p2 = FindPointByIdx(e.toPointIdx);
+                    p2 = FindPointByIdx(e.toPointIdx, FindPointMode.FindAll);
                 }
 
                 mCanvas.Children.Remove(e.line);
@@ -994,7 +1098,7 @@ namespace WWUserControls {
         }
 
         private void mRadioButtonAddPoint_Checked(object sender, RoutedEventArgs e) {
-            mMode = Mode.ModeAddPoint;
+            mMode = Mode.ModeSetFirstPoint;
             Cursor = Cursors.Cross;
             UpdateDescription();
         }
@@ -1250,7 +1354,10 @@ namespace WWUserControls {
             var pos = SnapToGrid(posExact.X, posExact.Y, mGridSz);
 
             switch (mMode) {
-            case Mode.ModeAddPoint:
+            case Mode.ModeSetFirstPoint:
+                SetFirstPointLeftClicked(pos);
+                break;
+            case Mode.ModeAddEdge:
                 PointAddLeftClicked(pos);
                 break;
             case Mode.ModeDeletePont:
@@ -1263,7 +1370,7 @@ namespace WWUserControls {
             var pos = SnapToGrid(posExact.X, posExact.Y, mGridSz);
 
             switch (mMode) {
-            case Mode.ModeAddPoint:
+            case Mode.ModeAddEdge:
                 PointAddRightClicked(pos);
                 break;
             }
@@ -1289,19 +1396,17 @@ namespace WWUserControls {
             var posExact = e.GetPosition(mCanvas);
             var pos = SnapToGrid(posExact.X, posExact.Y, mGridSz);
 
-            /*
-            if (mMode == Mode.ModeMovePoint) {
-                MovePointSub(
-                    (e.LeftButton == MouseButtonState.Pressed) ? MovePointMode.Move : MovePointMode.Hover,
-                    pos);
-                return;
-            }
-            */
-
             if (e.LeftButton == MouseButtonState.Released) {
-                // マウスがホバー。
-                // 一時的エッジの描画位置更新。
-                TmpEdgeRedrawMouseMove(pos);
+                switch (mMode) {
+                case Mode.ModeSetFirstPoint:
+                    SetFirstPointMouseMove(pos);
+                    break;
+                case Mode.ModeAddEdge:
+                    // マウスがホバー。
+                    // 一時的エッジの描画位置更新。
+                    TmpEdgeRedrawMouseMove(pos);
+                    break;
+                }
             } else {
                 // マウスが左ドラッグ。
             }
@@ -1331,7 +1436,7 @@ namespace WWUserControls {
             var pos = SnapToGrid(posExact.X, posExact.Y, mGridSz);
 
             switch (mMode) {
-            case Mode.ModeAddPoint:
+            case Mode.ModeAddEdge:
                 PointAddLeftClicked(true, pos);
                 break;
             case Mode.ModeDeletePont:
@@ -1356,7 +1461,7 @@ namespace WWUserControls {
             */
         }
 
-        private void mButtonSnapToGrid_Click(object sender, RoutedEventArgs e) {
+        private void mButtonResize_Click(object sender, RoutedEventArgs e) {
             /*
             if (!int.TryParse(mTextBoxGridSize.Text, out mGridSz)) {
                 MessageBox.Show("Error: Grid Size parse error");
