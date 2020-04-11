@@ -62,7 +62,7 @@ namespace WWUserControls {
         enum Mode {
             ModeSetFirstPoint,
             ModeAddEdge,
-            ModeDeletePont,
+            ModeDeletePoint,
         };
 
         Mode mMode = Mode.ModeSetFirstPoint;
@@ -79,7 +79,7 @@ namespace WWUserControls {
             case Mode.ModeAddEdge:
                 mLabelDescription.Content = "Left click to add new point with edge. Right click to stop adding edge.";
                 break;
-            case Mode.ModeDeletePont:
+            case Mode.ModeDeletePoint:
                 mLabelDescription.Content = "Left click existing point / edge to delete it.";
                 break;
             }
@@ -100,7 +100,7 @@ namespace WWUserControls {
 
 #region PointInf
 
-        class PointInf {
+        public class PointInf {
             private int idx;
             public int Idx {
                 get {
@@ -170,7 +170,7 @@ namespace WWUserControls {
         /// <summary>
         /// 点pの描画色を変更し、キャンバスに追加。
         /// </summary>
-        private PointInf PointChangeColor(PointInf p, Brush brush) {
+        public PointInf PointChangeColor(PointInf p, Brush brush) {
             if (p.drawable == null) {
                 PointDrawableCreate(p, brush);
                 return p;
@@ -185,13 +185,13 @@ namespace WWUserControls {
         /// 新しいPointInfを作り、キャンバスに追加。
         /// 一時的な点用。
         /// </summary>
-        private PointInf NewPoint(WWVectorD2 pos, Brush brush) {
+        public PointInf NewPoint(WWVectorD2 pos, Brush brush) {
             var pInf = new PointInf(null, pos);
             PointDrawableCreate(pInf, brush);
             return pInf;
         }
 
-        enum FindPointMode {
+        public enum FindPointMode {
             FindAll,
             FindFromPointList,
         };
@@ -200,7 +200,7 @@ namespace WWUserControls {
         /// FindAll: 確定の点、または仮の点から点を探す。
         /// FindFromPointList: 確定の点から探す。
         /// </summary>
-        private PointInf FindPointByIdx(int idx, FindPointMode fpm) {
+        public PointInf FindPointByIdx(int idx, FindPointMode fpm) {
             // 確定の点。
             foreach (var p in mPointList) {
                 if (p.Idx == idx) {
@@ -282,7 +282,7 @@ namespace WWUserControls {
 
 #region Edge
 
-        class Edge {
+        public class Edge {
             public int fromPointIdx;
             public int toPointIdx;
             public Line line;
@@ -299,6 +299,40 @@ namespace WWUserControls {
                 toPointIdx = to;
             }
         };
+
+        /// <summary>
+        /// Edgeとposの最短距離を調べる。
+        /// </summary>
+        /// <param name="margin">1.0</param>
+        public double EdgeDistanceFromPos(Edge e, WWVectorD2 pos, double margin, FindPointMode fpm) {
+            var p1 = FindPointByIdx(e.fromPointIdx, fpm);
+            var p2 = FindPointByIdx(e.toPointIdx, fpm);
+
+            // 直線の方程式 ax + by + c = 0
+            double dx = p2.xy.X - p1.xy.X;
+            double dy = p2.xy.Y - p1.xy.Y;
+            System.Diagnostics.Debug.Assert(dx != 0 || dy != 0);
+
+            double a = dy;
+            double b = -dx;
+            double c = p2.xy.X * p1.xy.Y - p2.xy.Y * p1.xy.X;
+
+            // 直線と点の距離。
+            double distance = Math.Abs(a * pos.X + b * pos.Y + c) / Math.Sqrt(a * a + b * b);
+            double nearestPointOnLineX = (b * (+b * pos.X - a * pos.Y) - a * c) / (a * a + b * b);
+            double nearestPointOnLineY = (a * (-b * pos.X + a * pos.Y) - b * c) / (a * a + b * b);
+            if ((margin + nearestPointOnLineX < p1.xy.X && margin + nearestPointOnLineX < p2.xy.X)
+                    || (margin + p1.xy.X < nearestPointOnLineX && margin + p2.xy.X < nearestPointOnLineX)
+                    || (margin + nearestPointOnLineY < p1.xy.Y && margin + nearestPointOnLineY < p2.xy.Y)
+                    || (margin + p1.xy.Y < nearestPointOnLineY && margin + p2.xy.Y < nearestPointOnLineY)) {
+                // 点と最短距離の直線上の点が線分の範囲外。
+                // p1とp2のうち、近い方が最短距離の点。
+                double d1 = WWVectorD2.Distance(p1.xy, pos);
+                double d2 = WWVectorD2.Distance(p2.xy, pos);
+                return (d1 < d2) ? d1 : d2;
+            }
+            return distance;
+        }
 
         List<Edge> mEdgeList = new List<Edge>();
 
@@ -416,6 +450,45 @@ namespace WWUserControls {
             mTmpEdge = NewEdge(p1, p2, mBrightBrush);
             Console.WriteLine("MME created edge");
             return;
+        }
+
+        private void DeletePointEdgeMouseMove(WWVectorD2 pos) {
+            // 通常色に戻します。
+            if (mTmpEdge != null) {
+                EdgeChangeColor(mTmpEdge, mBrush);
+                mTmpEdge = null;
+            }
+            if (mFromPoint != null) {
+                PointChangeColor(mFromPoint, mBrush);
+                mFromPoint = null;
+            }
+
+            var e = FindNearestEdge(pos);
+            var p = TestHit(pos, mPointSz);
+
+            if (e != null) {
+                if (p != null) {
+                    // 近いほうがヒット。
+                    if (EdgeDistanceFromPos(e, pos, 1.0, FindPointMode.FindFromPointList)
+                            < WWVectorD2.Distance(p.xy, pos)) {
+                        // eのほうが近い。
+                        EdgeChangeColor(e, mBrightBrush);
+                        mTmpEdge = e;
+                    } else {
+                        // pのほうが近い。
+                        PointChangeColor(p, mBrightBrush);
+                        mFromPoint = p;
+                    }
+                } else {
+                    // エッジ。
+                    EdgeChangeColor(e, mBrightBrush);
+                    mTmpEdge = e;
+                }
+            } else if (p != null) {
+                // p。
+                PointChangeColor(p, mBrightBrush);
+                mFromPoint = p;
+            }
         }
 
         /// <summary>
@@ -566,6 +639,14 @@ namespace WWUserControls {
             return edge;
         }
 
+        /// <summary>
+        /// エッジの描画色を変更。
+        /// </summary>
+        private void EdgeChangeColor(Edge edge, Brush brush) {
+            EdgeDrawablesRemove(edge);
+            EdgeDrawablesCreate(edge, brush);
+        }
+
         enum FEOption {
             SamePosition,
             SamePointIdx,
@@ -688,30 +769,7 @@ namespace WWUserControls {
             double margin = 1.0;
 
             foreach (var e in mEdgeList) {
-                var p1 = FindPointByIdx(e.fromPointIdx, FindPointMode.FindAll);
-                var p2 = FindPointByIdx(e.toPointIdx, FindPointMode.FindAll);
-
-                // 直線の方程式 ax + by + c = 0
-                double dx = p2.xy.X - p1.xy.X;
-                double dy = p2.xy.Y - p1.xy.Y;
-                System.Diagnostics.Debug.Assert(dx != 0 || dy != 0);
-
-                double a = dy;
-                double b = -dx;
-                double c = p2.xy.X * p1.xy.Y - p2.xy.Y * p1.xy.X;
-
-                // 直線と点の距離。
-                double distance = Math.Abs(a * pos.X + b * pos.Y + c) / Math.Sqrt(a * a + b * b);
-                double nearestPointOnLineX = (b * (+b * pos.X - a * pos.Y) - a * c) / (a * a + b * b);
-                double nearestPointOnLineY = (a * (-b * pos.X + a * pos.Y) - b * c) / (a * a + b * b);
-                if ((margin + nearestPointOnLineX < p1.xy.X && margin + nearestPointOnLineX < p2.xy.X)
-                        || (margin + p1.xy.X < nearestPointOnLineX && margin + p2.xy.X < nearestPointOnLineX)
-                        || (margin + nearestPointOnLineY < p1.xy.Y && margin + nearestPointOnLineY < p2.xy.Y)
-                        || (margin + p1.xy.Y < nearestPointOnLineY && margin + p2.xy.Y < nearestPointOnLineY)) {
-                    // 点と最短距離の直線上の点が線分の範囲外。
-                    continue;
-                }
-
+                double distance = EdgeDistanceFromPos(e, pos, margin, FindPointMode.FindAll);
                 if (distance < nearestDistance) {
                     // 現時点で最も距離が近いエッジ。
                     nearestDistance = distance;
@@ -1111,15 +1169,34 @@ namespace WWUserControls {
         }
 
         private void mRadioButtonAddPoint_Checked(object sender, RoutedEventArgs e) {
+            // 遷移前のモード。
+            switch (mMode) {
+            case Mode.ModeDeletePoint:
+                // 通常色に戻します。
+                if (mTmpEdge != null) {
+                    EdgeChangeColor(mTmpEdge, mBrush);
+                    mTmpEdge = null;
+                }
+                if (mFromPoint != null) {
+                    PointChangeColor(mFromPoint, mBrush);
+                    mFromPoint = null;
+                }
+                break;
+            }
+
             mMode = Mode.ModeSetFirstPoint;
             Cursor = Cursors.Cross;
             UpdateDescription();
+
+            TmpDrawablesRemove((int)TmpDrawablesRemoveOpt.RemoveAll);
         }
 
         private void mRadioButtonDeletePoint_Checked(object sender, RoutedEventArgs e) {
-            mMode = Mode.ModeDeletePont;
+            mMode = Mode.ModeDeletePoint;
             Cursor = Cursors.Cross;
             UpdateDescription();
+
+            TmpDrawablesRemove((int)TmpDrawablesRemoveOpt.RemoveAll);
         }
 
         /*
@@ -1340,26 +1417,6 @@ namespace WWUserControls {
             UpdateGraphStatus();
         }
 
-        private void DeleteEdgeMouseMove(WWVectorD2 pos) {
-            if (mTmpEdge != null) {
-                mCanvas.Children.Remove(mTmpEdge);
-                mTmpEdge = null;
-            }
-
-            var e = FindNearestEdge(pos);
-            if (e == null) {
-                return;
-            }
-
-            var p1 = FindPointByIdx(e.fromPointIdx);
-            var p2 = FindPointByIdx(e.toPointIdx);
-
-            // エッジを強調表示する。
-            var l = NewLine(p1.xy, p2.xy, mErrBrush);
-            mTmpEdge = l;
-            mCanvas.Children.Add(l);
-        }
-
          */
 
         private void CanvasMouseDownLeft(MouseButtonEventArgs e) {
@@ -1373,7 +1430,7 @@ namespace WWUserControls {
             case Mode.ModeAddEdge:
                 PointAddLeftClicked(pos);
                 break;
-            case Mode.ModeDeletePont:
+            case Mode.ModeDeletePoint:
                 break;
             }
         }
@@ -1415,9 +1472,10 @@ namespace WWUserControls {
                     SetFirstPointMouseMove(pos);
                     break;
                 case Mode.ModeAddEdge:
-                    // マウスがホバー。
-                    // 一時的エッジの描画位置更新。
                     TmpEdgeRedrawMouseMove(pos);
+                    break;
+                case Mode.ModeDeletePoint:
+                    DeletePointEdgeMouseMove(pos);
                     break;
                 }
             } else {
@@ -1506,7 +1564,23 @@ namespace WWUserControls {
         }
 
         private void mCanvas_MouseLeave(object sender, MouseEventArgs e) {
-            TmpDrawablesRemove((int)TmpDrawablesRemoveOpt.RemoveEdge | (int)TmpDrawablesRemoveOpt.RemoveToPoint);
+            switch (mMode) {
+            case Mode.ModeAddEdge:
+            case Mode.ModeSetFirstPoint:
+                TmpDrawablesRemove((int)TmpDrawablesRemoveOpt.RemoveEdge | (int)TmpDrawablesRemoveOpt.RemoveToPoint);
+                break;
+            case Mode.ModeDeletePoint:
+                // 通常色に戻します。
+                if (mTmpEdge != null) {
+                    EdgeChangeColor(mTmpEdge, mBrush);
+                    mTmpEdge = null;
+                }
+                if (mFromPoint != null) {
+                    PointChangeColor(mFromPoint, mBrush);
+                    mFromPoint = null;
+                }
+                break;
+            }
         }
 
         private void mButtonUndo_Click(object sender, RoutedEventArgs e) {
