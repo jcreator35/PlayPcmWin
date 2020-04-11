@@ -37,7 +37,7 @@
                         <TextBox Grid.Column="1" Grid.Row="0" Text="16" Margin="4" Name="mTextBoxPointSize" HorizontalContentAlignment="Right" />
                         <Label Grid.Column="0" Grid.Row="1" HorizontalAlignment="Right" Content="Arrow Size (pixel)" />
                         <TextBox Grid.Column="1" Grid.Row="1" Text="10" Margin="4" Name="mTextBoxArrowSize" HorizontalContentAlignment="Right" />
-                        <Button Grid.ColumnSpan="2" Grid.Row="2" Margin="4" Content="Redraw" Click="ButtonRedraw_Click" />
+                        <Button Grid.ColumnSpan="2" Grid.Row="2" Margin="4" Content="Redraw" Click="mButtonRedraw_Click" />
                     </Grid>
                 </GroupBox>
                 <GroupBox Header="Grid Size (pixel)" Margin="4" Name="mGroupBoxGridSize" >

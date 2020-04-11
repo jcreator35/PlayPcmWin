@@ -448,34 +448,23 @@ namespace WWUserControls {
             Console.WriteLine("SFPMM ({0:0.0} {0:0.0})", pos.X, pos.Y);
 
             if (point == null) {
-                // 始点が存在し、マウスポインタ位置に確定の終点が無い。
-                // この始点は仮の始点である。
+                // 始点mFromPointが存在し、マウスポインタ位置に確定の点が無い。
 
                 if (WWVectorD2.Distance(mFromPoint.xy, pos) < 1) {
                     // マウスポインタ位置に仮の始点mFromPointが存在。
                     Console.WriteLine("SFPMM no need to change tmp FromPoint");
                 } else {
                     // 仮の始点位置が異なるので作り直す。
-                    PointDrawableRemove(mFromPoint);
-                    mFromPoint = null;
+                    TmpDrawablesRemove((int)TmpDrawablesRemoveOpt.RemoveFromPoint);
                     mFromPoint = NewPoint(pos, mBrightBrush);
                     Console.WriteLine("SFPMM create FromPoint");
                 }
             } else {
-                // 始点が存在し、マウスホバー位置に確定の始点が存在する。
-                if (mFromPoint == point) {
-                    // マウスホバー位置の確定の点が既に始点としてセットされている。
-                    return;
-                }
+                // 始点mFromPointが存在し、マウスホバー位置に確定の始点pointが存在する。
+                Console.WriteLine("SFPMM remove tmp drawable and set point");
 
-                // マウスホバー位置は確定の点である。
-                // mFromPointはそれとは異なる点がセットされている。
-                if (null != FindPointByIdx(mFromPoint.Idx, FindPointMode.FindFromPointList)) {
-                    // mFromPointは確定の点を指している。
-                    // 確定の点を通常状態の点に戻す。
-                    PointChangeColor(mFromPoint, mBrush);
-                    mFromPoint = null;
-                }
+                // 始点mFromPointが仮の点のときは消す。
+                TmpDrawablesRemove((int)TmpDrawablesRemoveOpt.RemoveFromPoint);
 
                 // マウスホバー位置の確定の点をmFromPointにセットする。
                 // 確定の点の色をハイライト色に変更。
@@ -783,6 +772,10 @@ namespace WWUserControls {
 
             public CommandAtomic() {
             }
+
+            public void Add(Command c) {
+                commandList.Add(c);
+            }
         };
 
         /// <summary>
@@ -813,7 +806,7 @@ namespace WWUserControls {
                 // アンドゥー用リストに追加。
                 var cmd = new Command(Command.CommandType.DeleteEdge, null, e);
                 CommandDo(cmd);
-                mCommandAtomic.commandList.Add(cmd);
+                mCommandAtomic.Add(cmd);
             }
         }
 
@@ -898,34 +891,58 @@ namespace WWUserControls {
         // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
         // イベントハンドラー。
 
+        enum TmpDrawablesRemoveOpt {
+            RemoveFromPoint = 1,
+            RemoveToPoint = 2,
+            RemoveEdge = 4,
+            RemoveAll = 7
+        };
+
         /// <summary>
-        /// 一時的点を削除。
+        /// 一時点を削除する。
         /// </summary>
-        private void TmpDrawablesRemove() {
-            if (mFromPoint != null) {
-                if (PointExists(mPointList, mFromPoint.xy)) {
-                    // mFromPoint地点に確定の点がある。
-                    // 色を確定の色に変更。
-                    PointChangeColor(mFromPoint, mBrush);
-                    mFromPoint = null;
-                } else {
-                    // mFromPointは仮の点で、確定の点は無い。
-                    PointDrawableRemove(mFromPoint);
+        /// <param name="opt">TmpDrawablesRemoveOptの組み合わせ。</param>
+        private void TmpDrawablesRemove(int opt) {
+            if (0 != (opt & (int)TmpDrawablesRemoveOpt.RemoveFromPoint)) {
+                if (mFromPoint != null) {
+                    if (PointExists(mPointList, mFromPoint.xy)) {
+                        // mFromPoint地点に確定の点がある。
+                        // 色を確定の色に変更。
+                        PointChangeColor(mFromPoint, mBrush);
+                    } else {
+                        // mFromPointは仮の点で、確定の点は無い。
+                        PointDrawableRemove(mFromPoint);
+                    }
+
                     mFromPoint = null;
                 }
             }
 
-            // mToPointは常に仮の点。
-            PointDrawableRemove(mToPoint);
+            if (0 != (opt & (int)TmpDrawablesRemoveOpt.RemoveToPoint)) {
+                // mToPointは常に仮の点。
+                PointDrawableRemove(mToPoint);
+                mToPoint = null;
+            }
 
-            // mTmpEdgeは常に仮のエッジ。
-            EdgeDrawablesRemove(mTmpEdge);
+            if (0 != (opt & (int)TmpDrawablesRemoveOpt.RemoveEdge)) {
+                // mTmpEdgeは常に仮のエッジ。
+                EdgeDrawablesRemove(mTmpEdge);
+                mTmpEdge = null;
+            }
         }
 
         /// <summary>
         /// 始点未決定状態で左クリック：始点を決定する。
         /// </summary>
         private void SetFirstPointLeftClicked(WWVectorD2 pos) {
+            if (mFromPoint != null && null == FindPointByIdx(mFromPoint.Idx, FindPointMode.FindFromPointList)) {
+                // クリック地点に仮の点が有る。
+                // 仮の点を消す。
+                PointDrawableRemove(mFromPoint);
+            }
+
+            mFromPoint = null;
+
             // クリック地点に確定の点を作る。
             var pInf = TestHit(pos, mPointSz);
             if (pInf == null) {
@@ -938,8 +955,10 @@ namespace WWUserControls {
                 mFromPoint = pInf;
             } else {
                 // クリック地点に確定の点あり。
+
                 // 確定点を通常色にする。
                 //PointChangeColor(pInf, mBrush);
+
                 mFromPoint = pInf;
             }
 
@@ -957,76 +976,70 @@ namespace WWUserControls {
                     || pos.Y < 0 || mCanvas.ActualHeight <= pos.Y) {
                 // Canvas外のクリック。
                 // 一時的点と一時的エッジをキャンセル。
-                PointDrawableRemove(mFromPoint);
-                PointDrawableRemove(mToPoint);
-                EdgeDrawablesRemove(mTmpEdge);
+                TmpDrawablesRemove((int)TmpDrawablesRemoveOpt.RemoveAll);
                 return;
             }
 
-            if (mFromPoint != null) {
-                // 始点決定状態。
-                // 2A:始点決定状態で左クリック：終点を決定する。始点から終点に向かうエッジを追加。終点が新たに始点となる。
-                //   既存点を左クリックしたとき、点の追加を行わずエッジを追加する。
+            // 始点決定状態。
+            System.Diagnostics.Debug.Assert(mFromPoint != null);
 
-                // クリックした場所に点がすでに存在するか？
-                var pInf = TestHit(pos, mPointSz);
-                if (pInf == null) {
-                    // クリックした場所には点は未だ無い。
-                    // 点を追加する。
-                    pInf = new PointInf(null, pos);
-                    var cmd = new Command(Command.CommandType.AddPoint, pInf, null);
-                    CommandDo(cmd);
-                    AddCmdToUndoList(new CommandAtomic(cmd));
-                } else if (WWVectorD2.Distance(pInf.xy, mFromPoint.xy) < 0.5) {
-                    // クリックした点が、始点と同じ点。
-                    // 特に何もしないで戻る。
-                    return;
-                }
+            // 始点決定状態で左クリック：終点を決定する。始点から終点に向かうエッジを追加。終点が新たに始点となる。
+            // 既存点を左クリックしたとき、点の追加を行わずエッジを追加する。
 
-                // クリック地点に始点とは異なる終点が存在する状態。
-                // 始点の色を通常色にする。
-                PointChangeColor(mFromPoint, mBrush);
+            var ca = new CommandAtomic();
 
-                var edge = FindEdge(mFromPoint.Idx, pInf.Idx, FEOption.SamePosition);
-                if (edge == null) {
-                    // 始点→終点のエッジが無いので追加。
-                    var cmd = new Command(Command.CommandType.AddEdge, null, new Edge(null, null, mFromPoint.Idx, pInf.Idx));
-                    CommandDo(cmd);
-                    AddCmdToUndoList(new CommandAtomic(cmd));
-                }
+            // クリック地点に確定点が存在するか？
+            var pInf = TestHit(pos, mPointSz);
+            if (pInf == null) {
+                // クリックした場所には確定点は未だ無い。
 
-                // クリックした点を新たな始点にする。
-                mFromPoint = pInf;
-                PointChangeColor(mFromPoint, mBrightBrush);
+                // 仮の終点を削除。
+                TmpDrawablesRemove((int)TmpDrawablesRemoveOpt.RemoveToPoint);
+                mToPoint = null;
 
-                return;
-            } else {
-                // 1:始点未決定状態で左クリック：始点を決定する。
-                // クリックした場所に点がすでに存在するか？
-                var pInf = TestHit(pos, mPointSz);
-                if (pInf == null) {
-                    // クリックした場所には点は未だ無い。
-                    // 点を追加する → pInf。
-                    pInf = new PointInf(null, pos);
-                    var cmd = new Command(Command.CommandType.AddPoint, pInf, null);
-                    CommandDo(cmd);
-                    AddCmdToUndoList(new CommandAtomic(cmd));
-                }
-
-                // この点を始点とする。
-                // 青色で表示する。
-                mFromPoint = pInf;
-                PointChangeColor(mFromPoint, mBrightBrush);
-
+                // 確定の終点を追加する。
+                pInf = new PointInf(null, pos);
+                var cmd = new Command(Command.CommandType.AddPoint, pInf, null);
+                CommandDo(cmd);
+                ca.Add(cmd);
+            } else if (WWVectorD2.Distance(pInf.xy, mFromPoint.xy) < 0.5) {
+                // クリックした点が、始点と同じ点。
+                // 特に何もしないで戻る。
                 return;
             }
+
+            // クリック地点に始点とは異なる終点pInfが存在する状態。
+            // 始点の色を通常色にする。
+            PointChangeColor(mFromPoint, mBrush);
+
+            var edge = FindEdge(mFromPoint.Idx, pInf.Idx, FEOption.SamePosition);
+            if (edge == null) {
+                // 始点→終点のエッジが無いので追加。
+                var cmd = new Command(Command.CommandType.AddEdge, null, new Edge(null, null, mFromPoint.Idx, pInf.Idx));
+                CommandDo(cmd);
+                ca.Add(cmd);
+            }
+
+            // コマンドが集まったのでアンドゥーリストに足す。
+            if (0 < ca.commandList.Count) {
+                AddCmdToUndoList(ca);
+            }
+
+            // クリックした点を新たな始点にする。
+            mFromPoint = pInf;
+            PointChangeColor(mFromPoint, mBrightBrush);
         }
 
         /// <summary>
         /// 始点決定状態で右クリック：始点が未決定の状態に遷移。
         /// </summary>
         private void PointAddRightClicked(WWVectorD2 pos) {
-            TmpDrawablesRemove();
+            TmpDrawablesRemove((int)TmpDrawablesRemoveOpt.RemoveAll);
+            if (mMode == Mode.ModeAddEdge) {
+                // Edge追加モードのとき、始点設定モードに遷移。
+                mMode = Mode.ModeSetFirstPoint;
+                UpdateDescription();
+            }
         }
 
         /// <summary>
@@ -1493,11 +1506,11 @@ namespace WWUserControls {
         }
 
         private void mCanvas_MouseLeave(object sender, MouseEventArgs e) {
-            TmpDrawablesRemove();
+            TmpDrawablesRemove((int)TmpDrawablesRemoveOpt.RemoveEdge | (int)TmpDrawablesRemoveOpt.RemoveToPoint);
         }
 
         private void mButtonUndo_Click(object sender, RoutedEventArgs e) {
-            //CancelAddEdge();
+            TmpDrawablesRemove((int)TmpDrawablesRemoveOpt.RemoveAll);
 
             // アンドゥー用リストから1個コマンドを取り出し
             // アンドゥーする。
@@ -1511,9 +1524,15 @@ namespace WWUserControls {
             RedrawAllEdges();
 
             mButtonUndo.IsEnabled = 0 < mCommandList.Count;
+
+            if (mMode == Mode.ModeAddEdge) {
+                // Edge追加モードのとき、始点設定モードに遷移。
+                mMode = Mode.ModeSetFirstPoint;
+                UpdateDescription();
+            }
         }
 
-        private void ButtonRedraw_Click(object sender, RoutedEventArgs e) {
+        private void mButtonRedraw_Click(object sender, RoutedEventArgs e) {
             RedrawAll();
         }
     }
