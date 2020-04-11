@@ -10,9 +10,6 @@ using System.Windows.Shapes;
 using WWMath;
 
 namespace WWUserControls {
-    /// <summary>
-    /// Interaction logic for DirectedGraphEditerUC.xaml
-    /// </summary>
     public partial class DirectedGraphEditerUC : UserControl {
         public DirectedGraphEditerUC() {
 
@@ -1285,226 +1282,6 @@ namespace WWUserControls {
             TmpDrawablesRemove((int)TmpDrawablesRemoveOpt.RemoveAll);
         }
 
-        /*
-        private void MovePointSub(MovePointMode mm, WWVectorD2 pos) {
-            if (pos.X < 0 || mCanvas.ActualWidth <= pos.X
-                    || pos.Y < 0 || mCanvas.ActualHeight <= pos.Y) {
-                return;
-            }
-
-            Console.WriteLine("MovePointSub {0} ({1:0.0} {2:0.0}) nPoints={3} {4}",
-                mm, pos.X, pos.Y, mPointList.Count, mMoveState);
-
-            if (mFromPoint != null) {
-                // 既存のtmp点を消す。
-                mCanvas.Children.Remove(mFromPoint.drawable);
-            }
-
-            switch (mm) {
-            case MovePointMode.Hover:
-                {   // 当たったとき、赤い点を出す。
-                    var pInf = TestHit(pos.X, pos.Y, mPointSz);
-                    if (pInf == null) {
-                        return;
-                    }
-
-                    var point = NewPoint(pInf.xy, mErrBrush);
-                    mFromPoint = point;
-
-                    mCanvas.Children.Add(point.drawable);
-                    
-                }
-                break;
-            case MovePointMode.Select:
-                {
-                    var pInf = TestHit(pos.X, pos.Y, mPointSz);
-                    if (pInf == null) {
-                        mMoveState = MovePointState.Init;
-                        return;
-                    }
-
-                    mMoveState = MovePointState.Selected;
-
-                    // 当たった点を消す。
-                    mMoveBeforePoint = pInf;
-                    var cmd = new Command(Command.CommandType.DeletePoint, pInf, null);
-                    CommandDo(cmd);
-
-                    // 移動コマンドの前半(点削除)作成。
-                    System.Diagnostics.Debug.Assert(mCommandAtomic == null);
-                    mCommandAtomic = new CommandAtomic(cmd);
-
-                    // マウスポインター位置に赤い点を出す。
-                    var el = NewPoint(pos, mErrBrush);
-
-                    var point = new PointInf(el, pos.X, pos.Y);
-                    mFromPoint = point;
-
-                    mCanvas.Children.Add(el);
-                }
-                break;
-            case MovePointMode.Move:
-                {
-                    if (mMoveState == MovePointState.Selected) {
-                        // マウスポインター位置に赤い点を出す。
-                        var el = NewPoint(pos, mErrBrush);
-
-                        var point = new PointInf(el, pos.X, pos.Y);
-                        
-                        mFromPoint = point;
-
-                        mCanvas.Children.Add(el);
-
-                        RedrawEdge(mMoveBeforePoint, point);
-                    }
-                }
-                break;
-            case MovePointMode.Exec:
-                {
-                    if (mMoveState == MovePointState.Selected) {
-                        // マウスポインター位置の点を追加。
-                        var el = NewPoint(pos, mBrush);
-                        var point = new PointInf(el, pos.X, pos.Y);
-
-                        {
-                            var cmd = new Command(Command.CommandType.AddPoint, point, null);
-                            CommandDo(cmd);
-
-                            // 移動コマンドを完成してアンドゥー用リストに追加。
-                            System.Diagnostics.Debug.Assert(mCommandAtomic != null);
-                            mCommandAtomic.commandList.Add(cmd);
-                        }
-
-                        {
-                            // 点の移動とともにエッジも移動する。
-                            // 点が更新されたので、エッジの点idxを更新する。
-                            EdgeListReplacePointIdx(mMoveBeforePoint.Idx, point.Idx);
-                            var cmd = new Command(Command.CommandType.ChangePointIdx, null, null);
-                            cmd.beforeIdx = mMoveBeforePoint.Idx;
-                            cmd.afterIdx = point.Idx;
-
-                            CommandDo(cmd);
-                            mCommandAtomic.commandList.Add(cmd);
-                        }
-
-                        AddCmdToUndoList(mCommandAtomic);
-                        mCommandAtomic = null;
-
-                        RedrawAllEdges();
-
-                        mMoveState = MovePointState.Init;
-                    }
-                }
-                break;
-            }
-        }
-
-        // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
-        // Edgeの処理。
-
-        private void AddEdgeMouseDown(WWVectorD2 pos) {
-            var pInf = TestHit(pos.X, pos.Y, mPointSz);
-
-            Console.WriteLine("AddEdgeMouseDown ({0:0.0} {0:0.0})", pos.X, pos.Y);
-
-            if (mEdgeFromPoint != null) {
-                // 既に1点目が選択済み。
-                return;
-            }
-
-            // 1個目の頂点の選択。
-            if (pInf == null) {
-                return;
-            }
-
-            mEdgeFromPoint = pInf;
-
-            // マウスポインター位置に青い点を出す。
-            if (mTmpEdgeP1 != null) {
-                mCanvas.Children.Remove(mTmpEdgeP1);
-                mTmpEdgeP1 = null;
-            }
-            var el = NewPoint(pInf.xy, mTmpBrush);
-            mTmpEdgeP1 = el;
-            mCanvas.Children.Add(el);
-        }
-
-        private void AddEdgeMouseUp(WWVectorD2 pos) {
-            Console.WriteLine("AddEdgeMouseUp ({0:0.0} {0:0.0})", pos.X, pos.Y);
-
-            if (mTmpEdge != null) {
-                mCanvas.Children.Remove(mTmpEdge);
-                mTmpEdge = null;
-            }
-
-            var pInf = TestHit(pos.X, pos.Y, mPointSz);
-
-            if (pInf == null) {
-                // 点を指していない。
-                return;
-            }
-
-            if (mEdgeFromPoint == pInf) {
-                // 線が引けない。
-                return;
-            }
-
-            // 終点がある == pInf。
-
-            if (mTmpEdgeP1 != null) {
-                mCanvas.Children.Remove(mTmpEdgeP1);
-                mTmpEdgeP1 = null;
-            }
-            if (mTmpEdgeP2 != null) {
-                mCanvas.Children.Remove(mTmpEdgeP2);
-                mTmpEdgeP2 = null;
-            }
-
-            if (mEdgeFromPoint == null) {
-                return;
-            }
-
-            if (null != FindEdge(mEdgeFromPoint.Idx, pInf.Idx)) {
-                // 既に有るので足さない。
-                CancelAddEdge();
-            }
-
-            // 線を引く。
-            var edge = NewEdge(mEdgeFromPoint, pInf, mBrush);
-            var cmd = new Command(Command.CommandType.AddEdge, null, edge);
-            CommandDo(cmd);
-
-            // アンドゥー用リストに追加。
-            AddCmdToUndoList(new CommandAtomic(cmd));
-
-            UpdateGraphStatus();
-
-            mEdgeFromPoint = null;
-        }
-        
-
-        private void DeleteEdgeMouseDown(WWVectorD2 pos) {
-            if (mTmpEdge != null) {
-                mCanvas.Children.Remove(mTmpEdge);
-                mTmpEdge = null;
-            }
-
-            var e = FindNearestEdge(pos);
-            if (e == null) {
-                return;
-            }
-
-            var cmd = new Command(Command.CommandType.DeleteEdge, null, e);
-            CommandDo(cmd);
-
-            // アンドゥー用リストに追加。
-            AddCmdToUndoList(new CommandAtomic(cmd));
-
-            UpdateGraphStatus();
-        }
-
-         */
-
         private void CanvasMouseDownLeft(MouseButtonEventArgs e) {
             var posExact = e.GetPosition(mCanvas);
             var pos = SnapToGrid(posExact.X, posExact.Y, mGridSz);
@@ -1588,57 +1365,32 @@ namespace WWUserControls {
             CanvasMouseMove(e);
         }
 
-        /*
-        private void CanvasMouseUpLeft(MouseButtonEventArgs e) {
-            var posExact = e.GetPosition(mCanvas);
-            var pos = SnapToGrid(posExact.X, posExact.Y, mGridSz);
-
-            switch (mMode) {
-            case Mode.ModeAddEdge:
-                PointAddLeftClicked(true, pos);
-                break;
-            case Mode.ModeDeletePont:
-                UpdateDeleteSub(true, pos);
-                break;
-            case Mode.ModeMovePoint:
-                MovePointSub(MovePointMode.Exec, pos);
-                break;
-            case Mode.ModeAddEdge:
-                AddEdgeMouseUp(pos);
-                break;
-            }
-        }
-        */
-
         private void mButtonResize_Click(object sender, RoutedEventArgs e) {
-            /*
-            if (!int.TryParse(mTextBoxGridSize.Text, out mGridSz)) {
-                MessageBox.Show("Error: Grid Size parse error");
+            int prevGridSz = mGridSz;
+            if (!int.TryParse(mTextBoxGridSize.Text, out mGridSz) || mGridSz <= 3) {
+                MessageBox.Show("Error: Grid Size parse error. Grid Size should be integer larger than 3");
+                mGridSz = prevGridSz;
+                mTextBoxGridSize.Text = string.Format("{0}", mGridSz);
                 return;
             }
 
+            double ratio = (double)mGridSz / prevGridSz;
+
             RedrawGrid();
 
-            var newPoints = new List<PointInf>();
-
             foreach (var p in mPointList) {
-                mCanvas.Children.Remove(p.drawable);
+                PointDrawableRemove(p);
 
-                var xy = SnapToGrid(p.xy.X, p.xy.Y, mGridSz);
-                if (PointExists(newPoints, xy)) {
-                    // 同じ位置に点が重なっている。
-                    // この点pは削除する。
-                    continue;
-                }
+                p.xy = p.xy.Scale(ratio);
 
-                var el = NewPoint(xy, mBrush);
-                mCanvas.Children.Add(el);
-
-                newPoints.Add(new PointInf(el, xy.X, xy.Y));
+                PointDrawableCreate(p, mBrush);
             }
 
-            mPointList = newPoints;
-            */
+            foreach (var edge in mEdgeList) {
+                EdgeDrawablesRemove(edge);
+
+                EdgeDrawablesCreate(edge, mBrush);
+            }
         }
 
         private void mCanvas_MouseLeave(object sender, MouseEventArgs e) {
