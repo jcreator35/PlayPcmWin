@@ -62,7 +62,7 @@ namespace WWUserControls {
         enum Mode {
             ModeSetFirstPoint,
             ModeAddEdge,
-            ModeDeletePoint,
+            ModeDeletePointEdge,
         };
 
         Mode mMode = Mode.ModeSetFirstPoint;
@@ -79,7 +79,7 @@ namespace WWUserControls {
             case Mode.ModeAddEdge:
                 mLabelDescription.Content = "Left click to add new point with edge. Right click to stop adding edge.";
                 break;
-            case Mode.ModeDeletePoint:
+            case Mode.ModeDeletePointEdge:
                 mLabelDescription.Content = "Left click existing point / edge to delete it.";
                 break;
             }
@@ -92,7 +92,7 @@ namespace WWUserControls {
 
         Brush mGridBrush   = new SolidColorBrush(Colors.LightGray);
         Brush mBrush       = new SolidColorBrush(Colors.Black);
-        Brush mBrightBrush = new SolidColorBrush(Colors.SlateBlue);
+        Brush mBrightBrush = new SolidColorBrush(Colors.Blue);
         Brush mErrBrush    = new SolidColorBrush(Colors.Red);
 
         // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
@@ -836,6 +836,18 @@ namespace WWUserControls {
             }
         };
 
+        void CommandAtomicDo(CommandAtomic ca) {
+            foreach (var c in ca.commandList) {
+                CommandDo(c);
+            }
+        }
+
+        void CommandAtomicUndo(CommandAtomic ca) {
+            foreach (var c in ca.commandList.Reverse<Command>()) {
+                CommandUndo(c);
+            }
+        }
+
         /// <summary>
         /// アンドゥー用リスト。
         /// </summary>
@@ -1025,6 +1037,80 @@ namespace WWUserControls {
             UpdateDescription();
         }
 
+        private void DeleteEdge(Edge e) {
+            var cmd = new Command(Command.CommandType.DeleteEdge, null, e);
+            CommandDo(cmd);
+
+            // アンドゥー用リストに追加。
+            AddCmdToUndoList(new CommandAtomic(cmd));
+            UpdateGraphStatus();
+        }
+
+        /// <summary>
+        /// 点と、点につながるエッジをすべて消す。
+        /// </summary>
+        private void DeletePoint(PointInf p) {
+            var ca = new CommandAtomic();
+
+            // 点番号idxに接続しているエッジをすべて消す。
+            foreach (var e in mEdgeList) {
+                if (e.fromPointIdx == p.Idx
+                        || e.toPointIdx == p.Idx) {
+                    var cmd = new Command(Command.CommandType.DeleteEdge, null, e);
+                    ca.Add(cmd);
+                }
+            }
+
+            {
+                // 点idxを消す。
+                var cmd = new Command(Command.CommandType.DeletePoint, p, null);
+                ca.Add(cmd);
+            }
+
+            CommandAtomicDo(ca);
+
+            AddCmdToUndoList(ca);
+            UpdateGraphStatus();
+        }
+
+        /// <summary>
+        /// 点またはエッジを消す
+        /// </summary>
+        private void DeletePointEdgeLeftClicked(WWVectorD2 pos) {
+            // 通常色に戻します。
+            if (mTmpEdge != null) {
+                EdgeChangeColor(mTmpEdge, mBrush);
+                mTmpEdge = null;
+            }
+            if (mFromPoint != null) {
+                PointChangeColor(mFromPoint, mBrush);
+                mFromPoint = null;
+            }
+
+            var e = FindNearestEdge(pos);
+            var p = TestHit(pos, mPointSz);
+
+            if (e != null) {
+                if (p != null) {
+                    // 近いほうがヒット。
+                    if (EdgeDistanceFromPos(e, pos, 1.0, FindPointMode.FindFromPointList)
+                            < WWVectorD2.Distance(p.xy, pos)) {
+                        // eのほうが近い。
+                        DeleteEdge(e);
+                    } else {
+                        // pのほうが近い。
+                        DeletePoint(p);
+                    }
+                } else {
+                    // エッジ。
+                    DeleteEdge(e);
+                }
+            } else if (p != null) {
+                // p。
+                DeletePoint(p);
+            }
+        }
+
         /// <summary>
         /// 始点決定状態で左クリック：終点を決定する。始点から終点に向かうエッジを追加。終点が新たに始点となる。
         ///   既存点を左クリックしたとき、点の追加を行わずエッジを追加する。
@@ -1171,7 +1257,7 @@ namespace WWUserControls {
         private void mRadioButtonAddPoint_Checked(object sender, RoutedEventArgs e) {
             // 遷移前のモード。
             switch (mMode) {
-            case Mode.ModeDeletePoint:
+            case Mode.ModeDeletePointEdge:
                 // 通常色に戻します。
                 if (mTmpEdge != null) {
                     EdgeChangeColor(mTmpEdge, mBrush);
@@ -1192,7 +1278,7 @@ namespace WWUserControls {
         }
 
         private void mRadioButtonDeletePoint_Checked(object sender, RoutedEventArgs e) {
-            mMode = Mode.ModeDeletePoint;
+            mMode = Mode.ModeDeletePointEdge;
             Cursor = Cursors.Cross;
             UpdateDescription();
 
@@ -1430,7 +1516,8 @@ namespace WWUserControls {
             case Mode.ModeAddEdge:
                 PointAddLeftClicked(pos);
                 break;
-            case Mode.ModeDeletePoint:
+            case Mode.ModeDeletePointEdge:
+                DeletePointEdgeLeftClicked(pos);
                 break;
             }
         }
@@ -1474,7 +1561,7 @@ namespace WWUserControls {
                 case Mode.ModeAddEdge:
                     TmpEdgeRedrawMouseMove(pos);
                     break;
-                case Mode.ModeDeletePoint:
+                case Mode.ModeDeletePointEdge:
                     DeletePointEdgeMouseMove(pos);
                     break;
                 }
@@ -1523,15 +1610,6 @@ namespace WWUserControls {
         }
         */
 
-        private void mCanvas_MouseUp(object sender, MouseButtonEventArgs e) {
-            /*
-            if (e.LeftButton == MouseButtonState.Released) {
-                CanvasMouseUpLeft(e);
-                return;
-            }
-            */
-        }
-
         private void mButtonResize_Click(object sender, RoutedEventArgs e) {
             /*
             if (!int.TryParse(mTextBoxGridSize.Text, out mGridSz)) {
@@ -1569,7 +1647,7 @@ namespace WWUserControls {
             case Mode.ModeSetFirstPoint:
                 TmpDrawablesRemove((int)TmpDrawablesRemoveOpt.RemoveEdge | (int)TmpDrawablesRemoveOpt.RemoveToPoint);
                 break;
-            case Mode.ModeDeletePoint:
+            case Mode.ModeDeletePointEdge:
                 // 通常色に戻します。
                 if (mTmpEdge != null) {
                     EdgeChangeColor(mTmpEdge, mBrush);
@@ -1591,9 +1669,7 @@ namespace WWUserControls {
             var ca = mCommandList[mCommandList.Count - 1];
             mCommandList.RemoveAt(mCommandList.Count - 1);
 
-            foreach (var c in ca.commandList.Reverse<Command>()) {
-                CommandUndo(c);
-            }
+            CommandAtomicUndo(ca);
 
             RedrawAllEdges();
 

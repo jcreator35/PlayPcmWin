@@ -75,7 +75,7 @@
                     <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
                 <GroupBox Grid.Row="1" Header="Graph" >
-                    <Canvas Name="mCanvas" Background="#FFFEFEFE" OpacityMask="{x:Null}" MouseDown="mCanvas_MouseDown" MouseUp="mCanvas_MouseUp" MouseMove="mCanvas_MouseMove" MouseLeave="mCanvas_MouseLeave" />
+                    <Canvas Name="mCanvas" Background="#FFFEFEFE" OpacityMask="{x:Null}" MouseDown="mCanvas_MouseDown" MouseMove="mCanvas_MouseMove" MouseLeave="mCanvas_MouseLeave" />
                 </GroupBox>
                 <Label Grid.Row="0" Content="mLabelDescription" HorizontalAlignment="Left" Name="mLabelDescription" VerticalAlignment="Center" />
             </Grid>
