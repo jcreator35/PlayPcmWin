@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace WWUtil {
     public class DirectoryUtil {
@@ -7,11 +8,12 @@ namespace WWUtil {
         /// <summary>
         /// Collect recursively file names with specified ext
         /// this code is from https://msdn.microsoft.com/en-us/library/bb513869.aspx
+        /// キャンセルイベントが発生すると、OperationCanceledExceptionをthrowします。
         /// </summary>
         /// <param name="root">root directory to search files</param>
         /// <param name="extension">collect files with this extension. if null is specified, all files are collected</param>
         /// <returns>collected file list</returns>
-        public static string[] CollectFilesOnFolder(string root, string extension) {
+        public static string[] CollectFilesOnFolder(string root, string extension, CancellationTokenSource cts = null) {
             var result = new List<string>();
 
             var dirs = new Stack<string>(20);
@@ -22,6 +24,10 @@ namespace WWUtil {
             dirs.Push(root);
 
             while (dirs.Count > 0) {
+                if (cts != null && cts.IsCancellationRequested) {
+                    cts.Token.ThrowIfCancellationRequested();
+                }
+
                 var currentDir = dirs.Pop();
                 string[] subDirs;
 

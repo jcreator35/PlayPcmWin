@@ -45,20 +45,16 @@ namespace ReadAllFilesOnSpecifiedFolder {
         public void Run(string root, int opt) {
             System.Diagnostics.Debug.Assert(mCts != null);
 
-            // まずフォルダ内のファイルを列挙します。
-            var pathList = WWUtil.DirectoryUtil.CollectFilesOnFolder(root, null);
-
-            if (mCts.IsCancellationRequested) {
-                return;
-            }
-
-            if (mCb != null) {
-                mCb(EventType.CollectionFinished, "", "", 0, pathList.Length);
-            }
-
-            int progressCounter = 0;
-
             try {
+                // まずフォルダ内のファイルを列挙します。
+                var pathList = WWUtil.DirectoryUtil.CollectFilesOnFolder(root, null, mCts);
+
+                if (mCb != null) {
+                    mCb(EventType.CollectionFinished, "", "", 0, pathList.Length);
+                }
+
+                int progressCounter = 0;
+
                 if (0 != (opt & (int)Option.Parallel)) {
                     // Parallel実行する。
                     var po = new ParallelOptions();
@@ -96,13 +92,13 @@ namespace ReadAllFilesOnSpecifiedFolder {
                         }
                     }
                 }
+
+                if (mCb != null) {
+                    mCb(EventType.ReadFinished, "", "", progressCounter, pathList.Length);
+                }
             } catch (OperationCanceledException ex) {
                 Console.WriteLine("{0}", ex);
                 return;
-            }
-
-            if (mCb != null) {
-                mCb(EventType.ReadFinished, "", "", progressCounter, pathList.Length);
             }
         }
 

@@ -86,6 +86,12 @@ namespace ReadAllFilesOnSpecifiedFolder {
                     mStopWatchLogUpdate.Restart();
                 }
                 break;
+            case ReadAllFilesOnFolder.EventType.ReadFinished:
+                lock (mSbLog) {
+                    mSbLog.AppendFormat("Completed.\n");
+                }
+                Interlocked.Increment(ref mLogCounter);
+                break;
             default:
                 break;
             }
@@ -117,11 +123,14 @@ namespace ReadAllFilesOnSpecifiedFolder {
             if (e.Cancelled) {
                 mSbLog.AppendFormat("Task stopped.\n");
             } else {
-                mSbLog.AppendFormat("Finished. Elapsed time = {0}\n", mStopWatch.Elapsed);
+                mSbLog.AppendFormat("Elapsed time = {0}\n", mStopWatch.Elapsed);
             }
 
             mTextBoxLog.Text = mSbLog.ToString();
             mTextBoxLog.ScrollToEnd();
+
+            mStopWatch.Stop();
+            mStopWatchLogUpdate.Stop();
 
             mProgressBar.Value = 0;
             mButtonStart.IsEnabled = true;
