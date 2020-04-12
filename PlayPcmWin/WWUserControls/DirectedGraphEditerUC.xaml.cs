@@ -12,15 +12,17 @@ using WWMath;
 namespace WWUserControls {
     public partial class DirectedGraphEditerUC : UserControl {
         public DirectedGraphEditerUC() {
-
             InitializeComponent();
-
         }
 
         private bool mInitialized = false;
-        private int mPointSz = 12;
-        private int mArrowSz = 12;
-        private int mGridSz = 16;
+        private int mPointSz;
+        private int mArrowSz;
+        private int mGridSz;
+
+        private int Z_Grid  = -20;
+        private int Z_Edge  = -10;
+        //private int Z_Point = -1;
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e) {
             mInitialized = true;
@@ -43,6 +45,7 @@ namespace WWUserControls {
 
             for (int x = 0; x < mCanvas.ActualWidth; x += mGridSz) {
                 var p = NewLine(new WWVectorD2(x, 0), new WWVectorD2(x, mCanvas.ActualHeight), mGridBrush);
+                Canvas.SetZIndex(p, Z_Grid);
                 mCanvas.Children.Add(p);
 
                 mGridLines.Add(p);
@@ -50,6 +53,7 @@ namespace WWUserControls {
 
             for (int y = 0; y < mCanvas.ActualHeight; y += mGridSz) {
                 var p = NewLine(new WWVectorD2(0, y), new WWVectorD2(mCanvas.ActualWidth, y), mGridBrush);
+                Canvas.SetZIndex(p, Z_Grid);
                 mCanvas.Children.Add(p);
 
                 mGridLines.Add(p);
@@ -91,6 +95,9 @@ namespace WWUserControls {
         Brush mBrush       = new SolidColorBrush(Colors.Black);
         Brush mBrightBrush = new SolidColorBrush(Colors.Blue);
         Brush mErrBrush    = new SolidColorBrush(Colors.Red);
+        Brush mPointTextFgBrush = new SolidColorBrush(Colors.White);
+        Brush mEdgeTextFgBrush = new SolidColorBrush(Colors.Black);
+        Brush mEdgeTextBgBrush = new SolidColorBrush(Colors.LightGray);
 
         // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
         // Pointの処理。
@@ -104,27 +111,18 @@ namespace WWUserControls {
                     return idx;
                 }
             }
-            public Ellipse drawable;
+            public Ellipse circle;
+            public TextBlock tbIdx;
             public WWVectorD2 xy;
-            private static int mNextPointIdx = 100;
-
-            /// <summary>
-            /// 点。Idx, 位置(x,y)と描画物eがある。
-            /// 一時的な点は描画物eを作って渡す。
-            /// 確定した点は、e = nullで作成し、コマンド実行時に描画物を作る。
-            /// </summary>
-            public PointInf(Ellipse e, double x, double y)
-                : this(e, new WWVectorD2(x, y)) {
-            }
+            public static int mNextPointIdx = 0;
 
             /// <summary>
             /// 点。Idx, 位置aXYと描画物eがある。
             /// 一時的な点は描画物eを作って渡す。
             /// 確定した点は、e = nullで作成し、コマンド実行時に描画物を作る。
             /// </summary>
-            public PointInf(Ellipse e, WWVectorD2 aXY) {
+            public PointInf(WWVectorD2 aXY) {
                 idx = mNextPointIdx++;
-                drawable = e;
                 xy = aXY;
             }
         }
@@ -137,45 +135,64 @@ namespace WWUserControls {
         /// <summary>
         /// 点の描画物をキャンバスから削除し、点の描画物自体も削除。
         /// </summary>
-        private PointInf PointDrawableRemove(PointInf p) {
-            if (p != null && p.drawable != null) {
-                mCanvas.Children.Remove(p.drawable);
-                p.drawable = null;
-                Console.WriteLine("Point drawable removed");
+        private void PointDrawableRemove(PointInf p) {
+            if (p == null) {
+                return;
             }
-            return p;
+            if (p.tbIdx != null) {
+                mCanvas.Children.Remove(p.tbIdx);
+                p.tbIdx = null;
+            }
+
+            if (p.circle != null) {
+                mCanvas.Children.Remove(p.circle);
+                p.circle = null;
+            }
+            Console.WriteLine("Point drawable removed");
         }
 
         /// <summary>
         /// 点の描画物を作り、キャンバスに追加する。
         /// </summary>
-        private PointInf PointDrawableCreate(PointInf pi, Brush brush) {
-            System.Diagnostics.Debug.Assert(pi.drawable == null);
+        private void PointDrawableCreate(PointInf pi, Brush brush) {
+            System.Diagnostics.Debug.Assert(pi.circle == null);
 
-            pi.drawable = new Ellipse();
-            pi.drawable.Width  = mPointSz;
-            pi.drawable.Height = mPointSz;
-            pi.drawable.Fill   = brush;
+            pi.circle = new Ellipse();
+            pi.circle.Width  = mPointSz;
+            pi.circle.Height = mPointSz;
+            pi.circle.Fill   = brush;
 
-            Canvas.SetLeft(pi.drawable, pi.xy.X - mPointSz / 2);
-            Canvas.SetTop( pi.drawable, pi.xy.Y - mPointSz / 2);
-            mCanvas.Children.Add(pi.drawable);
+            Canvas.SetLeft(pi.circle, pi.xy.X - mPointSz / 2);
+            Canvas.SetTop(pi.circle, pi.xy.Y - mPointSz / 2);
+
+            mCanvas.Children.Add(pi.circle);
+
+            pi.tbIdx = new TextBlock();
+            pi.tbIdx.Text = string.Format("p{0}", pi.Idx);
+            pi.tbIdx.Foreground = mPointTextFgBrush;
+            pi.tbIdx.Background = brush;
+            pi.tbIdx.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+            var tbWH = pi.tbIdx.DesiredSize;
+            Canvas.SetLeft(pi.tbIdx, pi.xy.X - tbWH.Width/2);
+            Canvas.SetTop(pi.tbIdx, pi.xy.Y - tbWH.Height/2);
+
+            mCanvas.Children.Add(pi.tbIdx);
+
             Console.WriteLine("Point drawable added");
-            return pi;
         }
 
         /// <summary>
-        /// 点pの描画色を変更し、キャンバスに追加。
+        /// 点pの描画色を変更。描画物がないときは作ってキャンバスに追加。
         /// </summary>
-        public PointInf PointChangeColor(PointInf p, Brush brush) {
-            if (p.drawable == null) {
+        public void PointChangeColor(PointInf p, Brush brush) {
+            if (p.circle == null) {
                 PointDrawableCreate(p, brush);
-                return p;
+                return;
             }
 
             // 点描画物有り。色を変える。
-            p.drawable.Fill = brush;
-            return p;
+            p.circle.Fill = brush;
+            p.tbIdx.Background = brush;
         }
 
         /// <summary>
@@ -183,7 +200,7 @@ namespace WWUserControls {
         /// 一時的な点用。
         /// </summary>
         public PointInf NewPoint(WWVectorD2 pos, Brush brush) {
-            var pInf = new PointInf(null, pos);
+            var pInf = new PointInf(pos);
             PointDrawableCreate(pInf, brush);
             return pInf;
         }
@@ -280,23 +297,105 @@ namespace WWUserControls {
 #region Edge
 
         public class Edge {
+            public static int mNextEdgeIdx = 0;
+
+            private int edgeIdx;
+            public int EdgeIdx {
+                get { return edgeIdx; }
+            }
+
             public int fromPointIdx;
             public int toPointIdx;
+
+            // 描画物。
             public Line line;
             public Polygon arrow;
+            public TextBlock tbIdx;
 
             /// <summary>
-            /// 一時的エッジの場合、aLine, aArrowを作って渡す。
-            /// CommandDo()に渡すエッジの場合、aLine, aArrowをnullで作成。
+            /// エッジ作成。点Idxのfromとtoが必要。
             /// </summary>
-            public Edge(Line aLine, Polygon aArrow, int from, int to) {
-                line = aLine;
-                arrow = aArrow;
+            public Edge(int from, int to) {
+                edgeIdx = mNextEdgeIdx++;
+
                 fromPointIdx = from;
                 toPointIdx = to;
             }
         };
 
+        /// <summary>
+        /// 始点から終点に向かうエッジを作り、キャンバスに登録。
+        /// 一時的エッジ用。
+        /// エッジ確定追加の場合 new Edge(null, null, fromIdx, toIdx)をCommandDoする。
+        /// </summary>
+        private Edge NewEdge(PointInf from, PointInf to, Brush brush) {
+            var edge = new Edge(from.Idx, to.Idx);
+            EdgeDrawablesCreate(edge, brush);
+            return edge;
+        }
+
+        /// <summary>
+        /// エッジの描画物をキャンバスから削除し、描画物も削除。
+        /// </summary>
+        private void EdgeDrawablesRemove(Edge edge) {
+            if (edge == null) {
+                return;
+            }
+            if (edge.tbIdx != null) {
+                mCanvas.Children.Remove(edge.tbIdx);
+                edge.tbIdx = null;
+            }
+            if (edge.arrow != null) {
+                mCanvas.Children.Remove(edge.arrow);
+                edge.arrow = null;
+            }
+            if (edge.line != null) {
+                mCanvas.Children.Remove(edge.line);
+                edge.line = null;
+            }
+        }
+
+        /// <summary>
+        /// エッジの描画物を作り、キャンバスに登録。
+        /// 描画物が無い状態で呼んで下さい。
+        /// </summary>
+        private void EdgeDrawablesCreate(Edge edge, Brush brush) {
+            System.Diagnostics.Debug.Assert(edge.line == null);
+            System.Diagnostics.Debug.Assert(edge.arrow == null);
+
+            var p1 = FindPointByIdx(edge.fromPointIdx, FindPointMode.FindAll);
+            var p2 = FindPointByIdx(edge.toPointIdx, FindPointMode.FindAll);
+
+            edge.line = NewLine(p1.xy, p2.xy, brush);
+            edge.arrow = NewArrowPoly(p1.xy, p2.xy, brush);
+
+            Canvas.SetZIndex(edge.line, Z_Edge);
+            Canvas.SetZIndex(edge.arrow, Z_Edge);
+            mCanvas.Children.Add(edge.line);
+            mCanvas.Children.Add(edge.arrow);
+
+            // 文字を出す。
+            var xy = WWVectorD2.Add(p1.xy, p2.xy).Scale(0.5);
+            edge.tbIdx = new TextBlock();
+            edge.tbIdx.Text = string.Format("e{0}", edge.EdgeIdx);
+            edge.tbIdx.Foreground = mEdgeTextFgBrush;
+            edge.tbIdx.Background = mEdgeTextBgBrush;
+            edge.tbIdx.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+            var tbWH = edge.tbIdx.DesiredSize;
+            Canvas.SetLeft(edge.tbIdx, xy.X - tbWH.Width / 2);
+            Canvas.SetTop(edge.tbIdx, xy.Y - tbWH.Height / 2);
+            Canvas.SetZIndex(edge.tbIdx, Z_Edge + 1);
+            mCanvas.Children.Add(edge.tbIdx);
+        }
+
+        /// <summary>
+        /// エッジの描画色を変更。
+        /// </summary>
+        private void EdgeChangeColor(Edge edge, Brush brush) {
+            EdgeDrawablesRemove(edge);
+            EdgeDrawablesCreate(edge, brush);
+        }
+        
         /// <summary>
         /// Edgeとposの最短距離を調べる。
         /// </summary>
@@ -581,67 +680,6 @@ namespace WWUserControls {
             poly.Fill = stroke;
             poly.StrokeThickness = 0;
             return poly;
-        }
-
-        /// <summary>
-        /// 始点から終点に向かうエッジを作り、キャンバスに登録。
-        /// 一時的エッジ用。
-        /// エッジ確定追加の場合 new Edge(null, null, fromIdx, toIdx)をCommandDoする。
-        /// </summary>
-        private Edge NewEdge(PointInf from, PointInf to, Brush brush) {
-            var l = NewLine(from.xy, to.xy, brush);
-            var arrow = NewArrowPoly(from.xy, to.xy, brush);
-
-            mCanvas.Children.Add(l);
-            mCanvas.Children.Add(arrow);
-
-            var edge = new Edge(l, arrow, from.Idx, to.Idx);
-            return edge;
-        }
-
-        /// <summary>
-        /// エッジの描画物をキャンバスから削除し、描画物も削除。
-        /// </summary>
-        private void EdgeDrawablesRemove(Edge edge) {
-            if (edge == null) {
-                return;
-            }
-            if (edge.line != null) {
-                mCanvas.Children.Remove(edge.line);
-                edge.line = null;
-            }
-            if (edge.arrow != null) {
-                mCanvas.Children.Remove(edge.arrow);
-                edge.arrow = null;
-            }
-        }
-
-        /// <summary>
-        /// エッジの描画物を作る。
-        /// 描画物が無い状態で呼んで下さい。
-        /// </summary>
-        private Edge EdgeDrawablesCreate(Edge edge, Brush brush) {
-            System.Diagnostics.Debug.Assert(edge.line == null);
-            System.Diagnostics.Debug.Assert(edge.arrow == null);
-
-            var p1 = FindPointByIdx(edge.fromPointIdx, FindPointMode.FindAll);
-            var p2 = FindPointByIdx(edge.toPointIdx, FindPointMode.FindAll);
-
-            edge.line = NewLine(p1.xy, p2.xy, brush);
-            edge.arrow = NewArrowPoly(p1.xy, p2.xy, brush);
-
-            mCanvas.Children.Add(edge.line);
-            mCanvas.Children.Add(edge.arrow);
-
-            return edge;
-        }
-
-        /// <summary>
-        /// エッジの描画色を変更。
-        /// </summary>
-        private void EdgeChangeColor(Edge edge, Brush brush) {
-            EdgeDrawablesRemove(edge);
-            EdgeDrawablesCreate(edge, brush);
         }
 
         enum FEOption {
@@ -1014,8 +1052,8 @@ namespace WWUserControls {
             var pInf = TestHit(pos, mPointSz);
             if (pInf == null) {
                 // クリックした場所には点は未だ無い。
-                // 点を追加する → pInf。
-                pInf = new PointInf(null, pos);
+                // 確定の始点を追加する → pInf。
+                pInf = new PointInf(pos);
                 var cmd = new Command(Command.CommandType.AddPoint, pInf, null);
                 CommandDo(cmd);
                 AddCmdToUndoList(new CommandAtomic(cmd));
@@ -1058,8 +1096,7 @@ namespace WWUserControls {
                 }
             }
 
-            {
-                // 点idxを消す。
+            {   // 点idxを消す。
                 var cmd = new Command(Command.CommandType.DeletePoint, p, null);
                 ca.Add(cmd);
             }
@@ -1139,7 +1176,7 @@ namespace WWUserControls {
                 mToPoint = null;
 
                 // 確定の終点を追加する。
-                pInf = new PointInf(null, pos);
+                pInf = new PointInf(pos);
                 var cmd = new Command(Command.CommandType.AddPoint, pInf, null);
                 CommandDo(cmd);
                 ca.Add(cmd);
@@ -1156,7 +1193,7 @@ namespace WWUserControls {
             var edge = FindEdge(mFromPoint.Idx, pInf.Idx, FEOption.SamePosition);
             if (edge == null) {
                 // 始点→終点のエッジが無いので追加。
-                var cmd = new Command(Command.CommandType.AddEdge, null, new Edge(null, null, mFromPoint.Idx, pInf.Idx));
+                var cmd = new Command(Command.CommandType.AddEdge, null, new Edge(mFromPoint.Idx, pInf.Idx));
                 CommandDo(cmd);
                 ca.Add(cmd);
             }
