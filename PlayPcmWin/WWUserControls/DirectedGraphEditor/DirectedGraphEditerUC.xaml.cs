@@ -60,19 +60,21 @@ namespace WWUserControls {
         /// アースされている点。
         /// </summary>
         public PointInf EarthedPoint() {
+            PointInf p = null;
+
             int idx = 0;
             if (!int.TryParse(mTextBoxEarthPointIdx.Text, out idx)) {
                 MessageBox.Show(
                     string.Format("Error: Earth Point idx parse error."));
-                return null;
+            } else {
+                p = mPP.FindPointByIdx(idx, PointProc.FindPointMode.FindFromPointList);
+                if (p == null) {
+                    MessageBox.Show(
+                        string.Format("Error: Earth Point idx specified not found. idx={0}", idx));
+                }
             }
 
-            var p = mPP.FindPointByIdx(idx, PointProc.FindPointMode.FindFromPointList);
-            if (p == null) {
-                MessageBox.Show(
-                    string.Format("Error: Earth Point idx specified not found. idx={0}", idx));
-                return null;
-            }
+            mPP.UpdateEarthedPoint(p);
 
             return p;
         }

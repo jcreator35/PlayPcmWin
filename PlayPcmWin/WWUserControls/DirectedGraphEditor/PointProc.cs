@@ -71,6 +71,12 @@ namespace WWUserControls {
                 mDP.mCanvas.Children.Remove(p.circle);
                 p.circle = null;
             }
+
+            if (p.earthCircle != null) {
+                mDP.mCanvas.Children.Remove(p.earthCircle);
+                p.earthCircle = null;
+            }
+
             Console.WriteLine("Point drawable removed");
         }
 
@@ -78,30 +84,49 @@ namespace WWUserControls {
         /// 点の描画物を作り、キャンバスに追加する。
         /// </summary>
         public void PointDrawableCreate(PointInf pi, Brush brush) {
-            System.Diagnostics.Debug.Assert(pi.circle == null);
+            {
+                System.Diagnostics.Debug.Assert(pi.circle == null);
 
-            pi.circle = new Ellipse();
-            pi.circle.Width = mDP.mPointSz;
-            pi.circle.Height = mDP.mPointSz;
-            pi.circle.Fill = brush;
+                pi.circle = new Ellipse();
+                pi.circle.Width = mDP.mPointSz;
+                pi.circle.Height = mDP.mPointSz;
+                pi.circle.Fill = brush;
 
-            Canvas.SetLeft(pi.circle, pi.xy.X - mDP.mPointSz / 2);
-            Canvas.SetTop(pi.circle, pi.xy.Y - mDP.mPointSz / 2);
+                Canvas.SetLeft(pi.circle, pi.xy.X - mDP.mPointSz / 2);
+                Canvas.SetTop(pi.circle, pi.xy.Y - mDP.mPointSz / 2);
 
-            mDP.mCanvas.Children.Add(pi.circle);
+                mDP.mCanvas.Children.Add(pi.circle);
+            }
 
-            pi.tbIdx = new TextBlock();
-            pi.tbIdx.Text = string.Format("p{0}\nb={1}", pi.Idx, pi.B);
-            pi.tbIdx.FontSize = mDP.mPointFontSz;
-            pi.tbIdx.Foreground = mDP.mPointTextFgBrush;
-            pi.tbIdx.Background = brush;
-            pi.tbIdx.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-            var tbWH = pi.tbIdx.DesiredSize;
-            Canvas.SetLeft(pi.tbIdx, pi.xy.X - tbWH.Width / 2);
-            Canvas.SetTop(pi.tbIdx, pi.xy.Y - tbWH.Height / 2);
+            if (pi.Earthed) {
+                System.Diagnostics.Debug.Assert(pi.earthCircle == null);
 
-            mDP.mCanvas.Children.Add(pi.tbIdx);
+                int margin = 3;
 
+                pi.earthCircle = new Ellipse();
+                pi.earthCircle.Width = mDP.mPointSz + margin*2;
+                pi.earthCircle.Height = mDP.mPointSz + margin * 2;
+                pi.earthCircle.Stroke = brush;
+
+                Canvas.SetLeft(pi.earthCircle, pi.xy.X - mDP.mPointSz / 2 - margin);
+                Canvas.SetTop(pi.earthCircle, pi.xy.Y - mDP.mPointSz / 2 - margin);
+
+                mDP.mCanvas.Children.Add(pi.earthCircle);
+            }
+
+            {
+                pi.tbIdx = new TextBlock();
+                pi.tbIdx.Text = string.Format("p{0}\nb={1}", pi.Idx, pi.B);
+                pi.tbIdx.FontSize = mDP.mPointFontSz;
+                pi.tbIdx.Foreground = mDP.mPointTextFgBrush;
+                pi.tbIdx.Background = brush;
+                pi.tbIdx.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                var tbWH = pi.tbIdx.DesiredSize;
+                Canvas.SetLeft(pi.tbIdx, pi.xy.X - tbWH.Width / 2);
+                Canvas.SetTop(pi.tbIdx, pi.xy.Y - tbWH.Height / 2);
+
+                mDP.mCanvas.Children.Add(pi.tbIdx);
+            }
             Console.WriteLine("Point drawable added");
         }
         
@@ -166,6 +191,19 @@ namespace WWUserControls {
                 PointDrawableCreate(p, mDP.mBrush);
             }
         }
+
+        public void UpdateEarthedPoint(PointInf ep) {
+            foreach (var p in mPointList) {
+                if (p == ep) {
+                    p.Earthed = true;
+                } else {
+                    p.Earthed = false;
+                }
+            }
+
+            RedrawPoints();
+        }
+
 
         // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
         // Find

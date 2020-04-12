@@ -16,7 +16,10 @@ namespace WWUserControls {
         /// </summary>
         public double B { get; set; }
 
+        public bool Earthed { get; set; }
+
         public Ellipse circle;
+        public Ellipse earthCircle;
         public TextBlock tbIdx;
         public WWVectorD2 xy;
         public static int mNextPointIdx = 0;
