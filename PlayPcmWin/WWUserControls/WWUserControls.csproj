@@ -81,12 +81,16 @@
       <DependentUpon>AnalogFilterCircuit.xaml</DependentUpon>
     </Compile>
     <Compile Include="Common.cs" />
-    <Compile Include="DirectedGraphEditor\DataGridProc.cs" />
+    <Compile Include="DirectedGraphEditor\DataGridEdgeProc.cs" />
     <Compile Include="DirectedGraphEditor\DirectedGraphEditerUC.xaml.cs">
       <DependentUpon>DirectedGraphEditerUC.xaml</DependentUpon>
     </Compile>
+    <Compile Include="DirectedGraphEditor\DrawParams.cs" />
+    <Compile Include="DirectedGraphEditor\DrawUtil.cs" />
     <Compile Include="DirectedGraphEditor\Edge.cs" />
+    <Compile Include="DirectedGraphEditor\EdgeProc.cs" />
     <Compile Include="DirectedGraphEditor\PointInf.cs" />
+    <Compile Include="DirectedGraphEditor\PointProc.cs" />
     <Compile Include="FrequencyResponse.xaml.cs">
       <DependentUpon>FrequencyResponse.xaml</DependentUpon>
     </Compile>
