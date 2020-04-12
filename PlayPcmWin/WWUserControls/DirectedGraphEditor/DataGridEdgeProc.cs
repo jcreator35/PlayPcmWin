@@ -9,7 +9,8 @@ namespace WWUserControls {
         public class EdgeProperty {
             public Edge edge;
             public string Name { get { return string.Format("e{0}", edge.EdgeIdx); } }
-            public double Coef { get { return edge.coef; } set { edge.coef = value;} }
+            public double C { get { return edge.C; } set { edge.C = value;} }
+            public double F { get { return edge.F; } set { edge.F = value; } }
 
             public EdgeProperty(Edge e) {
                 edge = e;
@@ -18,11 +19,11 @@ namespace WWUserControls {
 
         ObservableCollection<EdgeProperty> mEdgeCollection = new ObservableCollection<EdgeProperty>();
 
-        public delegate void EdgeCoeffChangedCB(Edge e, double newValue);
+        public delegate void EdgePropertyChangedCB(Edge e, double newC, double newF);
 
-        private EdgeCoeffChangedCB mCB;
+        private EdgePropertyChangedCB mCB;
 
-        public DataGridEdgeProc(DataGrid dg, EdgeCoeffChangedCB callback) {
+        public DataGridEdgeProc(DataGrid dg, EdgePropertyChangedCB callback) {
             mDG = dg;
             dg.DataContext = mEdgeCollection;
             mCB = callback;
@@ -45,17 +46,24 @@ namespace WWUserControls {
             if (e.EditAction == DataGridEditAction.Commit) {
                 var column = e.Column as DataGridBoundColumn;
                 if (column != null) {
+                    int rowIndex = e.Row.GetIndex();
+                    var ep = mEdgeCollection[rowIndex];
+                    var el = e.EditingElement as TextBox;
+
                     var bindingPath = (column.Binding as Binding).Path.Path;
-                    if (bindingPath == "Coef") {
-                        int rowIndex = e.Row.GetIndex();
-                        var el = e.EditingElement as TextBox;
-
-                        var ep = mEdgeCollection[rowIndex];
-
-                        double v;
-                        if (double.TryParse(el.Text, out v)) {
+                    if (bindingPath == "C") {
+                        double c;
+                        if (double.TryParse(el.Text, out c)) {
                             if (mCB != null) {
-                                mCB(ep.edge, v);
+                                mCB(ep.edge, c, ep.F);
+                            }
+                        }
+                    }
+                    if (bindingPath == "F") {
+                        double f;
+                        if (double.TryParse(el.Text, out f)) {
+                            if (mCB != null) {
+                                mCB(ep.edge, ep.C, f);
                             }
                         }
                     }

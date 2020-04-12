@@ -20,7 +20,8 @@ namespace WWUserControls {
         private DrawParams mDP;
         private PointProc mPP;
         private EdgeProc mEP;
-        private DataGridEdgeProc mDataGridProc;
+        private DataGridPointProc mDataGridPointProc;
+        private DataGridEdgeProc mDataGridEdgeProc;
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e) {
             mInitialized = true;
@@ -34,10 +35,46 @@ namespace WWUserControls {
             mPP = new PointProc(mDP);
             mEP = new EdgeProc(mDP, mPP);
 
-            mDataGridProc = new DataGridEdgeProc(mDataGrid, mEP.EdgeCoeffChanged);
+            mDataGridPointProc = new DataGridPointProc(mDataGridP, mPP.PointParamChanged);
+            mDataGridEdgeProc = new DataGridEdgeProc(mDataGridE, mEP.EdgeParamChanged);
 
             RedrawGrid();
             UpdateDescription();
+        }
+
+        /// <summary>
+        /// 頂点のリストを戻す。
+        /// </summary>
+        public List<PointInf> PointList() {
+            return mPP.mPointList;
+        }
+
+        /// <summary>
+        /// エッジのリストを戻す。
+        /// </summary>
+        public List<Edge> EdgeList() {
+            return mEP.mEdgeList;
+        }
+
+        /// <summary>
+        /// アースされている点。
+        /// </summary>
+        public PointInf EarthedPoint() {
+            int idx = 0;
+            if (!int.TryParse(mTextBoxEarthPointIdx.Text, out idx)) {
+                MessageBox.Show(
+                    string.Format("Error: Earth Point idx parse error."));
+                return null;
+            }
+
+            var p = mPP.FindPointByIdx(idx, PointProc.FindPointMode.FindFromPointList);
+            if (p == null) {
+                MessageBox.Show(
+                    string.Format("Error: Earth Point idx specified not found. idx={0}", idx));
+                return null;
+            }
+
+            return p;
         }
 
         List<Line> mGridLines = new List<Line>();
@@ -236,7 +273,7 @@ namespace WWUserControls {
             switch (c.cmd) {
             case Command.CommandType.DeleteEdge:
                 // エッジを削除。
-                mDataGridProc.EdgeRemoved(c.edge);
+                mDataGridEdgeProc.EdgeRemoved(c.edge);
                 mEP.EdgeDrawablesRemove(c.edge);
                 mEP.mEdgeList.Remove(c.edge);
                 break;
@@ -244,10 +281,11 @@ namespace WWUserControls {
                 // エッジを追加。
                 mEP.EdgeDrawablesCreate(c.edge, mDP.mBrush);
                 mEP.mEdgeList.Add(c.edge);
-                mDataGridProc.EdgeAdded(c.edge);
+                mDataGridEdgeProc.EdgeAdded(c.edge);
                 break;
             case Command.CommandType.DeletePoint:
                 // 点を削除。
+                mDataGridPointProc.PointRemoved(c.point);
                 mPP.PointDrawableRemove(c.point);
                 mPP.mPointList.Remove(c.point);
                 break;
@@ -255,6 +293,7 @@ namespace WWUserControls {
                 // 点を追加。
                 mPP.PointDrawableCreate(c.point, mDP.mBrush);
                 mPP.mPointList.Add(c.point);
+                mDataGridPointProc.PointAdded(c.point);
                 break;
             case Command.CommandType.ChangePointIdx:
                 // エッジリストに入っている点番号を更新する。
@@ -276,7 +315,7 @@ namespace WWUserControls {
             switch (c.cmd) {
             case Command.CommandType.AddEdge:
                 // エッジを削除。
-                mDataGridProc.EdgeRemoved(c.edge);
+                mDataGridEdgeProc.EdgeRemoved(c.edge);
                 mEP.EdgeDrawablesRemove(c.edge);
                 mEP.mEdgeList.Remove(c.edge);
                 break;
@@ -284,10 +323,11 @@ namespace WWUserControls {
                 // エッジを追加。
                 mEP.EdgeDrawablesCreate(c.edge, mDP.mBrush);
                 mEP.mEdgeList.Add(c.edge);
-                mDataGridProc.EdgeAdded(c.edge);
+                mDataGridEdgeProc.EdgeAdded(c.edge);
                 break;
             case Command.CommandType.AddPoint:
                 // 点を削除。
+                mDataGridPointProc.PointRemoved(c.point);
                 mPP.PointDrawableRemove(c.point);
                 mPP.mPointList.Remove(c.point);
                 break;
@@ -295,6 +335,7 @@ namespace WWUserControls {
                 // 点を追加。
                 mPP.PointDrawableCreate(c.point, mDP.mBrush);
                 mPP.mPointList.Add(c.point);
+                mDataGridPointProc.PointAdded(c.point);
                 break;
             case Command.CommandType.ChangePointIdx:
                 // エッジリストに入っている点番号を更新する。
@@ -718,8 +759,11 @@ namespace WWUserControls {
             RedrawAll();
         }
 
-        private void mDataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e) {
-            mDataGridProc.CellEditEnding(sender, e);
+        private void mDataGridP_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e) {
+            mDataGridPointProc.CellEditEnding(sender, e);
+        }
+        private void mDataGridE_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e) {
+            mDataGridEdgeProc.CellEditEnding(sender, e);
         }
     }
 }

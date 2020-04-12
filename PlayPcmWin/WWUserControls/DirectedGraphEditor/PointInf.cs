@@ -10,6 +10,12 @@ namespace WWUserControls {
                 return idx;
             }
         }
+
+        /// <summary>
+        /// ノードの電圧源等。
+        /// </summary>
+        public double B { get; set; }
+
         public Ellipse circle;
         public TextBlock tbIdx;
         public WWVectorD2 xy;
@@ -23,6 +29,7 @@ namespace WWUserControls {
         public PointInf(WWVectorD2 aXY) {
             idx = mNextPointIdx++;
             xy = aXY;
+            B = 0;
         }
     }
 }

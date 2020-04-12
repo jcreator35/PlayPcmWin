@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Text;
 
 namespace WWMath {
     public class WWMatrix {
@@ -223,6 +224,22 @@ namespace WWMath {
             return rv.ToArray();
         }
 
+        /// <summary>
+        /// 転置した行列を作って戻す。
+        /// 自分自身を変更しない。
+        /// </summary>
+        /// <returns>転置した行列。</returns>
+        public WWMatrix Transpose() {
+            var t = new WWMatrix(mCol, mRow);
+            for (int y = 0; y < mRow; ++y) {
+                for (int x = 0; x < mCol; ++x) {
+                    t.Set(x, y, At(y, x));
+                }
+            }
+
+            return t;
+        }
+
         public delegate double UpdateDelegate(int row, int column, double vIn);
 
         public void Update(UpdateDelegate f) {
@@ -360,6 +377,18 @@ namespace WWMath {
                 }
                 Console.WriteLine("");
             }
+        }
+
+        public override string ToString() {
+            var sb = new StringBuilder();
+            sb.AppendFormat("rows={0},cols={1}\n", mRow, mCol);
+            for (int r = 0; r < mRow; ++r) {
+                for (int c = 0; c < mCol; ++c) {
+                    sb.AppendFormat("\t{0}", At(r, c));
+                }
+                sb.AppendFormat("\n");
+            }
+            return sb.ToString();
         }
 
         /// <summary>

@@ -82,6 +82,7 @@
     </Compile>
     <Compile Include="Common.cs" />
     <Compile Include="DirectedGraphEditor\DataGridEdgeProc.cs" />
+    <Compile Include="DirectedGraphEditor\DataGridPointProc.cs" />
     <Compile Include="DirectedGraphEditor\DirectedGraphEditerUC.xaml.cs">
       <DependentUpon>DirectedGraphEditerUC.xaml</DependentUpon>
     </Compile>

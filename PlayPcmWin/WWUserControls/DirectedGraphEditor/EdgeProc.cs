@@ -97,23 +97,6 @@ namespace WWUserControls {
         }
 
         /// <summary>
-        /// エッジの係数が変更された。
-        /// </summary>
-        public void EdgeCoeffChanged(Edge edge, double newValue) {
-            edge.tbIdx.Text = string.Format("e{0}: {1}", edge.EdgeIdx, newValue);
-
-            // 表示位置を調整する。
-            var p1 = mPP.FindPointByIdx(edge.fromPointIdx, PointProc.FindPointMode.FindAll);
-            var p2 = mPP.FindPointByIdx(edge.toPointIdx, PointProc.FindPointMode.FindAll);
-            var xy = WWVectorD2.Add(p1.xy, p2.xy).Scale(0.5);
-            edge.tbIdx.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-            var tbWH = edge.tbIdx.DesiredSize;
-            Canvas.SetLeft(edge.tbIdx, xy.X - tbWH.Width / 2);
-            Canvas.SetTop(edge.tbIdx, xy.Y - tbWH.Height / 2);
-        }
-
-
-        /// <summary>
         /// エッジの描画物をキャンバスから削除し、描画物も削除。
         /// </summary>
         public void EdgeDrawablesRemove(Edge edge) {
@@ -156,7 +139,8 @@ namespace WWUserControls {
             // 文字を出す。
             var xy = WWVectorD2.Add(p1.xy, p2.xy).Scale(0.5);
             edge.tbIdx = new TextBlock();
-            edge.tbIdx.Text = string.Format("e{0}: {1}", edge.EdgeIdx, edge.coef);
+            edge.tbIdx.Padding = new Thickness(2);
+            edge.tbIdx.Text = string.Format("e{0}\nC={1}\nf={2}", edge.EdgeIdx, edge.C, edge.F);
             edge.tbIdx.Foreground = mDP.mEdgeTextFgBrush;
             edge.tbIdx.Background = mDP.mEdgeTextBgBrush;
             edge.tbIdx.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
@@ -166,6 +150,23 @@ namespace WWUserControls {
             Canvas.SetZIndex(edge.tbIdx, mDP.Z_Edge + 1);
             mDP.mCanvas.Children.Add(edge.tbIdx);
         }
+
+        /// <summary>
+        /// エッジの係数が変更された。
+        /// </summary>
+        public void EdgeParamChanged(Edge edge, double newC, double newF) {
+            edge.tbIdx.Text = string.Format("e{0}\nC={1}\nf={2}", edge.EdgeIdx, edge.C, edge.F);
+
+            // 表示位置を調整する。
+            var p1 = mPP.FindPointByIdx(edge.fromPointIdx, PointProc.FindPointMode.FindAll);
+            var p2 = mPP.FindPointByIdx(edge.toPointIdx, PointProc.FindPointMode.FindAll);
+            var xy = WWVectorD2.Add(p1.xy, p2.xy).Scale(0.5);
+            edge.tbIdx.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+            var tbWH = edge.tbIdx.DesiredSize;
+            Canvas.SetLeft(edge.tbIdx, xy.X - tbWH.Width / 2);
+            Canvas.SetTop(edge.tbIdx, xy.Y - tbWH.Height / 2);
+        }
+
 
         /// <summary>
         /// エッジの描画色を変更。

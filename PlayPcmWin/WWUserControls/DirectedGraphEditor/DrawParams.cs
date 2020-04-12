@@ -11,6 +11,8 @@ namespace WWUserControls {
         public int mArrowSz;
         public int mGridSz;
 
+        public double mPointFontSz = 10;
+
         public int Z_Grid = -20;
         public int Z_Edge = -10;
         //private int Z_Point = -1;

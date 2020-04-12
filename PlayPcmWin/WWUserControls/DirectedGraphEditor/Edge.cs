@@ -15,9 +15,14 @@ namespace WWUserControls {
         public int toPointIdx;
 
         /// <summary>
-        /// エッジの係数。
+        /// エッジの係数 コンダクタンス等。
         /// </summary>
-        public double coef;
+        public double C { get; set; }
+
+        /// <summary>
+        /// エッジの電流源等。
+        /// </summary>
+        public double F { get; set; }
 
         // 描画物。
         public Line line;
@@ -32,7 +37,8 @@ namespace WWUserControls {
 
             fromPointIdx = from;
             toPointIdx = to;
-            coef = 1.0;
+            C = 1.0;
+            F = 0;
         }
     };
 }
