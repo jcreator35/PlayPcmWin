@@ -24,6 +24,8 @@ namespace WWUserControls {
         private int Z_Edge  = -10;
         //private int Z_Point = -1;
 
+        private DataGridEdgeProc mDataGridProc;
+
         private void UserControl_Loaded(object sender, RoutedEventArgs e) {
             mInitialized = true;
 
@@ -33,6 +35,7 @@ namespace WWUserControls {
 
             RedrawGrid();
             UpdateDescription();
+            mDataGridProc = new DataGridEdgeProc(mDataGrid, EdgeCoeffChanged);
         }
 
         List<Line> mGridLines = new List<Line>();
@@ -103,29 +106,6 @@ namespace WWUserControls {
         // Pointの処理。
 
 #region PointInf
-
-        public class PointInf {
-            private int idx;
-            public int Idx {
-                get {
-                    return idx;
-                }
-            }
-            public Ellipse circle;
-            public TextBlock tbIdx;
-            public WWVectorD2 xy;
-            public static int mNextPointIdx = 0;
-
-            /// <summary>
-            /// 点。Idx, 位置aXYと描画物eがある。
-            /// 一時的な点は描画物eを作って渡す。
-            /// 確定した点は、e = nullで作成し、コマンド実行時に描画物を作る。
-            /// </summary>
-            public PointInf(WWVectorD2 aXY) {
-                idx = mNextPointIdx++;
-                xy = aXY;
-            }
-        }
 
         List<PointInf> mPointList = new List<PointInf>();
 
@@ -296,33 +276,6 @@ namespace WWUserControls {
 
 #region Edge
 
-        public class Edge {
-            public static int mNextEdgeIdx = 0;
-
-            private int edgeIdx;
-            public int EdgeIdx {
-                get { return edgeIdx; }
-            }
-
-            public int fromPointIdx;
-            public int toPointIdx;
-
-            // 描画物。
-            public Line line;
-            public Polygon arrow;
-            public TextBlock tbIdx;
-
-            /// <summary>
-            /// エッジ作成。点Idxのfromとtoが必要。
-            /// </summary>
-            public Edge(int from, int to) {
-                edgeIdx = mNextEdgeIdx++;
-
-                fromPointIdx = from;
-                toPointIdx = to;
-            }
-        };
-
         /// <summary>
         /// 始点から終点に向かうエッジを作り、キャンバスに登録。
         /// 一時的エッジ用。
@@ -333,6 +286,23 @@ namespace WWUserControls {
             EdgeDrawablesCreate(edge, brush);
             return edge;
         }
+
+        /// <summary>
+        /// エッジの係数が変更された。
+        /// </summary>
+        private void EdgeCoeffChanged(Edge edge, double newValue) {
+            edge.tbIdx.Text = string.Format("e{0}: {1}", edge.EdgeIdx, newValue);
+
+            // 表示位置を調整する。
+            var p1 = FindPointByIdx(edge.fromPointIdx, FindPointMode.FindAll);
+            var p2 = FindPointByIdx(edge.toPointIdx, FindPointMode.FindAll);
+            var xy = WWVectorD2.Add(p1.xy, p2.xy).Scale(0.5);
+            edge.tbIdx.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+            var tbWH = edge.tbIdx.DesiredSize;
+            Canvas.SetLeft(edge.tbIdx, xy.X - tbWH.Width / 2);
+            Canvas.SetTop(edge.tbIdx, xy.Y - tbWH.Height / 2);
+        }
+
 
         /// <summary>
         /// エッジの描画物をキャンバスから削除し、描画物も削除。
@@ -377,7 +347,7 @@ namespace WWUserControls {
             // 文字を出す。
             var xy = WWVectorD2.Add(p1.xy, p2.xy).Scale(0.5);
             edge.tbIdx = new TextBlock();
-            edge.tbIdx.Text = string.Format("e{0}", edge.EdgeIdx);
+            edge.tbIdx.Text = string.Format("e{0}: {1}", edge.EdgeIdx, edge.coef);
             edge.tbIdx.Foreground = mEdgeTextFgBrush;
             edge.tbIdx.Background = mEdgeTextBgBrush;
             edge.tbIdx.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
@@ -919,6 +889,7 @@ namespace WWUserControls {
             switch (c.cmd) {
             case Command.CommandType.DeleteEdge:
                 // エッジを削除。
+                mDataGridProc.EdgeRemoved(c.edge);
                 EdgeDrawablesRemove(c.edge);
                 mEdgeList.Remove(c.edge);
                 break;
@@ -926,6 +897,7 @@ namespace WWUserControls {
                 // エッジを追加。
                 EdgeDrawablesCreate(c.edge, mBrush);
                 mEdgeList.Add(c.edge);
+                mDataGridProc.EdgeAdded(c.edge);
                 break;
             case Command.CommandType.DeletePoint:
                 // 点を削除。
@@ -957,6 +929,7 @@ namespace WWUserControls {
             switch (c.cmd) {
             case Command.CommandType.AddEdge:
                 // エッジを削除。
+                mDataGridProc.EdgeRemoved(c.edge);
                 EdgeDrawablesRemove(c.edge);
                 mEdgeList.Remove(c.edge);
                 break;
@@ -964,6 +937,7 @@ namespace WWUserControls {
                 // エッジを追加。
                 EdgeDrawablesCreate(c.edge, mBrush);
                 mEdgeList.Add(c.edge);
+                mDataGridProc.EdgeAdded(c.edge);
                 break;
             case Command.CommandType.AddPoint:
                 // 点を削除。
@@ -1432,10 +1406,15 @@ namespace WWUserControls {
 
         private void mCanvas_MouseLeave(object sender, MouseEventArgs e) {
             switch (mMode) {
-            case Mode.ModeAddEdge:
             case Mode.ModeSetFirstPoint:
-                TmpDrawablesRemove((int)TmpDrawablesRemoveOpt.RemoveEdge | (int)TmpDrawablesRemoveOpt.RemoveToPoint);
+                TmpDrawablesRemove((int)TmpDrawablesRemoveOpt.RemoveAll);
                 break;
+            case Mode.ModeAddEdge:
+                TmpDrawablesRemove((int)TmpDrawablesRemoveOpt.RemoveAll);
+                mMode = Mode.ModeSetFirstPoint;
+                UpdateDescription();
+                break;
+
             case Mode.ModeDeletePointEdge:
                 // 通常色に戻します。
                 if (mTmpEdge != null) {
@@ -1473,6 +1452,10 @@ namespace WWUserControls {
 
         private void mButtonRedraw_Click(object sender, RoutedEventArgs e) {
             RedrawAll();
+        }
+
+        private void mDataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e) {
+            mDataGridProc.CellEditEnding(sender, e);
         }
     }
 }

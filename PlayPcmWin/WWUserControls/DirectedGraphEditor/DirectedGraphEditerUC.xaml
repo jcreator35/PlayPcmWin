@@ -5,11 +5,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
              d:DesignHeight="1024" d:DesignWidth="1024" Loaded="UserControl_Loaded">
-    <GroupBox Header="Directed Graph Editor" Name="mGroupBoxDGEditor" >
+    <GroupBox Header="Directed Graph Editor" Margin="6" Name="mGroupBoxDGEditor" >
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="192" />
                 <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="192" />
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0">
                 <GroupBox Header="Mode" Margin="4" Name="mGroupBoxSettings" >
@@ -74,11 +75,21 @@
                     <RowDefinition Height="32" />
                     <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
+                <Label Grid.Row="0" Content="mLabelDescription" HorizontalAlignment="Left" Name="mLabelDescription" VerticalAlignment="Center" />
                 <GroupBox Grid.Row="1" Header="Graph" >
                     <Canvas Name="mCanvas" Background="#FFFEFEFE" OpacityMask="{x:Null}" MouseDown="mCanvas_MouseDown" MouseMove="mCanvas_MouseMove" MouseLeave="mCanvas_MouseLeave" />
                 </GroupBox>
-                <Label Grid.Row="0" Content="mLabelDescription" HorizontalAlignment="Left" Name="mLabelDescription" VerticalAlignment="Center" />
             </Grid>
+            <GroupBox Grid.Column="2" Header="Edge coefficients" Margin="4" Name="mGroupBoxEdgeCoeff" >
+                <Grid>
+                    <DataGrid Name="mDataGrid" ItemsSource="{Binding}" AutoGenerateColumns="False" CellEditEnding="mDataGrid_CellEditEnding">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Name"        Binding="{Binding Name}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Coefficient" Binding="{Binding Coef}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </GroupBox>
         </Grid>
     </GroupBox>
 </UserControl>
