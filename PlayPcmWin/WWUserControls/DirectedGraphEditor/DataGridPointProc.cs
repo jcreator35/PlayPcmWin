@@ -9,7 +9,6 @@ namespace WWUserControls {
         public class PointProperty {
             public PointInf p;
             public string Name { get { return string.Format("p{0}", p.Idx); } }
-            public double B { get { return p.B; } set { p.B = value;} }
 
             public PointProperty(PointInf aP) {
                 p = aP;
@@ -18,7 +17,7 @@ namespace WWUserControls {
 
         ObservableCollection<PointProperty> mPointCollection = new ObservableCollection<PointProperty>();
 
-        public delegate void PointPropertyChangedCB(PointInf p, double newB);
+        public delegate void PointPropertyChangedCB(PointInf p);
 
         private PointPropertyChangedCB mCB;
 
@@ -48,7 +47,7 @@ namespace WWUserControls {
                     int rowIndex = e.Row.GetIndex();
                     var ep = mPointCollection[rowIndex];
                     var el = e.EditingElement as TextBox;
-
+                    /*
                     var bindingPath = (column.Binding as Binding).Path.Path;
                     if (bindingPath == "B") {
                         double v;
@@ -58,6 +57,7 @@ namespace WWUserControls {
                             }
                         }
                     }
+                    */
                 }
             }
         }

@@ -1,11 +1,9 @@
 ﻿// 日本語。
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Shapes;
 using WWMath;
 
@@ -766,6 +764,14 @@ namespace WWUserControls {
         }
         private void mDataGridE_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e) {
             mDataGridEdgeProc.CellEditEnding(sender, e);
+        }
+
+        private void UserControl_SizeChanged(object sender, SizeChangedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            }
+
+            RedrawGrid();
         }
     }
 }

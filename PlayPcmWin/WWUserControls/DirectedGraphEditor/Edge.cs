@@ -20,7 +20,12 @@ namespace WWUserControls {
         public double C { get; set; }
 
         /// <summary>
-        /// エッジの電流源等。
+        /// パラメーターb : エッジの電流源等。
+        /// </summary>
+        public double B { get; set; }
+
+        /// <summary>
+        /// パラメーターf : ノードの電圧源等。
         /// </summary>
         public double F { get; set; }
 
@@ -38,6 +43,7 @@ namespace WWUserControls {
             fromPointIdx = from;
             toPointIdx = to;
             C = 1.0;
+            B = 0;
             F = 0;
         }
     };

@@ -5,6 +5,7 @@ using System.Windows.Media;
 using System.Collections.Generic;
 using System.Windows;
 using System;
+using System.Text;
 
 namespace WWUserControls {
     class EdgeProc {
@@ -117,6 +118,18 @@ namespace WWUserControls {
             }
         }
 
+        private static string EdgeDescriptionText(int idx, double C, double b, double f) {
+            var sb = new StringBuilder();
+            sb.AppendFormat("e{0}\nC={1}", idx, C);
+            if (0 != b) {
+                sb.AppendFormat("\nb={0}", b);
+            }
+            if (0 != f) {
+                sb.AppendFormat("\nf={0}", f);
+            }
+            return sb.ToString();
+        }
+
         /// <summary>
         /// エッジの描画物を作り、キャンバスに登録。
         /// 描画物が無い状態で呼んで下さい。
@@ -140,7 +153,7 @@ namespace WWUserControls {
             var xy = WWVectorD2.Add(p1.xy, p2.xy).Scale(0.5);
             edge.tbIdx = new TextBlock();
             edge.tbIdx.Padding = new Thickness(2);
-            edge.tbIdx.Text = string.Format("e{0}\nC={1}\nf={2}", edge.EdgeIdx, edge.C, edge.F);
+            edge.tbIdx.Text = EdgeDescriptionText(edge.EdgeIdx, edge.C, edge.B, edge.F);
             edge.tbIdx.Foreground = mDP.mEdgeTextFgBrush;
             edge.tbIdx.Background = mDP.mEdgeTextBgBrush;
             edge.tbIdx.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
@@ -154,8 +167,8 @@ namespace WWUserControls {
         /// <summary>
         /// エッジの係数が変更された。
         /// </summary>
-        public void EdgeParamChanged(Edge edge, double newC, double newF) {
-            edge.tbIdx.Text = string.Format("e{0}\nC={1}\nf={2}", edge.EdgeIdx, edge.C, edge.F);
+        public void EdgeParamChanged(Edge edge, double newC, double newB, double newF) {
+            edge.tbIdx.Text = EdgeDescriptionText(edge.EdgeIdx, newC, newB, newF);
 
             // 表示位置を調整する。
             var p1 = mPP.FindPointByIdx(edge.fromPointIdx, PointProc.FindPointMode.FindAll);

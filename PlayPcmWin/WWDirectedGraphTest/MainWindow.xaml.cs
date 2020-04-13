@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Text;
 using WWMath;
+using System.Collections.Generic;
 
 namespace WWDirectedGraphTest {
     public partial class MainWindow : Window {
@@ -66,10 +67,10 @@ namespace WWDirectedGraphTest {
 
             var C = new WWMatrix(eList.Count, eList.Count);
             {   // 行列C 重み行列。
-                
-                for (int x=0;x<eList.Count-1; ++x) {
+
+                for (int x = 0; x < eList.Count - 1; ++x) {
                     var edge = eList[x];
-                    C.Set(x,x, edge.C);
+                    C.Set(x, x, edge.C);
                 }
             }
 
@@ -82,8 +83,57 @@ namespace WWDirectedGraphTest {
                 var CA = WWMatrix.Mul(C, A);
                 K = WWMatrix.Mul(AT, CA);
             }
-
             AddLog(string.Format("K: {0}", K.ToString()));
+
+            var b = new WWMatrix(eList.Count, 1);
+            {   // 電圧源b
+                for (int i = 0; i < eList.Count; ++i) {
+                    var e = eList[i];
+                    b.Set(i, 0, e.B);
+                }
+            }
+            AddLog(string.Format("b: {0}", b.ToString()));
+
+            var f = new WWMatrix(pList.Count - 1, 1);
+            {   // 電流源f
+                // 各点について、電流を集計する。
+
+                // pの点番号と、fのidx番号の対応テーブルを作る。
+                int nF = 0;
+                var pListIdxToFIdxTable = new Dictionary<int, int>();
+                for (int i = 0; i < pList.Count; ++i) {
+                    var point = pList[i];
+
+                    if (point == earthP) {
+                        // アースされている点は除外。
+                        pListIdxToFIdxTable.Add(point.Idx, -1);
+                        continue;
+                    }
+                    pListIdxToFIdxTable.Add(point.Idx, nF);
+                    ++nF;
+                }
+
+                // fを作る。
+                for (int i = 0; i < eList.Count; ++i) {
+                    var edge = eList[i];
+
+                    { // fromは＋する。
+                        int fIdx = pListIdxToFIdxTable[edge.fromPointIdx];
+                        if (0 <= fIdx) {
+                            var v = f.At(fIdx, 0);
+                            f.Set(fIdx, 0, v + edge.F);
+                        }
+                    }
+                    { // toは－する。
+                        int fIdx = pListIdxToFIdxTable[edge.toPointIdx];
+                        if (0 <= fIdx) {
+                            var v = f.At(fIdx, 0);
+                            f.Set(fIdx, 0, v - edge.F);
+                        }
+                    }
+                }
+            }
+            AddLog(string.Format("f: {0}", f.ToString()));
 
         }
 

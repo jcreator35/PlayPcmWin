@@ -116,7 +116,7 @@ namespace WWUserControls {
 
             {
                 pi.tbIdx = new TextBlock();
-                pi.tbIdx.Text = string.Format("p{0}\nb={1}", pi.Idx, pi.B);
+                pi.tbIdx.Text = string.Format("p{0}", pi.Idx);
                 pi.tbIdx.FontSize = mDP.mPointFontSz;
                 pi.tbIdx.Foreground = mDP.mPointTextFgBrush;
                 pi.tbIdx.Background = brush;
@@ -133,14 +133,16 @@ namespace WWUserControls {
         /// <summary>
         /// 点の係数が変更された。
         /// </summary>
-        public void PointParamChanged(PointInf pi, double newB) {
-            pi.tbIdx.Text = string.Format("p{0}\nb={1}", pi.Idx, newB);
+        public void PointParamChanged(PointInf pi) {
+            /*
+            pi.tbIdx.Text = string.Format("p{0}\nb={1}", pi.Idx, newF);
 
             // 表示位置を調整する。
             pi.tbIdx.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
             var tbWH = pi.tbIdx.DesiredSize;
             Canvas.SetLeft(pi.tbIdx, pi.xy.X - tbWH.Width / 2);
             Canvas.SetTop(pi.tbIdx, pi.xy.Y - tbWH.Height / 2);
+            */
         }
 
         /// <summary>

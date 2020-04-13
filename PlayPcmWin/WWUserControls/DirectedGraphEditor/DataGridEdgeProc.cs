@@ -10,6 +10,7 @@ namespace WWUserControls {
             public Edge edge;
             public string Name { get { return string.Format("e{0}", edge.EdgeIdx); } }
             public double C { get { return edge.C; } set { edge.C = value;} }
+            public double B { get { return edge.B; } set { edge.B = value; } }
             public double F { get { return edge.F; } set { edge.F = value; } }
 
             public EdgeProperty(Edge e) {
@@ -19,7 +20,7 @@ namespace WWUserControls {
 
         ObservableCollection<EdgeProperty> mEdgeCollection = new ObservableCollection<EdgeProperty>();
 
-        public delegate void EdgePropertyChangedCB(Edge e, double newC, double newF);
+        public delegate void EdgePropertyChangedCB(Edge e, double newC, double newB, double newF);
 
         private EdgePropertyChangedCB mCB;
 
@@ -55,7 +56,16 @@ namespace WWUserControls {
                         double c;
                         if (double.TryParse(el.Text, out c)) {
                             if (mCB != null) {
-                                mCB(ep.edge, c, ep.F);
+                                mCB(ep.edge, c, ep.B, ep.F);
+                            }
+                        }
+                    }
+
+                    if (bindingPath == "B") {
+                        double b;
+                        if (double.TryParse(el.Text, out b)) {
+                            if (mCB != null) {
+                                mCB(ep.edge, ep.C, b, ep.F);
                             }
                         }
                     }
@@ -63,7 +73,7 @@ namespace WWUserControls {
                         double f;
                         if (double.TryParse(el.Text, out f)) {
                             if (mCB != null) {
-                                mCB(ep.edge, ep.C, f);
+                                mCB(ep.edge, ep.C, ep.B, f);
                             }
                         }
                     }

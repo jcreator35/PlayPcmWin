@@ -4,8 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             d:DesignHeight="720" d:DesignWidth="1024" Loaded="UserControl_Loaded">
-    <GroupBox Header="Directed Graph Editor" Margin="6" Name="mGroupBoxDGEditor" >
+             d:DesignHeight="720" d:DesignWidth="1024" Loaded="UserControl_Loaded" SizeChanged="UserControl_SizeChanged">
+    <GroupBox Header="Graph" Margin="6" Name="mGroupBoxDGEditor" >
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="192" />
@@ -19,8 +19,8 @@
                             <RowDefinition Height="1*" />
                             <RowDefinition Height="1*" />
                         </Grid.RowDefinitions>
-                        <RadioButton Grid.Row="0" Content="_Add Points / Edges"    Margin="4,4,0,4" IsChecked="True" HorizontalAlignment="Left" Name="mRadioButtonAddPointEdge" VerticalAlignment="Center" Checked="mRadioButtonAddPoint_Checked" />
-                        <RadioButton Grid.Row="1" Content="_Delete Points / Edges" Margin="4,4,0,4"                  HorizontalAlignment="Left" Name="mRadioButtonDeletePoint"  VerticalAlignment="Center" Checked="mRadioButtonDeletePoint_Checked" />
+                        <RadioButton Grid.Row="0" Content="_Add"    Margin="4,4,0,4" IsChecked="True" HorizontalAlignment="Left" Name="mRadioButtonAddPointEdge" VerticalAlignment="Center" Checked="mRadioButtonAddPoint_Checked" />
+                        <RadioButton Grid.Row="1" Content="_Delete" Margin="4,4,0,4"                  HorizontalAlignment="Left" Name="mRadioButtonDeletePoint"  VerticalAlignment="Center" Checked="mRadioButtonDeletePoint_Checked" />
                     </Grid>
                 </GroupBox>
                 <GroupBox Header="Draw params" Margin="4" Name="mGroupBoxDrawParams" >
@@ -96,13 +96,16 @@
                                 <ColumnDefinition Width="2*" />
                                 <ColumnDefinition Width="1*" />
                             </Grid.ColumnDefinitions>
-                            <Label Content="Earthed Point Idx:" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                            <Label Content="Ground Idx:" HorizontalAlignment="Right" VerticalAlignment="Center" />
                             <TextBox Grid.Column="1" Margin="0,0,4,0" Name="mTextBoxEarthPointIdx" Text="-1" VerticalAlignment="Center" HorizontalContentAlignment="Right"/>
                         </Grid>
                         <DataGrid Grid.Row="1" Name="mDataGridP" ItemsSource="{Binding}" AutoGenerateColumns="False" CellEditEnding="mDataGridP_CellEditEnding">
+                            <DataGrid.RowHeaderStyle>
+                                <Style TargetType="{x:Type DataGridRowHeader}">
+                                    <Setter Property="Content" Value="{Binding Name}" />
+                                </Style>
+                            </DataGrid.RowHeaderStyle>
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Name"        Binding="{Binding Name}" IsReadOnly="True" />
-                                <DataGridTextColumn Header="b" Binding="{Binding B}" />
                             </DataGrid.Columns>
                         </DataGrid>
                     </Grid>
@@ -110,9 +113,14 @@
                 <GroupBox Grid.Row="1" Header="Edge params" Margin="4" Name="mGroupBoxEdgeParams" >
                     <Grid>
                         <DataGrid Name="mDataGridE" ItemsSource="{Binding}" AutoGenerateColumns="False" CellEditEnding="mDataGridE_CellEditEnding">
+                            <DataGrid.RowHeaderStyle>
+                                <Style TargetType="{x:Type DataGridRowHeader}">
+                                    <Setter Property="Content" Value="{Binding Name}" />
+                                </Style>
+                            </DataGrid.RowHeaderStyle>
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Name"        Binding="{Binding Name}" IsReadOnly="True" />
                                 <DataGridTextColumn Header="C" Binding="{Binding C}" />
+                                <DataGridTextColumn Header="b" Binding="{Binding B}" />
                                 <DataGridTextColumn Header="f" Binding="{Binding F}" />
                             </DataGrid.Columns>
                         </DataGrid>
