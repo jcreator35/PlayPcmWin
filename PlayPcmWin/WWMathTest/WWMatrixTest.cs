@@ -56,6 +56,41 @@ namespace WWMathTest
             return distance < 1.0e-7;
         }
 
+        [TestMethod()]
+        public void MatrixJoinH() {
+            int N = 2;
+            var A = new WWMatrix(N, N, new double[]
+                  { 1, 2,
+                    3, 4 });
+            var B = new WWMatrix(N, N, new double[]
+                  { 5, 6,
+                    7, 8 });
+            var AB = WWMatrix.JoinH(A, B);
+            var ABref = new WWMatrix(N,N*2, new double[]
+                { 1,2,5,6,
+                    3,4,7,8
+                });
+            Assert.IsTrue(WWMatrix.IsSame(AB, ABref));
+        }
+
+        [TestMethod()]
+        public void MatrixJoinV() {
+            int N = 2;
+            var A = new WWMatrix(N, N, new double[]
+                  { 1, 2,
+                    3, 4 });
+            var B = new WWMatrix(N, N, new double[]
+                  { 5, 6,
+                    7, 8 });
+            var AB = WWMatrix.JoinV(A, B);
+            var ABref = new WWMatrix(N*2, N, new double[]
+                  { 1,2,
+                    3,4,
+                    5,6,
+                    7,8
+                  });
+            Assert.IsTrue(WWMatrix.IsSame(AB, ABref));
+        }
 
         [TestMethod()]
         public void MatrixLU() {

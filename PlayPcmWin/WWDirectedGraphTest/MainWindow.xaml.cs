@@ -66,11 +66,13 @@ namespace WWDirectedGraphTest {
             AddLog(string.Format("A: {0}", A.ToString()));
 
             var C = new WWMatrix(eList.Count, eList.Count);
+            var Cinv = new WWMatrix(eList.Count, eList.Count);
             {   // 行列C 重み行列。
 
-                for (int x = 0; x < eList.Count - 1; ++x) {
+                for (int x = 0; x < eList.Count; ++x) {
                     var edge = eList[x];
                     C.Set(x, x, edge.C);
+                    Cinv.Set(x, x, 1.0 / edge.C);
                 }
             }
 
@@ -134,6 +136,20 @@ namespace WWDirectedGraphTest {
                 }
             }
             AddLog(string.Format("f: {0}", f.ToString()));
+
+            WWMatrix KKT;
+            {   // KKT行列
+                var Cinv_A = WWMatrix.JoinH(Cinv, A);
+                var AT_zero = WWMatrix.JoinH(AT, new WWMatrix(A.Column, A.Column));
+                KKT = WWMatrix.JoinV(Cinv_A, AT_zero);
+            }
+            AddLog(string.Format("KKT: {0}", KKT.ToString()));
+
+            WWMatrix bf;
+            {   // bとfを縦に連結した縦ベクトル。
+                bf = WWMatrix.JoinV(b, f);
+            }
+            AddLog(string.Format("bf: {0}", bf.ToString()));
 
         }
 

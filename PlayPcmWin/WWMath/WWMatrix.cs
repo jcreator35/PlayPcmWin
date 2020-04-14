@@ -438,6 +438,58 @@ namespace WWMath {
         }
 
         /// <summary>
+        /// 2つの行列を左側右側として連結した1個の行列を戻す。
+        /// </summary>
+        /// <param name="left">左側の行列</param>
+        /// <param name="right">右側の行列</param>
+        /// <returns>[left right]</returns>
+        public static WWMatrix JoinH(WWMatrix left, WWMatrix right) {
+            if (left.Row != right.Row) {
+                throw new ArgumentException("left.Row != right.Row");
+            }
+
+            var r = new WWMatrix(left.Row, left.Column + right.Column);
+            for (int y = 0; y < left.Row; ++y) {
+                for (int x = 0; x < left.Column; ++x) {
+                    r.Set(y, x, left.At(y, x));
+                }
+            }
+            for (int y = 0; y < right.Row; ++y) {
+                for (int x = 0; x < right.Column; ++x) {
+                    r.Set(y,left.Column+x, right.At(y,x));
+                }
+            }
+
+            return r;
+        }
+
+        /// <summary>
+        /// 2つの行列を上側、下側として連結した1個の行列を戻す。
+        /// </summary>
+        /// <param name="top">上側の行列</param>
+        /// <param name="bottom">下側の行列</param>
+        /// <returns>[top;bottom]</returns>
+        public static WWMatrix JoinV(WWMatrix top, WWMatrix bottom) {
+            if (top.Column != bottom.Column) {
+                throw new ArgumentException("top.column != bottom.column");
+            }
+
+            var r = new WWMatrix(top.Row + bottom.Row, top.Column);
+            for (int y = 0; y < top.Row; ++y) {
+                for (int x = 0; x < top.Column; ++x) {
+                    r.Set(y, x, top.At(y, x));
+                }
+            }
+            for (int y = 0; y < bottom.Row; ++y) {
+                for (int x = 0; x < bottom.Column; ++x) {
+                    r.Set(top.Row+y, x, bottom.At(y, x));
+                }
+            }
+
+            return r;
+        }
+
+        /// <summary>
         /// aとbが大体同じ時true。異なるときfalse。
         /// </summary>
         public static bool IsSame(WWMatrix a, WWMatrix b, double epsilon = 1.0e-7) {
