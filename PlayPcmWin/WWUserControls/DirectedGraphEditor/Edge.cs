@@ -24,11 +24,6 @@ namespace WWUserControls {
         /// </summary>
         public double B { get; set; }
 
-        /// <summary>
-        /// パラメーターf : ノードの電圧源等。
-        /// </summary>
-        public double F { get; set; }
-
         // 描画物。
         public Line line;
         public Polygon arrow;
@@ -44,7 +39,6 @@ namespace WWUserControls {
             toPointIdx = to;
             C = 1.0;
             B = 0;
-            F = 0;
         }
     };
 }

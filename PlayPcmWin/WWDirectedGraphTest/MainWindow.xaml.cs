@@ -24,15 +24,31 @@ namespace WWDirectedGraphTest {
         private void Calc() {
             ClearLog();
 
+            var earthP = mDGEditor.EarthedPoint();
+            if (earthP == null) {
+                CalcConnectionMat();
+            } else {
+                SolveKKT();
+            }
+        }
+
+        /// <summary>
+        /// 接続行列Aを戻す。
+        /// </summary>
+        private WWMatrix CalcA() {
             var pList = mDGEditor.PointList();
             var eList = mDGEditor.EdgeList();
             var earthP = mDGEditor.EarthedPoint();
 
-            if (pList.Count == 0 || eList.Count == 0 || earthP == null) {
-                return;
+            int aRow = eList.Count;
+
+            int aCol = pList.Count;
+            if (earthP != null) {
+                // アースによって1列除去。これによりATAが可逆になる。
+                aCol = pList.Count - 1;
             }
 
-            var A = new WWMatrix(eList.Count, pList.Count - 1);
+            var A = new WWMatrix(aRow, aCol);
             {   // 行列A(接続行列)を作成する。
                 // ストラング, 計算理工学 p143
 
@@ -63,18 +79,82 @@ namespace WWDirectedGraphTest {
                     }
                 }
             }
-            AddLog(string.Format("A: {0}", A.ToString()));
 
+            return A;
+        }
+
+        /// <summary>
+        /// 行列C 重み行列。
+        /// </summary>
+        private WWMatrix CalcC() {
+            var eList = mDGEditor.EdgeList();
             var C = new WWMatrix(eList.Count, eList.Count);
-            var Cinv = new WWMatrix(eList.Count, eList.Count);
             {   // 行列C 重み行列。
-
                 for (int x = 0; x < eList.Count; ++x) {
                     var edge = eList[x];
                     C.Set(x, x, edge.C);
+                }
+            }
+
+            return C;
+        }
+
+        /// <summary>
+        /// 重み行列Cの逆行列。
+        /// </summary>
+        private WWMatrix CalcCinv() {
+            var eList = mDGEditor.EdgeList();
+            var Cinv = new WWMatrix(eList.Count, eList.Count);
+            {   // 行列C 重み行列。
+                for (int x = 0; x < eList.Count; ++x) {
+                    var edge = eList[x];
                     Cinv.Set(x, x, 1.0 / edge.C);
                 }
             }
+
+            return Cinv;
+        }
+
+        /// <summary>
+        /// 接続行列AとA^T*CAを表示。
+        /// </summary>
+        private void CalcConnectionMat() {
+            var pList = mDGEditor.PointList();
+            var eList = mDGEditor.EdgeList();
+            if (pList.Count == 0 || eList.Count == 0) {
+                return;
+            }
+
+            var A = CalcA();
+            AddLog(string.Format("A: {0}", A.ToString()));
+
+            var C = CalcC();
+            AddLog(string.Format("C: {0}", C.ToString()));
+
+            var CA = WWMatrix.Mul(C, A);
+
+            var AT = A.Transpose();
+
+            var AT_CA = WWMatrix.Mul(AT, CA);
+            AddLog(string.Format("A^T*CA: {0}", AT_CA.ToString()));
+        }
+
+        /// <summary>
+        /// KKT行列を作って解く。
+        /// </summary>
+        private void SolveKKT() {
+            var pList = mDGEditor.PointList();
+            var eList = mDGEditor.EdgeList();
+            var earthP = mDGEditor.EarthedPoint();
+
+            if (pList.Count == 0 || eList.Count == 0) {
+                return;
+            }
+
+            var A = CalcA();
+            AddLog(string.Format("A: {0}", A.ToString()));
+
+            var C = CalcC();
 
             // A^T
             var AT = A.Transpose();
@@ -97,48 +177,24 @@ namespace WWDirectedGraphTest {
             AddLog(string.Format("b: {0}", b.ToString()));
 
             var f = new WWMatrix(pList.Count - 1, 1);
-            {   // 電流源f
-                // 各点について、電流を集計する。
-
-                // pの点番号と、fのidx番号の対応テーブルを作る。
-                int nF = 0;
-                var pListIdxToFIdxTable = new Dictionary<int, int>();
+            {   // fを作る。
+                int nP = 0;
                 for (int i = 0; i < pList.Count; ++i) {
                     var point = pList[i];
 
                     if (point == earthP) {
                         // アースされている点は除外。
-                        pListIdxToFIdxTable.Add(point.Idx, -1);
                         continue;
                     }
-                    pListIdxToFIdxTable.Add(point.Idx, nF);
-                    ++nF;
-                }
-
-                // fを作る。
-                for (int i = 0; i < eList.Count; ++i) {
-                    var edge = eList[i];
-
-                    { // fromは＋する。
-                        int fIdx = pListIdxToFIdxTable[edge.fromPointIdx];
-                        if (0 <= fIdx) {
-                            var v = f.At(fIdx, 0);
-                            f.Set(fIdx, 0, v + edge.F);
-                        }
-                    }
-                    { // toは－する。
-                        int fIdx = pListIdxToFIdxTable[edge.toPointIdx];
-                        if (0 <= fIdx) {
-                            var v = f.At(fIdx, 0);
-                            f.Set(fIdx, 0, v - edge.F);
-                        }
-                    }
+                    f.Set(nP, 0, point.F);
+                    ++nP;
                 }
             }
             AddLog(string.Format("f: {0}", f.ToString()));
 
             WWMatrix KKT;
             {   // KKT行列
+                var Cinv = CalcCinv();
                 var Cinv_A = WWMatrix.JoinH(Cinv, A);
                 var AT_zero = WWMatrix.JoinH(AT, new WWMatrix(A.Column, A.Column));
                 KKT = WWMatrix.JoinV(Cinv_A, AT_zero);
@@ -151,6 +207,12 @@ namespace WWDirectedGraphTest {
             }
             AddLog(string.Format("bf: {0}", bf.ToString()));
 
+            var bfA = bf.ToArray();
+
+            // KKT u = bfを解いて uを求める。
+            var uA = WWLinearEquation.SolveKu_eq_f(KKT, bfA);
+            var u = new WWMatrix(uA.Length, 1, uA);
+            AddLog(string.Format("u: {0}", u.ToString()));
         }
 
         private void ButtonCalc_Click(object sender, RoutedEventArgs rea) {

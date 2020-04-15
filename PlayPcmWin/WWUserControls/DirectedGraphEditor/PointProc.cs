@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System;
 using System.Windows;
 using System.Windows.Media;
+using System.Text;
 
 namespace WWUserControls {
     class PointProc {
@@ -116,7 +117,7 @@ namespace WWUserControls {
 
             {
                 pi.tbIdx = new TextBlock();
-                pi.tbIdx.Text = string.Format("p{0}", pi.Idx);
+                pi.tbIdx.Text = CreateDescriptionText(pi, pi.F);
                 pi.tbIdx.FontSize = mDP.mPointFontSz;
                 pi.tbIdx.Foreground = mDP.mPointTextFgBrush;
                 pi.tbIdx.Background = brush;
@@ -129,20 +130,27 @@ namespace WWUserControls {
             }
             Console.WriteLine("Point drawable added");
         }
+
+        private string CreateDescriptionText(PointInf p, double f) {
+            var sb = new StringBuilder();
+            sb.AppendFormat("p{0}", p.Idx);
+            if (f != 0) {
+                sb.AppendFormat("\nf={0}", f);
+            }
+            return sb.ToString();
+        }
         
         /// <summary>
         /// 点の係数が変更された。
         /// </summary>
-        public void PointParamChanged(PointInf pi) {
-            /*
-            pi.tbIdx.Text = string.Format("p{0}\nb={1}", pi.Idx, newF);
+        public void PointParamChanged(PointInf pi, double newF) {
+            pi.tbIdx.Text = CreateDescriptionText(pi, newF);
 
             // 表示位置を調整する。
             pi.tbIdx.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
             var tbWH = pi.tbIdx.DesiredSize;
             Canvas.SetLeft(pi.tbIdx, pi.xy.X - tbWH.Width / 2);
             Canvas.SetTop(pi.tbIdx, pi.xy.Y - tbWH.Height / 2);
-            */
         }
 
         /// <summary>

@@ -106,6 +106,7 @@
                                 </Style>
                             </DataGrid.RowHeaderStyle>
                             <DataGrid.Columns>
+                                <DataGridTextColumn Header="f" Binding="{Binding F}" />
                             </DataGrid.Columns>
                         </DataGrid>
                     </Grid>
@@ -121,7 +122,6 @@
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="C" Binding="{Binding C}" />
                                 <DataGridTextColumn Header="b" Binding="{Binding B}" />
-                                <DataGridTextColumn Header="f" Binding="{Binding F}" />
                             </DataGrid.Columns>
                         </DataGrid>
                     </Grid>

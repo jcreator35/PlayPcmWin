@@ -32,7 +32,10 @@ namespace WWMath {
             get { return (int)mCol; }
         }
 
-        private double[] ToArray() {
+        /// <summary>
+        /// 1次元配列に直列化して出力。
+        /// </summary>
+        public double[] ToArray() {
             return m.ToArray();
         }
 

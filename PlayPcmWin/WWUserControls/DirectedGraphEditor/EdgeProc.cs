@@ -118,14 +118,11 @@ namespace WWUserControls {
             }
         }
 
-        private static string EdgeDescriptionText(int idx, double C, double b, double f) {
+        private static string EdgeDescriptionText(int idx, double C, double b) {
             var sb = new StringBuilder();
             sb.AppendFormat("e{0}\nC={1}", idx, C);
             if (0 != b) {
                 sb.AppendFormat("\nb={0}", b);
-            }
-            if (0 != f) {
-                sb.AppendFormat("\nf={0}", f);
             }
             return sb.ToString();
         }
@@ -153,7 +150,7 @@ namespace WWUserControls {
             var xy = WWVectorD2.Add(p1.xy, p2.xy).Scale(0.5);
             edge.tbIdx = new TextBlock();
             edge.tbIdx.Padding = new Thickness(2);
-            edge.tbIdx.Text = EdgeDescriptionText(edge.EdgeIdx, edge.C, edge.B, edge.F);
+            edge.tbIdx.Text = EdgeDescriptionText(edge.EdgeIdx, edge.C, edge.B);
             edge.tbIdx.Foreground = mDP.mEdgeTextFgBrush;
             edge.tbIdx.Background = mDP.mEdgeTextBgBrush;
             edge.tbIdx.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
@@ -167,8 +164,8 @@ namespace WWUserControls {
         /// <summary>
         /// エッジの係数が変更された。
         /// </summary>
-        public void EdgeParamChanged(Edge edge, double newC, double newB, double newF) {
-            edge.tbIdx.Text = EdgeDescriptionText(edge.EdgeIdx, newC, newB, newF);
+        public void EdgeParamChanged(Edge edge, double newC, double newB) {
+            edge.tbIdx.Text = EdgeDescriptionText(edge.EdgeIdx, newC, newB);
 
             // 表示位置を調整する。
             var p1 = mPP.FindPointByIdx(edge.fromPointIdx, PointProc.FindPointMode.FindAll);

@@ -56,19 +56,26 @@ namespace WWUserControls {
 
         /// <summary>
         /// アースされている点。
+        /// idxに-1が指定されていたらどこもアースしない。
         /// </summary>
         public PointInf EarthedPoint() {
             PointInf p = null;
 
             int idx = 0;
             if (!int.TryParse(mTextBoxEarthPointIdx.Text, out idx)) {
+                // 文字ではない物が入力された。
                 MessageBox.Show(
                     string.Format("Error: Earth Point idx parse error."));
             } else {
-                p = mPP.FindPointByIdx(idx, PointProc.FindPointMode.FindFromPointList);
-                if (p == null) {
-                    MessageBox.Show(
-                        string.Format("Error: Earth Point idx specified not found. idx={0}", idx));
+                if (idx == -1) {
+                    // pIdx == -1が指定された：意図的にアース無し。
+                } else {
+                    p = mPP.FindPointByIdx(idx, PointProc.FindPointMode.FindFromPointList);
+                    if (p == null) {
+                        // 指定された番号のpが存在しない。
+                        MessageBox.Show(
+                            string.Format("Error: Earth Point idx specified not found. idx={0}", idx));
+                    }
                 }
             }
 

@@ -11,6 +11,11 @@ namespace WWUserControls {
             }
         }
 
+        /// <summary>
+        /// パラメーターf : ノードの電圧源等。
+        /// </summary>
+        public double F { get; set; }
+
         public bool Earthed { get; set; }
 
         public Ellipse circle;
@@ -25,6 +30,7 @@ namespace WWUserControls {
         public PointInf(WWVectorD2 aXY) {
             idx = mNextPointIdx++;
             xy = aXY;
+            F = 0;
         }
     }
 }
