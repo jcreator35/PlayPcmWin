@@ -193,31 +193,7 @@ namespace WWUserControls {
         public double EdgeDistanceFromPos(Edge e, WWVectorD2 pos, double margin, PointProc.FindPointMode fpm) {
             var p1 = mPP.FindPointByIdx(e.fromPointIdx, fpm);
             var p2 = mPP.FindPointByIdx(e.toPointIdx, fpm);
-
-            // 直線の方程式 ax + by + c = 0
-            double dx = p2.xy.X - p1.xy.X;
-            double dy = p2.xy.Y - p1.xy.Y;
-            System.Diagnostics.Debug.Assert(dx != 0 || dy != 0);
-
-            double a = dy;
-            double b = -dx;
-            double c = p2.xy.X * p1.xy.Y - p2.xy.Y * p1.xy.X;
-
-            // 直線と点の距離。
-            double distance = Math.Abs(a * pos.X + b * pos.Y + c) / Math.Sqrt(a * a + b * b);
-            double nearestPointOnLineX = (b * (+b * pos.X - a * pos.Y) - a * c) / (a * a + b * b);
-            double nearestPointOnLineY = (a * (-b * pos.X + a * pos.Y) - b * c) / (a * a + b * b);
-            if ((margin + nearestPointOnLineX < p1.xy.X && margin + nearestPointOnLineX < p2.xy.X)
-                    || (margin + p1.xy.X < nearestPointOnLineX && margin + p2.xy.X < nearestPointOnLineX)
-                    || (margin + nearestPointOnLineY < p1.xy.Y && margin + nearestPointOnLineY < p2.xy.Y)
-                    || (margin + p1.xy.Y < nearestPointOnLineY && margin + p2.xy.Y < nearestPointOnLineY)) {
-                // 点と最短距離の直線上の点が線分の範囲外。
-                // p1とp2のうち、近い方が最短距離の点。
-                double d1 = WWVectorD2.Distance(p1.xy, pos);
-                double d2 = WWVectorD2.Distance(p2.xy, pos);
-                return (d1 < d2) ? d1 : d2;
-            }
-            return distance;
+            return WWSegmentPointDistance.SegmentPointDistance(p1.xy, p2.xy, pos, margin);
         }
 
         /// <summary>

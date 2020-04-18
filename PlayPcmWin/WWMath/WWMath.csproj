@@ -80,6 +80,7 @@
     <Compile Include="NewtonsMethod.cs" />
     <Compile Include="BairstowPolynomialRootFinding.cs" />
     <Compile Include="ComplexRationalPolynomial.cs" />
+    <Compile Include="WWSegmentPointDistance.cs" />
     <Compile Include="WWGoertzel.cs" />
     <Compile Include="WWOverlappedFft.cs" />
     <Compile Include="WWParity.cs" />
