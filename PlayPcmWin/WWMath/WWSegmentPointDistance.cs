@@ -22,9 +22,9 @@ namespace WWMath {
                     (a * (-b * point.X + a * point.Y) - b * c) / (a * a + b * b));
 
             if (       (margin + nearestPointOnLine.X < edgeP1.X && margin + nearestPointOnLine.X < edgeP2.X) //< 最短地点のx座標がedgeP1,edgeP2よりも左。
+                    || (margin + nearestPointOnLine.Y < edgeP1.Y && margin + nearestPointOnLine.Y < edgeP2.Y) //< 最短地点のy座標がedgeP1,edgeP2よりも下。
                     || (margin + edgeP1.X < nearestPointOnLine.X && margin + edgeP2.X < nearestPointOnLine.X) //< 最短地点のx座標がedgeP1,edgeP2よりも右。
-                    || (margin + nearestPointOnLine.Y < edgeP1.Y && margin + nearestPointOnLine.Y < edgeP2.Y) //< 最短地点のy座標がedgeP1,edgeP2よりも左。
-                    || (margin + edgeP1.Y < nearestPointOnLine.Y && margin + edgeP2.Y < nearestPointOnLine.Y) //< 最短地点のy座標がedgeP1,edgeP2よりも右。
+                    || (margin + edgeP1.Y < nearestPointOnLine.Y && margin + edgeP2.Y < nearestPointOnLine.Y) //< 最短地点のy座標がedgeP1,edgeP2よりも上。
                     ) {
                 // 点と最短距離の直線上の点が線分の範囲外。
                 // edgeP1とedgeP2のうち、近い方が最短距離の線分上の点。
