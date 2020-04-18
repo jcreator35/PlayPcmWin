@@ -20,6 +20,7 @@ namespace WWMath {
             var nearestPointOnLine = new WWVectorD2(
                     (b * (+b * point.X - a * point.Y) - a * c) / (a * a + b * b),
                     (a * (-b * point.X + a * point.Y) - b * c) / (a * a + b * b));
+
             if (       (margin + nearestPointOnLine.X < edgeP1.X && margin + nearestPointOnLine.X < edgeP2.X) //< 最短地点のx座標がedgeP1,edgeP2よりも左。
                     || (margin + edgeP1.X < nearestPointOnLine.X && margin + edgeP2.X < nearestPointOnLine.X) //< 最短地点のx座標がedgeP1,edgeP2よりも右。
                     || (margin + nearestPointOnLine.Y < edgeP1.Y && margin + nearestPointOnLine.Y < edgeP2.Y) //< 最短地点のy座標がedgeP1,edgeP2よりも左。

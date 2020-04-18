@@ -189,5 +189,25 @@ namespace WWMathTest {
             double d = WWSegmentPointDistance.SegmentPointDistance(edgeP1, edgeP2, point, 1e-8);
             Assert.IsTrue(IsApproxSame(d, 1));
         }
+
+        [TestMethod()]
+        public void SegmentPointDistanceTest1() {
+            var edgeP1 = new WWVectorD2(1, 1);
+            var edgeP2 = new WWVectorD2(0, 1);
+            var point = new WWVectorD2(2, 2);
+
+            double d = WWSegmentPointDistance.SegmentPointDistance(edgeP1, edgeP2, point, 1e-8);
+            Assert.IsTrue(IsApproxSame(d, Math.Sqrt(2)));
+        }
+
+        [TestMethod()]
+        public void SegmentPointDistanceTest2() {
+            var edgeP1 = new WWVectorD2(1, 0);
+            var edgeP2 = new WWVectorD2(1, 1);
+            var point = new WWVectorD2(2, 2);
+
+            double d = WWSegmentPointDistance.SegmentPointDistance(edgeP1, edgeP2, point, 1e-8);
+            Assert.IsTrue(IsApproxSame(d, Math.Sqrt(2)));
+        }
     }
 }
