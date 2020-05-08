@@ -145,6 +145,39 @@ namespace WWMath {
         }
 
         /// <summary>
+        /// xで不定積分する。
+        /// 自分自身は変更しない。
+        /// </summary>
+        /// <param name="C">積分定数C</param>
+        /// <returns>不定積分結果の多項式。</returns>
+        public RealPolynomial Integral(double C) {
+            var r = new double[mCoeff.Length + 1];
+
+            r[0] = C;
+            for (int d = 1; d < r.Length; ++d) {
+                r[d] = mCoeff[d - 1] / d;
+            }
+
+            return new RealPolynomial(r);
+        }
+
+        /// <summary>
+        /// xで定積分する。
+        /// 自分自身は変更しない。
+        /// WWGaussianQuadratureで計算しても良い。
+        /// </summary>
+        /// <param name="a">区間a</param>
+        /// <param name="b">区間b</param>
+        /// <returns>定積分結果の値。</returns>
+        public double Integral(double a, double b) {
+            var pI = Integral(0);
+            double pB = pI.Evaluate(b);
+            double pA = pI.Evaluate(a);
+
+            return pB - pA;
+        }
+
+        /// <summary>
         /// Calculate all-real poly value at position p
         /// </summary>
         /// <param name="p">p position</param>

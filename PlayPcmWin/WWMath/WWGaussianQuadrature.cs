@@ -85,6 +85,15 @@ namespace WWMath {
             // xの積分区間 [a b]
             // ξの積分区間 [-1 +1]
 
+            double flipInterval = 1;
+            if (b < a) {
+                // swap a and b
+                double t = a;
+                a = b;
+                b = t;
+                flipInterval = -1;
+            }
+
             int np = NumberOfEvalPoints(p);
             var ξwList = GetξwList(np);
 
@@ -105,6 +114,8 @@ namespace WWMath {
 
             // 積分変数をx→ξに置き換えたことによるスケーリング。
             r *= (b - a) / 2.0;
+
+            r *= flipInterval;
 
             return r;
         }
