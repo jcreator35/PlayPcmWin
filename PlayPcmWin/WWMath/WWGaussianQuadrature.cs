@@ -7,9 +7,9 @@ namespace WWMath {
     /// https://en.wikipedia.org/wiki/Gaussian_quadrature
     public class WWGaussianQuadrature {
         /// <summary>
-        /// 多項式の積分を評価する点(積分点)の数。
+        /// 多項式を評価する点の数。
         /// </summary>
-        public static int NumberOfIntegralPoints(RealPolynomial p) {
+        public static int NumberOfEvalPoints(RealPolynomial p) {
             return p.Degree / 2 + 1;
         }
 
@@ -23,9 +23,9 @@ namespace WWMath {
         };
 
         /// <summary>
-        /// 積分地点のx座標値ξiを戻す。
+        /// 多項式評価地点のx座標値ξと重み係数wを戻す。
         /// </summary>
-        /// <param name="np">積分点総数。</param>
+        /// <param name="np">評価する点の数。</param>
         public static ξw[] GetξwList(int np) {
             System.Diagnostics.Debug.Assert(0 < np);
             var r = new ξw[np];
@@ -70,7 +70,10 @@ namespace WWMath {
         /// <param name="b">区間b。</param>
         /// <returns>∫_a^b{p(x)dx}</returns>
         public static double Calc(RealPolynomial p, double a, double b) {
-            int np = NumberOfIntegralPoints(p);
+            // xの積分区間 [a b]
+            // ξの積分区間 [-1 +1]
+
+            int np = NumberOfEvalPoints(p);
             var ξwList = GetξwList(np);
 
             // 定積分結果値r。
