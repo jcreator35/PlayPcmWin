@@ -60,6 +60,17 @@ namespace WWMathTest
         }
 
         [TestMethod()]
+        public void IntegralTest2_3to4() {
+            // p(x) = 2
+            // ∫_3^4(2dx) == [2x]_{x=3}^4 = (8-6) = 2
+
+            var p = new RealPolynomial(new double[] { 2 });
+            double r = WWGaussianQuadrature.Calc(p, 3, 4);
+
+            Assert.IsTrue(IsSimilar(r, 2.0));
+        }
+
+        [TestMethod()]
         public void IntegralTestx_1to2() {
             // p(x) = x
             // ∫_1^2(xdx) == [x^2/2]_{x=1}^2 = (4-1)/2 = 3/2

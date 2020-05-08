@@ -30,32 +30,44 @@ namespace WWMath {
             System.Diagnostics.Debug.Assert(0 < np);
             var r = new ξw[np];
             switch (np) {
+            case 0:
             case 1:
+                // 0次多項式 == 定数。
+                // 1次多項式。
                 r[0] = new ξw(0, 2);
                 break;
             case 2:
+                // 2次多項式。
+                // 3次多項式。
                 r[0] = new ξw(-1.0 / Math.Sqrt(3), 1);
                 r[1] = new ξw(+1.0 / Math.Sqrt(3), 1);
                 break;
             case 3:
-                r[0] = new ξw(-Math.Sqrt(3.0 / 5.0), 5.0/9.0);
+                // 4次多項式。
+                // 5次多項式。
+                r[0] = new ξw(-Math.Sqrt(3.0 / 5.0), 5.0 / 9.0);
                 r[1] = new ξw(0, 8.0/9.0);
                 r[2] = new ξw(+Math.Sqrt(3.0 / 5.0), 5.0/9.0);
                 break;
             case 4:
-                r[0] = new ξw(-Math.Sqrt(3.0 / 7.0 + 2.0 / 7.0 * Math.Sqrt(6.0 / 5.0)), (18.0 - Math.Sqrt(30))/36.0);
+                // 6次多項式。
+                // 7次多項式。
+                r[0] = new ξw(-Math.Sqrt(3.0 / 7.0 + 2.0 / 7.0 * Math.Sqrt(6.0 / 5.0)), (18.0 - Math.Sqrt(30)) / 36.0);
                 r[1] = new ξw(-Math.Sqrt(3.0 / 7.0 - 2.0 / 7.0 * Math.Sqrt(6.0 / 5.0)), (18.0 + Math.Sqrt(30))/36.0);
                 r[2] = new ξw(+Math.Sqrt(3.0 / 7.0 - 2.0 / 7.0 * Math.Sqrt(6.0 / 5.0)), (18.0 + Math.Sqrt(30))/36.0);
                 r[3] = new ξw(+Math.Sqrt(3.0 / 7.0 + 2.0 / 7.0 * Math.Sqrt(6.0 / 5.0)), (18.0 - Math.Sqrt(30))/36.0);
                 break;
             case 5:
-                r[0] = new ξw(-1.0 / 3.0 * Math.Sqrt(5.0 + 2.0 * Math.Sqrt(10.0 / 7.0)), (322.0 - 13.0 * Math.Sqrt(70))/900.0);
+                // 8次多項式。
+                // 9次多項式。
+                r[0] = new ξw(-1.0 / 3.0 * Math.Sqrt(5.0 + 2.0 * Math.Sqrt(10.0 / 7.0)), (322.0 - 13.0 * Math.Sqrt(70)) / 900.0);
                 r[1] = new ξw(-1.0 / 3.0 * Math.Sqrt(5.0 - 2.0 * Math.Sqrt(10.0 / 7.0)), (322.0 + 13.0 * Math.Sqrt(70))/900.0);
                 r[2] = new ξw(0, 128.0/225.0);
                 r[3] = new ξw(+1.0 / 3.0 * Math.Sqrt(5.0 - 2.0 * Math.Sqrt(10.0 / 7.0)), (322.0 + 13.0 * Math.Sqrt(70))/900.0);
                 r[4] = new ξw(+1.0 / 3.0 * Math.Sqrt(5.0 + 2.0 * Math.Sqrt(10.0 / 7.0)), (322.0 - 13.0 * Math.Sqrt(70))/900.0);
                 break;
             default:
+                // 10次多項式以上の場合。
                 throw new NotImplementedException();
             }
 
@@ -92,7 +104,7 @@ namespace WWMath {
             }
 
             // 積分変数をx→ξに置き換えたことによるスケーリング。
-            r *= (b - a) / 2;
+            r *= (b - a) / 2.0;
 
             return r;
         }

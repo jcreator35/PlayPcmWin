@@ -12,6 +12,9 @@ namespace WWMath {
         private readonly double [] mCoeff;
 
         public RealPolynomial(double [] coeff) {
+            System.Diagnostics.Debug.Assert(coeff != null);
+            System.Diagnostics.Debug.Assert(0 < coeff.Length);
+
             mCoeff = new double[coeff.Length];
             Array.Copy(coeff, mCoeff, coeff.Length);
         }
