@@ -23,6 +23,9 @@ namespace WWMath {
             return mCoeff[nth];
         }
 
+        /// <summary>
+        /// 多項式の次数。例: p(x)=x^2+x+1のとき2が戻る。
+        /// </summary>
         public int Degree {
             get {
                 return mCoeff.Length - 1;

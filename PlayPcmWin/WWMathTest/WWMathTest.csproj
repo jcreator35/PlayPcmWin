@@ -76,6 +76,7 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WWConvolutionTest.cs" />
+    <Compile Include="WWGaussianQuadratureTest.cs" />
     <Compile Include="WWSegmentPointDistanceTest.cs" />
     <Compile Include="WWGoertzelTest.cs" />
     <Compile Include="WWLinearEquationTest.cs" />
