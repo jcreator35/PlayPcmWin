@@ -62,22 +62,22 @@ namespace WWMathTest
         [TestMethod()]
         public void IntegralTestx_1to2() {
             // p(x) = x
-            // ∫_1^2(xdx) == [x^2/2]_{x=1}^2 = (4-1)/2 = 1.5
+            // ∫_1^2(xdx) == [x^2/2]_{x=1}^2 = (4-1)/2 = 3/2
 
             var p = new RealPolynomial(new double[] { 0, 1 });
             double r = WWGaussianQuadrature.Calc(p, 1, 2);
 
-            Assert.IsTrue(IsSimilar(r, 1.5));
+            Assert.IsTrue(IsSimilar(r, 3.0/2.0));
         }
 
         [TestMethod()]
         public void IntegralTestx_0to1() {
             // p(x) = x
-            // ∫_0^1(xdx) == [x^2/2]_{x=0}^1 = 0.5
+            // ∫_0^1(xdx) == [x^2/2]_{x=0}^1 = 1/2
 
             var p = new RealPolynomial(new double[] { 0, 1 });
             double r = WWGaussianQuadrature.Calc(p, 0, 1);
-            Assert.IsTrue(IsSimilar(r, 0.5));
+            Assert.IsTrue(IsSimilar(r, 1.0/2.0));
         }
 
         [TestMethod()]
@@ -93,7 +93,7 @@ namespace WWMathTest
         [TestMethod()]
         public void IntegralTestx2_1to2() {
             // p(x) = x^2
-            // ∫_1^2(x^2dx) == [x^3/3]_{x=1}^2 = (8-1)/3
+            // ∫_1^2(x^2dx) == [x^3/3]_{x=1}^2 = (8-1)/3 = 7/3
 
             var p = new RealPolynomial(new double[] { 0, 0, 1 });
             double r = WWGaussianQuadrature.Calc(p, 1, 2);
@@ -103,11 +103,11 @@ namespace WWMathTest
         [TestMethod()]
         public void IntegralTestx3px2_2to5() {
             // p(x) = x^3 + x^2
-            // ∫_2^5(x^3+x^2)dx == [x^4/4+x^3/3]_{x=2}^5 = 191.25
+            // ∫_2^5(x^3+x^2)dx == [x^4/4+x^3/3]_{x=2}^5 = 765/4
 
             var p = new RealPolynomial(new double[] { 0, 0, 1, 1 });
             double r = WWGaussianQuadrature.Calc(p, 2, 5);
-            Assert.IsTrue(IsSimilar(r, 191.25));
+            Assert.IsTrue(IsSimilar(r, 765.0/4.0));
         }
     }
 }
