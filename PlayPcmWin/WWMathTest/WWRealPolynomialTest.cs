@@ -127,6 +127,17 @@ namespace WWMathTest
         }
 
         [TestMethod()]
+        public void DIntegralTest2_4to3() {
+            // p(x) = 2
+            // ∫_4^3(2dx) == [2x]_{x=4}^3 = (6-8) = -2
+
+            var p = new RealPolynomial(new double[] { 2 });
+            double r = p.Integral(4, 3);
+
+            Assert.IsTrue(IsSimilar(r, -2.0));
+        }
+
+        [TestMethod()]
         public void DIntegralTestx_1to2() {
             // p(x) = x
             // ∫_1^2(xdx) == [x^2/2]_{x=1}^2 = (4-1)/2 = 3/2
