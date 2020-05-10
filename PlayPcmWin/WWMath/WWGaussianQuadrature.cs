@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace WWMath {
 
-    /// 実係数n次多項式p(x)の定積分 ∫_a^b{p(x)dx}を求める。
+    /// 実係数n次多項式p(x)の定積分 ∫_a^b{p(x)}dxの値を、多項式の積分を行うことなく求める。
     /// https://en.wikipedia.org/wiki/Gaussian_quadrature
     public class WWGaussianQuadrature {
         /// <summary>
