@@ -81,6 +81,7 @@
     <Compile Include="BairstowPolynomialRootFinding.cs" />
     <Compile Include="ComplexRationalPolynomial.cs" />
     <Compile Include="WWGaussianQuadrature.cs" />
+    <Compile Include="WWPolynomialFit.cs" />
     <Compile Include="WWSegmentPointDistance.cs" />
     <Compile Include="WWGoertzel.cs" />
     <Compile Include="WWOverlappedFft.cs" />

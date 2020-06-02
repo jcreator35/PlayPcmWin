@@ -7,6 +7,17 @@ namespace WWMath {
     public class WWMatrix {
         private int mRow;
         private int mCol;
+        
+        /// <para/>numRow=3, numColumn=3の例。
+        /// <para/>
+        /// <para/>　　　　　　 column番号
+        /// <para/>　　　　　　 0　　1　 2
+        /// <para/>row番号0→ ┌a00 a01 a02┐
+        /// <para/>row番号1→ │a10 a11 a12│
+        /// <para/>row番号2→ └a20 a21 a22┘
+        /// <para/>
+        /// <para/> ↓
+        /// <para/> m[] = { a00, a01, a02, a10, a11, a12, a20, a21, a22 }
         private double[] m;
 
         /// <summary>
@@ -225,6 +236,19 @@ namespace WWMath {
             var rv = Mul(aT);
 
             return rv.ToArray();
+        }
+
+        /// <summary>
+        /// 行列の全要素をs倍したものを戻す。
+        /// 自分自身を変更しない。
+        /// </summary>
+        /// <returns>行列の全要素をs倍したもの</returns>
+        public WWMatrix Scale(double s) {
+            var sm = new double[m.Length];
+            for (int i = 0; i < m.Length; ++i) {
+                sm[i] = m[i] * s;
+            }
+            return new WWMatrix(mRow, mCol, sm);
         }
 
         /// <summary>
