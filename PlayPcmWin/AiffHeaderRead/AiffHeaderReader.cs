@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using System.Text;
+using PcmDataLib;
 
 namespace AiffHeaderRead {
 
@@ -55,7 +56,7 @@ namespace AiffHeaderRead {
 
         public CompressionType Compression { get; set; }
 
-        private PcmDataLib.ID3Reader mId3Reader = new PcmDataLib.ID3Reader();
+        private ID3Reader mId3Reader = new ID3Reader();
 
         private const uint AIFC_TIMESTAMP   = 0xa2805140;
         private const uint COMPRESSION_SOWT = 0x736f7774;
@@ -66,7 +67,7 @@ namespace AiffHeaderRead {
             mSB.Append("Form chunk.\r\n");
 
             byte[] ckID = br.ReadBytes(4);
-            if (!PcmDataLib.Util.FourCCHeaderIs(ckID, 0, "FORM")) {
+            if (!PcmDataUtil.FourCCHeaderIs(ckID, 0, "FORM")) {
                 return ResultType.NotAiff;
             }
 
@@ -83,8 +84,8 @@ namespace AiffHeaderRead {
             
             mSB.Append(string.Format("    FORM type = {0}{1}{2}{3}\r\n", (char)formType[0], (char)formType[1], (char)formType[2], (char)formType[3] ));
 
-            if (!PcmDataLib.Util.FourCCHeaderIs(formType, 0, "AIFF")) {
-                if (PcmDataLib.Util.FourCCHeaderIs(formType, 0, "AIFC")) {
+            if (!PcmDataUtil.FourCCHeaderIs(formType, 0, "AIFF")) {
+                if (PcmDataUtil.FourCCHeaderIs(formType, 0, "AIFC")) {
                     mIsAIFC = true;
                 } else {
                     return ResultType.NotAiff;
@@ -104,7 +105,7 @@ namespace AiffHeaderRead {
             try {
                 while (true) {
                     byte[] ckID = br.ReadBytes(4);
-                    if (PcmDataLib.Util.FourCCHeaderIs(ckID, 0, findCkId)) {
+                    if (PcmDataUtil.FourCCHeaderIs(ckID, 0, findCkId)) {
                         return true;
                     }
 
@@ -112,12 +113,12 @@ namespace AiffHeaderRead {
                     mSB.Append(string.Format("  Skipped {0}{1}{2}{3} chunk. size = {4} bytes\r\n",
                         (char)ckID[0], (char)ckID[1], (char)ckID[2], (char)ckID[3], ckSize));
 
-                    long skipBytes = PcmDataLib.Util.ChunkSizeWithPad(ckSize);
+                    long skipBytes = PcmDataUtil.ChunkSizeWithPad(ckSize);
                     if (skipBytes < 0) {
                         Console.WriteLine("D: SkipToChunk {0}", skipBytes);
                         return false;
                     }
-                    PcmDataLib.Util.BinaryReaderSkip(br, skipBytes);
+                    PcmDataUtil.BinaryReaderSkip(br, skipBytes);
                 }
             } catch (System.IO.EndOfStreamException ex) {
                 Console.WriteLine(ex);
@@ -188,7 +189,7 @@ namespace AiffHeaderRead {
                 mSB.Append(string.Format("Error: ckSize - readSize < 0"));
                 return ResultType.HeaderError;
             }
-            PcmDataLib.Util.BinaryReaderSkip(br, ckSize - readSize);
+            PcmDataUtil.BinaryReaderSkip(br, ckSize - readSize);
             
             return ResultType.Success;
         }
@@ -213,14 +214,14 @@ namespace AiffHeaderRead {
 
             // SoundDataチャンクの最後まで移動。
             // sizeof offset + blockSize == 8
-            PcmDataLib.Util.BinaryReaderSkip(br, PcmDataLib.Util.ChunkSizeWithPad(ckSize) - 8);
+            PcmDataUtil.BinaryReaderSkip(br, PcmDataUtil.ChunkSizeWithPad(ckSize) - 8);
 
             return ResultType.Success;
         }
 
         private ResultType ReadID3Chunk(BinaryReader br) {
             long ckSize = 0;
-            PcmDataLib.ID3Reader.ID3Result id3r = PcmDataLib.ID3Reader.ID3Result.ReadError;
+            ID3Reader.ID3Result id3r = ID3Reader.ID3Result.ReadError;
 
             try {
                 if (!SkipToChunk(br, "ID3 ")) {
@@ -242,17 +243,17 @@ namespace AiffHeaderRead {
 
             ResultType result = ResultType.Success;
             switch (id3r) {
-            case PcmDataLib.ID3Reader.ID3Result.ReadError:
+            case ID3Reader.ID3Result.ReadError:
                 result = ResultType.ReadError;
                 break;
-            case PcmDataLib.ID3Reader.ID3Result.NotSupportedID3version: // ID3が読めなくても再生はできるようにする。
+            case ID3Reader.ID3Result.NotSupportedID3version: // ID3が読めなくても再生はできるようにする。
                 result = ResultType.Success;
                 mSB.Append(string.Format("    ID3Reader returned {0}\r\n", id3r));
                 break;
-            case PcmDataLib.ID3Reader.ID3Result.Success:
+            case ID3Reader.ID3Result.Success:
                 mSB.Append(string.Format("    ID3 version 2.{0}\r\n", mId3Reader.MinorVersion));
                 /* この処理は必要ない。s
-                PcmDataLib.Util.BinaryReaderSkip(br, PcmDataLib.Util.ChunkSizeWithPad(ckSize) - mId3Reader.ReadBytes);
+                Util.BinaryReaderSkip(br, Util.ChunkSizeWithPad(ckSize) - mId3Reader.ReadBytes);
                  * */
                 break;
             default:
@@ -279,8 +280,8 @@ namespace AiffHeaderRead {
         /// </summary>
         public byte[] PictureData { get { return mId3Reader.PictureData; } }
         
-        public string ReadHeader(BinaryReader br, out PcmDataLib.PcmData pcmData) {
-            pcmData = new PcmDataLib.PcmData();
+        public string ReadHeader(BinaryReader br, out PcmData pcmData) {
+            pcmData = new PcmData();
 
             ResultType result = ReadFormChunkHeader(br);
             if (result != ResultType.Success) {
@@ -320,7 +321,7 @@ namespace AiffHeaderRead {
                 BitsPerSample,
                 BitsPerSample,
                 SampleRate,
-                PcmDataLib.PcmData.ValueRepresentationType.SInt,
+                PcmData.ValueRepresentationType.SInt,
                 NumFrames);
 
             result = ReadID3Chunk(br);
