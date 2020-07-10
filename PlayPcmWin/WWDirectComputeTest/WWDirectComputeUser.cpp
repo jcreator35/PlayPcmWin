@@ -94,28 +94,22 @@ CreateDeviceInternal(
                 || ( osv.dwMajorVersion == 6 && osv.dwMinorVersion >= 1 ) 
                 || ( osv.dwMajorVersion == 6 && osv.dwMinorVersion == 0 && osv.dwBuildNumber > 6002 ) ) {
                 MessageBox(0,
-                    L"エラー: Direct3D 11 コンポーネントが見つかりませんでした。",
+                    L"Error: DirectX11 component is not found.",
                     L"Error",
                     MB_ICONEXCLAMATION );
                 // This should not happen, but is here for completeness as the system could be
                 // corrupted or some future OS version could pull D3D11.DLL for some reason
             } else if ( osv.dwMajorVersion == 6 && osv.dwMinorVersion == 0 && osv.dwBuildNumber == 6002 ) {
                 MessageBox(0,
-                    L"エラー: Direct3D 11 コンポーネントが見つかりませんでしたが、"
-                    L"このWindows用のDirect3D 11 コンポーネントは入手可能です。\n"
-                    L"マイクロソフトKB #971644をご覧ください。\n"
-                    L" http://support.microsoft.com/default.aspx/kb/971644/",
+                    L"Error: Direct3D 11 component is not found. While Direct3D11 component of this version of Windows is available\nPlease refer Microsoft KB #971644\n http://support.microsoft.com/default.aspx/kb/971644/",
                     L"Error", MB_ICONEXCLAMATION );
             } else if ( osv.dwMajorVersion == 6 && osv.dwMinorVersion == 0 ) {
                 MessageBox(0,
-                    L"エラー: Direct3D 11 コンポーネントが見つかりませんでした。"
-                    L"最新のサービスパックを適用してください。\n"
-                    L"詳しくはマイクロソフトKB #935791をご覧ください。\n"
-                    L" http://support.microsoft.com/default.aspx/kb/935791",
+                    L"Error: Direct3D 11 component is not found. Please apply the latest service pack\nPlease refer Microsoft KB #935791\n http://support.microsoft.com/default.aspx/kb/935791",
                     L"Error", MB_ICONEXCLAMATION );
             } else {
                 MessageBox(0,
-                    L"エラー: このバージョンのWindows向けのDirect3D 11 はありません。",
+                    L"Error: Direct3D 11 component of this version of Windows is not available.",
                     L"Error", MB_ICONEXCLAMATION);
             }
 
@@ -153,8 +147,7 @@ CreateDeviceInternal(
     if ( !hwopts.DoublePrecisionFloatShaderOps ) {
         if ( !bMessageAlreadyShown ) {
             MessageBox(0,
-                L"エラー: このGPUはComputeShader5.0の倍精度浮動小数点数オプション"
-                L"(double-precision support)が使用できません。",
+                L"Error: This GPU does not have ComputeShader5.0 double-precision support.",
                 L"Error", MB_ICONEXCLAMATION);
             bMessageAlreadyShown = true;
         }
@@ -233,7 +226,7 @@ WWDirectComputeUser::CreateComputeShader(
             MultiByteToWideChar(CP_ACP, 0, s, -1,
                 erStr, sizeof erStr/sizeof erStr[0]-1);
         }
-        MessageBox(0, erStr, L"D3DX11CompileFromFile失敗", MB_ICONEXCLAMATION);
+        MessageBox(0, erStr, L"D3DX11CompileFromFile failed.", MB_ICONEXCLAMATION);
         goto end;
     }
 
