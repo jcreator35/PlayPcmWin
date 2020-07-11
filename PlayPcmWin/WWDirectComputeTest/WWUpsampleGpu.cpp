@@ -3,8 +3,6 @@
 #include "WWUpsampleGpu.h"
 #include "WWUtil.h"
 
-
-
 float
 WWUpsampleGpu::LimitSampleData(
         float * sampleData,

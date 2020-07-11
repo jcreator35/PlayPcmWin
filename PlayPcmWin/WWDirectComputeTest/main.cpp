@@ -21,7 +21,9 @@ main(void)
 
     //TestTexture();
 
-    TestWave1D();
+    //TestWave1D();
+
+    TestWWUpsample();
 
     return 0;
 }

@@ -7,8 +7,8 @@
 #include <crtdbg.h>
 #include <stdint.h>
 
-static void
-Test2(void)
+void
+TestWWUpsample(void)
 {
     bool result = true;
     HRESULT hr = S_OK;

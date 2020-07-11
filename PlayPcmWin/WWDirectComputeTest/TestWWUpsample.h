@@ -2,4 +2,4 @@
 
 #pragma once
 
-void Test2(void);
+void TestWWUpsample(void);
