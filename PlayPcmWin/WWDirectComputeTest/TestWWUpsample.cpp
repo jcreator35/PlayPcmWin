@@ -7,6 +7,8 @@
 #include <crtdbg.h>
 #include <stdint.h>
 
+#define CALC_CPU 0
+
 void
 TestWWUpsample(void)
 {
@@ -15,6 +17,8 @@ TestWWUpsample(void)
     WWUpsampleGpu us;
 
     us.Init();
+
+    const bool highPrecision = true;
 
     // データ準備
     int convolutionN    = 256*256;
@@ -62,7 +66,8 @@ TestWWUpsample(void)
     }
     sampleData[127] = 1.0f;
 
-    HRG(us.Setup(convolutionN, sampleData, sampleTotalFrom, sampleRateFrom, sampleRateTo, sampleTotalTo));
+    HRG(us.Setup(convolutionN, sampleData, sampleTotalFrom, sampleRateFrom,
+            sampleRateTo, sampleTotalTo, highPrecision));
     DWORD t0 = GetTickCount();
     for (int i=0; i<1; ++i ) { // sampleTotalTo; ++i) {
         HRGR(us.Dispatch(0, sampleTotalTo));
@@ -72,9 +77,11 @@ TestWWUpsample(void)
 
     DWORD t2 = GetTickCount();
 
+#if CALC_CPU
     HRG(WWUpsampleCpu(convolutionN, sampleData, sampleTotalFrom, sampleRateFrom, sampleRateTo, outputCpu, sampleTotalTo));
 
     DWORD t3 = GetTickCount()+1;
+#endif
 
     /*
     for (int i=0; i<sampleTotalTo; ++i) {
@@ -92,7 +99,15 @@ TestWWUpsample(void)
             x = 256 ÷ 14
         */
     float scaleG = WWUpsampleGpu::LimitSampleData(outputGpu, sampleTotalTo);
+
+    printf("GPU=%dms(%fsamples/s)s=%f\n",
+        (t1-t0),  sampleTotalTo / ((t1-t0)/1000.0), scaleG);
+
+#if CALC_CPU
     float scaleC = WWUpsampleGpu::LimitSampleData(outputCpu, sampleTotalTo);
+    printf("CPU=%dms(%fsamples/s)s=%f\n",
+        (t3-t2),  sampleTotalTo / ((t3-t2)/1000.0), scaleC);
+#endif
 
     /*
     for (int i=0; i<sampleTotalTo; ++i) {
@@ -100,9 +115,6 @@ TestWWUpsample(void)
     }
     */
 
-    printf("GPU=%dms(%fsamples/s)s=%f CPU=%dms(%fsamples/s)s=%f\n",
-        (t1-t0),  sampleTotalTo / ((t1-t0)/1000.0), scaleG,
-        (t3-t2),  sampleTotalTo / ((t3-t2)/1000.0), scaleC);
 
 end:
     us.Unsetup();

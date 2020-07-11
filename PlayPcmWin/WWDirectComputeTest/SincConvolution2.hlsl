@@ -118,7 +118,7 @@ SincD(double sinx, double x)
  * 各スレッドは、自分の担当convolution位置の計算を行ってs_scratchに入れる。
  */
 
-#ifdef HIGH_PRECISION
+#if HIGH_PRECISION
 // できるだけdoubleprec
 
 // GPUメモリー

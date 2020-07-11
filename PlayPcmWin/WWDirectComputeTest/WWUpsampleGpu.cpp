@@ -79,7 +79,8 @@ WWUpsampleGpu::Setup(
         int sampleTotalFrom,
         int sampleRateFrom,
         int sampleRateTo,
-        int sampleTotalTo)
+        int sampleTotalTo,
+        bool highPrecision)
 {
     bool    result = true;
     HRESULT hr     = S_OK;
@@ -169,6 +170,9 @@ WWUpsampleGpu::Setup(
     char      groupThreadCountStr[32];
     sprintf_s(groupThreadCountStr, "%d", GROUP_THREAD_COUNT);
 
+    char      highPrecisionStr[32];
+    sprintf_s(highPrecisionStr, "%d", 0 != highPrecision);
+
     // doubleprec
     const D3D_SHADER_MACRO defines[] = {
             "CONV_START", convStartStr,
@@ -181,6 +185,7 @@ WWUpsampleGpu::Setup(
             "SAMPLE_RATE_TO", sampleRateToStr,
             "ITERATE_N", iterateNStr,
             "GROUP_THREAD_COUNT", groupThreadCountStr,
+            "HIGH_PRECISION", highPrecisionStr,
             nullptr, nullptr
         };
 

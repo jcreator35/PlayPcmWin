@@ -59,7 +59,7 @@ WWUpsampleCpu(
             i, resamplePosArray[i], fractionArray[i]);
     }
     */
-    printf("resamplePos created\n");
+    //printf("resamplePos created\n");
 
     for (int toPos=0; toPos<sampleTotalTo; ++toPos) {
         int    fromPos  = resamplePosArray[toPos];

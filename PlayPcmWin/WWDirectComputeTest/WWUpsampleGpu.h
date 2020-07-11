@@ -32,7 +32,8 @@ public:
         int sampleTotalFrom,
         int sampleRateFrom,
         int sampleRateTo,
-        int sampleTotalTo);
+        int sampleTotalTo,
+        bool highPrecision);
 
     HRESULT Dispatch(
         int startPos,
