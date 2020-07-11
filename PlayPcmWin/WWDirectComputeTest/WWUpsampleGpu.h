@@ -1,3 +1,5 @@
+// 日本語。
+
 #pragma once
 
 #include "WWDirectComputeUser.h"

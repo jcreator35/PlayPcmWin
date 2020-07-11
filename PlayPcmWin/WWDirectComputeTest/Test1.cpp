@@ -62,7 +62,6 @@ JitterAddGpu(
     assert(jitterX);
     assert(outF);
 
-    // ƒf[ƒ^€”õ
     const int fromCount = convolutionN + sampleN + convolutionN;
     float *from = new float[fromCount];
     assert(from);
@@ -71,7 +70,6 @@ JitterAddGpu(
         from[i+convolutionN] = sampleData[i];
     }
 
-    // HLSL‚Ì#define‚ðì‚éB
     char convStartStr[32];
     char convEndStr[32];
     char convCountStr[32];
@@ -141,11 +139,9 @@ JitterAddGpu(
 
     HRG(pDCU->Init());
 
-    // HLSL ComputeShader‚ðƒRƒ“ƒpƒCƒ‹‚‚ÄGPU‚É‘—‚éB
     HRG(pDCU->CreateComputeShader(L"SincConvolution.hlsl", "CSMain", defines, &pCS));
     assert(pCS);
 
-    // “ü—Íƒf[ƒ^‚ðGPUƒƒ‚ƒŠ[‚É‘—‚é
     HRG(pDCU->SendReadOnlyDataAndCreateShaderResourceView(
         sizeof(float), fromCount, from, "SampleDataBuffer", &pBuf0Srv));
     assert(pBuf0Srv);
@@ -158,26 +154,21 @@ JitterAddGpu(
         sizeof(float), sampleN, jitterX, "XBuffer", &pBuf2Srv));
     assert(pBuf1Srv);
 
-    // Œ‹‰Êo—Í—Ìˆæ‚ðGPU‚Éì¬B
     HRG(pDCU->CreateBufferAndUnorderedAccessView(
         sizeof(float), sampleN, nullptr, "OutputBuffer", &pBufResultUav));
     assert(pBufResultUav);
 
-    // ’è”’u‚ê‚ðGPU‚Éì¬B
     ConstShaderParams shaderParams;
     ZeroMemory(&shaderParams, sizeof shaderParams);
 
-    // GPUã‚ÅComputeShaderŽÀsB
     ID3D11ShaderResourceView* aRViews[] = { pBuf0Srv, pBuf1Srv, pBuf2Srv };
     DWORD t0 = GetTickCount();
 #if 1
-    // ‚‚±‚‚‚¯‘¬‚¢B’†‚Åƒ‹[ƒv‚‚é‚æ‚¤‚É‚‚B
     shaderParams.c_convOffs = 0;
     shaderParams.c_dispatchCount = convolutionN*2/GROUP_THREAD_COUNT;
     HRGR(pDCU->Run(pCS, sizeof aRViews/sizeof aRViews[0], aRViews, 1, &pBufResultUav,
         &shaderParams, sizeof shaderParams, sampleN, 1, 1));
 #else
-    // ’x‚¢
     for (int i=0; i<convolutionN*2/GROUP_THREAD_COUNT; ++i) {
         shaderParams.c_convOffs = i * GROUP_THREAD_COUNT;
         shaderParams.c_dispatchCount = convolutionN*2/GROUP_THREAD_COUNT;
@@ -186,7 +177,6 @@ JitterAddGpu(
     }
 #endif
 
-    // ŒvŽZŒ‹‰Ê‚ðCPUƒƒ‚ƒŠ[‚ÉŽ‚Á‚Ä‚‚éB
     HRG(pDCU->RecvResultToCpuMemory(pBufResultUav, outF, sampleN * sizeof(float)));
 end:
 
@@ -234,7 +224,6 @@ end:
 static void
 JitterAddCpuD(int sampleN, int convolutionN, float *sampleData, float *jitterX, float *outF)
 {
-    // ƒTƒ“ƒvƒ‹ƒf[ƒ^‚©‚çA‘OŒã‚ð0‚Å…‘‚‚‚from‚ðì¬B
     const int fromCount = convolutionN + sampleN + convolutionN;
     float *from = new float[fromCount];
     assert(from);
@@ -269,7 +258,6 @@ Test1(void)
 {
     HRESULT hr = S_OK;
 
-    // ƒf[ƒ^€”õ
     int convolutionN = 65536 * 256;
     int sampleN      = 16384;
 
@@ -291,7 +279,6 @@ Test1(void)
         jitterX[i]    = 0.5f;
     }
 #else
-    // 44100HzƒTƒ“ƒvƒŠƒ“ƒO‚Å1000Hz‚Ìsin
     for (int i=0; i<sampleN; ++i) {
         float xS = PI_F * i * 1000 / 44100;
         float xJ = PI_F * i * 4000 / 44100;
@@ -316,14 +303,6 @@ Test1(void)
     }
 
     if (0 < (t1-t0)) {
-        /*
-            1 (•b)       x(ƒTƒ“ƒvƒ‹/•b)
-          „Ÿ„Ÿ„Ÿ„Ÿ„Ÿ  „Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ
-           14 (•b)       256(ƒTƒ“ƒvƒ‹)
-
-             x = 256 € 14
-         */
-
         printf("GPU=%dms(%fsamples/s) CPU=%dms(%fsamples/s)\n",
             (t1-t0),  sampleN / ((t1-t0)/1000.0),
             (t2-t1),  sampleN / ((t2-t1)/1000.0));

@@ -1,3 +1,5 @@
+// 日本語。
+
 #include "WWUpsampleCpu.h"
 #include "WWUtil.h"
 #include <assert.h>

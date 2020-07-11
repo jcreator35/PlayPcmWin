@@ -1,3 +1,4 @@
+// 日本語。
 #include "TestWave1D.h"
 
 #include "WWDirectComputeUser.h"

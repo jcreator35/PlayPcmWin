@@ -1,3 +1,5 @@
+// 日本語。
+
 #include "TestTexture.h"
 
 #include "WWDirectComputeUser.h"

@@ -1,4 +1,4 @@
-// 日本語UTF-8
+// 日本語。
 // データをGPUメモリーに送ってGPUで計算。
 // 結果をCPUメモリーに戻して確認する。
 // DirectX11 ComputeShader 5.0 float-precision supportが必要。
