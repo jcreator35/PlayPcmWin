@@ -93,7 +93,13 @@ WWUpsampleGpu::Setup(
     assert(0 < convolutionN);
     assert(sampleFrom);
     assert(0 < sampleTotalFrom);
-    assert(sampleRateFrom <= sampleRateTo);
+    
+    /* sampleRateを下げるときは、あらかじめオリジナル信号にローパスフィルターを通し
+     * sampleRateTo/2以上の信号が無い状態にして呼んで下さい。
+     * そうしないとエイリアシング雑音で聴くに堪えない騒音になります。
+     */
+    //assert(sampleRateFrom <= sampleRateTo);
+
     assert(0 < sampleTotalTo);
 
     m_convolutionN    = convolutionN;
@@ -115,16 +121,16 @@ WWUpsampleGpu::Setup(
     for (int i=0; i<sampleTotalTo; ++i) {
         double resamplePos = (double)i * sampleRateFrom / sampleRateTo;
 #if 1
-        /* -0.5 <= fraction<+0.5‚É‚È‚é‚æ‚¤‚ÉresamplePos‚ð‘I‚ÔB
-         * ÅŒã‚Ì‚Ù‚¤‚Å”ÍˆÍŠO‚ðŽw‚‚È‚¢‚æ‚¤‚É‚‚éB
+        /* -0.5 <= fraction<+0.5 の範囲になるようにする。
+         * 最後のほうで範囲外を指さないようにする。
          */
         int resamplePosI = (int)(resamplePos+0.5);
         if (sampleTotalFrom <= resamplePosI) {
             resamplePosI = sampleTotalFrom -1;
         }
 #else
-        /* 0<=fraction<1‚É‚È‚é‚ÉresamplePosI‚ð‘I‚ÔB
-         * ‚±‚ê‚Í1‚É‹ß‚¢’l‚ª•po‚‚é‚Ì‚Å‚æ‚‚È‚¢B
+        /* 0<=fraction<1になるにresamplePosIを選ぶ。
+         * これは1に近い値が頻出するのでよくない。
          */
         int resamplePosI = (int)(resamplePos+0.5);
         assert(resamplePosI < sampleTotalFrom);
@@ -144,7 +150,7 @@ WWUpsampleGpu::Setup(
     printf("resamplePos created\n");
     */
 
-    // HLSL‚Ì#define‚ðì‚éB
+    // HLSLの中の#defineの値を決めます。
     char      convStartStr[32];
     sprintf_s(convStartStr, "%d", -convolutionN);
     char      convEndStr[32];
@@ -185,11 +191,11 @@ WWUpsampleGpu::Setup(
 
     HRG(m_pDCU->Init());
 
-    // HLSL ComputeShader‚ðƒRƒ“ƒpƒCƒ‹‚‚ÄGPU‚É‘—‚éB
+    // HLSL ComputeShaderをコンパイルする。
     HRG(m_pDCU->CreateComputeShader(L"SincConvolution2.hlsl", "CSMain", defines, &m_pCS));
     assert(m_pCS);
 
-    // “ü—Íƒf[ƒ^‚ðGPUƒƒ‚ƒŠ[‚É‘—‚é
+    // オリジナルサンプルデータ。
     HRG(m_pDCU->SendReadOnlyDataAndCreateShaderResourceView(
         sizeof(float), sampleTotalFrom, sampleFrom, "SampleFromBuffer", &m_pBuf0Srv));
     assert(m_pBuf0Srv);
@@ -206,7 +212,7 @@ WWUpsampleGpu::Setup(
         sizeof(float), sampleTotalTo, sinPreComputeArray, "SinPreComputeBuffer", &m_pBuf3Srv));
     assert(m_pBuf3Srv);
     
-    // Œ‹‰Êo—Í—Ìˆæ‚ðGPU‚Éì¬B
+    // 結果を書き込む場所 GPUメモリ。
     HRG(m_pDCU->CreateBufferAndUnorderedAccessView(
         sizeof(float), sampleTotalTo, nullptr, "OutputBuffer", &m_pBufResultUav));
     assert(m_pBufResultUav);
@@ -232,19 +238,18 @@ WWUpsampleGpu::Dispatch(
     HRESULT hr = S_OK;
     bool result = true;
 
-    // GPUã‚ÅComputeShaderŽÀsB
     ID3D11ShaderResourceView* aRViews[] = { m_pBuf0Srv, m_pBuf1Srv, m_pBuf2Srv, m_pBuf3Srv };
     ConstShaderParams shaderParams;
     ZeroMemory(&shaderParams, sizeof shaderParams);
 #if 1
-    // ‚‚±‚‚‚¯‘¬‚¢B’†‚Åƒ‹[ƒv‚‚é‚æ‚¤‚É‚‚B
+    // 実行。
     shaderParams.c_convOffs = 0;
     shaderParams.c_dispatchCount = m_convolutionN*2/GROUP_THREAD_COUNT;
     shaderParams.c_sampleToStartPos = startPos;
     HRGR(m_pDCU->Run(m_pCS, sizeof aRViews/sizeof aRViews[0], aRViews, 1, &m_pBufResultUav,
         &shaderParams, sizeof shaderParams, count, 1, 1));
 #else
-    // ’x‚¢
+    // 実行。
     for (int i=0; i<convolutionN*2/GROUP_THREAD_COUNT; ++i) {
         shaderParams.c_convOffs = i * GROUP_THREAD_COUNT;
         shaderParams.c_dispatchCount = convolutionN*2/GROUP_THREAD_COUNT;
@@ -276,7 +281,7 @@ WWUpsampleGpu::ResultGetFromGpuMemory(
     assert(outputTo);
     assert(outputToElemNum <= m_sampleTotalTo);
 
-    // ŒvŽZŒ‹‰Ê‚ðCPUƒƒ‚ƒŠ[‚ÉŽ‚Á‚Ä‚‚éB
+    // 計算結果をGPUのUAVからCPUに持ってくる。
     HRG(m_pDCU->RecvResultToCpuMemory(m_pBufResultUav, outputTo, outputToElemNum * sizeof(float)));
 end:
     if (hr == DXGI_ERROR_DEVICE_REMOVED) {
