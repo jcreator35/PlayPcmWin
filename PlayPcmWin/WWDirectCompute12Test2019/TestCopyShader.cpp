@@ -15,6 +15,12 @@ struct ShaderConsts {
     uint32_t c_reserved[63];
 };
 
+enum suHeapIdx {
+    SHI_SRV_IN,
+    SHI_UAV_OUT,
+    SHI_NUM
+};
+
 int
 TestCopyShader(void)
 {
@@ -23,6 +29,7 @@ TestCopyShader(void)
     WWConstantBuffer cBuf;
     WWShader copyShader;
     WWSrvUavHeap suHeap;
+    WWGpuBuf gpuBufAry[SHI_NUM];
     WWSrv srvInData;
     WWUav uavOutData;
     WWComputeState cState;
@@ -35,11 +42,7 @@ TestCopyShader(void)
     const float inputData[1024] = { 1,2,3,4 };
     float outputData[1024] = {};
 
-    enum suHeapIdx {
-        SHI_SRV_IN,
-        SHI_UAV_OUT,
-        SHI_NUM
-    };
+
 
     // 準備作業。■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
@@ -60,8 +63,8 @@ TestCopyShader(void)
     HRG(dc.CreateConstantBuffer(16, cBuf));
 
     HRG(dc.CreateSrvUavHeap(NUM_SRV + NUM_UAV, suHeap));
-    HRG(dc.CreateRegisterShaderResourceView(suHeap, sizeof(inputData[0]), ARRAYSIZE(inputData), inputData, srvInData));
-    HRG(dc.CreateRegisterUnorderedAccessView(suHeap, sizeof(outputData[0]), ARRAYSIZE(outputData), uavOutData));
+    HRG(dc.CreateGpuBufferAndRegisterAsSRV(suHeap, sizeof(inputData[0]), ARRAYSIZE(inputData), inputData, gpuBufAry[SHI_SRV_IN], srvInData));
+    HRG(dc.CreateGpuBufferAndRegisterAsUAV(suHeap, sizeof(outputData[0]), ARRAYSIZE(outputData), gpuBufAry[SHI_UAV_OUT], uavOutData));
     HRG(dc.CreateComputeState(copyShader, NUM_CONSTANT, NUM_SRV, NUM_UAV, cState));
 
     // 1回目実行。■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
@@ -73,7 +76,7 @@ TestCopyShader(void)
     HRG(dc.Run(cState, &cBuf, suHeap, SHI_SRV_IN, GROUP_THREAD_COUNT, 1, 1));
 
     // GPUメモリ上の計算結果をCPUメモリに持ってくる。
-    HRG(dc.CopyUavValuesToCpuMemory(uavOutData, outputData, sizeof outputData));
+    HRG(dc.CopyGpuBufValuesToCpuMemory(gpuBufAry[SHI_UAV_OUT], outputData, sizeof outputData));
 
     // 計算結果を表示。
     for (int i = 0; i < 4; ++i) {
@@ -90,7 +93,7 @@ TestCopyShader(void)
     HRG(dc.Run(cState, &cBuf, suHeap, SHI_SRV_IN, GROUP_THREAD_COUNT, 1, 1));
 
     // GPUメモリ上の計算結果をCPUメモリに持ってくる。
-    HRG(dc.CopyUavValuesToCpuMemory(uavOutData, outputData, sizeof outputData));
+    HRG(dc.CopyGpuBufValuesToCpuMemory(gpuBufAry[SHI_UAV_OUT], outputData, sizeof outputData));
 
     // 計算結果を表示。
     for (int i = 0; i < 4; ++i) {

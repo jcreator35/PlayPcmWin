@@ -14,25 +14,31 @@ struct WWConstantBuffer {
     int bytes = 0;
 };
 
-enum WWHeapEntryType : int {
-    WWHET_SRV,
-    WWHET_UAV,
-};
 
 struct WWSrvUavHeap {
+    enum HeapEntryType : int {
+        HET_SRV,
+        HET_UAV,
+    };
+
     ComPtr<ID3D12DescriptorHeap> heap;
-    std::vector<WWHeapEntryType> entryTypes; ///< 例えば {srv,srv,uav,srv,srv,uav}
-    int numEntries;
-    UINT srvUavDescSize;
+    std::vector<HeapEntryType> entryTypes; ///< 例えば {srv,srv,uav,srv,srv,uav}という情報が溜まる。
+    int numEntries = 0;
+    UINT srvUavDescSize = 0;
 };
 
 struct WWSrv {
-    ComPtr<ID3D12Resource> srv;
-    ComPtr<ID3D12Resource> upload;
+    int suHeapIdx = -1;
 };
 
 struct WWUav {
-    ComPtr<ID3D12Resource> uav;
+    int suHeapIdx = -1;
+};
+
+/// @brief GPUバッファ。SRV、UAV、または両方になる。
+struct WWGpuBuf {
+    ComPtr<ID3D12Resource> buf;
+    ComPtr<ID3D12Resource> upload;
     int elemBytes = 0;
     int elemCount = 0;
 };
@@ -68,11 +74,11 @@ public:
         LPCSTR entryPoint,
         LPCSTR shaderVersion,
         const D3D_SHADER_MACRO* defines,
-        WWShader & s_return);
+        WWShader & s_out);
 
     HRESULT CreateConstantBuffer(
         unsigned int bytes,
-        WWConstantBuffer& cBuf_return);
+        WWConstantBuffer& cBuf_out);
 
     HRESULT UpdateConstantBufferData(
         WWConstantBuffer& cBuf,
@@ -82,29 +88,31 @@ public:
     // ヒープには、SRV,SRV,UAV, SRV,SRV,UAVのように、SRV→UAVの順に並べる事。
     HRESULT CreateSrvUavHeap(
         int numEntries,
-        WWSrvUavHeap& heap_return);
+        WWSrvUavHeap& heap_out);
 
     /// @brief SRV作成。CPUは書き込み、GPUは読みだすバッファー。ヒープに登録する。
-    HRESULT CreateRegisterShaderResourceView(
+    HRESULT CreateGpuBufferAndRegisterAsSRV(
         WWSrvUavHeap& suHeap,
-        unsigned int uElementSize,
-        unsigned int uCount,
+        unsigned int elemBytes,
+        unsigned int elemCount,
         const void* data,
-        WWSrv& srv_return);
+        WWGpuBuf & gpuBuf_out,
+        WWSrv& srv_out);
     
     /// @brief UAV作成。GPUが書き込み、CPUは読み出すバッファー。ヒープに登録する。
-    HRESULT CreateRegisterUnorderedAccessView(
+    HRESULT CreateGpuBufferAndRegisterAsUAV(
         WWSrvUavHeap& suHeap,
-        unsigned int uElementSize,
-        unsigned int uCount,
-        WWUav& uav_return);
+        unsigned int elemBytes,
+        unsigned int elemCount,
+        WWGpuBuf& gpuBuf_out,
+        WWUav& uav_out);
 
     HRESULT CreateComputeState(
         WWShader& csShader,
         int shaderUseConstBufCount,
         int shaderUseSRVCount,
         int shaderUseUAVCount,
-        WWComputeState& cs_return);
+        WWComputeState& cs_out);
 
     /// @brief コンピュートシェーダーを実行する。
     /// @param firstHeapIdx suHeapの、コンピュートシェーダーに見せたい最初のエントリー番号。
@@ -113,7 +121,7 @@ public:
         int firstHeapIdx,
         UINT x, UINT y, UINT z);
 
-    HRESULT CopyUavValuesToCpuMemory(WWUav& uav, void* to, int toBytes);
+    HRESULT CopyGpuBufValuesToCpuMemory(WWGpuBuf& gpuBuf, void* to, int toBytes);
 
 private:
     ComPtr<ID3D12Device> mDevice;

@@ -146,7 +146,7 @@ WWDirectCompute12User::Init(int initFlags)
     {   // Double型がシェーダーで使えることを確認する必要がある。
         // https://docs.microsoft.com/en-us/windows/win32/api/d3d12/ns-d3d12-d3d12_feature_data_d3d12_options
 
-        D3D12_FEATURE_DATA_D3D12_OPTIONS opt;
+        D3D12_FEATURE_DATA_D3D12_OPTIONS opt = {};
         HRG(mDevice->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, &opt, sizeof opt));
         if (!opt.DoublePrecisionFloatShaderOps) {
             printf("Error: This GPU does not have double-precision support.");
@@ -334,18 +334,24 @@ end:
 }
 
 HRESULT
-WWDirectCompute12User::CreateRegisterShaderResourceView(
+WWDirectCompute12User::CreateGpuBufferAndRegisterAsSRV(
     WWSrvUavHeap &suHeap,
-    unsigned int uElementSize,
-    unsigned int uCount,
+    unsigned int elemBytes,
+    unsigned int elemCount,
     const void* data,
+    WWGpuBuf& gpuBuf_out,
     WWSrv& srv_out)
 {
     HRESULT hr = S_OK;
 
     assert(mDevice.Get());
+    assert(nullptr == gpuBuf_out.buf.Get());
+    assert(nullptr == gpuBuf_out.upload.Get());
 
-    const UINT dataSize = uElementSize * uCount;
+    gpuBuf_out.elemBytes = elemBytes;
+    gpuBuf_out.elemCount = elemCount;
+
+    const UINT dataSize = elemBytes * elemCount;
 
     D3D12_HEAP_PROPERTIES defaultHeapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
     D3D12_HEAP_PROPERTIES uploadHeapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
@@ -357,8 +363,8 @@ WWDirectCompute12User::CreateRegisterShaderResourceView(
     srvDesc.Format = DXGI_FORMAT_UNKNOWN;
     srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
     srvDesc.Buffer.FirstElement = 0;
-    srvDesc.Buffer.NumElements = uCount;
-    srvDesc.Buffer.StructureByteStride = uElementSize;
+    srvDesc.Buffer.NumElements = elemCount;
+    srvDesc.Buffer.StructureByteStride = elemBytes;
     srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
 
     D3D12_SUBRESOURCE_DATA srData = {};
@@ -372,8 +378,8 @@ WWDirectCompute12User::CreateRegisterShaderResourceView(
         &bufferDesc,
         D3D12_RESOURCE_STATE_COPY_DEST, //< 初期データをCPUからコピーするためのステート。
         nullptr,
-        IID_PPV_ARGS(&srv_out.srv)));
-    NAME_D3D12_OBJECT(srv_out.srv);
+        IID_PPV_ARGS(&gpuBuf_out.buf)));
+    NAME_D3D12_OBJECT(gpuBuf_out.buf);
 
     HRG(mDevice->CreateCommittedResource(
         &uploadHeapProperties,
@@ -381,23 +387,23 @@ WWDirectCompute12User::CreateRegisterShaderResourceView(
         &uploadBufferDesc,
         D3D12_RESOURCE_STATE_GENERIC_READ,
         nullptr,
-        IID_PPV_ARGS(&srv_out.upload)));
-    NAME_D3D12_OBJECT(srv_out.upload);
+        IID_PPV_ARGS(&gpuBuf_out.upload)));
+    NAME_D3D12_OBJECT(gpuBuf_out.upload);
 
     // uploadを使用してdataをGPUにコピーするコマンドを追加。
-    UpdateSubresources<1>(mCList.Get(), srv_out.srv.Get(), srv_out.upload.Get(), 0, 0, 1, &srData);
+    UpdateSubresources<1>(mCList.Get(), gpuBuf_out.buf.Get(), gpuBuf_out.upload.Get(), 0, 0, 1, &srData);
 
     // srvの状態をCOPY_DEST状態からシェーダーリソース状態にするコマンドを追加。
-    mCList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(srv_out.srv.Get(),
+    mCList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(gpuBuf_out.buf.Get(),
         D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE));
 
     {
-        int heapIdx = (int)suHeap.entryTypes.size();
+        srv_out.suHeapIdx = (int)suHeap.entryTypes.size();
 
-        CD3DX12_CPU_DESCRIPTOR_HANDLE srvHandle(suHeap.heap->GetCPUDescriptorHandleForHeapStart(), heapIdx, suHeap.srvUavDescSize);
-        mDevice->CreateShaderResourceView(srv_out.srv.Get(), &srvDesc, srvHandle);
+        CD3DX12_CPU_DESCRIPTOR_HANDLE srvHandle(suHeap.heap->GetCPUDescriptorHandleForHeapStart(), srv_out.suHeapIdx, suHeap.srvUavDescSize);
+        mDevice->CreateShaderResourceView(gpuBuf_out.buf.Get(), &srvDesc, srvHandle);
 
-        suHeap.entryTypes.push_back(WWHET_SRV);
+        suHeap.entryTypes.push_back(WWSrvUavHeap::HET_SRV);
         assert(suHeap.entryTypes.size() <= suHeap.numEntries);
     }
 
@@ -406,18 +412,20 @@ end:
 }
 
 HRESULT
-WWDirectCompute12User::CreateRegisterUnorderedAccessView(
+WWDirectCompute12User::CreateGpuBufferAndRegisterAsUAV(
     WWSrvUavHeap& suHeap,
     unsigned int uElementSize,
     unsigned int uCount,
+    WWGpuBuf& gpuBuf_out,
     WWUav& uav_out)
 {
     HRESULT hr = S_OK;
 
     assert(mDevice.Get());
+    assert(nullptr == gpuBuf_out.buf.Get());
 
-    uav_out.elemBytes = uElementSize;
-    uav_out.elemCount = uCount;
+    gpuBuf_out.elemBytes = uElementSize;
+    gpuBuf_out.elemCount = uCount;
 
     const UINT dataSize = uElementSize * uCount;
 
@@ -439,15 +447,15 @@ WWDirectCompute12User::CreateRegisterUnorderedAccessView(
         &bufferDesc,
         D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
         nullptr,
-        IID_PPV_ARGS(&uav_out.uav)));
+        IID_PPV_ARGS(&gpuBuf_out.buf)));
 
     {
-        int heapIdx = (int)suHeap.entryTypes.size();
+        uav_out.suHeapIdx = (int)suHeap.entryTypes.size();
 
-        CD3DX12_CPU_DESCRIPTOR_HANDLE uavHandle(suHeap.heap->GetCPUDescriptorHandleForHeapStart(), heapIdx, suHeap.srvUavDescSize);
-        mDevice->CreateUnorderedAccessView(uav_out.uav.Get(), nullptr, &uavDesc, uavHandle);
+        CD3DX12_CPU_DESCRIPTOR_HANDLE uavHandle(suHeap.heap->GetCPUDescriptorHandleForHeapStart(), uav_out.suHeapIdx, suHeap.srvUavDescSize);
+        mDevice->CreateUnorderedAccessView(gpuBuf_out.buf.Get(), nullptr, &uavDesc, uavHandle);
 
-        suHeap.entryTypes.push_back(WWHET_UAV);
+        suHeap.entryTypes.push_back(WWSrvUavHeap::HET_UAV);
         assert(suHeap.entryTypes.size() <= suHeap.numEntries);
     }
 
@@ -463,7 +471,7 @@ WWDirectCompute12User::CreateComputeState(
     int useUAVCount,
     WWComputeState& cState_out)
 {
-    int hr = S_OK;
+    HRESULT hr = S_OK;
 
     cState_out.useConstBufCount = useConstBufCount;
     cState_out.useSRVCount = useSRVCount;
@@ -562,13 +570,13 @@ end:
 }
 
 HRESULT
-WWDirectCompute12User::CopyUavValuesToCpuMemory(WWUav& uav, void* to, int toBytes)
+WWDirectCompute12User::CopyGpuBufValuesToCpuMemory(WWGpuBuf& gpuBuf, void* to, int toBytes)
 {
     HRESULT hr = S_OK;
     CD3DX12_RANGE range(0, toBytes);
     void* p = nullptr;
     ComPtr<ID3D12Resource> readbackBuf;
-    const UINT dataBytes = uav.elemBytes * uav.elemCount;
+    const UINT dataBytes = gpuBuf.elemBytes * gpuBuf.elemCount;
 
     // uavのバッファーはsuHeapに関連付けられているためMapができない。
     // readbackBufに内容をコピーし、readbackBufをMapすることでGPUの計算結果をCPUに持ってくる。
@@ -583,13 +591,14 @@ WWDirectCompute12User::CopyUavValuesToCpuMemory(WWUav& uav, void* to, int toByte
     // uavバッファーの状態をCOPY_SOURCE状態に変更するコマンドを追加。
     // uavバッファーの内容をreadbackBufにコピーするコマンドを追加。
     // uavバッファーの状態をUAV状態に戻すコマンドを追加。
+    // 実行。
 
-    mCList->ResourceBarrier(1,&CD3DX12_RESOURCE_BARRIER::Transition(uav.uav.Get(),
+    mCList->ResourceBarrier(1,&CD3DX12_RESOURCE_BARRIER::Transition(gpuBuf.buf.Get(),
         D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE));
 
-    mCList->CopyResource(readbackBuf.Get(), uav.uav.Get());
+    mCList->CopyResource(readbackBuf.Get(), gpuBuf.buf.Get());
 
-    mCList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(uav.uav.Get(),
+    mCList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(gpuBuf.buf.Get(),
         D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS));
 
     HRG(CloseExecResetWait());
