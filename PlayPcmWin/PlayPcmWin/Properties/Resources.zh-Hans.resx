@@ -149,7 +149,7 @@
     <value>PPWPL文件|*.PPWPL</value>
   </data>
   <data name="FilterSupportedFiles" xml:space="preserve">
-    <value>支持的文件|*.WAV;*.WAVE;*.FLAC;*.AIF;*.AIFF;*.AIFC;*.AIFFC;*.DSF;*.DFF;*.CUE;*.PPWPL;*.M3U;*.M3U8|WAVE文件|*.WAV;*.WAVE|FLAC文件|*.FLAC|AIFF文件|*.AIF;*.AIFF;*.AIFC;*AIFFC|DSF文件|*.DSF|DFF文件|*.DFF|CUE文件|*.CUE|PPWPL文件|*.PPWPL|M3U文件|*.M3U;*.M3U8|All文件|*.*</value>
+    <value>支持的文件|*.WAV;*.WAVE;*.FLAC;*.AIF;*.AIFF;*.AIFC;*.AIFFC;*.DSF;*.DFF;*.MP3;*.CUE;*.PPWPL;*.M3U;*.M3U8|WAVE文件|*.WAV;*.WAVE|FLAC文件|*.FLAC|AIFF文件|*.AIF;*.AIFF;*.AIFC;*AIFFC|DSF文件|*.DSF|DFF文件|*.DFF|MP3文件|*.MP3|CUE文件|*.CUE|PPWPL文件|*.PPWPL|M3U文件|*.M3U;*.M3U8|All文件|*.*</value>
   </data>
   <data name="Latency" xml:space="preserve">
     <value>延迟</value>

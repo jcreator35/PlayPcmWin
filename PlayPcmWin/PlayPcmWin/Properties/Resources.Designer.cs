@@ -333,7 +333,7 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Supported files|*.WAV;*.WAVE;*.FLAC;*.AIF;*.AIFF;*.AIFC;*.AIFFC;*.DSF;*.DFF;*.CUE;*.PPWPL;*.M3U;*.M3U8|WAVE files|*.WAV;*.WAVE|FLAC files|*.FLAC|AIFF files|*.AIF;*.AIFF;*.AIFC;*AIFFC|DSF files|*.DSF|DFF files|*.DFF|CUE files|*.CUE|PPWPL files|*.PPWPL|M3U files|*.M3U;*.M3U8|All files|*.*.
+        ///   Looks up a localized string similar to Supported files|*.WAV;*.WAVE;*.FLAC;*.AIF;*.AIFF;*.AIFC;*.AIFFC;*.DSF;*.DFF;*.MP3;*.CUE;*.PPWPL;*.M3U;*.M3U8|WAVE files|*.WAV;*.WAVE|FLAC files|*.FLAC|AIFF files|*.AIF;*.AIFF;*.AIFC;*AIFFC|DSF files|*.DSF|DFF files|*.DFF|MP3 files|*.MP3|CUE files|*.CUE|PPWPL files|*.PPWPL|M3U files|*.M3U;*.M3U8|All files|*.*.
         /// </summary>
         internal static string FilterSupportedFiles {
             get {

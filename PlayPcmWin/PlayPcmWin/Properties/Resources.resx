@@ -243,7 +243,7 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
     <value>Read playgroup {0} completed. Elapsed time: {1}ms</value>
   </data>
   <data name="FilterSupportedFiles" xml:space="preserve">
-    <value>Supported files|*.WAV;*.WAVE;*.FLAC;*.AIF;*.AIFF;*.AIFC;*.AIFFC;*.DSF;*.DFF;*.CUE;*.PPWPL;*.M3U;*.M3U8|WAVE files|*.WAV;*.WAVE|FLAC files|*.FLAC|AIFF files|*.AIF;*.AIFF;*.AIFC;*AIFFC|DSF files|*.DSF|DFF files|*.DFF|CUE files|*.CUE|PPWPL files|*.PPWPL|M3U files|*.M3U;*.M3U8|All files|*.*</value>
+    <value>Supported files|*.WAV;*.WAVE;*.FLAC;*.AIF;*.AIFF;*.AIFC;*.AIFFC;*.DSF;*.DFF;*.MP3;*.CUE;*.PPWPL;*.M3U;*.M3U8|WAVE files|*.WAV;*.WAVE|FLAC files|*.FLAC|AIFF files|*.AIF;*.AIFF;*.AIFC;*AIFFC|DSF files|*.DSF|DFF files|*.DFF|MP3 files|*.MP3|CUE files|*.CUE|PPWPL files|*.PPWPL|M3U files|*.M3U;*.M3U8|All files|*.*</value>
   </data>
   <data name="TimerDriven" xml:space="preserve">
     <value>Timer driven</value>
