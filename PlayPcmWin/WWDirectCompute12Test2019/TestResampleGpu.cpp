@@ -18,12 +18,14 @@ TestResampleGpu(void)
     const bool highPrecision = true;
 
     // データ準備
-    int convolutionN = 4096;
-    int sampleTotalFrom = 16 * 256 * 256;
+    int convolutionN = 16384; //< 14bitの変換精度。
+    int sampleTotalFrom = 65536;
     int sampleRateFrom = 44100;
-    int sampleRateTo = 441000;
+    int sampleRateTo = 2*44100;
 
-    int GPU_WORK_COUNT = 4096;
+    int GPU_WORK_COUNT = 16384;
+
+    assert(convolutionN <= GPU_WORK_COUNT);
 
     int sampleTotalTo = (int64_t)sampleTotalFrom * sampleRateTo / sampleRateFrom;
 
@@ -68,6 +70,13 @@ TestResampleGpu(void)
             }
         }
     }
+
+    /* 
+    // Excelプロット用　値出力。
+    for (int i=0; i<sampleTotalTo; ++i) {
+        printf("%f\n", outputGpu[i]);
+    }
+    */
 
     {
         float scaleG = WWResampleGpu::LimitSampleData(outputGpu, sampleTotalTo);
