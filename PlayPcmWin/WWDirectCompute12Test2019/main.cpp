@@ -1,7 +1,7 @@
 ﻿// 日本語。
 
 #include "TestCopyShader.h"
-#include "TestSincConvolution.h"
+#include "TestResampleGpu.h"
 #include "framework.h"
 
 int main(void)
@@ -10,7 +10,7 @@ int main(void)
 
     //hr = TestCopyShader();
 
-    hr = TestSincConvolution();
+    hr = TestResampleGpu();
 
     // 成功: 0
     // 失敗: 1

@@ -448,6 +448,7 @@ WWDirectCompute12User::CreateGpuBufferAndRegisterAsUAV(
         D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
         nullptr,
         IID_PPV_ARGS(&gpuBuf_out.buf)));
+    assert(gpuBuf_out.buf.Get());
 
     {
         uav_out.suHeapIdx = (int)suHeap.entryTypes.size();
@@ -555,8 +556,7 @@ WWDirectCompute12User::Run(WWComputeState& cState, WWConstantBuffer *cBuf, WWSrv
 
     mCList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
-    if (0 < cState.useConstBufCount) {
-        assert(cBuf);
+    if (0 < cState.useConstBufCount && cBuf) {
         mCList->SetComputeRootConstantBufferView(idx++, cBuf->cBufUpload->GetGPUVirtualAddress());
     }
     mCList->SetComputeRootDescriptorTable(idx++, firstSrvHandle);
@@ -581,6 +581,7 @@ WWDirectCompute12User::CopyGpuBufValuesToCpuMemory(WWGpuBuf& gpuBuf, void* to, i
     // uavのバッファーはsuHeapに関連付けられているためMapができない。
     // readbackBufに内容をコピーし、readbackBufをMapすることでGPUの計算結果をCPUに持ってくる。
 
+    // GPUの計算中に異常が発生すると、以下の関数呼び出しで失敗が戻ることがある。
     HRG(mDevice->CreateCommittedResource(
         &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK),
         D3D12_HEAP_FLAG_NONE,

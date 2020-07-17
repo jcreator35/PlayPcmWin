@@ -245,6 +245,8 @@ WWResampleGpu::ResultGetFromGpuMemory(
     assert(outputTo);
     assert(outputToElemNum <= m_sampleTotalTo);
 
+    ZeroMemory(outputTo, outputToElemNum * sizeof(float));
+
     // 計算結果をGPUのUAVからCPUに持ってくる。
     HRG(mDC.CopyGpuBufValuesToCpuMemory(mGpuBuf[GB_OutPCM], outputTo, outputToElemNum * sizeof(float)));
 

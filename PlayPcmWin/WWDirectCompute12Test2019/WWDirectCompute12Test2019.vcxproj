@@ -98,7 +98,7 @@
     <ClInclude Include="d3dx12.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="TestCopyShader.h" />
-    <ClInclude Include="TestSincConvolution.h" />
+    <ClInclude Include="TestResampleGpu.h" />
     <ClInclude Include="WWDCUtil.h" />
     <ClInclude Include="WWDirectCompute12User.h" />
     <ClInclude Include="WWResampleGpu.h" />
@@ -106,7 +106,7 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="TestCopyShader.cpp" />
-    <ClCompile Include="TestSincConvolution.cpp" />
+    <ClCompile Include="TestResampleGpu.cpp" />
     <ClCompile Include="WWDCUtil.cpp" />
     <ClCompile Include="WWDirectCompute12User.cpp" />
     <ClCompile Include="WWResampleGpu.cpp" />
