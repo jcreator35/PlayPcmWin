@@ -736,7 +736,7 @@ WWFlacRW_DecodeStreamOne(int id, uint8_t *pcmReturn, int pcmBytes)
 
     if (0 < fdi->rawPcmData.size()) {
         memcpy(pcmReturn, &fdi->rawPcmData[0], fdi->rawPcmData.size());
-        rv = fdi->rawPcmData.size();
+        rv = (int)fdi->rawPcmData.size();
     }
 
     fdi->errorCode = FRT_Success;

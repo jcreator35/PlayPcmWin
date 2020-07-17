@@ -189,8 +189,8 @@ namespace WWUserControls {
         class Command {
             public PointInf point;
             public Edge edge;
-            public int beforeIdx;
-            public int afterIdx;
+            //public int beforeIdx;
+            //public int afterIdx;
 
             public enum CommandType {
                 AddPoint,
@@ -303,6 +303,8 @@ namespace WWUserControls {
                 mDataGridPointProc.PointAdded(c.point);
                 break;
             case Command.CommandType.ChangePointIdx:
+                throw new System.NotImplementedException();
+                /*
                 // エッジリストに入っている点番号を更新する。
                 foreach (var e in mEP.mEdgeList) {
                     if (e.fromPointIdx == c.beforeIdx) {
@@ -312,6 +314,7 @@ namespace WWUserControls {
                         e.toPointIdx = c.afterIdx;
                     }
                 }
+                */
                 break;
             }
 
@@ -345,6 +348,8 @@ namespace WWUserControls {
                 mDataGridPointProc.PointAdded(c.point);
                 break;
             case Command.CommandType.ChangePointIdx:
+                throw new System.NotImplementedException();
+                /*
                 // エッジリストに入っている点番号を更新する。
                 foreach (var e in mEP.mEdgeList) {
                     if (e.fromPointIdx == c.afterIdx) {
@@ -354,6 +359,7 @@ namespace WWUserControls {
                         e.toPointIdx = c.beforeIdx;
                     }
                 }
+                */
                 break;
             }
 
