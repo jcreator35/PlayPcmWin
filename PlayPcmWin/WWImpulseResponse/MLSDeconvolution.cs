@@ -239,7 +239,7 @@ namespace WWImpulseResponse {
             Ps.Print("Ps");
 
             {
-                var testMat = new Matrix(P + 1, 1);
+                var testMat = new WWMatrix(P + 1, 1);
                 for (int r = 0; r < P + 1; ++r) {
                     testMat.Set(r, 0, PsReorder[r]);
                 }
@@ -272,7 +272,7 @@ namespace WWImpulseResponse {
             PlB.Print("PlB");
 
             {
-                var test2Mat = new Matrix(P + 1, 1);
+                var test2Mat = new WWMatrix(P + 1, 1);
                 for (int r = 0; r < P + 1; ++r) {
                     test2Mat.Set(r, 0, r);
                 }
