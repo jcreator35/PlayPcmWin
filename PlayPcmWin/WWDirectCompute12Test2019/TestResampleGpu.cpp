@@ -72,7 +72,7 @@ TestResampleGpu(void)
     {
         float scaleG = WWResampleGpu::LimitSampleData(outputGpu, sampleTotalTo);
 
-        printf("GPU=%dms(%fsamples/s) sample scaling=%f x\n",
+        printf("GPU=%dms(%fsamples/s), sample scaling=%f x\n",
             (t1 - t0), sampleTotalTo / ((t1 - t0) / 1000.0), scaleG);
     }
 

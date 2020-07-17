@@ -74,16 +74,6 @@ cbuffer consts {
 };
 
 inline double
-Sinc(double sinx, float x)
-{
-    if (-1.192092896e-07F < x && x < 1.192092896e-07F) {
-        return 1.0;
-    } else {
-        return sinx * rcp(x);
-    }
-}
-
-inline double
 SincD(double sinx, double x)
 {
     if (-2.2204460492503131e-016 < x && x < 2.2204460492503131e-016) {
@@ -109,7 +99,6 @@ SincD(double sinx, double x)
  * each thread calc respective convolution position calculation and store result to s_scratch
  */
 
-#ifdef HIGH_PRECISION
  // use doubleprec if possible
 
  // GPU memory
@@ -146,45 +135,6 @@ ConvolutionElemValue(int convOffs)
 
     return r;
 }
-#else
- // use singleprec
-
-// GPU memory
-StructuredBuffer<float>   g_SampleFromBuffer    : register(t0);
-StructuredBuffer<int>     g_ResamplePosBuffer   : register(t1);
-StructuredBuffer<float>   g_FractionBuffer      : register(t2);
-StructuredBuffer<float>   g_SinPreComputeBuffer : register(t3);
-RWStructuredBuffer<float> g_OutputBuffer        : register(u0);
-
-// TGSM
-groupshared double s_scratch[GROUP_THREAD_COUNT];
-groupshared int    s_fromPos;
-groupshared float  s_fraction;
-groupshared float  s_sinPreCompute;
-
-inline double
-ConvolutionElemValue(int convOffs)
-{
-    double r = 0.0;
-
-    int pos = convOffs + s_fromPos;
-    if (0 <= pos && pos < SAMPLE_TOTAL_FROM) {
-        double x = PI_D * ((double)convOffs - (double)s_fraction);
-
-        double sinX = s_sinPreCompute;
-        if (convOffs & 1) {
-            sinX *= -1.0;
-        }
-
-        double sinc = SincD(sinX, x);
-
-        r = g_SampleFromBuffer[pos] * sinc;
-    }
-
-    return r;
-}
-
-#endif // HIGH_PRECISION
 
 #if 1
 [numthreads(GROUP_THREAD_COUNT, 1, 1)]
@@ -272,7 +222,18 @@ CSMain(
 #endif
 
 #if 0
+
 // before optimization. painfully slow because only 1 GPU unit is used!
+
+inline double
+Sinc(double sinx, float x)
+{
+    if (-1.192092896e-07F < x && x < 1.192092896e-07F) {
+        return 1.0;
+    } else {
+        return sinx * rcp(x);
+    }
+}
 
 [numthreads(1, 1, 1)]
 void
@@ -293,7 +254,7 @@ CSMain(
         if (0 <= pos && pos < SAMPLE_TOTAL_FROM) {
             float x = PI_F * (convOffs - fraction);
 
-            double sinX = sinPreCompute;
+            double sinX = s_sinPreCompute;
             if (convOffs & 1) {
                 sinX *= -1.0;
             }

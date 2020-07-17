@@ -36,8 +36,8 @@ public:
         int sampleDataCount);
 
 private:
+    float* m_sampleFrom = nullptr;
     int m_convolutionN = 0;
-    float* m_sampleFrom = 0;
     int m_sampleTotalFrom = 0;
     int m_sampleRateFrom = 0;
     int m_sampleRateTo = 0;

@@ -604,6 +604,9 @@ WWDirectCompute12User::CopyGpuBufValuesToCpuMemory(WWGpuBuf& gpuBuf, void* to, i
 
     HRG(CloseExecResetWait());
 
+    // 念のためメモリ領域にタッチする。
+    ZeroMemory(to, toBytes);
+
     HRG(readbackBuf->Map(0, &range, &p));
 
     memcpy(to, p, toBytes);

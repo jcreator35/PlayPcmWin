@@ -81,8 +81,8 @@ WWResampleGpu::Setup(
     bool    result = true;
     HRESULT hr = S_OK;
     int* resamplePosArray = nullptr;
-    float* fractionArray = nullptr;
-    float* sinPreComputeArray = nullptr;
+    double* fractionArray = nullptr;
+    double* sinPreComputeArray = nullptr;
     ConstShaderParams shaderParams;
 
     assert(0 < convolutionN);
@@ -107,10 +107,10 @@ WWResampleGpu::Setup(
     resamplePosArray = new int[sampleTotalTo];
     assert(resamplePosArray);
 
-    fractionArray = new float[sampleTotalTo];
+    fractionArray = new double[sampleTotalTo];
     assert(fractionArray);
 
-    sinPreComputeArray = new float[sampleTotalTo];
+    sinPreComputeArray = new double[sampleTotalTo];
     assert(sinPreComputeArray);
 
     for (int i = 0; i < sampleTotalTo; ++i) {
@@ -133,8 +133,8 @@ WWResampleGpu::Setup(
         double fraction = resamplePos - resamplePosI;
 
         resamplePosArray[i] = resamplePosI;
-        fractionArray[i] = (float)fraction;
-        sinPreComputeArray[i] = (float)sin(-PI_D * fraction);
+        fractionArray[i] = fraction;
+        sinPreComputeArray[i] = sin(-PI_D * fraction);
     }
 
     HRG(mDC.Init(0));
@@ -161,9 +161,6 @@ WWResampleGpu::Setup(
         char      groupThreadCountStr[32];
         sprintf_s(groupThreadCountStr, "%d", GROUP_THREAD_COUNT);
 
-        char      highPrecisionStr[32];
-        sprintf_s(highPrecisionStr, "%d", 0 != highPrecision);
-
         const D3D_SHADER_MACRO defines[] = {
                 "CONV_START", convStartStr,
                 "CONV_END", convEndStr,
@@ -175,7 +172,6 @@ WWResampleGpu::Setup(
                 "SAMPLE_RATE_TO", sampleRateToStr,
                 "ITERATE_N", iterateNStr,
                 "GROUP_THREAD_COUNT", groupThreadCountStr,
-                "HIGH_PRECISION", highPrecisionStr,
                 nullptr, nullptr
         };
 
@@ -183,11 +179,11 @@ WWResampleGpu::Setup(
     }
 
     HRG(mDC.CreateSrvUavHeap(GB_NUM, mSUHeap));
-    HRG(mDC.CreateGpuBufferAndRegisterAsSRV(mSUHeap, sizeof(float), sampleTotalFrom, sampleFrom,         mGpuBuf[GB_InputPCM],            mSrv[GB_InputPCM]));
-    HRG(mDC.CreateGpuBufferAndRegisterAsSRV(mSUHeap, sizeof(int),   sampleTotalTo,   resamplePosArray,   mGpuBuf[GB_ResamplePosBuf],      mSrv[GB_ResamplePosBuf]));
-    HRG(mDC.CreateGpuBufferAndRegisterAsSRV(mSUHeap, sizeof(float), sampleTotalTo,   fractionArray,      mGpuBuf[GB_ResampleFractionBuf], mSrv[GB_ResampleFractionBuf]));
-    HRG(mDC.CreateGpuBufferAndRegisterAsSRV(mSUHeap, sizeof(float), sampleTotalTo,   sinPreComputeArray, mGpuBuf[GB_SinPrecomputeBuf],    mSrv[GB_SinPrecomputeBuf]));
-    HRG(mDC.CreateGpuBufferAndRegisterAsUAV(mSUHeap, sizeof(float), sampleTotalTo, mGpuBuf[GB_OutPCM], mUav));
+    HRG(mDC.CreateGpuBufferAndRegisterAsSRV(mSUHeap, sizeof(float),  sampleTotalFrom, sampleFrom,         mGpuBuf[GB_InputPCM],            mSrv[GB_InputPCM]));
+    HRG(mDC.CreateGpuBufferAndRegisterAsSRV(mSUHeap, sizeof(int),    sampleTotalTo,   resamplePosArray,   mGpuBuf[GB_ResamplePosBuf],      mSrv[GB_ResamplePosBuf]));
+    HRG(mDC.CreateGpuBufferAndRegisterAsSRV(mSUHeap, sizeof(double), sampleTotalTo,   fractionArray,      mGpuBuf[GB_ResampleFractionBuf], mSrv[GB_ResampleFractionBuf]));
+    HRG(mDC.CreateGpuBufferAndRegisterAsSRV(mSUHeap, sizeof(double), sampleTotalTo,   sinPreComputeArray, mGpuBuf[GB_SinPrecomputeBuf],    mSrv[GB_SinPrecomputeBuf]));
+    HRG(mDC.CreateGpuBufferAndRegisterAsUAV(mSUHeap, sizeof(float),  sampleTotalTo, mGpuBuf[GB_OutPCM], mUav));
     HRG(mDC.CreateComputeState(mCS, NUM_CONSTS, NUM_SRV, NUM_UAV, mCState));
     
     ZeroMemory(&shaderParams, sizeof shaderParams);
@@ -244,8 +240,6 @@ WWResampleGpu::ResultGetFromGpuMemory(
 
     assert(outputTo);
     assert(outputToElemNum <= m_sampleTotalTo);
-
-    ZeroMemory(outputTo, outputToElemNum * sizeof(float));
 
     // 計算結果をGPUのUAVからCPUに持ってくる。
     HRG(mDC.CopyGpuBufValuesToCpuMemory(mGpuBuf[GB_OutPCM], outputTo, outputToElemNum * sizeof(float)));
