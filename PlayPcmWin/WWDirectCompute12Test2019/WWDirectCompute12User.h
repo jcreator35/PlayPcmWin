@@ -85,7 +85,6 @@ public:
         const void* data);
 
     /// @brief SRVとUAVの置き場作成。
-    // ヒープには、SRV,SRV,UAV, SRV,SRV,UAVのように、SRV→UAVの順に並べる事。
     HRESULT CreateSrvUavHeap(
         int numEntries,
         WWSrvUavHeap& heap_out);
@@ -117,11 +116,17 @@ public:
     /// @brief コンピュートシェーダーを実行する。
     /// @param firstHeapIdx suHeapの、コンピュートシェーダーに見せたい最初のエントリー番号。
     /// @param uavIdx suHeapのUAVのエントリー番号。
-    HRESULT Run(WWComputeState &cState, WWConstantBuffer *cBuf, WWSrvUavHeap &suHeap,
+    HRESULT Run(
+        WWComputeState &cState,
+        WWConstantBuffer *cBuf,
+        WWSrvUavHeap &suHeap,
         int firstHeapIdx,
         UINT x, UINT y, UINT z);
 
     HRESULT CopyGpuBufValuesToCpuMemory(WWGpuBuf& gpuBuf, void* to, int toBytes);
+
+    /// @brief コマンドリストにたまったコマンドを実行し、完了するまで待つ。
+    HRESULT CloseExecResetWait(void);
 
 private:
     ComPtr<ID3D12Device> mDevice;
@@ -133,5 +138,4 @@ private:
     std::wstring mAssetsPath;
     std::wstring GetAssetFullPath(LPCWSTR assetName);
 
-    HRESULT CloseExecResetWait(void);
 };

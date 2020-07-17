@@ -7,7 +7,8 @@
 
 #define GROUP_THREAD_COUNT 1024
 
-/// @brief シェーダー定数バッファの構造。バイト数が256の倍数である必要がある？ D3D12ExecuteIndirect.h:61参照。
+/// @brief シェーダー定数バッファの構造。
+/// バイト数が256の倍数である必要がある？ D3D12ExecuteIndirect.h:61参照。
 struct ShaderConsts {
     uint32_t c_count;
 
@@ -42,13 +43,11 @@ TestCopyShader(void)
     const float inputData[1024] = { 1,2,3,4 };
     float outputData[1024] = {};
 
-
-
     // 準備作業。■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
-    HRG(dc.Init(false));
+    HRG(dc.Init(0));
 
-    {   // シェーダーをコンパイルする。
+    {   // コンピュートシェーダーをコンパイルする。
         char      groupThreadCountStr[32];
         sprintf_s(groupThreadCountStr, "%d", GROUP_THREAD_COUNT);
 
@@ -60,8 +59,9 @@ TestCopyShader(void)
         HRG(dc.CreateShader(L"Copy.hlsl", "CSMain", "cs_5_0", defines, copyShader));
     }
 
-    HRG(dc.CreateConstantBuffer(16, cBuf));
+    HRG(dc.CreateConstantBuffer(sizeof cBuf, cBuf));
 
+    // 入力SRV1個、出力UAV1個。
     HRG(dc.CreateSrvUavHeap(NUM_SRV + NUM_UAV, suHeap));
     HRG(dc.CreateGpuBufferAndRegisterAsSRV(suHeap, sizeof(inputData[0]), ARRAYSIZE(inputData), inputData, gpuBufAry[SHI_SRV_IN], srvInData));
     HRG(dc.CreateGpuBufferAndRegisterAsUAV(suHeap, sizeof(outputData[0]), ARRAYSIZE(outputData), gpuBufAry[SHI_UAV_OUT], uavOutData));
@@ -73,6 +73,7 @@ TestCopyShader(void)
     shaderConsts.c_count = 2;
     HRG(dc.UpdateConstantBufferData(cBuf, &shaderConsts));
 
+    // GPU上でシェーダーを実行。
     HRG(dc.Run(cState, &cBuf, suHeap, SHI_SRV_IN, GROUP_THREAD_COUNT, 1, 1));
 
     // GPUメモリ上の計算結果をCPUメモリに持ってくる。
@@ -90,6 +91,7 @@ TestCopyShader(void)
     shaderConsts.c_count = 4;
     HRG(dc.UpdateConstantBufferData(cBuf, &shaderConsts));
 
+    // GPU上でシェーダーを実行。
     HRG(dc.Run(cState, &cBuf, suHeap, SHI_SRV_IN, GROUP_THREAD_COUNT, 1, 1));
 
     // GPUメモリ上の計算結果をCPUメモリに持ってくる。

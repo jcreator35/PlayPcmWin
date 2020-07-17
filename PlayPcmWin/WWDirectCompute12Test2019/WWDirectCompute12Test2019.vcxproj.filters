@@ -33,6 +33,12 @@
     <ClInclude Include="WWDirectCompute12User.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TestSincConvolution.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWResampleGpu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -47,9 +53,18 @@
     <ClCompile Include="WWDirectCompute12User.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TestSincConvolution.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WWResampleGpu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="Copy.hlsl">
+      <Filter>Shaders</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="SincConvolution3.hlsl">
       <Filter>Shaders</Filter>
     </CopyFileToFolders>
   </ItemGroup>
