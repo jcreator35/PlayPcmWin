@@ -173,7 +173,6 @@ WWUpsampleGpu::Setup(
     char      highPrecisionStr[32];
     sprintf_s(highPrecisionStr, "%d", 0 != highPrecision);
 
-    // doubleprec
     const D3D_SHADER_MACRO defines[] = {
             "CONV_START", convStartStr,
             "CONV_END", convEndStr,
