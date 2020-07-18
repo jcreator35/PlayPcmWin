@@ -10,9 +10,6 @@
 
 class WWResampleGpu {
 public:
-    void Init(void);
-    void Term(void);
-
     HRESULT Setup(
         int convolutionN,
         float* sampleFrom,
@@ -29,11 +26,6 @@ public:
     HRESULT ResultGetFromGpuMemory(
         float* outputTo,
         int outputToElemNum);
-
-    // limit level to fit to the audio sampledata range
-    static float LimitSampleData(
-        float* sampleData,
-        int sampleDataCount);
 
 private:
     float* m_sampleFrom = nullptr;

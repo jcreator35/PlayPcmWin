@@ -1,5 +1,7 @@
 /*
 
+Requires DirectX 11_1, ComputeShader 5_0 with DoublePrecisionFloatShaderOps feature.
+
 basically, calc following code on GPU
 
 for (int toPos=0; toPos<sampleTotalTo; ++toPos) {
@@ -35,9 +37,12 @@ for (int toPos=0; toPos<sampleTotalTo; ++toPos) {
 
 "SAMPLE_RATE_FROM"   = sampleRateFrom
 "SAMPLE_RATE_TO"     = sampleRateTo
+
 "ITERATE_N"          = convolutionN*2/GROUP_THREAD_COUNT
 "GROUP_THREAD_COUNT" = 1024
 
+GROUP_THREAD_COUNT is constant value and cannot increase
+because TGSM resource size is limited
 
 set
 shaderParams.c_convOffs = 0
@@ -90,7 +95,7 @@ SincD(double sinx, double x)
     }
 }
 
-/* read optimization using thread group and TGSM
+/* Read optimization using thread group and TGSM
  * in order to output 1 sample, need to calc following
  * ・g_ResamplePosBuffer   1 read
  * ・g_FractionBuffer      1 read
@@ -108,7 +113,7 @@ StructuredBuffer<double>  g_FractionBuffer      : register(t2);
 StructuredBuffer<double>  g_SinPreComputeBuffer : register(t3);
 RWStructuredBuffer<float> g_OutputBuffer        : register(u0);
 
-// TGSM
+// TGSM, 32KB available ?
 groupshared double s_scratch[GROUP_THREAD_COUNT];
 groupshared int    s_fromPos;
 groupshared double s_fraction;
@@ -223,7 +228,7 @@ CSMain(
 
 #if 0
 
-// before optimization. painfully slow because only 1 GPU unit is used!
+// Before optimization. Painfully slow because only 1 GPU unit is used!
 
 inline double
 Sinc(double sinx, float x)

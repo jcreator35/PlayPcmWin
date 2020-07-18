@@ -59,6 +59,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -75,6 +76,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -98,21 +100,34 @@
     <ClInclude Include="d3dx12.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="TestCopyShader.h" />
+    <ClInclude Include="TestDirectConvolutionGpu.h" />
     <ClInclude Include="TestResampleGpu.h" />
     <ClInclude Include="WWDCUtil.h" />
     <ClInclude Include="WWDirectCompute12User.h" />
+    <ClInclude Include="WWDirectConvolutionGpu.h" />
     <ClInclude Include="WWResampleGpu.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="TestCopyShader.cpp" />
+    <ClCompile Include="TestDirectConvolutionGpu.cpp" />
     <ClCompile Include="TestResampleGpu.cpp" />
     <ClCompile Include="WWDCUtil.cpp" />
     <ClCompile Include="WWDirectCompute12User.cpp" />
+    <ClCompile Include="WWDirectConvolutionGpu.cpp" />
     <ClCompile Include="WWResampleGpu.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="SincConvolution3.hlsl">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <FileType>Document</FileType>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="DirectConvolution.hlsl">
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
       <FileType>Document</FileType>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>

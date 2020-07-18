@@ -16,6 +16,12 @@
 #  define dprintf(x, ...)
 #endif
 
+/// @brief PCMデータとして有効な値範囲にスケールする。
+float
+WWDCUtilLimitSampleData(
+    float* sampleData,
+    int sampleDataCount);
+
 double
 SincD(double sinx, double x);
 

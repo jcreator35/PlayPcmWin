@@ -2,6 +2,43 @@
 
 #include "WWDCUtil.h"
 
+
+float
+WWDCUtilLimitSampleData(
+    float* sampleData,
+    int sampleDataCount)
+{
+    float minV = 0.0f;
+    float maxV = 0.0f;
+
+    for (int i = 0; i < sampleDataCount; ++i) {
+        if (sampleData[i] < minV) {
+            minV = sampleData[i];
+        }
+        if (maxV < sampleData[i]) {
+            maxV = sampleData[i];
+        }
+    }
+
+    float scale = 1.0f;
+    if (minV < -1.0f) {
+        scale = -1.0f / minV;
+    }
+    if (0.99999988079071044921875f < maxV) {
+        float scale2 = 0.99999988079071044921875f / maxV;
+        if (scale2 < scale) {
+            scale = scale2;
+        }
+    }
+    if (scale < 1.0f) {
+        for (int i = 0; i < sampleDataCount; ++i) {
+            sampleData[i] *= scale;
+        }
+    }
+
+    return scale;
+}
+
 double
 SincD(double sinx, double x)
 {

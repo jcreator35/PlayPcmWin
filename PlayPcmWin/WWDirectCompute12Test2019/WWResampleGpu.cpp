@@ -16,58 +16,6 @@ struct ConstShaderParams {
     uint32_t c_reserved2;
 };
 
-float
-WWResampleGpu::LimitSampleData(
-    float* sampleData,
-    int sampleDataCount)
-{
-    float minV = 0.0f;
-    float maxV = 0.0f;
-
-    for (int i = 0; i < sampleDataCount; ++i) {
-        if (sampleData[i] < minV) {
-            minV = sampleData[i];
-        }
-        if (maxV < sampleData[i]) {
-            maxV = sampleData[i];
-        }
-    }
-
-    float scale = 1.0f;
-    if (minV < -1.0f) {
-        scale = -1.0f / minV;
-    }
-    if (0.99999988079071044921875f < maxV) {
-        float scale2 = 0.99999988079071044921875f / maxV;
-        if (scale2 < scale) {
-            scale = scale2;
-        }
-    }
-    if (scale < 1.0f) {
-        for (int i = 0; i < sampleDataCount; ++i) {
-            sampleData[i] *= scale;
-        }
-    }
-
-    return scale;
-}
-
-void
-WWResampleGpu::Init(void)
-{
-    int m_convolutionN = 0;
-    float* m_sampleFrom = nullptr;
-    int m_sampleTotalFrom = 0;
-    int m_sampleRateFrom = 0;
-    int m_sampleRateTo = 0;
-    int m_sampleTotalTo = 0;
-}
-
-void
-WWResampleGpu::Term(void)
-{
-}
-
 HRESULT
 WWResampleGpu::Setup(
     int convolutionN,

@@ -13,8 +13,6 @@ TestResampleGpu(void)
     WWResampleGpu rg;
     DWORD t0, t1, t2;
 
-    rg.Init();
-
     const bool highPrecision = true;
 
     // データ準備
@@ -79,7 +77,7 @@ TestResampleGpu(void)
     */
 
     {
-        float scaleG = WWResampleGpu::LimitSampleData(outputGpu, sampleTotalTo);
+        float scaleG = WWDCUtilLimitSampleData(outputGpu, sampleTotalTo);
 
         printf("GPU=%dms(%fsamples/s), sample scaling=%f x\n",
             (t1 - t0), sampleTotalTo / ((t1 - t0) / 1000.0), scaleG);

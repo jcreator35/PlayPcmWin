@@ -39,6 +39,12 @@
     <ClInclude Include="TestResampleGpu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="WWDirectConvolutionGpu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TestDirectConvolutionGpu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -59,12 +65,21 @@
     <ClCompile Include="TestResampleGpu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="WWDirectConvolutionGpu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TestDirectConvolutionGpu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="Copy.hlsl">
       <Filter>Shaders</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="SincConvolution3.hlsl">
+      <Filter>Shaders</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="DirectConvolution.hlsl">
       <Filter>Shaders</Filter>
     </CopyFileToFolders>
   </ItemGroup>
