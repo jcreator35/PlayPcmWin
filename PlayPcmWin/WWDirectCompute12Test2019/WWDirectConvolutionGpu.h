@@ -11,12 +11,13 @@
 class WWDirectConvolutionGpu {
 public:
     /// @brief 入力データ列と畳み込み係数列をGPUに送り、コンピュートシェーダーをコンパイルする。
-    /// @param convolutionCoeffsAry 畳み込み係数列。convolutionHalfLength*2サンプル。
+    /// @param convAry 畳み込み係数列。convCountサンプル。
+    /// @param convCount 畳み込み係数列の要素数。奇数。
     HRESULT Setup(
-        float* mInputAry,
+        float* inputAry,
         int inputCount,
-        double* convolutionCoeffsAry,
-        int convolutionHalfLength);
+        double* convAry,
+        int convCount);
 
     /// @brief 少しずつConvolutionする。
     /// @param startPos inputDataのstartオフセット。
@@ -31,11 +32,8 @@ public:
         int outputToElemNum);
 
 private:
-    float* mInputAry = nullptr;
     int mInputCount = 0;
-
-    double* mConvCoeffsAryFlip = nullptr;
-    int mConvHalfLength = 0;
+    int mConvCount = 0;
 
     WWDirectCompute12User mDC;
     WWShader mCS;

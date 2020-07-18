@@ -18,31 +18,32 @@ struct ConstShaderParams {
 
 HRESULT
 WWDirectConvolutionGpu::Setup(
-    float* mInputAry,
+    float* inputAry,
     int inputCount,
-    double* convolutionCoeffsAry,
-    int convolutionHalfLength)
+    double* convAry,
+    int convCount)
 {
     bool    result = true;
     HRESULT hr = S_OK;
 
     ConstShaderParams shaderParams;
-    int convCount = convolutionHalfLength * 2;
 
-    assert(convolutionCoeffsAry);
-    assert(0 < convolutionHalfLength);
-    assert(mInputAry);
+    double* convAryFlip = nullptr;
+
+    assert(convAry);
+    assert(0 < convCount);
+    assert(convCount & 1); //< convCountは奇数個。
+    assert(inputAry);
     assert(0 < inputCount);
 
-    mConvHalfLength = convolutionHalfLength;
-    mInputAry = mInputAry;
     mInputCount = inputCount;
+    mConvCount = convCount;
 
     //　畳み込み係数バッファーを左右反転したものを作る。
-    mConvCoeffsAryFlip = new double[convCount];
-    assert(mConvCoeffsAryFlip);
+    convAryFlip = new double[convCount];
+    assert(convAryFlip);
     for (int i = 0; i < convCount; ++i) {
-        mConvCoeffsAryFlip[i] = convolutionCoeffsAry[convCount - 1 - i];
+        convAryFlip[i] = convAry[convCount - 1 - i];
     }
 
     HRG(mDC.Init(0));
@@ -53,9 +54,9 @@ WWDirectConvolutionGpu::Setup(
         sprintf_s(inputCountStr, "%d", inputCount);
 
         char      convStartStr[32];
-        sprintf_s(convStartStr, "%d", -convolutionHalfLength);
+        sprintf_s(convStartStr, "%d", -convCount /2);
         char      convEndStr[32];
-        sprintf_s(convEndStr, "%d", convolutionHalfLength);
+        sprintf_s(convEndStr, "%d", convCount/2);
         char      convCountStr[32];
         sprintf_s(convCountStr, "%d", convCount);
 
@@ -81,9 +82,9 @@ WWDirectConvolutionGpu::Setup(
     }
 
     HRG(mDC.CreateSrvUavHeap(GB_NUM, mSUHeap));
-    HRG(mDC.CreateGpuBufferAndRegisterAsSRV(mSUHeap, sizeof(float), inputCount, mInputAry,          mGpuBuf[GB_InputAry],      mSrv[GB_InputAry]));
-    HRG(mDC.CreateGpuBufferAndRegisterAsSRV(mSUHeap, sizeof(double), convCount, mConvCoeffsAryFlip, mGpuBuf[GB_ConvCoeffsAry], mSrv[GB_ConvCoeffsAry]));
-    HRG(mDC.CreateGpuBufferAndRegisterAsUAV(mSUHeap, sizeof(float), inputCount, mGpuBuf[GB_OutAry], mUav));
+    HRG(mDC.CreateGpuBufferAndRegisterAsSRV(mSUHeap, sizeof(float),  inputCount, inputAry,    mGpuBuf[GB_InputAry],      mSrv[GB_InputAry]));
+    HRG(mDC.CreateGpuBufferAndRegisterAsSRV(mSUHeap, sizeof(double), convCount,  convAryFlip, mGpuBuf[GB_ConvCoeffsAry], mSrv[GB_ConvCoeffsAry]));
+    HRG(mDC.CreateGpuBufferAndRegisterAsUAV(mSUHeap, sizeof(float),  inputCount, mGpuBuf[GB_OutAry], mUav));
     HRG(mDC.CreateComputeState(mCS, NUM_CONSTS, NUM_SRV, NUM_UAV, mCState));
     
     ZeroMemory(&shaderParams, sizeof shaderParams);
@@ -94,8 +95,8 @@ WWDirectConvolutionGpu::Setup(
     HRG(mDC.CloseExecResetWait());
 
 end:
-    delete[] mConvCoeffsAryFlip;
-    mConvCoeffsAryFlip = nullptr;
+    delete[] convAryFlip;
+    convAryFlip = nullptr;
 
     return hr;
 }
@@ -111,7 +112,7 @@ WWDirectConvolutionGpu::Dispatch(
     ConstShaderParams shaderParams;
     ZeroMemory(&shaderParams, sizeof shaderParams);
     shaderParams.cConvOffs = 0;
-    shaderParams.cDispatchCount = mConvHalfLength * 2 / GROUP_THREAD_COUNT;
+    shaderParams.cDispatchCount = mConvCount / GROUP_THREAD_COUNT;
     shaderParams.cSampleStartPos = startPos;
     HRG(mDC.UpdateConstantBufferData(mCBuf, &shaderParams));
 

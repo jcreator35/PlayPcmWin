@@ -11,18 +11,22 @@ TestDirectConvolutionGpu(void)
     HRESULT hr = S_OK;
     WWDirectConvolutionGpu dc;
 
-    const int INPUT_COUNT = 10;
-    const int CONV_COUNT = 10;
+    const int INPUT_COUNT = 20;
+    const int CONV_COUNT = 5; // {0, 1, 2, 3, 4}
 
     float inputAry[INPUT_COUNT];
     double convCoeffsAry[CONV_COUNT];
-
     float outAry[INPUT_COUNT];
 
+    for (int i = 0; i < INPUT_COUNT; ++i) {
+        inputAry[i] = 1.0f;
+    }
+    for (int i = 0; i < CONV_COUNT; ++i) {
+        convCoeffsAry[i] = i;
+    }
+
     HRG(dc.Setup(inputAry, INPUT_COUNT, convCoeffsAry, CONV_COUNT));
-
     HRG(dc.Dispatch(0, INPUT_COUNT));
-
     HRG(dc.ResultGetFromGpuMemory(outAry, INPUT_COUNT));
 
     for (int i = 0; i < INPUT_COUNT; ++i) {

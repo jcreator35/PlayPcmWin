@@ -10,10 +10,9 @@ Requires DirectX 11_0, ComputeShader 5_0 with DoublePrecisionFloatShaderOps feat
 
 "INPUT_COUNT" : g_InputBuf elem count
 
-"CONV_HALF_LEN" : convolution half length
+"CONV_COUNT"   = convolution coeffs count (odd number)
 "CONV_START"   = -CONV_HALF_LEN
 "CONV_END"     = CONV_HALF_LEN
-"CONV_COUNT"   = CONV_HALF_LEN*2
 
 "ITERATE_N"          = convolutionN*2/GROUP_THREAD_COUNT
 "GROUP_THREAD_COUNT" = 1024
@@ -41,23 +40,6 @@ Set
 shaderParams.c_convOffs      = 0
 shaderParams.c_dispatchCount = convolutionN*2/GROUP_THREAD_COUNT;
 And run(consts=shaderParams, x=INPUT_COUNT, y=1, z=1);
-
-■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
-
-Shader execs following code on GPU:
-
-    uint samplePos = cSampleStartPos + groupIdXYZ.x;
-
-    double v = 0.0;
-
-    for (int i = CONV_START; i < CONV_END; ++i) {
-        int pos = i + samplePos;
-        if (0 <= pos && pos < INPUT_COUNT) {
-            v += gInputAry[pos] * gConvCoeffsAryFlip[CONV_HALF_LEN + i];
-        }
-    }
-
-    gOutputAry[samplePos] = (float)v;
 
 */
 
@@ -88,7 +70,7 @@ CSMain(
 
     double v = 0.0;
 
-    for (int i = CONV_START; i < CONV_END; ++i) {
+    for (int i = CONV_START; i <= CONV_END; ++i) {
         int pos = i + samplePos;
         if (0 <= pos && pos < INPUT_COUNT) {
             v += gInputAry[pos] * gConvCoeffsAryFlip[CONV_HALF_LEN + i];
