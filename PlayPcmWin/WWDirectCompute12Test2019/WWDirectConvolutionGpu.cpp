@@ -9,11 +9,9 @@
 
 /// シェーダーに渡す定数。
 struct ConstShaderParams {
-    uint32_t cConvOffs;
-    uint32_t cDispatchCount;
     uint32_t cSampleStartPos;
 
-    uint32_t cReserved[61];
+    uint32_t cReserved[63];
 };
 
 HRESULT
@@ -60,8 +58,6 @@ WWDirectConvolutionGpu::Setup(
         char      convCountStr[32];
         sprintf_s(convCountStr, "%d", convCount);
 
-        char      iterateNStr[32];
-        sprintf_s(iterateNStr, "%d", convCount / GROUP_THREAD_COUNT);
         char      groupThreadCountStr[32];
         sprintf_s(groupThreadCountStr, "%d", GROUP_THREAD_COUNT);
 
@@ -73,7 +69,6 @@ WWDirectConvolutionGpu::Setup(
                 "CONV_END",   convEndStr,
                 "CONV_COUNT", convCountStr,
 
-                "ITERATE_N", iterateNStr,
                 "GROUP_THREAD_COUNT", groupThreadCountStr,
                 nullptr, nullptr
         };
@@ -111,8 +106,6 @@ WWDirectConvolutionGpu::Dispatch(
 
     ConstShaderParams shaderParams;
     ZeroMemory(&shaderParams, sizeof shaderParams);
-    shaderParams.cConvOffs = 0;
-    shaderParams.cDispatchCount = mConvCount / GROUP_THREAD_COUNT;
     shaderParams.cSampleStartPos = startPos;
     HRG(mDC.UpdateConstantBufferData(mCBuf, &shaderParams));
 

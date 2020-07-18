@@ -66,7 +66,7 @@ float OutputBuffer[0] to OutputBuffer[sampleN-1]
 
 /// constants need to be multiple of 16
 cbuffer consts {
-    /// convolution position offset. Should be multiple of n * GROUP_THREAD_COUNT
+    /// convolution position offset. Should be multiple of GROUP_THREAD_COUNT
     uint c_convOffs;
 
     uint c_dispatchCount;
