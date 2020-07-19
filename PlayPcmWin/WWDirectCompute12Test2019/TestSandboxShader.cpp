@@ -46,7 +46,7 @@ TestSandboxShader(void)
 
     // 計算結果を表示。
     for (int i = 0; i < 25; ++i) {
-        printf("%f\n", outputData[i]);
+        printf("%5d, %f\n", i, outputData[i]);
     }
     printf("\n");
 

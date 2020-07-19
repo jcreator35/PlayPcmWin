@@ -194,7 +194,8 @@ WWDirectCompute12User::CreateShader(
     UINT compileFlags = 0;
 #endif
 
-    hr = D3DCompileFromFile(GetAssetFullPath(path).c_str(), defines, nullptr, entryPoint, csVersion, compileFlags, 0, &cs_out.shader, &errors);
+    hr = D3DCompileFromFile(GetAssetFullPath(path).c_str(), defines, nullptr,
+            entryPoint, csVersion, compileFlags, 0, &cs_out.shader, &errors);
     if (FAILED(hr)) {
         if (errors != nullptr) {
             const char* s = (const char*)errors->GetBufferPointer();
@@ -451,7 +452,7 @@ WWDirectCompute12User::CreateGpuBufferAndRegisterAsUAV(
     assert(gpuBuf_out.buf.Get());
 
     {
-        uav_out.suHeapIdx = (int)suHeap.entryTypes.size();
+        uav_out.suHeapIdx = (int)suHeap.entryTypes.size(); //< increments from zero.
 
         CD3DX12_CPU_DESCRIPTOR_HANDLE uavHandle(suHeap.heap->GetCPUDescriptorHandleForHeapStart(), uav_out.suHeapIdx, suHeap.srvUavDescSize);
         mDevice->CreateUnorderedAccessView(gpuBuf_out.buf.Get(), nullptr, &uavDesc, uavHandle);
