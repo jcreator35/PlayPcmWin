@@ -474,36 +474,49 @@ WWDirectCompute12User::CreateComputeState(
 {
     HRESULT hr = S_OK;
 
+    ComPtr<ID3DBlob> signature;
+    ComPtr<ID3DBlob> errors;
+    D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData = {};
+    CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC sDesc;
+
     cState_out.useConstBufCount = useConstBufCount;
     cState_out.useSRVCount = useSRVCount;
     cState_out.useUAVCount = useUAVCount;
 
-    assert(0 < useSRVCount);
-    assert(0 < useUAVCount);
+    assert(0 <= useConstBufCount && useConstBufCount <= 1);
+    assert(0 <= useSRVCount);
+    assert(0 <= useUAVCount);
 
-    {   // create root signature
-        int numParams = (0 < useConstBufCount) + 1;
-
-        ComPtr<ID3DBlob> signature;
-        ComPtr<ID3DBlob> errors;
-        D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData = {};
-
+    {
+        // create root signature
         CD3DX12_DESCRIPTOR_RANGE1 ranges[2];
-        ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, useSRVCount, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE); // シェーダでt0, t1, t2, ...
-        ranges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, useUAVCount, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_VOLATILE);        // シェーダでu0, u1, u2, ...
-
         CD3DX12_ROOT_PARAMETER1 rootParams[2];
-        int idx = 0;
-        if (0 < useConstBufCount) {
-            assert(1 == useConstBufCount);
-            rootParams[idx++].InitAsConstantBufferView(0, 0, D3D12_ROOT_DESCRIPTOR_FLAG_DATA_STATIC, D3D12_SHADER_VISIBILITY_ALL);
+        int nRange = 0;
+        int nParams = 0;
+
+        if (0 < useSRVCount) {
+            ranges[nRange++].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, useSRVCount, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE); // シェーダでt0, t1, t2, ...
         }
-        // SRVとUAVをまとめて1個のrootParamsにする。
-        rootParams[idx++].InitAsDescriptorTable(2, &ranges[0], D3D12_SHADER_VISIBILITY_ALL);
+        if (0 < useUAVCount) {
+            ranges[nRange++].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, useUAVCount, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_VOLATILE);        // シェーダでu0, u1, u2, ...
+        }
 
-        CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC sDesc;
-        sDesc.Init_1_1(numParams, rootParams, 0, nullptr);
+        if (0 < useConstBufCount) {
+            rootParams[nParams++].InitAsConstantBufferView(0, 0, D3D12_ROOT_DESCRIPTOR_FLAG_DATA_STATIC, D3D12_SHADER_VISIBILITY_ALL);
+        }
+        if (0 < nRange) {
+            // SRVとUAVをまとめて1個のrootParamsにする。
+            rootParams[nParams++].InitAsDescriptorTable(nRange, &ranges[0], D3D12_SHADER_VISIBILITY_ALL);
+        }
 
+        if (0 == nParams) {
+            sDesc.Init_1_1(0, nullptr, 0, nullptr);
+        } else {
+            sDesc.Init_1_1(nParams, rootParams, 0, nullptr);
+        }
+    }
+
+    {
         featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_1;
         if (FAILED(mDevice->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &featureData, sizeof(featureData)))) {
             featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
@@ -517,7 +530,8 @@ WWDirectCompute12User::CreateComputeState(
             goto end;
         }
 
-        HRG(mDevice->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&cState_out.rootSignature)));
+        HRG(mDevice->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(),
+                IID_PPV_ARGS(&cState_out.rootSignature)));
         assert(cState_out.rootSignature.Get());
         NAME_D3D12_OBJECT(cState_out.rootSignature);
     }
@@ -556,7 +570,8 @@ WWDirectCompute12User::Run(WWComputeState& cState, WWConstantBuffer *cBuf, WWSrv
 
     mCList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
-    if (0 < cState.useConstBufCount && cBuf) {
+    if (0 < cState.useConstBufCount) {
+        assert(cBuf);
         mCList->SetComputeRootConstantBufferView(idx++, cBuf->cBufUpload->GetGPUVirtualAddress());
     }
     mCList->SetComputeRootDescriptorTable(idx++, firstSrvHandle);

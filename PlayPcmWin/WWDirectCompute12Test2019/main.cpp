@@ -3,6 +3,7 @@
 #include "TestCopyShader.h"
 #include "TestResampleGpu.h"
 #include "TestDirectConvolutionGpu.h"
+#include "TestSandboxShader.h"
 #include "framework.h"
 
 int main(void)
@@ -13,7 +14,9 @@ int main(void)
 
     //hr = TestResampleGpu();
 
-    hr = TestDirectConvolutionGpu();
+    //hr = TestDirectConvolutionGpu();
+
+    hr = TestSandboxShader();
 
     // 成功: 0
     // 失敗: 1

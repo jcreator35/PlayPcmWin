@@ -102,6 +102,7 @@
     <ClInclude Include="TestCopyShader.h" />
     <ClInclude Include="TestDirectConvolutionGpu.h" />
     <ClInclude Include="TestResampleGpu.h" />
+    <ClInclude Include="TestSandboxShader.h" />
     <ClInclude Include="WWDCUtil.h" />
     <ClInclude Include="WWDirectCompute12User.h" />
     <ClInclude Include="WWDirectConvolutionGpu.h" />
@@ -112,6 +113,7 @@
     <ClCompile Include="TestCopyShader.cpp" />
     <ClCompile Include="TestDirectConvolutionGpu.cpp" />
     <ClCompile Include="TestResampleGpu.cpp" />
+    <ClCompile Include="TestSandboxShader.cpp" />
     <ClCompile Include="WWDCUtil.cpp" />
     <ClCompile Include="WWDirectCompute12User.cpp" />
     <ClCompile Include="WWDirectConvolutionGpu.cpp" />
@@ -128,6 +130,15 @@
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="DirectConvolution.hlsl">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <FileType>Document</FileType>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="Sandbox.hlsl">
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
       <FileType>Document</FileType>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>

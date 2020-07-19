@@ -16,15 +16,15 @@ struct ShaderConsts {
     uint32_t c_reserved[63];
 };
 
-enum suHeapIdx {
-    SHI_SRV_IN,
-    SHI_UAV_OUT,
-    SHI_NUM
-};
-
 int
 TestCopyShader(void)
 {
+    enum suHeapIdx {
+        SHI_SRV_IN,
+        SHI_UAV_OUT,
+        SHI_NUM
+    };
+
     HRESULT hr = S_OK;
     WWDirectCompute12User dc;
     WWConstantBuffer cBuf;
