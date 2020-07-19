@@ -16,7 +16,7 @@ CSMain(
 
 When this function is called with Dispatch(4,1,1)
 
-CSMain is called with those args:
+CSMain is called 12 times with those different args:
     CSMain(tid=0, groupIdXYZ=0,0,0)
     CSMain(tid=1, groupIdXYZ=0,0,0)
     CSMain(tid=2, groupIdXYZ=0,0,0)
