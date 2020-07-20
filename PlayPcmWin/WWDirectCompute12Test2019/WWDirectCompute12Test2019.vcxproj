@@ -106,6 +106,7 @@
     <ClInclude Include="WWDCUtil.h" />
     <ClInclude Include="WWDirectCompute12User.h" />
     <ClInclude Include="WWDirectConvolutionGpu.h" />
+    <ClInclude Include="WWPerformanceCounter.h" />
     <ClInclude Include="WWResampleGpu.h" />
   </ItemGroup>
   <ItemGroup>
@@ -117,6 +118,7 @@
     <ClCompile Include="WWDCUtil.cpp" />
     <ClCompile Include="WWDirectCompute12User.cpp" />
     <ClCompile Include="WWDirectConvolutionGpu.cpp" />
+    <ClCompile Include="WWPerformanceCounter.cpp" />
     <ClCompile Include="WWResampleGpu.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -139,6 +141,15 @@
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="Sandbox.hlsl">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <FileType>Document</FileType>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="DirectConvolutionUnoptimized.hlsl">
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
       <FileType>Document</FileType>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>

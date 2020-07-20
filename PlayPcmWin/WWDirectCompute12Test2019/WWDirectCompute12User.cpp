@@ -77,13 +77,35 @@ WWDirectCompute12User::GetAssetFullPath(LPCWSTR assetName)
     return mAssetsPath + assetName;
 }
 
+static const char *
+D3DFeatureLevelToStr(D3D_FEATURE_LEVEL v)
+{
+    switch (v) {
+    case D3D_FEATURE_LEVEL_1_0_CORE: return "1.0";
+    case D3D_FEATURE_LEVEL_9_1: return "9.1";
+    case D3D_FEATURE_LEVEL_9_2: return "9.2";
+    case D3D_FEATURE_LEVEL_9_3: return "9.3";
+    case D3D_FEATURE_LEVEL_10_0: return "10.0";
+    case D3D_FEATURE_LEVEL_10_1: return "10.1";
+    case D3D_FEATURE_LEVEL_11_0: return "11.0";
+    case D3D_FEATURE_LEVEL_11_1: return "11.1";
+    case D3D_FEATURE_LEVEL_12_0: return "12.0";
+    case D3D_FEATURE_LEVEL_12_1: return "12.1";
+    default:
+        assert(0);
+        return "";
+    }
+}
+
 static void
 GetHardwareAdapter(D3D_FEATURE_LEVEL d3dFeatureLv, IDXGIFactory2* pFactory, IDXGIAdapter1** ppAdapter)
 {
     ComPtr<IDXGIAdapter1> adapter;
     *ppAdapter = nullptr;
 
-    for (UINT adapterIndex = 0; DXGI_ERROR_NOT_FOUND != pFactory->EnumAdapters1(adapterIndex, &adapter); ++adapterIndex) {
+    printf("Finding Direct3D Feature Level %s hardware adapter...\n", D3DFeatureLevelToStr(d3dFeatureLv));
+
+    for (UINT i = 0; DXGI_ERROR_NOT_FOUND != pFactory->EnumAdapters1(i, &adapter); ++i) {
         DXGI_ADAPTER_DESC1 desc;
         adapter->GetDesc1(&desc);
 
@@ -92,14 +114,14 @@ GetHardwareAdapter(D3D_FEATURE_LEVEL d3dFeatureLv, IDXGIFactory2* pFactory, IDXG
             continue;
         }
 
-        printf("Adapter#%d: Video memory=%lldMB, %S\n",
-            adapterIndex,
+        printf("Adapter#%u: Video memory=%lldMB, %S\n",
+            i,
             desc.DedicatedVideoMemory/1024/1024,
             desc.Description);
 
         // ここでは、まだデバイスを作成しない。
         if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), d3dFeatureLv, _uuidof(ID3D12Device), nullptr))) {
-            printf("Use Adapter#%d.\n", adapterIndex);
+            printf("Use Adapter#%u.\n", i);
             break;
         }
     }
@@ -479,6 +501,9 @@ WWDirectCompute12User::CreateComputeState(
     ComPtr<ID3DBlob> errors;
     D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData = {};
     CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC sDesc;
+    CD3DX12_DESCRIPTOR_RANGE1 ranges[2];
+    CD3DX12_ROOT_PARAMETER1 rootParams[2];
+    D3D12_COMPUTE_PIPELINE_STATE_DESC pDesc = {};
 
     cState_out.useConstBufCount = useConstBufCount;
     cState_out.useSRVCount = useSRVCount;
@@ -490,8 +515,6 @@ WWDirectCompute12User::CreateComputeState(
 
     {
         // create root signature
-        CD3DX12_DESCRIPTOR_RANGE1 ranges[2];
-        CD3DX12_ROOT_PARAMETER1 rootParams[2];
         int nRange = 0;
         int nParams = 0;
 
@@ -514,6 +537,8 @@ WWDirectCompute12User::CreateComputeState(
             sDesc.Init_1_1(0, nullptr, 0, nullptr);
         } else {
             sDesc.Init_1_1(nParams, rootParams, 0, nullptr);
+            // Init_1_1()はrootParamsのポインタを保持する：この時点でrootParamsのメモリが解放されると問題が起きる。
+            // rootParamsのスコープはD3DX12SerializeVersionedRootSignature()まで維持する必要あり。
         }
     }
 
@@ -538,7 +563,6 @@ WWDirectCompute12User::CreateComputeState(
     }
 
     {   // create state
-        D3D12_COMPUTE_PIPELINE_STATE_DESC pDesc = {};
         pDesc.pRootSignature = cState_out.rootSignature.Get();
         pDesc.CS = CD3DX12_SHADER_BYTECODE(csShader.shader.Get());
 

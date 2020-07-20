@@ -14,9 +14,9 @@ int main(void)
 
     //hr = TestResampleGpu();
 
-    //hr = TestDirectConvolutionGpu();
+    hr = TestDirectConvolutionGpu();
 
-    hr = TestSandboxShader();
+    //hr = TestSandboxShader();
 
     // 成功: 0
     // 失敗: 1

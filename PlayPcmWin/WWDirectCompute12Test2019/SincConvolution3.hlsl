@@ -1,6 +1,6 @@
 /*
 
-Requires DirectX 11_1, ComputeShader 5_0 with DoublePrecisionFloatShaderOps feature.
+Requires Direct3D Feature Level 11_1, ComputeShader 5_0 with DoublePrecisionFloatShaderOps feature.
 
 basically, calc following code on GPU
 

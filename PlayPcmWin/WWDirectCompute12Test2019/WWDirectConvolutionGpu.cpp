@@ -7,6 +7,9 @@
 /// 2の乗数。TGSMのサイズはハードウェアで決まっている。32KB ?
 #define GROUP_THREAD_COUNT 1024
 
+/// 最適化版シェーダー使用。
+#define USE_OPTIMIZED_SHADER 1
+
 /// シェーダーに渡す定数。
 struct ConstShaderParams {
     uint32_t cSampleStartPos;
@@ -73,7 +76,11 @@ WWDirectConvolutionGpu::Setup(
                 nullptr, nullptr
         };
 
+#if USE_OPTIMIZED_SHADER
         HRG(mDC.CreateShader(L"DirectConvolution.hlsl", "CSMain", "cs_5_0", defines, mCS));
+#else
+        HRG(mDC.CreateShader(L"DirectConvolutionUnoptimized.hlsl", "CSMain", "cs_5_0", defines, mCS));
+#endif
     }
 
     HRG(mDC.CreateSrvUavHeap(GB_NUM, mSUHeap));
