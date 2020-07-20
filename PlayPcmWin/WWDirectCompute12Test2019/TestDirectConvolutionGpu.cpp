@@ -15,17 +15,17 @@ Test1(void)
     const int INPUT_COUNT = 10;
     const int CONV_COUNT  = 5; 
 
-    float inputAry[INPUT_COUNT]; // {1,1,1,1,1, 1,1,1,1,1}
+    WW_DIRECT_CONV_GPU_INOUT_TYPE inputAry[INPUT_COUNT]; // {1,1,1,1,1, 1,1,1,1,1}
     for (int i = 0; i < INPUT_COUNT; ++i) {
         inputAry[i] = 1.0f;
     }
 
-    double convCoeffsAry[CONV_COUNT]; // {1,2,3,4,5}
+    WW_DIRECT_CONV_GPU_CONV_TYPE convCoeffsAry[CONV_COUNT]; // {1,2,3,4,5}
     for (int i = 0; i < CONV_COUNT; ++i) {
         convCoeffsAry[i] = i + 1;
     }
 
-    float outAry[INPUT_COUNT]; // Conv result, should be {6,10,15,15,15, 15,15,15,14,12}
+    WW_DIRECT_CONV_GPU_INOUT_TYPE outAry[INPUT_COUNT]; // Conv result, should be {6,10,15,15,15, 15,15,15,14,12}
 
     HRG(dc.Setup(inputAry, INPUT_COUNT, convCoeffsAry, CONV_COUNT));
 
@@ -72,6 +72,8 @@ end:
     return hr;
 }
 
+#define BENCH_OPTIMIZED_SHADER 1
+
 int
 Benchmark(void)
 {
@@ -79,20 +81,27 @@ Benchmark(void)
     WWDirectConvolutionGpu dc;
     WWPerformanceCounter pc;
 
-    const int INPUT_COUNT = 16 * 65536;
+    const int INPUT_COUNT = 16*65536;
     const int CONV_COUNT = 65535;
 
-    float * inputAry = new float[INPUT_COUNT];
+#if BENCH_OPTIMIZED_SHADER
+    const int fragmentSize = 16384;
+#else
+    const int fragmentSize = 1024;
+#endif
+
+
+    WW_DIRECT_CONV_GPU_INOUT_TYPE* inputAry = new WW_DIRECT_CONV_GPU_INOUT_TYPE[INPUT_COUNT];
     for (int i = 0; i < INPUT_COUNT; ++i) {
-        inputAry[i] = 1.0f;
+        inputAry[i] = 1;
     }
 
-    double * convCoeffsAry = new double[CONV_COUNT];
+    WW_DIRECT_CONV_GPU_CONV_TYPE* convCoeffsAry = new WW_DIRECT_CONV_GPU_CONV_TYPE[CONV_COUNT];
     for (int i = 0; i < CONV_COUNT; ++i) {
         convCoeffsAry[i] = 1;
     }
 
-    float * outAry = new float[INPUT_COUNT];
+    WW_DIRECT_CONV_GPU_INOUT_TYPE* outAry = new WW_DIRECT_CONV_GPU_INOUT_TYPE[INPUT_COUNT];
 
     HRG(dc.Setup(inputAry, INPUT_COUNT, convCoeffsAry, CONV_COUNT));
 
@@ -101,16 +110,11 @@ Benchmark(void)
 
         pc.Start();
 
-#if 0
-        // 256個ずつ計算(シェーダーが長時間かかりすぎてGPUが異常停止する場合用。)
-        for (int i=0; i<INPUT_COUNT;) {
-            HRG(dc.Dispatch(i, (i+256)));
-            i += 256;
+        for (int i = 0; i < INPUT_COUNT;) {
+            HRG(dc.Dispatch(i, fragmentSize));
+            i += fragmentSize;
         }
-#else
-        // 1回で計算(速い場合可能。)
-        HRG(dc.Dispatch(0, INPUT_COUNT));
-#endif
+
         HRG(dc.ResultGetFromGpuMemory(outAry, INPUT_COUNT));
 
         printf("%f seconds\n", pc.ElapsedSec());

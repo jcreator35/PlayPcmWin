@@ -91,10 +91,10 @@
     <CopyFileToFolders Include="SincConvolution3.hlsl">
       <Filter>Shaders</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="DirectConvolution.hlsl">
+    <CopyFileToFolders Include="Sandbox.hlsl">
       <Filter>Shaders</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="Sandbox.hlsl">
+    <CopyFileToFolders Include="DirectConvolution.hlsl">
       <Filter>Shaders</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="DirectConvolutionUnoptimized.hlsl">

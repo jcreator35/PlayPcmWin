@@ -10,6 +10,9 @@
 /// 最適化版シェーダー使用。
 #define USE_OPTIMIZED_SHADER 1
 
+#define TOSTRING_(x) #x
+#define TOSTRING(x) TOSTRING_(x)
+
 /// シェーダーに渡す定数。
 struct ConstShaderParams {
     uint32_t cSampleStartPos;
@@ -19,9 +22,9 @@ struct ConstShaderParams {
 
 HRESULT
 WWDirectConvolutionGpu::Setup(
-    float* inputAry,
+    WW_DIRECT_CONV_GPU_INOUT_TYPE* inputAry,
     int inputCount,
-    double* convAry,
+    WW_DIRECT_CONV_GPU_CONV_TYPE* convAry,
     int convCount)
 {
     bool    result = true;
@@ -29,7 +32,7 @@ WWDirectConvolutionGpu::Setup(
 
     ConstShaderParams shaderParams;
 
-    double* convAryFlip = nullptr;
+    WW_DIRECT_CONV_GPU_CONV_TYPE* convAryFlip = nullptr;
 
     assert(convAry);
     assert(0 < convCount);
@@ -41,7 +44,7 @@ WWDirectConvolutionGpu::Setup(
     mConvCount = convCount;
 
     //　畳み込み係数バッファーを左右反転したものを作る。
-    convAryFlip = new double[convCount];
+    convAryFlip = new WW_DIRECT_CONV_GPU_CONV_TYPE[convCount];
     assert(convAryFlip);
     for (int i = 0; i < convCount; ++i) {
         convAryFlip[i] = convAry[convCount - 1 - i];
@@ -51,6 +54,12 @@ WWDirectConvolutionGpu::Setup(
 
     {   // コンピュートシェーダーをコンパイルする。
         // HLSLの中の#defineの値を決めます。
+        char elemTypeStr[32];
+        sprintf_s(elemTypeStr, TOSTRING(WW_DIRECT_CONV_GPU_INOUT_TYPE));
+
+        char convTypeStr[32];
+        sprintf_s(convTypeStr, TOSTRING(WW_DIRECT_CONV_GPU_CONV_TYPE));
+
         char      inputCountStr[32];
         sprintf_s(inputCountStr, "%d", inputCount);
 
@@ -65,6 +74,8 @@ WWDirectConvolutionGpu::Setup(
         sprintf_s(groupThreadCountStr, "%d", GROUP_THREAD_COUNT);
 
         const D3D_SHADER_MACRO defines[] = {
+                "ELEM_TYPE", elemTypeStr,
+                "CONV_TYPE", convTypeStr,
                 "INPUT_COUNT", inputCountStr,
 
                 "CONV_HALF_LEN", convEndStr,
@@ -84,9 +95,9 @@ WWDirectConvolutionGpu::Setup(
     }
 
     HRG(mDC.CreateSrvUavHeap(GB_NUM, mSUHeap));
-    HRG(mDC.CreateGpuBufferAndRegisterAsSRV(mSUHeap, sizeof(float),  inputCount, inputAry,    mGpuBuf[GB_InputAry],      mSrv[GB_InputAry]));
-    HRG(mDC.CreateGpuBufferAndRegisterAsSRV(mSUHeap, sizeof(double), convCount,  convAryFlip, mGpuBuf[GB_ConvCoeffsAry], mSrv[GB_ConvCoeffsAry]));
-    HRG(mDC.CreateGpuBufferAndRegisterAsUAV(mSUHeap, sizeof(float),  inputCount, mGpuBuf[GB_OutAry], mUav));
+    HRG(mDC.CreateGpuBufferAndRegisterAsSRV(mSUHeap, sizeof(WW_DIRECT_CONV_GPU_INOUT_TYPE), inputCount, inputAry,    mGpuBuf[GB_InputAry],      mSrv[GB_InputAry]));
+    HRG(mDC.CreateGpuBufferAndRegisterAsSRV(mSUHeap, sizeof(WW_DIRECT_CONV_GPU_CONV_TYPE),  convCount,  convAryFlip, mGpuBuf[GB_ConvCoeffsAry], mSrv[GB_ConvCoeffsAry]));
+    HRG(mDC.CreateGpuBufferAndRegisterAsUAV(mSUHeap, sizeof(WW_DIRECT_CONV_GPU_INOUT_TYPE), inputCount, mGpuBuf[GB_OutAry], mUav));
     HRG(mDC.CreateComputeState(mCS, NUM_CONSTS, NUM_SRV, NUM_UAV, mCState));
     
     ZeroMemory(&shaderParams, sizeof shaderParams);
@@ -128,7 +139,7 @@ end:
 
 HRESULT
 WWDirectConvolutionGpu::ResultGetFromGpuMemory(
-    float* outputTo,
+    WW_DIRECT_CONV_GPU_INOUT_TYPE* outputTo,
     int outputToElemNum)
 {
     HRESULT hr = S_OK;
@@ -137,7 +148,7 @@ WWDirectConvolutionGpu::ResultGetFromGpuMemory(
     assert(outputToElemNum <= mInputCount);
 
     // 計算結果をGPUのUAVからCPUに持ってくる。
-    HRG(mDC.CopyGpuBufValuesToCpuMemory(mGpuBuf[GB_OutAry], outputTo, outputToElemNum * sizeof(float)));
+    HRG(mDC.CopyGpuBufValuesToCpuMemory(mGpuBuf[GB_OutAry], outputTo, outputToElemNum * sizeof(WW_DIRECT_CONV_GPU_INOUT_TYPE)));
 
 end:
     if (hr == DXGI_ERROR_DEVICE_REMOVED) {

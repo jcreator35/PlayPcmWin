@@ -3,11 +3,15 @@
 Direct convolution on GPU.
 Optimized version.
 
-Requires Direct3D Feature Level 11_0, ComputeShader 5_0 with DoublePrecisionFloatShaderOps feature.
+Requires Direct3D Feature Level 11_0, ComputeShader 5_0
+if ELEM_TYPE is double DoublePrecisionFloatShaderOps feature is necessary.
 
 ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
 #define these constants and compile the shader:
+
+"ELEM_TYPE" : input/output array elem type. float or double
+"CONV_TYPE" : conv coeff type. also it is used to internal sum. float or double
 
 "INPUT_COUNT" : g_InputBuf elem count
 
@@ -23,12 +27,12 @@ Requires Direct3D Feature Level 11_0, ComputeShader 5_0 with DoublePrecisionFloa
 ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
 Prepare following input data (data sent from CPU to GPU: those values are placed on GPU memory):
-float gInputAry[]           : SRV input data of INPUT_COUNT elements.
-double gConvCoeffsAryFlip[] : SRV convolution coeffs buffer of CONV_COUNT elements. It should be odd number.
+ELEM_TYPE gInputAry[]           : SRV input data of INPUT_COUNT elements.
+CONV_TYPE gConvCoeffsAryFlip[] : SRV convolution coeffs buffer of CONV_COUNT elements. It should be odd number.
 ■ Note: Convolution coefficient should be flipped: store end to start to buffer!　■
 
 Prepare output buffer (Calculation result store on GPU memory):
-float gOutputAry[] : UAV output buffer of INPUT_COUNT elements
+ELEM_TYPE gOutputAry[] : UAV output buffer of INPUT_COUNT elements
 
 ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
@@ -39,9 +43,9 @@ And run(consts=shaderParams, x=INPUT_COUNT, y=1, z=1);
 */
 
 // GPU memory
-StructuredBuffer<float>    gInputAry          : register(t0);
-StructuredBuffer<double>   gConvCoeffsAryFlip : register(t1);
-RWStructuredBuffer<float>  gOutputAry         : register(u0);
+StructuredBuffer<ELEM_TYPE>   gInputAry          : register(t0);
+StructuredBuffer<CONV_TYPE>   gConvCoeffsAryFlip : register(t1);
+RWStructuredBuffer<ELEM_TYPE> gOutputAry         : register(u0);
 
 /// shader constants.
 cbuffer consts {
@@ -52,21 +56,21 @@ cbuffer consts {
 };
 
 // TGSM, total 32KB available ?
-groupshared double s_scratch[GROUP_THREAD_COUNT];
+groupshared CONV_TYPE s_scratch[GROUP_THREAD_COUNT];
 
 /// @param inoutCenterPos 0 <= inOutCenterPos < Dispatch x
 /// @param i CONV_START <= i <= CONV_END
-inline double
+inline CONV_TYPE
 Conv1(int inoutCenterPos, int i)
 {
-    double r = 0.0;
+    CONV_TYPE r = 0;
 
     int convIdx = CONV_HALF_LEN + i;
     int inIdx   = inoutCenterPos + i;
 
     if (0 <= inIdx && inIdx < INPUT_COUNT && convIdx < CONV_COUNT) {
-        double a = gInputAry[inIdx];
-        double c = gConvCoeffsAryFlip[convIdx];
+        CONV_TYPE a = gInputAry[inIdx];
+        CONV_TYPE c = gConvCoeffsAryFlip[convIdx];
         r = a * c;
     }
 
@@ -147,7 +151,7 @@ CSMain(
     if (tid == 0) {
         s_scratch[0] += s_scratch[1];
 
-        gOutputAry[inoutCenterPos] = (float)s_scratch[0];
+        gOutputAry[inoutCenterPos] = (ELEM_TYPE)s_scratch[0];
     }
 }
 
