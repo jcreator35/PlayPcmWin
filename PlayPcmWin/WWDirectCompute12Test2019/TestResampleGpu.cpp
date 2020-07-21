@@ -16,31 +16,31 @@ TestResampleGpu(void)
     const bool highPrecision = true;
 
     // データ準備
-    int convolutionN = 16384; //< 14bitの変換精度。
-    int sampleTotalFrom = 65536;
+
     int sampleRateFrom = 44100;
-    int sampleRateTo = 2*44100;
+    int sampleRateTo = 2 * 44100;
 
-    int GPU_WORK_COUNT = 16384;
-
-    assert(convolutionN <= GPU_WORK_COUNT);
-
-    int sampleTotalTo = (int64_t)sampleTotalFrom * sampleRateTo / sampleRateFrom;
-
+    /// 入力データ。
+    int sampleTotalFrom = 16 * 65536;
     float* sampleData = new float[sampleTotalFrom];
     assert(sampleData);
-
-    float* outputCpu = new float[sampleTotalTo];
-    assert(outputCpu);
-
-    float* outputGpu = new float[sampleTotalTo];
-    assert(outputGpu);
-
     // 真ん中あたりのサンプルだけ1で、残りは0
     for (int i = 0; i < sampleTotalFrom; ++i) {
         sampleData[i] = 0;
     }
     sampleData[127] = 1.0f;
+
+    // 出力データサンプル数はサンプルレートの比から計算。
+    int sampleTotalTo = (int64_t)sampleTotalFrom * sampleRateTo / sampleRateFrom;
+    float* outputSamples = new float[sampleTotalTo];
+    assert(outputSamples);
+
+    //< 32767: 14bitの変換精度。
+    //< 65535: 15bitの変換精度。
+    int convolutionN = 65535;
+
+    /// @brief 何サンプルずつ出力するか。(convolutionNとは関係ない)
+    int GPU_WORK_COUNT = 4096;
 
     HRG(rg.Setup(convolutionN, sampleData, sampleTotalFrom, sampleRateFrom,
         sampleRateTo, sampleTotalTo, highPrecision));
@@ -55,16 +55,16 @@ TestResampleGpu(void)
         HRGR(rg.Dispatch(i, count));
     }
     t1 = GetTickCount() + 1;
-    HRG(rg.ResultGetFromGpuMemory(outputGpu, sampleTotalTo));
+    HRG(rg.ResultGetFromGpuMemory(outputSamples, sampleTotalTo));
 
     t2 = GetTickCount();
 
     if (sampleTotalFrom == sampleTotalTo) {
         // 一致しているか。検証。
         for (int i = 0; i < sampleTotalFrom; ++i) {
-            float diff = abs(sampleData[i] - outputGpu[i]);
+            float diff = abs(sampleData[i] - outputSamples[i]);
             if (0.000001f < diff) {
-                printf("Err sample #%d from=%f to=%f\n", i, sampleData[i], outputGpu[i]);
+                printf("Err sample #%d from=%f to=%f\n", i, sampleData[i], outputSamples[i]);
             }
         }
     }
@@ -77,13 +77,19 @@ TestResampleGpu(void)
     */
 
     {
-        float scaleG = WWDCUtilLimitSampleData(outputGpu, sampleTotalTo);
+        float scaleG = WWDCUtilLimitSampleData(outputSamples, sampleTotalTo);
 
         printf("GPU=%dms(%fsamples/s), sample scaling=%f x\n",
             (t1 - t0), sampleTotalTo / ((t1 - t0) / 1000.0), scaleG);
     }
 
 end:
+
+    delete[] outputSamples;
+    outputSamples = nullptr;
+
+    delete[] sampleData;
+    sampleData = nullptr;
 
     return hr;
 }

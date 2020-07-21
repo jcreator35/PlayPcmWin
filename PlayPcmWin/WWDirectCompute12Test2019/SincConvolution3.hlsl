@@ -61,7 +61,6 @@ float OutputBuffer[0] to OutputBuffer[sampleN-1]
 
 */
 
-#define PI_F 3.141592653589793238462643f
 #define PI_D 3.141592653589793238462643
 
 /// constants need to be multiple of 16
@@ -142,6 +141,7 @@ ConvolutionElemValue(int convOffs)
 }
 
 #if 1
+
 [numthreads(GROUP_THREAD_COUNT, 1, 1)]
 void
 CSMain(
@@ -224,21 +224,12 @@ CSMain(
         g_OutputBuffer[toPos] = (float)s_scratch[0];
     }
 }
+
 #endif
 
 #if 0
 
-// Before optimization. Painfully slow because only 1 GPU unit is used!
-
-inline double
-Sinc(double sinx, float x)
-{
-    if (-1.192092896e-07F < x && x < 1.192092896e-07F) {
-        return 1.0;
-    } else {
-        return sinx * rcp(x);
-    }
-}
+// Before optimization. Painfully slow because only 1 GPU core is used!
 
 [numthreads(1, 1, 1)]
 void
@@ -257,19 +248,20 @@ CSMain(
     for (int convOffs = CONV_START; convOffs < CONV_END; ++convOffs) {
         int pos = convOffs + fromPos;
         if (0 <= pos && pos < SAMPLE_TOTAL_FROM) {
-            float x = PI_F * (convOffs - fraction);
+            double x = PI_D * (convOffs - fraction);
 
             double sinX = s_sinPreCompute;
             if (convOffs & 1) {
                 sinX *= -1.0;
             }
 
-            double sinc = Sinc(sinX, x);
+            double sinc = SincD(sinX, x);
 
             v += g_SampleFromBuffer[pos] * sinc;
         }
     }
     g_OutputBuffer[toPos] = (float)v;
 }
+
 #endif
 

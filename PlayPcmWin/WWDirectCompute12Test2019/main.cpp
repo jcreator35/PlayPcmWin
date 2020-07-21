@@ -12,9 +12,9 @@ int main(void)
 
     //hr = TestCopyShader();
 
-    //hr = TestResampleGpu();
+    hr = TestResampleGpu();
 
-    hr = TestDirectConvolutionGpu();
+    //hr = TestDirectConvolutionGpu();
 
     //hr = TestSandboxShader();
 
