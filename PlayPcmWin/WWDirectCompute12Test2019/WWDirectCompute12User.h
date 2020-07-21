@@ -65,7 +65,7 @@ public:
     };
 
     /// @param initFlags DCU2IF_USE_WARP WARP software rasterizer
-    HRESULT Init(int initFlags);
+    HRESULT Init(int initFlags, int gpuNr = -1);
     void    Term(void);
 
     // ShaderをコンパイルしてGPUに送る

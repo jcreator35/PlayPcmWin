@@ -6,7 +6,7 @@
 
 
 int
-TestResampleGpu(void)
+TestResampleGpu(int gpuNr)
 {
     bool result = true;
     HRESULT hr = S_OK;

@@ -6,13 +6,20 @@
 #include "TestSandboxShader.h"
 #include "framework.h"
 
-int main(void)
+int wmain(int argc, wchar_t *argv[])
 {
     HRESULT hr = S_OK;
 
+    int gpuNr = -1;
+    if (1 < argc) {
+        wchar_t* endPtr = nullptr;
+        gpuNr = (int)wcstol(argv[1], &endPtr, 10);
+        printf("GpuNr=%d\n", gpuNr);
+    }
+
     //hr = TestCopyShader();
 
-    hr = TestResampleGpu();
+    hr = TestResampleGpu(gpuNr);
 
     //hr = TestDirectConvolutionGpu();
 

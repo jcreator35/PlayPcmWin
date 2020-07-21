@@ -24,7 +24,8 @@ WWResampleGpu::Setup(
     int sampleRateFrom,
     int sampleRateTo,
     int sampleTotalTo,
-    bool highPrecision)
+    bool highPrecision,
+    int gpuNr)
 {
     bool    result = true;
     HRESULT hr = S_OK;

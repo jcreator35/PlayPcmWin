@@ -98,39 +98,43 @@ D3DFeatureLevelToStr(D3D_FEATURE_LEVEL v)
 }
 
 static void
-GetHardwareAdapter(D3D_FEATURE_LEVEL d3dFeatureLv, IDXGIFactory2* pFactory, IDXGIAdapter1** ppAdapter)
+GetHardwareAdapter(int gpuNr, D3D_FEATURE_LEVEL d3dFeatureLv, IDXGIFactory2* pFactory, IDXGIAdapter1** ppAdapter)
 {
     ComPtr<IDXGIAdapter1> adapter;
     *ppAdapter = nullptr;
+    UINT i = 0;
 
     printf("Finding Direct3D Feature Level %s hardware adapter...\n", D3DFeatureLevelToStr(d3dFeatureLv));
 
-    for (UINT i = 0; DXGI_ERROR_NOT_FOUND != pFactory->EnumAdapters1(i, &adapter); ++i) {
+    for (i=0; DXGI_ERROR_NOT_FOUND != pFactory->EnumAdapters1(i, &adapter); ++i) {
         DXGI_ADAPTER_DESC1 desc;
         adapter->GetDesc1(&desc);
 
-        if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) {
-            // ソフトウェアドライバー。使用しない。
-            continue;
-        }
-
-        printf("Adapter#%u: Video memory=%lldMB, %S\n",
+        printf("Adapter#%u: Video memory=%lldMB, %S : ",
             i,
-            desc.DedicatedVideoMemory/1024/1024,
+            desc.DedicatedVideoMemory / 1024 / 1024,
             desc.Description);
 
-        // ここでは、まだデバイスを作成しない。
         if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), d3dFeatureLv, _uuidof(ID3D12Device), nullptr))) {
-            printf("Use Adapter#%u.\n", i);
-            break;
+            printf("OK\n");
+            if (0 <= gpuNr) {
+                if (gpuNr == i) {
+                    break;
+                }
+            } else {
+                break;
+            }
+        } else {
+            printf("NA\n");
         }
     }
 
+    printf("Use Adapter#%u.\n", i);
     *ppAdapter = adapter.Detach();
 }
 
 HRESULT
-WWDirectCompute12User::Init(int initFlags)
+WWDirectCompute12User::Init(int initFlags, int gpuNr)
 {
     HRESULT hr = S_OK;
     D3D_FEATURE_LEVEL d3dFeatureLv = D3D_FEATURE_LEVEL_11_1;
@@ -160,7 +164,7 @@ WWDirectCompute12User::Init(int initFlags)
         ));
     } else {
         ComPtr<IDXGIAdapter1> hardwareAdapter;
-        GetHardwareAdapter(d3dFeatureLv, factory.Get(), &hardwareAdapter);
+        GetHardwareAdapter(gpuNr, d3dFeatureLv, factory.Get(), &hardwareAdapter);
 
         HRG(D3D12CreateDevice(hardwareAdapter.Get(), d3dFeatureLv, IID_PPV_ARGS(&mDevice)));
     }

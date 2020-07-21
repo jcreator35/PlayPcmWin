@@ -17,7 +17,8 @@ public:
         int sampleRateFrom,
         int sampleRateTo,
         int sampleTotalTo,
-        bool highPrecision);
+        bool highPrecision,
+        int gpuNr = -1);
 
     HRESULT Dispatch(
         int startPos,

@@ -1,3 +1,3 @@
 ﻿#pragma once
 
-int TestResampleGpu(void);
+int TestResampleGpu(int gpuNr);
