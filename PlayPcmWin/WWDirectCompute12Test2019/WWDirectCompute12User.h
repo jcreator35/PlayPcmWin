@@ -12,6 +12,10 @@
 struct WWConstantBuffer {
     ComPtr<ID3D12Resource> cBufUpload;
     int bytes = 0;
+
+    void Reset(void) {
+        cBufUpload.Reset();
+    }
 };
 
 
@@ -25,6 +29,11 @@ struct WWSrvUavHeap {
     std::vector<HeapEntryType> entryTypes; ///< 例えば {srv,srv,uav,srv,srv,uav}という情報が溜まる。
     int numEntries = 0;
     UINT srvUavDescSize = 0;
+
+    void Reset(void) {
+        heap.Reset();
+        entryTypes.clear();
+    }
 };
 
 struct WWSrv {
@@ -41,10 +50,20 @@ struct WWGpuBuf {
     ComPtr<ID3D12Resource> upload;
     int elemBytes = 0;
     int elemCount = 0;
+
+    void Reset(void)
+    {
+        buf.Reset();
+        upload.Reset();
+    }
 };
 
 struct WWShader {
     ComPtr<ID3DBlob> shader;
+
+    void Reset(void) {
+        shader.Reset();
+    }
 };
 
 struct WWComputeState {
@@ -53,6 +72,11 @@ struct WWComputeState {
     int useConstBufCount = 0;
     int useSRVCount = 0;
     int useUAVCount = 0;
+
+    void Reset(void) {
+        rootSignature.Reset();
+        state.Reset();
+    }
 };
 
 class WWDirectCompute12User {
@@ -130,12 +154,26 @@ public:
 
 private:
     ComPtr<ID3D12Device> mDevice;
+    ComPtr<IDXGIFactory6> mDxgiFactory;
     ComPtr<ID3D12CommandQueue> mCQueue;
     ComPtr<ID3D12CommandAllocator> mCAllocator;
     ComPtr<ID3D12GraphicsCommandList> mCList;
     UINT64 mFenceValue = 1;
-
+    int mActiveAdapter = 0;
+    LUID mActiveAdapterLuid = {};
+    HANDLE mAdapterChangeEvent = nullptr;
+    DWORD mAdapterChangeRegistrationCookie = 0;
     std::wstring mAssetsPath;
-    std::wstring GetAssetFullPath(LPCWSTR assetName);
 
+    struct DxgiAdapterInfo {
+        DXGI_ADAPTER_DESC1 desc;
+        bool supportsFeatureLv;
+    };
+    std::vector<DxgiAdapterInfo> mGpuAdapterDescs;
+    DXGI_GPU_PREFERENCE mActiveGpuPreference = DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE;
+    D3D_FEATURE_LEVEL mD3dFeatureLv = D3D_FEATURE_LEVEL_11_1;
+
+    std::wstring GetAssetFullPath(LPCWSTR assetName);
+    HRESULT EnumerateGPUadapters(void);
+    HRESULT GetGPUAdapter(IDXGIAdapter1** ppAdapter);
 };

@@ -5,7 +5,7 @@
 
 /// 1スレッドグループに所属するスレッドの数。TGSMを共有する。
 /// 2の乗数。
-/// この数値を書き換えたらシェーダーも書き換える必要あり。
+/// この数値を書き換えたらシェーダーも書き換える必要あるかもしれない。
 #define GROUP_THREAD_COUNT 1024
 
 /// シェーダーに渡す定数。
@@ -86,7 +86,7 @@ WWResampleGpu::Setup(
         sinPreComputeArray[i] = sin(-PI_D * fraction);
     }
 
-    HRG(mDC.Init(0));
+    HRG(mDC.Init(0, gpuNr));
 
     {   // コンピュートシェーダーをコンパイルする。
         // HLSLの中の#defineの値を決めます。
@@ -201,3 +201,16 @@ end:
     return hr;
 }
 
+void
+WWResampleGpu::Term(void)
+{
+    for (int i = 0; i < GB_NUM; ++i) {
+        mGpuBuf[i].Reset();
+    }
+    mCBuf.Reset();
+    mCState.Reset();
+    mSUHeap.Reset();
+    mCS.Reset();
+
+    mDC.Term();
+}

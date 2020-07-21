@@ -11,7 +11,8 @@
 #include <d3d12.h>
 #include <algorithm>
 #include <d3d12.h>
-#include <dxgi1_4.h>
+#include <dxgi1_6.h>
+#include <dxgidebug.h>
 #include <DirectXMath.h>
 
 // D3D12オブジェクトにデバッグ用の名前を付ける。
@@ -134,13 +135,65 @@ GetHardwareAdapter(int gpuNr, D3D_FEATURE_LEVEL d3dFeatureLv, IDXGIFactory2* pFa
 }
 
 HRESULT
+WWDirectCompute12User::EnumerateGPUadapters(void)
+{
+    HRESULT hr = S_OK;
+    ComPtr<IDXGIAdapter1> adapter;
+    mGpuAdapterDescs.clear();
+
+    printf("Finding Direct3D Feature Level %s hardware adapter...\n", D3DFeatureLevelToStr(mD3dFeatureLv));
+
+    for (UINT i = 0; DXGI_ERROR_NOT_FOUND != mDxgiFactory->EnumAdapterByGpuPreference(
+            i, mActiveGpuPreference, IID_PPV_ARGS(&adapter)); ++i) {
+        DxgiAdapterInfo ai;
+        HRG(adapter->GetDesc1(&ai.desc));
+        ai.supportsFeatureLv = SUCCEEDED(D3D12CreateDevice(adapter.Get(), mD3dFeatureLv, _uuidof(ID3D12Device), nullptr));
+
+        printf("Adapter#%u: Video memory=%lldMB, %S : %s\n",
+            i,
+            ai.desc.DedicatedVideoMemory / 1024 / 1024,
+            ai.desc.Description, ai.supportsFeatureLv ? "OK" : "NA");
+
+        if (mActiveAdapter < 0 && ai.supportsFeatureLv) {
+            mActiveAdapter = i;
+        }
+
+        mGpuAdapterDescs.push_back(std::move(ai));
+    }
+
+end:
+    return hr;
+}
+
+HRESULT
+WWDirectCompute12User::GetGPUAdapter(IDXGIAdapter1** ppAdapter)
+{
+    HRESULT hr = S_OK;
+    ComPtr<IDXGIAdapter1> adapter;
+    *ppAdapter = nullptr;
+
+    if (mDxgiFactory->EnumAdapterByGpuPreference(
+            mActiveAdapter, mActiveGpuPreference,
+            IID_PPV_ARGS(&adapter)) != DXGI_ERROR_NOT_FOUND) {
+        DXGI_ADAPTER_DESC1 desc;
+        HRG(adapter->GetDesc1(&desc));
+        HRG(D3D12CreateDevice(adapter.Get(), mD3dFeatureLv, _uuidof(ID3D12Device), nullptr));
+        *ppAdapter = adapter.Detach();
+    }
+
+end:
+    return hr;
+}
+
+HRESULT
 WWDirectCompute12User::Init(int initFlags, int gpuNr)
 {
     HRESULT hr = S_OK;
     D3D_FEATURE_LEVEL d3dFeatureLv = D3D_FEATURE_LEVEL_11_1;
     UINT dxgiFactoryFlags = 0;
-    ComPtr<IDXGIFactory4> factory;
     auto clType = D3D12_COMMAND_LIST_TYPE_COMPUTE;
+
+    mActiveAdapter = gpuNr;
 
 #ifdef _DEBUG
     {
@@ -154,19 +207,42 @@ WWDirectCompute12User::Init(int initFlags, int gpuNr)
     }
 #endif
 
-    HRG(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&factory)));
+    HRG(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&mDxgiFactory)));
 
-    if (initFlags & DCU2IF_USE_WARP) {
-        ComPtr<IDXGIAdapter> warpAdapter;
-        HRG(factory->EnumWarpAdapter(IID_PPV_ARGS(&warpAdapter)));
+    {
+        ComPtr<IDXGIFactory7> spDxgiFactory7;
+        if (SUCCEEDED(mDxgiFactory->QueryInterface(IID_PPV_ARGS(&spDxgiFactory7)))) {
+            mAdapterChangeEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+            if (mAdapterChangeEvent == nullptr) {
+                hr = HRESULT_FROM_WIN32(GetLastError());
+                goto end;
+            }
+            HRG(spDxgiFactory7->RegisterAdaptersChangedEvent(mAdapterChangeEvent, &mAdapterChangeRegistrationCookie));
+        }
+    }
 
-        HRG(D3D12CreateDevice(warpAdapter.Get(), d3dFeatureLv, IID_PPV_ARGS(&mDevice)
-        ));
-    } else {
+    HRG(EnumerateGPUadapters());
+
+    if (mActiveAdapter < 0) {
+        printf("Error: No %s device is found.\n", D3DFeatureLevelToStr(mD3dFeatureLv));
+        hr = E_FAIL;
+        goto end;
+    }
+
+    printf("Use Adapter#%u.\n", mActiveAdapter);
+
+    if (!mGpuAdapterDescs[mActiveAdapter].supportsFeatureLv) {
+        printf("Error: Adapter %d does not support %s.\n", mActiveAdapter, D3DFeatureLevelToStr(mD3dFeatureLv));
+        hr = E_FAIL;
+        goto end;
+    }
+
+    {
         ComPtr<IDXGIAdapter1> hardwareAdapter;
-        GetHardwareAdapter(gpuNr, d3dFeatureLv, factory.Get(), &hardwareAdapter);
 
-        HRG(D3D12CreateDevice(hardwareAdapter.Get(), d3dFeatureLv, IID_PPV_ARGS(&mDevice)));
+        HRG(GetGPUAdapter(&hardwareAdapter));
+        HRG(D3D12CreateDevice(hardwareAdapter.Get(), mD3dFeatureLv, IID_PPV_ARGS(&mDevice)));
+        mActiveAdapterLuid = mGpuAdapterDescs[mActiveAdapter].desc.AdapterLuid;
     }
 
     {   // Double型がシェーダーで使えることを確認する必要がある。
@@ -200,6 +276,37 @@ end:
 void
 WWDirectCompute12User::Term(void)
 {
+    HRESULT hr = S_OK;
+
+    mCList.Reset();
+    mCAllocator.Reset();
+    mCQueue.Reset();
+    mDevice.Reset();
+    mGpuAdapterDescs.clear();
+
+    {
+        ComPtr<IDXGIFactory7> spDxgiFactory7;
+        if (mAdapterChangeRegistrationCookie != 0 && SUCCEEDED(mDxgiFactory->QueryInterface(IID_PPV_ARGS(&spDxgiFactory7)))) {
+            HRG(spDxgiFactory7->UnregisterAdaptersChangedEvent(mAdapterChangeRegistrationCookie));
+            mAdapterChangeRegistrationCookie = 0;
+            CloseHandle(mAdapterChangeEvent);
+            mAdapterChangeEvent = nullptr;
+        }
+    }
+
+    mDxgiFactory.Reset();
+
+end:
+    
+#if defined(_DEBUG)
+    {
+        ComPtr<IDXGIDebug1> dxgiDebug;
+        if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&dxgiDebug)))) {
+            dxgiDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_FLAGS(DXGI_DEBUG_RLO_SUMMARY | DXGI_DEBUG_RLO_IGNORE_INTERNAL));
+        }
+    }
+#endif
+    return;
 }
 
 HRESULT

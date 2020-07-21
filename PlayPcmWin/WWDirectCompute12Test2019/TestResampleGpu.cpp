@@ -43,7 +43,7 @@ TestResampleGpu(int gpuNr)
     int GPU_WORK_COUNT = 4096;
 
     HRG(rg.Setup(convolutionN, sampleData, sampleTotalFrom, sampleRateFrom,
-        sampleRateTo, sampleTotalTo, highPrecision));
+        sampleRateTo, sampleTotalTo, highPrecision, gpuNr));
     t0 = GetTickCount();
     for (int i = 0; i<sampleTotalTo; i+= GPU_WORK_COUNT) {
         // 出力サンプル数countの調整。
@@ -90,6 +90,8 @@ end:
 
     delete[] sampleData;
     sampleData = nullptr;
+
+    rg.Term();
 
     return hr;
 }

@@ -28,6 +28,8 @@ public:
         float* outputTo,
         int outputToElemNum);
 
+    void Term(void);
+
 private:
     float* m_sampleFrom = nullptr;
     int m_convolutionN = 0;
