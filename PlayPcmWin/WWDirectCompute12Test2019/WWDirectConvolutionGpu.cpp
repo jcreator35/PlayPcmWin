@@ -29,7 +29,7 @@ WWDirectConvolutionGpu::Setup(
 {
     bool    result = true;
     HRESULT hr = S_OK;
-
+    int useGpuId = -1;
     ConstShaderParams shaderParams;
 
     WW_DIRECT_CONV_GPU_CONV_TYPE* convAryFlip = nullptr;
@@ -50,7 +50,8 @@ WWDirectConvolutionGpu::Setup(
         convAryFlip[i] = convAry[convCount - 1 - i];
     }
 
-    HRG(mDC.Init(0));
+    HRG(mDC.Init());
+    HRG(mDC.ChooseAdapter(useGpuId));
 
     {   // コンピュートシェーダーをコンパイルする。
         // HLSLの中の#defineの値を決めます。

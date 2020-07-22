@@ -10,20 +10,20 @@ int wmain(int argc, wchar_t *argv[])
 {
     HRESULT hr = S_OK;
 
-    int gpuNr = -1;
+    int useGpuIdx = -1;
     if (1 < argc) {
         wchar_t* endPtr = nullptr;
-        gpuNr = (int)wcstol(argv[1], &endPtr, 10);
-        printf("GpuNr=%d\n", gpuNr);
+        useGpuIdx = (int)wcstol(argv[1], &endPtr, 10);
+        printf("GpuNr=%d\n", useGpuIdx);
     }
 
     //hr = TestCopyShader();
 
-    hr = TestResampleGpu(gpuNr);
+    //hr = TestResampleGpu(useGpuIdx);
 
     //hr = TestDirectConvolutionGpu();
 
-    //hr = TestSandboxShader();
+    hr = TestSandboxShader(useGpuIdx);
 
     // 成功: 0
     // 失敗: 1

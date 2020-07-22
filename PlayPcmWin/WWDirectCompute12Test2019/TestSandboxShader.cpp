@@ -6,7 +6,7 @@
 #include "WWDCUtil.h"
 
 int
-TestSandboxShader(void)
+TestSandboxShader(int useGpuIdx)
 {
     enum suHeapIdx {
         SHI_UAV_OUT,
@@ -28,7 +28,18 @@ TestSandboxShader(void)
 
     // 準備作業。■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
-    HRG(dc.Init(0));
+    HRG(dc.Init());
+
+    for (int i = 0; i < dc.NumOfAdapters(); ++i) {
+        WWDirectCompute12AdapterInf adap;
+        dc.GetNthAdapterInf(i, adap);
+        printf("Adapter %d, %s, VideoMemory=%6dMiB, SystemMemory=%6dMiB, SharedMemory=%6dMiB, %S, %S\n",
+            adap.idx, adap.supportsFeatureLv ? "OK" : "NA", adap.dedicatedVideoMemoryMiB, 
+            adap.dedicatedSystemMemoryMiB, adap.sharedSystemMemoryMiB,
+            WWDxgiAdapterFlagsToStr(adap.dxgiAdapterFlags).c_str(), adap.name);
+    }
+
+    HRG(dc.ChooseAdapter(useGpuIdx));
 
     // コンピュートシェーダーをコンパイルする。
     HRG(dc.CreateShader(L"Sandbox.hlsl", "CSMain", "cs_5_0", nullptr, shader));
@@ -46,7 +57,7 @@ TestSandboxShader(void)
 
     // 計算結果を表示。
     for (int i = 0; i < 25; ++i) {
-        printf("%5d, %f\n", i, outputData[i]);
+        printf("%d:%f\t", i, outputData[i]);
     }
     printf("\n");
 

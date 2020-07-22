@@ -10,6 +10,19 @@
 
 class WWResampleGpu {
 public:
+
+    HRESULT Init(void);
+
+    int NumOfAdapters(void) const
+    {
+        return mDC.NumOfAdapters();
+    }
+
+    HRESULT GetNthAdapterInf(int nth, WWDirectCompute12AdapterInf& adap_out)
+    {
+        return mDC.GetNthAdapterInf(nth, adap_out);
+    }
+
     HRESULT Setup(
         int convolutionN,
         float* sampleFrom,
@@ -18,7 +31,7 @@ public:
         int sampleRateTo,
         int sampleTotalTo,
         bool highPrecision,
-        int gpuNr = -1);
+        int useGpuIdx);
 
     HRESULT Dispatch(
         int startPos,

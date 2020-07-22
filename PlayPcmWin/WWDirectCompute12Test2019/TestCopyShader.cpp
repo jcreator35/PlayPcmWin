@@ -27,6 +27,7 @@ TestCopyShader(void)
 
     HRESULT hr = S_OK;
     WWDirectCompute12User dc;
+    int useGpuIdx = -1;
     WWConstantBuffer cBuf;
     WWShader copyShader;
     WWSrvUavHeap suHeap;
@@ -45,7 +46,8 @@ TestCopyShader(void)
 
     // 準備作業。■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
-    HRG(dc.Init(0));
+    HRG(dc.Init());
+    HRG(dc.ChooseAdapter(useGpuIdx));
 
     {   // コンピュートシェーダーをコンパイルする。
         char      groupThreadCountStr[32];

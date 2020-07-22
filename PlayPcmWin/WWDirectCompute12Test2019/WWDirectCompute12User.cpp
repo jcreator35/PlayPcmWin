@@ -61,6 +61,30 @@ GetAssetsPath(_Out_writes_(pathSize) WCHAR* path, UINT pathSize)
     }
 }
 
+std::wstring
+WWDxgiAdapterFlagsToStr(uint32_t f)
+{
+    std::wstring s;
+
+    if (f & DXGI_ADAPTER_FLAG_REMOTE) {
+        s += L"FLAG_REMOTE";
+    }
+    if (f & DXGI_ADAPTER_FLAG_SOFTWARE) {
+        if (0 < s.size()) {
+            s += L"|";
+        }
+        s += L"FLAG_SOFTWARE";
+    }
+
+    if (s.size() == 0) {
+        s = L"FLAG_NONE";
+    }
+
+    return s;
+}
+
+// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
 WWDirectCompute12User::WWDirectCompute12User(void)
 {
     WCHAR assetsPath[512];
@@ -105,19 +129,16 @@ GetHardwareAdapter(int gpuNr, D3D_FEATURE_LEVEL d3dFeatureLv, IDXGIFactory2* pFa
     *ppAdapter = nullptr;
     UINT i = 0;
 
-    printf("Finding Direct3D Feature Level %s hardware adapter...\n", D3DFeatureLevelToStr(d3dFeatureLv));
+    //printf("Finding Direct3D Feature Level %s hardware adapter...\n", D3DFeatureLevelToStr(d3dFeatureLv));
 
     for (i=0; DXGI_ERROR_NOT_FOUND != pFactory->EnumAdapters1(i, &adapter); ++i) {
         DXGI_ADAPTER_DESC1 desc;
         adapter->GetDesc1(&desc);
 
-        printf("Adapter#%u: Video memory=%lldMB, %S : ",
-            i,
-            desc.DedicatedVideoMemory / 1024 / 1024,
-            desc.Description);
+        //printf("Adapter#%u: Video memory=%lldMB, %S : ", i, desc.DedicatedVideoMemory / 1024 / 1024, desc.Description);
 
         if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), d3dFeatureLv, _uuidof(ID3D12Device), nullptr))) {
-            printf("OK\n");
+            // printf("OK\n");
             if (0 <= gpuNr) {
                 if (gpuNr == i) {
                     break;
@@ -126,74 +147,20 @@ GetHardwareAdapter(int gpuNr, D3D_FEATURE_LEVEL d3dFeatureLv, IDXGIFactory2* pFa
                 break;
             }
         } else {
-            printf("NA\n");
+            //printf("NA\n");
         }
     }
 
-    printf("Use Adapter#%u.\n", i);
+    //printf("Use Adapter#%u.\n", i);
     *ppAdapter = adapter.Detach();
 }
 
-HRESULT
-WWDirectCompute12User::EnumerateGPUadapters(void)
+HRESULT WWDirectCompute12User::Init(void)
 {
     HRESULT hr = S_OK;
-    ComPtr<IDXGIAdapter1> adapter;
-    mGpuAdapterDescs.clear();
-
-    printf("Finding Direct3D Feature Level %s hardware adapter...\n", D3DFeatureLevelToStr(mD3dFeatureLv));
-
-    for (UINT i = 0; DXGI_ERROR_NOT_FOUND != mDxgiFactory->EnumAdapterByGpuPreference(
-            i, mActiveGpuPreference, IID_PPV_ARGS(&adapter)); ++i) {
-        DxgiAdapterInfo ai;
-        HRG(adapter->GetDesc1(&ai.desc));
-        ai.supportsFeatureLv = SUCCEEDED(D3D12CreateDevice(adapter.Get(), mD3dFeatureLv, _uuidof(ID3D12Device), nullptr));
-
-        printf("Adapter#%u: Video memory=%lldMB, %S : %s\n",
-            i,
-            ai.desc.DedicatedVideoMemory / 1024 / 1024,
-            ai.desc.Description, ai.supportsFeatureLv ? "OK" : "NA");
-
-        if (mActiveAdapter < 0 && ai.supportsFeatureLv) {
-            mActiveAdapter = i;
-        }
-
-        mGpuAdapterDescs.push_back(std::move(ai));
-    }
-
-end:
-    return hr;
-}
-
-HRESULT
-WWDirectCompute12User::GetGPUAdapter(IDXGIAdapter1** ppAdapter)
-{
-    HRESULT hr = S_OK;
-    ComPtr<IDXGIAdapter1> adapter;
-    *ppAdapter = nullptr;
-
-    if (mDxgiFactory->EnumAdapterByGpuPreference(
-            mActiveAdapter, mActiveGpuPreference,
-            IID_PPV_ARGS(&adapter)) != DXGI_ERROR_NOT_FOUND) {
-        DXGI_ADAPTER_DESC1 desc;
-        HRG(adapter->GetDesc1(&desc));
-        HRG(D3D12CreateDevice(adapter.Get(), mD3dFeatureLv, _uuidof(ID3D12Device), nullptr));
-        *ppAdapter = adapter.Detach();
-    }
-
-end:
-    return hr;
-}
-
-HRESULT
-WWDirectCompute12User::Init(int initFlags, int gpuNr)
-{
-    HRESULT hr = S_OK;
-    D3D_FEATURE_LEVEL d3dFeatureLv = D3D_FEATURE_LEVEL_11_1;
     UINT dxgiFactoryFlags = 0;
-    auto clType = D3D12_COMMAND_LIST_TYPE_COMPUTE;
 
-    mActiveAdapter = gpuNr;
+    mActiveAdapter = -1;
 
 #ifdef _DEBUG
     {
@@ -221,15 +188,99 @@ WWDirectCompute12User::Init(int initFlags, int gpuNr)
         }
     }
 
-    HRG(EnumerateGPUadapters());
+    HRG(EnumGpuAdapters());
+end:
+    return hr;
+}
 
-    if (mActiveAdapter < 0) {
+HRESULT
+WWDirectCompute12User::EnumGpuAdapters(void)
+{
+    HRESULT hr = S_OK;
+    ComPtr<IDXGIAdapter1> adapter;
+    mGpuAdapterDescs.clear();
+
+    mBestAdapter = -1;
+
+    //printf("Finding Direct3D Feature Level %s hardware adapter...\n", D3DFeatureLevelToStr(mD3dFeatureLv));
+
+    for (UINT i = 0; DXGI_ERROR_NOT_FOUND != mDxgiFactory->EnumAdapterByGpuPreference(
+            i, mActiveGpuPreference, IID_PPV_ARGS(&adapter)); ++i) {
+        DxgiAdapterInfo ai;
+        HRG(adapter->GetDesc1(&ai.desc));
+        ai.supportsFeatureLv = SUCCEEDED(D3D12CreateDevice(adapter.Get(), mD3dFeatureLv, _uuidof(ID3D12Device), nullptr));
+
+        if (mBestAdapter < 0 && ai.supportsFeatureLv) {
+            mBestAdapter = i;
+        }
+
+        mGpuAdapterDescs.push_back(std::move(ai));
+    }
+
+end:
+    return hr;
+}
+
+HRESULT
+WWDirectCompute12User::GetNthAdapterInf(int nth, WWDirectCompute12AdapterInf& adap_out)
+{
+    if (nth < 0 || mGpuAdapterDescs.size() <= nth) {
+        return E_INVALIDARG;
+    }
+
+    ZeroMemory(&adap_out, sizeof adap_out);
+
+    auto& a = mGpuAdapterDescs[nth];
+
+    adap_out.idx = nth;
+    adap_out.supportsFeatureLv = a.supportsFeatureLv;
+    adap_out.dedicatedSystemMemoryMiB = (int)(a.desc.DedicatedSystemMemory / 1024 / 1024);
+    adap_out.dedicatedVideoMemoryMiB = (int)(a.desc.DedicatedVideoMemory / 1024 / 1024);
+    adap_out.sharedSystemMemoryMiB = (int)(a.desc.SharedSystemMemory / 1024 / 1024);
+    adap_out.dxgiAdapterFlags = a.desc.Flags;
+    wcsncpy_s(adap_out.name, a.desc.Description, ARRAYSIZE(adap_out.name) - 1);
+    return S_OK;
+}
+
+HRESULT
+WWDirectCompute12User::CreateGpuAdapter(IDXGIAdapter1** ppAdapter)
+{
+    HRESULT hr = S_OK;
+    ComPtr<IDXGIAdapter1> adapter;
+    *ppAdapter = nullptr;
+
+    if (mDxgiFactory->EnumAdapterByGpuPreference(
+            mActiveAdapter, mActiveGpuPreference,
+            IID_PPV_ARGS(&adapter)) != DXGI_ERROR_NOT_FOUND) {
+        HRG(D3D12CreateDevice(adapter.Get(), mD3dFeatureLv, _uuidof(ID3D12Device), nullptr));
+        *ppAdapter = adapter.Detach();
+    }
+
+end:
+    return hr;
+}
+
+HRESULT
+WWDirectCompute12User::ChooseAdapter(int useGpuIdx)
+{
+    HRESULT hr = S_OK;
+    auto clType = D3D12_COMMAND_LIST_TYPE_COMPUTE;
+
+    mActiveAdapter = useGpuIdx;
+
+    assert(mDxgiFactory.Get());
+
+    if (mBestAdapter < 0) {
         printf("Error: No %s device is found.\n", D3DFeatureLevelToStr(mD3dFeatureLv));
         hr = E_FAIL;
         goto end;
     }
 
-    printf("Use Adapter#%u.\n", mActiveAdapter);
+    if (mActiveAdapter < 0) {
+        mActiveAdapter = mBestAdapter;
+    }
+
+    dprintf("D: WWDirectCompute12User::ChooseAdapter(%d) Use Adapter#%u.\n", useGpuIdx, mActiveAdapter);
 
     if (!mGpuAdapterDescs[mActiveAdapter].supportsFeatureLv) {
         printf("Error: Adapter %d does not support %s.\n", mActiveAdapter, D3DFeatureLevelToStr(mD3dFeatureLv));
@@ -240,7 +291,7 @@ WWDirectCompute12User::Init(int initFlags, int gpuNr)
     {
         ComPtr<IDXGIAdapter1> hardwareAdapter;
 
-        HRG(GetGPUAdapter(&hardwareAdapter));
+        HRG(CreateGpuAdapter(&hardwareAdapter));
         HRG(D3D12CreateDevice(hardwareAdapter.Get(), mD3dFeatureLv, IID_PPV_ARGS(&mDevice)));
         mActiveAdapterLuid = mGpuAdapterDescs[mActiveAdapter].desc.AdapterLuid;
     }

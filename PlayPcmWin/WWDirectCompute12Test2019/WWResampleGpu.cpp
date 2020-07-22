@@ -17,6 +17,12 @@ struct ConstShaderParams {
 };
 
 HRESULT
+WWResampleGpu::Init(void)
+{
+    return mDC.Init();
+}
+
+HRESULT
 WWResampleGpu::Setup(
     int convolutionN,
     float* sampleFrom,
@@ -25,7 +31,7 @@ WWResampleGpu::Setup(
     int sampleRateTo,
     int sampleTotalTo,
     bool highPrecision,
-    int gpuNr)
+    int useGpuIdx)
 {
     bool    result = true;
     HRESULT hr = S_OK;
@@ -86,7 +92,9 @@ WWResampleGpu::Setup(
         sinPreComputeArray[i] = sin(-PI_D * fraction);
     }
 
-    HRG(mDC.Init(0, gpuNr));
+    // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+    HRG(mDC.ChooseAdapter(useGpuIdx));
 
     {   // コンピュートシェーダーをコンパイルする。
         // HLSLの中の#defineの値を決めます。

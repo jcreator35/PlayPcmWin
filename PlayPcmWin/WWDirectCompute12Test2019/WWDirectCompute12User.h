@@ -9,11 +9,14 @@
 #include <assert.h>
 #include <vector>
 
+#define WW_DIRECTCOMPUTE12_ADAPTER_NAME_COUNT (128)
+
 struct WWConstantBuffer {
     ComPtr<ID3D12Resource> cBufUpload;
     int bytes = 0;
 
-    void Reset(void) {
+    void Reset(void)
+    {
         cBufUpload.Reset();
     }
 };
@@ -30,7 +33,8 @@ struct WWSrvUavHeap {
     int numEntries = 0;
     UINT srvUavDescSize = 0;
 
-    void Reset(void) {
+    void Reset(void)
+    {
         heap.Reset();
         entryTypes.clear();
     }
@@ -61,7 +65,8 @@ struct WWGpuBuf {
 struct WWShader {
     ComPtr<ID3DBlob> shader;
 
-    void Reset(void) {
+    void Reset(void)
+    {
         shader.Reset();
     }
 };
@@ -73,10 +78,29 @@ struct WWComputeState {
     int useSRVCount = 0;
     int useUAVCount = 0;
 
-    void Reset(void) {
+    void Reset(void)
+    {
         rootSignature.Reset();
         state.Reset();
     }
+};
+
+std::wstring
+WWDxgiAdapterFlagsToStr(uint32_t f);
+
+struct WWDirectCompute12AdapterInf {
+    int idx;
+    int supportsFeatureLv;
+    int dedicatedVideoMemoryMiB;
+    int dedicatedSystemMemoryMiB;
+    int sharedSystemMemoryMiB;
+
+    // DXGI_ADAPTER_FLAG
+    uint32_t dxgiAdapterFlags;
+    int pad0;
+    int pad1;
+
+    wchar_t name[WW_DIRECTCOMPUTE12_ADAPTER_NAME_COUNT];
 };
 
 class WWDirectCompute12User {
@@ -84,12 +108,20 @@ public:
     WWDirectCompute12User(void);
     ~WWDirectCompute12User(void);
 
-    enum InitFlags {
-        DCU2IF_USE_WARP = 1,
-    };
+    /// @brief Initialization. with enum adapters available. paired with Term().
+    HRESULT Init(void);
 
-    /// @param initFlags DCU2IF_USE_WARP WARP software rasterizer
-    HRESULT Init(int initFlags, int gpuNr = -1);
+    /// @brief Re-enumerate adapters and update adapter list.
+    HRESULT EnumGpuAdapters(void);
+
+    int NumOfAdapters(void) const { return (int)mGpuAdapterDescs.size(); }
+
+    HRESULT GetNthAdapterInf(int nth, WWDirectCompute12AdapterInf& adap_out);
+
+    /// @brief choose Direct3d12 Device
+    /// @param useGpuIdx GPU idx to use. -1 to chooose most powerful device available.
+    HRESULT ChooseAdapter(int useGpuIdx);
+
     void    Term(void);
 
     // ShaderをコンパイルしてGPUに送る
@@ -98,7 +130,7 @@ public:
         LPCSTR entryPoint,
         LPCSTR shaderVersion,
         const D3D_SHADER_MACRO* defines,
-        WWShader & s_out);
+        WWShader& s_out);
 
     HRESULT CreateConstantBuffer(
         unsigned int bytes,
@@ -119,9 +151,9 @@ public:
         unsigned int elemBytes,
         unsigned int elemCount,
         const void* data,
-        WWGpuBuf & gpuBuf_out,
+        WWGpuBuf& gpuBuf_out,
         WWSrv& srv_out);
-    
+
     /// @brief UAV作成。GPUが書き込み、CPUは読み出すバッファー。ヒープに登録する。
     HRESULT CreateGpuBufferAndRegisterAsUAV(
         WWSrvUavHeap& suHeap,
@@ -141,9 +173,9 @@ public:
     /// @param firstHeapIdx suHeapの、コンピュートシェーダーに見せたい最初のエントリー番号。
     /// @param uavIdx suHeapのUAVのエントリー番号。
     HRESULT Run(
-        WWComputeState &cState,
-        WWConstantBuffer *cBuf,
-        WWSrvUavHeap &suHeap,
+        WWComputeState& cState,
+        WWConstantBuffer* cBuf,
+        WWSrvUavHeap& suHeap,
         int firstHeapIdx,
         UINT x, UINT y, UINT z);
 
@@ -158,8 +190,9 @@ private:
     ComPtr<ID3D12CommandQueue> mCQueue;
     ComPtr<ID3D12CommandAllocator> mCAllocator;
     ComPtr<ID3D12GraphicsCommandList> mCList;
-    UINT64 mFenceValue = 1;
-    int mActiveAdapter = 0;
+    UINT64 mFenceValue = 42;
+    int mBestAdapter = -1;
+    int mActiveAdapter = -1;
     LUID mActiveAdapterLuid = {};
     HANDLE mAdapterChangeEvent = nullptr;
     DWORD mAdapterChangeRegistrationCookie = 0;
@@ -174,6 +207,5 @@ private:
     D3D_FEATURE_LEVEL mD3dFeatureLv = D3D_FEATURE_LEVEL_11_1;
 
     std::wstring GetAssetFullPath(LPCWSTR assetName);
-    HRESULT EnumerateGPUadapters(void);
-    HRESULT GetGPUAdapter(IDXGIAdapter1** ppAdapter);
+    HRESULT CreateGpuAdapter(IDXGIAdapter1** ppAdapter);
 };

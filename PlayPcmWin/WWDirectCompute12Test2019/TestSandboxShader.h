@@ -2,4 +2,4 @@
 
 #pragma once
 
-int TestSandboxShader(void);
+int TestSandboxShader(int useGpuIdx);
