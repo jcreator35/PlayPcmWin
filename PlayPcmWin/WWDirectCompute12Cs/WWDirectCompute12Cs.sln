@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30309.148
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WWDirectCompute12Cs", "WWDirectCompute12Cs.csproj", "{5A850D1C-167F-4939-A3CD-2DD9B9F3F092}"
+	ProjectSection(ProjectDependencies) = postProject
+		{855D9428-88BB-4CD6-8D79-A210050CC88F} = {855D9428-88BB-4CD6-8D79-A210050CC88F}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WWDirectCompute12DLL2019", "..\WWDirectCompute12DLL\WWDirectCompute12DLL2019.vcxproj", "{855D9428-88BB-4CD6-8D79-A210050CC88F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5A850D1C-167F-4939-A3CD-2DD9B9F3F092}.Debug|x64.ActiveCfg = Debug|x64
+		{5A850D1C-167F-4939-A3CD-2DD9B9F3F092}.Debug|x64.Build.0 = Debug|x64
+		{5A850D1C-167F-4939-A3CD-2DD9B9F3F092}.Release|x64.ActiveCfg = Release|x64
+		{5A850D1C-167F-4939-A3CD-2DD9B9F3F092}.Release|x64.Build.0 = Release|x64
+		{855D9428-88BB-4CD6-8D79-A210050CC88F}.Debug|x64.ActiveCfg = Debug|x64
+		{855D9428-88BB-4CD6-8D79-A210050CC88F}.Debug|x64.Build.0 = Debug|x64
+		{855D9428-88BB-4CD6-8D79-A210050CC88F}.Release|x64.ActiveCfg = Release|x64
+		{855D9428-88BB-4CD6-8D79-A210050CC88F}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {96717962-104A-4900-B94D-B4B3FE128B06}
+	EndGlobalSection
+EndGlobal

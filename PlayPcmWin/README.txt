@@ -41,6 +41,8 @@ Open Visual Studio x64 Win64 command prompt and enter following commands to crea
  sn -k WWCompareTwoImages\WWCompareTwoImages.snk
  sn -k WWMFVideoReaderCs\WWMFVideoReaderCs.snk
  sn -k ReadAllFilesOnSpecifiedFolder\ReadAllFilesOnSpecifiedFolder.snk
+ sn -k WWDirectCompute12Cs\WWDirectCompute12Cs.snk
+ sn -k WWArbitraryResampler\WWArbitraryResampler.snk
 
 Open PlayPcmWin\PlayPcmWin.sln to build/run PlayPcmWin (choose Release x64 build target)
 
