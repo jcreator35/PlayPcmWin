@@ -119,8 +119,8 @@ public:
     HRESULT GetNthAdapterInf(int nth, WWDirectCompute12AdapterInf& adap_out);
 
     /// @brief choose Direct3d12 Device
-    /// @param useGpuIdx GPU idx to use. -1 to chooose most powerful device available.
-    HRESULT ChooseAdapter(int useGpuIdx);
+    /// @param useGpuId GPU idx to use. -1 to chooose most powerful device available.
+    HRESULT ChooseAdapter(int useGpuId);
 
     void    Term(void);
 

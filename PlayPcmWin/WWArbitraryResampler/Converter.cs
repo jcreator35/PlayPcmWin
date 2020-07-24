@@ -52,21 +52,16 @@ namespace WWArbitraryResampler {
 
         private EventCallback mCB = null;
 
-        public void UpdateEventCallback(EventCallback cb) {
-            mCB = cb;
-        }
-
-
         public class ConvertArgs {
-            public int mGpuIdx;
+            public int mGpuId;
             public string mInPath;
             public string mOutPath;
-            public double mScale = 1.0;
-            public ConvertArgs(int gpuIdx, string inPath, string outPath, double scale) {
-                mGpuIdx = gpuIdx;
+            public double mSampleRateScale = 1.0;
+            public ConvertArgs(int gpuId, string inPath, string outPath, double sampleRateScale) {
+                mGpuId = gpuId;
                 mInPath = inPath;
                 mOutPath = outPath;
-                mScale = scale;
+                mSampleRateScale = sampleRateScale;
             }
         };
 
@@ -81,18 +76,23 @@ namespace WWArbitraryResampler {
         /// @brief Dispatch()が一度に何サンプル出力するか。(convolutionNとは関係ない)
         private const int GPU_WORK_COUNT = 4096;
 
+        private void CallEvent(EventCallbackTypes t, int percent, int hr) {
+            if (mCB == null) {
+                return;
+            }
+
+            var cba = new EventCallbackArgs(EventCallbackTypes.Started, PROGRESS_STARTED, hr);
+            mCB(new EventCallbackArgs(t, percent, hr));
+        }
+
         private int Convert1(ConvertArgs ca) {
             int hr = 0;
 
-            { 
-                var cba = new EventCallbackArgs(EventCallbackTypes.Started, PROGRESS_STARTED, hr);
-                mCB(cba);
-            }
+            CallEvent(EventCallbackTypes.Started, PROGRESS_STARTED, hr);
 
-            hr = mResampleGpu.ChooseAdapter(ca.mGpuIdx);
+            hr = mResampleGpu.ChooseAdapter(ca.mGpuId);
             if (hr < 0) {
-                var cba = new EventCallbackArgs(EventCallbackTypes.InitGpuAdapterFailed, 0, hr);
-                mCB(cba);
+                CallEvent(EventCallbackTypes.InitGpuAdapterFailed, 0, hr);
                 return hr;
             }
 
@@ -100,12 +100,10 @@ namespace WWArbitraryResampler {
             
             hr = flacR.DecodeAll(ca.mInPath);
             if (hr < 0) {
-                var cba = new EventCallbackArgs(EventCallbackTypes.ReadFailed, 0, hr);
-                mCB(cba);
+                CallEvent(EventCallbackTypes.ReadFailed, 0, hr);
                 return hr;
             } else {
-                var cba = new EventCallbackArgs(EventCallbackTypes.ReadCompleted, PROGRESS_READ_END, hr);
-                mCB(cba);
+                CallEvent(EventCallbackTypes.ReadCompleted, PROGRESS_READ_END, hr);
             }
 
             Metadata metaR;
@@ -145,22 +143,21 @@ namespace WWArbitraryResampler {
             }
 
             {
-                var cba = new EventCallbackArgs(EventCallbackTypes.PrepareDataCompleted, PROGRESS_PREPARE_END, hr);
-                mCB(cba);
+                CallEvent(EventCallbackTypes.PrepareDataCompleted, PROGRESS_PREPARE_END, hr);
             }
 
 
-            System.Diagnostics.Debug.Assert(0.5 <= ca.mScale & ca.mScale <= 2.0);
-            int sampleRateTo = (int)(ca.mScale * metaR.sampleRate);
-            int sampleTotalTo = (int)(ca.mScale * metaR.totalSamples);
+            System.Diagnostics.Debug.Assert(0.5 <= ca.mSampleRateScale & ca.mSampleRateScale <= 2.0);
+            int sampleRateTo = (int)(ca.mSampleRateScale * metaR.sampleRate);
+            int sampleTotalTo = (int)(ca.mSampleRateScale * metaR.totalSamples);
 
             // metaW: 出力フォーマット。
             var metaW = new Metadata(metaR);
-            if (ca.mScale < 1.0) {
+            if (ca.mSampleRateScale < 1.0) {
                 // 曲の長さを縮めると、エイリアシング雑音が出るのでローパスフィルターが必要になる。
                 // 出力サンプルレートを倍にしてローパスフィルターを省略。
-                sampleRateTo = (int)(2.0*ca.mScale * metaR.sampleRate);
-                sampleTotalTo = (int)(2.0*ca.mScale * metaR.totalSamples);
+                sampleRateTo = (int)(2.0*ca.mSampleRateScale * metaR.sampleRate);
+                sampleTotalTo = (int)(2.0*ca.mSampleRateScale * metaR.totalSamples);
 
                 metaW.sampleRate *= 2;
             }
@@ -186,16 +183,14 @@ namespace WWArbitraryResampler {
 
                     hr = mResampleGpu.Dispatch(i, count);
                     if (hr < 0) {
-                        var cba = new EventCallbackArgs(EventCallbackTypes.ConvertFailed, 0, hr);
-                        mCB(cba);
+                        CallEvent(EventCallbackTypes.ConvertFailed, 0, hr);
                         return hr;
                     } else {
                         float progress0to1 = ((ch+1.0f) / metaR.channels)
                             * ((float)i / sampleTotalTo);
                         int percent = (int)(PROGRESS_CONV_START + 
                             progress0to1 * (PROGRESS_CONV_END - PROGRESS_CONV_START));
-                        var cba = new EventCallbackArgs(EventCallbackTypes.ConvProgress, percent, hr);
-                        mCB(cba);
+                        CallEvent(EventCallbackTypes.ConvProgress, percent, hr);
                     }
                 }
 
@@ -206,17 +201,13 @@ namespace WWArbitraryResampler {
                 mResampleGpu.Unsetup();
             }
 
-            {
-                var cba = new EventCallbackArgs(EventCallbackTypes.WriteStarted, PROGRESS_CONV_END, hr);
-                mCB(cba);
-            }
+            CallEvent(EventCallbackTypes.WriteStarted, PROGRESS_CONV_END, hr);
 
             var flacW = new FlacRW();
 
             hr = flacW.EncodeInit(metaW);
             if (hr < 0) {
-                var cba = new EventCallbackArgs(EventCallbackTypes.WriteFailed, 0, hr);
-                mCB(cba);
+                CallEvent(EventCallbackTypes.WriteFailed, 0, hr);
                 return hr;
             }
 
@@ -226,8 +217,7 @@ namespace WWArbitraryResampler {
                 flacR.GetDecodedPicture(out metaPicture, metaR.pictureBytes);
                 hr = flacW.EncodeSetPicture(metaPicture);
                 if (hr < 0) {
-                    var cba = new EventCallbackArgs(EventCallbackTypes.WriteFailed, 0, hr);
-                    mCB(cba);
+                    CallEvent(EventCallbackTypes.WriteFailed, 0, hr);
                     return hr;
                 }
             }
@@ -247,8 +237,7 @@ namespace WWArbitraryResampler {
 
             hr = flacW.EncodeRun(ca.mOutPath);
             if (hr < 0) {
-                var cba = new EventCallbackArgs(EventCallbackTypes.WriteFailed, 0, hr);
-                mCB(cba);
+                CallEvent(EventCallbackTypes.WriteFailed, 0, hr);
                 return hr;
             }
 
@@ -258,12 +247,12 @@ namespace WWArbitraryResampler {
             return hr;
         }
 
-        public int Convert(ConvertArgs cp, EventCallback cb) {
-            Console.WriteLine("Converting {0} {1} {2}x", cp.mInPath, cp.mOutPath, cp.mScale);
+        public int Convert(ConvertArgs ca, EventCallback cb) {
+            Console.WriteLine("Converting {0} {1} {2}x", ca.mInPath, ca.mOutPath, ca.mSampleRateScale);
 
             mCB = cb;
 
-            int hr = Convert1(cp);
+            int hr = Convert1(ca);
 
             mCB = null;
             return hr;

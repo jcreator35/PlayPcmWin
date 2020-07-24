@@ -261,12 +261,12 @@ end:
 }
 
 HRESULT
-WWDirectCompute12User::ChooseAdapter(int useGpuIdx)
+WWDirectCompute12User::ChooseAdapter(int useGpuId)
 {
     HRESULT hr = S_OK;
     auto clType = D3D12_COMMAND_LIST_TYPE_COMPUTE;
 
-    mActiveAdapter = useGpuIdx;
+    mActiveAdapter = useGpuId;
 
     assert(mDxgiFactory.Get());
 
@@ -280,7 +280,7 @@ WWDirectCompute12User::ChooseAdapter(int useGpuIdx)
         mActiveAdapter = mBestAdapter;
     }
 
-    dprintf("D: WWDirectCompute12User::ChooseAdapter(%d) Use Adapter#%u.\n", useGpuIdx, mActiveAdapter);
+    dprintf("D: WWDirectCompute12User::ChooseAdapter(%d) Use Adapter#%u.\n", useGpuId, mActiveAdapter);
 
     if (!mGpuAdapterDescs[mActiveAdapter].supportsFeatureLv) {
         printf("Error: Adapter %d does not support %s.\n", mActiveAdapter, D3DFeatureLevelToStr(mD3dFeatureLv));

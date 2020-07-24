@@ -5,6 +5,7 @@ using System.Windows.Documents;
 using WWDirectCompute12;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System;
 
 namespace WWArbitraryResampler {
     public partial class MainWindow : Window {
@@ -34,12 +35,13 @@ namespace WWArbitraryResampler {
             mComboBoxAdapterList.Items.Clear();
             foreach (var item in mConv.AdapterList) {
                 mComboBoxAdapterList.Items.Add(
-                    string.Format("{0}: VideoMem={1}MiB, SharedMem={2}MiB {3} {4}",
+                    string.Format("gpuId={0}: {1}, VideoMem={2}MiB, SharedMem={3}MiB {4} {5}",
+                    item.gpuId,
                     item.name,
                     item.videoMemMiB, item.sharedMemMiB,
                     item.remote ? "Remote" : "",
                     item.software ? "Software" : ""));
-                mAdapterIdxList.Add(item.idx);
+                mAdapterIdxList.Add(item.gpuId);
             }
             if (0 < mComboBoxAdapterList.Items.Count) {
                 mComboBoxAdapterList.SelectedIndex = 0;
@@ -53,7 +55,54 @@ namespace WWArbitraryResampler {
             }
         }
 
+        private void PrintUsage() {
+            string appName = "WWArbitraryResampler";
+            Console.WriteLine("Commandline usage: {0} inputPath gpuId pitchScale outputPath", appName);
+        }
+
+        /// <summary>
+        /// コマンドライン引数が5個の時、設定をコマンドライン引数から得てコンバートします。
+        private bool ProcessCommandline() {
+            int hr = 0;
+            var args = System.Environment.GetCommandLineArgs();
+            if (5 != args.Length) {
+                PrintUsage();
+                return false;
+            }
+
+            mConv.Init();
+            mConv.UpdateAdapterList();
+
+            string inPath = args[1];
+
+            int gpuId = 0;
+            if (!int.TryParse(args[3], out gpuId) || gpuId < 0 || mConv.AdapterList.Count <= gpuId) {
+                Console.WriteLine("Error: gpuId should be 0 or larger integer value.");
+                PrintUsage();
+                return false;
+            }
+
+            double pitchScale = 1.0;
+            if (!double.TryParse(args[3], out pitchScale) || pitchScale < 0.5 || 2.0 < pitchScale) {
+                Console.WriteLine("Error: pitchScale value should be 0.5 <= pitchScale <= 2.0");
+                PrintUsage();
+                return false;
+            }
+
+            string outPath = args[4];
+
+            var ca = new Converter.ConvertArgs(gpuId, inPath, outPath, 1.0 / pitchScale);
+            hr = mConv.Convert(ca, null);
+            Console.WriteLine("result={0:x}", hr);
+            return true;
+        }
+
         private void Window_Loaded(object sender, RoutedEventArgs e) {
+            if (ProcessCommandline()) {
+                Close();
+                return;
+            }
+
             mBW = new BackgroundWorker();
             mBW.DoWork += MBW_DoWork;
             mBW.RunWorkerCompleted += MBW_RunWorkerCompleted;
@@ -107,9 +156,9 @@ namespace WWArbitraryResampler {
             mButtonStart.IsEnabled = false;
             ClearLog();
 
-            int gpuIdx = mAdapterIdxList[mComboBoxAdapterList.SelectedIndex];
+            int gpuId = mAdapterIdxList[mComboBoxAdapterList.SelectedIndex];
 
-            var ca = new Converter.ConvertArgs(gpuIdx, mTextBoxInput.Text, mTextBoxOutput.Text, 1.0/pitchScale);
+            var ca = new Converter.ConvertArgs(gpuId, mTextBoxInput.Text, mTextBoxOutput.Text, 1.0/pitchScale);
             mBW.RunWorkerAsync(ca);
 
         }

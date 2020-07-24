@@ -6,14 +6,14 @@ using System.Runtime.InteropServices;
 namespace WWDirectCompute12 {
     public class WWResampleGpu {
         public class AdapterDesc {
-            public int idx;
+            public int gpuId;
             public string name;
             public int videoMemMiB;
             public int sharedMemMiB;
             public bool remote;
             public bool software;
-            public AdapterDesc(int aIdx, string aName, int aVideoMem, int aSharedMem, bool aRemote, bool aSoftware) {
-                idx = aIdx;
+            public AdapterDesc(int aGpuId, string aName, int aVideoMem, int aSharedMem, bool aRemote, bool aSoftware) {
+                gpuId = aGpuId;
                 name = aName;
                 videoMemMiB = aVideoMem;
                 sharedMemMiB = aSharedMem;
