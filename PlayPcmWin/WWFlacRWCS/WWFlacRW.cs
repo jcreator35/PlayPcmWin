@@ -272,6 +272,13 @@ namespace WWFlacRWCS {
             mId = (int)FlacErrorCode.IdNotFound;
         }
 
+        /// <summary>
+        /// EncodeInitでmetaをセット後、
+        /// ・0&lt;pictureBytesの場合EncodeSetPicture()を呼んで下さい。
+        /// ・EncodeAddPcmでサンプルデータを追加。
+        /// ・EncodeRunでエンコード実行。
+        /// ・EncodeEndで後始末。
+        /// </summary>
         public int EncodeInit(Metadata meta) {
             var nMeta = new NativeMethods.Metadata();
             nMeta.sampleRate = meta.sampleRate;
@@ -326,6 +333,10 @@ namespace WWFlacRWCS {
             return 0;
         }
 
+        /// <summary>
+        /// エンコードを実行する。
+        /// </summary>
+        /// <returns>0:成功。負:エラーコード　WWFlacRWCS.FlacErrorCode</returns>
         public int EncodeRun(string path) {
             return NativeMethods.WWFlacRW_EncodeRun(mId, path);
         }

@@ -78,6 +78,32 @@ namespace PcmDataLib {
             return ((~(1L)) & (ckSize + 1));
         }
 
+        /// <summary>
+        /// float → signed int 32bit little endian byte array
+        /// </summary>
+        public static byte[] ConvertTo24bitLE(float v) {
+            int v32 = 0;
+            if (1.0f <= v) {
+                v32 = Int32.MaxValue;
+            } else if (v < -1.0f) {
+                v32 = Int32.MinValue;
+            } else {
+                long vMax = -((long)Int32.MinValue);
+
+                long v64 = (long)(v * vMax);
+                if (Int32.MaxValue < v64) {
+                    v64 = Int32.MaxValue;
+                }
+                v32 = (int)v64;
+            }
+
+            var r = new byte[3];
+            r[0] = (byte)((v32 & 0x0000ff00) >> 8);
+            r[1] = (byte)((v32 & 0x00ff0000) >> 16);
+            r[2] = (byte)((v32 & 0xff000000) >> 24);
+            return r;
+        }
+
         public static LargeArray<byte> ConvertTo24bit(int bitsPerSample, long numSamples,
                 PcmData.ValueRepresentationType valueType, LargeArray<byte> data) {
             if (bitsPerSample == 24 && valueType == PcmData.ValueRepresentationType.SInt) {

@@ -8,7 +8,7 @@ using System.Windows;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("WWArbitraryResampler")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Arbitrary Resampler")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("WWArbitraryResampler")]

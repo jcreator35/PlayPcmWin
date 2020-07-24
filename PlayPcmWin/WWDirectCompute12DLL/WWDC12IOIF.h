@@ -25,6 +25,10 @@ struct WWDirectComputeAdapterDesc {
 #pragma pack(pop)
 
 extern "C" __declspec(dllexport)
+int __stdcall
+WWDC12_Init(void);
+
+extern "C" __declspec(dllexport)
 void __stdcall
 WWDC12_Term(void);
 
@@ -63,3 +67,7 @@ int __stdcall
 WWDC12_Resample_ResultGetFromGpuMemory(
     float* outputTo,
     int outputToElemNum);
+
+extern "C" __declspec(dllexport)
+void __stdcall
+WWDC12_Resample_Unsetup(void);

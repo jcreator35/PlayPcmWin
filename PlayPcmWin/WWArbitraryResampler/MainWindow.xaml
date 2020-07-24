@@ -11,8 +11,9 @@
             <RowDefinition Height="150"/>
             <RowDefinition Height="30"/>
             <RowDefinition Height="272*"/>
+            <RowDefinition Height="24"/>
         </Grid.RowDefinitions>
-        <GroupBox Header="Settings" >
+        <GroupBox x:Name="mGroupBoxSettings" Header="Settings" >
             <Grid >
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="2*"/>
@@ -25,11 +26,13 @@
                     <RowDefinition Height="1*"/>
                     <RowDefinition Height="1*"/>
                 </Grid.RowDefinitions>
-                <Label Content="GPU Adapter:" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                
+                <Label Content="DirectX12 GPU Adapter:" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                <ComboBox x:Name="mComboBoxAdapterList" Grid.Column="1" VerticalAlignment="Center" />
+                <Button x:Name="mButtonUpdateAdapterList" Grid.Row="0" Content="_Update" Grid.Column="2" HorizontalAlignment="Left" Margin="6,0,0,0" VerticalAlignment="Center" Width="75" Click="mButtonUpdateAdapterList_Click" />
+
                 <Label Content="Input File:" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                 <TextBox x:Name="mTextBoxInput" Grid.Row="1" Grid.Column="1" Margin="0,0,0,0" TextWrapping="Wrap" Text="C:/audio/input.flac" VerticalAlignment="Center" />
-                <Button x:Name="mButtonInput" Grid.Row="1" Content="_Browse..." Grid.Column="2" HorizontalAlignment="Left" Margin="6,0,0,0" VerticalAlignment="Center" Width="75"/>
+                <Button x:Name="mButtonInput" Grid.Row="1" Content="_Browse..." Grid.Column="2" HorizontalAlignment="Left" Margin="6,0,0,0" VerticalAlignment="Center" Width="75" Click="mButtonInput_Click"/>
 
                 <Label Content="Pitch:" Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Center"/>
 
@@ -39,20 +42,20 @@
                         <ColumnDefinition Width="20"/>
                         <ColumnDefinition Width="1*"/>
                     </Grid.ColumnDefinitions>
-                    <TextBox Grid.Column="0" Text="1.0594630943593" VerticalAlignment="Center" />
+                    <TextBox x:Name="mTextBoxPitchScale" Grid.Column="0" Text="1.0594630943593" VerticalAlignment="Center" />
                     <Label Content="x" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                 </Grid>
                 <Label Content="Output File:" Grid.Row="3" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                 <TextBox x:Name="mTextBoxOutput" Grid.Row="3" Grid.Column="1" Margin="0,0,0,0" TextWrapping="Wrap" Text="C:/audio/output.flac" VerticalAlignment="Center" />
-                <Button x:Name="mButtonOutput" Content="B_rowse..." Grid.Row="3" Grid.Column="2" HorizontalAlignment="Left" Margin="6,0,0,0" VerticalAlignment="Center" Width="75"/>
-                <ComboBox x:Name="mComboBoxAdapterList" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center" />
+                <Button x:Name="mButtonOutput" Content="B_rowse..." Grid.Row="3" Grid.Column="2" HorizontalAlignment="Left" Margin="6,0,0,5.667" VerticalAlignment="Bottom" Width="75" Click="mButtonOutput_Click"/>
             </Grid>
         </GroupBox>
-        <Button x:Name="mButtonStart" Content="_Start" Margin="6,0,6,0" Grid.Row="1" VerticalAlignment="Center" />
+        <Button x:Name="mButtonStart" Content="_Start" Margin="6,0,6,0" Grid.Row="1" VerticalAlignment="Center" Click="mButtonStart_Click" />
         <GroupBox Header="Log" Grid.Row="2" >
             <TextBox x:Name="mTextBoxLog" IsReadOnlyCaretVisible="True" AcceptsTab="True" AcceptsReturn="True" AllowDrop="False" IsReadOnly="True" VerticalScrollBarVisibility="Visible" />
 
         </GroupBox>
+        <ProgressBar x:Name="mProgressBar" Grid.Row="3" />
 
     </Grid>
 </Window>

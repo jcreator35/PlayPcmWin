@@ -18,7 +18,12 @@ public:
         return mDC;
     }
 
-    int NumOfAdapters(void) const
+    HRESULT EnumGpuAdapters(void)
+    {
+        return mDC.EnumGpuAdapters();
+    }
+
+    HRESULT NumOfAdapters(void) const
     {
         return mDC.NumOfAdapters();
     }
@@ -46,6 +51,8 @@ public:
     HRESULT ResultGetFromGpuMemory(
         float* outputTo,
         int outputToElemNum);
+
+    void Unsetup(void);
 
     void Term(void);
 

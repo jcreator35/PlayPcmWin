@@ -509,7 +509,7 @@ namespace PcmDataLib {
         /// Int16の値が1個入っているbyte[]からサンプル値を取り出してdouble型に変換し
         /// double型の入っているbyte[]を戻す。
         /// </summary>
-        private byte[] ConvI16toF64(byte[] from) {
+        private static byte[] ConvI16toF64(byte[] from) {
             int nSample = from.Length / 2;
             byte[] to = new byte[nSample * 8];
             int fromPos = 0;
@@ -533,7 +533,7 @@ namespace PcmDataLib {
         /// Int24の値が1個入っているbyte[]からサンプル値を取り出してdouble型に変換し
         /// double型の入っているbyte[]を戻す。
         /// </summary>
-        private byte[] ConvI24toF64(byte[] from) {
+        private static byte[] ConvI24toF64(byte[] from) {
             int nSample = from.Length / 3;
             byte[] to = new byte[nSample * 8];
             int fromPos = 0;
@@ -558,7 +558,7 @@ namespace PcmDataLib {
         /// Int32の値が1個入っているbyte[]からサンプル値を取り出してdouble型に変換し
         /// double型の入っているbyte[]を戻す。
         /// </summary>
-        private byte[] ConvI32toF64(byte[] from) {
+        private static byte[] ConvI32toF64(byte[] from) {
             int nSample = from.Length / 4;
             byte[] to = new byte[nSample * 8];
             int fromPos = 0;
@@ -585,7 +585,7 @@ namespace PcmDataLib {
         /// floatの値が1個入っているbyte[]からサンプル値を取り出してdouble型に変換し
         /// double型の入っているbyte[]を戻す。
         /// </summary>
-        private byte[] ConvF32toF64(byte[] from) {
+        private static byte[] ConvF32toF64(byte[] from) {
             int nSample = from.Length / 4;
             byte[] to = new byte[nSample * 8];
             int fromPos = 0;
@@ -607,7 +607,7 @@ namespace PcmDataLib {
         /// Int64の値が1個入っているbyte[]からサンプル値を取り出してdouble型に変換し
         /// double型の入っているbyte[]を戻す。
         /// </summary>
-        private byte[] ConvI64toF64(byte[] from) {
+        private static byte[] ConvI64toF64(byte[] from) {
             int nSample = from.Length / 4;
             byte[] to = new byte[nSample * 8];
             int fromPos = 0;
@@ -640,7 +640,7 @@ namespace PcmDataLib {
         /// doubleの値が1個入っているbyte[]からサンプル値を取り出してdouble型に変換し
         /// double型の入っているbyte[]を戻す。
         /// </summary>
-        private byte[] ConvF64toF64(byte[] from) {
+        private static byte[] ConvF64toF64(byte[] from) {
             int nSample = from.Length / 4;
             byte[] to = new byte[nSample * 8];
             int fromPos = 0;
@@ -694,25 +694,31 @@ namespace PcmDataLib {
         }
 
         /// <summary>
-        /// float サンプル値取得。フォーマットが32bit floatの場合のみ使用可能。
+        /// float サンプル値取得。フォーマットが何であっても使用可能。
         /// </summary>
         /// <param name="ch">チャンネル番号</param>
         /// <param name="pos">サンプル番号</param>
         /// <returns>サンプル値。-1.0～+1.0位</returns>
         public float GetSampleValueInFloat(int ch, long pos) {
-            Debug.Assert(SampleValueRepresentationType == ValueRepresentationType.SFloat);
-            Debug.Assert(ValidBitsPerSample == 32);
             Debug.Assert(0 <= ch && ch < NumChannels);
 
-            if (pos < 0 || NumFrames <= pos) {
-                return 0.0f;
+            if (SampleValueRepresentationType == ValueRepresentationType.SFloat
+                && ValidBitsPerSample == 32) {
+                // データが32bit floatで保持されている場合。そのままコピーできる。
+                if (pos < 0 || NumFrames <= pos) {
+                    return 0.0f;
+                }
+
+                long offset = pos * BitsPerFrame / 8 + ch * BitsPerSample / 8;
+
+                var data = new byte[4];
+                mSampleLargeArray.CopyTo(offset, ref data, 0, 4);
+                return BitConverter.ToSingle(data, 0);
+            } else {
+                // double型で取り出してfloatに変換。
+                return (float)GetSampleValueInDouble(ch, pos);
             }
 
-            long offset = pos * BitsPerFrame / 8 + ch * BitsPerSample / 8;
-
-            var data = new byte[4];
-            mSampleLargeArray.CopyTo(offset, ref data, 0, 4);
-            return BitConverter.ToSingle(data, 0);
         }
 
         public int GetSampleValueInInt32(int ch, long pos) {

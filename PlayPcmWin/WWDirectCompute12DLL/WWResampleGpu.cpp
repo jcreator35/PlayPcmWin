@@ -58,7 +58,11 @@ WWResampleGpu::Setup(
     assert(0 < sampleTotalTo);
 
     m_convolutionN = convolutionN;
-    m_sampleFrom = sampleFrom;
+    
+    assert(m_sampleFrom == nullptr);
+    m_sampleFrom = new float[sampleTotalFrom];
+    memcpy(m_sampleFrom, sampleFrom, sampleTotalFrom * sizeof(float));
+
     m_sampleTotalFrom = sampleTotalFrom;
     m_sampleRateFrom = sampleRateFrom;
     m_sampleRateTo = sampleRateTo;
@@ -214,8 +218,26 @@ end:
 }
 
 void
+WWResampleGpu::Unsetup(void)
+{
+    delete[] m_sampleFrom;
+    m_sampleFrom = nullptr;
+
+    for (int i = 0; i < GB_NUM; ++i) {
+        mGpuBuf[i].Reset();
+    }
+    mCBuf.Reset();
+    mCState.Reset();
+    mSUHeap.Reset();
+    mCS.Reset();
+}
+
+void
 WWResampleGpu::Term(void)
 {
+    delete[] m_sampleFrom;
+    m_sampleFrom = nullptr;
+
     for (int i = 0; i < GB_NUM; ++i) {
         mGpuBuf[i].Reset();
     }

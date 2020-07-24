@@ -729,7 +729,7 @@ WWFlacRW_DecodeStreamOne(int id, uint8_t *pcmReturn, int pcmBytes)
 
     if (pcmBytes < fdi->rawPcmData.size()) {
         dprintf("%s Flac decode error. buffer size insuficient %d needed but size is %d\n",
-                __FUNCTION__, fdi->rawPcmData.size(), pcmBytes);
+                __FUNCTION__, (int)fdi->rawPcmData.size(), pcmBytes);
         fdi->errorCode = FRT_RecvBufferSizeInsufficient;
         goto end;
     }
@@ -1301,7 +1301,7 @@ WWFlacRW_EncodeSetPcmFragment(int id, int channel, int64_t offs, const uint8_t *
 }
 
 
-/// @return 0以上: 成功。負: エラー。FlacRWResultType参照。
+/// @return 0: 成功。負: エラー。FlacRWResultType参照。
 extern "C" __declspec(dllexport)
 int __stdcall
 WWFlacRW_EncodeRun(int id, const wchar_t *path)
@@ -1470,7 +1470,7 @@ end:
         return result;
     }
 
-    return fei->id;
+    return FRT_Success;
 }
 
 
@@ -1734,7 +1734,7 @@ WWFlacRW_CheckIntegrity(const wchar_t *path, WWFlacIntegrityCheckResult &result)
     if(initStatus != FLAC__STREAM_DECODER_INIT_STATUS_OK) {
         result.rv = FRT_FlacStreamDecoderInitFailed;
         dprintf("%s Flac checkIntegrity error %d.\n",
-                __FUNCTION__, result);
+                __FUNCTION__, result.rv);
         goto end;
     }
 
@@ -1747,7 +1747,7 @@ WWFlacRW_CheckIntegrity(const wchar_t *path, WWFlacIntegrityCheckResult &result)
             }
         }
         dprintf("%s Flac metadata process error %d\n",
-                __FUNCTION__, result);
+                __FUNCTION__, result.rv);
         goto end;
     }
 
@@ -1760,7 +1760,7 @@ WWFlacRW_CheckIntegrity(const wchar_t *path, WWFlacIntegrityCheckResult &result)
             }
         }
         dprintf("%s Flac decode error fdi->errorCode=%d\n",
-                __FUNCTION__, result);
+                __FUNCTION__, result.rv);
         goto end;
     }
 

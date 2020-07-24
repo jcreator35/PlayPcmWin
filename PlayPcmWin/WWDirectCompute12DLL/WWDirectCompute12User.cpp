@@ -155,7 +155,8 @@ GetHardwareAdapter(int gpuNr, D3D_FEATURE_LEVEL d3dFeatureLv, IDXGIFactory2* pFa
     *ppAdapter = adapter.Detach();
 }
 
-HRESULT WWDirectCompute12User::Init(void)
+HRESULT
+WWDirectCompute12User::Init(void)
 {
     HRESULT hr = S_OK;
     UINT dxgiFactoryFlags = 0;
@@ -188,7 +189,6 @@ HRESULT WWDirectCompute12User::Init(void)
         }
     }
 
-    HRG(EnumGpuAdapters());
 end:
     return hr;
 }

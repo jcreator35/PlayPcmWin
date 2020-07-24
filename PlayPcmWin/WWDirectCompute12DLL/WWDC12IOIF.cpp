@@ -7,6 +7,13 @@
 static WWResampleGpu gResample;
 
 extern "C" __declspec(dllexport)
+int __stdcall
+WWDC12_Init(void)
+{
+    return gResample.Init();
+}
+
+extern "C" __declspec(dllexport)
 void __stdcall
 WWDC12_Term(void)
 {
@@ -19,7 +26,7 @@ extern "C" __declspec(dllexport)
 int __stdcall
 WWDC12_EnumAdapter(void)
 {
-    int hr = gResample.Init();
+    int hr = gResample.EnumGpuAdapters();
     if (hr < 0) {
         return hr;
     }
@@ -91,4 +98,11 @@ WWDC12_Resample_ResultGetFromGpuMemory(
     int outputToElemNum)
 {
     return gResample.ResultGetFromGpuMemory(outputTo, outputToElemNum);
+}
+
+extern "C" __declspec(dllexport)
+void __stdcall
+WWDC12_Resample_Unsetup(void)
+{
+    gResample.Unsetup();
 }
