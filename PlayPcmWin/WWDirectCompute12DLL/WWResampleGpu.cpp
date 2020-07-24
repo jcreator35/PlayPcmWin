@@ -28,11 +28,24 @@ WWResampleGpu::ChooseAdapter(int idx)
     return mDC.ChooseAdapter(idx);
 }
 
+float*
+WWResampleGpu::AllocSampleFromMem(int sampleTotalFrom)
+{
+    assert(0 < sampleTotalFrom);
+    mSampleTotalFrom = sampleTotalFrom;
+
+    assert(mSampleFrom == nullptr);
+    mSampleFrom = new float[sampleTotalFrom];
+
+    // 念のためメモリにタッチする。
+    ZeroMemory(mSampleFrom, sampleTotalFrom * sizeof(float));
+
+    return mSampleFrom;
+}
+
 HRESULT
 WWResampleGpu::Setup(
         int convolutionN,
-        float* sampleFrom,
-        int sampleTotalFrom,
         int sampleRateFrom,
         int sampleRateTo,
         int sampleTotalTo,
@@ -46,8 +59,17 @@ WWResampleGpu::Setup(
     ConstShaderParams shaderParams;
 
     assert(0 < convolutionN);
-    assert(sampleFrom);
-    assert(0 < sampleTotalFrom);
+
+    assert(0 < mSampleTotalFrom);
+    assert(mSampleFrom);
+
+#if 0
+    printf("mSampleFrom: ");
+    for (int i = 0; i < 10; ++i) {
+        printf("%f ", mSampleFrom[i]);
+    }
+    printf("\n");
+#endif
 
     /* sampleRateを下げるときは、あらかじめオリジナル信号にローパスフィルターを通し
      * sampleRateTo/2以上の信号が無い状態にして呼んで下さい。
@@ -57,16 +79,13 @@ WWResampleGpu::Setup(
 
     assert(0 < sampleTotalTo);
 
-    m_convolutionN = convolutionN;
-    
-    assert(m_sampleFrom == nullptr);
-    m_sampleFrom = new float[sampleTotalFrom];
-    memcpy(m_sampleFrom, sampleFrom, sampleTotalFrom * sizeof(float));
+    mConvolutionN = convolutionN;
 
-    m_sampleTotalFrom = sampleTotalFrom;
-    m_sampleRateFrom = sampleRateFrom;
-    m_sampleRateTo = sampleRateTo;
-    m_sampleTotalTo = sampleTotalTo;
+    mSampleRateFrom = sampleRateFrom;
+    mSampleRateTo = sampleRateTo;
+    mSampleTotalTo = sampleTotalTo;
+
+    assert(mSampleTo == nullptr);
 
     resamplePosArray = new int[sampleTotalTo];
     assert(resamplePosArray);
@@ -84,8 +103,8 @@ WWResampleGpu::Setup(
          * 最後のほうで範囲外を指さないようにする。
          */
         int resamplePosI = (int)(resamplePos + 0.5);
-        if (sampleTotalFrom <= resamplePosI) {
-            resamplePosI = sampleTotalFrom - 1;
+        if (mSampleTotalFrom <= resamplePosI) {
+            resamplePosI = mSampleTotalFrom - 1;
         }
 #else
         /* 0<=fraction<1になるにresamplePosIを選ぶ。
@@ -112,7 +131,7 @@ WWResampleGpu::Setup(
         char      convCountStr[32];
         sprintf_s(convCountStr, "%d", convolutionN * 2);
         char      sampleTotalFromStr[32];
-        sprintf_s(sampleTotalFromStr, "%d", sampleTotalFrom);
+        sprintf_s(sampleTotalFromStr, "%d", mSampleTotalFrom);
         char      sampleTotalToStr[32];
         sprintf_s(sampleTotalToStr, "%d", sampleTotalTo);
 
@@ -144,7 +163,7 @@ WWResampleGpu::Setup(
     }
 
     HRG(mDC.CreateSrvUavHeap(GB_NUM, mSUHeap));
-    HRG(mDC.CreateGpuBufferAndRegisterAsSRV(mSUHeap, sizeof(float),  sampleTotalFrom, sampleFrom,         mGpuBuf[GB_InputPCM],            mSrv[GB_InputPCM]));
+    HRG(mDC.CreateGpuBufferAndRegisterAsSRV(mSUHeap, sizeof(float), mSampleTotalFrom, mSampleFrom,         mGpuBuf[GB_InputPCM],            mSrv[GB_InputPCM]));
     HRG(mDC.CreateGpuBufferAndRegisterAsSRV(mSUHeap, sizeof(int),    sampleTotalTo,   resamplePosArray,   mGpuBuf[GB_ResamplePosBuf],      mSrv[GB_ResamplePosBuf]));
     HRG(mDC.CreateGpuBufferAndRegisterAsSRV(mSUHeap, sizeof(double), sampleTotalTo,   fractionArray,      mGpuBuf[GB_ResampleFractionBuf], mSrv[GB_ResampleFractionBuf]));
     HRG(mDC.CreateGpuBufferAndRegisterAsSRV(mSUHeap, sizeof(double), sampleTotalTo,   sinPreComputeArray, mGpuBuf[GB_SinPrecomputeBuf],    mSrv[GB_SinPrecomputeBuf]));
@@ -182,7 +201,7 @@ WWResampleGpu::Dispatch(
     ConstShaderParams shaderParams;
     ZeroMemory(&shaderParams, sizeof shaderParams);
     shaderParams.c_convOffs = 0;
-    shaderParams.c_dispatchCount = m_convolutionN * 2 / GROUP_THREAD_COUNT;
+    shaderParams.c_dispatchCount = mConvolutionN * 2 / GROUP_THREAD_COUNT;
     shaderParams.c_sampleToStartPos = startPos;
     HRG(mDC.UpdateConstantBufferData(mCBuf, &shaderParams));
 
@@ -197,20 +216,29 @@ end:
 }
 
 HRESULT
-WWResampleGpu::ResultGetFromGpuMemory(
-    float* outputTo,
-    int outputToElemNum)
+WWResampleGpu::ResultCopyGpuMemoryToCpuMemory(void)
 {
     HRESULT hr = S_OK;
 
-    assert(outputTo);
-    assert(outputToElemNum <= m_sampleTotalTo);
+    assert(mSampleTo == nullptr);
+    mSampleTo = new float[mSampleTotalTo];
+    assert(mSampleTo != nullptr);
 
     // 計算結果をGPUのUAVからCPUに持ってくる。
-    HRG(mDC.CopyGpuBufValuesToCpuMemory(mGpuBuf[GB_OutPCM], outputTo, outputToElemNum * sizeof(float)));
+    HRG(mDC.CopyGpuBufValuesToCpuMemory(mGpuBuf[GB_OutPCM], mSampleTo, mSampleTotalTo * sizeof(float)));
+
+#if 0
+    printf("mSampleTo: ");
+    for (int i = 0; i < 10; ++i) {
+        printf("%f ", mSampleTo[i]);
+    }
+    printf("\n");
+#endif
+
 
 end:
     if (hr == DXGI_ERROR_DEVICE_REMOVED) {
+        // Dispatchでエラーが起きた時、ここでこのエラーがよく起きる。
         dprintf("DXGI_ERROR_DEVICE_REMOVED.\n");
     }
 
@@ -220,8 +248,11 @@ end:
 void
 WWResampleGpu::Unsetup(void)
 {
-    delete[] m_sampleFrom;
-    m_sampleFrom = nullptr;
+    delete[] mSampleTo;
+    mSampleTo = nullptr;
+
+    delete[] mSampleFrom;
+    mSampleFrom = nullptr;
 
     for (int i = 0; i < GB_NUM; ++i) {
         mGpuBuf[i].Reset();
@@ -235,8 +266,8 @@ WWResampleGpu::Unsetup(void)
 void
 WWResampleGpu::Term(void)
 {
-    delete[] m_sampleFrom;
-    m_sampleFrom = nullptr;
+    delete[] mSampleFrom;
+    mSampleFrom = nullptr;
 
     for (int i = 0; i < GB_NUM; ++i) {
         mGpuBuf[i].Reset();

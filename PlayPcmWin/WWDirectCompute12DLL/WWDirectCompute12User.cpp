@@ -375,7 +375,8 @@ WWDirectCompute12User::CreateShader(
 #if defined(_DEBUG)
     UINT compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #else
-    UINT compileFlags = 0;
+    // なぜか、シェーダーを最適化すると結果がINDになる。笑。
+    UINT compileFlags = D3DCOMPILE_SKIP_OPTIMIZATION;
 #endif
 
     hr = D3DCompileFromFile(GetAssetFullPath(path).c_str(), defines, nullptr,
@@ -704,33 +705,30 @@ WWDirectCompute12User::CreateComputeState(
         }
     }
 
-    {
-        featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_1;
-        if (FAILED(mDevice->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &featureData, sizeof(featureData)))) {
-            featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
-        }
-
-        if (FAILED(D3DX12SerializeVersionedRootSignature(&sDesc, featureData.HighestVersion, &signature, &errors))) {
-            if (errors != nullptr) {
-                const char* s = (const char*)errors->GetBufferPointer();
-                printf("Error: D3DX12SerializeVersionedRootSignature failed. %s\n", s);
-            }
-            goto end;
-        }
-
-        HRG(mDevice->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(),
-                IID_PPV_ARGS(&cState_out.rootSignature)));
-        assert(cState_out.rootSignature.Get());
-        NAME_D3D12_OBJECT(cState_out.rootSignature);
+    featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_1;
+    if (FAILED(mDevice->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &featureData, sizeof(featureData)))) {
+        featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
     }
 
-    {   // create state
-        pDesc.pRootSignature = cState_out.rootSignature.Get();
-        pDesc.CS = CD3DX12_SHADER_BYTECODE(csShader.shader.Get());
-
-        HRG(mDevice->CreateComputePipelineState(&pDesc, IID_PPV_ARGS(&cState_out.state)));
-        NAME_D3D12_OBJECT(cState_out.state);
+    if (FAILED(D3DX12SerializeVersionedRootSignature(&sDesc, featureData.HighestVersion, &signature, &errors))) {
+        if (errors != nullptr) {
+            const char* s = (const char*)errors->GetBufferPointer();
+            printf("Error: D3DX12SerializeVersionedRootSignature failed. %s\n", s);
+        }
+        goto end;
     }
+
+    HRG(mDevice->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(),
+            IID_PPV_ARGS(&cState_out.rootSignature)));
+    assert(cState_out.rootSignature.Get());
+    NAME_D3D12_OBJECT(cState_out.rootSignature);
+
+    // create state
+    pDesc.pRootSignature = cState_out.rootSignature.Get();
+    pDesc.CS = CD3DX12_SHADER_BYTECODE(csShader.shader.Get());
+
+    HRG(mDevice->CreateComputePipelineState(&pDesc, IID_PPV_ARGS(&cState_out.state)));
+    NAME_D3D12_OBJECT(cState_out.state);
 
 end:
     return hr;

@@ -48,10 +48,12 @@ WWDC12_ChooseAdapter(int idx);
 
 extern "C" __declspec(dllexport)
 int __stdcall
+WWDC12_Resample_PrepareFromSamplePtr(int sampleTotalFrom, float** pp_out);
+
+extern "C" __declspec(dllexport)
+int __stdcall
 WWDC12_Resample_Setup(
     int convolutionN,
-    float* sampleFrom,
-    int sampleTotalFrom,
     int sampleRateFrom,
     int sampleRateTo,
     int sampleTotalTo);
@@ -64,9 +66,7 @@ WWDC12_Resample_Dispatch(
 
 extern "C" __declspec(dllexport)
 int __stdcall
-WWDC12_Resample_ResultGetFromGpuMemory(
-    float* outputTo,
-    int outputToElemNum);
+WWDC12_Resample_ResultGetFromGpuMemory(float** pp_out);
 
 extern "C" __declspec(dllexport)
 void __stdcall

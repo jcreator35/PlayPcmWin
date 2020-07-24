@@ -35,10 +35,13 @@ public:
 
     HRESULT ChooseAdapter(int nth);
 
+    /// @brief sampleFromメモリを割り当てる。
+    /// @param sampleTotalFrom メモリの要素数(floatの個数)。
+    /// @return 割り当てたメモリの先頭アドレス。
+    float* AllocSampleFromMem(int sampleTotalFrom);
+
     HRESULT Setup(
         int convolutionN,
-        float* sampleFrom,
-        int sampleTotalFrom,
         int sampleRateFrom,
         int sampleRateTo,
         int sampleTotalTo,
@@ -48,21 +51,24 @@ public:
         int startPos,
         int count);
 
-    HRESULT ResultGetFromGpuMemory(
-        float* outputTo,
-        int outputToElemNum);
+    float* GetResultPtr(void) const {
+        return mSampleTo;
+    }
+
+    HRESULT ResultCopyGpuMemoryToCpuMemory(void);
 
     void Unsetup(void);
 
     void Term(void);
 
 private:
-    float* m_sampleFrom = nullptr;
-    int m_convolutionN = 0;
-    int m_sampleTotalFrom = 0;
-    int m_sampleRateFrom = 0;
-    int m_sampleRateTo = 0;
-    int m_sampleTotalTo = 0;
+    float* mSampleFrom = nullptr;
+    float* mSampleTo = nullptr;
+    int mConvolutionN = 0;
+    int mSampleTotalFrom = 0;
+    int mSampleRateFrom = 0;
+    int mSampleRateTo = 0;
+    int mSampleTotalTo = 0;
 
     WWDirectCompute12User mDC;
     WWShader mCS;

@@ -69,16 +69,22 @@ WWDC12_ChooseAdapter(int idx)
 
 extern "C" __declspec(dllexport)
 int __stdcall
+WWDC12_Resample_PrepareFromSamplePtr(int sampleTotalFrom, float** pp_out)
+{
+    *pp_out = gResample.AllocSampleFromMem(sampleTotalFrom);
+    return S_OK;
+}
+
+extern "C" __declspec(dllexport)
+int __stdcall
 WWDC12_Resample_Setup(
     int convolutionN,
-    float* sampleFrom,
-    int sampleTotalFrom,
     int sampleRateFrom,
     int sampleRateTo,
     int sampleTotalTo)
 {
     bool highPrecision = true;
-    return gResample.Setup(convolutionN, sampleFrom, sampleTotalFrom,
+    return gResample.Setup(convolutionN,
         sampleRateFrom, sampleRateTo, sampleTotalTo, highPrecision);
 }
 
@@ -93,11 +99,15 @@ WWDC12_Resample_Dispatch(
 
 extern "C" __declspec(dllexport)
 int __stdcall
-WWDC12_Resample_ResultGetFromGpuMemory(
-    float* outputTo,
-    int outputToElemNum)
+WWDC12_Resample_ResultGetFromGpuMemory(float **pp_out)
 {
-    return gResample.ResultGetFromGpuMemory(outputTo, outputToElemNum);
+    int hr = gResample.ResultCopyGpuMemoryToCpuMemory();
+    if (hr < 0) {
+        return hr;
+    }
+
+    *pp_out = gResample.GetResultPtr();
+    return hr;
 }
 
 extern "C" __declspec(dllexport)

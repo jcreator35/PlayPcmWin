@@ -1,11 +1,9 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Text;
 using System.Windows;
-using System.Windows.Documents;
-using WWDirectCompute12;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System;
 
 namespace WWArbitraryResampler {
     public partial class MainWindow : Window {
@@ -76,8 +74,22 @@ namespace WWArbitraryResampler {
             string inPath = args[1];
 
             int gpuId = 0;
-            if (!int.TryParse(args[3], out gpuId) || gpuId < 0 || mConv.AdapterList.Count <= gpuId) {
+            if (!int.TryParse(args[2], out gpuId) || gpuId < 0) {
                 Console.WriteLine("Error: gpuId should be 0 or larger integer value.");
+                PrintUsage();
+                return false;
+            }
+
+            // gpuIdのアダプターがあるか調べる。
+            bool gpuFound = false;
+            foreach (var item in mConv.AdapterList) {
+                if (item.gpuId == gpuId) {
+                    gpuFound = true;
+                    break;
+                }
+            }
+            if (!gpuFound) {
+                Console.WriteLine("Error: Adapter of gpuId={0} is not found.", gpuId);
                 PrintUsage();
                 return false;
             }

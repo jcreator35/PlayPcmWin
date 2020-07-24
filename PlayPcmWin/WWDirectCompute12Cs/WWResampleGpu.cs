@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace WWDirectCompute12 {
@@ -72,16 +71,29 @@ namespace WWDirectCompute12 {
             return NativeMethods.WWDC12_ChooseAdapter(idx);
         }
 
-        public int Setup(int convolutionN,
+        public int Setup(
+                int convolutionN,
                 float[] sampleFrom,
                 int sampleTotalFrom,
                 int sampleRateFrom,
                 int sampleRateTo,
                 int sampleTotalTo) {
+            int hr = 0;
+            mSampleTotalTo = sampleTotalTo;
+
+            var p = new IntPtr();
+            hr = NativeMethods.WWDC12_Resample_PrepareFromSamplePtr(sampleTotalFrom, ref p);
+            if (hr < 0) {
+                return hr;
+            }
+            Marshal.Copy(sampleFrom, 0, p, sampleTotalFrom);
+
             return NativeMethods.WWDC12_Resample_Setup(
-                convolutionN, sampleFrom, sampleTotalFrom,
+                convolutionN, 
                 sampleRateFrom, sampleRateTo, sampleTotalTo);
         }
+
+        private int mSampleTotalTo = 0;
 
         public int Dispatch(
                 int startPos,
@@ -89,16 +101,24 @@ namespace WWDirectCompute12 {
             return NativeMethods.WWDC12_Resample_Dispatch(startPos, count);
         }
 
-        public int ResultGetFromGpuMemory(
-                float[] outputTo) {
-            return NativeMethods.WWDC12_Resample_ResultGetFromGpuMemory(
-                outputTo, outputTo.Length);
+        public int ResultGetFromGpuMemory(float[] outputTo) {
+            int hr = 0;
+            var p = new IntPtr();
+            hr = NativeMethods.WWDC12_Resample_ResultGetFromGpuMemory(ref p);
+            if (hr < 0) {
+                return hr;
+            }
+
+            System.Diagnostics.Debug.Assert(outputTo.Length == mSampleTotalTo);
+
+            Marshal.Copy(p, outputTo, 0, outputTo.Length);
+
+            return 0;
         }
 
         public void Unsetup() {
             NativeMethods.WWDC12_Resample_Unsetup();
         }
-
 
         internal static class NativeMethods {
             public const int DXGI_ADAPTER_FLAG_REMOTE = 1;
@@ -142,10 +162,14 @@ namespace WWDirectCompute12 {
 
             [DllImport("WWDirectCompute12DLL2019.dll")]
             public extern static int
+            WWDC12_Resample_PrepareFromSamplePtr(
+                int sampleTotalFrom,
+                ref IntPtr pp_out);
+
+            [DllImport("WWDirectCompute12DLL2019.dll")]
+            public extern static int
             WWDC12_Resample_Setup(
                 int convolutionN,
-                float[] sampleFrom,
-                int sampleTotalFrom,
                 int sampleRateFrom,
                 int sampleRateTo,
                 int sampleTotalTo);
@@ -159,8 +183,7 @@ namespace WWDirectCompute12 {
             [DllImport("WWDirectCompute12DLL2019.dll")]
             public extern static int
             WWDC12_Resample_ResultGetFromGpuMemory(
-                float[] outputTo,
-                int outputToElemNum);
+                ref IntPtr outputTo);
 
             [DllImport("WWDirectCompute12DLL2019.dll")]
             public extern static void

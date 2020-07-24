@@ -186,8 +186,8 @@ namespace WWArbitraryResampler {
                         CallEvent(EventCallbackTypes.ConvertFailed, 0, hr);
                         return hr;
                     } else {
-                        float progress0to1 = ((ch+1.0f) / metaR.channels)
-                            * ((float)i / sampleTotalTo);
+                        float progress0to1 = ((float)ch / metaR.channels)
+                            + (1.0f / metaR.channels) * ((float)i / sampleTotalTo);
                         int percent = (int)(PROGRESS_CONV_START + 
                             progress0to1 * (PROGRESS_CONV_END - PROGRESS_CONV_START));
                         CallEvent(EventCallbackTypes.ConvProgress, percent, hr);

@@ -194,7 +194,7 @@ CSMain(
      * refer 2260_GTC2010.pdf 
      * but, if result is not correct, try sync
      */
-     //GroupMemoryBarrierWithGroupSync(); 
+    //GroupMemoryBarrierWithGroupSync(); 
 #endif
 
 #if 32 <= GROUP_THREAD_COUNT
