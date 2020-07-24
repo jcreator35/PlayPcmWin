@@ -1,7 +1,6 @@
 ﻿using PcmDataLib;
 using System;
 using System.Collections.Generic;
-using System.Windows.Markup;
 using WWDirectCompute12;
 using WWFlacRWCS;
 using WWUtil;
@@ -9,6 +8,14 @@ using WWUtil;
 namespace WWArbitraryResampler {
     class Converter {
         WWResampleGpu mResampleGpu = new WWResampleGpu();
+
+        /// <summary>
+        /// 65535 : 15bit precision
+        /// </summary>
+        private const int SINC_CONVOLUTION_N = 65535;
+
+        /// @brief Dispatch()が一度に何サンプル出力するか。(convolutionNとは関係ない)
+        private const int GPU_WORK_COUNT = 4096;
 
         public int Init() {
             return mResampleGpu.Init();
@@ -70,11 +77,6 @@ namespace WWArbitraryResampler {
         private const int PROGRESS_PREPARE_END = 20;
         private const int PROGRESS_CONV_START = PROGRESS_PREPARE_END;
         private const int PROGRESS_CONV_END = 90;
-
-        private const int SINC_CONVOLUTION_N = 2047;
-
-        /// @brief Dispatch()が一度に何サンプル出力するか。(convolutionNとは関係ない)
-        private const int GPU_WORK_COUNT = 4096;
 
         private void CallEvent(EventCallbackTypes t, int percent, int hr) {
             if (mCB == null) {
