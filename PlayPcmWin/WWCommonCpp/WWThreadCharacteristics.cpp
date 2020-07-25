@@ -1,4 +1,4 @@
-// 日本語 UTF-8
+﻿// 日本語 UTF-8
 
 #include "WWThreadCharacteristics.h"
 #include "WWCommonUtil.h"

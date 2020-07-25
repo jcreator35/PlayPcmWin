@@ -1,5 +1,6 @@
+﻿// 日本語 UTF-8
+
 #pragma once
-// 日本語 UTF-8
 
 #include <Windows.h>
 

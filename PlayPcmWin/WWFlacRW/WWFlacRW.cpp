@@ -1,8 +1,11 @@
-// 日本語。
+﻿// 日本語。
 
-#include "stdafx.h"
+#include "targetver.h"
+
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+
 #include "WWFlacRW.h"
-#include <Windows.h>
 #include <map>
 #include <stdint.h>
 #include <assert.h>

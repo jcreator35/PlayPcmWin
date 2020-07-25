@@ -1,4 +1,4 @@
-// 日本語
+﻿// 日本語
 
 #include "WWMFReader.h"
 #include "WWCommonUtil.h"

@@ -33,7 +33,7 @@ namespace WWUtil {
 
                 try {
                     subDirs = System.IO.Directory.GetDirectories(currentDir);
-                } catch (UnauthorizedAccessException e) {
+                } catch (UnauthorizedAccessException) {
                     //Console.WriteLine(e);
                     continue;
                 } catch (System.IO.DirectoryNotFoundException e) {
@@ -47,7 +47,7 @@ namespace WWUtil {
                 string[] files = null;
                 try {
                     files = System.IO.Directory.GetFiles(currentDir);
-                } catch (UnauthorizedAccessException e) {
+                } catch (UnauthorizedAccessException) {
                     //Console.WriteLine(e);
                     continue;
                 } catch (System.IO.DirectoryNotFoundException e) {
@@ -74,7 +74,7 @@ namespace WWUtil {
                     } catch (System.IO.FileNotFoundException e) {
                         Console.WriteLine(e);
                         continue;
-                    } catch (System.IO.PathTooLongException ex) {
+                    } catch (System.IO.PathTooLongException) {
                         //Console.WriteLine(ex);
                         continue;
                     } catch (System.Exception ex) {
