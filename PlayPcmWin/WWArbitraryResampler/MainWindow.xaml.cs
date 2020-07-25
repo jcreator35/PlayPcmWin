@@ -7,12 +7,19 @@ using System.Windows;
 
 namespace WWArbitraryResampler {
     public partial class MainWindow : Window {
-        private Converter mConv = new Converter();
-        public MainWindow() {
-            InitializeComponent();
+        private static string AssemblyVersion {
+            get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); }
         }
 
+        private Converter mConv = new Converter();
         private StringBuilder mSB = new StringBuilder();
+
+        public MainWindow() {
+            InitializeComponent();
+
+            Title = string.Format("WWArbitraryResampler version {0}", AssemblyVersion);
+        }
+
         private void AddLog(string s) {
             mSB.Append(s);
             mTextBoxLog.Text = mSB.ToString();
@@ -21,7 +28,7 @@ namespace WWArbitraryResampler {
 
         private void ClearLog() {
             mSB.Clear();
-            mTextBoxLog.Text = "";
+            mTextBoxLog.Text = "Ready.\n";
         }
 
         private List<int> mAdapterIdxList = new List<int>();
@@ -53,67 +60,8 @@ namespace WWArbitraryResampler {
             }
         }
 
-        private void PrintUsage() {
-            string appName = "WWArbitraryResampler";
-            Console.WriteLine("Commandline usage: {0} inputPath gpuId pitchScale outputPath", appName);
-        }
-
-        /// <summary>
-        /// コマンドライン引数が5個の時、設定をコマンドライン引数から得てコンバートします。
-        private bool ProcessCommandline() {
-            int hr = 0;
-            var args = System.Environment.GetCommandLineArgs();
-            if (5 != args.Length) {
-                PrintUsage();
-                return false;
-            }
-
-            mConv.Init();
-            mConv.UpdateAdapterList();
-
-            string inPath = args[1];
-
-            int gpuId = 0;
-            if (!int.TryParse(args[2], out gpuId) || gpuId < 0) {
-                Console.WriteLine("Error: gpuId should be 0 or larger integer value.");
-                PrintUsage();
-                return false;
-            }
-
-            // gpuIdのアダプターがあるか調べる。
-            bool gpuFound = false;
-            foreach (var item in mConv.AdapterList) {
-                if (item.gpuId == gpuId) {
-                    gpuFound = true;
-                    break;
-                }
-            }
-            if (!gpuFound) {
-                Console.WriteLine("Error: Adapter of gpuId={0} is not found.", gpuId);
-                PrintUsage();
-                return false;
-            }
-
-            double pitchScale = 1.0;
-            if (!double.TryParse(args[3], out pitchScale) || pitchScale < 0.5 || 2.0 < pitchScale) {
-                Console.WriteLine("Error: pitchScale value should be 0.5 <= pitchScale <= 2.0");
-                PrintUsage();
-                return false;
-            }
-
-            string outPath = args[4];
-
-            var ca = new Converter.ConvertArgs(gpuId, inPath, outPath, 1.0 / pitchScale);
-            hr = mConv.Convert(ca, null);
-            Console.WriteLine("result={0:x}", hr);
-            return true;
-        }
-
         private void Window_Loaded(object sender, RoutedEventArgs e) {
-            if (ProcessCommandline()) {
-                Close();
-                return;
-            }
+            ClearLog();
 
             mBW = new BackgroundWorker();
             mBW.DoWork += MBW_DoWork;
@@ -157,6 +105,8 @@ namespace WWArbitraryResampler {
 
         BackgroundWorker mBW = new BackgroundWorker();
 
+        private Stopwatch mSW = new Stopwatch();
+
         private void mButtonStart_Click(object sender, RoutedEventArgs e) {
             double pitchScale = 1.0;
             if (!double.TryParse(mTextBoxPitchScale.Text, out pitchScale) || pitchScale < 0.5 || 2.0 < pitchScale) {
@@ -167,6 +117,8 @@ namespace WWArbitraryResampler {
             mGroupBoxSettings.IsEnabled = false;
             mButtonStart.IsEnabled = false;
             ClearLog();
+
+            mSW.Start();
 
             int gpuId = mAdapterIdxList[mComboBoxAdapterList.SelectedIndex];
 
@@ -182,24 +134,24 @@ namespace WWArbitraryResampler {
             }
         }
 
-        private Stopwatch mSW = new Stopwatch();
+        private Stopwatch mReportSW = new Stopwatch();
 
         private void MBW_DoWork(object sender, DoWorkEventArgs e) {
             int hr = 0;
             e.Result = null;
             var ca = e.Argument as Converter.ConvertArgs;
 
-            mSW.Start();
+            mReportSW.Start();
 
             hr = mConv.Convert(ca, (a) => {
-                if (a.mCBT == Converter.EventCallbackTypes.ConvProgress && mSW.ElapsedMilliseconds < 1000) {
+                if (a.mCBT == Converter.EventCallbackTypes.ConvProgress && mReportSW.ElapsedMilliseconds < 1000) {
                     return;
                 }
-                mSW.Restart();
+                mReportSW.Restart();
                 mBW.ReportProgress(a.mProgressPercentage, a);
             });
 
-            mSW.Stop();
+            mReportSW.Stop();
 
             var r = new WorkerResultArgs(hr);
             e.Result = r;
@@ -225,7 +177,9 @@ namespace WWArbitraryResampler {
             mGroupBoxSettings.IsEnabled = true;
             mProgressBar.Value = 0;
 
-            AddLog(string.Format("End. Result = {0:X}\n", r.mHr));
+
+            AddLog(string.Format("End. Result = {0:X} Elapsed Time={1}\n", r.mHr, mSW.Elapsed));
+            mSW.Stop();
         }
 
         private void mButtonUpdateAdapterList_Click(object sender, RoutedEventArgs e) {

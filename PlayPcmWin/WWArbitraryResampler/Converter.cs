@@ -250,7 +250,7 @@ namespace WWArbitraryResampler {
         }
 
         public int Convert(ConvertArgs ca, EventCallback cb) {
-            Console.WriteLine("Converting {0} {1} {2}x", ca.mInPath, ca.mOutPath, ca.mSampleRateScale);
+            //Console.WriteLine("Converting {0} {1} {2}x", ca.mInPath, ca.mOutPath, ca.mSampleRateScale);
 
             mCB = cb;
 
@@ -259,23 +259,5 @@ namespace WWArbitraryResampler {
             mCB = null;
             return hr;
         }
-
-        private int ReadFlac(string path) {
-            return 0;
-        }
-
-        private int Setup() {
-            return 0;
-        }
-
-        private int Run(long offs, int count) {
-            return 0;
-        }
-
-        private int WriteFlac(string path) {
-            return 0;
-        }
-
-
     }
 }
