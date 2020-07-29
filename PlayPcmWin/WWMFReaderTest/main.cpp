@@ -75,6 +75,7 @@ ReadHeaderAndData(
     int64_t readBytes = 0;
     WWMFReaderMetadata meta;
     WWMFReadFragments mReader;
+    WAVEFORMATEXTENSIBLE wfext;
     HRESULT hr = S_OK;
 
     hr = WWMFReaderReadHeader(inputFile, WWMFREADER_FLAG_RESOLVE_NUM_FRAMES, &meta);
@@ -90,7 +91,7 @@ ReadHeaderAndData(
         return E_OUTOFMEMORY;
     }
 
-    hr = mReader.Start(inputFile);
+    hr = mReader.Start(inputFile, &wfext);
     if (hr < 0) {
         printf("Error: WWMFReaderReadData failed %S\n", inputFile);
         goto end;
@@ -123,6 +124,7 @@ ReadSeekTest(
     int64_t posBytes = 0;
     WWMFReaderMetadata meta;
     WWMFReadFragments mReader;
+    WAVEFORMATEXTENSIBLE wfext;
     HRESULT hr = S_OK;
 
     hr = WWMFReaderReadHeader(inputFile, WWMFREADER_FLAG_RESOLVE_NUM_FRAMES, &meta);
@@ -140,7 +142,7 @@ ReadSeekTest(
 
     uint8_t *buff = new uint8_t[FRAGMENT_BYTES];
 
-    hr = mReader.Start(inputFile);
+    hr = mReader.Start(inputFile, &wfext);
     if (hr < 0) {
         printf("Error: WWMFReaderReadData failed %S\n", inputFile);
         goto end;
