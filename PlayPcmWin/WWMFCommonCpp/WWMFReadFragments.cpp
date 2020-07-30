@@ -151,7 +151,7 @@ WWMFReadFragments::ReadFragment(
     while (true) {
         DWORD dwFlags = 0;
         assert(pSample == nullptr);
-        HRB_Quiet(mReader->ReadSample(
+        HRG(mReader->ReadSample(
             (DWORD)MF_SOURCE_READER_FIRST_AUDIO_STREAM,
             0,
             &streamIdx,
