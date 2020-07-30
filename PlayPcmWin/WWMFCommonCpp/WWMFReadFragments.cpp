@@ -136,22 +136,24 @@ WWMFReadFragments::ReadFragment(
     HRESULT hr = S_OK;
     assert(mMFStarted);
     assert(data_return);
-    const int64_t cbMaxAudioData = *dataBytes_inout;
-    assert(0 < cbMaxAudioData);
-    DWORD streamIdx = 0;
 
+    // data_returnのバッファサイズを取得、dataBufCapacityにセットし
+    // *dataBytes_inoutに0バイト(エラー時に戻る)をセット。
+    assert(dataBytes_inout);
+    const int64_t dataBufCapacity = *dataBytes_inout;
+    assert(0 < dataBufCapacity);
     *dataBytes_inout = 0;
 
     IMFSample *pSample = nullptr;
     IMFMediaBuffer *pBuffer = nullptr;
-    DWORD cbBuffer = 0;
-    LONGLONG timeStamp;
 
     // pSampleが1個出てくるまで繰り返す。
     while (true) {
+        DWORD streamIdx = 0;
+        LONGLONG timeStamp;
         DWORD dwFlags = 0;
         assert(pSample == nullptr);
-        HRG(mReader->ReadSample(
+        HRG_Quiet(mReader->ReadSample(
             (DWORD)MF_SOURCE_READER_FIRST_AUDIO_STREAM,
             0,
             &streamIdx,
@@ -177,31 +179,37 @@ WWMFReadFragments::ReadFragment(
         }
     }
 
-    do {
+    {
         BYTE *pAudioData = nullptr;
+        DWORD cbBuffer = 0;
 
         assert(pSample);
         assert(pBuffer == nullptr);
-        HRB_Quiet(pSample->ConvertToContiguousBuffer(&pBuffer));
+        HRG_Quiet(pSample->ConvertToContiguousBuffer(&pBuffer));
 
-        cbBuffer = 0;
-        HRB_Quiet(pBuffer->Lock(&pAudioData, NULL, &cbBuffer));
+        HRG_Quiet(pBuffer->Lock(&pAudioData, nullptr, &cbBuffer));
 
-        if (cbMaxAudioData < cbBuffer) {
-            // 十分に大きいサイズを指定して呼んで下さい。
-            dprintf("D: %s:%d Result data trimmed! cbMaxAudioData=%lld, cbBuffer=%u\n",
-                __FILE__, __LINE__, cbMaxAudioData, cbBuffer);
-            cbBuffer = (DWORD)cbMaxAudioData;
+        if (dataBufCapacity < cbBuffer) {
+            // 失敗。十分に大きいサイズを指定して呼んで下さい。
+
+            pBuffer->Unlock();
+            pAudioData = nullptr;
+
+            dprintf("E: %s:%d Result data is larger than return buffer! dataBufCapacity=%lld, cbBuffer=%u\n",
+                __FILE__, __LINE__, dataBufCapacity, cbBuffer);
+            hr = E_INVALIDARG;
+            goto end;
         }
 
+        // 成功。
         memcpy(&data_return[0], pAudioData, cbBuffer);
+        *dataBytes_inout = cbBuffer;
 
         hr = pBuffer->Unlock();
         pAudioData = nullptr;
-    } while (false);
+    }
 
 end:
-    *dataBytes_inout = cbBuffer;
 
     SafeRelease(&pSample);
     SafeRelease(&pBuffer);

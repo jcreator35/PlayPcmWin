@@ -27,6 +27,16 @@
     }                                             \
 }                                                 \
 
+#define HRG_Quiet(x)                              \
+{                                                 \
+    hr = x;                                       \
+    if (FAILED(hr)) {                             \
+        dprintf("E: %s:%d %s failed (%08x)\n",    \
+            __FILE__, __LINE__, #x, hr);          \
+        goto end;                                 \
+    }                                             \
+}                                                 \
+
 #define HRR(x)                                    \
 {                                                 \
     dprintf("D: %s\n", #x);                       \
