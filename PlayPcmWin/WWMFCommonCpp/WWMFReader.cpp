@@ -114,11 +114,11 @@ WWMFReaderReadHeader(
 
     hr = WWMFReaderGetAudioEncodingBitrate(pReader, &bitrate);
     if (FAILED(hr)) {
-    // 別に失敗しても良い。失敗するとbitrate == 0。
+        // 別に失敗しても良い。失敗するとbitrate == 0。
         hr = S_OK;
     }
 
-    // 成功しても0が戻ることがある。
+    // 曲長さ：成功しても0が戻ることがある。
     HRG(WWMFReaderGetDuration(pReader, &hnsDuration));
 
     HRG(WWMFReaderCreateMediaSource(wszSourceFile, &pMediaSource));

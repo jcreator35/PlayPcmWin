@@ -242,7 +242,7 @@ WWMFResampler::Resample(const BYTE *buff, DWORD bytes, WWMFSampleData *sampleDat
     WWMFSampleData inputData((BYTE*)buff, bytes);
     DWORD dwStatus;
     DWORD cbOutputBytes = (DWORD)((int64_t)bytes * m_outputFormat.BytesPerSec() / m_inputFormat.BytesPerSec());
-    // cbOutputBytes must be product of frambytes
+    // cbOutputBytes must be product of framebytes
     cbOutputBytes = (cbOutputBytes + (m_outputFormat.FrameBytes()-1)) / m_outputFormat.FrameBytes() * m_outputFormat.FrameBytes();
     // add extra receive size
     cbOutputBytes += 16 * m_outputFormat.FrameBytes();
@@ -290,7 +290,7 @@ WWMFResampler::Drain(DWORD resampleInputBytes, WWMFSampleData *sampleData_return
     HRESULT hr = S_OK;
     WWMFSampleData tmpData;
     DWORD cbOutputBytes = (DWORD)((int64_t)resampleInputBytes * m_outputFormat.BytesPerSec() / m_inputFormat.BytesPerSec());
-    // cbOutputBytes must be product of frambytes
+    // cbOutputBytes must be product of framebytes
     cbOutputBytes = (cbOutputBytes + (m_outputFormat.FrameBytes()-1)) / m_outputFormat.FrameBytes() * m_outputFormat.FrameBytes();
 
     assert(sampleData_return);
