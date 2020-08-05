@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Text;
 using System.Windows;
 
@@ -185,5 +186,83 @@ namespace WWArbitraryResampler {
         private void mButtonUpdateAdapterList_Click(object sender, RoutedEventArgs e) {
             UpdateAdapterList();
         }
+
+        private void mTextBoxInput_DragEnter(object sender, DragEventArgs e) {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop)) {
+                e.Effects = DragDropEffects.Copy;
+            } else {
+                e.Effects = DragDropEffects.None;
+            }
+        }
+
+        private void mTextBoxOutput_DragEnter(object sender, DragEventArgs e) {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop)) {
+                e.Effects = DragDropEffects.Copy;
+            } else {
+                e.Effects = DragDropEffects.None;
+            }
+        }
+        private void mTextBoxInput_PreviewDragOver(object sender, DragEventArgs e) {
+            e.Handled = true;
+        }
+
+        private void mTextBoxOutput_PreviewDragOver(object sender, DragEventArgs e) {
+            e.Handled = true;
+        }
+
+        private void mTextBoxInput_Drop(object sender, DragEventArgs e) {
+            var paths = e.Data.GetData(DataFormats.FileDrop) as string[];
+            if (null == paths) {
+                var sb = new StringBuilder(Properties.Resources.DroppedDataIsNotFile);
+
+                var formats = e.Data.GetFormats(false);
+                foreach (var format in formats) {
+                    sb.Append(string.Format("{1}    {0}", format, Environment.NewLine));
+                }
+                MessageBox.Show(sb.ToString());
+                return;
+            }
+
+            string path = paths[0];
+
+            if (Path.GetExtension(path).CompareTo(".flac") != 0) {
+                MessageBox.Show(Properties.Resources.DroppedFileIsNotFlac);
+                return;
+            }
+
+            mTextBoxInput.Text = path;
+        }
+
+        private void mTextBoxOutput_Drop(object sender, DragEventArgs e) {
+            var paths = e.Data.GetData(DataFormats.FileDrop) as string[];
+            if (null == paths) {
+                var sb = new StringBuilder(Properties.Resources.DroppedDataIsNotFile);
+
+                var formats = e.Data.GetFormats(false);
+                foreach (var format in formats) {
+                    sb.Append(string.Format("{1}    {0}", format, Environment.NewLine));
+                }
+                MessageBox.Show(sb.ToString());
+                return;
+            }
+            
+            string path = paths[0];
+
+            if (Path.GetExtension(path).CompareTo(".flac") != 0) {
+                MessageBox.Show(Properties.Resources.DroppedFileIsNotFlac);
+                return;
+            }
+
+            if (File.Exists(path)) {
+                // 既存ファイルを上書きするか尋ねる。
+                var r = MessageBox.Show(Properties.Resources.OverwriteQuestion, Properties.Resources.OverwriteQuestion, MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (r != MessageBoxResult.Yes) {
+                    return;
+                }
+            }
+
+            mTextBoxOutput.Text = path;
+        }
+
     }
 }
