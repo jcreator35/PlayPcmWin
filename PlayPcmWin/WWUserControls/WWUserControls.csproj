@@ -113,6 +113,9 @@
     <Compile Include="TimeDomainPlot.xaml.cs">
       <DependentUpon>TimeDomainPlot.xaml</DependentUpon>
     </Compile>
+    <Compile Include="TimeDomainPositiveValue1dUC.xaml.cs">
+      <DependentUpon>TimeDomainPositiveValue1dUC.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Page Include="AnalogFilterCircuit.xaml">
@@ -140,6 +143,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="TimeDomainPlot.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="TimeDomainPositiveValue1dUC.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
