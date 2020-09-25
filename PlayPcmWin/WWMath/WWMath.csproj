@@ -81,6 +81,7 @@
     <Compile Include="BairstowPolynomialRootFinding.cs" />
     <Compile Include="ComplexRationalPolynomial.cs" />
     <Compile Include="WWGaussianQuadrature.cs" />
+    <Compile Include="WWNormalize.cs" />
     <Compile Include="WWPolynomialFit.cs" />
     <Compile Include="WWSegmentPointDistance.cs" />
     <Compile Include="WWGoertzel.cs" />
@@ -103,6 +104,7 @@
     <Compile Include="WWRadix2FftLargeArray.cs" />
     <Compile Include="WWSlidingDFT.cs" />
     <Compile Include="WWLinearEquation.cs" />
+    <Compile Include="WWStatistics.cs" />
     <Compile Include="WWTimeDependentForwardFourierTransform.cs" />
     <Compile Include="WWTimeDependentInverseFourierTransform.cs" />
     <Compile Include="WWUtil.cs" />
