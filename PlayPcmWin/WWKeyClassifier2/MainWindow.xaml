@@ -1,0 +1,48 @@
+﻿<Window x:Class="WWKeyClassifier2.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="500" Width="600" Loaded="Window_Loaded" AllowDrop="True">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="180" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="24" />
+        </Grid.RowDefinitions>
+        <GroupBox Header="Settings" Name="mGroupBoxSettings" >
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="85" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="3*" />
+                    <RowDefinition Height="1*" />
+                </Grid.RowDefinitions>
+                <Label Content="Input FLAC file:" HorizontalAlignment="Right" Name="mLabelInputFile" VerticalAlignment="Center" />
+                <GroupBox Grid.ColumnSpan="3" Grid.Row="1" Header="Music Pitch" Name="mGroupBoxPitch" Margin="6,0,6,0" >
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="26*" />
+                            <RowDefinition Height="27*" />
+                        </Grid.RowDefinitions>
+                        <RadioButton Content="A=440 (_Concert Pitch)" Grid.Row="0" HorizontalAlignment="Left" Margin="4,0,0,0" Name="mRadioButtonConcertPitch" VerticalAlignment="Center" IsChecked="True" />
+                        <RadioButton Content="A=416 (_Baroque Pitch)" Grid.Row="1" HorizontalAlignment="Left" Margin="4,0,0,0" Name="mRadioButtonBaroquePitch" VerticalAlignment="Center" />
+                    </Grid>
+                </GroupBox>
+                <Label Grid.Row="2" Content="Output LRC file:" HorizontalAlignment="Right" Name="mLabelOutputLRC" VerticalAlignment="Center" />
+                <TextBox Grid.Column="1" Name="mTextBoxInput" VerticalAlignment="Center" Text="C:/audio/test.flac" DragEnter="Window_DragEnter" PreviewDragOver="textBox_PreviewDragOver" TextChanged="mTextBoxInput_TextChanged" Drop="TextInput_Drop" />
+                <TextBox Grid.Column="1" Grid.Row="2" Name="mTextBoxOutput" VerticalAlignment="Center" Text="C:/audio/test.lrc" TextChanged="mTextBoxOutput_TextChanged" PreviewDragOver="textBox_PreviewDragOver" DragEnter="Window_DragEnter" Drop="mTextBoxOutput_Drop" />
+                <Button Content="B_rowse..." Grid.Column="2" HorizontalAlignment="Left" Margin="4,0,0,0" Name="mButtonBrowseInput" VerticalAlignment="Center" Width="75" Click="mButtonBrowseInput_Click" />
+            </Grid>
+        </GroupBox>
+        <Button Content="_Start" Grid.Row="1" HorizontalAlignment="Left" Margin="6,0,0,0" Name="mButtonStart" VerticalAlignment="Center" Width="75" Click="mButtonStart_Click" />
+        <GroupBox Grid.Row="2" Header="Log" Name="mGroupBoxLog" >
+            <TextBox Name="mTextBoxLog" AcceptsReturn="True" AcceptsTab="True" IsReadOnly="True" VerticalScrollBarVisibility="Visible" />
+        </GroupBox>
+        
+        <ProgressBar Grid.Row="3" Name="mProgressBar" />
+    </Grid>
+</Window>

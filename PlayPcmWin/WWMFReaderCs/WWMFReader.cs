@@ -118,14 +118,14 @@ namespace WWMFReaderCs {
         }
 
         public static int ReadHeaderAndData(
-                string wszSourceFile,
+                string sourceFile,
                 out Metadata meta_return,
                 out LargeArray<byte> data) {
             int hr = 0;
 
             data = new LargeArray<byte>(0);
 
-            hr = ReadHeader(wszSourceFile, out meta_return);
+            hr = ReadHeader(sourceFile, out meta_return);
             if (hr < 0) {
                 return hr;
             }
@@ -133,7 +133,7 @@ namespace WWMFReaderCs {
             // データのバイト数はこの時点で不明。
             // 全て読んでから数える。
 
-            hr = NativeMethods.WWMFReaderIFReadDataStart(wszSourceFile);
+            hr = NativeMethods.WWMFReaderIFReadDataStart(sourceFile);
             if (hr < 0) {
                 return hr;
             }

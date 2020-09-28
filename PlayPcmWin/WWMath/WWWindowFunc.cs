@@ -72,12 +72,9 @@ namespace WWMath {
         /// コサイン関数+DC。
         /// Time dependent Fourier transformに使用すると入力値が完全に復元できるという特徴あり。
         /// </summary>
-        /// <returns>窓の長さn(nは奇数) 要素番号(length-1)/2が山のピーク。両端の値は0(教科書通り)。</returns>
+        /// <returns>窓の長さn 要素番号(length-1)/2が山のピーク。両端の値は0(教科書通り)。</returns>
         /// <returns>Hann (Hanning)窓 最大値1</returns>
         public static double[] HannWindow(int length) {
-            // nは奇数
-            System.Diagnostics.Debug.Assert((length & 1) == 1);
-
             var w = new double[length];
             for (int i = 0; i < length; ++i) {
                 double θ = 2.0 * Math.PI * ((double)i / (length-1));

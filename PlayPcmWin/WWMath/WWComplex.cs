@@ -280,7 +280,6 @@ namespace WWMath {
             }
             return r;
         }
-
         public static WWComplex[] FromRealArray(double[] r) {
             var c = new WWComplex[r.Length];
             for (int i = 0; i < c.Length; ++i) {
@@ -290,10 +289,34 @@ namespace WWMath {
             return c;
         }
 
+        public static WWComplex[] FromRealArray(float[] r) {
+            var c = new WWComplex[r.Length];
+            for (int i = 0; i < c.Length; ++i) {
+                c[i] = new WWComplex(r[i], 0);
+            }
+
+            return c;
+        }
+
+        /// <summary>
+        /// 各複素数の実数成分を取り出し実数の配列とする。
+        /// </summary>
         public static double[] ToRealArray(WWComplex[] c) {
             var r = new double[c.Length];
             for (int i = 0; i < r.Length; ++i) {
                 r[i] = c[i].real;
+            }
+
+            return r;
+        }
+
+        /// <summary>
+        /// 各複素数の大きさを取り実数にし、配列を戻す。
+        /// </summary>
+        public static double[] ToMagnitudeRealArray(WWComplex[] c) {
+            var r = new double[c.Length];
+            for (int i = 0; i < r.Length; ++i) {
+                r[i] = c[i].Magnitude();
             }
 
             return r;
