@@ -12,16 +12,34 @@ namespace WWKeyClassifier2 {
     class KeyClassifier {
         private KeyClassifierCore mKeyClassifier;
 
+        /// <summary>
+        /// 学習データの仕様。
+        /// </summary>
         private const int SAMPLE_RATE   = 44100;
+
+        /// <summary>
+        /// 学習データの仕様。
+        /// </summary>
         private const int WINDOW_LENGTH = 16384;
+
+        /// <summary>
+        /// 学習データの仕様。
+        /// </summary>
         private const int TEMPORAL_WIDTH = 8;
 
-        // keyを確定するために必要な連続推定一致数。
-        private const int KEY_COUNTER = 16;
+        /// <summary>
+        /// keyを確定するために必要な連続推定一致数。
+        /// </summary>
+        private const int KEY_COUNTER = 8;
+
+        public enum PitchEnum {
+            ConcertPitch,
+            BaroquePitch,
+        };
         
         private Stopwatch mReportSW = new Stopwatch();
-
         private BackgroundWorker mBW;
+        private List<int> mKeyHistory = new List<int>();
 
         public KeyClassifier() {
             mKeyClassifier = new KeyClassifierCore();
@@ -54,13 +72,11 @@ namespace WWKeyClassifier2 {
             return m;
         }
 
-        List<int> mKeyHistory = new List<int>();
-
         /// <summary>
         /// 調を調べてLRCファイルを出力する。
         /// </summary>
         /// <returns>エラーの文字列。成功のとき空文字列。</returns>
-        public string Classify(string inputAudioPath, string outputLrcPath, BackgroundWorker bw) {
+        public string Classify(string inputAudioPath, string outputLrcPath, PitchEnum pitchEnum, BackgroundWorker bw) {
             WWMFReaderCs.WWMFReader.Metadata meta;
             LargeArray<byte> dataByteAry;
 
@@ -69,11 +85,13 @@ namespace WWKeyClassifier2 {
                 return string.Format("Error: Read failed {0} {1}\n", hr, inputAudioPath);
             }
 
-            if (meta.sampleRate != 44100 || meta.bitsPerSample != 16 || meta.numChannels != 2) {
-                return string.Format("Error: File format is not 44100Hz 16bit 2ch. ({0}Hz {1}bit {2}ch) {3}\n", meta.sampleRate, meta.bitsPerSample, meta.numChannels, inputAudioPath);
+            if (meta.sampleRate != SAMPLE_RATE || meta.bitsPerSample != 16 || meta.numChannels != 2) {
+                return string.Format("Error: File format is not {0}Hz 16bit 2ch. ({1}Hz {2}bit {3}ch) {4}\n", SAMPLE_RATE, meta.sampleRate, meta.bitsPerSample, meta.numChannels, inputAudioPath);
             }
 
-            bw.ReportProgress(0, string.Format("Read {0}\nProcessing...\n", inputAudioPath));
+            if (bw != null) {
+                bw.ReportProgress(0, string.Format("Read {0}\nProcessing...\n", inputAudioPath));
+            }
             mReportSW.Start();
 
             // ステレオをモノラル float値にする。
@@ -96,7 +114,7 @@ namespace WWKeyClassifier2 {
             // Keyの推定値predKeysを作成する。-1のとき不明。
             var predKeys = new List<int>();
 
-            for (long i = 0; i < dataF.LongLength-(WINDOW_LENGTH*TEMPORAL_WIDTH); i += WINDOW_LENGTH/2) {
+            for (long i = 0; i < dataF.LongLength - (WINDOW_LENGTH * TEMPORAL_WIDTH); i += WINDOW_LENGTH / 2) {
                 var x = new List<float>();
 
                 // TEMPORAL_WIDTH (=8)個のFFTを実行する。
@@ -121,19 +139,32 @@ namespace WWKeyClassifier2 {
                 //Console.WriteLine("{0}, {1} {2}", (double)i / SAMPLE_RATE, mKeyClassifier.KeyIdxToStr(keyP), key);
 
                 if (1000 < mReportSW.ElapsedMilliseconds) {
-                    bw.ReportProgress((int)(100 * i / dataF.LongLength), "");
+                    int percentage = (int)(100 * i / dataF.LongLength);
+                    if (bw == null) {
+                        Console.Write("{0}% \r", percentage);
+                    } else {
+                        bw.ReportProgress(percentage, "");
+                    }
                     mReportSW.Restart();
                 }
             }
 
+            if (bw == null) {
+                Console.WriteLine("     \r");
+            }
+
             mReportSW.Stop();
 
-            WriteLRC(predKeys, outputLrcPath);
-
-            return "";
+            {
+                var r = WriteLRC(predKeys, pitchEnum, outputLrcPath);
+                return r;
+            }
         }
 
-        private string SecondToDurationStr(double v) {
+        /// <summary>
+        /// MM:SS.cc 形式の文字列を戻す。
+        /// </summary>
+        private string SecondToTimeStr(double v) {
             System.Diagnostics.Debug.Assert(0 <= v);
             int minutes = (int)(v/60);
             v -= minutes*60;
@@ -148,7 +179,7 @@ namespace WWKeyClassifier2 {
             return s;
         }
 
-        private string WriteLRC(List<int> predKeys, string outputPath) {
+        private string WriteLRC(List<int> predKeys, PitchEnum pitchEnum, string outputPath) {
             // key推定値が一つもないときエラー。
             int keyCount = 0;
             foreach (var k in predKeys) {
@@ -166,17 +197,25 @@ namespace WWKeyClassifier2 {
                 for (int i = 0; i < predKeys.Count(); ++i) {
                     int key = predKeys[i];
 
+                    if (pitchEnum == PitchEnum.BaroquePitch) {
+                        // コンサートピッチの評価値をバロックピッチに変換する。
+                        key = mKeyClassifier.KeyIdxToBaroquePitch(key);
+                    }
+
                     if (key == lastKey) {
                         continue;
                     }
 
                     // 値が変化したので書き込む。
-                    double durationSec = (double)i * WINDOW_LENGTH /2 / SAMPLE_RATE;
 
                     if (key < 0) {
-                        sw.WriteLine("[{0}] -", SecondToDurationStr(durationSec));
+                        double timeSec = (double)i * WINDOW_LENGTH / 2 / SAMPLE_RATE;
+                        sw.WriteLine("[{0}] -", SecondToTimeStr(timeSec));
                     } else {
-                        sw.WriteLine("[{0}]{1}", SecondToDurationStr(durationSec), mKeyClassifier.KeyIdxToStr(key));
+                        // 同じkeyがKEY_COUNTER個連続したら確定するため
+                        // KEY_COUNTER-1個遅延して出るので、その分時間を過去にする。
+                        double timeSec = (double)(i-(KEY_COUNTER-1)) * WINDOW_LENGTH / 2 / SAMPLE_RATE;
+                        sw.WriteLine("[{0}]{1}", SecondToTimeStr(timeSec), mKeyClassifier.KeyIdxToStr(key));
                     }
                     lastKey = key;
                 }
@@ -192,7 +231,7 @@ namespace WWKeyClassifier2 {
                 mKeyHistory.RemoveAt(0);
             }
 
-            // 連続で同じkeyがKEY_COUNTER個続いたら確定する。
+            // 同じkeyが連続KEY_COUNTER個続いたら確定する。
 
             if (mKeyHistory.Count() != KEY_COUNTER) {
                 return -1;

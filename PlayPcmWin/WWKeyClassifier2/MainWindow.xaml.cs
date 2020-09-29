@@ -1,19 +1,10 @@
 ﻿// 日本語。
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.ComponentModel;
+using System.Globalization;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Globalization;
-using System.ComponentModel;
 
 namespace WWKeyClassifier2 {
     public partial class MainWindow : Window {
@@ -64,6 +55,11 @@ namespace WWKeyClassifier2 {
                 return;
             }
 
+            if (0 != ".LRC".CompareTo(System.IO.Path.GetExtension(mTextBoxOutput.Text).ToUpperInvariant())) {
+                MessageBox.Show(string.Format("Error: Output file extension should be .LRC. {0}", mTextBoxOutput.Text));
+                return;
+            }
+
             if (System.IO.File.Exists(mTextBoxOutput.Text)) {
                 var mbr = MessageBox.Show(string.Format("Overwrite LRC file ? {0}", mTextBoxOutput.Text), "Overwrite confirmation", MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (mbr != MessageBoxResult.Yes) {
@@ -75,8 +71,12 @@ namespace WWKeyClassifier2 {
             mState = State.Processing;
             Update();
 
-            mBw.RunWorkerAsync(new WorkerParams(mTextBoxInput.Text, mTextBoxOutput.Text));
+            KeyClassifier.PitchEnum pitchEnum = KeyClassifier.PitchEnum.ConcertPitch;
+            if (mRadioButtonBaroquePitch.IsChecked == true) {
+                pitchEnum = KeyClassifier.PitchEnum.BaroquePitch;
+            }
 
+            mBw.RunWorkerAsync(new WorkerParams(mTextBoxInput.Text, mTextBoxOutput.Text, pitchEnum));
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
@@ -132,16 +132,18 @@ namespace WWKeyClassifier2 {
         class WorkerParams {
             public string inputAudioPath;
             public string outputLrcPath;
-            public WorkerParams(string aInput, string aOutput) {
+            public KeyClassifier.PitchEnum pitchEnum;
+            public WorkerParams(string aInput, string aOutput, KeyClassifier.PitchEnum aPitchEnum) {
                 inputAudioPath = aInput;
                 outputLrcPath = aOutput;
+                pitchEnum = aPitchEnum;
             }
         };
 
         void mBw_DoWork(object sender, DoWorkEventArgs e) {
             var param = e.Argument as WorkerParams;
 
-            string ercd = mKeyClassifier.Classify(param.inputAudioPath, param.outputLrcPath, mBw);
+            string ercd = mKeyClassifier.Classify(param.inputAudioPath, param.outputLrcPath, param.pitchEnum, mBw);
             e.Result = new WorkerCompleteParams(ercd, param.outputLrcPath);
         }
 

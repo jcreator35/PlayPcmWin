@@ -29,9 +29,109 @@ namespace WWKeyClassifier2 {
 
         /// <summary>
         /// Classifyの戻り値のkey番号を調の文字列表現に変換。
+        /// Concert Pitch.
         /// </summary>
         public string KeyIdxToStr(int idx) {
             return mClassifier.ClassifyResultToStr(idx);
+        }
+
+        enum KeyEnum {
+            Unknown = -1,
+
+            Adur,
+            Amoll,
+            Asdur,
+            Bdur,
+            Bmoll,
+
+            Cdur,
+            Cismoll,
+            Cmoll,
+            Ddur,
+            Desdur,
+
+            Dismoll,
+            Dmoll,
+            Edur,
+            Emoll,
+            Esdur,
+
+            Fdur,
+            Fisdur,
+            Fismoll,
+            Fmoll,
+            Gdur,
+
+            Gismoll,
+            Gmoll,
+            Hdur,
+            Hmoll
+        };
+
+        /// <summary>
+        /// コンサートピッチでの評価値をバロックピッチに変換する。
+        /// </summary>
+        public int KeyIdxToBaroquePitch(int idx) {
+            // 半音上げます。
+            switch ((KeyEnum)idx) {
+            case KeyEnum.Unknown:
+                return (int)KeyEnum.Unknown;
+            case KeyEnum.Adur:
+                return (int)KeyEnum.Bdur;
+            case KeyEnum.Amoll:
+                return (int)KeyEnum.Bmoll;
+            case KeyEnum.Asdur:
+                return (int)KeyEnum.Adur;
+            case KeyEnum.Bdur:
+                return (int)KeyEnum.Hdur;
+            case KeyEnum.Bmoll:
+                return (int)KeyEnum.Hmoll;
+
+            case KeyEnum.Cdur:
+                return (int)KeyEnum.Desdur;
+            case KeyEnum.Cismoll:
+                return (int)KeyEnum.Dmoll;
+            case KeyEnum.Cmoll:
+                return (int)KeyEnum.Cismoll;
+            case KeyEnum.Ddur:
+                return (int)KeyEnum.Esdur;
+            case KeyEnum.Desdur:
+                return (int)KeyEnum.Ddur;
+
+            case KeyEnum.Dismoll:
+                return (int)KeyEnum.Emoll;
+            case KeyEnum.Dmoll:
+                return (int)KeyEnum.Dismoll;
+            case KeyEnum.Edur:
+                return (int)KeyEnum.Fdur;
+            case KeyEnum.Emoll:
+                return (int)KeyEnum.Fmoll;
+            case KeyEnum.Esdur:
+                return (int)KeyEnum.Edur;
+
+            case KeyEnum.Fdur:
+                return (int)KeyEnum.Fisdur;
+            case KeyEnum.Fisdur:
+                return (int)KeyEnum.Gdur;
+            case KeyEnum.Fismoll:
+                return (int)KeyEnum.Gmoll;
+            case KeyEnum.Fmoll:
+                return (int)KeyEnum.Fismoll;
+            case KeyEnum.Gdur:
+                return (int)KeyEnum.Asdur;
+
+            case KeyEnum.Gismoll:
+                return (int)KeyEnum.Amoll;
+            case KeyEnum.Gmoll:
+                return (int)KeyEnum.Gismoll;
+            case KeyEnum.Hdur:
+                return (int)KeyEnum.Cdur;
+            case KeyEnum.Hmoll:
+                return (int)KeyEnum.Cmoll;
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                return -1;
+            }
         }
 
         MulticlassLinearSVMClassifier mClassifier;
@@ -39,7 +139,12 @@ namespace WWKeyClassifier2 {
         // Exported using ExportClassificationsSVM.m
 
         private string[] mInputPredictorNames = { "SA2", "SB2", "SH2", "SC3", "SCis3", "SD3", "SDis3", "SE3", "SF3", "SFis3", "SG3", "SGis3", "SA3", "SB3", "SH3", "SC4", "SCis4", "SD4", "SDis4", "SE4", "SF4", "SFis4", "SG4", "SGis4", "SA4", "SB4", "SH4", "SC5", "SCis5", "SD5", "SDis5", "SE5", "SF5", "SFis5", "SG5", "SGis5", "SA5", "SB5", "SH5", "SC6", "SCis6", "SD6", "SDis6", "SE6", "TA2", "TB2", "TH2", "TC3", "TCis3", "TD3", "TDis3", "TE3", "TF3", "TFis3", "TG3", "TGis3", "TA3", "TB3", "TH3", "TC4", "TCis4", "TD4", "TDis4", "TE4", "TF4", "TFis4", "TG4", "TGis4", "TA4", "TB4", "TH4", "TC5", "TCis5", "TD5", "TDis5", "TE5", "TF5", "TFis5", "TG5", "TGis5", "TA5", "TB5", "TH5", "TC6", "TCis6", "TD6", "TDis6", "TE6", "UA2", "UB2", "UH2", "UC3", "UCis3", "UD3", "UDis3", "UE3", "UF3", "UFis3", "UG3", "UGis3", "UA3", "UB3", "UH3", "UC4", "UCis4", "UD4", "UDis4", "UE4", "UF4", "UFis4", "UG4", "UGis4", "UA4", "UB4", "UH4", "UC5", "UCis5", "UD5", "UDis5", "UE5", "UF5", "UFis5", "UG5", "UGis5", "UA5", "UB5", "UH5", "UC6", "UCis6", "UD6", "UDis6", "UE6", "VA2", "VB2", "VH2", "VC3", "VCis3", "VD3", "VDis3", "VE3", "VF3", "VFis3", "VG3", "VGis3", "VA3", "VB3", "VH3", "VC4", "VCis4", "VD4", "VDis4", "VE4", "VF4", "VFis4", "VG4", "VGis4", "VA4", "VB4", "VH4", "VC5", "VCis5", "VD5", "VDis5", "VE5", "VF5", "VFis5", "VG5", "VGis5", "VA5", "VB5", "VH5", "VC6", "VCis6", "VD6", "VDis6", "VE6", "WA2", "WB2", "WH2", "WC3", "WCis3", "WD3", "WDis3", "WE3", "WF3", "WFis3", "WG3", "WGis3", "WA3", "WB3", "WH3", "WC4", "WCis4", "WD4", "WDis4", "WE4", "WF4", "WFis4", "WG4", "WGis4", "WA4", "WB4", "WH4", "WC5", "WCis5", "WD5", "WDis5", "WE5", "WF5", "WFis5", "WG5", "WGis5", "WA5", "WB5", "WH5", "WC6", "WCis6", "WD6", "WDis6", "WE6", "XA2", "XB2", "XH2", "XC3", "XCis3", "XD3", "XDis3", "XE3", "XF3", "XFis3", "XG3", "XGis3", "XA3", "XB3", "XH3", "XC4", "XCis4", "XD4", "XDis4", "XE4", "XF4", "XFis4", "XG4", "XGis4", "XA4", "XB4", "XH4", "XC5", "XCis5", "XD5", "XDis5", "XE5", "XF5", "XFis5", "XG5", "XGis5", "XA5", "XB5", "XH5", "XC6", "XCis6", "XD6", "XDis6", "XE6", "YA2", "YB2", "YH2", "YC3", "YCis3", "YD3", "YDis3", "YE3", "YF3", "YFis3", "YG3", "YGis3", "YA3", "YB3", "YH3", "YC4", "YCis4", "YD4", "YDis4", "YE4", "YF4", "YFis4", "YG4", "YGis4", "YA4", "YB4", "YH4", "YC5", "YCis5", "YD5", "YDis5", "YE5", "YF5", "YFis5", "YG5", "YGis5", "YA5", "YB5", "YH5", "YC6", "YCis6", "YD6", "YDis6", "YE6", "ZA2", "ZB2", "ZH2", "ZC3", "ZCis3", "ZD3", "ZDis3", "ZE3", "ZF3", "ZFis3", "ZG3", "ZGis3", "ZA3", "ZB3", "ZH3", "ZC4", "ZCis4", "ZD4", "ZDis4", "ZE4", "ZF4", "ZFis4", "ZG4", "ZGis4", "ZA4", "ZB4", "ZH4", "ZC5", "ZCis5", "ZD5", "ZDis5", "ZE5", "ZF5", "ZFis5", "ZG5", "ZGis5", "ZA5", "ZB5", "ZH5", "ZC6", "ZCis6", "ZD6", "ZDis6", "ZE6", };
-        private string[] mOutputLabelNames = { "A dur", "A moll", "As dur", "B dur", "B moll", "C dur", "Cis moll", "C moll", "D dur", "Des dur/Cis dur", "Dis moll/Es moll", "D moll", "E dur", "E moll", "Es dur", "F dur", "Fis dur/Ges dur", "Fis moll", "F moll", "G dur", "Gis moll", "G moll", "H dur/Ces dur", "H moll", };
+        private string[] mOutputLabelNames = {
+                "A dur", "A moll", "As dur", "B dur", "B moll",
+                "C dur", "Cis moll", "C moll", "D dur", "Des dur/Cis dur", 
+                "Dis moll/Es moll", "D moll", "E dur", "E moll", "Es dur", 
+                "F dur", "Fis dur/Ges dur", "Fis moll", "F moll", "G dur",
+                 "Gis moll", "G moll", "H dur/Ces dur", "H moll", };
         struct BinaryLinearSVMParams {
             public float scale;
             public float bias;

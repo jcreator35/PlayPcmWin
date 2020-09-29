@@ -18,18 +18,18 @@
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="1*" />
-                    <RowDefinition Height="3*" />
+                    <RowDefinition Height="2*" />
                     <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
                 <Label Content="Input FLAC file:" HorizontalAlignment="Right" Name="mLabelInputFile" VerticalAlignment="Center" />
                 <GroupBox Grid.ColumnSpan="3" Grid.Row="1" Header="Music Pitch" Name="mGroupBoxPitch" Margin="6,0,6,0" >
                     <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="26*" />
-                            <RowDefinition Height="27*" />
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
                         </Grid.RowDefinitions>
                         <RadioButton Content="A=440 (_Concert Pitch)" Grid.Row="0" HorizontalAlignment="Left" Margin="4,0,0,0" Name="mRadioButtonConcertPitch" VerticalAlignment="Center" IsChecked="True" />
-                        <RadioButton Content="A=416 (_Baroque Pitch)" Grid.Row="1" HorizontalAlignment="Left" Margin="4,0,0,0" Name="mRadioButtonBaroquePitch" VerticalAlignment="Center" />
+                        <RadioButton Content="A=415 (_Baroque Pitch)" Grid.Row="1" HorizontalAlignment="Left" Margin="4,0,0,0" Name="mRadioButtonBaroquePitch" VerticalAlignment="Center" />
                     </Grid>
                 </GroupBox>
                 <Label Grid.Row="2" Content="Output LRC file:" HorizontalAlignment="Right" Name="mLabelOutputLRC" VerticalAlignment="Center" />
