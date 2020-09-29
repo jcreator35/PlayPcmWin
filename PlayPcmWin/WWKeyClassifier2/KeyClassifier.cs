@@ -30,7 +30,7 @@ namespace WWKeyClassifier2 {
         /// <summary>
         /// keyを確定するために必要な連続推定一致数。
         /// </summary>
-        private const int KEY_COUNTER = 8;
+        private const int KEY_COUNTER = 12;
 
         public enum PitchEnum {
             ConcertPitch,
