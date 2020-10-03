@@ -4,6 +4,7 @@ using WWUtil;
 namespace WWMath {
     /// <summary>
     /// 窓関数置き場。
+    /// float[]が欲しいときは、Array.ConvertAll(r,x=>(float)x);で変換して下さい。
     /// </summary>
     sealed public class WWWindowFunc {
         private WWWindowFunc() {

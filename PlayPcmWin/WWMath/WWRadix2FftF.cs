@@ -1,0 +1,209 @@
+﻿using System;
+
+namespace WWMath {
+    public class WWRadix2FftF {
+        private int mNumPoints;
+        private int mNumStage;
+        private WWComplexF[] mWn;
+        private uint [] mBitReversalTable;
+
+        public WWRadix2FftF(int numPoints) {
+            if (!Functions.IsPowerOfTwo(numPoints) || numPoints < 2) {
+                throw new ArgumentException("numPoints must be power of two integer and larger than 2");
+            }
+            mNumPoints = numPoints;
+
+            mWn = new WWComplexF[mNumPoints];
+            for (int i=0; i < mNumPoints; ++i) {
+                double angle = -2.0 * Math.PI * i / mNumPoints;
+                mWn[i] = new WWComplexF((float)Math.Cos(angle), (float)Math.Sin(angle));
+            }
+
+            // mNumStage == log_2(mNumPoints)
+            int t = mNumPoints;
+            for (int i=0; 0 < t; ++i) {
+                t >>= 1;
+                mNumStage = i;
+            }
+
+            mBitReversalTable = new uint[mNumPoints];
+            for (uint i=0; i < mNumPoints; ++i) {
+                mBitReversalTable[i] = BitReversal(mNumStage, i);
+            }
+        }
+
+        private static int Pow2(int x) {
+            return 1 << x;
+        }
+
+        private static uint BitReversal(int numOfBits, uint v) {
+            uint r = v;
+            int s = numOfBits - 1;
+
+            for (v >>= 1; v!=0; v >>= 1) {
+                r <<= 1;
+                r |= v & 1;
+                s--;
+            }
+
+            r <<= s;
+
+            uint mask = ~(0xffffffffU << numOfBits);
+            r &= mask;
+
+            return r;
+        }
+
+        /// <summary>
+        /// 注：compensationが指定しないとき、結果をNで割りません。
+        /// </summary>
+        /// <param name="aFrom">時間ドメイン値x[n] 0≦n＜N</param>
+        /// <param name="compensation">倍率。指定しないとき1.0f倍となる。</param>
+        /// <returns>周波数ドメイン値X^m(q)</returns>
+        public WWComplexF[] ForwardFft(WWComplexF[] aFrom, float? compensation = null) {
+            if (aFrom == null || aFrom.Length != mNumPoints) {
+                throw new ArgumentOutOfRangeException("aFrom");
+            }
+            var aTo = new WWComplexF[aFrom.Length];
+
+            var aTmp0 = new WWComplexF[mNumPoints];
+            for (int i=0; i < aTmp0.Length; ++i) {
+                aTmp0[i] = aFrom[mBitReversalTable[i]];
+            }
+            var aTmp1 = new WWComplexF[mNumPoints];
+            for (int i=0; i < aTmp1.Length; ++i) {
+                aTmp1[i] = WWComplexF.Zero();
+            }
+
+            var aTmps = new WWComplexF[2][];
+            aTmps[0] = aTmp0;
+            aTmps[1] = aTmp1;
+
+            for (int i=0; i < mNumStage - 1; ++i) {
+                FftStageN(i, aTmps[((i & 1) == 1) ? 1 : 0], aTmps[((i & 1) == 0) ? 1 : 0]);
+            }
+            FftStageN(mNumStage - 1, aTmps[(((mNumStage - 1) & 1) == 1) ? 1 : 0], aTo);
+
+            float c = 1.0f;
+            if (compensation != null) {
+                c = (float)compensation;
+            }
+
+            if (c != 1.0f) {
+                var aToC = new WWComplexF[aTo.Length];
+                for (int i = 0; i < aTo.Length; ++i) {
+                    aToC[i] = new WWComplexF(aTo[i].real * c, aTo[i].imaginary * c);
+                }
+                return aToC;
+            } else {
+                return aTo;
+            }
+        }
+
+        /// <summary>
+        /// 逆FFTします。結果をcompensation倍します(compensationを指定しないとき1.0f/N倍)
+        /// </summary>
+        /// <param name="aFrom">周波数ドメイン値X^m(q) 0≦m≦N</param>
+        /// <param name="compensation">倍率。指定しないとき1.0f/Nとなる。</param>
+        /// <returns></returns>
+        public WWComplexF[] InverseFft(WWComplexF[] aFrom, float? compensation = null) {
+            for (int i=0; i < aFrom.Length; ++i) {
+                aFrom[i] = new WWComplexF(aFrom[i].real, -aFrom[i].imaginary);
+            }
+
+            var aTo = ForwardFft(aFrom);
+
+            float c = 1.0f / mNumPoints;
+            if (compensation != null) {
+                c = (float)compensation;
+            }
+
+            for (int i=0; i < aTo.Length; ++i) {
+                aTo[i] = new WWComplexF(aTo[i].real * c, -aTo[i].imaginary * c);
+            }
+
+            return aTo;
+        }
+
+        private void FftStageN(int stageNr, WWComplexF[] x, WWComplexF[] y) {
+            /*
+             * stage0: 2つの入力データにバタフライ演算 (length=8の時) 4回 (nRepeat=4, nSubRepeat=2)
+             * y[0] = x[0] + w_n^(0*4) * x[1]
+             * y[1] = x[0] + w_n^(1*4) * x[1]
+             *
+             * y[2] = x[2] + w_n^(0*4) * x[3]
+             * y[3] = x[2] + w_n^(1*4) * x[3]
+             *
+             * y[4] = x[4] + w_n^(0*4) * x[5]
+             * y[5] = x[4] + w_n^(1*4) * x[5]
+             *
+             * y[6] = x[6] + w_n^(0*4) * x[7]
+             * y[7] = x[6] + w_n^(1*4) * x[7]
+             */
+
+            /*
+             * stage1: 4つの入力データにバタフライ演算 (length=8の時) 2回 (nRepeat=2, nSubRepeat=4)
+             * y[0] = x[0] + w_n^(0*2) * x[2]
+             * y[1] = x[1] + w_n^(1*2) * x[3]
+             * y[2] = x[0] + w_n^(2*2) * x[2]
+             * y[3] = x[1] + w_n^(3*2) * x[3]
+             *
+             * y[4] = x[4] + w_n^(0*2) * x[6]
+             * y[5] = x[5] + w_n^(1*2) * x[7]
+             * y[6] = x[4] + w_n^(2*2) * x[6]
+             * y[7] = x[5] + w_n^(3*2) * x[7]
+             */
+
+            /*
+             * stage2: 8つの入力データにバタフライ演算 (length=8の時) 1回 (nRepeat=1, nSubRepeat=8)
+             * y[0] = x[0] + w_n^(0*1) * x[4]
+             * y[1] = x[1] + w_n^(1*1) * x[5]
+             * y[2] = x[2] + w_n^(2*1) * x[6]
+             * y[3] = x[3] + w_n^(3*1) * x[7]
+             * y[4] = x[0] + w_n^(4*1) * x[4]
+             * y[5] = x[1] + w_n^(5*1) * x[5]
+             * y[6] = x[2] + w_n^(6*1) * x[6]
+             * y[7] = x[3] + w_n^(7*1) * x[7]
+             */
+
+            /*
+             * stageN:
+             */
+
+            int nRepeat    = Pow2(mNumStage - stageNr - 1);
+            int nSubRepeat = mNumPoints / nRepeat;
+            var t = WWComplexF.Zero();
+
+            for (int i=0; i<nRepeat; ++i) {
+                int offsBase = i * nSubRepeat;
+
+                bool allZero = true;
+                for (int j=0; j < nSubRepeat/2; ++j) {
+                    int offs = offsBase + (j % (nSubRepeat/2));
+                    if (Double.Epsilon < x[offs].Magnitude()) {
+                        allZero = false;
+                        break;
+                    }
+                    if (Double.Epsilon < x[offs + nSubRepeat / 2].Magnitude()) {
+                        allZero = false;
+                        break;
+                    }
+                }
+
+                if (allZero) {
+                    for (int j=0; j < nSubRepeat; ++j) {
+                        y[j + offsBase] = WWComplexF.Zero();
+                    }
+                } else {
+                    for (int j=0; j < nSubRepeat; ++j) {
+                        int offs = offsBase + (j % (nSubRepeat / 2));
+
+                        var v1 = x[offs];
+                        var v2 = WWComplexF.Mul(mWn[j * nRepeat], x[offs + nSubRepeat / 2]);
+                        y[j + offsBase] = WWComplexF.Add(v1, v2);
+                    }
+                }
+            }
+        }
+    }
+}

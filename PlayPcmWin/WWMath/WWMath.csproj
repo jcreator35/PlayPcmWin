@@ -82,9 +82,11 @@
     <Compile Include="NewtonsMethod.cs" />
     <Compile Include="BairstowPolynomialRootFinding.cs" />
     <Compile Include="ComplexRationalPolynomial.cs" />
+    <Compile Include="WWComplexF.cs" />
     <Compile Include="WWGaussianQuadrature.cs" />
     <Compile Include="WWNormalize.cs" />
     <Compile Include="WWPolynomialFit.cs" />
+    <Compile Include="WWRadix2FftF.cs" />
     <Compile Include="WWSegmentPointDistance.cs" />
     <Compile Include="WWGoertzel.cs" />
     <Compile Include="WWOverlappedFft.cs" />

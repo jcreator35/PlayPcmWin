@@ -105,9 +105,11 @@ namespace WWKeyClassifier2 {
                 f *= Math.Pow(2, 1.0 / 12);
             }
 
-            // Hann窓。
-            var w = WWWindowFunc.HannWindow(WINDOW_LENGTH);
-            var fft = new WWRadix2FftLargeArray(WINDOW_LENGTH);
+            // Hann窓 w。
+            double[] wD = WWWindowFunc.HannWindow(WINDOW_LENGTH);
+            float[] w = Array.ConvertAll(wD, xD => (float)xD);
+
+            var fft = new WWRadix2FftF(WINDOW_LENGTH);
 
             mKeyHistory = new List<int>();
 
@@ -121,12 +123,11 @@ namespace WWKeyClassifier2 {
                 for (int j = 0; j < TEMPORAL_WIDTH; ++j) {
                     // 窓関数を掛けてFFTし、大きさを取って実数配列にし、鍵盤の周波数binnの値をxに追加。
                     var v = PrepareSampleDataForFFT(dataF, i + j * WINDOW_LENGTH, w);
-                    var vC = WWComplex.FromRealArray(v);
-                    var vCL = new LargeArray<WWComplex>(vC);
-                    var fC = fft.ForwardFft(vCL).ToArray();
-                    var fR = WWComplex.ToMagnitudeRealArray(fC);
+                    var vC = WWComplexF.FromRealArray(v);
+                    var fC = fft.ForwardFft(vC).ToArray();
+                    var fR = WWComplexF.ToMagnitudeRealArray(fC);
                     foreach (var k in fIdx) {
-                        x.Add((float)fR[k]);
+                        x.Add(fR[k]);
                     }
                 }
 
@@ -247,7 +248,7 @@ namespace WWKeyClassifier2 {
             return firstKey;
         }
 
-        private float[] PrepareSampleDataForFFT(LargeArray<float> from, long fromPos, double[] w) {
+        private float[] PrepareSampleDataForFFT(LargeArray<float> from, long fromPos, float[] w) {
             var r = new float[w.Length];
             for (int i = 0; i < r.Length; ++i) {
                 float v = from.At(fromPos + i);
