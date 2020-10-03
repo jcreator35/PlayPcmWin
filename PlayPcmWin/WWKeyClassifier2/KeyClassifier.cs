@@ -252,7 +252,7 @@ namespace WWKeyClassifier2 {
             var r = new float[w.Length];
             for (int i = 0; i < r.Length; ++i) {
                 float v = from.At(fromPos + i);
-                r[i] = (float)(v * w[i]);
+                r[i] = v * w[i];
             }
 
             return r;
