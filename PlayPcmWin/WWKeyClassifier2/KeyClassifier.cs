@@ -10,7 +10,7 @@ using System.ComponentModel;
 
 namespace WWKeyClassifier2 {
     class KeyClassifier {
-        private KeyClassifierCore mKeyClassifier;
+        private KeyClassifierCore mKeyClassifierCore;
 
         /// <summary>
         /// 学習データの仕様。
@@ -42,20 +42,20 @@ namespace WWKeyClassifier2 {
         private List<int> mKeyHistory = new List<int>();
 
         public KeyClassifier() {
-            mKeyClassifier = new KeyClassifierCore();
+            mKeyClassifierCore = new KeyClassifierCore();
             /*
             // 分類器動作テスト。
             int nCorrect = 0;
-            for (int i = 0; i < mKeyClassifier.TrainDataAry.Count(); ++i) {
-                var td = mKeyClassifier.TrainDataAry[i];
-                int yPred = mKeyClassifier.Classify(td.x);
+            for (int i = 0; i < mKeyClassifierCore.TrainDataAry.Count(); ++i) {
+                var td = mKeyClassifierCore.TrainDataAry[i];
+                int yPred = mKeyClassifierCore.Classify(td.x);
                 if (td.y == yPred) {
                     ++nCorrect;
                 } else {
                     //Console.WriteLine("Wrong.");
                 }
             }
-            Console.WriteLine("Correct {0}%", 100.0f * nCorrect / mKeyClassifier.TrainDataAry.Count());
+            Console.WriteLine("Correct {0}%", 100.0f * nCorrect / mKeyClassifierCore.TrainDataAry.Count());
             */
         }
 
@@ -70,6 +70,69 @@ namespace WWKeyClassifier2 {
             }
 
             return m;
+        }
+
+        private KeyClassifierCore.KeyEnum[] HumanKeyEnum = new KeyClassifierCore.KeyEnum[] {
+            KeyClassifierCore.KeyEnum.Cdur,
+            KeyClassifierCore.KeyEnum.Desdur,
+            KeyClassifierCore.KeyEnum.Ddur,
+            KeyClassifierCore.KeyEnum.Esdur,
+            KeyClassifierCore.KeyEnum.Edur,
+            KeyClassifierCore.KeyEnum.Fdur,
+            KeyClassifierCore.KeyEnum.Fisdur,
+            KeyClassifierCore.KeyEnum.Gdur,
+            KeyClassifierCore.KeyEnum.Asdur,
+            KeyClassifierCore.KeyEnum.Adur,
+            KeyClassifierCore.KeyEnum.Bdur,
+            KeyClassifierCore.KeyEnum.Hdur,
+            KeyClassifierCore.KeyEnum.Cmoll,
+            KeyClassifierCore.KeyEnum.Cismoll,
+            KeyClassifierCore.KeyEnum.Dmoll,
+            KeyClassifierCore.KeyEnum.Dismoll,
+            KeyClassifierCore.KeyEnum.Emoll,
+            KeyClassifierCore.KeyEnum.Fmoll,
+            KeyClassifierCore.KeyEnum.Fismoll,
+            KeyClassifierCore.KeyEnum.Gmoll,
+            KeyClassifierCore.KeyEnum.Gismoll,
+            KeyClassifierCore.KeyEnum.Amoll,
+            KeyClassifierCore.KeyEnum.Bmoll,
+            KeyClassifierCore.KeyEnum.Hmoll,};
+
+        /// <summary>
+        /// CSV形式のテーブル出力。
+        /// </summary>
+        private void PrintCsvTable() {
+            Console.Write("-, ");
+            foreach (var x in HumanKeyEnum) {
+                Console.Write("{0}, ", x);
+            }
+            Console.WriteLine("");
+
+            int nY = -1;
+            foreach (var y in HumanKeyEnum) {
+                var keyY = y;
+                ++nY;
+
+                Console.Write("{0}, ", y);
+                int nX = -1;
+                foreach (var x in HumanKeyEnum) {
+                    var keyX = x;
+                    ++nX;
+
+                    float v = mKeyClassifierCore.ResultTable()[(int)x][(int)y];
+
+                    if (nY <= nX) {
+                        Console.Write("-, ");
+                    } else if (0 < v) {
+                        Console.Write("{0},", keyX);
+                    } else if (v < 0) {
+                        Console.Write("{0},", keyY);
+                    } else {
+                        Console.Write("-, ");
+                    }
+                }
+                Console.WriteLine("");
+            }
         }
 
         /// <summary>
@@ -132,12 +195,16 @@ namespace WWKeyClassifier2 {
                 }
 
                 // keyを推定する。
-                var keyP = mKeyClassifier.Classify(x.ToArray());
+                var keyP = mKeyClassifierCore.Classify(x.ToArray());
+
+                // 推定結果のダンプ。
+                //PrintCsvTable();
+
 
                 // keyCounter個同じkeyが連続したら確定する。
                 var key = FilterKey(keyP);
                 predKeys.Add(key);
-                //Console.WriteLine("{0}, {1} {2}", (double)i / SAMPLE_RATE, mKeyClassifier.KeyIdxToStr(keyP), key);
+                //Console.WriteLine("{0}, {1} {2}", (double)i / SAMPLE_RATE, mKeyClassifierCore.KeyIdxToStr(keyP), key);
 
                 if (1000 < mReportSW.ElapsedMilliseconds) {
                     int percentage = (int)(100 * i / dataF.LongLength);
@@ -200,7 +267,7 @@ namespace WWKeyClassifier2 {
 
                     if (pitchEnum == PitchEnum.BaroquePitch) {
                         // コンサートピッチの評価値をバロックピッチに変換する。
-                        key = mKeyClassifier.KeyIdxToBaroquePitch(key);
+                        key = mKeyClassifierCore.KeyIdxToBaroquePitch(key);
                     }
 
                     if (key == lastKey) {
@@ -216,7 +283,7 @@ namespace WWKeyClassifier2 {
                         // 同じkeyがKEY_COUNTER個連続したら確定するため
                         // KEY_COUNTER-1個遅延して出るので、その分時間を過去にする。
                         double timeSec = (double)(i-(KEY_COUNTER-1)) * WINDOW_LENGTH / 2 / SAMPLE_RATE;
-                        sw.WriteLine("[{0}]{1}", SecondToTimeStr(timeSec), mKeyClassifier.KeyIdxToStr(key));
+                        sw.WriteLine("[{0}]{1}", SecondToTimeStr(timeSec), mKeyClassifierCore.KeyIdxToStr(key));
                     }
                     lastKey = key;
                 }

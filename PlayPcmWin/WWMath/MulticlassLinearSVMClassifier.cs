@@ -46,6 +46,13 @@ namespace WWMath {
             return mOutputClassLabels[idx];
         }
 
+        public float[][] ResultTable() {
+            return mResultTable;
+        }
+
+        private float[][] mResultTable;
+
+
         /// <summary>
         /// 多クラス分類する。
         /// </summary>
@@ -69,12 +76,20 @@ namespace WWMath {
             // 投票結果置き場。
             var vote = new int[mNumOutputClasses];
 
+            mResultTable = new float[mNumOutputClasses][];
+            for (int i=0; i<mNumOutputClasses; ++i) {
+                mResultTable[i] = new float[mNumOutputClasses];
+            }
+
             int n = 0;
             for (int i = 0; i < mNumOutputClasses - 1; ++i) {
                 for (int j = i + 1; j < mNumOutputClasses; ++j) {
                     // classifier: iかjかを判定する分類器。戻り値が+のときi、-のときj。
                     var classifier = mClassifierList[n];
                     float y = classifier.Predict(inputXN);
+
+                    mResultTable[i][j] = y;
+                    mResultTable[j][i] = -y;
 
                     if (0 <= y) {
                         vote[i] += 1;

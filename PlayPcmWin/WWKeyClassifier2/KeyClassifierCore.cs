@@ -17,6 +17,10 @@ namespace WWKeyClassifier2 {
             int yPred = mClassifier.Classify(inputX);
             return yPred;
         }
+
+        public float[][] ResultTable() {
+            return mClassifier.ResultTable();
+        }
         
         /// <summary>
         /// 観測値ベクトルを入力して分類を実行。
@@ -35,7 +39,7 @@ namespace WWKeyClassifier2 {
             return mClassifier.ClassifyResultToStr(idx);
         }
 
-        enum KeyEnum {
+        public enum KeyEnum {
             Unknown = -1,
 
             Adur,
