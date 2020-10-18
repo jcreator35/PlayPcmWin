@@ -432,6 +432,12 @@ namespace PlayPcmWin
 
         // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
+        private void Issue130() {
+            EnableDataGridPlaylist();
+            ChangeState(State.再生リストなし);
+            UpdateUIStatus();
+        }
+
         private void Window_Loaded(object wSender, RoutedEventArgs we) {
             {
                 // slider1のTrackをクリックしてThumbがクリック位置に移動した時Thumbがつままれた状態になるようにする
@@ -445,15 +451,83 @@ namespace PlayPcmWin
                 });
             }
 
-            if (m_preference.StorePlaylistContent) {
-                ReadPpwPlaylistStart(string.Empty, ReadPpwPlaylistMode.RestorePlaylistOnProgramStart);
+            if (ProcessCommandline(Environment.GetCommandLineArgs())) {
+                // コマンドラインの命令を実行した場合。
             } else {
-                // Issue 130
-                EnableDataGridPlaylist();
-                ChangeState(State.再生リストなし);
-                UpdateUIStatus();
+                // コマンドライン命令無し。
+
+                if (m_preference.StorePlaylistContent) {
+                    ReadPpwPlaylistStart(string.Empty, ReadPpwPlaylistMode.RestorePlaylistOnProgramStart);
+                } else {
+                    Issue130();
+                }
             }
         }
+
+        private void PrintUsage() {
+            AddLogText("Commandline Usage: PlayPcmWin [-stop] [-play] [soundFile1 [soundFile2 ...] ] \r\n");
+        }
+
+        /// <param name="args">1個目がPPWの名前。</param>
+        private bool ProcessCommandline(string[] args) {
+            if (args.Length == 1) {
+                return false;
+            }
+
+            Issue130();
+
+            bool bPlay = true;
+
+            var fileList = new List<string>();
+
+            for (int i = 1; i < args.Length; ++i) {
+                string s = args[i];
+                switch (s) {
+                case "-stop":
+                    // 停止状態で起動。
+                    bPlay = false;
+                    break;
+                case "-play":
+                    // 再生状態で起動。
+                    bPlay = true;
+                    break;
+                default:
+                    if (File.Exists(s)){
+                        fileList.Add(s);
+                    } else {
+                        AddLogText(string.Format("Error: Unknown command: {0}\r\n", s));
+                        PrintUsage();
+                        return false;
+                    }
+                    break;
+                }
+            }
+
+            if (0 < fileList.Count()) {
+                ClearPlayList(PlayListClearMode.ClearWithUpdateUI);
+                int loadFileCount = 0;
+                foreach (var f in fileList) {
+                    int errCount = ReadFileHeader(f, PcmHeaderReader.ReadHeaderMode.OnlyConcreteFile, null);
+                    if (0 == errCount) {
+                        ++loadFileCount;
+                    }
+                }
+
+                if (0 < loadFileCount) {
+                    if (bPlay) {
+                        ButtonPlayClicked();
+                    } else {
+                        ChangeState(State.再生リストあり);
+                        UpdateUIStatus();
+                    }
+                }
+                return true;
+            }
+
+            // コマンドラインに有効な命令無し。
+            return false;
+        }
+
 
         /// <summary>
         /// 再生モードコンボボックスの項目
