@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WWSpatialAudioPlayer"
         mc:Ignorable="d"
-        Title="WWSpatialAudioPlayer" Height="600" Width="800" Closed="Window_Closed" Loaded="Window_Loaded" Closing="Window_Closing" >
+        Title="WWSpatialAudioPlayer" Height="600" Width="800" Closed="Window_Closed" Loaded="Window_Loaded" Closing="Window_Closing" AllowDrop="True" >
     <Grid Name="mGridWholeContainer" >
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="0" />
@@ -36,7 +36,7 @@
                             <RowDefinition />
                         </Grid.RowDefinitions>
                         <Label Content="Input _File name" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                        <TextBox IsReadOnly="True" x:Name="mTextBoxInputFileName" TextWrapping="Wrap" Text="C:/audio/12channel.wav" VerticalAlignment="Center" Grid.Column="1" Margin="0,0,0,0" />
+                        <TextBox IsReadOnly="True" x:Name="mTextBoxInputFileName" TextWrapping="Wrap" Text="C:/audio/12channel.wav" VerticalAlignment="Center" Grid.Column="1" Margin="0,0,0,0" DragEnter="MTextBoxInputFileName_DragEnter" Drop="MTextBoxInputFileName_Drop" PreviewDragOver="MTextBoxInputFileName_PreviewDragOver" />
                         <Button x:Name="mButtonBrowse" Content="_Browse..." Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center" Width="100" Margin="6,0,0,0" Click="ButtonBrowse_Click"/>
                         <Button x:Name="mButtonRead" Content="_Read" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" Width="100" Margin="-60,0,0,0" Click="ButtonRead_Click"/>
                         <Label x:Name="mLabelInputAudioFmt" Content="" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Margin="4,0,0,0" VerticalAlignment="Center" />

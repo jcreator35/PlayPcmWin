@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls.Primitives;
@@ -12,9 +13,6 @@ using System.Windows.Input;
 using WWSpatialAudioUserCs;
 
 namespace WWSpatialAudioPlayer {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window, IDisposable {
         private bool mInitialized = false;
         private bool mShuttingdown = false;
@@ -72,7 +70,34 @@ namespace WWSpatialAudioPlayer {
 
             mInitialized = true;
 
+            ProcessCommandline(Environment.GetCommandLineArgs());
+
             mBwPlay.RunWorkerAsync();
+        }
+
+        private void PrintUsage()
+        {
+            AddLog("Commandline Usage: WWSpatialAudioPlayer soundFile \r\n");
+        }
+
+        /// <param name="args">1個目がアプリの名前。</param>
+        private bool ProcessCommandline(string[] args)
+        {
+            if (args.Length != 2) {
+                return false;
+            }
+
+            string soundFileName = args[1];
+
+            
+            if (!File.Exists(soundFileName)) {
+                AddLog(string.Format("Error: cannot read {0}\r\n", soundFileName));
+                PrintUsage();
+                return false;
+            }
+
+            mTextBoxInputFileName.Text = soundFileName;
+            return true;
         }
 
         /// <summary>
@@ -642,5 +667,43 @@ namespace WWSpatialAudioPlayer {
             // BwPlayスレッドで、再生物が無くなったことを検知してActivatedに遷移。
         }
 
+        private void MTextBoxInputFileName_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop)) {
+                e.Effects = DragDropEffects.Copy;
+            } else {
+                e.Effects = DragDropEffects.None;
+            }
+        }
+
+        private void MTextBoxInputFileName_Drop(object sender, DragEventArgs e)
+        {
+            var paths = e.Data.GetData(DataFormats.FileDrop) as string[];
+            if (null == paths) {
+                var sb = new StringBuilder(Properties.Resources.DroppedDataIsNotFile);
+
+                var formats = e.Data.GetFormats(false);
+                foreach (var format in formats) {
+                    sb.Append(string.Format("{0}    {1}", Environment.NewLine, format));
+                }
+                MessageBox.Show(sb.ToString());
+                return;
+            }
+
+            string path = paths[0];
+
+            string ext = Path.GetExtension(path).ToUpperInvariant();
+            if (ext.CompareTo(".FLAC") != 0 && ext.CompareTo(".WAV") != 0) {
+                MessageBox.Show(string.Format(Properties.Resources.DroppedFileIsNotSupported, path));
+                return;
+            }
+
+            mTextBoxInputFileName.Text = path;
+        }
+
+        private void MTextBoxInputFileName_PreviewDragOver(object sender, DragEventArgs e)
+        {
+            e.Handled = true;
+        }
     }
 }
