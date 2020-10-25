@@ -10,6 +10,7 @@ namespace WWFlacRWCS {
         private int mId = (int)FlacErrorCode.IdNotFound;
         private Metadata mDecodedMetadata = null;
         private LargeArray<byte> mPcmAllBuffer = null;
+        private string mPath = string.Empty;
 
         public static string ErrorCodeToStr(int ercd) {
             switch (ercd) {
@@ -88,6 +89,8 @@ namespace WWFlacRWCS {
         public int DecodeAll(string path) {
             int rv = 0;
 
+            mPath = path;
+
             rv = DecodeStreamStart(path);
             if (rv < 0) {
                 return rv;
@@ -161,6 +164,8 @@ namespace WWFlacRWCS {
         /// <param name="path">FLACファイルのパス</param>
         /// <returns>0以上のとき成功。負のときFlacErrorCode</returns>
         public int DecodeHeader(string path) {
+            mPath = path;
+
             mDecodedMetadata = null;
             mPcmAllBuffer = null;
             mId = NativeMethods.WWFlacRW_Decode(NativeMethods.WWFLAC_FRDT_HEADER, path);
@@ -168,6 +173,8 @@ namespace WWFlacRWCS {
         }
 
         public int DecodeStreamStart(string path) {
+            mPath = path;
+
             mDecodedMetadata = null;
             mPcmAllBuffer = null;
             mId = NativeMethods.WWFlacRW_Decode(NativeMethods.WWFLAC_FRDT_STREAM_ONE, path);
@@ -189,6 +196,40 @@ namespace WWFlacRWCS {
         public int DecodeStreamSeekAbsolute(long numFramesFromBegin) {
             int ercd = NativeMethods.WWFlacRW_DecodeStreamSeekAbsolute(mId, numFramesFromBegin);
             return ercd;
+        }
+
+        /// <summary>
+        /// メタデータ文字列を表示用文字列にする。
+        /// </summary>
+        /// <param name="meta">入力メタデータ。上書きされる。</param>
+        /// <returns>入力メタデータが上書きされて戻る。</returns>
+        public Metadata MetaConvToDisplayable(Metadata meta) {
+            if (meta.titleStr.Length == 0) {
+                meta.titleStr = System.IO.Path.GetFileName(mPath);
+            }
+            if (meta.albumStr.Length == 0) {
+                meta.albumStr = Properties.Resources.FlacMetadataUnknown;
+            }
+            if (meta.albumArtistStr.Length == 0) {
+                meta.albumArtistStr = Properties.Resources.FlacMetadataUnknown;
+            }
+            if (meta.artistStr.Length == 0) {
+                meta.artistStr = Properties.Resources.FlacMetadataUnknown;
+            }
+            if (meta.composerStr.Length == 0) {
+                meta.composerStr = Properties.Resources.FlacMetadataUnknown;
+            }
+            if (meta.dateStr.Length == 0) {
+                meta.dateStr = Properties.Resources.FlacMetadataUnknown;
+            }
+            if (meta.discNumberStr.Length == 0) {
+                meta.discNumberStr = Properties.Resources.FlacMetadataUnknown;
+            }
+            if (meta.genreStr.Length == 0) {
+                meta.genreStr = Properties.Resources.FlacMetadataUnknown;
+            }
+
+            return meta;
         }
 
         public int GetDecodedMetadata(out Metadata meta) {

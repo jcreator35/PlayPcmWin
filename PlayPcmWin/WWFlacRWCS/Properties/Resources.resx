@@ -195,4 +195,7 @@
   <data name="FlacerrorWriteOpenFailed" xml:space="preserve">
     <value>Error: Write open failed</value>
   </data>
+  <data name="FlacMetadataUnknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
 </root>

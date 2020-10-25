@@ -86,13 +86,24 @@
                         <ListBox Name="mListBoxPlaybackDevice" />
                     </Grid>
                 </GroupBox>
-                <GroupBox Header="Wasapi Settings" Height="103" HorizontalAlignment="Left" Margin="610,0,0,0" Name="mGroupBoxWasapiSettings" VerticalAlignment="Top" Width="232">
+                <GroupBox Header="Wasapi Settings" Height="103" HorizontalAlignment="Left" Margin="610,0,0,0" Name="mGroupBoxWasapiSettings" VerticalAlignment="Top" Width="332">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="1*" />
                             <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
                         </Grid.ColumnDefinitions>
-                        <GroupBox Header="Data feed mode" >
+                        <GroupBox Header="Operation mode" Grid.Column="0"  >
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="1*" />
+                                    <RowDefinition Height="1*" />
+                                </Grid.RowDefinitions>
+                                <RadioButton Content="Exclusive" Margin="6,0,0,0" HorizontalAlignment="Left" Name="mRadioButtonExclusive" VerticalAlignment="Center" IsChecked="True" />
+                                <RadioButton Content="Shared" Margin="6,0,0,0" Grid.Row="1" HorizontalAlignment="Left" Name="mRadioButtonShared" VerticalAlignment="Center" />
+                            </Grid>
+                        </GroupBox>
+                        <GroupBox Header="Data feed mode" Grid.Column="1"  >
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="1*" />
@@ -102,7 +113,7 @@
                                 <RadioButton Content="Timer" Margin="6,0,0,0" Grid.Row="1" HorizontalAlignment="Left" Name="mRadioButtonTimer" VerticalAlignment="Center" />
                             </Grid>
                         </GroupBox>
-                        <GroupBox Header="Buffer size" Grid.Column="1" Height="52" VerticalAlignment="Top">
+                        <GroupBox Header="Buffer size" Grid.Column="2" Height="52" VerticalAlignment="Top">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="2*" />

@@ -113,6 +113,7 @@ namespace PlayPcmWinAlbum {
                             ++result.fileCount;
                             var m = new WWFlacRWCS.Metadata();
                             flacrw.GetDecodedMetadata(out m);
+                            m = flacrw.MetaConvToDisplayable(m);
                             var pic = new byte[0];
                             if (0 < m.pictureBytes) {
                                 pic = new byte[m.pictureBytes];

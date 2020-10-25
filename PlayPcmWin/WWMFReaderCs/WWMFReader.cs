@@ -69,6 +69,35 @@ namespace WWMFReaderCs {
             return new byte[0];
         }
 
+        /// <summary>
+        /// 表示用文字列に変換する。
+        /// 自分自身を変更する。
+        /// </summary>
+        /// <param name="meta">ファイルから取得したメタデータ。</param>
+        /// <returns>metaそのものが戻る。</returns>
+        public static Metadata MetaConvToDisplayable(Metadata meta) {
+            if (meta.title.Length == 0) {
+                meta.title = System.IO.Path.GetFileName(meta.path);
+            }
+            if (meta.album.Length == 0) {
+                meta.album = "Unknown";
+            }
+            if (meta.artist.Length == 0) {
+                meta.artist = "Unknown";
+            }
+            if (meta.composer.Length == 0) {
+                meta.composer = "Unknown";
+            }
+
+            return meta;
+        }
+
+        /// <summary>
+        /// ヘッダー情報を読みます。ブロッキング。
+        /// </summary>
+        /// <param name="path">音声ファイルのパス。</param>
+        /// <param name="meta_return">ヘッダー情報が入る。</param>
+        /// <returns>HRESULT. 負のときエラー。</returns>
         public static int ReadHeader(
                string path,
                out Metadata meta_return) {
