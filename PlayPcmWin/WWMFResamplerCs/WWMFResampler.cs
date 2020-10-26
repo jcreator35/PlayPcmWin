@@ -57,7 +57,7 @@ namespace WWMFResamplerCs {
         }
 
         /// <summary>
-        /// PCMデータをリサンプルする。
+        /// PCMデータをリサンプルする。戻り値はHRESULT。
         /// </summary>
         /// <param name="inPcm">入力PCMデータ</param>
         /// <param name="outPcm">出力PCMデータ</param>
@@ -126,13 +126,13 @@ namespace WWMFResamplerCs {
                 public int validBitsPerSample; ///< PCMの量子化ビット数。
             };
 
-            [DllImport("WWMFResamplerCpp2017.dll", CharSet = CharSet.Unicode)]
+            [DllImport("WWMFResamplerCppVs2010.dll", CharSet = CharSet.Unicode)]
             internal extern static int WWMFResamplerInit(
                 NativePcmFormat inFmt,
                 NativePcmFormat outFmt,
                 int halfFilterLength);
 
-            [DllImport("WWMFResamplerCpp2017.dll", CharSet = CharSet.Unicode)]
+            [DllImport("WWMFResamplerCppVs2010.dll", CharSet = CharSet.Unicode)]
             internal extern static int WWMFResamplerResample(
                 int instanceId,
                 byte[] inPcm,
@@ -140,13 +140,13 @@ namespace WWMFResamplerCs {
                 byte[] outPcm,
                 ref int outBytes_inout);
 
-            [DllImport("WWMFResamplerCpp2017.dll", CharSet = CharSet.Unicode)]
+            [DllImport("WWMFResamplerCppVs2010.dll", CharSet = CharSet.Unicode)]
             internal extern static int WWMFResamplerDrain(
                 int instanceId,
                 byte[] outPcm,
                 ref int outBytes_inout);
 
-            [DllImport("WWMFResamplerCpp2017.dll", CharSet = CharSet.Unicode)]
+            [DllImport("WWMFResamplerCppVs2010.dll", CharSet = CharSet.Unicode)]
             internal extern static int WWMFResamplerTerm(
                 int instanceId);
         }

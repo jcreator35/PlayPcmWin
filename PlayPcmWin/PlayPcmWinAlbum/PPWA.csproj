@@ -80,6 +80,7 @@
     <Compile Include="BackgroundContentListBuilder.cs" />
     <Compile Include="DataGridPlayListHandler.cs" />
     <Compile Include="ContentList.cs" />
+    <Compile Include="DeviceFormat.cs" />
     <Compile Include="InterceptMediaKeys.cs" />
     <Compile Include="PlaybackController.cs" />
     <Compile Include="PlaybackTime.cs" />
@@ -149,6 +150,10 @@
     <ProjectReference Include="..\WWFlacRWCS\WWFlacRWCS.csproj">
       <Project>{DA071B6A-B2E2-4567-84D1-5A9122DAB75C}</Project>
       <Name>WWFlacRWCS</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WWMFResamplerCs\WWMFResamplerCsVs2010.csproj">
+      <Project>{377E56CF-0663-4A08-B5D8-31963DEE2778}</Project>
+      <Name>WWMFResamplerCsVs2010</Name>
     </ProjectReference>
     <ProjectReference Include="..\WWUtil\WWUtil.csproj">
       <Project>{FC57308E-CF56-4B3E-B920-4093660D0A4A}</Project>

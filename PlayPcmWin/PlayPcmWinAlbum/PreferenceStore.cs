@@ -18,6 +18,7 @@ namespace PlayPcmWinAlbum {
         public int Version { get; set; }
 
         public int BufferSizeMillisec { get; set; }
+        public WasapiSharedOrExclusiveType SharedOrExlusive { get; set; }
         public WasapiDataFeedModeType WasapiDataFeedMode { get; set; }
         public string PreferredDeviceName { get; set; }
         public string PreferredDeviceIdString { get; set; }
@@ -32,6 +33,7 @@ namespace PlayPcmWinAlbum {
         public void Reset() {
             Version = CurrentVersion;
             BufferSizeMillisec = DefaultBufferSizeMillisec;
+            SharedOrExlusive = WasapiSharedOrExclusiveType.Exclusive;
             WasapiDataFeedMode = WasapiDataFeedModeType.EventDriven;
             PreferredDeviceName = "";
             PreferredDeviceIdString = "";
