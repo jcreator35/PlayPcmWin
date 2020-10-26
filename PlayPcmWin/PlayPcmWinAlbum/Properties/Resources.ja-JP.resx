@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ErrorFileLoadFailed" xml:space="preserve">
+    <value>Error: ファイル読み込み失敗。</value>
+  </data>
   <data name="ErrorMusicFileNotFound" xml:space="preserve">
     <value>Error FLACファイルがありません: {0}
 Yes: 押すと別のフォルダーを指定します。

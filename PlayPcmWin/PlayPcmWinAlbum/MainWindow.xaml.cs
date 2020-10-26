@@ -651,6 +651,11 @@ namespace PlayPcmWinAlbum {
                             e.Cancel = true;
                             return;
                         }
+
+                        // LoadAddDoの戻り値ercdが
+                        // ・1以上の時はまだ読み出せる。
+                        // ・0のとき最後まで読み終わった。
+                        // ・負の時エラー。
                         ercd = mPlaybackController.LoadAddDo(af);
                         if (ercd < 0) {
                             // fixme:
@@ -691,7 +696,8 @@ namespace PlayPcmWinAlbum {
 
             var result = e.Result as BackgroundLoadResult;
             if (!result.Result) {
-                MessageBox.Show("Error: File load failed!");
+                mPlaybackController.Stop();
+                MessageBox.Show(Properties.Resources.ErrorFileLoadFailed, Properties.Resources.ErrorFileLoadFailed, MessageBoxButton.OK, MessageBoxImage.Error);
                 UpdatePlaybackControlState();
                 return;
             }

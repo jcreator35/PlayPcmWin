@@ -61,6 +61,15 @@ namespace PlayPcmWinAlbum.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Error: File load failed!.
+        /// </summary>
+        internal static string ErrorFileLoadFailed {
+            get {
+                return ResourceManager.GetString("ErrorFileLoadFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to FLAC file is not found on {0}.
         ///Press Yes to pecify another folder.
         ///Press No to exit this app..
