@@ -140,6 +140,15 @@ Press No to exit this app.</value>
   <data name="LogReportCount" xml:space="preserve">
     <value>Found {0} files.</value>
   </data>
+  <data name="MainGroupBoxBufferSize" xml:space="preserve">
+    <value>Buffer Size</value>
+  </data>
+  <data name="MainGroupBoxDataFeedMode" xml:space="preserve">
+    <value>Data feed Mode</value>
+  </data>
+  <data name="MainGroupBoxOperationMode" xml:space="preserve">
+    <value>Operation Mode</value>
+  </data>
   <data name="MainGroupBoxPlaybackControl" xml:space="preserve">
     <value>Playback Control</value>
   </data>
@@ -151,6 +160,18 @@ Press No to exit this app.</value>
   </data>
   <data name="MainLoading" xml:space="preserve">
     <value>Loading...</value>
+  </data>
+  <data name="MainRadioButtonEvent" xml:space="preserve">
+    <value>Event</value>
+  </data>
+  <data name="MainRadioButtonExclusive" xml:space="preserve">
+    <value>Exclusive</value>
+  </data>
+  <data name="MainRadioButtonShared" xml:space="preserve">
+    <value>Shared</value>
+  </data>
+  <data name="MainRadioButtonTimer" xml:space="preserve">
+    <value>Timer</value>
   </data>
   <data name="MainStatusPaused" xml:space="preserve">
     <value>Paused.</value>

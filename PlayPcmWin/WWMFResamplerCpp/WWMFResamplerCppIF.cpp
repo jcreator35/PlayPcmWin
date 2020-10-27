@@ -1,6 +1,5 @@
 ﻿// 日本語。
 
-#define WWMFRESAMPLER_EXPORTS
 #include "WWMFResamplerCppIF.h"
 #include "WWMFResampler.h"
 

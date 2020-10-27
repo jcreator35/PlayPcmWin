@@ -1,7 +1,7 @@
 ﻿<Window x:Class="PlayPcmWinAlbum.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="PlayPcmWinAlbum" Height="600" Width="1024"
+        Title="PlayPcmWinAlbum" Height="600" Width="1100"
         xmlns:local="clr-namespace:PlayPcmWinAlbum" Loaded="Window_Loaded" Closed="Window_Closed">
     <Grid VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Visible">
         <Grid.ColumnDefinitions>
@@ -93,7 +93,7 @@
                             <ColumnDefinition Width="1*" />
                             <ColumnDefinition Width="1*" />
                         </Grid.ColumnDefinitions>
-                        <GroupBox Header="Operation mode" Grid.Column="0"  >
+                        <GroupBox Header="Operation mode" Grid.Column="0" Name="mGroupBoxOperationMode">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="1*" />
@@ -103,7 +103,7 @@
                                 <RadioButton Content="Shared" Margin="6,0,0,0" Grid.Row="1" HorizontalAlignment="Left" Name="mRadioButtonShared" VerticalAlignment="Center" />
                             </Grid>
                         </GroupBox>
-                        <GroupBox Header="Data feed mode" Grid.Column="1"  >
+                        <GroupBox Header="Data feed mode" Grid.Column="1" Name="mGroupBoxDataFeedMode">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="1*" />
@@ -113,7 +113,7 @@
                                 <RadioButton Content="Timer" Margin="6,0,0,0" Grid.Row="1" HorizontalAlignment="Left" Name="mRadioButtonTimer" VerticalAlignment="Center" />
                             </Grid>
                         </GroupBox>
-                        <GroupBox Header="Buffer size" Grid.Column="2" Height="52" VerticalAlignment="Top">
+                        <GroupBox Header="Buffer size" Grid.Column="2" Height="52" VerticalAlignment="Top" Name="mGroupBoxBufferSize">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="2*" />

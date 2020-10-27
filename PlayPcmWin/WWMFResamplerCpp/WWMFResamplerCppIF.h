@@ -2,11 +2,7 @@
 
 #pragma once
 
-#ifdef WWMFRESAMPLER_EXPORTS
 #define WWMFRESAMPLER_API extern "C"  __declspec(dllexport)
-#else
-#define WWMFRESAMPLER_API extern "C"  __declspec(dllimport)
-#endif
 
 struct WWMFPcmFormatMarshal {
     int sampleFormat;       ///< WWMFBitFormatType of WWMFResampler.h

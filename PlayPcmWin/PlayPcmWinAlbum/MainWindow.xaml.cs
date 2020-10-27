@@ -91,6 +91,13 @@ namespace PlayPcmWinAlbum {
             mGroupBoxPlaybackControl.Header = Properties.Resources.MainGroupBoxPlaybackControl;
             mGroupBoxPlaybackDevice.Header = Properties.Resources.MainGroupBoxPlaybackDevice;
             mGroupBoxWasapiSettings.Header = Properties.Resources.MainGroupBoxWasapiSettings;
+            mGroupBoxOperationMode.Header = Properties.Resources.MainGroupBoxOperationMode;
+            mGroupBoxDataFeedMode.Header = Properties.Resources.MainGroupBoxDataFeedMode;
+            mGroupBoxBufferSize.Header = Properties.Resources.MainGroupBoxBufferSize;
+            mRadioButtonExclusive.Content = Properties.Resources.MainRadioButtonExclusive;
+            mRadioButtonShared.Content = Properties.Resources.MainRadioButtonShared;
+            mRadioButtonEvent.Content = Properties.Resources.MainRadioButtonEvent;
+            mRadioButtonTimer.Content = Properties.Resources.MainRadioButtonTimer;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {

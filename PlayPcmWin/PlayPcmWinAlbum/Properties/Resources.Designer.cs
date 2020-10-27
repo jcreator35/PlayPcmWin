@@ -126,6 +126,33 @@ namespace PlayPcmWinAlbum.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Buffer Size.
+        /// </summary>
+        internal static string MainGroupBoxBufferSize {
+            get {
+                return ResourceManager.GetString("MainGroupBoxBufferSize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Data feed Mode.
+        /// </summary>
+        internal static string MainGroupBoxDataFeedMode {
+            get {
+                return ResourceManager.GetString("MainGroupBoxDataFeedMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Operation Mode.
+        /// </summary>
+        internal static string MainGroupBoxOperationMode {
+            get {
+                return ResourceManager.GetString("MainGroupBoxOperationMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Playback Control.
         /// </summary>
         internal static string MainGroupBoxPlaybackControl {
@@ -158,6 +185,42 @@ namespace PlayPcmWinAlbum.Properties {
         internal static string MainLoading {
             get {
                 return ResourceManager.GetString("MainLoading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Event.
+        /// </summary>
+        internal static string MainRadioButtonEvent {
+            get {
+                return ResourceManager.GetString("MainRadioButtonEvent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Exclusive.
+        /// </summary>
+        internal static string MainRadioButtonExclusive {
+            get {
+                return ResourceManager.GetString("MainRadioButtonExclusive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Shared.
+        /// </summary>
+        internal static string MainRadioButtonShared {
+            get {
+                return ResourceManager.GetString("MainRadioButtonShared", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Timer.
+        /// </summary>
+        internal static string MainRadioButtonTimer {
+            get {
+                return ResourceManager.GetString("MainRadioButtonTimer", resourceCulture);
             }
         }
         

@@ -1,15 +1,16 @@
-﻿// 日本語 UTF-8
+﻿// 日本語。
 
-#include "targetver.h"
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#include <Windows.h>
 
-
-BOOL APIENTRY DllMain( HMODULE hModule,
-                       DWORD  ul_reason_for_call,
-                       LPVOID lpReserved
-                     )
+BOOL APIENTRY
+DllMain(
+    HMODULE hModule,
+    DWORD  ul_reason_for_call,
+    LPVOID lpReserved)
 {
+    hModule;
+    lpReserved;
+
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:
@@ -20,4 +21,3 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     }
     return TRUE;
 }
-

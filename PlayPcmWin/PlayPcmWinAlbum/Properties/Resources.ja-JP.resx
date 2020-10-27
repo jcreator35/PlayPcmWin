@@ -140,6 +140,15 @@ No: アプリを終了します。</value>
   <data name="LogReportCount" xml:space="preserve">
     <value>{0}個のファイルが見つかりました。</value>
   </data>
+  <data name="MainGroupBoxBufferSize" xml:space="preserve">
+    <value>バッファサイズ</value>
+  </data>
+  <data name="MainGroupBoxDataFeedMode" xml:space="preserve">
+    <value>データ供給モード</value>
+  </data>
+  <data name="MainGroupBoxOperationMode" xml:space="preserve">
+    <value>動作モード</value>
+  </data>
   <data name="MainGroupBoxPlaybackControl" xml:space="preserve">
     <value>再生制御</value>
   </data>
@@ -151,6 +160,18 @@ No: アプリを終了します。</value>
   </data>
   <data name="MainLoading" xml:space="preserve">
     <value>起動中...</value>
+  </data>
+  <data name="MainRadioButtonEvent" xml:space="preserve">
+    <value>イベント</value>
+  </data>
+  <data name="MainRadioButtonExclusive" xml:space="preserve">
+    <value>排他</value>
+  </data>
+  <data name="MainRadioButtonShared" xml:space="preserve">
+    <value>共有</value>
+  </data>
+  <data name="MainRadioButtonTimer" xml:space="preserve">
+    <value>タイマー</value>
   </data>
   <data name="MainStatusPaused" xml:space="preserve">
     <value>再生一時停止中。</value>
