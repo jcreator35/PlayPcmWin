@@ -84,6 +84,7 @@ namespace WWSpatialAudioPlayer {
         private bool ProcessCommandline(string[] args)
         {
             if (args.Length != 2) {
+                PrintUsage();
                 return false;
             }
 
