@@ -6,12 +6,13 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Threading;
 
 namespace TimeResolutionTest {
     public partial class MainWindow : Window {
         private DrawGraph mDG;
 
-        private int BitDepth = 2;
+        private int BitDepth = 7;
 
         /// <summary>
         /// 作成する画像の枚数。
@@ -23,7 +24,7 @@ namespace TimeResolutionTest {
         /// </summary>
         private const double SampleRate = 44100.0;
 
-        private const int SubsampleDivide = 100;
+        private const int SubsampleDivide = 2048;
 
         /// <summary>
         /// 時間の刻み。
@@ -33,12 +34,12 @@ namespace TimeResolutionTest {
         /// <summary>
         /// 矩形波周波数。
         /// </summary>
-        private const double Freq = 1000.0;
+        private const double Freq = 10.0;
 
         /// <summary>
         /// PCMデータの総サンプル数。
         /// </summary>
-        private const int NumSamples = 256;
+        private const int NumSamples = 2048;
 
         // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
@@ -151,7 +152,7 @@ namespace TimeResolutionTest {
             InitializeComponent();
 
             mDG = new DrawGraph(mCanvas0);
-            NumImages = SubsampleDivide * (mDG.NumGridX + 1);
+            NumImages = SubsampleDivide * mDG.NumGridX;
         }
 
         private void SaveCanvasToPng() {
@@ -188,6 +189,7 @@ namespace TimeResolutionTest {
         }
 
         BackgroundWorker mBW = new BackgroundWorker();
+        private static AutoResetEvent mARE = new AutoResetEvent(true);
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
             Setup();
@@ -203,14 +205,17 @@ namespace TimeResolutionTest {
         void mBW_DoWork(object sender, DoWorkEventArgs e) {
             for (int i = 0; i < NumImages; ++i) {
                 System.Threading.Thread.Sleep(500);
+                mARE.WaitOne();
                 mBW.ReportProgress(1);
             }
+            //mARE.WaitOne();
             System.Threading.Thread.Sleep(500);
         }
 
         void mBW_ProgressChanged(object sender, ProgressChangedEventArgs e) {
             SaveCanvasToPng();
             Redraw();
+            mARE.Set();
         }
 
         void mBW_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
@@ -219,7 +224,7 @@ namespace TimeResolutionTest {
             Console.WriteLine("{0}bit Finished.",BitDepth);
 
             ++BitDepth;
-            if (8 < BitDepth) {
+            if (10 < BitDepth) {
                 return;
             }
 

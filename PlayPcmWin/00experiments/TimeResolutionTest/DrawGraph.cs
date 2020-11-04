@@ -23,7 +23,7 @@ namespace TimeResolutionTest {
         /// <summary>
         /// グリッド線 縦棒
         /// </summary>
-        public int NumGridX = 8;
+        public int NumGridX = 1;
 
         /// <summary>
         /// グリッド線 横棒
@@ -101,19 +101,18 @@ namespace TimeResolutionTest {
             RedrawFunction(fp);
 
             AddTextBlock(new Vector(0, WH.Height/2), 10, Brushes.Black, "0");
-            AddTextBlock(new Vector(WH.Width / NumGridX-20, WH.Height / 2), 10, Brushes.Black, "1/44100");
-            AddTextBlock(new Vector(2*WH.Width / NumGridX - 20, WH.Height / 2), 10, Brushes.Black, "2/44100");
-            AddTextBlock(new Vector(3 * WH.Width / NumGridX - 20, WH.Height / 2), 10, Brushes.Black, "3/44100");
-            AddTextBlock(new Vector(4 * WH.Width / NumGridX - 20, WH.Height / 2), 10, Brushes.Black, "4/44100");
-            AddTextBlock(new Vector(5 * WH.Width / NumGridX - 20, WH.Height / 2), 10, Brushes.Black, "5/44100");
-            AddTextBlock(new Vector(6 * WH.Width / NumGridX - 20, WH.Height / 2), 10, Brushes.Black, "6/44100");
+            for (int i = 1; i <= NumGridX; ++i) {
+                double xOffs = 20;
+                if (i == NumGridX) {
+                    xOffs = 40;
+                }
+                AddTextBlock(new Vector(i*WH.Width / NumGridX - xOffs, WH.Height / 2), 10, Brushes.Black, string.Format("{0}/44100",i));
+            }
 
-            AddTextBlock(new Vector(WH.Width-55, WH.Height/2), 10, Brushes.Black, "Time(sec) →");
+            AddTextBlock(new Vector(WH.Width-55, WH.Height/2+20), 10, Brushes.Black, "Time(sec) →");
             AddTextBlockV(new Vector(0, 60), 10, Brushes.Black, "Amplitude →");
             AddTextBlock(new Vector(20, 12), 16, Brushes.Black, title);
         }
-
-
 
         private void RedrawFunction(FunctionToPlot fp) {
             var canvasWH = new Size(mCanvas.ActualWidth, mCanvas.ActualHeight);
@@ -151,9 +150,6 @@ namespace TimeResolutionTest {
                     AddCircle(new Vector(xDisp, yDisp), 5.0, Brushes.Black);
                 }
             }
-
         }
-
-
     }
 }
