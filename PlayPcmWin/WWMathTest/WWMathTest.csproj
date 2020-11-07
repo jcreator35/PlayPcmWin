@@ -78,6 +78,7 @@
     <Compile Include="WWConvolutionTest.cs" />
     <Compile Include="WWGaussianQuadratureTest.cs" />
     <Compile Include="WWNormalizeTest.cs" />
+    <Compile Include="WWPolynomialFitTest.cs" />
     <Compile Include="WWRealPolynomialTest.cs" />
     <Compile Include="WWSegmentPointDistanceTest.cs" />
     <Compile Include="WWGoertzelTest.cs" />
