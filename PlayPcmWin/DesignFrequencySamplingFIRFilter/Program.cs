@@ -9,7 +9,7 @@ namespace DesignFrequencySamplingFIRFilter {
 
             Console.WriteLine("M={0} FIR filter coeffs:", M);
             for (int i = 0; i < h.Length; ++i) {
-                Console.WriteLine("{0}, ", h[i]);
+                Console.WriteLine("{0:G17}, ", h[i]);
             }
 
             // calc frequency response
@@ -95,6 +95,25 @@ namespace DesignFrequencySamplingFIRFilter {
                 0.313866027,
             });
 
+            self.Run(31, new double[] {
+                1,
+                0.913144837,
+                0.771526701,
+                0.645060549,
+                0.551794814,
+                0.488212371,
+                0.445758947,
+                0.416589435,
+                0.395039165,
+                0.377816059,
+                0.363703603,
+                0.352840753,
+                0.345574868,
+                0.34086211,
+                0.334096209,
+                0.314806629,
+            });
+
             self.Run(29, new double[] {
                 1,
                 0.90394611,
@@ -173,6 +192,19 @@ namespace DesignFrequencySamplingFIRFilter {
                 0.346695706,
                 0.339470909,
                 0.321329981,
+            });
+
+            self.Run(19, new double[] {
+                1,
+                0.824177354,
+                0.617247694,
+                0.493758418,
+                0.429166096,
+                0.392085172,
+                0.366421275,
+                0.349350606,
+                0.340620471,
+                0.323150119,
             });
 
             self.Run(17, new double[] {
