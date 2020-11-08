@@ -187,6 +187,14 @@ namespace DesignFrequencySamplingFIRFilter {
                 0.325208692,
             });
 
+            self.Run(9, new double[] {
+                1,
+                0.599479869,
+                0.419371436,
+                0.359695479,
+                0.33620803,
+            });
+
 #if false
             var h = c.Calc(15, new double[] { 1, 1, 1, 1, 0.4, 0, 0, 0 });
             for (int i=0;i<h.Length;++i) {

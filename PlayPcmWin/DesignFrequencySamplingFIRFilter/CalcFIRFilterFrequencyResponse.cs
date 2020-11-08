@@ -13,9 +13,9 @@ namespace DesignFrequencySamplingFIRFilter {
             double real=0;
             double imag=0;
 
-            for (int i = 0; i < filterCoeffs.Length; ++i) {
-                real += filterCoeffs[i] * Math.Cos(ω * i);
-                imag += -filterCoeffs[i] * Math.Sin(ω * i);
+            for (int k = 0; k < filterCoeffs.Length; ++k) {
+                real += filterCoeffs[k] * Math.Cos(ω * k);
+                imag += -filterCoeffs[k] * Math.Sin(ω * k);
             }
 
             return new WWComplex(real, imag);
