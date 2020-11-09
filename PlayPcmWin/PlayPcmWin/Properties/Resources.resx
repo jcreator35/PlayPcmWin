@@ -727,4 +727,7 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   <data name="AudioFilterPolarityInvertDesc" xml:space="preserve">
     <value>Invert Polarity : Channel {0}</value>
   </data>
+  <data name="AudioFilterDeEmphasis" xml:space="preserve">
+    <value>De-emphasis (for 44.1kHz PCM playback)</value>
+  </data>
 </root>

@@ -6,6 +6,7 @@ namespace WWFilterCppCs {
         private enum FilterType {
             Crfb,
             ZohCompensation,
+            DeEmphasis,
             IIRParallel,
             IIRSerial,
             SdmToPcm,
@@ -57,6 +58,30 @@ namespace WWFilterCppCs {
 
             var buffOut = new double[buffIn.Length];
             WWFilterCpp_ZohCompensation_Filter(mIdx, buffIn.Length, buffIn, buffOut);
+            return buffOut;
+        }
+
+        public void BuildDeEmphasis() {
+            if (0 < mIdx) {
+                throw new InvalidOperationException();
+            }
+
+            mIdx = WWFilterCpp_DeEmphasis_Build();
+            if (mIdx <= 0) {
+                // こんな事は起こらないと思う。
+                throw new NotImplementedException();
+            }
+
+            mFilterType = FilterType.DeEmphasis;
+        }
+
+        public double[] FilterDeEmphasis(double[] buffIn) {
+            if (mIdx <= 0 || mFilterType != FilterType.DeEmphasis) {
+                throw new InvalidOperationException();
+            }
+
+            var buffOut = new double[buffIn.Length];
+            WWFilterCpp_DeEmphasis_Filter(mIdx, buffIn.Length, buffIn, buffOut);
             return buffOut;
         }
 
@@ -167,6 +192,9 @@ namespace WWFilterCppCs {
             case FilterType.ZohCompensation:
                 WWFilterCpp_ZohCompensation_Destroy(mIdx);
                 break;
+            case FilterType.DeEmphasis:
+                WWFilterCpp_DeEmphasis_Destroy(mIdx);
+                break;
             case FilterType.IIRParallel:
                 WWFilterCpp_IIRParallel_Destroy(mIdx);
                 break;
@@ -214,6 +242,19 @@ namespace WWFilterCppCs {
         [DllImport("WWFilterCpp.dll", CharSet = CharSet.Unicode)]
         internal extern static
         int WWFilterCpp_ZohCompensation_Filter(int idx, int n, double[] buffIn, double[] buffOut);
+
+
+        [DllImport("WWFilterCpp.dll", CharSet = CharSet.Unicode)]
+        internal extern static
+        int WWFilterCpp_DeEmphasis_Build();
+
+        [DllImport("WWFilterCpp.dll", CharSet = CharSet.Unicode)]
+        internal extern static
+        void WWFilterCpp_DeEmphasis_Destroy(int idx);
+
+        [DllImport("WWFilterCpp.dll", CharSet = CharSet.Unicode)]
+        internal extern static
+        int WWFilterCpp_DeEmphasis_Filter(int idx, int n, double[] buffIn, double[] buffOut);
 
 
         [DllImport("WWFilterCpp.dll", CharSet = CharSet.Unicode)]

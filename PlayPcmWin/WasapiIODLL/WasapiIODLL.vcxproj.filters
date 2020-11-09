@@ -55,6 +55,12 @@
     <ClCompile Include="dllmain.cpp">
       <Filter>source files</Filter>
     </ClCompile>
+    <ClCompile Include="WWAudioFilterFIR.cpp">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="WWAudioFilterDeEmphasis.cpp">
+      <Filter>source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WasapiIOIF.h">
@@ -115,6 +121,12 @@
       <Filter>header files</Filter>
     </ClInclude>
     <ClInclude Include="WWWasapiIOUtil.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWAudioFilterFIR.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWAudioFilterDeEmphasis.h">
       <Filter>header files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -13,6 +13,7 @@
 #include "WWAudioFilterMuteSoloChannel.h"
 #include "WWAudioFilterZohNosdacCompensation.h"
 #include "WWAudioFilterDelay.h"
+#include "WWAudioFilterDeEmphasis.h"
 #include <assert.h>
 #include <map>
 #include "WWCommonUtil.h"
@@ -714,6 +715,9 @@ WasapiIO_AppendAudioFilter(int instanceId, int audioFilterType, PCWSTR args)
             break;
         case WWAF_Delay:
             self->wasapi.AudioFilterSequencer().Append(new WWAudioFilterDelay(args));
+            break;
+        case WWAF_DeEmphasis:
+            self->wasapi.AudioFilterSequencer().Append(new WWAudioFilterDeEmphasis());
             break;
         default:
             assert(0);

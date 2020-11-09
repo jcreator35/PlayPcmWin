@@ -724,4 +724,7 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
   <data name="AudioFilterPolarityInvertDesc" xml:space="preserve">
     <value>極性反転 チャンネル {0}</value>
   </data>
+  <data name="AudioFilterDeEmphasis" xml:space="preserve">
+    <value>ディエンファシス (44.1kHz PCM再生専用)</value>
+  </data>
 </root>

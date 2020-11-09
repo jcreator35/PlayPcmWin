@@ -188,7 +188,9 @@
     <ClInclude Include="WWAudioDeviceEnumerator.h" />
     <ClInclude Include="WWAudioFilter.h" />
     <ClInclude Include="WWAudioFilterChannelMapping.h" />
+    <ClInclude Include="WWAudioFilterDeEmphasis.h" />
     <ClInclude Include="WWAudioFilterDelay.h" />
+    <ClInclude Include="WWAudioFilterFIR.h" />
     <ClInclude Include="WWAudioFilterMonauralMix.h" />
     <ClInclude Include="WWAudioFilterMuteSoloChannel.h" />
     <ClInclude Include="WWAudioFilterType.h" />
@@ -212,7 +214,9 @@
     <ClCompile Include="WasapiUser.cpp" />
     <ClCompile Include="WWAudioDeviceEnumerator.cpp" />
     <ClCompile Include="WWAudioFilterChannelMapping.cpp" />
+    <ClCompile Include="WWAudioFilterDeEmphasis.cpp" />
     <ClCompile Include="WWAudioFilterDelay.cpp" />
+    <ClCompile Include="WWAudioFilterFIR.cpp" />
     <ClCompile Include="WWAudioFilterMonauralMix.cpp" />
     <ClCompile Include="WWAudioFilterMuteSoloChannel.cpp" />
     <ClCompile Include="WWAudioFilterPolarityInvert.cpp" />

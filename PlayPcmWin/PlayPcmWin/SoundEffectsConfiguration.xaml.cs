@@ -39,6 +39,7 @@ namespace PlayPcmWin {
             listBoxAvailableEffects.Items.Add(Properties.Resources.AudioFilterSoloChannel);
             listBoxAvailableEffects.Items.Add(Properties.Resources.AudioFilterZohNosdacCompensation);
             listBoxAvailableEffects.Items.Add(Properties.Resources.AudioFilterDelay);
+            listBoxAvailableEffects.Items.Add(Properties.Resources.AudioFilterDeEmphasis);
 
             listBoxAvailableEffects.SelectedIndex = 0;
             buttonLeftArrow.IsEnabled = true;
@@ -163,6 +164,9 @@ namespace PlayPcmWin {
 
                     filter = new PreferenceAudioFilter(PreferenceAudioFilterType.Delay, new string[1]{dlg.DelayString});
                 }
+                break;
+            case PreferenceAudioFilterType.DeEmphasis:
+                filter = new PreferenceAudioFilter(PreferenceAudioFilterType.DeEmphasis, null);
                 break;
             default:
                 System.Diagnostics.Debug.Assert(false);

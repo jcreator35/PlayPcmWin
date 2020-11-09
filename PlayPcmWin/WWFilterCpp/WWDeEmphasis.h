@@ -4,10 +4,10 @@
 
 #include "WWFIRFilter.h"
 
-class WWZohCompensation {
+class WWDeEmphasis {
 public:
-    WWZohCompensation(void);
-    ~WWZohCompensation(void);
+    WWDeEmphasis(void);
+    ~WWDeEmphasis(void);
 
     void Filter(int count, const double * inPcm, double *outPcm);
 

@@ -42,6 +42,20 @@ extern "C" WWFILTERCPP_API
 int __stdcall
 WWFilterCpp_ZohCompensation_Filter(int idx, int n, const double *buffIn, double *buffOut);
 
+// De-emphasis ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+extern "C" WWFILTERCPP_API
+int __stdcall
+WWFilterCpp_DeEmphasis_Build(void);
+
+extern "C" WWFILTERCPP_API
+void __stdcall
+WWFilterCpp_DeEmphasis_Destroy(int idx);
+
+extern "C" WWFILTERCPP_API
+int __stdcall
+WWFilterCpp_DeEmphasis_Filter(int idx, int n, const double *buffIn, double *buffOut);
+
 // IIR Filter ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
 extern "C" WWFILTERCPP_API

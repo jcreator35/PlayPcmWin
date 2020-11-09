@@ -97,6 +97,15 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to De-emphasis (for 44.1kHz PCM playback).
+        /// </summary>
+        internal static string AudioFilterDeEmphasis {
+            get {
+                return ResourceManager.GetString("AudioFilterDeEmphasis", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Delay.
         /// </summary>
         internal static string AudioFilterDelay {

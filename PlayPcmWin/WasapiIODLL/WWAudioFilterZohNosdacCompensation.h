@@ -2,25 +2,12 @@
 
 // 日本語 UTF-8
 
-#include "WWAudioFilter.h"
-#include "WWPcmSampleManipulator.h"
-class WWPcmDelay;
+#include "WWAudioFilterFIR.h"
 
-class WWAudioFilterZohNosdacCompensation : public WWAudioFilter {
+class WWAudioFilterZohNosdacCompensation : public WWAudioFilterFIR {
 public:
-    WWAudioFilterZohNosdacCompensation(void) : mDelay(nullptr) {}
+    WWAudioFilterZohNosdacCompensation(void);
 
-    virtual ~WWAudioFilterZohNosdacCompensation(void);
-
-    virtual void UpdateSampleFormat(int sampleRate,
-            WWPcmDataSampleFormatType format, WWStreamType streamType, int numChannels);
-    virtual void Filter(unsigned char *buff, int bytes);
-
-private:
-    WWPcmSampleManipulator mManip;
-    WWPcmDelay *mDelay;
-
-    void FilterPcm(unsigned char *buff, int bytes);
-    float Convolution(int ch);
+    virtual ~WWAudioFilterZohNosdacCompensation(void) { }
 };
 

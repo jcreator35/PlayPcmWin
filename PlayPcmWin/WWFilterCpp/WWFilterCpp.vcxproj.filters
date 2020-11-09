@@ -8,6 +8,8 @@
     <ClInclude Include="WWIIRFilterSerial.h" />
     <ClInclude Include="WWIIRFilterParallel.h" />
     <ClInclude Include="WWIIRFilterGraph.h" />
+    <ClInclude Include="WWFIRFilter.h" />
+    <ClInclude Include="WWDeEmphasis.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WWFilterCpp.cpp" />
@@ -15,5 +17,7 @@
     <ClCompile Include="WWZohCompensation.cpp" />
     <ClCompile Include="WWIIRFilterBlock.cpp" />
     <ClCompile Include="WWIIRFilterGraph.cpp" />
+    <ClCompile Include="WWFIRFilter.cpp" />
+    <ClCompile Include="WWDeEmphasis.cpp" />
   </ItemGroup>
 </Project>

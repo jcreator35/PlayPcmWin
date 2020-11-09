@@ -11,6 +11,7 @@ enum WWAudioFilterType {
 
     WWAF_ZohNosdacCompensation,
     WWAF_Delay,
+    WWAF_DeEmphasis,
 
     WWAF_NUM
 };

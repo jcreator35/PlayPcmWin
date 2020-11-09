@@ -3,6 +3,7 @@
 #include "WWFilterCpp.h"
 #include "WWLoopFilterCRFB.h"
 #include "WWZohCompensation.h"
+#include "WWDeEmphasis.h"
 #include "WWIIRFilterParallel.h"
 #include "WWIIRFilterSerial.h"
 #include <map>
@@ -107,6 +108,36 @@ int __stdcall
 WWFilterCpp_ZohCompensation_Filter(int idx, int n, const double *buffIn, double *buffOut)
 {
     FIND(idx, gIdxZohCompensationMap);
+
+    p->Filter(n, buffIn, buffOut);
+
+    return n;
+}
+
+// De-Emphasis ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+static std::map<int, WWDeEmphasis* > gIdxDeEmphasisMap;
+
+extern "C" WWFILTERCPP_API
+int __stdcall
+WWFilterCpp_DeEmphasis_Build(void)
+{
+    auto *p = new WWDeEmphasis();
+    ADD_NEW_INSTANCE(p, gIdxDeEmphasisMap);
+}
+
+extern "C" WWFILTERCPP_API
+void __stdcall
+WWFilterCpp_DeEmphasis_Destroy(int idx)
+{
+    DESTROY(idx, gIdxDeEmphasisMap);
+}
+
+extern "C" WWFILTERCPP_API
+int __stdcall
+WWFilterCpp_DeEmphasis_Filter(int idx, int n, const double *buffIn, double *buffOut)
+{
+    FIND(idx, gIdxDeEmphasisMap);
 
     p->Filter(n, buffIn, buffOut);
 

@@ -175,6 +175,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="WWDeEmphasis.h" />
+    <ClInclude Include="WWFIRFilter.h" />
     <ClInclude Include="WWIIRFilterGraph.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="WWFilterCpp.h" />
@@ -194,7 +196,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="WWDeEmphasis.cpp" />
     <ClCompile Include="WWFilterCpp.cpp" />
+    <ClCompile Include="WWFIRFilter.cpp" />
     <ClCompile Include="WWIIRFilterBlock.cpp" />
     <ClCompile Include="WWIIRFilterGraph.cpp" />
     <ClCompile Include="WWZohCompensation.cpp" />

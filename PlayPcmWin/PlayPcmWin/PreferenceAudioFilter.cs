@@ -18,6 +18,7 @@ namespace PlayPcmWin {
         SoloChannel,
         ZohNosdacCompensation,
         Delay,
+        DeEmphasis,
         NUM
     };
 
@@ -50,6 +51,7 @@ namespace PlayPcmWin {
                 }
             case PreferenceAudioFilterType.MonauralMix:
             case PreferenceAudioFilterType.ZohNosdacCompensation:
+            case PreferenceAudioFilterType.DeEmphasis:
                 return "";
             case PreferenceAudioFilterType.PolarityInvert: // mArgArray[0]に全てのパラメータが入っている。
             case PreferenceAudioFilterType.MuteChannel: // mArgArray[0]に全てのパラメータが入っている。
@@ -382,6 +384,8 @@ namespace PlayPcmWin {
                         }
                         return string.Format(sb.ToString());
                     }
+                case PreferenceAudioFilterType.DeEmphasis:
+                    return Properties.Resources.AudioFilterDeEmphasis;
                 default:
                     System.Diagnostics.Debug.Assert(false);
                     return "Unknown";
