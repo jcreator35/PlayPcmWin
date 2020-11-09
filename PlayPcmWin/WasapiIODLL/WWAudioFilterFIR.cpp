@@ -13,6 +13,10 @@ float
 WWAudioFilterFIR::Convolution(int ch)
 {
     if (mFlags & WWAFFC_SYMMETRY) {
+        // この最適化コードは奇数のタップ数のみ対応。
+        // 必要になったら書く。
+        assert((mTaps & 1) == 1);
+
         // フィルター係数がsymmetricなので、[1]の高速化(乗算回数削減)が使える。
         float v = 0.0f;
 
