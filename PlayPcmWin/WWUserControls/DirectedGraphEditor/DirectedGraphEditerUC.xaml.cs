@@ -315,7 +315,6 @@ namespace WWUserControls {
                     }
                 }
                 */
-                break;
             }
 
             UpdateGraphStatus();
@@ -360,7 +359,6 @@ namespace WWUserControls {
                     }
                 }
                 */
-                break;
             }
 
             UpdateGraphStatus();
