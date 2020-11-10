@@ -2,8 +2,6 @@
 
 #include "WWAudioFilterDeEmphasis.h"
 
-static const int sTaps = 27;
-
 static const float sCoeffs[] = {
     0.000878299535988309f,
     0.000733540734613226f,
@@ -35,7 +33,7 @@ static const float sCoeffs[] = {
 };
 
 WWAudioFilterDeEmphasis::WWAudioFilterDeEmphasis(void)
-    : WWAudioFilterFIR(sTaps, sCoeffs,
+    : WWAudioFilterFIR(ARRAYSIZE(sCoeffs), sCoeffs,
         WWAudioFilterFIR::WWAFFC_SYMMETRY | WWAudioFilterFIR::WWAFFC_NOCOPY_COEFFS)
 {
 }

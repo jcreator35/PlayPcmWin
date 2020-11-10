@@ -18,7 +18,6 @@
 
 #include "WWAudioFilterZohNosdacCompensation.h"
 
-static const int sTaps = 33;
 static const float sCoeffs[] = {
     4.44017E-05f, -0.000135225f, 0.000232335f,-0.000340729f,0.0004668f,-0.000619343f,0.000811212f,-0.001062254f,
     0.001404865f,-0.001895252f,0.002638312f,-0.00384863f,0.006022133f,-0.010520534f,0.022220703f,-0.069297152f,
@@ -26,7 +25,7 @@ static const float sCoeffs[] = {
     0.001404865f,-0.001062254f,0.000811212f,-0.000619343f,0.0004668f,-0.000340729f,0.000232335f,-0.000135225f,4.44017E-05f};
 
 WWAudioFilterZohNosdacCompensation::WWAudioFilterZohNosdacCompensation(void)
-    : WWAudioFilterFIR(sTaps, sCoeffs,
+    : WWAudioFilterFIR(ARRAYSIZE(sCoeffs), sCoeffs,
         WWAudioFilterFIR::WWAFFC_SYMMETRY | WWAudioFilterFIR::WWAFFC_NOCOPY_COEFFS)
 {
 }

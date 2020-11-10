@@ -7,8 +7,7 @@
  */
 
 #include "WWDeEmphasis.h"
-
-static const int sTaps = 27;
+#include <Windows.h> //< ARRAYSIZE
 
 static const double sCoeffs[] = {
     0.000878299535988309,
@@ -41,7 +40,7 @@ static const double sCoeffs[] = {
 };
 
 WWDeEmphasis::WWDeEmphasis(void)
-    : mFIRFilter(sTaps, sCoeffs, WWFIRFilter::WWFIRFF_SYMMETRY | WWFIRFilter::WWFIRFF_NOCOPY_COEFFS)
+    : mFIRFilter(ARRAYSIZE(sCoeffs), sCoeffs, WWFIRFilter::WWFIRFF_SYMMETRY | WWFIRFilter::WWFIRFF_NOCOPY_COEFFS)
 {
 }
 

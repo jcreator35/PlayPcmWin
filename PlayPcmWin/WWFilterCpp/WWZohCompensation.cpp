@@ -17,8 +17,7 @@
  */
 
 #include "WWZohCompensation.h"
-
-static const int COEFF_LENGTH = 33;
+#include <Windows.h> //< ARRAYSIZE
 
 #define K  1.3909672824792
 
@@ -59,7 +58,7 @@ static const double gCoeffs[] = {
 };
 
 WWZohCompensation::WWZohCompensation(void)
-    : mFIRFilter(COEFF_LENGTH, gCoeffs, WWFIRFilter::WWFIRFF_SYMMETRY | WWFIRFilter::WWFIRFF_NOCOPY_COEFFS)
+    : mFIRFilter(ARRAYSIZE(gCoeffs), gCoeffs, WWFIRFilter::WWFIRFF_SYMMETRY | WWFIRFilter::WWFIRFF_NOCOPY_COEFFS)
 {
 }
 
