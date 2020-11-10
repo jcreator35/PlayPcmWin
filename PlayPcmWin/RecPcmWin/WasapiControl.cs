@@ -70,8 +70,7 @@ namespace RecPcmWin {
                 return new LargeArray<byte>(0);
             }
 
-            mCapturedPcmData.Resize(mNextWritePos);
-            return mCapturedPcmData;
+            return mCapturedPcmData.Resize(mNextWritePos);
         }
 
         public void RegisterStateChangedCallback(Wasapi.WasapiCS.StateChangedCallback callback) {
