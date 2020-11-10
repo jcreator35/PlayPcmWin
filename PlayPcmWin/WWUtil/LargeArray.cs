@@ -120,7 +120,7 @@ namespace WWUtil {
         }
 
         /// <summary>
-        /// インスタンスを複製するが、新しいインスタンスの要素数はnewCount個にする。
+        /// 要素数newCount個のインスタンスを作り、内容をコピーする。
         /// つまり内容を最大newCount個コピーする。自分自身は変わらない。
         /// </summary>
         /// <param name="newCount">returnで戻る新しいインスタンスの要素数</param>
