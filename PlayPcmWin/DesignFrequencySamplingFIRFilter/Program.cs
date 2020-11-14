@@ -40,7 +40,8 @@ namespace DesignFrequencySamplingFIRFilter {
 
                     Console.WriteLine("{0},{1}", f, gainDB);
                 }
-                for (double f = 10; f < fs / 2; f *= Math.Pow(2, 1.0 / 12.0)) {
+                //for (double f = 10; f < fs / 2; f *= Math.Pow(2, 1.0 / 12.0)) {
+                for (double f = 10; f < fs / 2; f +=10) {
                     var fr = new CalcFIRFilterFrequencyResponse();
                     double ω = 2.0 * Math.PI * f / fs;
                     var gain = fr.Calc(h, ω);
@@ -58,6 +59,14 @@ namespace DesignFrequencySamplingFIRFilter {
             var self = new Program();
 
             // T(f) -------------------------------
+
+            self.Run(9, new double[] {
+                1,
+                0.60004356,
+                0.420524967,
+                0.361602897,
+                0.336724814,
+            });
 
             self.Run(15, new double[] {
                 1,

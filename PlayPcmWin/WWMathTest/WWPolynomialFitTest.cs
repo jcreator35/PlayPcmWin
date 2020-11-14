@@ -8,7 +8,9 @@ namespace WWMathTest {
     public class WWPolynomialFitTest {
         [TestMethod]
         public void PolynomialFitTest1() {
+            // x: frequency (kHz)
             var x = new double[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
+            // y_dB: filter gain (dB)
             var y_dB = new double[] {
                 0, -0.37,-1.29,-2.43,-3.54,
                 -4.53,-5.38,-6.09,-6.69,-7.19,
@@ -17,11 +19,11 @@ namespace WWMathTest {
                 -9.49,
             };
 
-#if false
+#if true
             var r = WWPolynomialFit.Calc(y_dB, x, 6);
 
             /*
-             Result:
+             6th degree polynomial fit Result:
              
              y_dB = -0.0000029212346025337816 x^6
                  +0.00020291497408909238 x^5
@@ -32,11 +34,11 @@ namespace WWMathTest {
                  +0.028327961846712043
             */
 #endif
-#if true
+#if false
             var r = WWPolynomialFit.Calc(y_dB, x, 8);
 
             /*
-             Result:
+            8th degree polynomial fit result:
             -0.0013195438852613571	
             0.11547946279072106	
             -0.59831464200680629	
@@ -52,7 +54,7 @@ namespace WWMathTest {
             var r = WWPolynomialFit.Calc(y_dB, x, 10);
 
             /*
-             Result:
+            10th degree polynomial fit result:
              
             -0.00055308348316090181	
             0.0753739383629172	
@@ -68,6 +70,7 @@ namespace WWMathTest {
             */
 #endif
 #if false
+            // linear y version (fitting performance becomes worse)
             var y = new double[y_dB.Length];
             for (int i = 0; i < y.Length; ++i) {
                 y[i] = Math.Pow(10, y_dB[i] / 20.0);
