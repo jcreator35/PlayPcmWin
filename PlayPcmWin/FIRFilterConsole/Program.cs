@@ -132,7 +132,7 @@ namespace FIRFilterConsole {
         static void PrintUsage() {
             Console.WriteLine("Usage: FIRFilterConsole inFile.flac gaindB firFilterFile.txt outFile.flac");
             Console.WriteLine("  firFilterFile contains FIR filter coefficients, one coeff in one line.");
-            Console.WriteLine("Example: FIRFilterConsole inFile.flac 0 PreEmp.txt outFile.flac");
+            Console.WriteLine("Example: FIRFilterConsole inFile.flac -3.1 PreEmp.txt outFile.flac");
         }
 
         static void Main(string[] args) {
@@ -156,6 +156,13 @@ namespace FIRFilterConsole {
             
             string firCoeffsFile = args[2];
             string outFile = args[3];
+
+            if (0 == string.Compare(inFile, outFile)) {
+                Console.WriteLine("Error: inFile and outFile is the same file!");
+                PrintUsage();
+                Environment.ExitCode = 1;
+                return;
+            }
 
             var self = new Program();
 
