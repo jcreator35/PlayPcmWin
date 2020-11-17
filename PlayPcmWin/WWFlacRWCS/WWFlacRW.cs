@@ -155,6 +155,111 @@ namespace WWFlacRWCS {
         }
 
         /// <summary>
+        /// 指定チャンネルのPCMデータを取得。
+        /// </summary>
+        /// <param name="ch">チャンネル番号 0から始まる。</param>
+        /// <param name="posSamples">取得開始サンプル番号。</param>
+        /// <param name="copySamples">取得するサンプル数。</param>
+        /// <returns>float型のPCMデータ。-1 ≦ v ＜ +1</returns>
+        public LargeArray<float> GetFloatPcmOfChannel(int ch, long posSamples, long copySamples) {
+            System.Diagnostics.Debug.Assert(mDecodedMetadata != null);
+            System.Diagnostics.Debug.Assert(mPcmAllBuffer != null);
+            System.Diagnostics.Debug.Assert(0 <= ch && ch < mDecodedMetadata.channels);
+
+            int bpf = mDecodedMetadata.BytesPerFrame;
+            int bps = mDecodedMetadata.BytesPerSample;
+
+            // copySamplesを決定します。
+            long totalSamples = mPcmAllBuffer.LongLength / bpf;
+            if (totalSamples < posSamples + copySamples) {
+                copySamples = (int)(totalSamples - posSamples);
+            }
+            if (copySamples < 0) {
+                copySamples = 0;
+            }
+
+            var samples = new LargeArray<float>(copySamples);
+            long toIdx = 0;
+
+            switch (bps) {
+            case 2:
+                for (long pos = posSamples; pos < posSamples + copySamples; ++pos) {
+                    long idx = bpf * pos + ch * bps;
+                    short vS = (short)(mPcmAllBuffer.At(idx) + 256 * mPcmAllBuffer.At(idx + 1));
+                    float vF = vS / 32768.0f;
+                    samples.Set(toIdx++, vF);
+                }
+                break;
+            case 3:
+                for (long pos = posSamples; pos < posSamples + copySamples; ++pos) {
+                    long idx = bpf * pos + ch * bps;
+                    int vI = (int)(256 * mPcmAllBuffer.At(idx) + 65536 * mPcmAllBuffer.At(idx + 1) +16777216 * mPcmAllBuffer.At(idx + 1));
+                    float vF = vI / 2147483648.0f;
+                    samples.Set(toIdx++, vF);
+                }
+                break;
+            default:
+                throw new ArgumentException(string.Format("Unexpected BytesPerSample {0}", bps));
+            }
+
+            return samples;
+        }
+
+        /// <summary>
+        /// float配列のPCMデータを指定ビットデプスのbyte配列PCMデータにする。
+        /// </summary>
+        public static LargeArray<byte> ConvertToByteArrayPCM(LargeArray<float> from, int bytesPerSample) {
+            var w = new LargeArray<byte>(from.LongLength * bytesPerSample);
+            long wIdx = 0;
+
+            switch (bytesPerSample) {
+            case 2:
+                for (long pos = 0; pos < from.LongLength; ++pos) {
+                    // 値vを取得。
+                    float vF = from.At(pos);
+                    if (vF < -1.0f) {
+                        vF = -1.0f;
+                    }
+                    if (32767.0f / 32768.0f < vF) {
+                        vF = 32767.0f / 32768.0f;
+                    }
+                    
+                    // 型変換。
+                    short vS = (short)(vF*32768.0f);
+
+                    // 書き込み。
+                    w.Set(wIdx++, (byte)(vS & 0xff));
+                    w.Set(wIdx++, (byte)((vS/256) & 0xff));
+                }
+                break;
+            case 3:
+                for (long pos = 0; pos < from.LongLength; ++pos) {
+                    // 値vを取得。
+                    float vF = from.At(pos);
+                    if (vF < -1.0f) {
+                        vF = -1.0f;
+                    }
+                    if (8388607.0f / 8388608.0f < vF) {
+                        vF = 8388607.0f / 8388608.0f;
+                    }
+
+                    // 型変換。
+                    int vI = (int)(vF * 2147483648.0f);
+
+                    // 書き込み。
+                    w.Set(wIdx++, (byte)(vI & 0xff));
+                    w.Set(wIdx++, (byte)((vI / 256) & 0xff));
+                    w.Set(wIdx++, (byte)((vI / 65536) & 0xff));
+                }
+                break;
+            default:
+                throw new ArgumentException(string.Format("Unexpected BytesPerSample {0}", bytesPerSample));
+            }
+
+            return w;
+        }
+
+        /// <summary>
         /// FLACファイルのヘッダー部分を読み込んでメタデータを取り出す。
         /// この関数呼び出し後
         /// ・GetDecodedMetadata()でメタデータを取り出す。

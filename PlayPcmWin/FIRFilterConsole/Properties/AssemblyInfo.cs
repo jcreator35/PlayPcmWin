@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("WWUtil")]
-[assembly: AssemblyDescription("miscellaneous utility functions")]
+[assembly: AssemblyTitle("FIRFilterConsoleVs2010")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("yamamoto2002")]
-[assembly: AssemblyProduct("WWUtil")]
-[assembly: AssemblyCopyright("Copyright © yamamoto2002 2016")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("FIRFilterConsoleVs2010")]
+[assembly: AssemblyCopyright("Copyright ©  2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("787058b0-61f6-4c60-b9f6-5567b8364473")]
+[assembly: Guid("b8c54a6c-58a4-41d3-97f8-ebf985016990")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.21.8")]
-[assembly: AssemblyFileVersion("1.0.21.8")]
+[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyFileVersion("1.0.0.0")]

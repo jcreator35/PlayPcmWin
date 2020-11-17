@@ -44,7 +44,9 @@ Open Visual Studio x64 Win64 command prompt and enter following commands to crea
  sn -k WWDirectCompute12Cs\WWDirectCompute12Cs.snk
  sn -k WWArbitraryResampler\WWArbitraryResampler.snk
  sn -k WWKeyClassifier2\WWKeyClassifier2.snk
-
+ sn -k WWKeyClassifier2\WWKeyClassifier2.snk
+ sn -k FIRFilterConsole\FIRFilterConsole.snk
+ 
 Open PlayPcmWin\PlayPcmWin.sln to build/run PlayPcmWin (choose Release x64 build target)
 
 Open PlayPcmWinAlbum\PPWA.sln to build/run PlayPcmWinAlbum (choose Release x64 build target)
