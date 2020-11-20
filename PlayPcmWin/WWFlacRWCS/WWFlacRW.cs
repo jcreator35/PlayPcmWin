@@ -142,7 +142,7 @@ namespace WWFlacRWCS {
             }
 
             if (fragment.Length < copySamples * bps) {
-                throw new ArgumentException("fragment");
+                throw new ArgumentException("fragment is too small");
             }
 
             for (int i = 0; i < copySamples; ++i) {
@@ -185,15 +185,21 @@ namespace WWFlacRWCS {
             case 2:
                 for (long pos = posSamples; pos < posSamples + copySamples; ++pos) {
                     long idx = bpf * pos + ch * bps;
-                    short vS = (short)(mPcmAllBuffer.At(idx) + 256 * mPcmAllBuffer.At(idx + 1));
+                    short vS = (short)(mPcmAllBuffer.At(idx) + (mPcmAllBuffer.At(idx + 1) <<8));
                     float vF = vS / 32768.0f;
                     samples.Set(toIdx++, vF);
+                    //Console.WriteLine("{0:+00000;-00000}", vS);
                 }
                 break;
             case 3:
                 for (long pos = posSamples; pos < posSamples + copySamples; ++pos) {
                     long idx = bpf * pos + ch * bps;
-                    int vI = (int)(256 * mPcmAllBuffer.At(idx) + 65536 * mPcmAllBuffer.At(idx + 1) +16777216 * mPcmAllBuffer.At(idx + 1));
+                    int vI = (int)((mPcmAllBuffer.At(idx + 0)<<8)
+                                 + (mPcmAllBuffer.At(idx + 1)<<16)
+                                 + (mPcmAllBuffer.At(idx + 2)<<24));
+
+                    //Console.WriteLine("{0:+00000000;-00000000}", vI);
+
                     float vF = vI / 2147483648.0f;
                     samples.Set(toIdx++, vF);
                 }
@@ -227,9 +233,11 @@ namespace WWFlacRWCS {
                     // 型変換。
                     short vS = (short)(vF*32768.0f);
 
+                    //Console.WriteLine("{0:+00000;-00000}", vS);
+
                     // 書き込み。
                     w.Set(wIdx++, (byte)(vS & 0xff));
-                    w.Set(wIdx++, (byte)((vS/256) & 0xff));
+                    w.Set(wIdx++, (byte)((vS>>8) & 0xff));
                 }
                 break;
             case 3:
@@ -247,9 +255,9 @@ namespace WWFlacRWCS {
                     int vI = (int)(vF * 2147483648.0f);
 
                     // 書き込み。
-                    w.Set(wIdx++, (byte)(vI & 0xff));
-                    w.Set(wIdx++, (byte)((vI / 256) & 0xff));
-                    w.Set(wIdx++, (byte)((vI / 65536) & 0xff));
+                    w.Set(wIdx++, (byte)((vI>>8) & 0xff));
+                    w.Set(wIdx++, (byte)((vI>>16) & 0xff));
+                    w.Set(wIdx++, (byte)((vI>>24) & 0xff));
                 }
                 break;
             default:

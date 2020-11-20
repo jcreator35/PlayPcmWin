@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using WWUtil;
 using WWFlacRWCS;
+using System.Threading.Tasks;
 
 namespace FIRFilterConsole {
     class Program {
@@ -80,10 +81,11 @@ namespace FIRFilterConsole {
                 Console.WriteLine("  SampleRate={0}Hz, BitDepth={1}, Channels={2}", meta.sampleRate, meta.bitsPerSample, meta.channels);
 
                 // FIR係数を畳み込む。
+                // 申し訳程度の最適化：2チャンネル音声の場合2スレッドで並列動作。
                 float maxMagnitude = 0;
-                for (int ch = 0; ch < meta.channels; ++ch) {
+                Parallel.For(0, meta.channels, ch => {
                     var inData = fr.GetFloatPcmOfChannel(ch, 0, meta.totalSamples);
-
+#if true
                     var conv = new FIRConvolution();
 
                     var convoluted = conv.Convolution(inData, coeffs);
@@ -92,8 +94,12 @@ namespace FIRFilterConsole {
                         maxMagnitude = conv.MaxMagnitude;
                     }
                     var pcm = FlacRW.ConvertToByteArrayPCM(convoluted, meta.BytesPerSample);
+#else
+                    // debug: output unchanged input file
+                    var pcm = FlacRW.ConvertToByteArrayPCM(inData, meta.BytesPerSample);
+#endif
                     writePcmList.Add(pcm);
-                }
+                });
 
                 if (8388607.0f / 8388608.0f < maxMagnitude) {
                     Console.WriteLine("Error: convolution result PCM value overflow. Please reduce input PCM gain further by {0:0.00} dB",
