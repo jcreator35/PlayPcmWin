@@ -80,6 +80,10 @@ namespace FIRFilterConsole {
 
                 Console.WriteLine("  SampleRate={0}Hz, BitDepth={1}, Channels={2}", meta.sampleRate, meta.bitsPerSample, meta.channels);
 
+                for (int ch = 0; ch < meta.channels; ++ch) {
+                    writePcmList.Add(null);
+                }
+
                 // FIR係数を畳み込む。
                 // 申し訳程度の最適化：2チャンネル音声の場合2スレッドで並列動作。
                 float maxMagnitude = 0;
@@ -98,7 +102,7 @@ namespace FIRFilterConsole {
                     // debug: output unchanged input file
                     var pcm = FlacRW.ConvertToByteArrayPCM(inData, meta.BytesPerSample);
 #endif
-                    writePcmList.Add(pcm);
+                    writePcmList[ch] = pcm;
                 });
 
                 if (8388607.0f / 8388608.0f < maxMagnitude) {
